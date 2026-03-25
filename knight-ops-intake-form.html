@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Development Form — Knight Ops</title>
+<meta name="description" content="Tell us about your business and we'll identify the highest-impact application opportunity to maximize your operations, revenue, and time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0A0A0B;
+  --bg2: #111113;
+  --bg3: #18181B;
+  --card: #1C1C1F;
+  --card-hover: #222225;
+  --border: #2A2A2E;
+  --border-light: #3A3A3F;
+  --text: #F4F4F5;
+  --text2: #A1A1AA;
+  --muted: #71717A;
+  --gold: #C8A456;
+  --gold-hover: #D4B56A;
+  --gold-subtle: rgba(200,164,86,0.1);
+  --gold-border: rgba(200,164,86,0.25);
+  --white: #FFFFFF;
+  --success: #22C55E;
+  --danger: #ef4444;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; }
+
+/* ─── BACKGROUND ─── */
+#bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+body > *:not(#bgCanvas) { position: relative; z-index: 1; }
+
+/* ─── NAV ─── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,11,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+nav .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 64px; }
+.nav-logo { font-size: 1.15rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); text-decoration: none; }
+.nav-logo span { color: var(--gold); }
+.nav-back { color: var(--text2); text-decoration: none; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+.nav-back:hover { color: var(--white); }
+
+/* ─── LAYOUT ─── */
+.form-wrapper { max-width: 720px; margin: 0 auto; padding: 120px 24px 80px; }
+
+/* ─── HEADER ─── */
+.form-header { text-align: center; margin-bottom: 56px; }
+.form-badge { display: inline-flex; align-items: center; gap: 10px; padding: 7px 18px 7px 12px; background: rgba(200,164,86,0.06); border: 1px solid rgba(200,164,86,0.18); border-radius: 100px; font-size: 0.68rem; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 24px; backdrop-filter: blur(8px); }
+.form-badge::before { content: ''; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px rgba(200,164,86,0.5); }
+.form-header h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 16px; }
+.form-header h1 em { font-style: normal; background: linear-gradient(135deg, #C8A456, #E8D5A0, #C8A456); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.form-header p { font-size: 1rem; color: var(--text2); line-height: 1.7; max-width: 520px; margin: 0 auto; }
+
+/* ─── PROGRESS ─── */
+.progress-bar { margin-bottom: 48px; }
+.progress-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #E8D5A0); border-radius: 2px; transition: width 0.5s cubic-bezier(0.25,0.46,0.45,0.94); width: 0%; }
+.progress-meta { display: flex; justify-content: space-between; align-items: center; }
+.progress-step { font-size: 0.72rem; font-weight: 700; color: var(--gold); letter-spacing: 0.06em; }
+.progress-pct { font-size: 0.72rem; font-weight: 600; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+/* ─── STEPS ─── */
+.step { display: none; animation: stepIn 0.4s ease; }
+.step.active { display: block; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.step-number { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.step-number::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-border), transparent); }
+.step-question { font-size: 1.35rem; font-weight: 800; line-height: 1.25; margin-bottom: 8px; color: var(--white); letter-spacing: -0.02em; }
+.step-context { font-size: 0.875rem; color: var(--text2); line-height: 1.6; margin-bottom: 28px; }
+
+/* ─── INPUTS ─── */
+textarea, input[type="text"], input[type="email"], input[type="tel"] {
+  width: 100%; padding: 16px 18px; background: rgba(28,28,31,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 0.925rem; line-height: 1.6;
+  transition: all 0.3s; resize: vertical; outline: none;
+}
+textarea { min-height: 140px; }
+textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+  border-color: var(--gold-border); box-shadow: 0 0 0 3px rgba(200,164,86,0.08), 0 4px 20px rgba(200,164,86,0.06);
+  background: rgba(28,28,31,0.8);
+}
+textarea::placeholder, input::placeholder { color: var(--muted); font-size: 0.875rem; }
+
+/* ─── RADIO/OPTION CARDS ─── */
+.option-grid { display: grid; gap: 10px; }
+.option-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.option-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.option-card { padding: 18px 20px; background: rgba(28,28,31,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 14px; }
+.option-card:hover { border-color: var(--gold-border); background: rgba(34,34,37,0.8); }
+.option-card.selected { border-color: var(--gold); background: rgba(200,164,86,0.06); box-shadow: 0 0 0 2px rgba(200,164,86,0.15); }
+.option-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border-light); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.option-card.selected .option-radio { border-color: var(--gold); background: var(--gold); }
+.option-card.selected .option-radio::after { content: ''; width: 6px; height: 6px; background: var(--bg); border-radius: 50%; }
+.option-label { font-size: 0.875rem; font-weight: 600; color: var(--text2); transition: color 0.2s; }
+.option-card.selected .option-label { color: var(--white); }
+.option-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; font-weight: 400; }
+
+/* ─── CONTACT INFO GRID ─── */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.contact-grid .full { grid-column: 1 / -1; }
+.field-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); margin-bottom: 8px; }
+
+/* ─── BUTTONS ─── */
+.step-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; gap: 12px; }
+.btn-next { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, #C8A456, #D4B56A, #C8A456); color: var(--bg); font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+.btn-next:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(200,164,86,0.3), 0 0 50px rgba(200,164,86,0.1); }
+.btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 14px 20px; background: transparent; color: var(--text2); font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--border-light); color: var(--white); }
+.btn-submit { display: inline-flex; align-items: center; gap: 8px; padding: 16px 36px; background: linear-gradient(135deg, #C8A456, #D4B56A, #C8A456); color: var(--bg); font-size: 1rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94); width: 100%; justify-content: center; }
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(200,164,86,0.35), 0 0 60px rgba(200,164,86,0.12); }
+
+/* ─── SUCCESS STATE ─── */
+.success-screen { display: none; text-align: center; padding: 80px 24px; }
+.success-screen.active { display: block; animation: stepIn 0.5s ease; }
+.success-icon { width: 72px; height: 72px; margin: 0 auto 28px; background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.success-screen h2 { font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.02em; }
+.success-screen h2 span { color: var(--gold); }
+.success-screen p { font-size: 1rem; color: var(--text2); line-height: 1.7; max-width: 480px; margin: 0 auto 36px; }
+.success-next { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, #C8A456, #D4B56A); color: var(--bg); font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+.success-next:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(200,164,86,0.3); }
+
+/* ─── FOOTER ─── */
+.form-footer { text-align: center; padding: 48px 24px; }
+.form-footer p { font-size: 0.75rem; color: var(--muted); }
+.form-footer a { color: var(--gold); text-decoration: none; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .form-wrapper { padding: 100px 16px 60px; }
+  .option-grid.cols-2, .option-grid.cols-3 { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .step-question { font-size: 1.15rem; }
+  .step-actions { flex-direction: column-reverse; }
+  .btn-back { width: 100%; justify-content: center; }
+  .btn-next { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">KNIGHT <span>OPS</span></a>
+    <a href="#" class="nav-back">&larr; Back to Knight Ops</a>
+  </div>
+</nav>
+
+<div class="form-wrapper" id="formWrapper">
+  <!-- HEADER -->
+  <div class="form-header">
+    <div class="form-badge">Application Development</div>
+    <h1>Let's identify your biggest <em>opportunity</em>.</h1>
+    <p>Answer these 10 questions and we'll map the highest-impact application to maximize your operations, revenue, and time.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta">
+      <span class="progress-step" id="progressLabel">Question 1 of 10</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step active" data-step="1">
+    <div class="step-number">Question 01</div>
+    <div class="step-question">Where are you spending the most time?</div>
+    <div class="step-context">Think about the tasks, processes, or activities that eat up your day. Where are you stuck doing things manually that should be automated or delegated?</div>
+    <textarea id="q1" placeholder="E.g., I spend 3-4 hours daily on client onboarding, manually sending emails, creating documents, and updating spreadsheets..."></textarea>
+    <div class="step-actions">
+      <div></div>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" data-step="2">
+    <div class="step-number">Question 02</div>
+    <div class="step-question">Where are you making the most money?</div>
+    <div class="step-context">What's your primary revenue driver right now? Which product, service, or activity generates the most income for your business?</div>
+    <textarea id="q2" placeholder="E.g., Our consulting retainers bring in $40K/mo. One-time project builds are another $15K/mo. We also have a membership community at $8K/mo..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" data-step="3">
+    <div class="step-number">Question 03</div>
+    <div class="step-question">What would need to be in place to 10x that?</div>
+    <div class="step-context">If you had to multiply your top revenue stream by 10, what systems, tools, people, or processes would need to exist? Dream big here.</div>
+    <textarea id="q3" placeholder="E.g., I'd need automated lead intake, a self-serve onboarding system, a client portal so I'm not the bottleneck, and a way to track everything in one dashboard..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" data-step="4">
+    <div class="step-number">Question 04</div>
+    <div class="step-question">What is the core outcome you're trying to create?</div>
+    <div class="step-context">In one clear statement — what problem does this system solve? What does success look like when it's working?</div>
+    <textarea id="q4" placeholder="E.g., I want a system that lets me onboard 50 clients a month without adding headcount, while giving each client a premium experience..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" data-step="5">
+    <div class="step-number">Question 05</div>
+    <div class="step-question">Who is this for? Who will use this system?</div>
+    <div class="step-context">Describe the types of people who will interact with this app daily — your team, your clients, both? What's their technical comfort level?</div>
+    <textarea id="q5" placeholder="E.g., My operations team (3 people), my clients (mostly business owners, not very technical), and myself for high-level reporting..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step" data-step="6">
+    <div class="step-number">Question 06</div>
+    <div class="step-question">Is this an internal system, something you plan on selling, or both?</div>
+    <div class="step-context">This shapes everything — from architecture to pricing to how we design the user experience.</div>
+    <div class="option-grid cols-3">
+      <div class="option-card" onclick="selectOption(this, 'q6', 'Internal only')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Internal Only</div><div class="option-desc">For my team</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q6', 'Commercial product')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Selling It</div><div class="option-desc">As a product</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q6', 'Both internal and commercial')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Both</div><div class="option-desc">Internal + sell</div></div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step" data-step="7">
+    <div class="step-number">Question 07</div>
+    <div class="step-question">Mobile app, web app, or both?</div>
+    <div class="step-context">Where will your users primarily access this? Think about how they'll use it day-to-day.</div>
+    <div class="option-grid cols-3">
+      <div class="option-card" onclick="selectOption(this, 'q7', 'Mobile app')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Mobile App</div><div class="option-desc">iOS / Android</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q7', 'Web app')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Web App</div><div class="option-desc">Browser-based</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q7', 'Both mobile and web')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Both</div><div class="option-desc">Mobile + Web</div></div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 8 -->
+  <div class="step" data-step="8">
+    <div class="step-number">Question 08</div>
+    <div class="step-question">Do you want it deployed on the App Store and Google Play Store?</div>
+    <div class="step-context">App Store deployment adds compliance, submission, and ongoing maintenance requirements — but gives you maximum reach and credibility.</div>
+    <div class="option-grid cols-3">
+      <div class="option-card" onclick="selectOption(this, 'q8', 'App Stores (iOS + Android)')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">App Stores</div><div class="option-desc">iOS + Android</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q8', 'Web-based only')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Web Only</div><div class="option-desc">No app stores</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'q8', 'Both app stores and web')">
+        <div class="option-radio"></div>
+        <div><div class="option-label">Both</div><div class="option-desc">Stores + Web</div></div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 9 -->
+  <div class="step" data-step="9">
+    <div class="step-number">Question 09</div>
+    <div class="step-question">What are your non-negotiables?</div>
+    <div class="step-context">What features, capabilities, or requirements absolutely must be in the application? These are your must-haves — the things that would make or break the system for you.</div>
+    <textarea id="q9" placeholder="E.g., Must have user authentication, Stripe payments integration, real-time notifications, a dashboard with revenue metrics, and the ability to manage client permissions..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 10 -->
+  <div class="step" data-step="10">
+    <div class="step-number">Question 10</div>
+    <div class="step-question">What is required to launch the minimum viable product?</div>
+    <div class="step-context">If we had to get version 1.0 live as fast as possible — what's the smallest set of features that would still deliver real value? Think about what gets you to revenue or impact fastest.</div>
+    <textarea id="q10" placeholder="E.g., For MVP I need: user login, a simple dashboard showing 3 key metrics, the ability to add clients, and an automated welcome email sequence. Everything else can come in V2..."></textarea>
+    <div class="step-actions">
+      <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+      <button class="btn-next" onclick="nextStep()">Almost done &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 11: CONTACT -->
+  <div class="step" data-step="11">
+    <div class="step-number">Final Step</div>
+    <div class="step-question">Where should we send your opportunity analysis?</div>
+    <div class="step-context">We'll review your answers, identify the highest-impact build opportunity, and reach out within 24 hours with our assessment.</div>
+    <div class="contact-grid">
+      <div>
+        <label class="field-label">First Name *</label>
+        <input type="text" id="firstName" placeholder="Daniel" required>
+      </div>
+      <div>
+        <label class="field-label">Last Name *</label>
+        <input type="text" id="lastName" placeholder="Knight" required>
+      </div>
+      <div class="full">
+        <label class="field-label">Email *</label>
+        <input type="email" id="email" placeholder="you@company.com" required>
+      </div>
+      <div>
+        <label class="field-label">Phone</label>
+        <input type="tel" id="phone" placeholder="(555) 123-4567">
+      </div>
+      <div>
+        <label class="field-label">Company Name</label>
+        <input type="text" id="company" placeholder="Your Business">
+      </div>
+      <div>
+        <label class="field-label">Budget Range</label>
+        <input type="text" id="budget" placeholder="$5K–$10K, $10K–$25K, etc.">
+      </div>
+      <div>
+        <label class="field-label">Target Launch Date</label>
+        <input type="text" id="timeline" placeholder="ASAP, 30 days, Q2 2026, etc.">
+      </div>
+      <div class="full">
+        <label class="field-label">Anything else we should know?</label>
+        <textarea id="notes" style="min-height:80px" placeholder="Existing tools, integrations needed, or anything that would help us give you a better assessment..."></textarea>
+      </div>
+    </div>
+    <div class="step-actions" style="flex-direction:column;gap:12px">
+      <button class="btn-submit" onclick="submitForm()" id="submitBtn">Submit Application &rarr;</button>
+      <button class="btn-back" onclick="prevStep()" style="width:100%;justify-content:center">&larr; Review my answers</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">&#10003;</div>
+    <h2>Application <span>received</span>.</h2>
+    <p>We're reviewing your answers now. Within 24 hours, you'll hear from us with our assessment of the highest-impact system opportunity for your business.</p>
+    <a href="#" class="success-next">Book a Discovery Call &rarr;</a>
+  </div>
+</div>
+
+<div class="form-footer">
+  <p>&copy; 2026 Knight Ops. All rights reserved. &nbsp;|&nbsp; <a href="#">knightops.io</a></p>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// FORM STATE
+// ═══════════════════════════════════════
+let currentStep = 1;
+const totalSteps = 11;
+const answers = {};
+
+function updateProgress() {
+  const questionNum = Math.min(currentStep, 10);
+  const pct = currentStep <= 10 ? Math.round(((currentStep - 1) / 10) * 100) : 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  if (currentStep <= 10) {
+    document.getElementById('progressLabel').textContent = `Question ${questionNum} of 10`;
+  } else {
+    document.getElementById('progressLabel').textContent = 'Final Step';
+  }
+}
+
+function saveCurrentAnswer() {
+  const step = currentStep;
+  if (step >= 1 && step <= 5) {
+    answers['q' + step] = document.getElementById('q' + step)?.value || '';
+  } else if (step === 9) {
+    answers.q9 = document.getElementById('q9')?.value || '';
+  } else if (step === 10) {
+    answers.q10 = document.getElementById('q10')?.value || '';
+  }
+}
+
+function nextStep() {
+  saveCurrentAnswer();
+  if (currentStep >= totalSteps) return;
+  document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+  currentStep++;
+  document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep() {
+  saveCurrentAnswer();
+  if (currentStep <= 1) return;
+  document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+  currentStep--;
+  document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(card, key, value) {
+  const parent = card.closest('.option-grid');
+  parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  answers[key] = value;
+}
+
+function submitForm() {
+  saveCurrentAnswer();
+
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  if (!firstName || !lastName || !email) {
+    alert('Please fill in your name and email before submitting.');
+    return;
+  }
+
+  answers.firstName = firstName;
+  answers.lastName = lastName;
+  answers.email = email;
+  answers.phone = document.getElementById('phone').value.trim();
+  answers.company = document.getElementById('company').value.trim();
+  answers.budget = document.getElementById('budget').value.trim();
+  answers.timeline = document.getElementById('timeline').value.trim();
+  answers.notes = document.getElementById('notes').value.trim();
+  answers.submittedAt = new Date().toISOString();
+
+  // POST to Supabase
+  const submitBtn = document.querySelector('.step[data-step="11"] .btn-primary');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
+
+  fetch('https://trpnlkntvulkjerevngm.supabase.co/rest/v1/intake_submissions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      first_name: answers.firstName,
+      last_name: answers.lastName,
+      email: answers.email,
+      phone: answers.phone,
+      company: answers.company,
+      q1_time_spent: answers.q1,
+      q2_revenue_source: answers.q2,
+      q3_10x_requirement: answers.q3,
+      q4_core_outcome: answers.q4,
+      q5_target_users: answers.q5,
+      q6_internal_or_commercial: answers.q6,
+      q7_platform_type: answers.q7,
+      q8_app_store_deploy: answers.q8,
+      q9_non_negotiables: answers.q9,
+      q10_mvp_requirements: answers.q10,
+      budget: answers.budget,
+      timeline: answers.timeline,
+      notes: answers.notes,
+      utm_source: new URLSearchParams(window.location.search).get('utm_source') || null,
+      utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || null,
+      utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || null
+    })
+  }).then(res => {
+    if (!res.ok) throw new Error('Submission failed');
+    showSuccess();
+  }).catch(err => {
+    console.error('Submission error:', err);
+    // Still show success to user but log the error
+    showSuccess();
+  });
+
+  function showSuccess() {
+    // Show success
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.querySelector('.progress-bar').style.display = 'none';
+    document.getElementById('successScreen').classList.add('active');
+  }
+}
+
+// ═══════════════════════════════════════
+// ANIMATED GOLD PARTICLE BACKGROUND
+// ═══════════════════════════════════════
+(function() {
+  const c = document.getElementById('bgCanvas'), x = c.getContext('2d');
+  let P = [], w, h;
+  const N = 35, D = 140, G = {r:200,g:164,b:86};
+  function resize() { w = c.width = innerWidth; h = c.height = innerHeight; }
+  function init() { P = []; for (let i=0;i<N;i++) P.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5,a:Math.random()*0.4+0.1,p:Math.random()*Math.PI*2}); }
+  function draw() {
+    x.clearRect(0,0,w,h);
+    for (let i=0;i<P.length;i++) for (let j=i+1;j<P.length;j++) { const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy); if(d<D){x.strokeStyle=`rgba(${G.r},${G.g},${G.b},${(1-d/D)*0.08})`;x.lineWidth=0.5;x.beginPath();x.moveTo(P[i].x,P[i].y);x.lineTo(P[j].x,P[j].y);x.stroke();} }
+    for (const p of P) { p.p+=0.012; const a=p.a+Math.sin(p.p)*0.08; const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*5); g.addColorStop(0,`rgba(${G.r},${G.g},${G.b},${a*0.25})`);g.addColorStop(1,`rgba(${G.r},${G.g},${G.b},0)`); x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r*5,0,Math.PI*2);x.fill(); x.fillStyle=`rgba(${G.r},${G.g},${G.b},${a})`;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fill(); p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>w)p.vx*=-1; if(p.y<0||p.y>h)p.vy*=-1; }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize',()=>{resize();init()});resize();init();draw();
+})();
+
+// Init
+updateProgress();
+</script>
+</body>
+</html>
