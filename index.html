@@ -123,8 +123,9 @@ section { padding: 100px 0; }
 .svc-pill.active { border-color: var(--accent); background: var(--accent-subtle); color: var(--accent); }
 .svc-pill.active svg { color: var(--accent); }
 
-.svc-showcase { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; margin-top: 20px; align-items: start; }
+.svc-showcase { display: flex; flex-direction: column; gap: 28px; margin-top: 20px; }
 .svc-demo { background: var(--bg-card); border: 1px solid var(--accent-border); border-radius: 16px; overflow: hidden; }
+.svc-demo-actions { display: flex; gap: 12px; flex-wrap: wrap; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.2); }
 .svc-demo-inner { animation: demo-fade 0.35s ease; }
 @keyframes demo-fade { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
 
@@ -274,6 +275,10 @@ section { padding: 100px 0; }
 .process-step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--white); }
 .process-step p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
 .step-tag { display: inline-block; margin-top: 16px; padding: 4px 12px; background: var(--accent-subtle); border: 1px solid var(--accent-border); border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.process-step-btn { display: inline-block; margin-top: 14px; padding: 10px 22px; font-size: 0.8rem; font-weight: 700; color: var(--text-primary); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; transition: all 0.3s; }
+.process-step-btn:hover { border-color: var(--accent-border); background: var(--accent-subtle); color: var(--accent); }
+.process-step-btn.featured { background: linear-gradient(135deg, #C8A456 0%, #D4B56A 50%, #C8A456 100%); color: var(--bg-primary); border: none; }
+.process-step-btn.featured:hover { box-shadow: 0 4px 20px rgba(200,164,86,0.3); transform: translateY(-1px); }
 
 /* ─── COMPARE BOX ─── */
 .compare-box { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
@@ -311,6 +316,23 @@ section { padding: 100px 0; }
 .booking-step-num { flex-shrink: 0; width: 36px; height: 36px; background: var(--accent); color: var(--bg-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; }
 .booking-step-text { font-size: 0.925rem; color: var(--text-secondary); line-height: 1.6; padding-top: 6px; }
 .booking-step-text strong { color: var(--white); }
+.booking-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.booking-guide-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 28px 24px; cursor: pointer; transition: all 0.3s; position: relative; }
+.booking-guide-card:hover { border-color: var(--accent-border); background: rgba(200,164,86,0.03); }
+.booking-guide-card.featured { border-color: var(--accent-border); background: rgba(200,164,86,0.04); }
+.booking-guide-card.featured::before { content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.booking-guide-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.booking-guide-header h4 { font-size: 1.1rem; font-weight: 800; color: var(--white); }
+.booking-guide-tag { padding: 3px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.booking-guide-tag.free { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+.booking-guide-tag.featured { background: var(--accent-subtle); color: var(--accent); border: 1px solid var(--accent-border); }
+.booking-guide-price { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+.booking-guide-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.booking-guide-list { list-style: none; padding: 0; margin: 0 0 16px 0; }
+.booking-guide-list li { font-size: 0.8rem; color: var(--text-secondary); padding: 4px 0 4px 18px; position: relative; line-height: 1.5; }
+.booking-guide-list li::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.booking-guide-who { font-size: 0.8rem; color: var(--text-muted); padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); line-height: 1.5; }
+.booking-guide-who strong { color: var(--accent); }
 .booking-right { background: var(--bg-card); border: 1px solid var(--accent-border); border-radius: 18px; overflow: hidden; }
 .booking-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
 .booking-tab { padding: 18px 24px; text-align: center; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); cursor: pointer; transition: all 0.25s; border: none; background: transparent; position: relative; }
@@ -344,7 +366,7 @@ footer .container { display: flex; justify-content: space-between; align-items: 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 1024px) {
   .why-grid, .founder-grid, .booking-layout, .compare-box { grid-template-columns: 1fr; gap: 40px; }
-  .svc-showcase { grid-template-columns: 1fr; }
+  .booking-guide { grid-template-columns: 1fr; }
   .process-steps { grid-template-columns: 1fr 1fr; }
   .faq-grid { grid-template-columns: 1fr; }
   .fc-ba { grid-template-columns: 1fr; gap: 12px; }
@@ -573,8 +595,8 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     <h2 class="section-title fade-up">From first conversation to working system — here's the exact path.</h2>
     <p class="section-subtitle fade-up">No 6-month timelines. No bloated discovery phases. Every step is designed so you stay in control and see exactly what you're getting before you invest further.</p>
     <div class="process-steps">
-      <div class="process-step fade-up"><div class="step-number">1</div><h3>Discovery Call</h3><p>A relaxed 30-minute conversation where we listen, ask the right questions, and help you see your biggest operational bottleneck with fresh eyes.</p><span class="step-tag">Free &bull; 30 min</span></div>
-      <div class="process-step fade-up" id="blueprint"><div class="step-number">2</div><h3>Blueprint Session</h3><p>A focused 90-minute working session where we map your vision, architect the system, and bring it to life — you'll see your future system take shape in real time.</p><span class="step-tag">$750 &bull; 90 min</span></div>
+      <div class="process-step fade-up"><div class="step-number">1</div><h3>Discovery Call</h3><p>A relaxed 30-minute conversation where we listen, ask the right questions, and help you see your biggest operational bottleneck with fresh eyes.</p><span class="step-tag">Free &bull; 30 min</span><a href="#book" class="process-step-btn" onclick="switchTab('discovery')">Book Free Discovery Call &rarr;</a></div>
+      <div class="process-step fade-up" id="blueprint"><div class="step-number">2</div><h3>Blueprint Session</h3><p>A focused 90-minute working session where we map your vision, architect the system, and bring it to life — you'll see your future system take shape in real time.</p><span class="step-tag">$750 &bull; 90 min</span><a href="#book" class="process-step-btn featured" onclick="switchTab('blueprint')">Book Blueprint Session &rarr;</a></div>
       <div class="process-step fade-up"><div class="step-number">3</div><h3>Build Sprint</h3><p>Custom-scoped implementation. We design, build, and deploy your system — keeping you in the loop at every milestone. Precise. Usable from day one.</p><span class="step-tag">Custom scope</span></div>
       <div class="process-step fade-up"><div class="step-number">4</div><h3>Optimize & Scale</h3><p>Post-launch support to refine and extend your system as your business evolves. Your system grows with you.</p><span class="step-tag">Optional</span></div>
     </div>
@@ -645,10 +667,10 @@ footer .container { display: flex; justify-content: space-between; align-items: 
 
     <!-- CTA after founder -->
     <div class="inline-cta fade-up" style="margin-top:64px">
-      <h3>Let's have a conversation about <span>your vision</span>.</h3>
-      <p>Bring the problem — we'll help you see the solution. If we're not the right fit, we'll tell you.</p>
-      <div class="cta-benefits"><span class="cta-benefit"><span class="cta-benefit-dot"></span>Vision to Blueprint</span><span class="cta-benefit"><span class="cta-benefit-dot"></span>Actionable Next Steps</span><span class="cta-benefit"><span class="cta-benefit-dot"></span>You Keep Everything</span></div>
-      <a href="#book" class="btn-primary">Book Your Blueprint &rarr;</a>
+      <h3>Meet Daniel. Talk about <span>your vision</span>.</h3>
+      <p>A real conversation with the person who'll actually build your system. No sales team. No gatekeepers. Just honest, direct feedback on what's possible.</p>
+      <div class="cta-benefits"><span class="cta-benefit"><span class="cta-benefit-dot"></span>30 Minutes</span><span class="cta-benefit"><span class="cta-benefit-dot"></span>Completely Free</span><span class="cta-benefit"><span class="cta-benefit-dot"></span>Zero Obligation</span></div>
+      <a href="#book" class="btn-primary" onclick="switchTab('discovery')">Book a Free Discovery Call &rarr;</a>
     </div>
   </div>
 </section>
@@ -676,11 +698,31 @@ footer .container { display: flex; justify-content: space-between; align-items: 
       <div class="booking-left fade-up">
         <h3>Let's Build Your <span>Unfair Advantage</span></h3>
         <p>You already know what needs to change. The next step takes less than two minutes. Choose the path that matches where you are right now.</p>
-        <div class="booking-steps">
-          <div class="booking-step"><div class="booking-step-num">1</div><div class="booking-step-text"><strong>Choose your session.</strong> Discovery (free, 30 min) to explore — or Blueprint ($750, 90 min) to build your plan.</div></div>
-          <div class="booking-step"><div class="booking-step-num">2</div><div class="booking-step-text"><strong>We dig in together.</strong> You'll feel heard. We'll map your bottleneck and show you exactly what's possible.</div></div>
-          <div class="booking-step"><div class="booking-step-num">3</div><div class="booking-step-text"><strong>You see the vision come to life.</strong> Blueprint clients walk out with a structured, build-ready system plan.</div></div>
-          <div class="booking-step"><div class="booking-step-num">4</div><div class="booking-step-text"><strong>You decide.</strong> If you want us to build it, your $750 applies to the project. If not, you keep the plan — it's yours.</div></div>
+        <div class="booking-guide">
+          <div class="booking-guide-card" onclick="switchTab('discovery');document.getElementById('book').scrollIntoView({behavior:'smooth',block:'start'});">
+            <div class="booking-guide-header"><span class="booking-guide-tag free">Free</span><h4>Discovery Call</h4></div>
+            <div class="booking-guide-price">$0 &bull; 30 minutes</div>
+            <p class="booking-guide-desc">Best if you're exploring, have a rough idea, or want honest feedback before committing to anything.</p>
+            <ul class="booking-guide-list">
+              <li>Identify your biggest operational bottleneck</li>
+              <li>Get clarity on what's possible</li>
+              <li>Honest feedback — even if we're not the right fit</li>
+              <li>Zero pressure, zero obligation</li>
+            </ul>
+            <div class="booking-guide-who"><strong>Choose this if:</strong> You're not 100% sure what you need yet, or you want to talk it through before investing.</div>
+          </div>
+          <div class="booking-guide-card featured" onclick="switchTab('blueprint');document.getElementById('book').scrollIntoView({behavior:'smooth',block:'start'});">
+            <div class="booking-guide-header"><span class="booking-guide-tag featured">Most Popular</span><h4>Blueprint Session</h4></div>
+            <div class="booking-guide-price">$750 &bull; 90 minutes &bull; Applied to build</div>
+            <p class="booking-guide-desc">Best if you know what you want and you're ready to see it architected in real time.</p>
+            <ul class="booking-guide-list">
+              <li>Deep dive into your business model &amp; workflows</li>
+              <li>Full system architecture built with you live</li>
+              <li>Walk away with a build-ready plan you own forever</li>
+              <li>$750 credited toward your project if you move forward</li>
+            </ul>
+            <div class="booking-guide-who"><strong>Choose this if:</strong> You're ready to move and want a concrete plan with clear next steps.</div>
+          </div>
         </div>
       </div>
       <div class="booking-right fade-up">
@@ -810,10 +852,9 @@ function showService(key) {
   document.querySelectorAll('.svc-pill').forEach(p => p.classList.remove('active'));
   document.querySelector(`.svc-pill[data-svc="${key}"]`).classList.add('active');
   const s = SVC[key];
-  document.getElementById('svcDemo').innerHTML = `<div class="svc-demo-inner">${s.demo}</div>`;
+  document.getElementById('svcDemo').innerHTML = `<div class="svc-demo-inner">${s.demo}</div><div class="svc-demo-actions"><a href="#book" class="btn-primary" onclick="switchTab('discovery')" style="font-size:0.85rem;padding:12px 24px;">Book a Free Discovery Call &rarr;</a><a href="#book" class="btn-secondary" onclick="switchTab('blueprint')" style="font-size:0.85rem;padding:12px 24px;">Book Blueprint Session &rarr;</a><a href="/apply" class="btn-secondary" style="font-size:0.85rem;padding:12px 24px;border-color:var(--accent);color:var(--accent);">Submit a Development Request &rarr;</a></div>`;
   let h = `<div class="svc-cases-title">How This Makes You Money</div><div class="svc-cases-heading">${s.title}</div><div class="svc-cases-sub">${s.sub}</div>`;
   s.cases.forEach(c => { h += `<div class="use-case"><div class="use-case-label">${c.label}</div><div class="use-case-text">${c.text}</div><div class="use-case-result">${c.result}</div></div>`; });
-  h += `<a href="#book" class="svc-cta">Build Your App & Book a Call Today &rarr;</a>`;
   document.getElementById('svcCases').innerHTML = h;
 }
 showService('dashboard');
