@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Armory — Knight Ops App Marketplace</title>
+<meta name="description" content="Premium software solutions built by Knight Ops. Dashboards, AI tools, event platforms, and more — built for entrepreneurs who operate at the highest level.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #111113;
+  --bg-tertiary: #18181B;
+  --bg-card: #1C1C1F;
+  --bg-card-hover: #222225;
+  --border: #2A2A2E;
+  --border-light: #3A3A3F;
+  --text-primary: #F4F4F5;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --accent: #C8A456;
+  --accent-hover: #D4B56A;
+  --accent-subtle: rgba(200, 164, 86, 0.1);
+  --accent-border: rgba(200, 164, 86, 0.25);
+  --white: #FFFFFF;
+  --success: #22C55E;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ─── CANVAS ─── */
+#bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+body > *:not(#bgCanvas) { position: relative; z-index: 1; }
+
+/* ─── NAV ─── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,11,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+nav .container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
+.nav-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); text-decoration: none; transition: all 0.3s; }
+.nav-logo span { color: var(--accent); }
+.nav-logo:hover { text-shadow: 0 0 20px rgba(200,164,86,0.3); }
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta { background: var(--accent) !important; color: var(--bg-primary) !important; padding: 10px 22px !important; border-radius: 8px; font-weight: 600 !important; transition: background 0.2s !important; }
+.nav-cta:hover { background: var(--accent-hover) !important; }
+.mobile-menu-btn { display: none; background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; }
+
+/* ─── HERO ─── */
+.hero { padding: 160px 0 80px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle, rgba(200,164,86,0.06) 0%, rgba(200,164,86,0.02) 30%, transparent 65%); pointer-events: none; }
+.hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px 8px 14px; background: rgba(200,164,86,0.06); border: 1px solid rgba(200,164,86,0.18); border-radius: 100px; font-size: 0.72rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 36px; backdrop-filter: blur(8px); }
+.hero-badge::before { content: ''; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse-dot 2s infinite; box-shadow: 0 0 8px rgba(200,164,86,0.6); }
+@keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.hero h1 { font-size: clamp(2.5rem,5.5vw,4rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+.hero h1 .gold { background: linear-gradient(135deg, #C8A456 0%, #E8D5A0 40%, #C8A456 60%, #A08030 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: gold-shift 6s ease infinite; }
+@keyframes gold-shift { 0%,100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }
+
+.hero-sub { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 48px; line-height: 1.75; }
+
+.hero-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.hero-stat { text-align: center; }
+.hero-stat-num { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 800; color: var(--white); display: block; }
+.hero-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 4px; }
+
+/* ─── FILTER BAR ─── */
+.filter-bar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 48px; }
+.filter-btn { padding: 8px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.25s; font-family: inherit; }
+.filter-btn:hover { border-color: var(--accent-border); color: var(--text-secondary); }
+.filter-btn.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
+
+/* ─── APP GRID ─── */
+.apps-section { padding: 0 0 100px; }
+.apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+
+.app-card { background: rgba(28,28,31,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 0; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.app-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; transition: opacity 0.4s; }
+.app-card:hover { border-color: rgba(200,164,86,0.3); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(200,164,86,0.08), inset 0 1px 0 rgba(255,255,255,0.04); }
+.app-card:hover::before { opacity: 1; }
+
+.app-card-header { padding: 28px 28px 0; display: flex; align-items: flex-start; gap: 16px; }
+.app-icon { width: 56px; height: 56px; background: var(--accent-subtle); border: 1px solid var(--accent-border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.app-header-text { flex: 1; }
+.app-name { font-size: 1.15rem; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+.app-category { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+
+.app-card-body { padding: 16px 28px 0; flex: 1; }
+.app-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 16px; }
+.app-features { list-style: none; margin-bottom: 0; }
+.app-features li { font-size: 0.78rem; color: var(--text-secondary); padding: 4px 0 4px 20px; position: relative; line-height: 1.5; }
+.app-features li::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+.app-card-footer { padding: 20px 28px 28px; margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,0.04); margin-top: 20px; }
+.app-price { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--accent); }
+.app-price-period { font-size: 0.7rem; font-weight: 500; color: var(--text-muted); }
+.app-actions { display: flex; gap: 8px; }
+
+.btn-launch { padding: 9px 20px; background: linear-gradient(135deg, #C8A456 0%, #D4B56A 50%, #C8A456 100%); color: var(--bg-primary); font-size: 0.78rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-launch:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,164,86,0.35); }
+.btn-details { padding: 9px 16px; background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 0.78rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+.btn-details:hover { border-color: var(--accent-border); color: var(--accent); }
+
+/* ─── FEATURED BADGE ─── */
+.app-card.featured { border-color: var(--accent-border); }
+.app-card.featured::before { opacity: 1; }
+.featured-badge { position: absolute; top: 16px; right: 16px; padding: 3px 10px; background: var(--accent-subtle); border: 1px solid var(--accent-border); border-radius: 6px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+
+/* ─── CTA SECTION ─── */
+.cta-section { padding: 80px 0 120px; }
+.cta-box { text-align: center; padding: 48px 32px; background: linear-gradient(135deg, rgba(200,164,86,0.04) 0%, var(--bg-card) 50%, rgba(200,164,86,0.03) 100%); border: 1px solid var(--accent-border); border-radius: 16px; position: relative; overflow: hidden; }
+.cta-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.cta-box h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 12px; color: var(--white); }
+.cta-box h2 span { color: var(--accent); }
+.cta-box p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; max-width: 560px; margin: 0 auto 28px; }
+.cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, #C8A456 0%, #D4B56A 50%, #C8A456 100%); color: var(--bg-primary); font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(200,164,86,0.35); }
+.btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: rgba(255,255,255,0.03); color: var(--text-primary); font-size: 0.9rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+.btn-secondary:hover { border-color: rgba(200,164,86,0.35); background: rgba(200,164,86,0.06); }
+
+/* ─── FOOTER ─── */
+footer { padding: 48px 0; border-top: 1px solid var(--border); }
+footer .container { display: flex; justify-content: space-between; align-items: center; }
+.footer-brand { font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; color: var(--white); }
+.footer-brand span { color: var(--accent); }
+.footer-copy { font-size: 0.8rem; color: var(--text-muted); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 500; transition: color 0.2s; }
+.footer-links a:hover { color: var(--accent); }
+
+/* ─── ANIMATIONS ─── */
+.fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .mobile-menu-btn { display: block; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: var(--bg-primary); border-bottom: 1px solid var(--border); padding: 24px; gap: 16px; }
+  .hero { padding: 130px 0 60px; }
+  .hero h1 { font-size: clamp(2rem,7vw,3rem); }
+  .hero-stats { gap: 24px; }
+  .hero-stat-num { font-size: 1.5rem; }
+  .apps-grid { grid-template-columns: 1fr; }
+  .app-card-footer { flex-direction: column; align-items: stretch; }
+  .app-actions { justify-content: stretch; }
+  .app-actions a { flex: 1; text-align: center; justify-content: center; }
+  footer .container { flex-direction: column; gap: 16px; text-align: center; }
+  .footer-links { justify-content: center; }
+  .cta-buttons { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<nav>
+  <div class="container">
+    <a href="/" class="nav-logo">KNIGHT <span>OPS</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/apps" style="color:var(--accent);">The Armory</a>
+      <a href="/apply">Apply</a>
+      <a href="/#book" class="nav-cta">Book a Call</a>
+    </div>
+    <button class="mobile-menu-btn" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge fade-up">The Armory</div>
+    <h1 class="fade-up">Apps Built for <span class="gold">Every Battle</span></h1>
+    <p class="hero-sub fade-up">Premium software solutions designed for entrepreneurs who refuse to operate at anything less than their highest level. Each tool built to create leverage, not complexity.</p>
+    <div class="hero-stats fade-up">
+      <div class="hero-stat"><span class="hero-stat-num">5</span><span class="hero-stat-label">Premium Apps</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">24/7</span><span class="hero-stat-label">Support</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">100%</span><span class="hero-stat-label">Satisfaction</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FILTER + GRID ─── -->
+<section class="apps-section">
+  <div class="container">
+    <div class="filter-bar fade-up">
+      <button class="filter-btn active" onclick="filterApps('all')">All Apps</button>
+      <button class="filter-btn" onclick="filterApps('productivity')">Productivity</button>
+      <button class="filter-btn" onclick="filterApps('ai')">AI Tools</button>
+      <button class="filter-btn" onclick="filterApps('community')">Community</button>
+      <button class="filter-btn" onclick="filterApps('events')">Events</button>
+    </div>
+
+    <div class="apps-grid" id="appsGrid">
+
+      <!-- APP 1: 10xUnicorn -->
+      <div class="app-card featured fade-up" data-category="productivity community">
+        <span class="featured-badge">Featured</span>
+        <div class="app-card-header">
+          <div class="app-icon">&#9889;</div>
+          <div class="app-header-text">
+            <div class="app-name">10xUnicorn</div>
+            <div class="app-category">Productivity &bull; Growth</div>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p class="app-desc">Wormhole goal tracking app for 10xUnicorn Mastermind members. Track habits, goals, and 10x growth with structured accountability systems.</p>
+          <ul class="app-features">
+            <li>Wormhole growth tracking system</li>
+            <li>Habit & goal accountability loops</li>
+            <li>10x vision alignment tools</li>
+            <li>Mastermind member dashboards</li>
+          </ul>
+        </div>
+        <div class="app-card-footer">
+          <div>
+            <div class="app-price">$9.99&ndash;$27<span class="app-price-period">/mo</span></div>
+          </div>
+          <div class="app-actions">
+            <a href="https://10xunicorn.win/app" class="btn-launch" target="_blank">Launch &rarr;</a>
+            <a href="https://10xunicorn.win/app" class="btn-details" target="_blank">Details</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- APP 2: Event Planning App -->
+      <div class="app-card fade-up" data-category="events productivity">
+        <div class="app-card-header">
+          <div class="app-icon">&#127978;</div>
+          <div class="app-header-text">
+            <div class="app-name">Event Planning App</div>
+            <div class="app-category">Events &bull; Management</div>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p class="app-desc">Full event management platform for hosting, selling tickets, and managing attendee experiences from start to finish.</p>
+          <ul class="app-features">
+            <li>Plan, manage & run successful events</li>
+            <li>Everything you need to show up prepared</li>
+            <li>Manage speakers, media, teams & agenda</li>
+            <li>Ticketing & attendee tracking</li>
+          </ul>
+        </div>
+        <div class="app-card-footer">
+          <div>
+            <div class="app-price">$4.99&ndash;$19.99<span class="app-price-period">/mo</span></div>
+          </div>
+          <div class="app-actions">
+            <a href="https://unicorn-event-planner.vercel.app/" class="btn-launch" target="_blank">Launch &rarr;</a>
+            <a href="https://unicorn-event-planner.vercel.app/" class="btn-details" target="_blank">Details</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- APP 3: AppDash.me -->
+      <div class="app-card featured fade-up" data-category="ai productivity">
+        <span class="featured-badge">Popular</span>
+        <div class="app-card-header">
+          <div class="app-icon">&#128241;</div>
+          <div class="app-header-text">
+            <div class="app-name">AppDash.me</div>
+            <div class="app-category">AI &bull; App Builder</div>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p class="app-desc">Blueprint-to-prompt tool for entrepreneurs. 10-page form generates builder-ready AI prompts, revenue calculator, and marketing engine.</p>
+          <ul class="app-features">
+            <li>Build your app empire</li>
+            <li>Plan, manage & deploy apps</li>
+            <li>Create landing pages & marketplace</li>
+            <li>Generate leads & sell your apps</li>
+          </ul>
+        </div>
+        <div class="app-card-footer">
+          <div>
+            <div class="app-price">$49&ndash;$99<span class="app-price-period">/mo</span></div>
+          </div>
+          <div class="app-actions">
+            <a href="https://appdash.me/" class="btn-launch" target="_blank">Launch &rarr;</a>
+            <a href="https://appdash.me/" class="btn-details" target="_blank">Details</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- APP 4: AI App Launch Community -->
+      <div class="app-card fade-up" data-category="community ai">
+        <div class="app-card-header">
+          <div class="app-icon">&#128640;</div>
+          <div class="app-header-text">
+            <div class="app-name">AI App Launch Community</div>
+            <div class="app-category">Community &bull; AI</div>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p class="app-desc">Community platform for app builders. Build, launch, and grow together with AI-powered tools, mentorship, and accountability.</p>
+          <ul class="app-features">
+            <li>AI-powered build tools & templates</li>
+            <li>Mentorship from experienced builders</li>
+            <li>Accountability pods & launch sprints</li>
+            <li>Direct access to Knight Ops expertise</li>
+          </ul>
+        </div>
+        <div class="app-card-footer">
+          <div>
+            <div class="app-price">$27&ndash;$99<span class="app-price-period">/mo</span></div>
+          </div>
+          <div class="app-actions">
+            <a href="/#book" class="btn-launch">Get Access &rarr;</a>
+            <a href="/#book" class="btn-details">Details</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- APP 5: AI Email & Social Media Generator -->
+      <div class="app-card fade-up" data-category="ai productivity">
+        <div class="app-card-header">
+          <div class="app-icon">&#128221;</div>
+          <div class="app-header-text">
+            <div class="app-name">AI Email & Social Generator</div>
+            <div class="app-category">AI &bull; Marketing</div>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p class="app-desc">Enterprise-grade AI email and social media generation platform. Full campaign management with multi-platform publishing.</p>
+          <ul class="app-features">
+            <li>Create email, social & text campaigns in bulk</li>
+            <li>Streamline your entire content workflow</li>
+            <li>Save & schedule campaigns</li>
+            <li>Multi-platform publishing engine</li>
+          </ul>
+        </div>
+        <div class="app-card-footer">
+          <div>
+            <div class="app-price">$499&ndash;$4,999</div>
+          </div>
+          <div class="app-actions">
+            <a href="https://email-social-campaign-generator.vercel.app/" class="btn-launch" target="_blank">Launch &rarr;</a>
+            <a href="https://email-social-campaign-generator.vercel.app/" class="btn-details" target="_blank">Details</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box fade-up">
+      <h2>Need a <span>Custom App</span> Built?</h2>
+      <p>Every app in The Armory started as one conversation. If you need something custom — a dashboard, a platform, an AI tool — Knight Ops builds it. From idea to deployed in days, not months.</p>
+      <div class="cta-buttons">
+        <a href="/#book" class="btn-primary">Book a Free Discovery Call &rarr;</a>
+        <a href="/apply" class="btn-secondary">Submit a Development Request &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-brand">KNIGHT <span>OPS</span></div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/apps">The Armory</a>
+      <a href="/apply">Apply</a>
+      <a href="/#book">Book a Call</a>
+      <a href="mailto:info@knightops.biz">info@knightops.biz</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// FILTER SYSTEM
+// ═══════════════════════════════════════
+function filterApps(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.app-card').forEach(card => {
+    if (cat === 'all' || card.dataset.category.includes(cat)) {
+      card.style.display = '';
+      card.style.animation = 'fadeIn 0.4s ease forwards';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// PARTICLE BACKGROUND (SIMPLIFIED)
+// ═══════════════════════════════════════
+(function() {
+  const c = document.getElementById('bgCanvas'), x = c.getContext('2d');
+  let P = [], w, h;
+  const N = 40, D = 150, G = {r:200,g:164,b:86};
+
+  function resize() { w = c.width = innerWidth; h = c.height = innerHeight; }
+  function init() { P = []; for (let i=0;i<N;i++) P.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5,a:Math.random()*0.4+0.1,p:Math.random()*Math.PI*2}); }
+
+  function draw() {
+    x.clearRect(0,0,w,h);
+    for (let i=0;i<P.length;i++) for (let j=i+1;j<P.length;j++) { const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy); if(d<D){x.strokeStyle=`rgba(${G.r},${G.g},${G.b},${(1-d/D)*0.08})`;x.lineWidth=0.5;x.beginPath();x.moveTo(P[i].x,P[i].y);x.lineTo(P[j].x,P[j].y);x.stroke();} }
+    for (const p of P) { p.p+=0.01; const a=p.a+Math.sin(p.p)*0.08; x.fillStyle=`rgba(${G.r},${G.g},${G.b},${a})`;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fill(); p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>w)p.vx*=-1; if(p.y<0||p.y>h)p.vy*=-1; }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize',()=>{resize();init()});resize();init();draw();
+})();
+
+// ═══════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════
+const obs = new IntersectionObserver(e => { e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible') }) }, {threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+</script>
+
+<style>
+@keyframes fadeIn { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+</style>
+
+</body>
+</html>
