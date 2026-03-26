@@ -53,6 +53,7 @@ table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:10px 1.25rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:600}
 td{padding:10px 1.25rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtle)}
 tr:hover td{background:rgba(200,164,86,0.02)}
+tr.clickable{cursor:pointer}
 .table-empty{padding:3rem;text-align:center;color:var(--text-muted);font-size:0.9rem}
 .badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.75rem;font-weight:600}
 .badge-success{background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.2)}
@@ -62,7 +63,7 @@ tr:hover td{background:rgba(200,164,86,0.02)}
 .badge-gold{background:rgba(200,164,86,0.1);color:var(--accent);border:1px solid rgba(200,164,86,0.2)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:1rem}
 .modal-overlay.active{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:620px;max-height:85vh;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto}
 .modal-head{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-head h2{font-size:1.1rem;font-weight:700}
 .modal-head .close{background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer}
@@ -79,6 +80,7 @@ tr:hover td{background:rgba(200,164,86,0.02)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{border-color:rgba(76,175,80,0.4)}
 .toast.error{border-color:rgba(229,57,53,0.4)}
+/* Quill dark theme */
 .ql-toolbar.ql-snow{background:var(--surface-2);border-color:var(--border) !important;border-radius:8px 8px 0 0}
 .ql-container.ql-snow{background:var(--surface-2);border-color:var(--border) !important;border-radius:0 0 8px 8px;color:var(--text);min-height:120px;font-size:0.9rem}
 .ql-editor.ql-blank::before{color:var(--text-muted) !important}
@@ -87,13 +89,34 @@ tr:hover td{background:rgba(200,164,86,0.02)}
 .ql-snow .ql-picker-label{color:var(--text-muted) !important}
 .ql-snow .ql-picker-options{background:var(--surface) !important;border-color:var(--border) !important}
 .ql-snow .ql-picker-item{color:var(--text) !important}
+/* File upload */
 .file-upload-area{border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--surface-2)}
 .file-upload-area:hover,.file-upload-area.dragover{border-color:var(--accent);background:rgba(200,164,86,0.05)}
 .file-upload-area input[type="file"]{display:none}
+/* Dark calendar/date picker fix */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer}
+/* Detail view */
+.detail-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);cursor:pointer;font-size:0.9rem;margin-bottom:1rem;padding:4px 0}
+.detail-back:hover{color:var(--accent)}
+.detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px}
+.detail-header h2{font-size:1.4rem;font-weight:700}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.detail-grid .dg-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.detail-grid .dg-value{font-size:0.95rem}
+/* Comments */
+.comment-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-top:1.5rem}
+.comment-box h3{font-size:0.95rem;margin-bottom:1rem}
+.comment-item{padding:0.75rem 0;border-bottom:1px solid var(--border-subtle)}
+.comment-item:last-child{border-bottom:none}
+.comment-meta{font-size:0.75rem;color:var(--text-muted);margin-bottom:4px}
+.comment-meta strong{color:var(--accent)}
+.comment-text{font-size:0.9rem}
+.comment-input{display:flex;gap:8px;margin-top:1rem}
+.comment-input textarea{flex:1;min-height:50px}
 @media(max-width:768px){
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%);transition:transform 0.3s}
-  .sidebar.open{transform:translateX(0)}
-  .form-row{grid-template-columns:1fr}
+  .sidebar.open{transform:translateX(0)}.form-row{grid-template-columns:1fr}
   #menuToggle{display:block !important}
 }
 </style>
@@ -113,7 +136,7 @@ tr:hover td{background:rgba(200,164,86,0.02)}
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
     </nav>
     <div class="sidebar-footer">
-      <span class="user-email" id="userEmail">admin@knightops.biz</span>
+      <span class="user-email" id="userEmail">admin</span>
       <button onclick="handleLogout()">Sign Out</button>
     </div>
   </aside>
@@ -126,91 +149,32 @@ tr:hover td{background:rgba(200,164,86,0.02)}
     </div>
     <div class="content" id="content">
       <div class="view active" id="v-dashboard"><div class="kpi-grid" id="kpiGrid"></div><div class="table-card"><div class="table-header"><h2>Recent Leads</h2></div><div id="recentLeads"></div></div></div>
-      <div class="view" id="v-leads"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" onclick="openModal('lead')">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div>
-      <div class="view" id="v-clients"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="openModal('client')">+ Add Client</button></div></div><div id="clientsTable"></div></div></div>
-      <div class="view" id="v-projects"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="revision">Revision</option><option value="deployed">Deployed</option><option value="completed">Completed</option><option value="paused">Paused</option><option value="cancelled">Cancelled</option></select><button class="btn btn-primary btn-sm" onclick="openModal('project')">+ New Project</button></div></div><div id="projectsTable"></div></div></div>
-      <div class="view" id="v-tasks"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><button class="btn btn-primary btn-sm" onclick="openModal('task')">+ Add Task</button></div></div><div id="tasksTable"></div></div></div>
-      <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="openModal('app')">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
-      <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="openModal('event')">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
-      <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="openModal('resource')">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
+      <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
+      <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
+      <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
+      <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
+      <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
+      <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
+      <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
     </div>
   </div>
 </div>
-<!-- LEAD MODAL -->
-<div class="modal-overlay" id="modal-lead"><div class="modal"><div class="modal-head"><h2>Add Lead</h2><button class="close" onclick="closeModal('lead')">&#10005;</button></div><div class="modal-body">
-  <div class="form-row"><div class="form-group"><label>Name *</label><input type="text" id="lead_name" placeholder="John Doe"></div><div class="form-group"><label>Email *</label><input type="email" id="lead_email" placeholder="john@example.com"></div></div>
-  <div class="form-row"><div class="form-group"><label>Phone</label><input type="tel" id="lead_phone" placeholder="(555) 555-5555"></div><div class="form-group"><label>Company</label><input type="text" id="lead_company" placeholder="Acme Corp"></div></div>
-  <div class="form-row"><div class="form-group"><label>Service Interest</label><select id="lead_service_interest"><option value="">Select Service</option><option value="night_launch">Night Launch — Website ($1,497)</option><option value="night_build">Night Build — Web/Mobile App ($7,497)</option><option value="night_build_pro">Night Build Pro — Full App Store ($14,997)</option><option value="ai_marketing_machine">AI Marketing Machine ($99/mo)</option><option value="workshop">Build Your App Workshop ($1,000)</option><option value="consulting_1on1">1:1 Consulting ($25K)</option><option value="unicorn_universe">Unicorn Universe Membership ($99/mo)</option><option value="10x_mastermind">10xUnicorn Mastermind ($10K/yr)</option><option value="custom">Custom Project</option></select></div><div class="form-group"><label>Budget Range</label><select id="lead_budget"><option value="">Select Budget</option><option value="under_1k">Under $1K</option><option value="1k_5k">$1K - $5K</option><option value="5k_15k">$5K - $15K</option><option value="15k_25k">$15K - $25K</option><option value="over_25k">Over $25K</option></select></div></div>
-  <div class="form-row"><div class="form-group"><label>Timeline</label><select id="lead_timeline"><option value="">Select</option><option value="asap">ASAP</option><option value="1_2_weeks">1-2 Weeks</option><option value="1_month">1 Month</option><option value="2_3_months">2-3 Months</option><option value="just_exploring">Just Exploring</option></select></div><div class="form-group"><label>Source</label><select id="lead_source"><option value="manual">Manual</option><option value="intake_form">Intake Form</option><option value="referral">Referral</option><option value="event">Event</option><option value="marketplace">Marketplace</option><option value="website">Website</option></select></div></div>
-  <div class="form-group"><label>Status</label><select id="lead_status"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
-  <div class="form-group"><label>Notes</label><textarea id="lead_notes" placeholder="Add any notes..."></textarea></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('lead')">Cancel</button><button class="btn btn-primary" onclick="saveLead()">Save Lead</button></div></div></div>
-<!-- CLIENT MODAL -->
-<div class="modal-overlay" id="modal-client"><div class="modal"><div class="modal-head"><h2>Add Client / Prospect</h2><button class="close" onclick="closeModal('client')">&#10005;</button></div><div class="modal-body">
-  <div class="form-row"><div class="form-group"><label>Name *</label><input type="text" id="client_name" placeholder="John Doe"></div><div class="form-group"><label>Email *</label><input type="email" id="client_email" placeholder="john@example.com"></div></div>
-  <div class="form-row"><div class="form-group"><label>Phone</label><input type="tel" id="client_phone" placeholder="(555) 555-5555"></div><div class="form-group"><label>Company</label><input type="text" id="client_company" placeholder="Acme Corp"></div></div>
-  <div class="form-row"><div class="form-group"><label>Status</label><select id="client_status"><option value="prospect">Prospect</option><option value="active">Active Client</option><option value="paused">Paused</option><option value="completed">Completed</option></select></div><div class="form-group"><label>Tier</label><select id="client_tier"><option value="custom">Custom</option><option value="night_launch">Night Launch</option><option value="night_build">Night Build</option><option value="night_build_pro">Night Build Pro</option></select></div></div>
-  <div class="form-group"><label>Notes</label><textarea id="client_notes" placeholder="Add any notes..."></textarea></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('client')">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Save</button></div></div></div>
-<!-- PROJECT MODAL -->
-<div class="modal-overlay" id="modal-project"><div class="modal"><div class="modal-head"><h2>New Project</h2><button class="close" onclick="closeModal('project')">&#10005;</button></div><div class="modal-body">
-  <div class="form-group"><label>Client *</label><select id="project_client_id"></select></div>
-  <div class="form-group"><label>Project Name *</label><input type="text" id="project_name" placeholder="Website Redesign"></div>
-  <div class="form-group"><label>Description</label><textarea id="project_description" placeholder="Project details..."></textarea></div>
-  <div class="form-row"><div class="form-group"><label>Tier</label><select id="project_tier"><option value="night_launch">Night Launch</option><option value="night_build">Night Build</option><option value="night_build_pro">Night Build Pro</option><option value="custom">Custom</option></select></div><div class="form-group"><label>Contract Value ($)</label><input type="number" id="project_value" placeholder="0.00"></div></div>
-  <div class="form-row"><div class="form-group"><label>Start Date</label><input type="date" id="project_start"></div><div class="form-group"><label>Due Date</label><input type="date" id="project_due"></div></div>
-  <div class="form-group"><label>Status</label><select id="project_status"><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('project')">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div></div></div>
-<!-- TASK MODAL -->
-<div class="modal-overlay" id="modal-task"><div class="modal"><div class="modal-head"><h2>Add Task</h2><button class="close" onclick="closeModal('task')">&#10005;</button></div><div class="modal-body">
-  <div class="form-group"><label>Project *</label><select id="task_project_id"></select></div>
-  <div class="form-group"><label>Title *</label><input type="text" id="task_title" placeholder="Task title"></div>
-  <div class="form-group"><label>Description</label><textarea id="task_description" placeholder="Details..."></textarea></div>
-  <div class="form-row"><div class="form-group"><label>Status</label><select id="task_status"><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select></div><div class="form-group"><label>Priority</label><select id="task_priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div></div>
-  <div class="form-row"><div class="form-group"><label>Type</label><select id="task_type"><option value="development">Development</option><option value="design">Design</option><option value="review">Review</option><option value="client_action">Client Action</option><option value="revision">Revision</option><option value="deployment">Deployment</option><option value="admin">Admin</option></select></div><div class="form-group"><label>Due Date</label><input type="date" id="task_due"></div></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('task')">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Save Task</button></div></div></div>
-<!-- APP MODAL -->
-<div class="modal-overlay" id="modal-app"><div class="modal"><div class="modal-head"><h2>Add App</h2><button class="close" onclick="closeModal('app')">&#10005;</button></div><div class="modal-body">
-  <div class="form-group"><label>App Name *</label><input type="text" id="app_name" placeholder="My App"></div>
-  <div class="form-group"><label>Tagline</label><input type="text" id="app_tagline" placeholder="Short description"></div>
-  <div class="form-group"><label>Description</label><textarea id="app_description" placeholder="Full description..."></textarea></div>
-  <div class="form-row"><div class="form-group"><label>Category</label><input type="text" id="app_category" placeholder="Productivity, AI, etc."></div><div class="form-group"><label>Price Label</label><input type="text" id="app_price_label" placeholder="$9.99/mo"></div></div>
-  <div class="form-row"><div class="form-group"><label>Launch URL</label><input type="url" id="app_url" placeholder="https://..."></div><div class="form-group"><label>Button Text</label><input type="text" id="app_btn_text" value="Launch App"></div></div>
-  <div class="form-row"><div class="form-group"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="app_featured" style="width:auto"> Featured</label></div><div class="form-group"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="app_popular" style="width:auto"> Popular</label></div></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('app')">Cancel</button><button class="btn btn-primary" onclick="saveApp()">Save App</button></div></div></div>
-<!-- EVENT MODAL -->
-<div class="modal-overlay" id="modal-event"><div class="modal"><div class="modal-head"><h2>Create Event</h2><button class="close" onclick="closeModal('event')">&#10005;</button></div><div class="modal-body">
-  <div class="form-group"><label>Event Name *</label><input type="text" id="event_title" placeholder="Event name"></div>
-  <div class="form-group"><label>Description</label><textarea id="event_description" placeholder="Event description..."></textarea></div>
-  <div class="form-row"><div class="form-group"><label>Type</label><select id="event_type"><option value="workshop">Workshop</option><option value="mastermind">Mastermind</option><option value="webinar">Webinar</option><option value="office_hours">Office Hours</option><option value="launch">Launch</option></select></div><div class="form-group"><label>Price ($)</label><input type="number" id="event_price" placeholder="0.00" step="0.01"></div></div>
-  <div class="form-row"><div class="form-group"><label>Start Time *</label><input type="datetime-local" id="event_start"></div><div class="form-group"><label>End Time *</label><input type="datetime-local" id="event_end"></div></div>
-  <div class="form-row"><div class="form-group"><label>Location</label><input type="text" id="event_location" placeholder="Venue or virtual"></div><div class="form-group"><label>Meeting URL</label><input type="url" id="event_meeting_url" placeholder="https://zoom.us/..."></div></div>
-  <div class="form-row"><div class="form-group"><label>Website URL</label><input type="url" id="event_website" placeholder="https://..."></div><div class="form-group"><label>Max Attendees</label><input type="number" id="event_max" placeholder="0 = unlimited"></div></div>
-  <div class="form-group"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="event_public" style="width:auto"> Public Event</label></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('event')">Cancel</button><button class="btn btn-primary" onclick="saveEvent()">Save Event</button></div></div></div>
-<!-- RESOURCE MODAL -->
-<div class="modal-overlay" id="modal-resource"><div class="modal"><div class="modal-head"><h2>Add Resource</h2><button class="close" onclick="closeModal('resource')">&#10005;</button></div><div class="modal-body">
-  <div class="form-group"><label>Title *</label><input type="text" id="resource_title" placeholder="Resource title"></div>
-  <div class="form-group"><label>Client *</label><select id="resource_client_id"></select></div>
-  <div class="form-group"><label>Type</label><select id="resource_type" onchange="toggleResourceFields()"><option value="file">File Upload</option><option value="url">URL / Link</option></select></div>
-  <div id="resource_file_section"><div class="form-group"><label>Upload File</label><div class="file-upload-area" id="fileDropArea" onclick="document.getElementById('resource_file_input').click()"><div style="font-size:2rem;margin-bottom:0.5rem;color:var(--text-muted)">&#128206;</div><div style="font-size:0.85rem;color:var(--text-muted)">Click or drag a file here to upload</div><div style="font-size:0.85rem;color:var(--accent);margin-top:0.5rem" id="selectedFileName"></div><input type="file" id="resource_file_input" onchange="handleFileSelect(this)"></div></div></div>
-  <div id="resource_url_section" style="display:none"><div class="form-group"><label>URL</label><input type="url" id="resource_url" placeholder="https://..."></div></div>
-  <div class="form-group"><label>Description (Rich Text)</label><div id="resource_editor"></div></div>
-</div><div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('resource')">Cancel</button><button class="btn btn-primary" onclick="saveResource()">Save Resource</button></div></div></div>
+<!-- UNIVERSAL EDIT MODAL -->
+<div class="modal-overlay" id="editModal"><div class="modal"><div class="modal-head"><h2 id="editModalTitle">Edit</h2><button class="close" onclick="closeEditModal()">&#10005;</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-foot" id="editModalFoot"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],profiles:[]};
-let resourceQuill=null,selectedFile=null;
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[]};
+let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
 (async function(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='/auth';return;}
-  const role=session.user.user_metadata?.role;
-  if(role!=='admin'){window.location.href='/portal';return;}
+  if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
+  currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
   await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources()]);
   loadDashboard();
@@ -225,178 +189,322 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
     document.getElementById('v-'+v).classList.add('active');
     document.getElementById('pageTitle').textContent=v.charAt(0).toUpperCase()+v.slice(1);
+    // Reset to list views
+    ['leads','clients','projects','tasks'].forEach(s=>{
+      const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
+      const dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
+    });
     if(v==='dashboard')loadDashboard();
   });
 });
+function navTo(view){document.querySelector('[data-view="'+view+'"]').click();}
 
 // MODAL
-function openModal(type){
-  document.getElementById('modal-'+type).classList.add('active');
-  if(type==='resource'&&!resourceQuill){
-    resourceQuill=new Quill('#resource_editor',{theme:'snow',placeholder:'Add description with formatting...',modules:{toolbar:[[{header:[1,2,3,false]}],['bold','italic','underline','strike'],[{list:'ordered'},{list:'bullet'}],['link','image','video'],['clean']]}});
-  }
-  if(type==='project')populateClientDropdown('project_client_id');
-  if(type==='task')populateProjectDropdown('task_project_id');
-  if(type==='resource')populateClientDropdown('resource_client_id');
+function openEditModal(title,bodyHTML,footHTML){
+  document.getElementById('editModalTitle').textContent=title;
+  document.getElementById('editModalBody').innerHTML=bodyHTML;
+  document.getElementById('editModalFoot').innerHTML=footHTML;
+  document.getElementById('editModal').classList.add('active');
 }
-function closeModal(type){document.getElementById('modal-'+type).classList.remove('active');}
-document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');});});
+function closeEditModal(){document.getElementById('editModal').classList.remove('active');resourceQuill=null;selectedFile=null;}
+document.getElementById('editModal').addEventListener('click',e=>{if(e.target.id==='editModal')closeEditModal();});
 
 // TOAST
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
 
 // HELPERS
-function populateClientDropdown(id){const sel=document.getElementById(id);sel.innerHTML='<option value="">Select Client</option>'+S.clients.map(c=>'<option value="'+c.id+'">'+(c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
-function populateProjectDropdown(id){const sel=document.getElementById(id);sel.innerHTML='<option value="">Select Project</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');}
 function fmtDate(d){return d?new Date(d).toLocaleDateString():'—';}
+function fmtDateTime(d){return d?new Date(d).toLocaleString():'—';}
 function fmtMoney(v){return '$'+Number(v||0).toLocaleString();}
-function statusBadge(s){const map={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',custom:'badge-warning'};return '<span class="badge '+(map[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
-function serviceLabel(v){const map={night_launch:'Night Launch',night_build:'Night Build',night_build_pro:'Night Build Pro',ai_marketing_machine:'AI Marketing Machine',workshop:'Workshop',consulting_1on1:'1:1 Consulting',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return map[v]||v||'—';}
-
-// FILE
-function toggleResourceFields(){const t=document.getElementById('resource_type').value;document.getElementById('resource_file_section').style.display=t==='file'?'block':'none';document.getElementById('resource_url_section').style.display=t==='url'?'block':'none';}
-function handleFileSelect(input){if(input.files.length){selectedFile=input.files[0];document.getElementById('selectedFileName').textContent=selectedFile.name+' ('+Math.round(selectedFile.size/1024)+'KB)';}}
-(function(){const d=document.getElementById('fileDropArea');if(!d)return;['dragenter','dragover'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.classList.add('dragover');}));['dragleave','drop'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.classList.remove('dragover');}));d.addEventListener('drop',ev=>{if(ev.dataTransfer.files.length){selectedFile=ev.dataTransfer.files[0];document.getElementById('selectedFileName').textContent=selectedFile.name+' ('+Math.round(selectedFile.size/1024)+'KB)';}});})();
+function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
+function SL(v){const m={night_launch:'Night Launch',night_build:'Night Build',night_build_pro:'Night Build Pro',ai_marketing_machine:'AI Marketing Machine',workshop:'Workshop',consulting_1on1:'1:1 Consulting',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return m[v]||v||'—';}
+function clientName(cid){const c=S.clients.find(x=>x.id===cid);return c?.profiles?.full_name||c?.profiles?.email||'—';}
+function FG(label,id,type,val,opts){
+  if(type==='select'){return '<div class="form-group"><label>'+label+'</label><select id="'+id+'">'+opts.map(o=>'<option value="'+o.v+'"'+(o.v==val?' selected':'')+'>'+o.l+'</option>').join('')+'</select></div>';}
+  if(type==='textarea'){return '<div class="form-group"><label>'+label+'</label><textarea id="'+id+'">'+(val||'')+'</textarea></div>';}
+  if(type==='checkbox'){return '<div class="form-group"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="'+id+'" style="width:auto"'+(val?' checked':'')+'> '+label+'</label></div>';}
+  return '<div class="form-group"><label>'+label+'</label><input type="'+(type||'text')+'" id="'+id+'" value="'+(val||'')+'"></div>';
+}
+function FR(a,b){return '<div class="form-row">'+a+b+'</div>';}
+function clientOptions(sel){return '<option value="">Select Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
+function projectOptions(sel){return '<option value="">Select Project</option>'+S.projects.map(p=>'<option value="'+p.id+'"'+(p.id===sel?' selected':'')+'>'+p.name+'</option>').join('');}
+const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'night_launch',l:'Night Launch — Website ($1,497)'},{v:'night_build',l:'Night Build — Web/Mobile App ($7,497)'},{v:'night_build_pro',l:'Night Build Pro — Full App Store ($14,997)'},{v:'ai_marketing_machine',l:'AI Marketing Machine ($99/mo)'},{v:'workshop',l:'Build Your App Workshop ($1,000)'},{v:'consulting_1on1',l:'1:1 Consulting ($25K)'},{v:'unicorn_universe',l:'Unicorn Universe Membership ($99/mo)'},{v:'10x_mastermind',l:'10xUnicorn Mastermind ($10K/yr)'},{v:'custom',l:'Custom Project'}];
+const BUDGET_OPTS=[{v:'',l:'Select'},{v:'under_1k',l:'Under $1K'},{v:'1k_5k',l:'$1K-$5K'},{v:'5k_15k',l:'$5K-$15K'},{v:'15k_25k',l:'$15K-$25K'},{v:'over_25k',l:'Over $25K'}];
+const TIMELINE_OPTS=[{v:'',l:'Select'},{v:'asap',l:'ASAP'},{v:'1_2_weeks',l:'1-2 Weeks'},{v:'1_month',l:'1 Month'},{v:'2_3_months',l:'2-3 Months'},{v:'just_exploring',l:'Just Exploring'}];
+const LEAD_STATUS_OPTS=[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'proposal_sent',l:'Proposal Sent'},{v:'negotiation',l:'Negotiation'},{v:'won',l:'Won'},{v:'lost',l:'Lost'}];
+const SOURCE_OPTS=[{v:'manual',l:'Manual'},{v:'intake_form',l:'Intake Form'},{v:'referral',l:'Referral'},{v:'event',l:'Event'},{v:'marketplace',l:'Marketplace'},{v:'website',l:'Website'}];
+const CLIENT_STATUS_OPTS=[{v:'prospect',l:'Prospect'},{v:'active',l:'Active Client'},{v:'paused',l:'Paused'},{v:'completed',l:'Completed'}];
+const TIER_OPTS=[{v:'custom',l:'Custom'},{v:'night_launch',l:'Night Launch'},{v:'night_build',l:'Night Build'},{v:'night_build_pro',l:'Night Build Pro'}];
+const PROJ_STATUS_OPTS=[{v:'discovery',l:'Discovery'},{v:'scoping',l:'Scoping'},{v:'in_progress',l:'In Progress'},{v:'review',l:'Review'},{v:'deployed',l:'Deployed'},{v:'completed',l:'Completed'},{v:'paused',l:'Paused'},{v:'cancelled',l:'Cancelled'}];
+const TASK_STATUS_OPTS=[{v:'todo',l:'To Do'},{v:'in_progress',l:'In Progress'},{v:'in_review',l:'In Review'},{v:'blocked',l:'Blocked'},{v:'done',l:'Done'}];
+const PRIORITY_OPTS=[{v:'low',l:'Low'},{v:'medium',l:'Medium'},{v:'high',l:'High'},{v:'urgent',l:'Urgent'}];
+const TASK_TYPE_OPTS=[{v:'development',l:'Development'},{v:'design',l:'Design'},{v:'review',l:'Review'},{v:'client_action',l:'Client Action'},{v:'revision',l:'Revision'},{v:'deployment',l:'Deployment'},{v:'admin',l:'Admin'}];
+const EVENT_TYPE_OPTS=[{v:'workshop',l:'Workshop'},{v:'mastermind',l:'Mastermind'},{v:'webinar',l:'Webinar'},{v:'office_hours',l:'Office Hours'},{v:'launch',l:'Launch'}];
 
 // ═══ DASHBOARD ═══
 function loadDashboard(){
-  const kpi=document.getElementById('kpiGrid');
   const revenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
-  kpi.innerHTML='<div class="kpi"><div class="label">New Leads</div><div class="value">'+S.leads.filter(l=>l.status==='new').length+'</div><div class="sub">'+S.leads.length+' total</div></div><div class="kpi"><div class="label">Active Clients</div><div class="value">'+S.clients.filter(c=>c.status==='active').length+'</div><div class="sub">'+S.clients.length+' total</div></div><div class="kpi"><div class="label">In Progress</div><div class="value">'+S.projects.filter(p=>p.status==='in_progress').length+'</div><div class="sub">'+S.projects.length+' projects</div></div><div class="kpi"><div class="label">Open Tasks</div><div class="value">'+S.tasks.filter(t=>t.status!=='done').length+'</div><div class="sub">'+S.tasks.length+' total</div></div><div class="kpi"><div class="label">Pipeline Revenue</div><div class="value">'+fmtMoney(revenue)+'</div></div><div class="kpi"><div class="label">Upcoming Events</div><div class="value">'+S.events.filter(e=>new Date(e.start_time)>new Date()).length+'</div></div>';
+  document.getElementById('kpiGrid').innerHTML='<div class="kpi"><div class="label">New Leads</div><div class="value">'+S.leads.filter(l=>l.status==='new').length+'</div><div class="sub">'+S.leads.length+' total</div></div><div class="kpi"><div class="label">Active Clients</div><div class="value">'+S.clients.filter(c=>c.status==='active').length+'</div><div class="sub">'+S.clients.length+' total</div></div><div class="kpi"><div class="label">In Progress</div><div class="value">'+S.projects.filter(p=>p.status==='in_progress').length+'</div><div class="sub">'+S.projects.length+' projects</div></div><div class="kpi"><div class="label">Open Tasks</div><div class="value">'+S.tasks.filter(t=>t.status!=='done').length+'</div><div class="sub">'+S.tasks.length+' total</div></div><div class="kpi"><div class="label">Pipeline Revenue</div><div class="value">'+fmtMoney(revenue)+'</div></div><div class="kpi"><div class="label">Upcoming Events</div><div class="value">'+S.events.filter(e=>new Date(e.start_time)>new Date()).length+'</div></div>';
   const recent=S.leads.slice(0,5);
-  document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr><td>'+l.name+'</td><td>'+serviceLabel(l.service_interest)+'</td><td>'+statusBadge(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
+  document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
 }
 
 // ═══ LEADS ═══
-async function loadLeads(){const{data,error}=await sb.from('leads').select('*').order('created_at',{ascending:false});if(!error)S.leads=data||[];renderLeads();}
+async function loadLeads(){const{data}=await sb.from('leads').select('*').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
 function renderLeads(){
-  const search=(document.getElementById('leadSearch')?.value||'').toLowerCase();
-  const status=document.getElementById('leadStatusFilter')?.value||'';
-  const f=S.leads.filter(l=>{const ms=!search||l.name?.toLowerCase().includes(search)||l.email?.toLowerCase().includes(search)||l.company?.toLowerCase().includes(search);return ms&&(!status||l.status===status);});
-  document.getElementById('leadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+serviceLabel(l.service_interest)+'</td><td>'+statusBadge(l.status)+'</td><td>'+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLeadToClient(\''+l.id+'\')">Convert to Client</button>':statusBadge('converted'))+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No leads found</td></tr>')+'</tbody></table>';
+  const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
+  const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
+  document.getElementById('leadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No leads</td></tr>')+'</tbody></table>';
 }
-async function saveLead(){
-  const obj={name:document.getElementById('lead_name').value,email:document.getElementById('lead_email').value,phone:document.getElementById('lead_phone').value||null,company:document.getElementById('lead_company').value||null,service_interest:document.getElementById('lead_service_interest').value||null,budget_range:document.getElementById('lead_budget').value||null,timeline:document.getElementById('lead_timeline').value||null,source:document.getElementById('lead_source').value||'manual',status:document.getElementById('lead_status').value||'new',notes:document.getElementById('lead_notes').value||null};
-  if(!obj.name||!obj.email){showToast('Name and Email are required','error');return;}
-  const{error}=await sb.from('leads').insert([obj]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('Lead saved!');closeModal('lead');
-  document.querySelectorAll('#modal-lead input,#modal-lead textarea').forEach(el=>{if(el.type==='text'||el.type==='email'||el.type==='tel')el.value='';});
-  await loadLeads();loadDashboard();
+function showLeadDetail(id){
+  const l=S.leads.find(x=>x.id===id);if(!l)return;
+  navTo('leads');
+  document.getElementById('leadsListView').style.display='none';
+  document.getElementById('leadDetailView').style.display='block';
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><h2>'+l.name+'</h2><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+'</div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+l.email+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'');
 }
-async function convertLeadToClient(leadId){
-  const lead=S.leads.find(l=>l.id===leadId);if(!lead){showToast('Lead not found','error');return;}
+function editLead(id){
+  const l=id?S.leads.find(x=>x.id===id):null;
+  const title=l?'Edit Lead':'Add Lead';
+  const body=FR(FG('Name *','e_name','text',l?.name),FG('Email *','e_email','email',l?.email))+FR(FG('Phone','e_phone','tel',l?.phone),FG('Company','e_company','text',l?.company))+FR(FG('Service Interest','e_service','select',l?.service_interest,SERVICE_OPTS),FG('Budget Range','e_budget','select',l?.budget_range,BUDGET_OPTS))+FR(FG('Timeline','e_timeline','select',l?.timeline,TIMELINE_OPTS),FG('Source','e_source','select',l?.source||'manual',SOURCE_OPTS))+FG('Status','e_status','select',l?.status||'new',LEAD_STATUS_OPTS)+FG('Notes','e_notes','textarea',l?.notes);
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLead('+(id?"'"+id+"'":'')+')">Save</button>';
+  openEditModal(title,body,foot);
+}
+async function saveLead(id){
+  const obj={name:document.getElementById('e_name').value,email:document.getElementById('e_email').value,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null,service_interest:document.getElementById('e_service').value||null,budget_range:document.getElementById('e_budget').value||null,timeline:document.getElementById('e_timeline').value||null,source:document.getElementById('e_source').value||'manual',status:document.getElementById('e_status').value||'new',notes:document.getElementById('e_notes').value||null};
+  if(!obj.name||!obj.email){showToast('Name and Email required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('leads').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('leads').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Lead updated!':'Lead saved!');closeEditModal();await loadLeads();loadDashboard();
+}
+async function convertLead(id){
+  const l=S.leads.find(x=>x.id===id);if(!l)return;
   try{
-    const{data:prof,error:pe}=await sb.from('profiles').insert([{id:crypto.randomUUID(),email:lead.email,full_name:lead.name,phone:lead.phone||null,company:lead.company||null,role:'client'}]).select().single();
+    const pid=crypto.randomUUID();
+    const{error:pe}=await sb.from('profiles').insert([{id:pid,email:l.email,full_name:l.name,phone:l.phone,company:l.company,role:'client'}]);
     if(pe)throw pe;
-    const tier=['night_launch','night_build','night_build_pro'].includes(lead.service_interest)?lead.service_interest:'custom';
-    const{error:ce}=await sb.from('clients').insert([{profile_id:prof.id,tier:tier,status:'active'}]);if(ce)throw ce;
-    const{error:ue}=await sb.from('leads').update({profile_id:prof.id,status:'converted'}).eq('id',leadId);if(ue)throw ue;
-    showToast('Lead converted to client!');await Promise.all([loadLeads(),loadClients()]);loadDashboard();
-  }catch(e){console.error(e);showToast('Error: '+e.message,'error');}
+    const tier=['night_launch','night_build','night_build_pro'].includes(l.service_interest)?l.service_interest:'custom';
+    const{error:ce}=await sb.from('clients').insert([{profile_id:pid,tier:tier,status:'active'}]);
+    if(ce)throw ce;
+    await sb.from('leads').update({profile_id:pid,status:'converted'}).eq('id',id);
+    showToast('Lead converted!');await Promise.all([loadLeads(),loadClients()]);loadDashboard();
+  }catch(e){showToast('Error: '+e.message,'error');}
 }
 
 // ═══ CLIENTS ═══
-async function loadClients(){const{data,error}=await sb.from('clients').select('*,profiles(*)').order('created_at',{ascending:false});if(!error)S.clients=data||[];renderClients();}
+async function loadClients(){const{data}=await sb.from('clients').select('*,profiles(*)').order('created_at',{ascending:false});S.clients=data||[];renderClients();}
 function renderClients(){
-  const search=(document.getElementById('clientSearch')?.value||'').toLowerCase();
-  const status=document.getElementById('clientStatusFilter')?.value||'';
-  const f=S.clients.filter(c=>{const n=c.profiles?.full_name||'';const e=c.profiles?.email||'';return(!search||n.toLowerCase().includes(search)||e.toLowerCase().includes(search))&&(!status||c.status===status);});
-  document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+statusBadge(c.tier)+'</td><td>'+statusBadge(c.status)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No clients found</td></tr>')+'</tbody></table>';
+  const s=(document.getElementById('clientSearch')?.value||'').toLowerCase(),st=document.getElementById('clientStatusFilter')?.value||'';
+  const f=S.clients.filter(c=>(!s||(c.profiles?.full_name||'').toLowerCase().includes(s)||(c.profiles?.email||'').toLowerCase().includes(s))&&(!st||c.status===st));
+  document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td>'+B(c.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No clients</td></tr>')+'</tbody></table>';
 }
-async function saveClient(){
-  const name=document.getElementById('client_name').value;const email=document.getElementById('client_email').value;
-  if(!name||!email){showToast('Name and Email are required','error');return;}
+function showClientDetail(id){
+  const c=S.clients.find(x=>x.id===id);if(!c)return;const p=c.profiles||{};
+  navTo('clients');
+  document.getElementById('clientsListView').style.display='none';
+  document.getElementById('clientDetailView').style.display='block';
+  const projs=S.projects.filter(x=>x.client_id===id);
+  document.getElementById('clientDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'">&#8592; Back to Clients</div><div class="detail-header"><h2>'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(p.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(p.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(p.company||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(c.tier)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(c.status)+'</div></div></div>'+(projs.length?'<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Projects</h2></div><table><thead><tr><th>Name</th><th>Status</th><th>Value</th><th>Due</th></tr></thead><tbody>'+projs.map(pr=>'<tr class="clickable" onclick="showProjectDetail(\''+pr.id+'\')"><td>'+pr.name+'</td><td>'+B(pr.status)+'</td><td>'+fmtMoney(pr.contract_value)+'</td><td>'+fmtDate(pr.due_date)+'</td></tr>').join('')+'</tbody></table></div>':'');
+}
+function editClient(id){
+  const c=id?S.clients.find(x=>x.id===id):null;const p=c?.profiles||{};
+  const title=c?'Edit Client':'Add Client / Prospect';
+  const body=FR(FG('Name *','e_name','text',p.full_name),FG('Email *','e_email','email',p.email))+FR(FG('Phone','e_phone','tel',p.phone),FG('Company','e_company','text',p.company))+FR(FG('Status','e_status','select',c?.status||'prospect',CLIENT_STATUS_OPTS),FG('Tier','e_tier','select',c?.tier||'custom',TIER_OPTS))+FG('Notes','e_notes','textarea',c?.notes);
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient('+(id?"'"+id+"'":'')+')">Save</button>';
+  openEditModal(title,body,foot);
+}
+async function saveClient(id){
+  const name=document.getElementById('e_name').value,email=document.getElementById('e_email').value;
+  if(!name||!email){showToast('Name and Email required','error');return;}
   try{
-    const{data:prof,error:pe}=await sb.from('profiles').insert([{id:crypto.randomUUID(),email:email,full_name:name,phone:document.getElementById('client_phone').value||null,company:document.getElementById('client_company').value||null,role:'client'}]).select().single();
-    if(pe)throw pe;
-    const{error:ce}=await sb.from('clients').insert([{profile_id:prof.id,tier:document.getElementById('client_tier').value||'custom',status:document.getElementById('client_status').value||'active',notes:document.getElementById('client_notes').value||null}]);
-    if(ce)throw ce;
-    showToast('Client saved!');closeModal('client');
-    document.querySelectorAll('#modal-client input,#modal-client textarea').forEach(el=>{if(el.type!=='hidden')el.value='';});
-    await loadClients();loadDashboard();
-  }catch(e){console.error(e);showToast('Error: '+e.message,'error');}
+    if(id){
+      const c=S.clients.find(x=>x.id===id);
+      if(c?.profiles?.id){await sb.from('profiles').update({full_name:name,email:email,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null}).eq('id',c.profiles.id);}
+      await sb.from('clients').update({status:document.getElementById('e_status').value,tier:document.getElementById('e_tier').value,notes:document.getElementById('e_notes').value||null}).eq('id',id);
+    }else{
+      const pid=crypto.randomUUID();
+      const{error:pe}=await sb.from('profiles').insert([{id:pid,email:email,full_name:name,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null,role:'client'}]);
+      if(pe)throw pe;
+      const{error:ce}=await sb.from('clients').insert([{profile_id:pid,tier:document.getElementById('e_tier').value||'custom',status:document.getElementById('e_status').value||'active',notes:document.getElementById('e_notes').value||null}]);
+      if(ce)throw ce;
+    }
+    showToast(id?'Client updated!':'Client saved!');closeEditModal();await loadClients();loadDashboard();
+  }catch(e){showToast('Error: '+e.message,'error');}
 }
 
 // ═══ PROJECTS ═══
-async function loadProjects(){const{data,error}=await sb.from('projects').select('*,clients(*,profiles(*))').order('created_at',{ascending:false});if(!error)S.projects=data||[];renderProjects();const sel=document.getElementById('taskProjectFilter');if(sel)sel.innerHTML='<option value="">All Projects</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');}
+async function loadProjects(){const{data}=await sb.from('projects').select('*,clients(*,profiles(*))').order('created_at',{ascending:false});S.projects=data||[];renderProjects();const sel=document.getElementById('taskProjectFilter');if(sel)sel.innerHTML='<option value="">All Projects</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');}
 function renderProjects(){
-  const status=document.getElementById('projStatusFilter')?.value||'';
-  const f=S.projects.filter(p=>!status||p.status===status);
-  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+statusBadge(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td>'+statusBadge(p.status)+'</td><td>'+fmtDate(p.due_date)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No projects found</td></tr>')+'</tbody></table>';
+  const st=document.getElementById('projStatusFilter')?.value||'';
+  const f=S.projects.filter(p=>!st||p.status===st);
+  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td>'+B(p.status)+'</td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
 }
-async function saveProject(){
-  const clientId=document.getElementById('project_client_id').value;const name=document.getElementById('project_name').value;
-  if(!clientId||!name){showToast('Client and Name are required','error');return;}
-  const{error}=await sb.from('projects').insert([{client_id:clientId,name:name,description:document.getElementById('project_description').value||null,tier:document.getElementById('project_tier').value||'custom',contract_value:parseFloat(document.getElementById('project_value').value)||0,start_date:document.getElementById('project_start').value||null,due_date:document.getElementById('project_due').value||null,status:document.getElementById('project_status').value||'discovery'}]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('Project saved!');closeModal('project');await loadProjects();loadDashboard();
+async function showProjectDetail(id){
+  const p=S.projects.find(x=>x.id===id);if(!p)return;
+  navTo('projects');
+  document.getElementById('projectsListView').style.display='none';
+  document.getElementById('projectDetailView').style.display='block';
+  const tasks=S.tasks.filter(t=>t.project_id===id);
+  const{data:comments}=await sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:true});
+  document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><h2>'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button></div><div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
+  '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
+  '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="projComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
+}
+function editProject(id){
+  const p=id?S.projects.find(x=>x.id===id):null;
+  const body='<div class="form-group"><label>Client *</label><select id="e_client">'+clientOptions(p?.client_id)+'</select></div>'+FG('Project Name *','e_name','text',p?.name)+FG('Description','e_desc','textarea',p?.description)+FR(FG('Tier','e_tier','select',p?.tier||'night_launch',TIER_OPTS),FG('Contract Value ($)','e_value','number',p?.contract_value))+FR(FG('Start Date','e_start','date',p?.start_date),FG('Due Date','e_due','date',p?.due_date))+FG('Status','e_status','select',p?.status||'discovery',PROJ_STATUS_OPTS);
+  openEditModal(p?'Edit Project':'New Project',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveProject('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveProject(id){
+  const obj={client_id:document.getElementById('e_client').value,name:document.getElementById('e_name').value,description:document.getElementById('e_desc').value||null,tier:document.getElementById('e_tier').value,contract_value:parseFloat(document.getElementById('e_value').value)||0,start_date:document.getElementById('e_start').value||null,due_date:document.getElementById('e_due').value||null,status:document.getElementById('e_status').value};
+  if(!obj.client_id||!obj.name){showToast('Client and Name required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('projects').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('projects').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Project updated!':'Project saved!');closeEditModal();await loadProjects();loadDashboard();
 }
 
 // ═══ TASKS ═══
-async function loadTasks(){const{data,error}=await sb.from('tasks').select('*,projects(name)').order('created_at',{ascending:false});if(!error)S.tasks=data||[];renderTasks();}
+async function loadTasks(){const{data}=await sb.from('tasks').select('*,projects(name)').order('created_at',{ascending:false});S.tasks=data||[];renderTasks();}
 function renderTasks(){
-  const status=document.getElementById('taskStatusFilter')?.value||'';const proj=document.getElementById('taskProjectFilter')?.value||'';
-  const f=S.tasks.filter(t=>(!status||t.status===status)&&(!proj||t.project_id===proj));
-  document.getElementById('tasksTable').innerHTML='<table><thead><tr><th>Title</th><th>Project</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th></tr></thead><tbody>'+(f.length?f.map(t=>'<tr><td>'+t.title+'</td><td>'+(t.projects?.name||'—')+'</td><td>'+statusBadge(t.task_type)+'</td><td>'+statusBadge(t.priority)+'</td><td>'+statusBadge(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks found</td></tr>')+'</tbody></table>';
+  const st=document.getElementById('taskStatusFilter')?.value||'',pj=document.getElementById('taskProjectFilter')?.value||'';
+  const f=S.tasks.filter(t=>(!st||t.status===st)&&(!pj||t.project_id===pj));
+  document.getElementById('tasksTable').innerHTML='<table><thead><tr><th>Title</th><th>Project</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+(t.projects?.name||'—')+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
 }
-async function saveTask(){
-  const projId=document.getElementById('task_project_id').value;const title=document.getElementById('task_title').value;
-  if(!projId||!title){showToast('Project and Title are required','error');return;}
-  const{error}=await sb.from('tasks').insert([{project_id:projId,title:title,description:document.getElementById('task_description').value||null,status:document.getElementById('task_status').value||'todo',priority:document.getElementById('task_priority').value||'medium',task_type:document.getElementById('task_type').value||'development',due_date:document.getElementById('task_due').value||null}]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('Task saved!');closeModal('task');await loadTasks();loadDashboard();
+async function showTaskDetail(id){
+  const t=S.tasks.find(x=>x.id===id);if(!t)return;
+  navTo('tasks');
+  document.getElementById('tasksListView').style.display='none';
+  document.getElementById('taskDetailView').style.display='block';
+  const{data:comments}=await sb.from('comments').select('*').eq('task_id',id).order('created_at',{ascending:true});
+  document.getElementById('taskDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'tasksListView\').style.display=\'\';document.getElementById(\'taskDetailView\').style.display=\'none\'">&#8592; Back to Tasks</div><div class="detail-header"><h2>'+t.title+'</h2><div><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">Mark Complete</button>':'')+'</div></div><div class="detail-grid"><div><div class="dg-label">Project</div><div class="dg-value">'+(t.projects?.name||'—')+'</div></div><div><div class="dg-label">Type</div><div class="dg-value">'+B(t.task_type)+'</div></div><div><div class="dg-label">Priority</div><div class="dg-value">'+B(t.priority)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(t.status)+'</div></div><div><div class="dg-label">Due Date</div><div class="dg-value">'+fmtDate(t.due_date)+'</div></div><div><div class="dg-label">Assigned</div><div class="dg-value">'+(t.assigned_name||'Unassigned')+'</div></div></div>'+(t.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+t.description+'</p>':'')+
+  '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="taskComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(null,\''+id+'\')">Post</button></div></div>';
+}
+function editTask(id,projId){
+  const t=id?S.tasks.find(x=>x.id===id):null;
+  const body='<div class="form-group"><label>Project *</label><select id="e_project">'+projectOptions(t?.project_id||projId)+'</select></div>'+FG('Title *','e_title','text',t?.title)+FG('Description','e_desc','textarea',t?.description)+FR(FG('Status','e_status','select',t?.status||'todo',TASK_STATUS_OPTS),FG('Priority','e_priority','select',t?.priority||'medium',PRIORITY_OPTS))+FR(FG('Type','e_type','select',t?.task_type||'development',TASK_TYPE_OPTS),FG('Due Date','e_due','date',t?.due_date))+FG('Assigned To','e_assigned','text',t?.assigned_name);
+  openEditModal(t?'Edit Task':'Add Task',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveTask(id){
+  const obj={project_id:document.getElementById('e_project').value,title:document.getElementById('e_title').value,description:document.getElementById('e_desc').value||null,status:document.getElementById('e_status').value,priority:document.getElementById('e_priority').value,task_type:document.getElementById('e_type').value,due_date:document.getElementById('e_due').value||null,assigned_name:document.getElementById('e_assigned').value||null};
+  if(!obj.project_id||!obj.title){showToast('Project and Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('tasks').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('tasks').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Task updated!':'Task saved!');closeEditModal();await loadTasks();loadDashboard();
+}
+async function completeTask(id){
+  const{error}=await sb.from('tasks').update({status:'done'}).eq('id',id);
+  if(error){showToast('Error','error');return;}
+  showToast('Task completed!');await loadTasks();loadDashboard();
+}
+
+// ═══ COMMENTS ═══
+async function addComment(projId,taskId){
+  const el=projId?document.getElementById('projComment'):document.getElementById('taskComment');
+  const content=el?.value?.trim();if(!content){showToast('Enter a comment','error');return;}
+  const{error}=await sb.from('comments').insert([{project_id:projId||null,task_id:taskId||null,user_id:currentUser?.id,user_name:currentUser?.user_metadata?.full_name||currentUser?.email||'Admin',content:content}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Comment added!');
+  if(projId)showProjectDetail(projId);else if(taskId)showTaskDetail(taskId);
 }
 
 // ═══ APPS ═══
-async function loadApps(){const{data,error}=await sb.from('app_library').select('*').eq('is_active',true).order('sort_order');if(!error)S.apps=data||[];renderApps();}
+async function loadApps(){const{data}=await sb.from('app_library').select('*').eq('is_active',true).order('sort_order');S.apps=data||[];renderApps();}
 function renderApps(){
-  document.getElementById('appsGrid').innerHTML=S.apps.length?S.apps.map(a=>'<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem"><div style="display:flex;justify-content:space-between;align-items:start"><h3 style="font-size:1rem">'+a.name+'</h3>'+(a.badge_text?'<span class="badge badge-gold">'+a.badge_text+'</span>':'')+'</div><p style="font-size:0.8rem;color:var(--text-muted)">'+(a.tagline||'')+'</p><p style="font-size:0.85rem;flex:1">'+(a.description||'')+'</p><div style="display:flex;flex-wrap:wrap;gap:4px;margin:4px 0">'+(a.tags||[]).map(t=>'<span class="badge badge-info">'+t+'</span>').join('')+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:0.75rem;border-top:1px solid var(--border-subtle)"><span style="font-size:0.9rem;font-weight:600;color:var(--accent)">'+(a.price_label||'Free')+'</span>'+(a.primary_button_url?'<a href="'+a.primary_button_url+'" target="_blank" class="btn btn-sm btn-primary">'+(a.primary_button_text||'Launch')+'</a>':'')+'</div></div>').join(''):'<p class="table-empty">No apps in library</p>';
+  document.getElementById('appsGrid').innerHTML=S.apps.length?S.apps.map(a=>'<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:0.5rem"><div style="display:flex;justify-content:space-between;align-items:start"><h3 style="font-size:1rem">'+a.name+'</h3>'+(a.badge_text?'<span class="badge badge-gold">'+a.badge_text+'</span>':'')+'</div><p style="font-size:0.8rem;color:var(--text-muted)">'+(a.tagline||'')+'</p><p style="font-size:0.85rem;flex:1">'+(a.description||'')+'</p><div style="display:flex;flex-wrap:wrap;gap:4px;margin:4px 0">'+(a.tags||[]).map(t=>'<span class="badge badge-info">'+t+'</span>').join('')+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:0.75rem;border-top:1px solid var(--border-subtle)"><span style="font-size:0.9rem;font-weight:600;color:var(--accent)">'+(a.price_label||'Free')+'</span><div style="display:flex;gap:6px">'+(a.primary_button_url?'<a href="'+a.primary_button_url+'" target="_blank" class="btn btn-sm btn-primary">'+(a.primary_button_text||'Launch')+'</a>':'')+'<button class="btn btn-sm btn-secondary" onclick="editApp(\''+a.id+'\')">Edit</button></div></div></div>').join(''):'<p class="table-empty">No apps</p>';
 }
-async function saveApp(){
-  const name=document.getElementById('app_name').value;if(!name){showToast('Name is required','error');return;}
-  const{error}=await sb.from('app_library').insert([{name:name,tagline:document.getElementById('app_tagline').value||null,description:document.getElementById('app_description').value||null,category:document.getElementById('app_category').value||'Productivity',price_label:document.getElementById('app_price_label').value||null,primary_button_url:document.getElementById('app_url').value||null,primary_button_text:document.getElementById('app_btn_text').value||'Launch App',access_url:document.getElementById('app_url').value||null,is_featured:document.getElementById('app_featured').checked,is_popular:document.getElementById('app_popular').checked,badge_text:document.getElementById('app_featured').checked?'Featured':document.getElementById('app_popular').checked?'Popular':null}]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('App saved!');closeModal('app');await loadApps();
+function editApp(id){
+  const a=id?S.apps.find(x=>x.id===id):null;
+  const body=FG('App Name *','e_name','text',a?.name)+FG('Tagline','e_tagline','text',a?.tagline)+FG('Description','e_desc','textarea',a?.description)+FR(FG('Category','e_category','text',a?.category),FG('Price Label','e_price_label','text',a?.price_label))+FR(FG('Launch URL','e_url','url',a?.primary_button_url),FG('Button Text','e_btn','text',a?.primary_button_text||'Launch App'))+FG('Tags (comma-separated)','e_tags','text',(a?.tags||[]).join(', '))+FR(FG('Featured','e_featured','checkbox',a?.is_featured),FG('Popular','e_popular','checkbox',a?.is_popular))+FR(FG('Show on Marketplace','e_marketplace','checkbox',a?.show_on_marketplace!==false),FG('Sort Order','e_sort','number',a?.sort_order||0));
+  openEditModal(a?'Edit App':'Add App',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveApp('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveApp(id){
+  const name=document.getElementById('e_name').value;if(!name){showToast('Name required','error');return;}
+  const tags=document.getElementById('e_tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const obj={name:name,tagline:document.getElementById('e_tagline').value||null,description:document.getElementById('e_desc').value||null,category:document.getElementById('e_category').value||'Productivity',price_label:document.getElementById('e_price_label').value||null,primary_button_url:document.getElementById('e_url').value||null,primary_button_text:document.getElementById('e_btn').value||'Launch App',access_url:document.getElementById('e_url').value||null,tags:tags,is_featured:document.getElementById('e_featured').checked,is_popular:document.getElementById('e_popular').checked,show_on_marketplace:document.getElementById('e_marketplace').checked,sort_order:parseInt(document.getElementById('e_sort').value)||0,badge_text:document.getElementById('e_featured').checked?'Featured':document.getElementById('e_popular').checked?'Popular':null};
+  let err;
+  if(id){({error:err}=await sb.from('app_library').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('app_library').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'App updated!':'App saved!');closeEditModal();await loadApps();
 }
 
 // ═══ EVENTS ═══
-async function loadEvents(){const{data,error}=await sb.from('events').select('*').order('start_time',{ascending:true});if(!error)S.events=data||[];renderEvents();}
+async function loadEvents(){const{data}=await sb.from('events').select('*').order('start_time',{ascending:true});S.events=data||[];renderEvents();}
 function renderEvents(){
-  document.getElementById('eventsTable').innerHTML='<table><thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Location</th><th>Price</th><th>Website</th><th>Capacity</th><th>Public</th></tr></thead><tbody>'+(S.events.length?S.events.map(e=>'<tr><td>'+e.title+'</td><td>'+statusBadge(e.event_type)+'</td><td>'+fmtDate(e.start_time)+'</td><td>'+(e.location||e.meeting_url||'—')+'</td><td>'+(e.price?fmtMoney(e.price):'Free')+'</td><td>'+(e.website_url?'<a href="'+e.website_url+'" target="_blank">Link</a>':'—')+'</td><td>'+(e.max_attendees||'Unlimited')+'</td><td>'+(e.is_public?'Yes':'—')+'</td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No events found</td></tr>')+'</tbody></table>';
+  document.getElementById('eventsTable').innerHTML='<table><thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Location</th><th>Price</th><th>Website</th><th>Capacity</th><th>Actions</th></tr></thead><tbody>'+(S.events.length?S.events.map(e=>'<tr><td>'+e.title+'</td><td>'+B(e.event_type)+'</td><td>'+fmtDate(e.start_time)+'</td><td>'+(e.location||e.meeting_url||'—')+'</td><td>'+(e.price?fmtMoney(e.price):'Free')+'</td><td>'+(e.website_url?'<a href="'+e.website_url+'" target="_blank">Link</a>':'—')+'</td><td>'+(e.max_attendees||'&#8734;')+'</td><td><button class="btn btn-sm btn-secondary" onclick="editEvent(\''+e.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No events</td></tr>')+'</tbody></table>';
 }
-async function saveEvent(){
-  const title=document.getElementById('event_title').value;const start=document.getElementById('event_start').value;const end=document.getElementById('event_end').value;
-  if(!title||!start||!end){showToast('Name, Start and End are required','error');return;}
-  const{error}=await sb.from('events').insert([{title:title,description:document.getElementById('event_description').value||null,event_type:document.getElementById('event_type').value||'workshop',price:parseFloat(document.getElementById('event_price').value)||0,start_time:start,end_time:end,location:document.getElementById('event_location').value||null,meeting_url:document.getElementById('event_meeting_url').value||null,website_url:document.getElementById('event_website').value||null,max_attendees:parseInt(document.getElementById('event_max').value)||null,is_public:document.getElementById('event_public').checked}]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('Event saved!');closeModal('event');await loadEvents();loadDashboard();
+function editEvent(id){
+  const e=id?S.events.find(x=>x.id===id):null;
+  const st=e?.start_time?new Date(e.start_time).toISOString().slice(0,16):'';
+  const et=e?.end_time?new Date(e.end_time).toISOString().slice(0,16):'';
+  const body=FG('Event Name *','e_title','text',e?.title)+FG('Description','e_desc','textarea',e?.description)+FR(FG('Type','e_type','select',e?.event_type||'workshop',EVENT_TYPE_OPTS),FG('Price ($)','e_price','number',e?.price))+FR(FG('Start Time *','e_start','datetime-local',st),FG('End Time *','e_end','datetime-local',et))+FR(FG('Location','e_location','text',e?.location),FG('Meeting URL','e_meeting','url',e?.meeting_url))+FR(FG('Website URL','e_website','url',e?.website_url),FG('Max Attendees','e_max','number',e?.max_attendees))+FG('Public Event','e_public','checkbox',e?.is_public);
+  openEditModal(e?'Edit Event':'Create Event',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEvent('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveEvent(id){
+  const title=document.getElementById('e_title').value,start=document.getElementById('e_start').value,end=document.getElementById('e_end').value;
+  if(!title||!start||!end){showToast('Name, Start and End required','error');return;}
+  const obj={title:title,description:document.getElementById('e_desc').value||null,event_type:document.getElementById('e_type').value,price:parseFloat(document.getElementById('e_price').value)||0,start_time:start,end_time:end,location:document.getElementById('e_location').value||null,meeting_url:document.getElementById('e_meeting').value||null,website_url:document.getElementById('e_website').value||null,max_attendees:parseInt(document.getElementById('e_max').value)||null,is_public:document.getElementById('e_public').checked};
+  let err;
+  if(id){({error:err}=await sb.from('events').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('events').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Event updated!':'Event saved!');closeEditModal();await loadEvents();loadDashboard();
 }
 
 // ═══ RESOURCES ═══
-async function loadResources(){const{data,error}=await sb.from('resources').select('*').order('created_at',{ascending:false});if(!error)S.resources=data||[];renderResources();}
+async function loadResources(){const{data}=await sb.from('resources').select('*').order('created_at',{ascending:false});S.resources=data||[];renderResources();}
 function renderResources(){
-  document.getElementById('resourcesTable').innerHTML='<table><thead><tr><th>Title</th><th>Type</th><th>Description</th><th>Created</th></tr></thead><tbody>'+(S.resources.length?S.resources.map(r=>'<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+statusBadge(r.type)+'</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis">'+(r.description?r.description.replace(/<[^>]*>/g,'').substring(0,100):'—')+'</td><td>'+fmtDate(r.created_at)+'</td></tr>').join(''):'<tr><td colspan="4" class="table-empty">No resources found</td></tr>')+'</tbody></table>';
+  document.getElementById('resourcesTable').innerHTML='<table><thead><tr><th>Title</th><th>Type</th><th>Client</th><th>Description</th><th>Created</th><th>Actions</th></tr></thead><tbody>'+(S.resources.length?S.resources.map(r=>'<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+B(r.type)+'</td><td>'+(r.client_id?clientName(r.client_id):'Global')+'</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis">'+(r.description?r.description.replace(/<[^>]*>/g,'').substring(0,80):'—')+'</td><td>'+fmtDate(r.created_at)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editResource(\''+r.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No resources</td></tr>')+'</tbody></table>';
 }
-async function saveResource(){
-  const title=document.getElementById('resource_title').value;const clientId=document.getElementById('resource_client_id').value;
-  if(!title||!clientId){showToast('Title and Client are required','error');return;}
-  const type=document.getElementById('resource_type').value;let url=null,fileName=null,fileSize=null;
+function editResource(id){
+  const r=id?S.resources.find(x=>x.id===id):null;
+  const body=FG('Title *','e_title','text',r?.title)+'<div class="form-group"><label>Client (optional)</label><select id="e_client"><option value="">Global (All Clients)</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===r?.client_id?' selected':'')+'>'+(c.profiles?.full_name||'Client')+'</option>').join('')+'</select></div>'+FG('Type','e_type','select',r?.type||'file',[{v:'file',l:'File Upload'},{v:'url',l:'URL / Link'}])+'<div id="res_file_section"'+(r?.type==='url'?' style="display:none"':'')+'><div class="form-group"><label>Upload File</label><div class="file-upload-area" id="fileDropArea" onclick="document.getElementById(\'res_file_input\').click()"><div style="font-size:2rem;margin-bottom:0.5rem;color:var(--text-muted)">&#128206;</div><div style="font-size:0.85rem;color:var(--text-muted)">Click or drag a file here</div><div style="font-size:0.85rem;color:var(--accent);margin-top:0.5rem" id="selectedFileName">'+(r?.file_name||'')+'</div><input type="file" id="res_file_input" style="display:none" onchange="handleFileSelect(this)"></div></div></div><div id="res_url_section"'+(r?.type!=='url'?' style="display:none"':'')+'>'+ FG('URL','e_url','url',r?.url)+'</div><div class="form-group"><label>Description (Rich Text)</label><div id="res_editor"></div></div>';
+  openEditModal(r?'Edit Resource':'Add Resource',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveResource('+(id?"'"+id+"'":'')+')">Save</button>');
+  // Init Quill
+  setTimeout(()=>{
+    resourceQuill=new Quill('#res_editor',{theme:'snow',placeholder:'Add description...',modules:{toolbar:[[{header:[1,2,3,false]}],['bold','italic','underline','strike'],[{list:'ordered'},{list:'bullet'}],['link','image','video'],['clean']]}});
+    if(r?.description)resourceQuill.root.innerHTML=r.description;
+    // Toggle handler
+    document.getElementById('e_type').addEventListener('change',function(){
+      document.getElementById('res_file_section').style.display=this.value==='file'?'block':'none';
+      document.getElementById('res_url_section').style.display=this.value==='url'?'block':'none';
+    });
+    // Drag drop
+    const d=document.getElementById('fileDropArea');
+    ['dragenter','dragover'].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.add('dragover');}));
+    ['dragleave','drop'].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.remove('dragover');}));
+    d.addEventListener('drop',e=>{if(e.dataTransfer.files.length){selectedFile=e.dataTransfer.files[0];document.getElementById('selectedFileName').textContent=selectedFile.name+' ('+Math.round(selectedFile.size/1024)+'KB)';}});
+  },100);
+}
+function handleFileSelect(input){if(input.files.length){selectedFile=input.files[0];document.getElementById('selectedFileName').textContent=selectedFile.name+' ('+Math.round(selectedFile.size/1024)+'KB)';}}
+async function saveResource(id){
+  const title=document.getElementById('e_title').value;
+  if(!title){showToast('Title required','error');return;}
+  const type=document.getElementById('e_type').value;
+  let url=null,fileName=null,fileSize=null;
   if(type==='file'&&selectedFile){
     const path='resources/'+Date.now()+'_'+selectedFile.name;
     const{error:ue}=await sb.storage.from('resources').upload(path,selectedFile);
-    if(ue){console.error(ue);showToast('Upload error: '+ue.message,'error');return;}
-    const{data:urlData}=sb.storage.from('resources').getPublicUrl(path);
-    url=urlData.publicUrl;fileName=selectedFile.name;fileSize=selectedFile.size;
-  }else if(type==='url'){url=document.getElementById('resource_url').value||null;}
+    if(ue){showToast('Upload error: '+ue.message,'error');return;}
+    const{data:u}=sb.storage.from('resources').getPublicUrl(path);
+    url=u.publicUrl;fileName=selectedFile.name;fileSize=selectedFile.size;
+  }else if(type==='url'){url=document.getElementById('e_url').value||null;}
   const desc=resourceQuill?resourceQuill.root.innerHTML:'';
-  const{data:{session}}=await sb.auth.getSession();
-  const{error}=await sb.from('resources').insert([{title:title,client_id:clientId,type:type,url:url,file_name:fileName,file_size:fileSize,description:desc||null,uploaded_by:session?.user?.id||null}]);
-  if(error){console.error(error);showToast('Error: '+error.message,'error');return;}
-  showToast('Resource saved!');closeModal('resource');selectedFile=null;
-  if(resourceQuill)resourceQuill.setContents([]);
-  document.getElementById('selectedFileName').textContent='';
-  await loadResources();
+  const clientId=document.getElementById('e_client').value||null;
+  const obj={title:title,client_id:clientId,type:type,description:desc||null};
+  if(url)obj.url=url;if(fileName)obj.file_name=fileName;if(fileSize)obj.file_size=fileSize;
+  if(!id)obj.uploaded_by=currentUser?.id||null;
+  let err;
+  if(id){({error:err}=await sb.from('resources').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('resources').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Resource updated!':'Resource saved!');closeEditModal();selectedFile=null;await loadResources();
 }
 
 // LOGOUT
