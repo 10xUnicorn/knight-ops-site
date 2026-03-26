@@ -563,7 +563,14 @@ async function loadResources(){
   const{data:clientProjects}=await sb.from('projects').select('id').eq('client_id',clientId);
   const projectIds=(clientProjects||[]).map(p=>p.id);
 
-  const{data}=await sb.from('resources').select('*').or(`client_id.eq.${clientId},project_id.in.(${projectIds.join(',')})`,{referencedTable:'resources'}).order('created_at',{ascending:false});
+  // Build filter: resources for this client OR for their projects
+  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
+  if(projectIds.length){
+    query=query.or(`client_id.eq.${clientId},project_id.in.(${projectIds.join(',')})`);
+  } else {
+    query=query.eq('client_id',clientId);
+  }
+  const{data}=await query;
 
   if(!data||!data.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
 

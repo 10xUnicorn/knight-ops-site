@@ -138,11 +138,27 @@ const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+console.log('[Auth] Page loaded, checking session...');
+
+// ── Handle auth state changes (magic link, OAuth, etc.) ──
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('[Auth] State change:', event, session?.user?.email);
+  if (event === 'SIGNED_IN' && session) {
+    showStatus('Success! Redirecting...', 'success');
+    redirectByRole(session.user.id);
+  }
+});
+
 // ── Check if already logged in ──
 (async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    redirectByRole(session.user.id);
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('[Auth] Session check:', session ? session.user.email : 'none', error || '');
+    if (session) {
+      redirectByRole(session.user.id);
+    }
+  } catch(e) {
+    console.error('[Auth] Session check failed:', e);
   }
 })();
 
@@ -195,15 +211,18 @@ async function handleLogin(e) {
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
 
+  console.log('[Auth] Attempting login for:', email);
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    console.error('[Auth] Login error:', error.message, error);
     showStatus(error.message, 'error');
     btn.disabled = false;
     btn.textContent = 'Sign In';
     return;
   }
 
+  console.log('[Auth] Login success:', data.user.email, data.user.id);
   showStatus('Success! Redirecting...', 'success');
   redirectByRole(data.user.id);
 }
@@ -272,14 +291,23 @@ async function sendMagicLink(context) {
   }
 }
 
-// ── Handle magic link redirect (token in URL hash) ──
+// ── Handle magic link redirect (hash or query params) ──
 (async function handleMagicLinkRedirect() {
   const hash = window.location.hash;
-  if (hash && hash.includes('access_token')) {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (session) {
-      redirectByRole(session.user.id);
-    }
+  const params = new URLSearchParams(window.location.search);
+  // Handle both legacy hash-based and PKCE query-based tokens
+  if ((hash && hash.includes('access_token')) || params.has('code') || params.has('token')) {
+    console.log('[Auth] Magic link redirect detected');
+    // Small delay to let Supabase process the token
+    setTimeout(async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('[Auth] Magic link session:', session?.user?.email, error || '');
+      if (session) {
+        redirectByRole(session.user.id);
+      } else if (error) {
+        showStatus('Magic link expired or invalid. Try again.', 'error');
+      }
+    }, 500);
   }
 })();
 
