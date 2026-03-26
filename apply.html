@@ -382,12 +382,12 @@ textarea::placeholder, input::placeholder { color: var(--muted); font-size: 0.87
     <div class="success-icon">&#10003;</div>
     <h2>Application <span>received</span>.</h2>
     <p>We're reviewing your answers now. Within 24 hours, you'll hear from us with our assessment of the highest-impact system opportunity for your business.</p>
-    <a href="#" class="success-next">Book a Discovery Call &rarr;</a>
+    <a href="/book" class="success-next">Book a Discovery Call &rarr;</a>
   </div>
 </div>
 
 <div class="form-footer">
-  <p>&copy; 2026 Knight Ops. All rights reserved. &nbsp;|&nbsp; <a href="#">knightops.io</a></p>
+  <p>&copy; 2026 Knight Ops. All rights reserved. &nbsp;|&nbsp; <a href="/">KnightOps.biz</a></p>
 </div>
 
 <script>
@@ -507,6 +507,27 @@ function submitForm() {
     })
   }).then(res => {
     if (!res.ok) throw new Error('Submission failed');
+    // Also create a lead in the leads table for admin pipeline
+    return fetch('https://trpnlkntvulkjerevngm.supabase.co/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        name: answers.firstName + ' ' + answers.lastName,
+        email: answers.email,
+        phone: answers.phone || null,
+        company: answers.company || null,
+        source: 'website',
+        status: 'new',
+        estimated_budget: answers.budget ? parseInt(answers.budget.replace(/[^0-9]/g,'')) : null,
+        notes: 'Applied via intake form. Timeline: ' + (answers.timeline||'Not specified')
+      })
+    });
+  }).then(() => {
     showSuccess();
   }).catch(err => {
     console.error('Submission error:', err);

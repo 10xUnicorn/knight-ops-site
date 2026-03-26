@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal | Knight Ops</title>
+<style>
+:root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--border-subtle:rgba(255,255,255,0.06);--error:#E53935;--success:#4CAF50;--warning:#FF9800;--info:#2196F3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between}
+.topnav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.topnav-logo .shield{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),#A08636);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--bg);font-weight:800}
+.topnav-logo span{font-size:1rem;font-weight:700;color:var(--text);letter-spacing:1px}
+.topnav-links{display:flex;gap:0;align-items:center}
+.topnav-link{padding:8px 16px;color:var(--text-muted);font-size:0.85rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;text-decoration:none}
+.topnav-link:hover{color:var(--text)}
+.topnav-link.active{color:var(--accent);border-bottom-color:var(--accent)}
+.topnav-right{display:flex;align-items:center;gap:12px}
+.topnav-right .user-name{font-size:0.85rem;color:var(--text-muted)}
+.topnav-right button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem}
+.topnav-right button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LAYOUT ── */
+.page{padding:80px 2rem 3rem;max-width:1100px;margin:0 auto}
+.page-title{font-size:1.6rem;font-weight:800;margin-bottom:0.5rem}
+.page-sub{color:var(--text-muted);font-size:0.95rem;margin-bottom:2rem}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-size:1rem;font-weight:600}
+.card-body{padding:1.25rem}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem;margin-bottom:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center}
+.kpi .val{font-size:1.6rem;font-weight:800;color:var(--accent)}
+.kpi .lbl{font-size:0.8rem;color:var(--text-muted);margin-top:4px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.badge-success{background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.2)}
+.badge-warning{background:rgba(255,152,0,0.1);color:var(--warning);border:1px solid rgba(255,152,0,0.2)}
+.badge-error{background:rgba(229,57,53,0.1);color:var(--error);border:1px solid rgba(229,57,53,0.2)}
+.badge-info{background:rgba(33,150,243,0.1);color:var(--info);border:1px solid rgba(33,150,243,0.2)}
+.badge-gold{background:rgba(200,164,86,0.1);color:var(--accent);border:1px solid rgba(200,164,86,0.2)}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg)}
+.btn-primary:hover{box-shadow:0 0 20px var(--accent-glow)}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:0.8rem}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtle)}
+
+/* ── PROGRESS ── */
+.progress-bar{background:var(--surface-3);border-radius:4px;height:8px;overflow:hidden;width:100%}
+.progress-fill{background:var(--accent);height:100%;border-radius:4px;transition:width 0.3s}
+
+/* ── PROJECT CARD ── */
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;cursor:pointer;transition:all 0.3s}
+.proj-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.proj-card h4{font-size:1rem;margin-bottom:6px}
+.proj-meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+
+/* ── APP CARD ── */
+.app-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;transition:all 0.3s}
+.app-card:hover{border-color:var(--accent)}
+.app-card h4{margin-bottom:4px}
+.app-card p{font-size:0.85rem;color:var(--text-muted);line-height:1.4;margin-bottom:0.75rem}
+
+/* ── DETAIL ── */
+.detail-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);cursor:pointer;font-size:0.9rem;margin-bottom:1rem}
+.detail-back:hover{color:var(--accent)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.info-item .info-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.info-item .info-value{font-size:0.95rem}
+.detail-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.detail-tab{padding:10px 20px;font-size:0.85rem;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.detail-tab:hover{color:var(--text)}
+.detail-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.detail-pane{display:none}
+.detail-pane.active{display:block}
+
+/* ── EMPTY ── */
+.empty{padding:3rem;text-align:center;color:var(--text-muted);font-size:0.9rem}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.9rem;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .topnav{padding:0 1rem}
+  .topnav-links{display:none}
+  .page{padding:75px 1rem 2rem}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .info-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="topnav">
+  <a href="/" class="topnav-logo">
+    <div class="shield">K</div>
+    <span>KNIGHT OPS</span>
+  </a>
+  <div class="topnav-links">
+    <div class="topnav-link active" data-view="overview">Overview</div>
+    <div class="topnav-link" data-view="projects">Projects</div>
+    <div class="topnav-link" data-view="apps">My Apps</div>
+    <div class="topnav-link" data-view="events">Events</div>
+    <div class="topnav-link" data-view="resources">Resources</div>
+    <div class="topnav-link" data-view="account">Account</div>
+  </div>
+  <div class="topnav-right">
+    <span class="user-name" id="userName"></span>
+    <button onclick="handleLogout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="page">
+  <!-- OVERVIEW -->
+  <div class="view active" id="v-overview">
+    <h1 class="page-title" id="welcomeTitle">Welcome back</h1>
+    <p class="page-sub">Here's what's happening with your projects and apps.</p>
+    <div class="kpi-row" id="overviewKPIs"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Active Projects</h3></div>
+        <div class="card-body" id="overviewProjects"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>My Apps</h3></div>
+        <div class="card-body" id="overviewApps"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="card-head"><h3>Upcoming Events</h3></div>
+      <div class="card-body" id="overviewEvents"></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="view" id="v-projects">
+    <div id="projectsList">
+      <h1 class="page-title">My Projects</h1>
+      <p class="page-sub">Track progress, milestones, and deliverables for all your builds.</p>
+      <div class="grid-2" id="projCards"></div>
+    </div>
+    <div id="projectDetail" style="display:none"></div>
+  </div>
+
+  <!-- APPS -->
+  <div class="view" id="v-apps">
+    <h1 class="page-title">My Apps</h1>
+    <p class="page-sub">Apps provisioned to your account.</p>
+    <div class="grid-3" id="myAppsGrid"></div>
+    <h2 style="font-size:1.2rem;margin:2rem 0 1rem">App Marketplace</h2>
+    <div class="grid-3" id="marketplaceGrid"></div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="view" id="v-events">
+    <h1 class="page-title">Events</h1>
+    <p class="page-sub">Workshops, masterminds, and networking opportunities.</p>
+    <div id="eventsGrid" class="grid-3"></div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="view" id="v-resources">
+    <h1 class="page-title">Resources</h1>
+    <p class="page-sub">Guides, templates, and tools to accelerate your growth.</p>
+    <div id="resourcesList"></div>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div class="view" id="v-account">
+    <h1 class="page-title">Account Settings</h1>
+    <p class="page-sub">Manage your profile and preferences.</p>
+    <div class="card" style="max-width:600px">
+      <div class="card-body" id="accountInfo"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+let currentUser=null;
+let clientRecord=null;
+let clientId=null;
+
+// ── Auth Gate ──
+(async function(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='/auth';return}
+  currentUser=session.user;
+
+  // Get profile
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(profile&&profile.role==='admin'){window.location.href='/admin';return}
+
+  // Get client record
+  const{data:client}=await sb.from('clients').select('*').eq('user_id',currentUser.id).single();
+  clientRecord=client;
+  clientId=client?.id;
+
+  const name=profile?.full_name||currentUser.email.split('@')[0];
+  document.getElementById('userName').textContent=name;
+  document.getElementById('welcomeTitle').textContent=`Welcome back, ${name.split(' ')[0]}`;
+
+  setupNav();
+  loadOverview();
+})();
+
+async function handleLogout(){
+  await sb.auth.signOut();
+  window.location.href='/auth';
+}
+
+// ── Navigation ──
+function setupNav(){
+  document.querySelectorAll('.topnav-link').forEach(link=>{
+    link.addEventListener('click',()=>{
+      document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
+      link.classList.add('active');
+      const v=link.dataset.view;
+      document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+      document.getElementById('v-'+v).classList.add('active');
+      // Reset detail
+      if(document.getElementById('projectsList'))document.getElementById('projectsList').style.display='';
+      if(document.getElementById('projectDetail'))document.getElementById('projectDetail').style.display='none';
+      // Load
+      const loaders={overview:loadOverview,projects:loadProjects,apps:loadApps,events:loadEvents,resources:loadResources,account:loadAccount};
+      if(loaders[v])loaders[v]();
+    });
+  });
+}
+
+// ── Utilities ──
+function fmt$(n){return n?'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:0}):'$0'}
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function statusBadge(s){
+  const map={active:'success',inactive:'error',onboarding:'info',paused:'warning',
+    discovery:'info',proposal:'gold',approved:'success',in_progress:'warning',review:'info',launched:'success',maintenance:'gold',cancelled:'error',
+    pending:'warning',completed:'success',blocked:'error',
+    not_started:'info',on_track:'success',behind:'error',at_risk:'warning',
+    upcoming:'info',live:'success',past:'error',
+    granted:'success',revoked:'error',trial:'warning',expired:'error'};
+  return`<span class="badge badge-${map[s]||'gold'}">${s?s.replace(/_/g,' '):'—'}</span>`;
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),3000)}
+
+// ── Overview ──
+async function loadOverview(){
+  if(!clientId){
+    document.getElementById('overviewKPIs').innerHTML='';
+    document.getElementById('overviewProjects').innerHTML='<div class="empty">No client account linked yet. Contact support.</div>';
+    document.getElementById('overviewApps').innerHTML='<div class="empty">No apps yet.</div>';
+    document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events.</div>';
+    return;
+  }
+
+  const[{data:projects},{data:apps},{count:taskCount},{data:events}]=await Promise.all([
+    sb.from('projects').select('id,name,status,tier,progress_pct,deadline').eq('client_id',clientId).order('created_at',{ascending:false}),
+    sb.from('client_apps').select('*,app_library(name,short_description,cta_url,cta_label)').eq('client_id',clientId),
+    sb.from('tasks').select('*',{count:'exact',head:true}).in('project_id',(projects||[]).map(p=>p.id)).eq('status','in_progress'),
+    sb.from('client_events').select('*,events(title,event_date,location,event_type)').eq('client_id',clientId)
+  ]);
+
+  const activeProjs=(projects||[]).filter(p=>!['launched','cancelled','maintenance'].includes(p.status));
+
+  document.getElementById('overviewKPIs').innerHTML=`
+    <div class="kpi"><div class="val">${(projects||[]).length}</div><div class="lbl">Total Projects</div></div>
+    <div class="kpi"><div class="val">${activeProjs.length}</div><div class="lbl">Active Builds</div></div>
+    <div class="kpi"><div class="val">${(apps||[]).length}</div><div class="lbl">Apps</div></div>
+    <div class="kpi"><div class="val">${taskCount||0}</div><div class="lbl">Tasks In Progress</div></div>
+  `;
+
+  // Projects
+  if(activeProjs.length){
+    let h='';
+    activeProjs.slice(0,3).forEach(p=>{
+      const pct=p.progress_pct||0;
+      h+=`<div style="padding:10px 0;border-bottom:1px solid var(--border-subtle);cursor:pointer" onclick="switchToProjectDetail('${p.id}')">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${p.name}</strong>${statusBadge(p.status)}</div>
+        <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:0.8rem;color:var(--text-muted)"><span>${pct}% complete</span><span>Due ${fmtDate(p.deadline)}</span></div>
+      </div>`;
+    });
+    document.getElementById('overviewProjects').innerHTML=h;
+  } else {
+    document.getElementById('overviewProjects').innerHTML='<div class="empty">No active projects</div>';
+  }
+
+  // Apps
+  if((apps||[]).length){
+    let h='';
+    apps.forEach(a=>{
+      const app=a.app_library||{};
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
+        <span>${app.name||'—'}</span>${statusBadge(a.access_status)}
+      </div>`;
+    });
+    document.getElementById('overviewApps').innerHTML=h;
+  } else {
+    document.getElementById('overviewApps').innerHTML='<div class="empty">No apps provisioned</div>';
+  }
+
+  // Events
+  const upcoming=(events||[]).filter(e=>e.events&&new Date(e.events.event_date)>=new Date());
+  if(upcoming.length){
+    let h='<table><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>RSVP</th></tr></thead><tbody>';
+    upcoming.forEach(e=>{
+      const ev=e.events;
+      h+=`<tr><td>${ev.title}</td><td>${fmtDate(ev.event_date)}</td><td>${ev.location||'Virtual'}</td><td>${statusBadge(e.rsvp_status)}</td></tr>`;
+    });
+    h+='</tbody></table>';
+    document.getElementById('overviewEvents').innerHTML=h;
+  } else {
+    document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events</div>';
+  }
+}
+
+function switchToProjectDetail(id){
+  document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
+  document.querySelector('[data-view="projects"]').classList.add('active');
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('v-projects').classList.add('active');
+  openProjectDetail(id);
+}
+
+// ── Projects ──
+async function loadProjects(){
+  if(!clientId){document.getElementById('projCards').innerHTML='<div class="empty">No projects found</div>';return}
+  const{data}=await sb.from('projects').select('id,name,status,tier,progress_pct,deadline,total_price,created_at').eq('client_id',clientId).order('created_at',{ascending:false});
+  if(!data||!data.length){document.getElementById('projCards').innerHTML='<div class="empty">No projects yet</div>';return}
+  let h='';
+  data.forEach(p=>{
+    const pct=p.progress_pct||0;
+    h+=`<div class="proj-card" onclick="openProjectDetail('${p.id}')">
+      <h4>${p.name}</h4>
+      <div class="proj-meta">${statusBadge(p.status)} <span class="badge badge-gold">${(p.tier||'').replace(/_/g,' ')}</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.8rem;color:var(--text-muted)">
+        <span>${pct}%</span><span>Due ${fmtDate(p.deadline)}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('projCards').innerHTML=h;
+  document.getElementById('projectsList').style.display='';
+  document.getElementById('projectDetail').style.display='none';
+}
+
+async function openProjectDetail(id){
+  const{data:project}=await sb.from('projects').select('*').eq('id',id).single();
+  if(!project)return;
+  const[{data:tasks},{data:milestones},{data:files},{data:comments}]=await Promise.all([
+    sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
+    sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
+    sb.from('project_files').select('*').eq('project_id',id).eq('is_client_visible',true).order('uploaded_at',{ascending:false}),
+    sb.from('project_comments').select('*,profiles(full_name)').eq('project_id',id).eq('is_internal',false).order('created_at',{ascending:false})
+  ]);
+
+  document.getElementById('projectsList').style.display='none';
+  const d=document.getElementById('projectDetail');d.style.display='block';
+  const pct=project.progress_pct||0;
+
+  let taskRows='';
+  (tasks||[]).forEach(t=>{
+    taskRows+=`<tr><td>${t.title}</td><td>${statusBadge(t.status)}</td><td>${fmtDate(t.due_date)}</td></tr>`;
+  });
+
+  let msRows='';
+  (milestones||[]).forEach(m=>{
+    msRows+=`<tr><td>${m.title}</td><td>${statusBadge(m.status)}</td><td>${fmtDate(m.due_date)}</td></tr>`;
+  });
+
+  let fileRows='';
+  (files||[]).forEach(f=>{
+    fileRows+=`<tr><td>${f.file_name}</td><td>${fmtDate(f.uploaded_at)}</td><td><a href="${SUPABASE_URL}/storage/v1/object/public/project-files/${f.storage_path}" target="_blank" class="btn btn-sm btn-secondary">Download</a></td></tr>`;
+  });
+
+  let commentHTML='';
+  (comments||[]).forEach(c=>{
+    commentHTML+=`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${c.profiles?.full_name||'Team'}</strong><span style="color:var(--text-muted);font-size:0.8rem">${fmtDate(c.created_at)}</span></div>
+      <div style="font-size:0.9rem">${c.content}</div>
+    </div>`;
+  });
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="loadProjects()">&#8592; Back to Projects</div>
+    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:1rem">${project.name}</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Tier</div><div class="info-value"><span class="badge badge-gold">${(project.tier||'').replace(/_/g,' ')}</span></div></div>
+      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(project.status)}</div></div>
+      <div class="info-item"><div class="info-label">Progress</div><div class="info-value"><div class="progress-bar" style="width:120px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:${pct}%"></div></div> ${pct}%</div></div>
+      <div class="info-item"><div class="info-label">Start</div><div class="info-value">${fmtDate(project.start_date)}</div></div>
+      <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.deadline)}</div></div>
+      <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
+    </div>
+    ${project.description?`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:0.9rem;line-height:1.5;color:var(--text-muted)">${project.description}</div>`:''}
+    <div class="detail-tabs">
+      <div class="detail-tab active" onclick="switchTab(this)">Tasks (${(tasks||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Milestones (${(milestones||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Files (${(files||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Comments (${(comments||[]).length})</div>
+    </div>
+    <div class="detail-pane active">
+      ${taskRows?`<table><thead><tr><th>Task</th><th>Status</th><th>Due</th></tr></thead><tbody>${taskRows}</tbody></table>`:'<div class="empty">No tasks yet</div>'}
+    </div>
+    <div class="detail-pane">
+      ${msRows?`<table><thead><tr><th>Milestone</th><th>Status</th><th>Due</th></tr></thead><tbody>${msRows}</tbody></table>`:'<div class="empty">No milestones yet</div>'}
+    </div>
+    <div class="detail-pane">
+      ${fileRows?`<table><thead><tr><th>File</th><th>Uploaded</th><th></th></tr></thead><tbody>${fileRows}</tbody></table>`:'<div class="empty">No files shared yet</div>'}
+    </div>
+    <div class="detail-pane">
+      <div style="margin-bottom:1rem">
+        <textarea id="clientComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+        <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postClientComment('${id}')">Post Comment</button>
+      </div>
+      ${commentHTML||'<div class="empty">No comments yet</div>'}
+    </div>
+  `;
+}
+
+function switchTab(el){
+  const tabs=el.parentElement;
+  tabs.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const idx=Array.from(tabs.children).indexOf(el);
+  const panes=tabs.parentElement.querySelectorAll('.detail-pane');
+  panes.forEach(p=>p.classList.remove('active'));
+  if(panes[idx])panes[idx].classList.add('active');
+}
+
+async function postClientComment(projectId){
+  const el=document.getElementById('clientComment');
+  const content=el.value.trim();if(!content)return;
+  const{error}=await sb.from('project_comments').insert({project_id:projectId,author_id:currentUser.id,content,is_internal:false});
+  if(error){toast('Failed to post comment');return}
+  toast('Comment posted');
+  openProjectDetail(projectId);
+}
+
+// ── Apps ──
+async function loadApps(){
+  // My apps
+  if(clientId){
+    const{data:myApps}=await sb.from('client_apps').select('*,app_library(*)').eq('client_id',clientId);
+    if(myApps&&myApps.length){
+      let h='';
+      myApps.forEach(a=>{
+        const app=a.app_library||{};
+        h+=`<div class="app-card">
+          <div style="display:flex;justify-content:space-between;align-items:start"><h4>${app.name||'—'}</h4>${statusBadge(a.access_status)}</div>
+          <p>${app.short_description||''}</p>
+          ${app.cta_url?`<a href="${app.cta_url}" target="_blank" class="btn btn-sm btn-primary">${app.cta_label||'Launch App'}</a>`:''}
+        </div>`;
+      });
+      document.getElementById('myAppsGrid').innerHTML=h;
+    } else {
+      document.getElementById('myAppsGrid').innerHTML='<div class="empty">No apps provisioned to your account yet.</div>';
+    }
+  }
+
+  // Marketplace
+  const{data:allApps}=await sb.from('app_library').select('*').in('status',['published','featured']).order('sort_order');
+  if(allApps&&allApps.length){
+    let h='';
+    allApps.forEach(a=>{
+      h+=`<div class="app-card">
+        <div style="display:flex;justify-content:space-between;align-items:start"><h4>${a.name}</h4>
+          <div style="display:flex;gap:4px">${a.is_featured?'<span class="badge badge-gold">Featured</span>':''}${a.is_popular?'<span class="badge badge-success">Popular</span>':''}</div>
+        </div>
+        <p>${a.short_description||a.tagline||''}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="color:var(--accent)">${a.price_display||'Free'}</strong>
+          ${a.cta_url?`<a href="${a.cta_url}" target="_blank" class="btn btn-sm btn-secondary">${a.cta_label||'Learn More'}</a>`:''}
+        </div>
+      </div>`;
+    });
+    document.getElementById('marketplaceGrid').innerHTML=h;
+  }
+}
+
+// ── Events ──
+async function loadEvents(){
+  const{data:allEvents}=await sb.from('events').select('*').in('status',['upcoming','live']).order('event_date');
+  let myEventIds=[];
+  if(clientId){
+    const{data:mine}=await sb.from('client_events').select('event_id,rsvp_status').eq('client_id',clientId);
+    myEventIds=(mine||[]).reduce((acc,e)=>{acc[e.event_id]=e.rsvp_status;return acc},{});
+  }
+
+  if(!allEvents||!allEvents.length){document.getElementById('eventsGrid').innerHTML='<div class="empty">No upcoming events</div>';return}
+  let h='';
+  allEvents.forEach(e=>{
+    const rsvp=myEventIds[e.id];
+    h+=`<div class="app-card">
+      <div style="display:flex;justify-content:space-between;align-items:start"><h4>${e.title}</h4>${statusBadge(e.status)}</div>
+      <p>${e.description||''}</p>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
+        ${fmtDate(e.event_date)} ${e.location?'&bull; '+e.location:''} ${e.price?'&bull; '+fmt$(e.price):'&bull; Free'}
+      </div>
+      ${rsvp?statusBadge(rsvp):`<button class="btn btn-sm btn-primary" onclick="rsvpEvent('${e.id}')">RSVP</button>`}
+    </div>`;
+  });
+  document.getElementById('eventsGrid').innerHTML=h;
+}
+
+async function rsvpEvent(eventId){
+  if(!clientId){toast('No client account linked');return}
+  const{error}=await sb.from('client_events').insert({client_id:clientId,event_id:eventId,rsvp_status:'confirmed'});
+  if(error){toast('RSVP failed');return}
+  toast('RSVP confirmed!');
+  loadEvents();
+}
+
+// ── Resources ──
+async function loadResources(){
+  const tier=clientRecord?.tier;
+  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
+  // Filter by access tier — show resources matching client tier or lower
+  const{data}=await query;
+  if(!data||!data.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
+
+  // Filter accessible resources
+  const tierRank={premium:1,tenx_unicorn:2,tenx_mastermind:3};
+  const myRank=tierRank[tier]||0;
+  const accessible=data.filter(r=>{
+    if(!r.access_tier)return true;
+    return(tierRank[r.access_tier]||0)<=myRank;
+  });
+
+  if(!accessible.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available for your tier</div>';return}
+  let h='<div class="card"><table><thead><tr><th>Resource</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>';
+  accessible.forEach(r=>{
+    h+=`<tr><td><strong>${r.title}</strong></td><td><span class="badge badge-info">${(r.resource_type||'').replace(/_/g,' ')}</span></td><td style="color:var(--text-muted);font-size:0.85rem">${r.description||''}</td><td>${r.url?`<a href="${r.url}" target="_blank" class="btn btn-sm btn-secondary">Open</a>`:''}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('resourcesList').innerHTML=h;
+}
+
+// ── Account ──
+async function loadAccount(){
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  document.getElementById('accountInfo').innerHTML=`
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Full Name</div>
+      <div style="font-size:1rem">${profile?.full_name||'—'}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Email</div>
+      <div style="font-size:1rem">${currentUser.email}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Membership Tier</div>
+      <div>${clientRecord?`<span class="badge badge-gold">${(clientRecord.tier||'').replace(/_/g,' ')}</span>`:'—'}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Client Since</div>
+      <div style="font-size:1rem">${clientRecord?fmtDate(clientRecord.created_at):'—'}</div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
+      <a href="/book" class="btn btn-primary">Book a Strategy Call</a>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

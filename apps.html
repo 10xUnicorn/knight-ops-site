@@ -181,7 +181,7 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     <h1 class="fade-up">Apps Built for <span class="gold">Every Battle</span></h1>
     <p class="hero-sub fade-up">Premium software solutions designed for entrepreneurs who refuse to operate at anything less than their highest level. Each tool built to create leverage, not complexity.</p>
     <div class="hero-stats fade-up">
-      <div class="hero-stat"><span class="hero-stat-num">5</span><span class="hero-stat-label">Premium Apps</span></div>
+      <div class="hero-stat"><span class="hero-stat-num" id="appCount">—</span><span class="hero-stat-label">Premium Apps</span></div>
       <div class="hero-stat"><span class="hero-stat-num">24/7</span><span class="hero-stat-label">Support</span></div>
       <div class="hero-stat"><span class="hero-stat-num">100%</span><span class="hero-stat-label">Satisfaction</span></div>
     </div>
@@ -200,154 +200,8 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     </div>
 
     <div class="apps-grid" id="appsGrid">
-
-      <!-- APP 1: 10xUnicorn -->
-      <div class="app-card featured fade-up" data-category="productivity community">
-        <span class="featured-badge">Featured</span>
-        <div class="app-card-header">
-          <div class="app-icon">&#9889;</div>
-          <div class="app-header-text">
-            <div class="app-name">10xUnicorn</div>
-            <div class="app-category">Productivity &bull; Growth</div>
-          </div>
-        </div>
-        <div class="app-card-body">
-          <p class="app-desc">Wormhole goal tracking app for 10xUnicorn Mastermind members. Track habits, goals, and 10x growth with structured accountability systems.</p>
-          <ul class="app-features">
-            <li>Wormhole growth tracking system</li>
-            <li>Habit & goal accountability loops</li>
-            <li>10x vision alignment tools</li>
-            <li>Mastermind member dashboards</li>
-          </ul>
-        </div>
-        <div class="app-card-footer">
-          <div>
-            <div class="app-price">$9.99&ndash;$27<span class="app-price-period">/mo</span></div>
-          </div>
-          <div class="app-actions">
-            <a href="https://10xunicorn.win/app" class="btn-launch" target="_blank">Launch &rarr;</a>
-            <a href="https://10xunicorn.win/app" class="btn-details" target="_blank">Details</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- APP 2: Event Planning App -->
-      <div class="app-card fade-up" data-category="events productivity">
-        <div class="app-card-header">
-          <div class="app-icon">&#127978;</div>
-          <div class="app-header-text">
-            <div class="app-name">Event Planning App</div>
-            <div class="app-category">Events &bull; Management</div>
-          </div>
-        </div>
-        <div class="app-card-body">
-          <p class="app-desc">Full event management platform for hosting, selling tickets, and managing attendee experiences from start to finish.</p>
-          <ul class="app-features">
-            <li>Plan, manage & run successful events</li>
-            <li>Everything you need to show up prepared</li>
-            <li>Manage speakers, media, teams & agenda</li>
-            <li>Ticketing & attendee tracking</li>
-          </ul>
-        </div>
-        <div class="app-card-footer">
-          <div>
-            <div class="app-price">$4.99&ndash;$19.99<span class="app-price-period">/mo</span></div>
-          </div>
-          <div class="app-actions">
-            <a href="https://unicorn-event-planner.vercel.app/" class="btn-launch" target="_blank">Launch &rarr;</a>
-            <a href="https://unicorn-event-planner.vercel.app/" class="btn-details" target="_blank">Details</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- APP 3: AppDash.me -->
-      <div class="app-card featured fade-up" data-category="ai productivity">
-        <span class="featured-badge">Popular</span>
-        <div class="app-card-header">
-          <div class="app-icon">&#128241;</div>
-          <div class="app-header-text">
-            <div class="app-name">AppDash.me</div>
-            <div class="app-category">AI &bull; App Builder</div>
-          </div>
-        </div>
-        <div class="app-card-body">
-          <p class="app-desc">Blueprint-to-prompt tool for entrepreneurs. 10-page form generates builder-ready AI prompts, revenue calculator, and marketing engine.</p>
-          <ul class="app-features">
-            <li>Build your app empire</li>
-            <li>Plan, manage & deploy apps</li>
-            <li>Create landing pages & marketplace</li>
-            <li>Generate leads & sell your apps</li>
-          </ul>
-        </div>
-        <div class="app-card-footer">
-          <div>
-            <div class="app-price">$49&ndash;$99<span class="app-price-period">/mo</span></div>
-          </div>
-          <div class="app-actions">
-            <a href="https://appdash.me/" class="btn-launch" target="_blank">Launch &rarr;</a>
-            <a href="https://appdash.me/" class="btn-details" target="_blank">Details</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- APP 4: AI App Launch Community -->
-      <div class="app-card fade-up" data-category="community ai">
-        <div class="app-card-header">
-          <div class="app-icon">&#128640;</div>
-          <div class="app-header-text">
-            <div class="app-name">AI App Launch Community</div>
-            <div class="app-category">Community &bull; AI</div>
-          </div>
-        </div>
-        <div class="app-card-body">
-          <p class="app-desc">Community platform for app builders. Build, launch, and grow together with AI-powered tools, mentorship, and accountability.</p>
-          <ul class="app-features">
-            <li>AI-powered build tools & templates</li>
-            <li>Mentorship from experienced builders</li>
-            <li>Accountability pods & launch sprints</li>
-            <li>Direct access to Knight Ops expertise</li>
-          </ul>
-        </div>
-        <div class="app-card-footer">
-          <div>
-            <div class="app-price">$27&ndash;$99<span class="app-price-period">/mo</span></div>
-          </div>
-          <div class="app-actions">
-            <a href="/#book" class="btn-launch">Get Access &rarr;</a>
-            <a href="/#book" class="btn-details">Details</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- APP 5: AI Email & Social Media Generator -->
-      <div class="app-card fade-up" data-category="ai productivity">
-        <div class="app-card-header">
-          <div class="app-icon">&#128221;</div>
-          <div class="app-header-text">
-            <div class="app-name">AI Email & Social Generator</div>
-            <div class="app-category">AI &bull; Marketing</div>
-          </div>
-        </div>
-        <div class="app-card-body">
-          <p class="app-desc">Enterprise-grade AI email and social media generation platform. Full campaign management with multi-platform publishing.</p>
-          <ul class="app-features">
-            <li>Create email, social & text campaigns in bulk</li>
-            <li>Streamline your entire content workflow</li>
-            <li>Save & schedule campaigns</li>
-            <li>Multi-platform publishing engine</li>
-          </ul>
-        </div>
-        <div class="app-card-footer">
-          <div>
-            <div class="app-price">$499&ndash;$4,999</div>
-          </div>
-          <div class="app-actions">
-            <a href="https://email-social-campaign-generator.vercel.app/" class="btn-launch" target="_blank">Launch &rarr;</a>
-            <a href="https://email-social-campaign-generator.vercel.app/" class="btn-details" target="_blank">Details</a>
-          </div>
-        </div>
-      </div>
-
+      <!-- Apps load dynamically from Supabase -->
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);" id="appsLoading">Loading apps...</div>
     </div>
   </div>
 </section>
@@ -380,7 +234,71 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ═══════════════════════════════════════
+// SUPABASE — DYNAMIC APP LOADING
+// ═══════════════════════════════════════
+const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+let allAppsData=[];
+
+(async function loadApps(){
+  const{data,error}=await sb.from('app_library').select('*').in('status',['published','featured']).order('sort_order');
+  const grid=document.getElementById('appsGrid');
+  const loading=document.getElementById('appsLoading');
+
+  if(error||!data||!data.length){
+    loading.textContent='No apps available at this time.';
+    return;
+  }
+
+  allAppsData=data;
+  document.getElementById('appCount').textContent=data.length;
+  loading.remove();
+
+  let html='';
+  data.forEach((app,i)=>{
+    const isFeat=app.is_featured;
+    const isPop=app.is_popular;
+    const cat=(app.category||'').toLowerCase();
+    const features=(app.feature_list||[]);
+    const icon=app.icon_emoji||'&#9878;';
+
+    html+=`<div class="app-card${isFeat?' featured':''} fade-up" data-category="${cat}" style="animation-delay:${i*0.1}s">
+      ${isFeat?'<span class="featured-badge">Featured</span>':''}
+      ${isPop&&!isFeat?'<span class="featured-badge">Popular</span>':''}
+      <div class="app-card-header">
+        <div class="app-icon">${icon}</div>
+        <div class="app-header-text">
+          <div class="app-name">${app.name}</div>
+          <div class="app-category">${app.category||''}</div>
+        </div>
+      </div>
+      <div class="app-card-body">
+        <p class="app-desc">${app.short_description||app.tagline||''}</p>
+        ${features.length?`<ul class="app-features">${features.map(f=>'<li>'+f+'</li>').join('')}</ul>`:''}
+      </div>
+      <div class="app-card-footer">
+        <div>
+          <div class="app-price">${app.price_display||'Free'}</div>
+        </div>
+        <div class="app-actions">
+          ${app.cta_url?`<a href="${app.cta_url}" class="btn-launch" target="_blank">${app.cta_label||'Launch'} &rarr;</a>`:''}
+          ${app.cta_url?`<a href="${app.cta_url}" class="btn-details" target="_blank">Details</a>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML=html;
+
+  // Re-observe fade-up elements
+  const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  grid.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+})();
+
 // ═══════════════════════════════════════
 // FILTER SYSTEM
 // ═══════════════════════════════════════
