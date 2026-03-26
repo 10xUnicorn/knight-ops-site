@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Book a Discovery Call | Knight Ops</title>
-<meta name="description" content="Schedule your free discovery call with Knight Ops. Let's talk strategy and build your next app.">
+<title>Book a Call | Knight Ops</title>
+<meta name="description" content="Book a Free Discovery Call or Blueprint Session with Knight Ops. Let's build your unfair advantage.">
 <style>
 :root {
   --accent: #C8A456;
@@ -16,75 +16,666 @@
   --text-muted: #999;
   --border: rgba(200,164,86,0.15);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo .shield{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#A08636);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
-.nav-logo span{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:1px}
-.nav-links{display:flex;gap:1.5rem;align-items:center}
-.nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;transition:color 0.3s}
-.nav-links a:hover{color:var(--accent)}
-.nav-cta{background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg);padding:8px 20px;border-radius:8px;font-weight:600;font-size:0.85rem;text-decoration:none;transition:all 0.3s}
-.nav-cta:hover{box-shadow:0 0 20px var(--accent-glow);transform:translateY(-1px)}
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10, 10, 11, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo .shield {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent), #A08636);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--bg);
+  font-weight: 800;
+}
+
+.nav-logo span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--accent);
+}
+
+.nav-cta {
+  background: linear-gradient(135deg, var(--accent), #A08636);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.nav-cta:hover {
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+/* ── MAIN CONTENT ── */
+main {
+  flex: 1;
+}
 
 /* ── HERO ── */
-.hero{padding:140px 2rem 60px;text-align:center;position:relative}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);opacity:0.15;pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);padding:8px 18px;border-radius:50px;font-size:0.85rem;color:var(--accent);margin-bottom:1.5rem}
-.hero-badge .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;margin-bottom:1rem;line-height:1.15}
-.hero h1 .gold{color:var(--accent)}
-.hero p{font-size:1.1rem;color:var(--text-muted);max-width:600px;margin:0 auto 2rem;line-height:1.6}
+.hero {
+  padding: 140px 2rem 60px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 80px;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.15;
+}
+
+.hero h1 .gold {
+  color: var(--accent);
+}
+
+.hero p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
 
 /* ── BOOKING SECTION ── */
-.booking-section{max-width:900px;margin:0 auto;padding:0 2rem 80px}
-.booking-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative}
-.booking-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#A08636,var(--accent))}
-.booking-header{padding:2rem 2rem 1rem;text-align:center}
-.booking-header h2{font-size:1.4rem;color:var(--text);margin-bottom:0.5rem}
-.booking-header p{color:var(--text-muted);font-size:0.95rem}
-.booking-embed{padding:0 1rem 2rem;min-height:500px;display:flex;align-items:center;justify-content:center}
-.booking-embed iframe{width:100%;border:none;border-radius:12px;min-height:480px}
-.booking-loading{color:var(--text-muted);font-size:0.9rem;text-align:center;padding:3rem}
+.booking-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem 100px;
+  width: 100%;
+}
+
+/* Booking Tabs */
+.booking-tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.booking-tab {
+  flex: 1;
+  padding: 1.25rem 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  text-align: center;
+}
+
+.booking-tab:hover {
+  color: var(--text);
+}
+
+.booking-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Booking Cards Grid */
+.booking-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.booking-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #A08636, var(--accent));
+}
+
+.booking-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.booking-card.most-popular {
+  border: 2px solid var(--accent);
+  transform: scale(1.02);
+}
+
+.booking-card.most-popular::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+/* Badge */
+.booking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.booking-card.most-popular .booking-badge {
+  background: rgba(200, 164, 86, 0.15);
+  border-color: var(--accent);
+}
+
+/* Card Header */
+.booking-header {
+  padding: 2rem 2rem 1.5rem;
+  flex: 1;
+}
+
+.booking-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.booking-header .price {
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.booking-header .duration {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.booking-header .description {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+/* Bullet Points */
+.booking-benefits {
+  list-style: none;
+  margin-bottom: 1.5rem;
+}
+
+.booking-benefits li {
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.booking-benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+/* Choose If Section */
+.booking-choose {
+  background: var(--surface-2);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(200, 164, 86, 0.1);
+}
+
+.booking-choose-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.booking-choose-text {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* CTA Button */
+.booking-cta {
+  background: linear-gradient(135deg, var(--accent), #A08636);
+  color: var(--bg);
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  margin-top: auto;
+}
+
+.booking-cta:hover {
+  box-shadow: 0 8px 24px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+/* Booking Embed Area */
+.booking-embed-area {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  min-height: 600px;
+  display: none;
+}
+
+.booking-embed-area.active {
+  display: block;
+}
+
+.booking-embed-area iframe {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  min-height: 550px;
+}
+
+.booking-loading {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem;
+}
 
 /* ── WHAT TO EXPECT ── */
-.expect-section{max-width:900px;margin:0 auto;padding:0 2rem 80px}
-.expect-section h2{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:2.5rem}
-.expect-section h2 .gold{color:var(--accent)}
-.expect-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
-.expect-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all 0.3s}
-.expect-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
-.expect-icon{width:48px;height:48px;background:linear-gradient(135deg,rgba(200,164,86,0.15),rgba(200,164,86,0.05));border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
-.expect-card h3{font-size:1.05rem;font-weight:700;margin-bottom:0.5rem}
-.expect-card p{font-size:0.9rem;color:var(--text-muted);line-height:1.5}
+.expect-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem 100px;
+  width: 100%;
+}
+
+.expect-section h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 3rem;
+  line-height: 1.2;
+}
+
+.expect-section h2 .gold {
+  color: var(--accent);
+}
+
+.expect-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.expect-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s;
+}
+
+.expect-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.expect-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(200, 164, 86, 0.15), rgba(200, 164, 86, 0.05));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.expect-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.expect-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
 
 /* ── STATS BAR ── */
-.stats-bar{max-width:900px;margin:0 auto;padding:0 2rem 80px}
-.stats-inner{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;text-align:center}
-.stat-item .num{font-size:2rem;font-weight:800;color:var(--accent)}
-.stat-item .label{font-size:0.85rem;color:var(--text-muted);margin-top:4px}
+.stats-bar {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem 100px;
+  width: 100%;
+}
+
+.stats-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.stat-item .num {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.stat-item .label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 /* ── FOOTER ── */
-footer{border-top:1px solid var(--border);padding:2rem;text-align:center;color:var(--text-muted);font-size:0.8rem}
-footer a{color:var(--accent);text-decoration:none}
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: auto;
+}
 
-/* ── RESPONSIVE ── */
-@media(max-width:768px){
-  nav{padding:0 1rem}
-  .nav-links{display:none}
-  .hero{padding:120px 1rem 40px}
-  .expect-grid{grid-template-columns:1fr}
-  .stats-inner{grid-template-columns:1fr;gap:1rem}
-  .booking-card{border-radius:12px}
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
 
 /* ── ANIMATIONS ── */
-.fade-up{opacity:0;transform:translateY(30px);transition:all 0.6s ease}
-.fade-up.visible{opacity:1;transform:translateY(0)}
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .booking-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-card.most-popular {
+    transform: scale(1);
+  }
+
+  .expect-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 0 1rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .hero {
+    padding: 120px 1.5rem 60px;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .booking-section,
+  .expect-section,
+  .stats-bar {
+    padding: 0 1.5rem 60px;
+  }
+
+  .booking-tabs {
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .booking-tab {
+    padding: 1rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .booking-cards-grid {
+    gap: 1rem;
+  }
+
+  .booking-card {
+    border-radius: 16px;
+  }
+
+  .booking-header {
+    padding: 1.5rem;
+  }
+
+  .booking-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .expect-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-inner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-item .num {
+    font-size: 1.8rem;
+  }
+
+  .booking-embed-area {
+    padding: 1.5rem;
+    min-height: 500px;
+  }
+
+  .booking-embed-area iframe {
+    min-height: 450px;
+  }
+}
+
+@media (max-width: 480px) {
+  nav {
+    height: 56px;
+    padding: 0 1rem;
+  }
+
+  .nav-logo span {
+    display: none;
+  }
+
+  .hero {
+    padding: 100px 1rem 50px;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .booking-section,
+  .expect-section,
+  .stats-bar {
+    padding: 0 1rem 50px;
+  }
+
+  .booking-tabs {
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1rem;
+  }
+
+  .booking-tab {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .expect-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .booking-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .booking-header .price {
+    font-size: 1rem;
+  }
+
+  footer {
+    padding: 1.5rem 1rem;
+    font-size: 0.75rem;
+  }
+}
 </style>
 </head>
 <body>
@@ -103,26 +694,85 @@ footer a{color:var(--accent);text-decoration:none}
   </div>
 </nav>
 
+<!-- MAIN CONTENT -->
+<main>
+
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">
-    <span class="dot"></span>
-    Application Received
-  </div>
-  <h1>You're In — Let's Talk <span class="gold">Strategy</span></h1>
-  <p>Your application has been received and is under review. Book your free discovery call below so we can map out your build, timeline, and launch plan.</p>
+  <h1>Let's Build Your <span class="gold">Unfair Advantage</span></h1>
+  <p>Choose the path that matches where you are now. Whether you're exploring or ready to build, we have the right option for you.</p>
 </section>
 
 <!-- BOOKING -->
 <section class="booking-section fade-up">
-  <div class="booking-card">
-    <div class="booking-header">
-      <h2>Schedule Your Discovery Call</h2>
-      <p>30 minutes to map your app vision into a concrete build plan</p>
+  <!-- Tabs -->
+  <div class="booking-tabs">
+    <button class="booking-tab active" data-tab="discovery">
+      FREE DISCOVERY<br>Call
+    </button>
+    <button class="booking-tab" data-tab="blueprint">
+      $750 BLUEPRINT<br>Session
+    </button>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="booking-cards-grid">
+    <!-- Discovery Call Card -->
+    <div class="booking-card fade-up">
+      <div class="booking-header">
+        <span class="booking-badge">FREE</span>
+        <h2>Discovery Call</h2>
+        <span class="price">$0</span>
+        <span class="duration">30 minutes</span>
+        <p class="description">Best if you're exploring, have a rough idea, or want honest feedback before committing</p>
+
+        <ul class="booking-benefits">
+          <li>Identify your biggest operational bottleneck</li>
+          <li>Get clarity on what's possible</li>
+          <li>Honest feedback — even if we're not the right fit</li>
+          <li>Zero pressure, zero obligation</li>
+        </ul>
+
+        <div class="booking-choose">
+          <span class="booking-choose-label">Choose this if:</span>
+          <p class="booking-choose-text">You're not 100% sure what you need yet, or you want to talk it through before investing</p>
+        </div>
+      </div>
+      <button class="booking-cta" onclick="switchTab('discovery')">Book Discovery Call</button>
     </div>
-    <div class="booking-embed" id="bookingEmbed">
-      <div class="booking-loading" id="bookingLoading">Loading scheduler...</div>
+
+    <!-- Blueprint Session Card -->
+    <div class="booking-card most-popular fade-up">
+      <div class="booking-header">
+        <span class="booking-badge">MOST POPULAR</span>
+        <h2>Blueprint Session</h2>
+        <span class="price">$750</span>
+        <span class="duration">90 minutes · Applied to build</span>
+        <p class="description">Best if you know what you want and you're ready to see it architected in real time</p>
+
+        <ul class="booking-benefits">
+          <li>Deep dive into your business model & workflows</li>
+          <li>Full system architecture built with you live</li>
+          <li>Walk away with a build-ready plan you own forever</li>
+          <li>$750 credited toward your project if you move forward</li>
+        </ul>
+
+        <div class="booking-choose">
+          <span class="booking-choose-label">Choose this if:</span>
+          <p class="booking-choose-text">You're ready to move and want a concrete plan with clear next steps</p>
+        </div>
+      </div>
+      <button class="booking-cta" onclick="switchTab('blueprint')">Book Blueprint Session</button>
     </div>
+  </div>
+
+  <!-- Booking Embeds -->
+  <div class="booking-embed-area active" id="discovery-embed">
+    <div class="booking-loading">Loading discovery call scheduler...</div>
+  </div>
+
+  <div class="booking-embed-area" id="blueprint-embed">
+    <div class="booking-loading">Loading blueprint session scheduler...</div>
   </div>
 </section>
 
@@ -166,31 +816,75 @@ footer a{color:var(--accent);text-decoration:none}
   </div>
 </section>
 
+</main>
+
 <!-- FOOTER -->
 <footer>
   <p>&copy; 2026 Knight Ops. All rights reserved. | <a href="/">KnightOps.biz</a></p>
 </footer>
 
 <script>
-// ── Load Booking Widget ──
+// ── Tab Switching ──
+function switchTab(tab) {
+  // Update tabs
+  document.querySelectorAll('.booking-tab').forEach(t => {
+    t.classList.remove('active');
+  });
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+  // Update embeds
+  document.querySelectorAll('.booking-embed-area').forEach(e => {
+    e.classList.remove('active');
+  });
+  document.getElementById(`${tab}-embed`).classList.add('active');
+}
+
+// Tab click handlers
+document.querySelectorAll('.booking-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    switchTab(this.dataset.tab);
+  });
+});
+
+// ── Load Booking Widgets ──
 (function() {
-  const embed = document.getElementById('bookingEmbed');
-  const loading = document.getElementById('bookingLoading');
+  // Discovery Call Widget
+  const discoveryEmbed = document.getElementById('discovery-embed');
+  const discoveryLoading = discoveryEmbed.querySelector('.booking-loading');
 
-  const iframe = document.createElement('iframe');
-  iframe.src = 'https://api.unicornuniverse.io/widget/F2GsBGGCAYHgnQees0pV';
-  iframe.style.width = '100%';
-  iframe.style.minHeight = '480px';
-  iframe.style.border = 'none';
-  iframe.style.borderRadius = '12px';
-  iframe.allow = 'payment';
-  iframe.loading = 'lazy';
+  const discoveryIframe = document.createElement('iframe');
+  discoveryIframe.src = 'https://api.leadconnectorhq.com/widget/booking/iEdBjPnLFBVuNjXPDcW3';
+  discoveryIframe.style.width = '100%';
+  discoveryIframe.style.minHeight = '550px';
+  discoveryIframe.style.border = 'none';
+  discoveryIframe.style.borderRadius = '12px';
+  discoveryIframe.allow = 'payment';
+  discoveryIframe.loading = 'lazy';
 
-  iframe.onload = function() {
-    if (loading) loading.style.display = 'none';
+  discoveryIframe.onload = function() {
+    if (discoveryLoading) discoveryLoading.style.display = 'none';
   };
 
-  embed.appendChild(iframe);
+  discoveryEmbed.appendChild(discoveryIframe);
+
+  // Blueprint Session Widget
+  const blueprintEmbed = document.getElementById('blueprint-embed');
+  const blueprintLoading = blueprintEmbed.querySelector('.booking-loading');
+
+  const blueprintIframe = document.createElement('iframe');
+  blueprintIframe.src = 'https://api.leadconnectorhq.com/widget/booking/R3tMgUZW5xsMHADaaMhA';
+  blueprintIframe.style.width = '100%';
+  blueprintIframe.style.minHeight = '550px';
+  blueprintIframe.style.border = 'none';
+  blueprintIframe.style.borderRadius = '12px';
+  blueprintIframe.allow = 'payment';
+  blueprintIframe.loading = 'lazy';
+
+  blueprintIframe.onload = function() {
+    if (blueprintLoading) blueprintLoading.style.display = 'none';
+  };
+
+  blueprintEmbed.appendChild(blueprintIframe);
 })();
 
 // ── Intersection Observer for fade-up ──

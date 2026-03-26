@@ -115,16 +115,27 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .comment-input{display:flex;gap:8px;margin-top:1rem}
 .comment-input textarea{flex:1;min-height:50px}
 @media(max-width:768px){
-  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%);transition:transform 0.3s}
-  .sidebar.open{transform:translateX(0)}.form-row{grid-template-columns:1fr}
-  #menuToggle{display:block !important}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform 0.3s;width:260px}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:199;backdrop-filter:blur(4px)}
+  .sidebar-overlay.active{display:block}
+  .form-row{grid-template-columns:1fr}
+  #menuToggle{display:flex !important;width:40px;height:40px;align-items:center;justify-content:center;font-size:1.3rem;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);color:var(--accent);cursor:pointer;padding:0}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .table-header{flex-direction:column;align-items:flex-start}
+  .table-filters{width:100%}
+  .table-filters input,.table-filters select{flex:1;min-width:0}
+  td,th{padding:8px 10px;font-size:0.8rem}
+  .content{padding:1rem}
+  .topbar{padding:0 1rem}
+  .detail-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="shield">K</div><span>KNIGHT OPS</span></div>
+    <a href="/" class="sidebar-logo" style="text-decoration:none"><div class="shield">K</div><span>KNIGHT OPS</span></a>
     <nav>
       <div class="nav-item active" data-view="dashboard"><span class="icon">&#9632;</span> Dashboard</div>
       <div class="nav-item" data-view="leads"><span class="icon">&#9733;</span> Leads</div>
@@ -140,10 +151,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <button onclick="handleLogout()">Sign Out</button>
     </div>
   </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
   <div class="main">
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
-        <button class="btn btn-sm btn-secondary" id="menuToggle" style="display:none" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+        <button class="btn btn-sm btn-secondary" id="menuToggle" style="display:none" onclick="toggleSidebar()">&#9776;</button>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
     </div>
@@ -180,6 +192,16 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   loadDashboard();
 })();
 
+// SIDEBAR
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 // NAV
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click',e=>{
@@ -195,6 +217,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
       const dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
     });
     if(v==='dashboard')loadDashboard();
+    closeSidebar();
   });
 });
 function navTo(view){document.querySelector('[data-view="'+view+'"]').click();}

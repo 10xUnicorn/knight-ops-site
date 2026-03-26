@@ -89,6 +89,24 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type=
 }
 textarea::placeholder, input::placeholder { color: var(--muted); font-size: 0.875rem; }
 
+/* ─── SELECT ─── */
+select {
+  width: 100%; padding: 16px 18px; background: rgba(28,28,31,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 0.925rem; line-height: 1.6;
+  transition: all 0.3s; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 18px center;
+  padding-right: 48px;
+}
+select:focus {
+  border-color: var(--gold-border); box-shadow: 0 0 0 3px rgba(200,164,86,0.08), 0 4px 20px rgba(200,164,86,0.06);
+  background-color: rgba(28,28,31,0.8);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 18px center;
+}
+select option { background: #1C1C1F; color: #F4F4F5; }
+
 /* ─── RADIO/OPTION CARDS ─── */
 .option-grid { display: grid; gap: 10px; }
 .option-grid.cols-2 { grid-template-columns: 1fr 1fr; }
@@ -151,8 +169,8 @@ textarea::placeholder, input::placeholder { color: var(--muted); font-size: 0.87
 
 <nav>
   <div class="nav-inner">
-    <a href="#" class="nav-logo">KNIGHT <span>OPS</span></a>
-    <a href="#" class="nav-back">&larr; Back to Knight Ops</a>
+    <a href="/" class="nav-logo">KNIGHT <span>OPS</span></a>
+    <a href="/" class="nav-back">&larr; Back to Knight Ops</a>
   </div>
 </nav>
 
@@ -360,11 +378,31 @@ textarea::placeholder, input::placeholder { color: var(--muted); font-size: 0.87
       </div>
       <div>
         <label class="field-label">Budget Range</label>
-        <input type="text" id="budget" placeholder="$5K–$10K, $10K–$25K, etc.">
+        <select id="budget">
+          <option value="">Select your budget range...</option>
+          <option value="Under $1,500">Under $1,500</option>
+          <option value="$1,500 – $5,000">$1,500 – $5,000</option>
+          <option value="$5,000 – $10,000">$5,000 – $10,000</option>
+          <option value="$10,000 – $25,000">$10,000 – $25,000</option>
+          <option value="$25,000+">$25,000+</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
       </div>
       <div>
         <label class="field-label">Target Launch Date</label>
-        <input type="text" id="timeline" placeholder="ASAP, 30 days, Q2 2026, etc.">
+        <select id="timeline">
+          <option value="">Select your target launch date...</option>
+          <option value="ASAP">ASAP</option>
+          <option value="Within 2 weeks">Within 2 weeks</option>
+          <option value="Within 30 days">Within 30 days</option>
+          <option value="Within 60 days">Within 60 days</option>
+          <option value="Within 90 days">Within 90 days</option>
+          <option value="No rush — flexible timeline">No rush — flexible timeline</option>
+        </select>
+      </div>
+      <div class="full">
+        <label class="field-label">Additional deadline details (optional)</label>
+        <textarea id="timelineNotes" style="min-height:60px" placeholder="Any hard deadlines, launch events, or time-sensitive details we should know about..."></textarea>
       </div>
       <div class="full">
         <label class="field-label">Anything else we should know?</label>
@@ -467,6 +505,7 @@ function submitForm() {
   answers.company = document.getElementById('company').value.trim();
   answers.budget = document.getElementById('budget').value.trim();
   answers.timeline = document.getElementById('timeline').value.trim();
+  answers.timelineNotes = document.getElementById('timelineNotes')?.value?.trim() || '';
   answers.notes = document.getElementById('notes').value.trim();
   answers.submittedAt = new Date().toISOString();
 
@@ -526,7 +565,7 @@ function submitForm() {
         service_interest: answers.q4 || null,
         budget_range: answers.budget || null,
         timeline: answers.timeline || null,
-        notes: 'Applied via intake form. Core outcome: ' + (answers.q4||'—') + '. Non-negotiables: ' + (answers.q9||'—')
+        notes: 'Applied via intake form. Core outcome: ' + (answers.q4||'—') + '. Non-negotiables: ' + (answers.q9||'—') + (answers.timelineNotes ? '. Deadline notes: ' + answers.timelineNotes : '')
       })
     });
   }).then(() => {
