@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin | Knight Ops Command</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--border-subtle:rgba(255,255,255,0.06);--error:#E53935;--success:#4CAF50;--warning:#FF9800;--info:#2196F3;--sidebar-w:240px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -327,7 +328,7 @@ tr:hover td{background:rgba(200,164,86,0.02)}
       </div>
       <div class="form-group">
         <label>Contact Name</label>
-        <input type="text" id="lead_contact_name" placeholder="John Doe">
+        <input type="text" id="lead_name" placeholder="John Doe">
       </div>
       <div class="form-group">
         <label>Email</label>
@@ -693,6 +694,9 @@ tr:hover td{background:rgba(200,164,86,0.02)}
 const SUPABASE_URL = 'https://hsxpoxbafwcppflmhobh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzeHBveGJhZndjcHBmbG1ob2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3NjM0NTcsImV4cCI6MjA1NDMzOTQ1N30.wU2y4yVTg2bTTXhxr8d9CQ1r7SkX09xL01wEp3_Cg9U';
 
+// Initialize Supabase client
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // Initialize state
 let state = {
   leads: [],
@@ -767,10 +771,8 @@ function showToast(message, type = 'success') {
 async function loadDashboard() {
   try {
     // Load KPIs
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    const leads = await response.json();
+    const { data: leads, error } = await sb.from('leads').select('*');
+    if (error) throw error;
 
     const kpiGrid = document.getElementById('kpiGrid');
     kpiGrid.innerHTML = `
@@ -798,10 +800,9 @@ async function loadDashboard() {
 
 async function loadLeads() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.leads = await response.json();
+    const { data: leads, error } = await sb.from('leads').select('*');
+    if (error) throw error;
+    state.leads = leads;
     renderLeadsTable();
   } catch (e) {
     console.error('Error loading leads:', e);
@@ -813,7 +814,7 @@ function renderLeadsTable() {
   const filtered = state.leads.filter(lead => {
     const search = document.getElementById('leadSearch')?.value || '';
     const status = document.getElementById('leadStatusFilter')?.value || '';
-    const matchesSearch = !search || lead.company.toLowerCase().includes(search.toLowerCase()) || lead.contact_name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = !search || lead.company.toLowerCase().includes(search.toLowerCase()) || lead.name.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = !status || lead.status === status;
     return matchesSearch && matchesStatus;
   });
@@ -835,12 +836,12 @@ function renderLeadsTable() {
         ${filtered.length ? filtered.map(lead => `
           <tr>
             <td>${lead.company}</td>
-            <td>${lead.contact_name}</td>
+            <td>${lead.name}</td>
             <td>${lead.email}</td>
             <td><span class="badge badge-info">${lead.budget_range}</span></td>
             <td>${lead.service_interest}</td>
             <td><span class="badge badge-gold">${lead.status}</span></td>
-            <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+            <td>${!lead.profile_id ? '<button class="btn btn-sm btn-primary" onclick="activateClientPortal(\''+lead.id+'\')">Activate Portal</button>' : '<span class="badge badge-success">Active</span>'}</td>
           </tr>
         `).join('') : '<tr><td colspan="7" class="table-empty">No leads found</td></tr>'}
       </tbody>
@@ -856,7 +857,7 @@ function filterLeads() {
 async function saveLead() {
   const lead = {
     company: document.getElementById('lead_company').value,
-    contact_name: document.getElementById('lead_contact_name').value,
+    name: document.getElementById('lead_name').value,
     email: document.getElementById('lead_email').value,
     phone: document.getElementById('lead_phone').value,
     budget_range: document.getElementById('lead_budget_range').value,
@@ -866,20 +867,11 @@ async function saveLead() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(lead)
-    });
-    if (response.ok) {
-      showToast('Lead saved successfully');
-      closeModal('lead');
-      loadLeads();
-    }
+    const { error } = await sb.from('leads').insert([lead]);
+    if (error) throw error;
+    showToast('Lead saved successfully');
+    closeModal('lead');
+    loadLeads();
   } catch (e) {
     showToast('Error saving lead', 'error');
   }
@@ -887,10 +879,9 @@ async function saveLead() {
 
 async function loadClients() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*,profiles(*)`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.clients = await response.json();
+    const { data: clients, error } = await sb.from('clients').select('*,profiles(*)');
+    if (error) throw error;
+    state.clients = clients;
     renderClientsTable();
   } catch (e) {
     console.error('Error loading clients:', e);
@@ -914,7 +905,7 @@ function renderClientsTable() {
       <tbody>
         ${state.clients.length ? state.clients.map(client => `
           <tr>
-            <td>${client.profiles?.name || 'N/A'}</td>
+            <td>${client.profiles?.full_name || 'N/A'}</td>
             <td>${client.profiles?.company || 'N/A'}</td>
             <td>${client.profiles?.email || 'N/A'}</td>
             <td>${client.profiles?.phone || 'N/A'}</td>
@@ -939,20 +930,11 @@ async function saveClient() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(client)
-    });
-    if (response.ok) {
-      showToast('Client saved successfully');
-      closeModal('client');
-      loadClients();
-    }
+    const { error } = await sb.from('clients').insert([client]);
+    if (error) throw error;
+    showToast('Client saved successfully');
+    closeModal('client');
+    loadClients();
   } catch (e) {
     showToast('Error saving client', 'error');
   }
@@ -960,10 +942,9 @@ async function saveClient() {
 
 async function loadProjects() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*,clients(*)`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.projects = await response.json();
+    const { data: projects, error } = await sb.from('projects').select('*,clients(*)');
+    if (error) throw error;
+    state.projects = projects;
     renderProjectsTable();
   } catch (e) {
     console.error('Error loading projects:', e);
@@ -1020,20 +1001,11 @@ async function saveProject() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(project)
-    });
-    if (response.ok) {
-      showToast('Project saved successfully');
-      closeModal('project');
-      loadProjects();
-    }
+    const { error } = await sb.from('projects').insert([project]);
+    if (error) throw error;
+    showToast('Project saved successfully');
+    closeModal('project');
+    loadProjects();
   } catch (e) {
     showToast('Error saving project', 'error');
   }
@@ -1041,10 +1013,9 @@ async function saveProject() {
 
 async function loadTasks() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*,projects(*)`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.tasks = await response.json();
+    const { data: tasks, error } = await sb.from('tasks').select('*,projects(*)');
+    if (error) throw error;
+    state.tasks = tasks;
     renderTasksTable();
   } catch (e) {
     console.error('Error loading tasks:', e);
@@ -1101,20 +1072,11 @@ async function saveTask() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(task)
-    });
-    if (response.ok) {
-      showToast('Task saved successfully');
-      closeModal('task');
-      loadTasks();
-    }
+    const { error } = await sb.from('tasks').insert([task]);
+    if (error) throw error;
+    showToast('Task saved successfully');
+    closeModal('task');
+    loadTasks();
   } catch (e) {
     showToast('Error saving task', 'error');
   }
@@ -1122,10 +1084,9 @@ async function saveTask() {
 
 async function loadApps() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/app_library`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.apps = await response.json();
+    const { data: apps, error } = await sb.from('app_library').select('*');
+    if (error) throw error;
+    state.apps = apps;
     renderAppsGrid();
   } catch (e) {
     console.error('Error loading apps:', e);
@@ -1159,20 +1120,11 @@ async function saveApp() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/app_library`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(app)
-    });
-    if (response.ok) {
-      showToast('App saved successfully');
-      closeModal('app');
-      loadApps();
-    }
+    const { error } = await sb.from('app_library').insert([app]);
+    if (error) throw error;
+    showToast('App saved successfully');
+    closeModal('app');
+    loadApps();
   } catch (e) {
     showToast('Error saving app', 'error');
   }
@@ -1180,10 +1132,9 @@ async function saveApp() {
 
 async function loadEvents() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.events = await response.json();
+    const { data: events, error } = await sb.from('events').select('*');
+    if (error) throw error;
+    state.events = events;
     renderEventsTable();
   } catch (e) {
     console.error('Error loading events:', e);
@@ -1235,20 +1186,11 @@ async function saveEvent() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(event)
-    });
-    if (response.ok) {
-      showToast('Event saved successfully');
-      closeModal('event');
-      loadEvents();
-    }
+    const { error } = await sb.from('events').insert([event]);
+    if (error) throw error;
+    showToast('Event saved successfully');
+    closeModal('event');
+    loadEvents();
   } catch (e) {
     showToast('Error saving event', 'error');
   }
@@ -1256,10 +1198,9 @@ async function saveEvent() {
 
 async function loadResources() {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/resources`, {
-      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
-    });
-    state.resources = await response.json();
+    const { data: resources, error } = await sb.from('resources').select('*');
+    if (error) throw error;
+    state.resources = resources;
     renderResourcesTable();
   } catch (e) {
     console.error('Error loading resources:', e);
@@ -1307,22 +1248,74 @@ async function saveResource() {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/resources`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(resource)
-    });
-    if (response.ok) {
-      showToast('Resource saved successfully');
-      closeModal('resource');
-      loadResources();
-    }
+    const { error } = await sb.from('resources').insert([resource]);
+    if (error) throw error;
+    showToast('Resource saved successfully');
+    closeModal('resource');
+    loadResources();
   } catch (e) {
     showToast('Error saving resource', 'error');
+  }
+}
+
+async function activateClientPortal(leadId) {
+  try {
+    // Get the lead record from state
+    const lead = state.leads.find(l => l.id === leadId);
+    if (!lead) {
+      showToast('Lead not found', 'error');
+      return;
+    }
+
+    // Generate a random password
+    const randomPassword = crypto.randomUUID();
+
+    // Create auth user
+    const { data: authData, error: authError } = await sb.auth.signUp({
+      email: lead.email,
+      password: randomPassword,
+      options: {
+        data: {
+          full_name: lead.name,
+          role: 'client'
+        },
+        emailRedirectTo: window.location.origin + '/auth'
+      }
+    });
+    if (authError) throw authError;
+
+    const newUserId = authData.user.id;
+
+    // Create client record
+    const { error: clientError } = await sb.from('clients').insert([{
+      profile_id: newUserId,
+      tier: 'night_launch',
+      status: 'active',
+      start_date: new Date().toISOString().split('T')[0]
+    }]);
+    if (clientError) throw clientError;
+
+    // Update lead with profile_id and status
+    const { error: updateError } = await sb.from('leads').update({
+      profile_id: newUserId,
+      status: 'converted'
+    }).eq('id', leadId);
+    if (updateError) throw updateError;
+
+    // Send magic link
+    const { error: otpError } = await sb.auth.signInWithOtp({
+      email: lead.email,
+      options: {
+        emailRedirectTo: window.location.origin + '/auth'
+      }
+    });
+    if (otpError) throw otpError;
+
+    showToast('Client portal activated! Magic link sent to ' + lead.email);
+    loadLeads();
+  } catch (e) {
+    console.error('Error activating client portal:', e);
+    showToast('Error activating client portal: ' + e.message, 'error');
   }
 }
 
