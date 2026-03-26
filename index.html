@@ -405,6 +405,27 @@ footer .container { display: flex; justify-content: space-between; align-items: 
 
 .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ── LEAD CAPTURE ── */
+.lead-capture-section { padding: 80px 0; border-top: 1px solid var(--border); }
+.lead-capture-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+.lead-capture-text h3 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+.lead-capture-text h3 span { color: var(--accent); }
+.lead-capture-text p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; }
+.lead-form-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+.lead-form-row input { flex: 1; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; outline: none; transition: border-color 0.3s; }
+.lead-form-row input:focus { border-color: var(--accent); }
+.lead-form-row input::placeholder { color: var(--text-muted); }
+.lead-form-btn { padding: 14px 28px; background: linear-gradient(135deg, var(--accent), #A08636); color: var(--bg); border: none; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; white-space: nowrap; transition: all 0.3s; }
+.lead-form-btn:hover { box-shadow: 0 8px 24px var(--accent-glow); transform: translateY(-2px); }
+.lead-form-note { color: var(--text-muted); font-size: 0.8rem; }
+.lead-form-success { color: var(--accent); font-weight: 600; font-size: 1rem; margin-top: 0.5rem; }
+@media (max-width: 640px) {
+  .lead-form-row { flex-direction: column; }
+  .lead-capture-text h3 { font-size: 1.5rem; }
+  .lead-capture-section { padding: 60px 0; }
+}
+
 </style>
 </head>
 <body>
@@ -440,7 +461,6 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     <div class="hero-ctas fade-up">
       <a href="#book" class="btn-primary">Start With a Free Discovery Call &rarr;</a>
       <a href="#book" class="btn-secondary" onclick="switchTab('blueprint')">Book a Blueprint Session &rarr;</a>
-      <a href="/apply" class="btn-secondary" style="border-color:var(--accent);color:var(--accent);">Submit a Development Request &rarr;</a>
     </div>
     <div class="hero-proof fade-up">
       <div class="hero-stat"><span class="hero-stat-number">$80M+</span><span class="hero-stat-label">Business Impact Facilitated</span></div>
@@ -748,6 +768,28 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   </div>
 </section>
 
+
+<!-- LEAD CAPTURE -->
+<section class="lead-capture-section" id="subscribe">
+  <div class="container">
+    <div class="lead-capture-inner fade-up">
+      <div class="lead-capture-text">
+        <h3>Get the <span>Builder's Edge</span></h3>
+        <p>Free insights on app development, AI systems, and scaling with tech. No spam — just the frameworks, tools, and strategies that move the needle.</p>
+      </div>
+      <form class="lead-capture-form" id="leadCaptureForm" onsubmit="return submitLeadCapture(event)">
+        <div class="lead-form-row">
+          <input type="text" id="lcName" placeholder="Your name" required />
+          <input type="email" id="lcEmail" placeholder="Your email" required />
+          <button type="submit" class="lead-form-btn">Subscribe &rarr;</button>
+        </div>
+        <p class="lead-form-note">Join founders who build smarter. Unsubscribe anytime.</p>
+        <p class="lead-form-success" id="lcSuccess" style="display:none;">You're in. Watch your inbox.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="container">
     <div class="footer-brand">KNIGHT <span>OPS</span></div>
@@ -755,7 +797,45 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   </div>
 </footer>
 
-<script src="https://api.unicornuniverse.io/js/form_embed.js" type="text/javascript"></script>
+<script src="https://api.unicornuniverse.io/js/form_embed.js" type="text/javascript">
+// ── Lead Capture Form ──
+async function submitLeadCapture(e) {
+  e.preventDefault();
+  const name = document.getElementById('lcName').value.trim();
+  const email = document.getElementById('lcEmail').value.trim();
+  if (!name || !email) return false;
+  
+  const btn = document.querySelector('.lead-form-btn');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch('https://trpnlkntvulkjerevngm.supabase.co/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ name: name, email: email, source: 'website', status: 'new' })
+    });
+    
+    if (res.ok) {
+      document.getElementById('lcSuccess').style.display = 'block';
+      document.getElementById('leadCaptureForm').querySelector('.lead-form-row').style.display = 'none';
+      document.querySelector('.lead-form-note').style.display = 'none';
+    } else {
+      btn.textContent = 'Try Again';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    btn.textContent = 'Try Again';
+    btn.disabled = false;
+  }
+  return false;
+}
+
+</script>
 <script>
 // ═══════════════════════════════════════
 // SERVICE SHOWCASE DATA
@@ -982,6 +1062,44 @@ function switchTab(type) {
 const obs = new IntersectionObserver(e => { e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible') }) }, {threshold:0.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 document.querySelectorAll('a[href^="#"]').forEach(l => { l.addEventListener('click', e => { const t = document.querySelector(l.getAttribute('href')); if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('navLinks').classList.remove('open')} }) });
+
+// ── Lead Capture Form ──
+async function submitLeadCapture(e) {
+  e.preventDefault();
+  const name = document.getElementById('lcName').value.trim();
+  const email = document.getElementById('lcEmail').value.trim();
+  if (!name || !email) return false;
+  
+  const btn = document.querySelector('.lead-form-btn');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch('https://trpnlkntvulkjerevngm.supabase.co/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ name: name, email: email, source: 'website', status: 'new' })
+    });
+    
+    if (res.ok) {
+      document.getElementById('lcSuccess').style.display = 'block';
+      document.getElementById('leadCaptureForm').querySelector('.lead-form-row').style.display = 'none';
+      document.querySelector('.lead-form-note').style.display = 'none';
+    } else {
+      btn.textContent = 'Try Again';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    btn.textContent = 'Try Again';
+    btn.disabled = false;
+  }
+  return false;
+}
+
 </script>
 </body>
 </html>
