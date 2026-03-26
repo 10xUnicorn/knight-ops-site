@@ -58,11 +58,20 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .btn-primary:hover{box-shadow:0 0 20px var(--accent-glow)}
 .btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
 .btn-sm{padding:5px 10px;font-size:0.8rem}
+.btn-success{background:rgba(76,175,80,0.15);color:var(--success);border:1px solid rgba(76,175,80,0.3)}
+.btn-success:hover{background:rgba(76,175,80,0.25)}
+
+/* ── TOGGLE ── */
+.toggle-group{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem;width:fit-content}
+.toggle-btn{padding:7px 16px;font-size:0.8rem;cursor:pointer;background:transparent;color:var(--text-muted);border:none;transition:all 0.2s}
+.toggle-btn.active{background:var(--accent);color:var(--bg);font-weight:600}
 
 /* ── TABLES ── */
 table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:8px 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);border-bottom:1px solid var(--border)}
 td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtle)}
+tr.clickable{cursor:pointer;transition:background 0.2s}
+tr.clickable:hover{background:var(--surface-2)}
 
 /* ── PROGRESS ── */
 .progress-bar{background:var(--surface-3);border-radius:4px;height:8px;overflow:hidden;width:100%}
@@ -80,6 +89,13 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
 .app-card h4{margin-bottom:4px}
 .app-card p{font-size:0.85rem;color:var(--text-muted);line-height:1.4;margin-bottom:0.75rem}
 
+/* ── RESOURCE CARD ── */
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;cursor:pointer;transition:all 0.3s}
+.res-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.res-card h4{margin-bottom:4px}
+.res-card .res-type{font-size:0.8rem;color:var(--text-muted);margin-bottom:8px}
+.res-card .res-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
 /* ── DETAIL ── */
 .detail-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);cursor:pointer;font-size:0.9rem;margin-bottom:1rem}
 .detail-back:hover{color:var(--accent)}
@@ -93,6 +109,22 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
 .detail-pane{display:none}
 .detail-pane.active{display:block}
 
+/* ── RICH TEXT DESC ── */
+.rich-desc{background:var(--surface-2);border-radius:10px;padding:1.25rem;font-size:0.9rem;line-height:1.6;color:var(--text-muted)}
+.rich-desc h1,.rich-desc h2,.rich-desc h3{color:var(--text);margin:0.75rem 0 0.5rem}
+.rich-desc ul,.rich-desc ol{margin:0.5rem 0 0.5rem 1.5rem}
+.rich-desc li{margin-bottom:4px}
+.rich-desc a{color:var(--accent)}
+.rich-desc img{max-width:100%;border-radius:8px;margin:0.5rem 0}
+.rich-desc p{margin-bottom:0.5rem}
+
+/* ── COMMENT ── */
+.comment-box{background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:0.75rem}
+.comment-meta{display:flex;justify-content:space-between;margin-bottom:4px}
+.comment-meta strong{font-size:0.9rem}
+.comment-meta span{color:var(--text-muted);font-size:0.8rem}
+.comment-body{font-size:0.9rem;color:var(--text-muted)}
+
 /* ── EMPTY ── */
 .empty{padding:3rem;text-align:center;color:var(--text-muted);font-size:0.9rem}
 
@@ -103,6 +135,9 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
 /* ── TOAST ── */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.9rem;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s}
 .toast.show{transform:translateY(0);opacity:1}
+
+/* ── CALENDAR PICKER FIX ── */
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -126,6 +161,7 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
   <div class="topnav-links">
     <div class="topnav-link active" data-view="overview">Overview</div>
     <div class="topnav-link" data-view="projects">Projects</div>
+    <div class="topnav-link" data-view="tasks">My Tasks</div>
     <div class="topnav-link" data-view="apps">My Apps</div>
     <div class="topnav-link" data-view="events">Events</div>
     <div class="topnav-link" data-view="resources">Resources</div>
@@ -149,13 +185,19 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
         <div class="card-body" id="overviewProjects"></div>
       </div>
       <div class="card">
+        <div class="card-head"><h3>My Tasks</h3></div>
+        <div class="card-body" id="overviewTasks"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
         <div class="card-head"><h3>My Apps</h3></div>
         <div class="card-body" id="overviewApps"></div>
       </div>
-    </div>
-    <div class="card" style="margin-top:1rem">
-      <div class="card-head"><h3>Upcoming Events</h3></div>
-      <div class="card-body" id="overviewEvents"></div>
+      <div class="card">
+        <div class="card-head"><h3>Upcoming Events</h3></div>
+        <div class="card-body" id="overviewEvents"></div>
+      </div>
     </div>
   </div>
 
@@ -167,6 +209,25 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
       <div class="grid-2" id="projCards"></div>
     </div>
     <div id="projectDetail" style="display:none"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="view" id="v-tasks">
+    <div id="tasksList">
+      <h1 class="page-title">My Tasks</h1>
+      <p class="page-sub">Track and complete tasks across all your projects.</p>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem">
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setTaskFilter('mine',this)">Assigned to Me</button>
+          <button class="toggle-btn" onclick="setTaskFilter('all',this)">All Tasks</button>
+        </div>
+        <select id="taskProjectFilter" onchange="renderTasksList()" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:0.8rem">
+          <option value="">All Projects</option>
+        </select>
+      </div>
+      <div id="tasksTableWrap"></div>
+    </div>
+    <div id="taskDetail" style="display:none"></div>
   </div>
 
   <!-- APPS -->
@@ -187,9 +248,12 @@ td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtl
 
   <!-- RESOURCES -->
   <div class="view" id="v-resources">
-    <h1 class="page-title">Resources</h1>
-    <p class="page-sub">Guides, templates, and tools to accelerate your growth.</p>
-    <div id="resourcesList"></div>
+    <div id="resourcesListView">
+      <h1 class="page-title">Resources</h1>
+      <p class="page-sub">Guides, templates, and tools to accelerate your growth.</p>
+      <div id="resourcesGrid" class="grid-3"></div>
+    </div>
+    <div id="resourceDetail" style="display:none"></div>
   </div>
 
   <!-- ACCOUNT -->
@@ -213,6 +277,11 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 let currentUser=null;
 let clientRecord=null;
 let clientId=null;
+let profileName='';
+// Task page state
+let allTasks=[];
+let allProjects=[];
+let taskFilterMode='mine'; // 'mine' or 'all'
 
 // ── Auth Gate ──
 (async function(){
@@ -220,17 +289,14 @@ let clientId=null;
   if(!session){window.location.href='/auth';return}
   currentUser=session.user;
 
-  // Get profile and client record via profile_id
   const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-
-  // Get client record
   const{data:client}=await sb.from('clients').select('*').eq('profile_id',currentUser.id).single();
   clientRecord=client;
   clientId=client?.id;
 
-  const name=profile?.full_name||currentUser.email.split('@')[0];
-  document.getElementById('userName').textContent=name;
-  document.getElementById('welcomeTitle').textContent=`Welcome back, ${name.split(' ')[0]}`;
+  profileName=profile?.full_name||currentUser.email.split('@')[0];
+  document.getElementById('userName').textContent=profileName;
+  document.getElementById('welcomeTitle').textContent=`Welcome back, ${profileName.split(' ')[0]}`;
 
   setupNav();
   loadOverview();
@@ -250,11 +316,14 @@ function setupNav(){
       const v=link.dataset.view;
       document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
       document.getElementById('v-'+v).classList.add('active');
-      // Reset detail
+      // Reset sub-views
       if(document.getElementById('projectsList'))document.getElementById('projectsList').style.display='';
       if(document.getElementById('projectDetail'))document.getElementById('projectDetail').style.display='none';
-      // Load
-      const loaders={overview:loadOverview,projects:loadProjects,apps:loadApps,events:loadEvents,resources:loadResources,account:loadAccount};
+      if(document.getElementById('tasksList'))document.getElementById('tasksList').style.display='';
+      if(document.getElementById('taskDetail'))document.getElementById('taskDetail').style.display='none';
+      if(document.getElementById('resourcesListView'))document.getElementById('resourcesListView').style.display='';
+      if(document.getElementById('resourceDetail'))document.getElementById('resourceDetail').style.display='none';
+      const loaders={overview:loadOverview,projects:loadProjects,tasks:loadTasks,apps:loadApps,events:loadEvents,resources:loadResources,account:loadAccount};
       if(loaders[v])loaders[v]();
     });
   });
@@ -266,15 +335,14 @@ function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-
 function statusBadge(s){
   const map={active:'success',inactive:'error',onboarding:'info',paused:'warning',
     discovery:'info',scoping:'info',in_progress:'warning',review:'info',revision:'warning',deployed:'success',completed:'success',cancelled:'error',
-    pending:'warning',partial:'info',paid:'success',overdue:'error',
-    upcoming:'info',in_progress:'warning',completed:'success',
-    granted:'success',revoked:'error',trial:'warning',expired:'error',
-    invited:'info',attending:'success',declined:'error',maybe:'warning'};
+    pending:'warning',partial:'info',paid:'success',overdue:'error',done:'success',
+    upcoming:'info',granted:'success',revoked:'error',trial:'warning',expired:'error',
+    invited:'info',attending:'success',declined:'error',maybe:'warning',todo:'info'};
   return`<span class="badge badge-${map[s]||'gold'}">${s?s.replace(/_/g,' '):'—'}</span>`;
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),3000)}
+function stripHTML(html){const d=document.createElement('div');d.innerHTML=html;return d.textContent||d.innerText||''}
 
-// Calculate progress from tasks
 async function calcProjectProgress(projectId){
   const{count:total}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId);
   const{count:done}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId).eq('status','done');
@@ -286,30 +354,29 @@ async function loadOverview(){
   if(!clientId){
     document.getElementById('overviewKPIs').innerHTML='';
     document.getElementById('overviewProjects').innerHTML='<div class="empty">No client account linked yet. Contact support.</div>';
+    document.getElementById('overviewTasks').innerHTML='<div class="empty">No tasks yet.</div>';
     document.getElementById('overviewApps').innerHTML='<div class="empty">No apps yet.</div>';
     document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events.</div>';
     return;
   }
 
-  const[{data:projects},{data:apps},{data:events}]=await Promise.all([
+  const[{data:projects},{data:apps},{data:events},{data:myTasks}]=await Promise.all([
     sb.from('projects').select('id,name,status,tier,start_date,due_date').eq('client_id',clientId).order('created_at',{ascending:false}),
     sb.from('client_apps').select('*,app_library(name,tagline,primary_button_url,primary_button_text)').eq('client_id',clientId),
-    sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId)
+    sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId),
+    sb.from('tasks').select('id,title,status,due_date,project_id').eq('assigned_to',currentUser.id).neq('status','done').order('due_date').limit(5)
   ]);
 
   const activeProjs=(projects||[]).filter(p=>!['deployed','completed','cancelled','paused'].includes(p.status));
-
-  // Calculate progress for each project
   let progressMap={};
-  for(const p of (projects||[])){
-    progressMap[p.id]=await calcProjectProgress(p.id);
-  }
+  for(const p of (projects||[])){progressMap[p.id]=await calcProjectProgress(p.id)}
 
+  const myTaskCount=(myTasks||[]).length;
   document.getElementById('overviewKPIs').innerHTML=`
     <div class="kpi"><div class="val">${(projects||[]).length}</div><div class="lbl">Total Projects</div></div>
     <div class="kpi"><div class="val">${activeProjs.length}</div><div class="lbl">Active Builds</div></div>
+    <div class="kpi"><div class="val">${myTaskCount}</div><div class="lbl">Open Tasks</div></div>
     <div class="kpi"><div class="val">${(apps||[]).length}</div><div class="lbl">Apps</div></div>
-    <div class="kpi"><div class="val">${(events||[]).length}</div><div class="lbl">Upcoming Events</div></div>
   `;
 
   // Projects
@@ -326,6 +393,23 @@ async function loadOverview(){
     document.getElementById('overviewProjects').innerHTML=h;
   } else {
     document.getElementById('overviewProjects').innerHTML='<div class="empty">No active projects</div>';
+  }
+
+  // My Tasks
+  if(myTasks&&myTasks.length){
+    let h='';
+    myTasks.forEach(t=>{
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="switchToTaskDetail('${t.id}')">
+        <span>${t.title}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${statusBadge(t.status)}
+          <span style="font-size:0.8rem;color:var(--text-muted)">${fmtDate(t.due_date)}</span>
+        </div>
+      </div>`;
+    });
+    document.getElementById('overviewTasks').innerHTML=h;
+  } else {
+    document.getElementById('overviewTasks').innerHTML='<div class="empty">All caught up!</div>';
   }
 
   // Apps
@@ -345,27 +429,40 @@ async function loadOverview(){
   // Events
   const upcoming=(events||[]).filter(e=>e.events&&new Date(e.events.start_time)>=new Date());
   if(upcoming.length){
-    let h='<table><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>RSVP</th></tr></thead><tbody>';
-    upcoming.forEach(e=>{
+    let h='';
+    upcoming.slice(0,3).forEach(e=>{
       const ev=e.events;
-      h+=`<tr><td>${ev.title}</td><td>${fmtDate(ev.start_time)}</td><td>${ev.location||'Virtual'}</td><td>${statusBadge(e.rsvp_status)}</td></tr>`;
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
+        <span>${ev.title}</span><span style="font-size:0.8rem;color:var(--text-muted)">${fmtDate(ev.start_time)}</span>
+      </div>`;
     });
-    h+='</tbody></table>';
     document.getElementById('overviewEvents').innerHTML=h;
   } else {
     document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events</div>';
   }
 }
 
-function switchToProjectDetail(id){
+function switchToView(view){
   document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
-  document.querySelector('[data-view="projects"]').classList.add('active');
+  const link=document.querySelector(`[data-view="${view}"]`);
+  if(link)link.classList.add('active');
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.getElementById('v-projects').classList.add('active');
+  document.getElementById('v-'+view).classList.add('active');
+}
+
+function switchToProjectDetail(id){
+  switchToView('projects');
   openProjectDetail(id);
 }
 
-// ── Projects ──
+function switchToTaskDetail(id){
+  switchToView('tasks');
+  openTaskDetail(id);
+}
+
+// ══════════════════════════════════
+// ── PROJECTS ──
+// ══════════════════════════════════
 async function loadProjects(){
   if(!clientId){document.getElementById('projCards').innerHTML='<div class="empty">No projects found</div>';return}
   const{data}=await sb.from('projects').select('id,name,status,tier,start_date,due_date,contract_value').eq('client_id',clientId).order('created_at',{ascending:false});
@@ -395,7 +492,7 @@ async function openProjectDetail(id){
     sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
     sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
     sb.from('project_files').select('*').eq('project_id',id).order('created_at',{ascending:false}),
-    sb.from('project_comments').select('*,profiles(full_name)').eq('project_id',id).eq('is_internal',false).order('created_at',{ascending:false})
+    sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:false})
   ]);
 
   document.getElementById('projectsList').style.display='none';
@@ -404,7 +501,14 @@ async function openProjectDetail(id){
 
   let taskRows='';
   (tasks||[]).forEach(t=>{
-    taskRows+=`<tr><td>${t.title}</td><td>${statusBadge(t.status)}</td><td>${fmtDate(t.due_date)}</td></tr>`;
+    const isDone=t.status==='done';
+    taskRows+=`<tr class="clickable" onclick="switchToTaskDetail('${t.id}')">
+      <td>${t.title}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${fmtDate(t.due_date)}</td>
+      <td>${t.assigned_name||'—'}</td>
+      <td>${isDone?'<span class="badge badge-success">Done</span>':`<button class="btn btn-sm btn-success" onclick="event.stopPropagation();completeTask('${t.id}','${id}')">Complete</button>`}</td>
+    </tr>`;
   });
 
   let msRows='';
@@ -419,9 +523,9 @@ async function openProjectDetail(id){
 
   let commentHTML='';
   (comments||[]).forEach(c=>{
-    commentHTML+=`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${c.profiles?.full_name||'Team'}</strong><span style="color:var(--text-muted);font-size:0.8rem">${fmtDate(c.created_at)}</span></div>
-      <div style="font-size:0.9rem">${c.content}</div>
+    commentHTML+=`<div class="comment-box">
+      <div class="comment-meta"><strong>${c.user_name||'Team'}</strong><span>${fmtDate(c.created_at)}</span></div>
+      <div class="comment-body">${c.content}</div>
     </div>`;
   });
 
@@ -436,7 +540,7 @@ async function openProjectDetail(id){
       <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.due_date)}</div></div>
       <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
     </div>
-    ${project.description?`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:0.9rem;line-height:1.5;color:var(--text-muted)">${project.description}</div>`:''}
+    ${project.description?`<div class="rich-desc">${project.description}</div><br>`:''}
     <div class="detail-tabs">
       <div class="detail-tab active" onclick="switchTab(this)">Tasks (${(tasks||[]).length})</div>
       <div class="detail-tab" onclick="switchTab(this)">Milestones (${(milestones||[]).length})</div>
@@ -444,7 +548,7 @@ async function openProjectDetail(id){
       <div class="detail-tab" onclick="switchTab(this)">Comments (${(comments||[]).length})</div>
     </div>
     <div class="detail-pane active">
-      ${taskRows?`<table><thead><tr><th>Task</th><th>Status</th><th>Due</th></tr></thead><tbody>${taskRows}</tbody></table>`:'<div class="empty">No tasks yet</div>'}
+      ${taskRows?`<table><thead><tr><th>Task</th><th>Status</th><th>Due</th><th>Assigned</th><th></th></tr></thead><tbody>${taskRows}</tbody></table>`:'<div class="empty">No tasks yet</div>'}
     </div>
     <div class="detail-pane">
       ${msRows?`<table><thead><tr><th>Milestone</th><th>Status</th><th>Due</th></tr></thead><tbody>${msRows}</tbody></table>`:'<div class="empty">No milestones yet</div>'}
@@ -454,8 +558,8 @@ async function openProjectDetail(id){
     </div>
     <div class="detail-pane">
       <div style="margin-bottom:1rem">
-        <textarea id="clientComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
-        <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postClientComment('${id}')">Post Comment</button>
+        <textarea id="projComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+        <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postComment('${id}',null)">Post Comment</button>
       </div>
       ${commentHTML||'<div class="empty">No comments yet</div>'}
     </div>
@@ -472,18 +576,165 @@ function switchTab(el){
   if(panes[idx])panes[idx].classList.add('active');
 }
 
-async function postClientComment(projectId){
-  const el=document.getElementById('clientComment');
+async function postComment(projectId,taskId){
+  const elId=taskId?'taskComment':'projComment';
+  const el=document.getElementById(elId);
   const content=el.value.trim();if(!content)return;
-  const{error}=await sb.from('project_comments').insert({project_id:projectId,author_id:currentUser.id,content,is_internal:false});
-  if(error){toast('Failed to post comment');return}
+  const{error}=await sb.from('comments').insert({
+    project_id:projectId||null,
+    task_id:taskId||null,
+    user_id:currentUser.id,
+    user_name:profileName,
+    content
+  });
+  if(error){toast('Failed to post comment: '+error.message);return}
   toast('Comment posted');
-  openProjectDetail(projectId);
+  if(taskId){openTaskDetail(taskId)}
+  else if(projectId){openProjectDetail(projectId)}
 }
 
-// ── Apps ──
+async function completeTask(taskId,contextId){
+  const{error}=await sb.from('tasks').update({status:'done'}).eq('id',taskId);
+  if(error){toast('Error: '+error.message);return}
+  toast('Task completed!');
+  // Refresh whichever view we're in
+  if(contextId){openProjectDetail(contextId)}
+  else{loadTasks()}
+}
+
+// ══════════════════════════════════
+// ── TASKS PAGE ──
+// ══════════════════════════════════
+async function loadTasks(){
+  if(!clientId){document.getElementById('tasksTableWrap').innerHTML='<div class="empty">No tasks found</div>';return}
+
+  // Get all projects for this client
+  const{data:projects}=await sb.from('projects').select('id,name').eq('client_id',clientId);
+  allProjects=projects||[];
+  const projectIds=allProjects.map(p=>p.id);
+
+  // Populate project filter dropdown
+  const sel=document.getElementById('taskProjectFilter');
+  sel.innerHTML='<option value="">All Projects</option>';
+  allProjects.forEach(p=>{sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`});
+
+  if(!projectIds.length){document.getElementById('tasksTableWrap').innerHTML='<div class="empty">No projects found</div>';return}
+
+  // Get all tasks for those projects
+  const{data:tasks}=await sb.from('tasks').select('*').in('project_id',projectIds).order('due_date');
+  allTasks=tasks||[];
+  renderTasksList();
+}
+
+function setTaskFilter(mode,btn){
+  taskFilterMode=mode;
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasksList();
+}
+
+function renderTasksList(){
+  const projFilter=document.getElementById('taskProjectFilter').value;
+  let filtered=allTasks;
+
+  if(taskFilterMode==='mine'){
+    filtered=filtered.filter(t=>t.assigned_to===currentUser.id);
+  }
+  if(projFilter){
+    filtered=filtered.filter(t=>t.project_id===projFilter);
+  }
+
+  if(!filtered.length){
+    document.getElementById('tasksTableWrap').innerHTML=`<div class="empty">${taskFilterMode==='mine'?'No tasks assigned to you':'No tasks found'}</div>`;
+    return;
+  }
+
+  // Group by project
+  const projMap={};
+  allProjects.forEach(p=>projMap[p.id]=p.name);
+
+  let h='<div class="card"><table><thead><tr><th>Task</th><th>Project</th><th>Status</th><th>Due</th><th>Assigned</th><th></th></tr></thead><tbody>';
+  filtered.forEach(t=>{
+    const isDone=t.status==='done';
+    h+=`<tr class="clickable" onclick="openTaskDetail('${t.id}')">
+      <td><strong>${t.title}</strong></td>
+      <td style="font-size:0.85rem;color:var(--text-muted)">${projMap[t.project_id]||'—'}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${fmtDate(t.due_date)}</td>
+      <td>${t.assigned_name||'—'}</td>
+      <td>${isDone?'<span class="badge badge-success">Done</span>':`<button class="btn btn-sm btn-success" onclick="event.stopPropagation();completeTask('${t.id}',null)">Complete</button>`}</td>
+    </tr>`;
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('tasksTableWrap').innerHTML=h;
+}
+
+async function openTaskDetail(id){
+  const{data:task}=await sb.from('tasks').select('*').eq('id',id).single();
+  if(!task)return;
+
+  // Get project name
+  let projName='—';
+  if(task.project_id){
+    const{data:proj}=await sb.from('projects').select('name').eq('id',task.project_id).single();
+    if(proj)projName=proj.name;
+  }
+
+  // Get comments for this task
+  const{data:comments}=await sb.from('comments').select('*').eq('task_id',id).order('created_at',{ascending:false});
+
+  document.getElementById('tasksList').style.display='none';
+  const d=document.getElementById('taskDetail');d.style.display='block';
+
+  const isDone=task.status==='done';
+  let commentHTML='';
+  (comments||[]).forEach(c=>{
+    commentHTML+=`<div class="comment-box">
+      <div class="comment-meta"><strong>${c.user_name||'Team'}</strong><span>${fmtDate(c.created_at)}</span></div>
+      <div class="comment-body">${c.content}</div>
+    </div>`;
+  });
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="backToTasks()">&#8592; Back to Tasks</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700">${task.title}</h2>
+      ${isDone?'<span class="badge badge-success" style="font-size:0.9rem;padding:6px 16px">Completed</span>':`<button class="btn btn-success" onclick="completeTaskFromDetail('${id}')">Mark Complete</button>`}
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Project</div><div class="info-value" style="cursor:pointer;color:var(--accent)" onclick="switchToProjectDetail('${task.project_id}')">${projName}</div></div>
+      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(task.status)}</div></div>
+      <div class="info-item"><div class="info-label">Priority</div><div class="info-value">${statusBadge(task.priority||'normal')}</div></div>
+      <div class="info-item"><div class="info-label">Due Date</div><div class="info-value">${fmtDate(task.due_date)}</div></div>
+      <div class="info-item"><div class="info-label">Assigned To</div><div class="info-value">${task.assigned_name||'Unassigned'}</div></div>
+    </div>
+    ${task.description?`<div class="rich-desc" style="margin-bottom:1.5rem">${task.description}</div>`:''}
+    <h3 style="font-size:1rem;margin-bottom:1rem">Comments (${(comments||[]).length})</h3>
+    <div style="margin-bottom:1rem">
+      <textarea id="taskComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+      <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postComment('${task.project_id}','${id}')">Post Comment</button>
+    </div>
+    ${commentHTML||'<div class="empty">No comments yet</div>'}
+  `;
+}
+
+async function completeTaskFromDetail(id){
+  const{error}=await sb.from('tasks').update({status:'done'}).eq('id',id);
+  if(error){toast('Error: '+error.message);return}
+  toast('Task completed!');
+  openTaskDetail(id);
+}
+
+function backToTasks(){
+  document.getElementById('taskDetail').style.display='none';
+  document.getElementById('tasksList').style.display='';
+  loadTasks();
+}
+
+// ══════════════════════════════════
+// ── APPS ──
+// ══════════════════════════════════
 async function loadApps(){
-  // My apps
   if(clientId){
     const{data:myApps}=await sb.from('client_apps').select('*,app_library(*)').eq('client_id',clientId);
     if(myApps&&myApps.length){
@@ -502,7 +753,6 @@ async function loadApps(){
     }
   }
 
-  // Marketplace - show apps where is_active=true AND show_on_marketplace=true
   const{data:allApps}=await sb.from('app_library').select('*').eq('is_active',true).eq('show_on_marketplace',true).order('created_at');
   if(allApps&&allApps.length){
     let h='';
@@ -522,7 +772,9 @@ async function loadApps(){
   }
 }
 
-// ── Events ──
+// ══════════════════════════════════
+// ── EVENTS ──
+// ══════════════════════════════════
 async function loadEvents(){
   const{data:allEvents}=await sb.from('events').select('*').eq('is_public',true).order('start_time');
   let myEventIds={};
@@ -535,13 +787,18 @@ async function loadEvents(){
   let h='';
   allEvents.forEach(e=>{
     const rsvp=myEventIds[e.id];
+    const priceStr=e.price?fmt$(e.price):'Free';
     h+=`<div class="app-card">
       <div style="display:flex;justify-content:space-between;align-items:start"><h4>${e.title}</h4>${statusBadge(e.event_type)}</div>
       <p>${e.description||''}</p>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
         ${fmtDate(e.start_time)} ${e.location?'&bull; '+e.location:'&bull; Virtual'}
+        ${e.price?` &bull; <strong style="color:var(--accent)">${priceStr}</strong>`:''}
       </div>
-      ${rsvp?statusBadge(rsvp):`<button class="btn btn-sm btn-primary" onclick="rsvpEvent('${e.id}')">RSVP</button>`}
+      <div style="display:flex;gap:8px;align-items:center">
+        ${rsvp?statusBadge(rsvp):`<button class="btn btn-sm btn-primary" onclick="rsvpEvent('${e.id}')">RSVP</button>`}
+        ${e.website_url?`<a href="${e.website_url}" target="_blank" class="btn btn-sm btn-secondary">Website</a>`:''}
+      </div>
     </div>`;
   });
   document.getElementById('eventsGrid').innerHTML=h;
@@ -555,34 +812,98 @@ async function rsvpEvent(eventId){
   loadEvents();
 }
 
-// ── Resources ──
+// ══════════════════════════════════
+// ── RESOURCES ──
+// ══════════════════════════════════
 async function loadResources(){
-  if(!clientId){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
-
-  // Get all resources, filter by client_id or by client's projects
-  const{data:clientProjects}=await sb.from('projects').select('id').eq('client_id',clientId);
-  const projectIds=(clientProjects||[]).map(p=>p.id);
-
-  // Build filter: resources for this client OR for their projects
-  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
-  if(projectIds.length){
-    query=query.or(`client_id.eq.${clientId},project_id.in.(${projectIds.join(',')})`);
-  } else {
-    query=query.eq('client_id',clientId);
+  // Get resources: global (no client_id) + client-specific + project-specific
+  let projectIds=[];
+  if(clientId){
+    const{data:clientProjects}=await sb.from('projects').select('id').eq('client_id',clientId);
+    projectIds=(clientProjects||[]).map(p=>p.id);
   }
+
+  // Build query to get global resources + client resources + project resources
+  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
+
+  // Global resources (client_id IS NULL) + client-specific + project-specific
+  let orParts=['client_id.is.null'];
+  if(clientId)orParts.push(`client_id.eq.${clientId}`);
+  if(projectIds.length)orParts.push(`project_id.in.(${projectIds.join(',')})`);
+  query=query.or(orParts.join(','));
+
   const{data}=await query;
 
-  if(!data||!data.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
+  if(!data||!data.length){
+    document.getElementById('resourcesGrid').innerHTML='<div class="empty">No resources available</div>';
+    return;
+  }
 
-  let h='<div class="card"><table><thead><tr><th>Resource</th><th>Type</th><th></th></tr></thead><tbody>';
+  let h='';
   data.forEach(r=>{
-    h+=`<tr><td><strong>${r.title}</strong></td><td><span class="badge badge-info">${(r.type||'').replace(/_/g,' ')}</span></td><td>${r.type==='url'&&r.url?`<a href="${r.url}" target="_blank" class="btn btn-sm btn-secondary">Open</a>`:''}${r.type==='file'&&r.file_url?`<a href="${r.file_url}" target="_blank" class="btn btn-sm btn-secondary">Download</a>`:''}</td></tr>`;
+    const typeLabel=(r.type||'general').replace(/_/g,' ');
+    const descPreview=r.description?stripHTML(r.description).substring(0,120)+'...':'No description';
+    h+=`<div class="res-card" onclick="openResourceDetail('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+        <h4>${r.title}</h4>
+        <span class="badge badge-info">${typeLabel}</span>
+      </div>
+      <div class="res-desc">${descPreview}</div>
+    </div>`;
   });
-  h+='</tbody></table></div>';
-  document.getElementById('resourcesList').innerHTML=h;
+  document.getElementById('resourcesGrid').innerHTML=h;
+  document.getElementById('resourcesListView').style.display='';
+  document.getElementById('resourceDetail').style.display='none';
 }
 
-// ── Account ──
+async function openResourceDetail(id){
+  const{data:resource}=await sb.from('resources').select('*').eq('id',id).single();
+  if(!resource)return;
+
+  document.getElementById('resourcesListView').style.display='none';
+  const d=document.getElementById('resourceDetail');d.style.display='block';
+
+  const typeLabel=(resource.type||'general').replace(/_/g,' ');
+
+  // Build file download section
+  let fileSection='';
+  if(resource.type==='file'&&resource.file_url){
+    fileSection=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.file_url}" target="_blank" class="btn btn-primary" download>Download File</a>
+    </div>`;
+  } else if(resource.type==='url'&&resource.url){
+    fileSection=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.url}" target="_blank" class="btn btn-primary">Open Link</a>
+    </div>`;
+  }
+
+  // If there's a file_url regardless of type
+  if(resource.file_url&&resource.type!=='file'){
+    fileSection+=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.file_url}" target="_blank" class="btn btn-secondary">Download Attachment</a>
+    </div>`;
+  }
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="backToResources()">&#8592; Back to Resources</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700">${resource.title}</h2>
+      <span class="badge badge-info" style="font-size:0.85rem;padding:5px 14px">${typeLabel}</span>
+    </div>
+    ${fileSection}
+    ${resource.description?`<div class="rich-desc">${resource.description}</div>`:'<div class="empty">No description provided</div>'}
+    <div style="margin-top:1.5rem;font-size:0.8rem;color:var(--text-muted)">Added ${fmtDate(resource.created_at)}</div>
+  `;
+}
+
+function backToResources(){
+  document.getElementById('resourceDetail').style.display='none';
+  document.getElementById('resourcesListView').style.display='';
+}
+
+// ══════════════════════════════════
+// ── ACCOUNT ──
+// ══════════════════════════════════
 async function loadAccount(){
   const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
   document.getElementById('accountInfo').innerHTML=`
