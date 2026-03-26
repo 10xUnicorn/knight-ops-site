@@ -220,12 +220,11 @@ let clientId=null;
   if(!session){window.location.href='/auth';return}
   currentUser=session.user;
 
-  // Get profile
+  // Get profile and client record via profile_id
   const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-  if(profile&&profile.role==='admin'){window.location.href='/admin';return}
 
   // Get client record
-  const{data:client}=await sb.from('clients').select('*').eq('user_id',currentUser.id).single();
+  const{data:client}=await sb.from('clients').select('*').eq('profile_id',currentUser.id).single();
   clientRecord=client;
   clientId=client?.id;
 
@@ -266,14 +265,21 @@ function fmt$(n){return n?'$'+Number(n).toLocaleString('en-US',{minimumFractionD
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
 function statusBadge(s){
   const map={active:'success',inactive:'error',onboarding:'info',paused:'warning',
-    discovery:'info',proposal:'gold',approved:'success',in_progress:'warning',review:'info',launched:'success',maintenance:'gold',cancelled:'error',
-    pending:'warning',completed:'success',blocked:'error',
-    not_started:'info',on_track:'success',behind:'error',at_risk:'warning',
-    upcoming:'info',live:'success',past:'error',
-    granted:'success',revoked:'error',trial:'warning',expired:'error'};
+    discovery:'info',scoping:'info',in_progress:'warning',review:'info',revision:'warning',deployed:'success',completed:'success',cancelled:'error',
+    pending:'warning',partial:'info',paid:'success',overdue:'error',
+    upcoming:'info',in_progress:'warning',completed:'success',
+    granted:'success',revoked:'error',trial:'warning',expired:'error',
+    invited:'info',attending:'success',declined:'error',maybe:'warning'};
   return`<span class="badge badge-${map[s]||'gold'}">${s?s.replace(/_/g,' '):'—'}</span>`;
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),3000)}
+
+// Calculate progress from tasks
+async function calcProjectProgress(projectId){
+  const{count:total}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId);
+  const{count:done}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId).eq('status','done');
+  return total?Math.round((done||0)/total*100):0;
+}
 
 // ── Overview ──
 async function loadOverview(){
@@ -285,31 +291,36 @@ async function loadOverview(){
     return;
   }
 
-  const[{data:projects},{data:apps},{count:taskCount},{data:events}]=await Promise.all([
-    sb.from('projects').select('id,name,status,tier,progress_pct,deadline').eq('client_id',clientId).order('created_at',{ascending:false}),
-    sb.from('client_apps').select('*,app_library(name,short_description,cta_url,cta_label)').eq('client_id',clientId),
-    sb.from('tasks').select('*',{count:'exact',head:true}).in('project_id',(projects||[]).map(p=>p.id)).eq('status','in_progress'),
-    sb.from('client_events').select('*,events(title,event_date,location,event_type)').eq('client_id',clientId)
+  const[{data:projects},{data:apps},{data:events}]=await Promise.all([
+    sb.from('projects').select('id,name,status,tier,start_date,due_date').eq('client_id',clientId).order('created_at',{ascending:false}),
+    sb.from('client_apps').select('*,app_library(name,tagline,primary_button_url,primary_button_text)').eq('client_id',clientId),
+    sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId)
   ]);
 
-  const activeProjs=(projects||[]).filter(p=>!['launched','cancelled','maintenance'].includes(p.status));
+  const activeProjs=(projects||[]).filter(p=>!['deployed','completed','cancelled','paused'].includes(p.status));
+
+  // Calculate progress for each project
+  let progressMap={};
+  for(const p of (projects||[])){
+    progressMap[p.id]=await calcProjectProgress(p.id);
+  }
 
   document.getElementById('overviewKPIs').innerHTML=`
     <div class="kpi"><div class="val">${(projects||[]).length}</div><div class="lbl">Total Projects</div></div>
     <div class="kpi"><div class="val">${activeProjs.length}</div><div class="lbl">Active Builds</div></div>
     <div class="kpi"><div class="val">${(apps||[]).length}</div><div class="lbl">Apps</div></div>
-    <div class="kpi"><div class="val">${taskCount||0}</div><div class="lbl">Tasks In Progress</div></div>
+    <div class="kpi"><div class="val">${(events||[]).length}</div><div class="lbl">Upcoming Events</div></div>
   `;
 
   // Projects
   if(activeProjs.length){
     let h='';
     activeProjs.slice(0,3).forEach(p=>{
-      const pct=p.progress_pct||0;
+      const pct=progressMap[p.id]||0;
       h+=`<div style="padding:10px 0;border-bottom:1px solid var(--border-subtle);cursor:pointer" onclick="switchToProjectDetail('${p.id}')">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${p.name}</strong>${statusBadge(p.status)}</div>
         <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:0.8rem;color:var(--text-muted)"><span>${pct}% complete</span><span>Due ${fmtDate(p.deadline)}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:0.8rem;color:var(--text-muted)"><span>${pct}% complete</span><span>Due ${fmtDate(p.due_date)}</span></div>
       </div>`;
     });
     document.getElementById('overviewProjects').innerHTML=h;
@@ -323,7 +334,7 @@ async function loadOverview(){
     apps.forEach(a=>{
       const app=a.app_library||{};
       h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
-        <span>${app.name||'—'}</span>${statusBadge(a.access_status)}
+        <span>${app.name||'—'}</span>${statusBadge(a.status)}
       </div>`;
     });
     document.getElementById('overviewApps').innerHTML=h;
@@ -332,12 +343,12 @@ async function loadOverview(){
   }
 
   // Events
-  const upcoming=(events||[]).filter(e=>e.events&&new Date(e.events.event_date)>=new Date());
+  const upcoming=(events||[]).filter(e=>e.events&&new Date(e.events.start_time)>=new Date());
   if(upcoming.length){
     let h='<table><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>RSVP</th></tr></thead><tbody>';
     upcoming.forEach(e=>{
       const ev=e.events;
-      h+=`<tr><td>${ev.title}</td><td>${fmtDate(ev.event_date)}</td><td>${ev.location||'Virtual'}</td><td>${statusBadge(e.rsvp_status)}</td></tr>`;
+      h+=`<tr><td>${ev.title}</td><td>${fmtDate(ev.start_time)}</td><td>${ev.location||'Virtual'}</td><td>${statusBadge(e.rsvp_status)}</td></tr>`;
     });
     h+='</tbody></table>';
     document.getElementById('overviewEvents').innerHTML=h;
@@ -357,20 +368,21 @@ function switchToProjectDetail(id){
 // ── Projects ──
 async function loadProjects(){
   if(!clientId){document.getElementById('projCards').innerHTML='<div class="empty">No projects found</div>';return}
-  const{data}=await sb.from('projects').select('id,name,status,tier,progress_pct,deadline,total_price,created_at').eq('client_id',clientId).order('created_at',{ascending:false});
+  const{data}=await sb.from('projects').select('id,name,status,tier,start_date,due_date,contract_value').eq('client_id',clientId).order('created_at',{ascending:false});
   if(!data||!data.length){document.getElementById('projCards').innerHTML='<div class="empty">No projects yet</div>';return}
+
   let h='';
-  data.forEach(p=>{
-    const pct=p.progress_pct||0;
+  for(const p of data){
+    const pct=await calcProjectProgress(p.id);
     h+=`<div class="proj-card" onclick="openProjectDetail('${p.id}')">
       <h4>${p.name}</h4>
       <div class="proj-meta">${statusBadge(p.status)} <span class="badge badge-gold">${(p.tier||'').replace(/_/g,' ')}</span></div>
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.8rem;color:var(--text-muted)">
-        <span>${pct}%</span><span>Due ${fmtDate(p.deadline)}</span>
+        <span>${pct}%</span><span>Due ${fmtDate(p.due_date)}</span>
       </div>
     </div>`;
-  });
+  }
   document.getElementById('projCards').innerHTML=h;
   document.getElementById('projectsList').style.display='';
   document.getElementById('projectDetail').style.display='none';
@@ -382,13 +394,13 @@ async function openProjectDetail(id){
   const[{data:tasks},{data:milestones},{data:files},{data:comments}]=await Promise.all([
     sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
     sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
-    sb.from('project_files').select('*').eq('project_id',id).eq('is_client_visible',true).order('uploaded_at',{ascending:false}),
+    sb.from('project_files').select('*').eq('project_id',id).order('created_at',{ascending:false}),
     sb.from('project_comments').select('*,profiles(full_name)').eq('project_id',id).eq('is_internal',false).order('created_at',{ascending:false})
   ]);
 
   document.getElementById('projectsList').style.display='none';
   const d=document.getElementById('projectDetail');d.style.display='block';
-  const pct=project.progress_pct||0;
+  const pct=await calcProjectProgress(id);
 
   let taskRows='';
   (tasks||[]).forEach(t=>{
@@ -402,7 +414,7 @@ async function openProjectDetail(id){
 
   let fileRows='';
   (files||[]).forEach(f=>{
-    fileRows+=`<tr><td>${f.file_name}</td><td>${fmtDate(f.uploaded_at)}</td><td><a href="${SUPABASE_URL}/storage/v1/object/public/project-files/${f.storage_path}" target="_blank" class="btn btn-sm btn-secondary">Download</a></td></tr>`;
+    fileRows+=`<tr><td>${f.file_name}</td><td>${fmtDate(f.created_at)}</td><td><a href="${f.file_url}" target="_blank" class="btn btn-sm btn-secondary">Download</a></td></tr>`;
   });
 
   let commentHTML='';
@@ -421,7 +433,7 @@ async function openProjectDetail(id){
       <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(project.status)}</div></div>
       <div class="info-item"><div class="info-label">Progress</div><div class="info-value"><div class="progress-bar" style="width:120px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:${pct}%"></div></div> ${pct}%</div></div>
       <div class="info-item"><div class="info-label">Start</div><div class="info-value">${fmtDate(project.start_date)}</div></div>
-      <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.deadline)}</div></div>
+      <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.due_date)}</div></div>
       <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
     </div>
     ${project.description?`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:0.9rem;line-height:1.5;color:var(--text-muted)">${project.description}</div>`:''}
@@ -479,9 +491,9 @@ async function loadApps(){
       myApps.forEach(a=>{
         const app=a.app_library||{};
         h+=`<div class="app-card">
-          <div style="display:flex;justify-content:space-between;align-items:start"><h4>${app.name||'—'}</h4>${statusBadge(a.access_status)}</div>
-          <p>${app.short_description||''}</p>
-          ${app.cta_url?`<a href="${app.cta_url}" target="_blank" class="btn btn-sm btn-primary">${app.cta_label||'Launch App'}</a>`:''}
+          <div style="display:flex;justify-content:space-between;align-items:start"><h4>${app.name||'—'}</h4>${statusBadge(a.status)}</div>
+          <p>${app.tagline||''}</p>
+          ${app.primary_button_url?`<a href="${app.primary_button_url}" target="_blank" class="btn btn-sm btn-primary">${app.primary_button_text||'Launch App'}</a>`:''}
         </div>`;
       });
       document.getElementById('myAppsGrid').innerHTML=h;
@@ -490,8 +502,8 @@ async function loadApps(){
     }
   }
 
-  // Marketplace
-  const{data:allApps}=await sb.from('app_library').select('*').in('status',['published','featured']).order('sort_order');
+  // Marketplace - show apps where is_active=true AND show_on_marketplace=true
+  const{data:allApps}=await sb.from('app_library').select('*').eq('is_active',true).eq('show_on_marketplace',true).order('created_at');
   if(allApps&&allApps.length){
     let h='';
     allApps.forEach(a=>{
@@ -499,10 +511,10 @@ async function loadApps(){
         <div style="display:flex;justify-content:space-between;align-items:start"><h4>${a.name}</h4>
           <div style="display:flex;gap:4px">${a.is_featured?'<span class="badge badge-gold">Featured</span>':''}${a.is_popular?'<span class="badge badge-success">Popular</span>':''}</div>
         </div>
-        <p>${a.short_description||a.tagline||''}</p>
+        <p>${a.tagline||a.description||''}</p>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong style="color:var(--accent)">${a.price_display||'Free'}</strong>
-          ${a.cta_url?`<a href="${a.cta_url}" target="_blank" class="btn btn-sm btn-secondary">${a.cta_label||'Learn More'}</a>`:''}
+          <strong style="color:var(--accent)">${a.price_label||'Free'}</strong>
+          ${a.primary_button_url?`<a href="${a.primary_button_url}" target="_blank" class="btn btn-sm btn-secondary">${a.primary_button_text||'Learn More'}</a>`:''}
         </div>
       </div>`;
     });
@@ -512,8 +524,8 @@ async function loadApps(){
 
 // ── Events ──
 async function loadEvents(){
-  const{data:allEvents}=await sb.from('events').select('*').in('status',['upcoming','live']).order('event_date');
-  let myEventIds=[];
+  const{data:allEvents}=await sb.from('events').select('*').eq('is_public',true).order('start_time');
+  let myEventIds={};
   if(clientId){
     const{data:mine}=await sb.from('client_events').select('event_id,rsvp_status').eq('client_id',clientId);
     myEventIds=(mine||[]).reduce((acc,e)=>{acc[e.event_id]=e.rsvp_status;return acc},{});
@@ -524,10 +536,10 @@ async function loadEvents(){
   allEvents.forEach(e=>{
     const rsvp=myEventIds[e.id];
     h+=`<div class="app-card">
-      <div style="display:flex;justify-content:space-between;align-items:start"><h4>${e.title}</h4>${statusBadge(e.status)}</div>
+      <div style="display:flex;justify-content:space-between;align-items:start"><h4>${e.title}</h4>${statusBadge(e.event_type)}</div>
       <p>${e.description||''}</p>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
-        ${fmtDate(e.event_date)} ${e.location?'&bull; '+e.location:''} ${e.price?'&bull; '+fmt$(e.price):'&bull; Free'}
+        ${fmtDate(e.start_time)} ${e.location?'&bull; '+e.location:'&bull; Virtual'}
       </div>
       ${rsvp?statusBadge(rsvp):`<button class="btn btn-sm btn-primary" onclick="rsvpEvent('${e.id}')">RSVP</button>`}
     </div>`;
@@ -537,7 +549,7 @@ async function loadEvents(){
 
 async function rsvpEvent(eventId){
   if(!clientId){toast('No client account linked');return}
-  const{error}=await sb.from('client_events').insert({client_id:clientId,event_id:eventId,rsvp_status:'confirmed'});
+  const{error}=await sb.from('client_events').insert({client_id:clientId,event_id:eventId,rsvp_status:'attending'});
   if(error){toast('RSVP failed');return}
   toast('RSVP confirmed!');
   loadEvents();
@@ -545,24 +557,19 @@ async function rsvpEvent(eventId){
 
 // ── Resources ──
 async function loadResources(){
-  const tier=clientRecord?.tier;
-  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
-  // Filter by access tier — show resources matching client tier or lower
-  const{data}=await query;
+  if(!clientId){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
+
+  // Get all resources, filter by client_id or by client's projects
+  const{data:clientProjects}=await sb.from('projects').select('id').eq('client_id',clientId);
+  const projectIds=(clientProjects||[]).map(p=>p.id);
+
+  const{data}=await sb.from('resources').select('*').or(`client_id.eq.${clientId},project_id.in.(${projectIds.join(',')})`,{referencedTable:'resources'}).order('created_at',{ascending:false});
+
   if(!data||!data.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available</div>';return}
 
-  // Filter accessible resources
-  const tierRank={premium:1,tenx_unicorn:2,tenx_mastermind:3};
-  const myRank=tierRank[tier]||0;
-  const accessible=data.filter(r=>{
-    if(!r.access_tier)return true;
-    return(tierRank[r.access_tier]||0)<=myRank;
-  });
-
-  if(!accessible.length){document.getElementById('resourcesList').innerHTML='<div class="empty">No resources available for your tier</div>';return}
-  let h='<div class="card"><table><thead><tr><th>Resource</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>';
-  accessible.forEach(r=>{
-    h+=`<tr><td><strong>${r.title}</strong></td><td><span class="badge badge-info">${(r.resource_type||'').replace(/_/g,' ')}</span></td><td style="color:var(--text-muted);font-size:0.85rem">${r.description||''}</td><td>${r.url?`<a href="${r.url}" target="_blank" class="btn btn-sm btn-secondary">Open</a>`:''}</td></tr>`;
+  let h='<div class="card"><table><thead><tr><th>Resource</th><th>Type</th><th></th></tr></thead><tbody>';
+  data.forEach(r=>{
+    h+=`<tr><td><strong>${r.title}</strong></td><td><span class="badge badge-info">${(r.type||'').replace(/_/g,' ')}</span></td><td>${r.type==='url'&&r.url?`<a href="${r.url}" target="_blank" class="btn btn-sm btn-secondary">Open</a>`:''}${r.type==='file'&&r.file_url?`<a href="${r.file_url}" target="_blank" class="btn btn-sm btn-secondary">Download</a>`:''}</td></tr>`;
   });
   h+='</tbody></table></div>';
   document.getElementById('resourcesList').innerHTML=h;
@@ -578,7 +585,11 @@ async function loadAccount(){
     </div>
     <div style="margin-bottom:1.5rem">
       <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Email</div>
-      <div style="font-size:1rem">${currentUser.email}</div>
+      <div style="font-size:1rem">${profile?.email||currentUser.email}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Phone</div>
+      <div style="font-size:1rem">${profile?.phone||'—'}</div>
     </div>
     <div style="margin-bottom:1.5rem">
       <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Membership Tier</div>

@@ -246,7 +246,7 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 let allAppsData=[];
 
 (async function loadApps(){
-  const{data,error}=await sb.from('app_library').select('*').in('status',['published','featured']).order('sort_order');
+  const{data,error}=await sb.from('app_library').select('*').eq('show_on_marketplace',true).eq('is_active',true).order('sort_order');
   const grid=document.getElementById('appsGrid');
   const loading=document.getElementById('appsLoading');
 
@@ -264,8 +264,8 @@ let allAppsData=[];
     const isFeat=app.is_featured;
     const isPop=app.is_popular;
     const cat=(app.category||'').toLowerCase();
-    const features=(app.feature_list||[]);
-    const icon=app.icon_emoji||'&#9878;';
+    const features=Array.isArray(app.features)?app.features:[];
+    const icon=app.icon_url?`<img src="${app.icon_url}" style="width:40px;height:40px;border-radius:8px">`:'&#9878;';
 
     html+=`<div class="app-card${isFeat?' featured':''} fade-up" data-category="${cat}" style="animation-delay:${i*0.1}s">
       ${isFeat?'<span class="featured-badge">Featured</span>':''}
@@ -278,16 +278,16 @@ let allAppsData=[];
         </div>
       </div>
       <div class="app-card-body">
-        <p class="app-desc">${app.short_description||app.tagline||''}</p>
+        <p class="app-desc">${app.tagline||app.description||''}</p>
         ${features.length?`<ul class="app-features">${features.map(f=>'<li>'+f+'</li>').join('')}</ul>`:''}
       </div>
       <div class="app-card-footer">
         <div>
-          <div class="app-price">${app.price_display||'Free'}</div>
+          <div class="app-price">${app.price_label||'Free'}</div>
         </div>
         <div class="app-actions">
-          ${app.cta_url?`<a href="${app.cta_url}" class="btn-launch" target="_blank">${app.cta_label||'Launch'} &rarr;</a>`:''}
-          ${app.cta_url?`<a href="${app.cta_url}" class="btn-details" target="_blank">Details</a>`:''}
+          ${app.primary_button_enabled&&app.primary_button_url?`<a href="${app.primary_button_url}" class="btn-launch" target="_blank">${app.primary_button_text||'Launch'} &rarr;</a>`:''}
+          ${app.secondary_button_enabled&&app.secondary_button_url?`<a href="${app.secondary_button_url}" class="btn-details" target="_blank">${app.secondary_button_text||'Details'}</a>`:''}
         </div>
       </div>
     </div>`;

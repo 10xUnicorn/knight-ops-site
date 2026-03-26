@@ -229,12 +229,12 @@ tr:hover td{background:rgba(200,164,86,0.02)}
                 <select id="projStatusFilter" onchange="loadProjects()">
                   <option value="">All Statuses</option>
                   <option value="discovery">Discovery</option>
-                  <option value="proposal">Proposal</option>
-                  <option value="approved">Approved</option>
+                  <option value="scoping">Scoping</option>
                   <option value="in_progress">In Progress</option>
                   <option value="review">Review</option>
-                  <option value="launched">Launched</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="revision">Revision</option>
+                  <option value="deployed">Deployed</option>
+                  <option value="completed">Completed</option>
                   <option value="paused">Paused</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
@@ -255,10 +255,11 @@ tr:hover td{background:rgba(200,164,86,0.02)}
             <div class="table-filters">
               <select id="taskStatusFilter" onchange="loadTasks()">
                 <option value="">All</option>
-                <option value="pending">Pending</option>
+                <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
+                <option value="in_review">In Review</option>
                 <option value="blocked">Blocked</option>
+                <option value="done">Done</option>
               </select>
               <select id="taskProjectFilter" onchange="loadTasks()"></select>
               <button class="btn btn-primary btn-sm" onclick="openModal('task')">+ Add Task</button>
@@ -300,16 +301,7 @@ tr:hover td{background:rgba(200,164,86,0.02)}
           <div class="table-header">
             <h2>Resources</h2>
             <div class="table-filters">
-              <select id="resTypeFilter" onchange="loadResources()">
-                <option value="">All Types</option>
-                <option value="document">Document</option>
-                <option value="video">Video</option>
-                <option value="template">Template</option>
-                <option value="guide">Guide</option>
-                <option value="tool">Tool</option>
-                <option value="link">Link</option>
-              </select>
-              <button class="btn btn-primary btn-sm" onclick="openModal('resource')">+ Add Resource</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('resource')">+ Upload Resource</button>
             </div>
           </div>
           <div id="resourcesTable"></div>
@@ -319,869 +311,1030 @@ tr:hover td{background:rgba(200,164,86,0.02)}
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+<!-- MODALS -->
+
+<!-- Lead Modal -->
+<div class="modal-overlay" id="modal-lead">
   <div class="modal">
     <div class="modal-head">
-      <h2 id="modalTitle">Add</h2>
-      <button class="close" onclick="closeModal()">&times;</button>
+      <h2>Add Lead</h2>
+      <button class="close" onclick="closeModal('lead')">✕</button>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" id="lead_company" placeholder="Acme Corp">
+      </div>
+      <div class="form-group">
+        <label>Contact Name</label>
+        <input type="text" id="lead_contact_name" placeholder="John Doe">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="lead_email" placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="lead_phone" placeholder="(555) 555-5555">
+      </div>
+      <div class="form-group">
+        <label>Budget Range</label>
+        <select id="lead_budget_range">
+          <option value="">Select Budget</option>
+          <option value="under_10k">Under $10K</option>
+          <option value="10k_25k">$10K - $25K</option>
+          <option value="25k_50k">$25K - $50K</option>
+          <option value="50k_100k">$50K - $100K</option>
+          <option value="over_100k">Over $100K</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Service Interest</label>
+        <select id="lead_service_interest">
+          <option value="">Select Service</option>
+          <option value="web_design">Web Design</option>
+          <option value="development">Development</option>
+          <option value="seo">SEO</option>
+          <option value="marketing">Marketing</option>
+          <option value="consulting">Consulting</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="lead_status">
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="qualified">Qualified</option>
+          <option value="proposal_sent">Proposal Sent</option>
+          <option value="negotiation">Negotiation</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="lead_notes" placeholder="Add any notes..."></textarea>
+      </div>
+    </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="modalSave">Save</button>
+      <button class="btn btn-secondary" onclick="closeModal('lead')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLead()">Save Lead</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- Client Modal -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add Client</h2>
+      <button class="close" onclick="closeModal('client')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Profile (Select existing or create new)</label>
+        <select id="client_profile_id">
+          <option value="">-- Create New Profile --</option>
+        </select>
+      </div>
+      <div id="newProfileFields" style="display:none">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="profile_name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="profile_email" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" id="profile_company" placeholder="Acme Corp">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="profile_phone" placeholder="(555) 555-5555">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Stripe Customer ID (optional)</label>
+        <input type="text" id="client_stripe_customer_id" placeholder="cus_xxxxx">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="client_status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="paused">Paused</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="client_notes" placeholder="Add any notes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('client')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Modal -->
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>New Project</h2>
+      <button class="close" onclick="closeModal('project')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Client</label>
+        <select id="project_client_id"></select>
+      </div>
+      <div class="form-group">
+        <label>Project Name</label>
+        <input type="text" id="project_name" placeholder="Website Redesign">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="project_description" placeholder="Project description..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Budget</label>
+          <input type="number" id="project_budget" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="project_status">
+            <option value="discovery">Discovery</option>
+            <option value="scoping">Scoping</option>
+            <option value="in_progress">In Progress</option>
+            <option value="review">Review</option>
+            <option value="revision">Revision</option>
+            <option value="deployed">Deployed</option>
+            <option value="completed">Completed</option>
+            <option value="paused">Paused</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="project_start_date">
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="date" id="project_end_date">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('project')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add Task</h2>
+      <button class="close" onclick="closeModal('task')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Project</label>
+        <select id="task_project_id"></select>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="task_title" placeholder="Task title">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="task_description" placeholder="Task description..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Assigned To</label>
+          <input type="text" id="task_assigned_to" placeholder="Team member">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="task_status">
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="in_review">In Review</option>
+            <option value="blocked">Blocked</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="task_due_date">
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="task_priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('task')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- App Modal -->
+<div class="modal-overlay" id="modal-app">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add App</h2>
+      <button class="close" onclick="closeModal('app')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>App Name</label>
+        <input type="text" id="app_name" placeholder="App name">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <input type="text" id="app_category" placeholder="Category">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="app_description" placeholder="App description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Website</label>
+        <input type="url" id="app_website" placeholder="https://example.com">
+      </div>
+      <div class="form-group">
+        <label>Pricing</label>
+        <input type="text" id="app_pricing" placeholder="Free / $X/month / Custom">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('app')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveApp()">Save App</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="modal-event">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Create Event</h2>
+      <button class="close" onclick="closeModal('event')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Event Name</label>
+        <input type="text" id="event_name" placeholder="Event name">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="event_description" placeholder="Event description..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="datetime-local" id="event_start_time">
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="datetime-local" id="event_end_time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="event_location" placeholder="Event location">
+      </div>
+      <div class="form-group">
+        <label>Max Attendees</label>
+        <input type="number" id="event_max_attendees" placeholder="0 for unlimited">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="event_status">
+          <option value="scheduled">Scheduled</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('event')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resource Modal -->
+<div class="modal-overlay" id="modal-resource">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Upload Resource</h2>
+      <button class="close" onclick="closeModal('resource')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Resource Name</label>
+        <input type="text" id="resource_name" placeholder="Resource name">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="resource_description" placeholder="Resource description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>File URL</label>
+        <input type="url" id="resource_file_url" placeholder="https://example.com/file.pdf">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="resource_category">
+          <option value="">Select Category</option>
+          <option value="documentation">Documentation</option>
+          <option value="template">Template</option>
+          <option value="tool">Tool</option>
+          <option value="asset">Asset</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Is Public?</label>
+        <input type="checkbox" id="resource_is_public">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('resource')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveResource()">Save Resource</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ══════════════════════════════════════════════
-// KNIGHT OPS ADMIN — SUPABASE INIT
-// ══════════════════════════════════════════════
-const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+const SUPABASE_URL = 'https://hsxpoxbafwcppflmhobh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzeHBveGJhZndjcHBmbG1ob2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3NjM0NTcsImV4cCI6MjA1NDMzOTQ1N30.wU2y4yVTg2bTTXhxr8d9CQ1r7SkX09xL01wEp3_Cg9U';
 
-let currentUser=null;
-let allLeads=[];
-let allClients=[];
-let allProjects=[];
+// Initialize state
+let state = {
+  leads: [],
+  clients: [],
+  projects: [],
+  tasks: [],
+  apps: [],
+  events: [],
+  resources: [],
+  profiles: [],
+  currentModal: null
+};
 
-// ══════════════════════════════════════════════
-// AUTH GATE
-// ══════════════════════════════════════════════
-(async function(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='/auth';return}
-  // Check admin role
-  const{data:profile}=await sb.from('profiles').select('role').eq('id',session.user.id).single();
-  if(!profile||profile.role!=='admin'){window.location.href='/portal';return}
-  currentUser=session.user;
-  document.getElementById('userEmail').textContent=currentUser.email;
-  init();
-})();
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    const view = e.currentTarget.dataset.view;
+    showView(view);
+  });
+});
 
-async function handleLogout(){
-  await sb.auth.signOut();
-  window.location.href='/auth';
+function showView(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('v-' + viewName).classList.add('active');
+  document.getElementById('pageTitle').textContent = viewName.charAt(0).toUpperCase() + viewName.slice(1);
+
+  switch(viewName) {
+    case 'dashboard': loadDashboard(); break;
+    case 'leads': loadLeads(); break;
+    case 'clients': loadClients(); break;
+    case 'projects': loadProjects(); break;
+    case 'tasks': loadTasks(); break;
+    case 'apps': loadApps(); break;
+    case 'events': loadEvents(); break;
+    case 'resources': loadResources(); break;
+  }
 }
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-async function init(){
-  setupNav();
-  loadDashboard();
+// Modal Functions
+function openModal(type) {
+  state.currentModal = type;
+  document.getElementById('modal-' + type).classList.add('active');
 }
 
-// ══════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════
-function setupNav(){
-  document.querySelectorAll('.nav-item').forEach(item=>{
-    item.addEventListener('click',()=>{
-      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-      item.classList.add('active');
-      const view=item.dataset.view;
-      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-      document.getElementById('v-'+view).classList.add('active');
-      document.getElementById('pageTitle').textContent=item.textContent.trim();
-      // Reset detail views
-      document.getElementById('clientsList').style.display='';
-      document.getElementById('clientDetail').style.display='none';
-      document.getElementById('projectsList').style.display='';
-      document.getElementById('projectDetail').style.display='none';
-      // Load data
-      const loaders={dashboard:loadDashboard,leads:loadLeads,clients:loadClients,projects:loadProjects,tasks:loadTasks,apps:loadApps,events:loadEvents,resources:loadResources};
-      if(loaders[view])loaders[view]();
+function closeModal(type) {
+  document.getElementById('modal-' + type).classList.remove('active');
+  state.currentModal = null;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('active');
+      state.currentModal = null;
+    }
+  });
+});
+
+// Toast Notification
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// Data Loading Functions
+async function loadDashboard() {
+  try {
+    // Load KPIs
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
     });
+    const leads = await response.json();
+
+    const kpiGrid = document.getElementById('kpiGrid');
+    kpiGrid.innerHTML = `
+      <div class="kpi">
+        <div class="label">Total Leads</div>
+        <div class="value">${leads.length || 0}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Active Clients</div>
+        <div class="value">${state.clients.filter(c => c.status === 'active').length || 0}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">In Progress Projects</div>
+        <div class="value">${state.projects.filter(p => p.status === 'in_progress').length || 0}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Open Tasks</div>
+        <div class="value">${state.tasks.filter(t => t.status !== 'done').length || 0}</div>
+      </div>
+    `;
+  } catch (e) {
+    console.error('Error loading dashboard:', e);
+  }
+}
+
+async function loadLeads() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.leads = await response.json();
+    renderLeadsTable();
+  } catch (e) {
+    console.error('Error loading leads:', e);
+    document.getElementById('leadsTable').innerHTML = '<p class="table-empty">Error loading leads</p>';
+  }
+}
+
+function renderLeadsTable() {
+  const filtered = state.leads.filter(lead => {
+    const search = document.getElementById('leadSearch')?.value || '';
+    const status = document.getElementById('leadStatusFilter')?.value || '';
+    const matchesSearch = !search || lead.company.toLowerCase().includes(search.toLowerCase()) || lead.contact_name.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = !status || lead.status === status;
+    return matchesSearch && matchesStatus;
   });
-}
 
-// ══════════════════════════════════════════════
-// UTILITIES
-// ══════════════════════════════════════════════
-function fmt$(n){return n?'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:0}):'$0'}
-function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function fmtDateTime(d){if(!d)return'—';return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
-function badge(text,type){return`<span class="badge badge-${type||'gold'}">${text||'—'}</span>`}
-function statusBadge(s){
-  const map={new:'info',contacted:'warning',qualified:'gold',proposal_sent:'gold',negotiation:'warning',won:'success',lost:'error',
-    active:'success',inactive:'error',onboarding:'info',paused:'warning',churned:'error',
-    discovery:'info',proposal:'gold',approved:'success',in_progress:'warning',review:'info',launched:'success',maintenance:'gold',cancelled:'error',
-    pending:'warning',completed:'success',blocked:'error',skipped:'error',
-    not_started:'info',behind:'error',on_track:'success',at_risk:'warning',
-    draft:'info',published:'success',archived:'error',featured:'gold',
-    upcoming:'info',live:'success',past:'error'};
-  return badge(s?s.replace(/_/g,' '):'—',map[s]||'gold');
-}
-function toast(msg,type='success'){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+type;
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
-
-// ══════════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════════
-async function loadDashboard(){
-  const[{count:leadCount},{count:clientCount},{count:projCount},{count:taskCount},{data:recentLeads},{data:recentProjects}]=await Promise.all([
-    sb.from('leads').select('*',{count:'exact',head:true}),
-    sb.from('clients').select('*',{count:'exact',head:true}),
-    sb.from('projects').select('*',{count:'exact',head:true}),
-    sb.from('tasks').select('*',{count:'exact',head:true}).eq('status','in_progress'),
-    sb.from('leads').select('id,name,email,status,created_at').order('created_at',{ascending:false}).limit(5),
-    sb.from('projects').select('id,name,status,tier,created_at').order('created_at',{ascending:false}).limit(5)
-  ]);
-
-  document.getElementById('kpiGrid').innerHTML=`
-    <div class="kpi"><div class="label">Total Leads</div><div class="value">${leadCount||0}</div></div>
-    <div class="kpi"><div class="label">Active Clients</div><div class="value">${clientCount||0}</div></div>
-    <div class="kpi"><div class="label">Projects</div><div class="value">${projCount||0}</div></div>
-    <div class="kpi"><div class="label">Active Tasks</div><div class="value">${taskCount||0}</div></div>
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Budget Range</th>
+          <th>Service Interest</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.length ? filtered.map(lead => `
+          <tr>
+            <td>${lead.company}</td>
+            <td>${lead.contact_name}</td>
+            <td>${lead.email}</td>
+            <td><span class="badge badge-info">${lead.budget_range}</span></td>
+            <td>${lead.service_interest}</td>
+            <td><span class="badge badge-gold">${lead.status}</span></td>
+            <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="7" class="table-empty">No leads found</td></tr>'}
+      </tbody>
+    </table>
   `;
-
-  let actHTML='';
-  if(recentLeads)recentLeads.forEach(l=>{
-    actHTML+=`<li><span class="time">${fmtDateTime(l.created_at)}</span><span>New lead: <strong>${l.name}</strong> — ${statusBadge(l.status)}</span></li>`;
-  });
-  if(recentProjects)recentProjects.forEach(p=>{
-    actHTML+=`<li><span class="time">${fmtDateTime(p.created_at)}</span><span>Project created: <strong>${p.name}</strong> — ${statusBadge(p.status)}</span></li>`;
-  });
-  document.getElementById('recentActivity').innerHTML=actHTML||'<li class="table-empty">No recent activity</li>';
+  document.getElementById('leadsTable').innerHTML = table;
 }
 
-// ══════════════════════════════════════════════
-// LEADS
-// ══════════════════════════════════════════════
-async function loadLeads(){
-  const{data,error}=await sb.from('leads').select('*').order('created_at',{ascending:false});
-  if(error){toast(error.message,'error');return}
-  allLeads=data||[];
-  renderLeads(allLeads);
+function filterLeads() {
+  renderLeadsTable();
 }
 
-function filterLeads(){
-  const q=document.getElementById('leadSearch').value.toLowerCase();
-  const s=document.getElementById('leadStatusFilter').value;
-  let filtered=allLeads;
-  if(q)filtered=filtered.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||(l.company||'').toLowerCase().includes(q));
-  if(s)filtered=filtered.filter(l=>l.status===s);
-  renderLeads(filtered);
+async function saveLead() {
+  const lead = {
+    company: document.getElementById('lead_company').value,
+    contact_name: document.getElementById('lead_contact_name').value,
+    email: document.getElementById('lead_email').value,
+    phone: document.getElementById('lead_phone').value,
+    budget_range: document.getElementById('lead_budget_range').value,
+    service_interest: document.getElementById('lead_service_interest').value,
+    status: document.getElementById('lead_status').value,
+    notes: document.getElementById('lead_notes').value
+  };
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(lead)
+    });
+    if (response.ok) {
+      showToast('Lead saved successfully');
+      closeModal('lead');
+      loadLeads();
+    }
+  } catch (e) {
+    showToast('Error saving lead', 'error');
+  }
 }
 
-function renderLeads(leads){
-  if(!leads.length){document.getElementById('leadsTable').innerHTML='<div class="table-empty">No leads found</div>';return}
-  let h=`<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Source</th><th>Status</th><th>Budget</th><th>Date</th><th></th></tr></thead><tbody>`;
-  leads.forEach(l=>{
-    h+=`<tr>
-      <td><strong>${l.name||''}</strong></td>
-      <td>${l.email||''}</td>
-      <td>${l.company||'—'}</td>
-      <td>${l.source||'—'}</td>
-      <td>${statusBadge(l.status)}</td>
-      <td>${fmt$(l.estimated_budget)}</td>
-      <td>${fmtDate(l.created_at)}</td>
-      <td><button class="btn btn-sm btn-secondary" onclick="editLead('${l.id}')">Edit</button>
-          <button class="btn btn-sm btn-primary" onclick="convertLead('${l.id}')" title="Convert to client">&#10132;</button></td>
-    </tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('leadsTable').innerHTML=h;
+async function loadClients() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=*,profiles(*)`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.clients = await response.json();
+    renderClientsTable();
+  } catch (e) {
+    console.error('Error loading clients:', e);
+    document.getElementById('clientsTable').innerHTML = '<p class="table-empty">Error loading clients</p>';
+  }
 }
 
-function editLead(id){
-  const l=allLeads.find(x=>x.id===id);if(!l)return;
-  openModal('lead',l);
-}
-
-async function convertLead(id){
-  const l=allLeads.find(x=>x.id===id);if(!l)return;
-  if(!confirm(`Convert "${l.name}" to a client?`))return;
-  // Create client from lead
-  const{data:client,error}=await sb.from('clients').insert({
-    name:l.name,email:l.email,phone:l.phone,company:l.company,
-    tier:'night_launch',status:'onboarding',source_lead_id:l.id,
-    notes:'Converted from lead on '+new Date().toLocaleDateString()
-  }).select().single();
-  if(error){toast(error.message,'error');return}
-  // Update lead status
-  await sb.from('leads').update({status:'won'}).eq('id',id);
-  toast('Lead converted to client!');
-  loadLeads();
-}
-
-// ══════════════════════════════════════════════
-// CLIENTS
-// ══════════════════════════════════════════════
-async function loadClients(){
-  const q=(document.getElementById('clientSearch')||{}).value||'';
-  let query=sb.from('clients').select('*').order('created_at',{ascending:false});
-  if(q)query=query.or(`name.ilike.%${q}%,email.ilike.%${q}%,company.ilike.%${q}%`);
-  const{data,error}=await query;
-  if(error){toast(error.message,'error');return}
-  allClients=data||[];
-  renderClients(allClients);
-}
-
-function renderClients(clients){
-  if(!clients.length){document.getElementById('clientsTable').innerHTML='<div class="table-empty">No clients found</div>';return}
-  let h=`<table><thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Tier</th><th>Status</th><th>Since</th><th></th></tr></thead><tbody>`;
-  clients.forEach(c=>{
-    h+=`<tr style="cursor:pointer" onclick="openClientDetail('${c.id}')">
-      <td><strong>${c.name||''}</strong></td>
-      <td>${c.company||'—'}</td>
-      <td>${c.email||''}</td>
-      <td>${badge((c.tier||'').replace(/_/g,' '),'gold')}</td>
-      <td>${statusBadge(c.status)}</td>
-      <td>${fmtDate(c.created_at)}</td>
-      <td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openModal('client',clients.find(x=>x.id==='${c.id}'))">Edit</button></td>
-    </tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('clientsTable').innerHTML=h;
-}
-
-async function openClientDetail(id){
-  const{data:client}=await sb.from('clients').select('*').eq('id',id).single();
-  if(!client)return;
-  const[{data:projects},{data:apps},{data:events}]=await Promise.all([
-    sb.from('projects').select('id,name,status,tier,created_at').eq('client_id',id).order('created_at',{ascending:false}),
-    sb.from('client_apps').select('*,app_library(*)').eq('client_id',id),
-    sb.from('client_events').select('*,events(*)').eq('client_id',id)
-  ]);
-
-  document.getElementById('clientsList').style.display='none';
-  const d=document.getElementById('clientDetail');d.style.display='block';
-
-  let projRows='';
-  (projects||[]).forEach(p=>{
-    projRows+=`<tr style="cursor:pointer" onclick="openProjectDetail('${p.id}')"><td>${p.name}</td><td>${badge((p.tier||'').replace(/_/g,' '),'gold')}</td><td>${statusBadge(p.status)}</td><td>${fmtDate(p.created_at)}</td></tr>`;
-  });
-
-  let appRows='';
-  (apps||[]).forEach(a=>{
-    const app=a.app_library||{};
-    appRows+=`<tr><td>${app.name||'—'}</td><td>${statusBadge(a.access_status)}</td><td>${fmtDate(a.granted_at)}</td></tr>`;
-  });
-
-  d.innerHTML=`
-    <div class="detail-back" onclick="document.getElementById('clientsList').style.display='';document.getElementById('clientDetail').style.display='none'">&#8592; Back to Clients</div>
-    <div class="detail-header">
-      <h2>${client.name} ${client.company?'— '+client.company:''}</h2>
-      <button class="btn btn-secondary btn-sm" onclick="openModal('client',${JSON.stringify(client).replace(/"/g,'&quot;')})">Edit Client</button>
-    </div>
-    <div class="info-grid">
-      <div class="info-item"><div class="info-label">Email</div><div class="info-value">${client.email||'—'}</div></div>
-      <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${client.phone||'—'}</div></div>
-      <div class="info-item"><div class="info-label">Tier</div><div class="info-value">${badge((client.tier||'').replace(/_/g,' '),'gold')}</div></div>
-      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(client.status)}</div></div>
-      <div class="info-item"><div class="info-label">Client Since</div><div class="info-value">${fmtDate(client.created_at)}</div></div>
-      <div class="info-item"><div class="info-label">Lifetime Revenue</div><div class="info-value">${fmt$(client.lifetime_revenue)}</div></div>
-    </div>
-    <div class="detail-tabs">
-      <div class="detail-tab active" onclick="switchDetailTab(this,'client')">Projects (${(projects||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'client')">Apps (${(apps||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'client')">Events (${(events||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'client')">Notes</div>
-    </div>
-    <div class="detail-pane active">
-      ${projRows?`<table><thead><tr><th>Project</th><th>Tier</th><th>Status</th><th>Created</th></tr></thead><tbody>${projRows}</tbody></table>`:'<div class="table-empty">No projects yet</div>'}
-    </div>
-    <div class="detail-pane">
-      ${appRows?`<table><thead><tr><th>App</th><th>Status</th><th>Granted</th></tr></thead><tbody>${appRows}</tbody></table>`:'<div class="table-empty">No apps assigned</div>'}
-    </div>
-    <div class="detail-pane">
-      ${(events||[]).length?`<table><thead><tr><th>Event</th><th>RSVP</th></tr></thead><tbody>${(events||[]).map(e=>`<tr><td>${(e.events||{}).title||'—'}</td><td>${statusBadge(e.rsvp_status)}</td></tr>`).join('')}</tbody></table>`:'<div class="table-empty">No event registrations</div>'}
-    </div>
-    <div class="detail-pane">
-      <div style="background:var(--surface-2);border-radius:10px;padding:1rem;min-height:100px;white-space:pre-wrap">${client.notes||'No notes yet.'}</div>
-    </div>
+function renderClientsTable() {
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.clients.length ? state.clients.map(client => `
+          <tr>
+            <td>${client.profiles?.name || 'N/A'}</td>
+            <td>${client.profiles?.company || 'N/A'}</td>
+            <td>${client.profiles?.email || 'N/A'}</td>
+            <td>${client.profiles?.phone || 'N/A'}</td>
+            <td><span class="badge badge-success">${client.status}</span></td>
+            <td><button class="btn btn-sm btn-secondary">View</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="table-empty">No clients found</td></tr>'}
+      </tbody>
+    </table>
   `;
+  document.getElementById('clientsTable').innerHTML = table;
 }
 
-function switchDetailTab(el,prefix){
-  const tabs=el.parentElement;
-  tabs.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  const idx=Array.from(tabs.children).indexOf(el);
-  const panes=tabs.parentElement.querySelectorAll('.detail-pane');
-  panes.forEach(p=>p.classList.remove('active'));
-  if(panes[idx])panes[idx].classList.add('active');
+async function saveClient() {
+  const profileId = document.getElementById('client_profile_id').value;
+
+  const client = {
+    profile_id: profileId || null,
+    stripe_customer_id: document.getElementById('client_stripe_customer_id').value,
+    status: document.getElementById('client_status').value,
+    notes: document.getElementById('client_notes').value
+  };
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(client)
+    });
+    if (response.ok) {
+      showToast('Client saved successfully');
+      closeModal('client');
+      loadClients();
+    }
+  } catch (e) {
+    showToast('Error saving client', 'error');
+  }
 }
 
-// ══════════════════════════════════════════════
-// PROJECTS
-// ══════════════════════════════════════════════
-async function loadProjects(){
-  const s=(document.getElementById('projStatusFilter')||{}).value||'';
-  let query=sb.from('projects').select('*,clients(name,company)').order('created_at',{ascending:false});
-  if(s)query=query.eq('status',s);
-  const{data,error}=await query;
-  if(error){toast(error.message,'error');return}
-  allProjects=data||[];
-  renderProjects(allProjects);
+async function loadProjects() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*,clients(*)`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.projects = await response.json();
+    renderProjectsTable();
+  } catch (e) {
+    console.error('Error loading projects:', e);
+    document.getElementById('projectsTable').innerHTML = '<p class="table-empty">Error loading projects</p>';
+  }
 }
 
-function renderProjects(projects){
-  if(!projects.length){document.getElementById('projectsTable').innerHTML='<div class="table-empty">No projects found</div>';return}
-  let h=`<table><thead><tr><th>Project</th><th>Client</th><th>Tier</th><th>Status</th><th>Budget</th><th>Progress</th><th>Created</th></tr></thead><tbody>`;
-  projects.forEach(p=>{
-    const pct=p.progress_pct||0;
-    h+=`<tr style="cursor:pointer" onclick="openProjectDetail('${p.id}')">
-      <td><strong>${p.name}</strong></td>
-      <td>${p.clients?p.clients.name||p.clients.company||'—':'—'}</td>
-      <td>${badge((p.tier||'').replace(/_/g,' '),'gold')}</td>
-      <td>${statusBadge(p.status)}</td>
-      <td>${fmt$(p.total_price)}</td>
-      <td><div style="background:var(--surface-3);border-radius:4px;height:6px;width:80px;overflow:hidden"><div style="background:var(--accent);height:100%;width:${pct}%"></div></div> <span style="font-size:0.75rem;color:var(--text-muted)">${pct}%</span></td>
-      <td>${fmtDate(p.created_at)}</td>
-    </tr>`;
+function renderProjectsTable() {
+  const filtered = state.projects.filter(proj => {
+    const status = document.getElementById('projStatusFilter')?.value || '';
+    return !status || proj.status === status;
   });
-  h+='</tbody></table>';
-  document.getElementById('projectsTable').innerHTML=h;
+
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Client</th>
+          <th>Budget</th>
+          <th>Status</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.length ? filtered.map(proj => `
+          <tr>
+            <td>${proj.name}</td>
+            <td>${proj.clients?.name || 'N/A'}</td>
+            <td>$${proj.budget || 0}</td>
+            <td><span class="badge badge-gold">${proj.status}</span></td>
+            <td>${proj.start_date || 'N/A'}</td>
+            <td>${proj.end_date || 'N/A'}</td>
+            <td><button class="btn btn-sm btn-secondary">View</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="7" class="table-empty">No projects found</td></tr>'}
+      </tbody>
+    </table>
+  `;
+  document.getElementById('projectsTable').innerHTML = table;
 }
 
-async function openProjectDetail(id){
-  const{data:project}=await sb.from('projects').select('*,clients(name,company,email)').eq('id',id).single();
-  if(!project)return;
-  const[{data:tasks},{data:milestones},{data:files},{data:comments},{data:activity}]=await Promise.all([
-    sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
-    sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
-    sb.from('project_files').select('*').eq('project_id',id).order('uploaded_at',{ascending:false}),
-    sb.from('project_comments').select('*,profiles(full_name)').eq('project_id',id).eq('is_internal',false).order('created_at',{ascending:false}),
-    sb.from('project_activity_log').select('*').eq('project_id',id).order('created_at',{ascending:false}).limit(20)
-  ]);
+async function saveProject() {
+  const project = {
+    client_id: document.getElementById('project_client_id').value,
+    name: document.getElementById('project_name').value,
+    description: document.getElementById('project_description').value,
+    budget: parseFloat(document.getElementById('project_budget').value) || 0,
+    status: document.getElementById('project_status').value,
+    start_date: document.getElementById('project_start_date').value,
+    end_date: document.getElementById('project_end_date').value
+  };
 
-  document.getElementById('projectsList').style.display='none';
-  const d=document.getElementById('projectDetail');d.style.display='block';
-  const c=project.clients||{};
-  const pct=project.progress_pct||0;
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(project)
+    });
+    if (response.ok) {
+      showToast('Project saved successfully');
+      closeModal('project');
+      loadProjects();
+    }
+  } catch (e) {
+    showToast('Error saving project', 'error');
+  }
+}
 
-  let taskRows='';
-  (tasks||[]).forEach(t=>{
-    taskRows+=`<tr>
-      <td>${t.title}</td>
-      <td>${badge((t.task_type||'').replace(/_/g,' '),'info')}</td>
-      <td>${statusBadge(t.status)}</td>
-      <td>${badge((t.priority||'').replace(/_/g,' '),t.priority==='urgent'?'error':t.priority==='high'?'warning':'info')}</td>
-      <td>${fmtDate(t.due_date)}</td>
-      <td><button class="btn btn-sm btn-secondary" onclick="cycleTaskStatus('${t.id}','${t.status}')">&#8635;</button></td>
-    </tr>`;
+async function loadTasks() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*,projects(*)`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.tasks = await response.json();
+    renderTasksTable();
+  } catch (e) {
+    console.error('Error loading tasks:', e);
+    document.getElementById('tasksTable').innerHTML = '<p class="table-empty">Error loading tasks</p>';
+  }
+}
+
+function renderTasksTable() {
+  const filtered = state.tasks.filter(task => {
+    const status = document.getElementById('taskStatusFilter')?.value || '';
+    return !status || task.status === status;
   });
 
-  let msRows='';
-  (milestones||[]).forEach(m=>{
-    msRows+=`<tr><td>${m.title}</td><td>${statusBadge(m.status)}</td><td>${fmtDate(m.due_date)}</td><td>${m.payment_trigger?fmt$(m.payment_amount):'—'}</td></tr>`;
-  });
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Project</th>
+          <th>Assigned To</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Due Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.length ? filtered.map(task => `
+          <tr>
+            <td>${task.title}</td>
+            <td>${task.projects?.name || 'N/A'}</td>
+            <td>${task.assigned_to || 'Unassigned'}</td>
+            <td><span class="badge badge-info">${task.status}</span></td>
+            <td><span class="badge badge-warning">${task.priority}</span></td>
+            <td>${task.due_date || 'N/A'}</td>
+            <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="7" class="table-empty">No tasks found</td></tr>'}
+      </tbody>
+    </table>
+  `;
+  document.getElementById('tasksTable').innerHTML = table;
+}
 
-  let fileRows='';
-  (files||[]).forEach(f=>{
-    fileRows+=`<tr><td>${f.file_name}</td><td>${badge((f.category||'').replace(/_/g,' '),'info')}</td><td>${fmtDate(f.uploaded_at)}</td><td><a href="${SUPABASE_URL}/storage/v1/object/public/project-files/${f.storage_path}" target="_blank" class="btn btn-sm btn-secondary">Download</a></td></tr>`;
-  });
+async function saveTask() {
+  const task = {
+    project_id: document.getElementById('task_project_id').value,
+    title: document.getElementById('task_title').value,
+    description: document.getElementById('task_description').value,
+    assigned_to: document.getElementById('task_assigned_to').value,
+    status: document.getElementById('task_status').value,
+    priority: document.getElementById('task_priority').value,
+    due_date: document.getElementById('task_due_date').value
+  };
 
-  let commentHTML='';
-  (comments||[]).forEach(cm=>{
-    commentHTML+=`<div style="background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><strong>${cm.profiles?.full_name||'Admin'}</strong><span style="color:var(--text-muted);font-size:0.8rem">${fmtDateTime(cm.created_at)}</span></div>
-      <div style="font-size:0.9rem">${cm.content}</div>
-    </div>`;
-  });
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(task)
+    });
+    if (response.ok) {
+      showToast('Task saved successfully');
+      closeModal('task');
+      loadTasks();
+    }
+  } catch (e) {
+    showToast('Error saving task', 'error');
+  }
+}
 
-  let actHTML='';
-  (activity||[]).forEach(a=>{
-    actHTML+=`<li><span class="time">${fmtDateTime(a.created_at)}</span><span>${a.action}: ${a.description||''}</span></li>`;
-  });
+async function loadApps() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/app_library`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.apps = await response.json();
+    renderAppsGrid();
+  } catch (e) {
+    console.error('Error loading apps:', e);
+    document.getElementById('appsGrid').innerHTML = '<p class="table-empty">Error loading apps</p>';
+  }
+}
 
-  d.innerHTML=`
-    <div class="detail-back" onclick="document.getElementById('projectsList').style.display='';document.getElementById('projectDetail').style.display='none'">&#8592; Back to Projects</div>
-    <div class="detail-header">
-      <div><h2>${project.name}</h2><span style="color:var(--text-muted);font-size:0.9rem">${c.name||''} ${c.company?'— '+c.company:''}</span></div>
+function renderAppsGrid() {
+  const grid = state.apps.map(app => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+      <h3 style="margin-bottom:0.5rem">${app.name}</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem">${app.category}</p>
+      <p style="font-size:0.85rem;margin-bottom:0.75rem">${app.description}</p>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary btn-sm" onclick="openModal('project',${JSON.stringify(project).replace(/"/g,'&quot;')})">Edit</button>
+        <a href="${app.website}" target="_blank" style="font-size:0.8rem">Visit Site</a>
+        <button class="btn btn-sm btn-secondary" onclick="">Edit</button>
       </div>
     </div>
-    <div class="info-grid">
-      <div class="info-item"><div class="info-label">Tier</div><div class="info-value">${badge((project.tier||'').replace(/_/g,' '),'gold')}</div></div>
-      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(project.status)}</div></div>
-      <div class="info-item"><div class="info-label">Budget</div><div class="info-value">${fmt$(project.total_price)}</div></div>
-      <div class="info-item"><div class="info-label">Paid</div><div class="info-value">${fmt$(project.amount_paid)}</div></div>
-      <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
-      <div class="info-item"><div class="info-label">Progress</div><div class="info-value"><div style="background:var(--surface-3);border-radius:4px;height:8px;width:120px;overflow:hidden;display:inline-block;vertical-align:middle"><div style="background:var(--accent);height:100%;width:${pct}%"></div></div> ${pct}%</div></div>
-      <div class="info-item"><div class="info-label">Start</div><div class="info-value">${fmtDate(project.start_date)}</div></div>
-      <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.deadline)}</div></div>
-    </div>
-    <div class="detail-tabs">
-      <div class="detail-tab active" onclick="switchDetailTab(this,'proj')">Tasks (${(tasks||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'proj')">Milestones (${(milestones||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'proj')">Files (${(files||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'proj')">Comments (${(comments||[]).length})</div>
-      <div class="detail-tab" onclick="switchDetailTab(this,'proj')">Activity</div>
-    </div>
-    <div class="detail-pane active">
-      <div style="margin-bottom:1rem"><button class="btn btn-sm btn-primary" onclick="openModal('task',null,'${id}')">+ Add Task</button></div>
-      ${taskRows?`<table><thead><tr><th>Task</th><th>Type</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>${taskRows}</tbody></table>`:'<div class="table-empty">No tasks</div>'}
-    </div>
-    <div class="detail-pane">
-      ${msRows?`<table><thead><tr><th>Milestone</th><th>Status</th><th>Due</th><th>Payment</th></tr></thead><tbody>${msRows}</tbody></table>`:'<div class="table-empty">No milestones</div>'}
-    </div>
-    <div class="detail-pane">
-      <div style="margin-bottom:1rem">
-        <label class="btn btn-sm btn-primary" style="cursor:pointer">Upload File <input type="file" style="display:none" onchange="uploadProjectFile(this,'${id}')"></label>
-      </div>
-      ${fileRows?`<table><thead><tr><th>File</th><th>Category</th><th>Uploaded</th><th></th></tr></thead><tbody>${fileRows}</tbody></table>`:'<div class="table-empty">No files</div>'}
-    </div>
-    <div class="detail-pane">
-      <div style="margin-bottom:1rem">
-        <textarea id="newComment" placeholder="Write a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
-        <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postComment('${id}')">Post Comment</button>
-      </div>
-      ${commentHTML||'<div class="table-empty">No comments yet</div>'}
-    </div>
-    <div class="detail-pane">
-      <ul class="activity-list">${actHTML||'<li class="table-empty">No activity logged</li>'}</ul>
-    </div>
+  `).join('');
+
+  document.getElementById('appsGrid').innerHTML = grid || '<p class="table-empty">No apps found</p>';
+}
+
+async function saveApp() {
+  const app = {
+    name: document.getElementById('app_name').value,
+    category: document.getElementById('app_category').value,
+    description: document.getElementById('app_description').value,
+    website: document.getElementById('app_website').value,
+    pricing: document.getElementById('app_pricing').value
+  };
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/app_library`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(app)
+    });
+    if (response.ok) {
+      showToast('App saved successfully');
+      closeModal('app');
+      loadApps();
+    }
+  } catch (e) {
+    showToast('Error saving app', 'error');
+  }
+}
+
+async function loadEvents() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.events = await response.json();
+    renderEventsTable();
+  } catch (e) {
+    console.error('Error loading events:', e);
+    document.getElementById('eventsTable').innerHTML = '<p class="table-empty">Error loading events</p>';
+  }
+}
+
+function renderEventsTable() {
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Event Name</th>
+          <th>Location</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Max Attendees</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.events.length ? state.events.map(event => `
+          <tr>
+            <td>${event.name}</td>
+            <td>${event.location || 'N/A'}</td>
+            <td>${event.start_time || 'N/A'}</td>
+            <td>${event.end_time || 'N/A'}</td>
+            <td>${event.max_attendees || 'Unlimited'}</td>
+            <td><span class="badge badge-gold">${event.status}</span></td>
+            <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="7" class="table-empty">No events found</td></tr>'}
+      </tbody>
+    </table>
   `;
+  document.getElementById('eventsTable').innerHTML = table;
 }
 
-async function cycleTaskStatus(taskId,current){
-  const order=['pending','in_progress','completed','blocked'];
-  const next=order[(order.indexOf(current)+1)%order.length];
-  await sb.from('tasks').update({status:next}).eq('id',taskId);
-  toast(`Task → ${next.replace(/_/g,' ')}`);
-  // Reload the project detail if visible
-  const projDetail=document.getElementById('projectDetail');
-  if(projDetail.style.display!=='none'){
-    const backBtn=projDetail.querySelector('.detail-back');
-    if(backBtn){
-      // Re-fetch project — get project_id from tasks
-      const{data:task}=await sb.from('tasks').select('project_id').eq('id',taskId).single();
-      if(task)openProjectDetail(task.project_id);
+async function saveEvent() {
+  const event = {
+    name: document.getElementById('event_name').value,
+    description: document.getElementById('event_description').value,
+    start_time: document.getElementById('event_start_time').value,
+    end_time: document.getElementById('event_end_time').value,
+    location: document.getElementById('event_location').value,
+    max_attendees: parseInt(document.getElementById('event_max_attendees').value) || 0,
+    status: document.getElementById('event_status').value
+  };
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(event)
+    });
+    if (response.ok) {
+      showToast('Event saved successfully');
+      closeModal('event');
+      loadEvents();
     }
-  } else {
-    loadTasks();
+  } catch (e) {
+    showToast('Error saving event', 'error');
   }
 }
 
-async function uploadProjectFile(input,projectId){
-  const file=input.files[0];if(!file)return;
-  const path=`${projectId}/${Date.now()}_${file.name}`;
-  const{error:upErr}=await sb.storage.from('project-files').upload(path,file);
-  if(upErr){toast(upErr.message,'error');return}
-  await sb.from('project_files').insert({project_id:projectId,file_name:file.name,storage_path:path,category:'deliverable',uploaded_by:currentUser.id});
-  toast('File uploaded!');
-  openProjectDetail(projectId);
-}
-
-async function postComment(projectId){
-  const el=document.getElementById('newComment');
-  const content=el.value.trim();if(!content)return;
-  await sb.from('project_comments').insert({project_id:projectId,author_id:currentUser.id,content,is_internal:false});
-  toast('Comment posted');
-  openProjectDetail(projectId);
-}
-
-// ══════════════════════════════════════════════
-// TASKS
-// ══════════════════════════════════════════════
-async function loadTasks(){
-  // Populate project filter
-  if(!allProjects.length){
-    const{data}=await sb.from('projects').select('id,name').order('name');
-    allProjects=data||[];
-  }
-  const pf=document.getElementById('taskProjectFilter');
-  if(pf&&!pf.options.length||pf.options.length<=1){
-    pf.innerHTML='<option value="">All Projects</option>'+allProjects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  }
-
-  const s=(document.getElementById('taskStatusFilter')||{}).value;
-  const pid=(document.getElementById('taskProjectFilter')||{}).value;
-  let query=sb.from('tasks').select('*,projects(name)').order('due_date',{ascending:true});
-  if(s)query=query.eq('status',s);
-  if(pid)query=query.eq('project_id',pid);
-  const{data,error}=await query;
-  if(error){toast(error.message,'error');return}
-
-  if(!data||!data.length){document.getElementById('tasksTable').innerHTML='<div class="table-empty">No tasks found</div>';return}
-  let h=`<table><thead><tr><th>Task</th><th>Project</th><th>Type</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>`;
-  data.forEach(t=>{
-    h+=`<tr>
-      <td><strong>${t.title}</strong></td>
-      <td>${t.projects?.name||'—'}</td>
-      <td>${badge((t.task_type||'').replace(/_/g,' '),'info')}</td>
-      <td>${statusBadge(t.status)}</td>
-      <td>${badge((t.priority||'').replace(/_/g,' '),t.priority==='urgent'?'error':t.priority==='high'?'warning':'info')}</td>
-      <td>${fmtDate(t.due_date)}</td>
-      <td><button class="btn btn-sm btn-secondary" onclick="cycleTaskStatus('${t.id}','${t.status}')">&#8635;</button></td>
-    </tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('tasksTable').innerHTML=h;
-}
-
-// ══════════════════════════════════════════════
-// APP LIBRARY
-// ══════════════════════════════════════════════
-async function loadApps(){
-  const{data,error}=await sb.from('app_library').select('*').order('sort_order');
-  if(error){toast(error.message,'error');return}
-  if(!data||!data.length){document.getElementById('appsGrid').innerHTML='<div class="table-empty">No apps in library</div>';return}
-  let h='';
-  data.forEach(a=>{
-    h+=`<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:1.25rem;position:relative">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem">
-        <div>
-          <h3 style="font-size:1rem;margin-bottom:4px">${a.name}</h3>
-          <span style="font-size:0.8rem;color:var(--text-muted)">${a.category||''}</span>
-        </div>
-        ${statusBadge(a.status)}
-      </div>
-      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.4">${a.short_description||''}</p>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0.75rem">
-        ${a.is_featured?badge('Featured','gold'):''}
-        ${a.is_popular?badge('Popular','success'):''}
-        ${a.pricing_model?badge(a.pricing_model,'info'):''}
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-weight:700;color:var(--accent)">${a.price_display||'Free'}</span>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm btn-secondary" onclick='openModal("app",${JSON.stringify(a).replace(/'/g,"&#39;")})'>Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteApp('${a.id}')">Del</button>
-        </div>
-      </div>
-    </div>`;
-  });
-  document.getElementById('appsGrid').innerHTML=h;
-}
-
-async function deleteApp(id){
-  if(!confirm('Delete this app from the library?'))return;
-  await sb.from('app_library').delete().eq('id',id);
-  toast('App deleted');loadApps();
-}
-
-// ══════════════════════════════════════════════
-// EVENTS
-// ══════════════════════════════════════════════
-async function loadEvents(){
-  const{data,error}=await sb.from('events').select('*').order('event_date',{ascending:false});
-  if(error){toast(error.message,'error');return}
-  if(!data||!data.length){document.getElementById('eventsTable').innerHTML='<div class="table-empty">No events</div>';return}
-  let h=`<table><thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Location</th><th>Capacity</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>`;
-  data.forEach(e=>{
-    h+=`<tr>
-      <td><strong>${e.title}</strong></td>
-      <td>${badge((e.event_type||'').replace(/_/g,' '),'info')}</td>
-      <td>${fmtDate(e.event_date)}</td>
-      <td>${e.location||'—'}</td>
-      <td>${e.capacity||'∞'}</td>
-      <td>${fmt$(e.price)}</td>
-      <td>${statusBadge(e.status)}</td>
-      <td><button class="btn btn-sm btn-secondary" onclick='openModal("event",${JSON.stringify(e).replace(/'/g,"&#39;")})'>Edit</button></td>
-    </tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('eventsTable').innerHTML=h;
-}
-
-// ══════════════════════════════════════════════
-// RESOURCES
-// ══════════════════════════════════════════════
-async function loadResources(){
-  const t=(document.getElementById('resTypeFilter')||{}).value;
-  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
-  if(t)query=query.eq('resource_type',t);
-  const{data,error}=await query;
-  if(error){toast(error.message,'error');return}
-  if(!data||!data.length){document.getElementById('resourcesTable').innerHTML='<div class="table-empty">No resources</div>';return}
-  let h=`<table><thead><tr><th>Title</th><th>Type</th><th>Access</th><th>Created</th><th></th></tr></thead><tbody>`;
-  data.forEach(r=>{
-    h+=`<tr>
-      <td><strong>${r.title}</strong></td>
-      <td>${badge((r.resource_type||'').replace(/_/g,' '),'info')}</td>
-      <td>${r.access_tier?badge(r.access_tier.replace(/_/g,' '),'gold'):'All'}</td>
-      <td>${fmtDate(r.created_at)}</td>
-      <td>
-        ${r.url?`<a href="${r.url}" target="_blank" class="btn btn-sm btn-secondary">Open</a>`:''}
-        <button class="btn btn-sm btn-secondary" onclick='openModal("resource",${JSON.stringify(r).replace(/'/g,"&#39;")})'>Edit</button>
-      </td>
-    </tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('resourcesTable').innerHTML=h;
-}
-
-// ══════════════════════════════════════════════
-// MODAL FORMS
-// ══════════════════════════════════════════════
-let modalType='';
-let modalData=null;
-let modalExtra=null;
-
-function openModal(type,data=null,extra=null){
-  modalType=type;modalData=data;modalExtra=extra;
-  const overlay=document.getElementById('modalOverlay');
-  const title=document.getElementById('modalTitle');
-  const body=document.getElementById('modalBody');
-  const saveBtn=document.getElementById('modalSave');
-
-  title.textContent=(data?'Edit':'Add')+' '+type.charAt(0).toUpperCase()+type.slice(1);
-  body.innerHTML=getFormHTML(type,data,extra);
-  saveBtn.onclick=()=>saveModal();
-  overlay.classList.add('active');
-}
-
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('active');
-}
-
-function getFormHTML(type,d,extra){
-  d=d||{};
-  if(type==='lead')return`
-    <div class="form-row">
-      <div class="form-group"><label>Name *</label><input id="f_name" value="${d.name||''}" required></div>
-      <div class="form-group"><label>Email *</label><input id="f_email" type="email" value="${d.email||''}" required></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Phone</label><input id="f_phone" value="${d.phone||''}"></div>
-      <div class="form-group"><label>Company</label><input id="f_company" value="${d.company||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Source</label>
-        <select id="f_source"><option value="">—</option>${['website','referral','social_media','cold_outreach','event','other'].map(o=>`<option value="${o}"${d.source===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['new','contacted','qualified','proposal_sent','negotiation','won','lost'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Estimated Budget</label><input id="f_budget" type="number" value="${d.estimated_budget||''}"></div>
-      <div class="form-group"><label>Interested Tier</label>
-        <select id="f_tier"><option value="">—</option>${['night_launch','night_build','night_build_pro','workshop','consulting'].map(o=>`<option value="${o}"${d.interested_tier===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-group"><label>Notes</label><textarea id="f_notes">${d.notes||''}</textarea></div>`;
-
-  if(type==='client')return`
-    <div class="form-row">
-      <div class="form-group"><label>Name *</label><input id="f_name" value="${d.name||''}" required></div>
-      <div class="form-group"><label>Company</label><input id="f_company" value="${d.company||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Email *</label><input id="f_email" type="email" value="${d.email||''}" required></div>
-      <div class="form-group"><label>Phone</label><input id="f_phone" value="${d.phone||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Tier</label>
-        <select id="f_tier">${['night_launch','night_build','night_build_pro','workshop','consulting','premium_member','tenx_member'].map(o=>`<option value="${o}"${d.tier===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['active','inactive','onboarding','paused','churned'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-group"><label>Notes</label><textarea id="f_notes">${d.notes||''}</textarea></div>`;
-
-  if(type==='project'){
-    const clientOpts=allClients.map(c=>`<option value="${c.id}"${d.client_id===c.id?' selected':''}>${c.name}${c.company?' — '+c.company:''}</option>`).join('');
-    return`
-    <div class="form-group"><label>Project Name *</label><input id="f_name" value="${d.name||''}" required></div>
-    <div class="form-row">
-      <div class="form-group"><label>Client *</label><select id="f_client_id"><option value="">Select client</option>${clientOpts}</select></div>
-      <div class="form-group"><label>Tier</label>
-        <select id="f_tier">${['night_launch','night_build','night_build_pro','workshop','custom'].map(o=>`<option value="${o}"${d.tier===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['discovery','proposal','approved','in_progress','review','launched','maintenance','paused','cancelled'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Payment Status</label>
-        <select id="f_payment_status">${['pending','partial','paid','overdue','refunded'].map(o=>`<option value="${o}"${d.payment_status===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Total Price</label><input id="f_total_price" type="number" value="${d.total_price||''}"></div>
-      <div class="form-group"><label>Amount Paid</label><input id="f_amount_paid" type="number" value="${d.amount_paid||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Start Date</label><input id="f_start_date" type="date" value="${d.start_date||''}"></div>
-      <div class="form-group"><label>Deadline</label><input id="f_deadline" type="date" value="${d.deadline||''}"></div>
-    </div>
-    <div class="form-group"><label>Description</label><textarea id="f_description">${d.description||''}</textarea></div>`;
-  }
-
-  if(type==='task')return`
-    <div class="form-group"><label>Title *</label><input id="f_title" value="${d.title||''}" required></div>
-    <div class="form-row">
-      <div class="form-group"><label>Project</label>
-        <select id="f_project_id">${allProjects.map(p=>`<option value="${p.id}"${(d.project_id||extra)===p.id?' selected':''}>${p.name}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Type</label>
-        <select id="f_task_type">${['design','development','review','testing','deployment','content','admin','other'].map(o=>`<option value="${o}"${d.task_type===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['pending','in_progress','completed','blocked'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Priority</label>
-        <select id="f_priority">${['low','medium','high','urgent'].map(o=>`<option value="${o}"${(d.priority||'medium')===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-group"><label>Due Date</label><input id="f_due_date" type="date" value="${d.due_date||''}"></div>
-    <div class="form-group"><label>Description</label><textarea id="f_description">${d.description||''}</textarea></div>`;
-
-  if(type==='app')return`
-    <div class="form-group"><label>App Name *</label><input id="f_name" value="${d.name||''}" required></div>
-    <div class="form-group"><label>Tagline</label><input id="f_tagline" value="${d.tagline||''}"></div>
-    <div class="form-group"><label>Short Description</label><textarea id="f_short_description">${d.short_description||''}</textarea></div>
-    <div class="form-row">
-      <div class="form-group"><label>Category</label><input id="f_category" value="${d.category||''}"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['draft','published','archived','featured'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Pricing Model</label>
-        <select id="f_pricing_model">${['free','one_time','monthly','yearly','usage_based','custom'].map(o=>`<option value="${o}"${d.pricing_model===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Price Display</label><input id="f_price_display" value="${d.price_display||''}" placeholder="e.g. $99/mo"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>CTA Label</label><input id="f_cta_label" value="${d.cta_label||''}" placeholder="e.g. Launch App"></div>
-      <div class="form-group"><label>CTA URL</label><input id="f_cta_url" value="${d.cta_url||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Featured</label><select id="f_is_featured"><option value="false"${!d.is_featured?' selected':''}>No</option><option value="true"${d.is_featured?' selected':''}>Yes</option></select></div>
-      <div class="form-group"><label>Popular</label><select id="f_is_popular"><option value="false"${!d.is_popular?' selected':''}>No</option><option value="true"${d.is_popular?' selected':''}>Yes</option></select></div>
-    </div>
-    <div class="form-group"><label>Sort Order</label><input id="f_sort_order" type="number" value="${d.sort_order||0}"></div>`;
-
-  if(type==='event')return`
-    <div class="form-group"><label>Title *</label><input id="f_title" value="${d.title||''}" required></div>
-    <div class="form-row">
-      <div class="form-group"><label>Type</label>
-        <select id="f_event_type">${['workshop','webinar','meetup','conference','networking','mastermind','other'].map(o=>`<option value="${o}"${d.event_type===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Status</label>
-        <select id="f_status">${['upcoming','live','past','cancelled'].map(o=>`<option value="${o}"${d.status===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Date</label><input id="f_event_date" type="datetime-local" value="${d.event_date?d.event_date.slice(0,16):''}"></div>
-      <div class="form-group"><label>Location</label><input id="f_location" value="${d.location||''}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Capacity</label><input id="f_capacity" type="number" value="${d.capacity||''}"></div>
-      <div class="form-group"><label>Price</label><input id="f_price" type="number" value="${d.price||''}"></div>
-    </div>
-    <div class="form-group"><label>Description</label><textarea id="f_description">${d.description||''}</textarea></div>`;
-
-  if(type==='resource')return`
-    <div class="form-group"><label>Title *</label><input id="f_title" value="${d.title||''}" required></div>
-    <div class="form-row">
-      <div class="form-group"><label>Type</label>
-        <select id="f_resource_type">${['document','video','template','guide','tool','link'].map(o=>`<option value="${o}"${d.resource_type===o?' selected':''}>${o}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Access Tier</label>
-        <select id="f_access_tier"><option value="">All</option>${['premium','tenx_unicorn','tenx_mastermind'].map(o=>`<option value="${o}"${d.access_tier===o?' selected':''}>${o.replace(/_/g,' ')}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="form-group"><label>URL</label><input id="f_url" value="${d.url||''}"></div>
-    <div class="form-group"><label>Description</label><textarea id="f_description">${d.description||''}</textarea></div>`;
-
-  return'<p>Unknown form type</p>';
-}
-
-function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
-
-async function saveModal(){
-  const saveBtn=document.getElementById('modalSave');
-  saveBtn.disabled=true;saveBtn.textContent='Saving...';
-
-  try{
-    let table,payload,id;
-
-    if(modalType==='lead'){
-      table='leads';id=modalData?.id;
-      payload={name:gv('f_name'),email:gv('f_email'),phone:gv('f_phone')||null,company:gv('f_company')||null,
-        source:gv('f_source')||null,status:gv('f_status'),estimated_budget:gv('f_budget')?Number(gv('f_budget')):null,
-        interested_tier:gv('f_tier')||null,notes:gv('f_notes')||null};
-    }
-    else if(modalType==='client'){
-      table='clients';id=modalData?.id;
-      payload={name:gv('f_name'),email:gv('f_email'),phone:gv('f_phone')||null,company:gv('f_company')||null,
-        tier:gv('f_tier'),status:gv('f_status'),notes:gv('f_notes')||null};
-    }
-    else if(modalType==='project'){
-      table='projects';id=modalData?.id;
-      payload={name:gv('f_name'),client_id:gv('f_client_id')||null,tier:gv('f_tier'),status:gv('f_status'),
-        payment_status:gv('f_payment_status'),total_price:gv('f_total_price')?Number(gv('f_total_price')):null,
-        amount_paid:gv('f_amount_paid')?Number(gv('f_amount_paid')):null,start_date:gv('f_start_date')||null,
-        deadline:gv('f_deadline')||null,description:gv('f_description')||null};
-    }
-    else if(modalType==='task'){
-      table='tasks';id=modalData?.id;
-      payload={title:gv('f_title'),project_id:gv('f_project_id')||null,task_type:gv('f_task_type'),
-        status:gv('f_status'),priority:gv('f_priority'),due_date:gv('f_due_date')||null,
-        description:gv('f_description')||null};
-    }
-    else if(modalType==='app'){
-      table='app_library';id=modalData?.id;
-      payload={name:gv('f_name'),tagline:gv('f_tagline')||null,short_description:gv('f_short_description')||null,
-        category:gv('f_category')||null,status:gv('f_status'),pricing_model:gv('f_pricing_model'),
-        price_display:gv('f_price_display')||null,cta_label:gv('f_cta_label')||null,cta_url:gv('f_cta_url')||null,
-        is_featured:gv('f_is_featured')==='true',is_popular:gv('f_is_popular')==='true',sort_order:Number(gv('f_sort_order'))||0};
-    }
-    else if(modalType==='event'){
-      table='events';id=modalData?.id;
-      payload={title:gv('f_title'),event_type:gv('f_event_type'),status:gv('f_status'),
-        event_date:gv('f_event_date')||null,location:gv('f_location')||null,
-        capacity:gv('f_capacity')?Number(gv('f_capacity')):null,price:gv('f_price')?Number(gv('f_price')):null,
-        description:gv('f_description')||null};
-    }
-    else if(modalType==='resource'){
-      table='resources';id=modalData?.id;
-      payload={title:gv('f_title'),resource_type:gv('f_resource_type'),access_tier:gv('f_access_tier')||null,
-        url:gv('f_url')||null,description:gv('f_description')||null};
-    }
-
-    let error;
-    if(id){
-      ({error}=await sb.from(table).update(payload).eq('id',id));
-    }else{
-      ({error}=await sb.from(table).insert(payload));
-    }
-    if(error)throw error;
-
-    toast((id?'Updated':'Created')+' successfully!');
-    closeModal();
-
-    // Reload relevant view
-    const reloaders={lead:loadLeads,client:loadClients,project:loadProjects,task:loadTasks,app:loadApps,event:loadEvents,resource:loadResources};
-    if(reloaders[modalType])reloaders[modalType]();
-
-  }catch(err){
-    toast(err.message||'Save failed','error');
-  }finally{
-    saveBtn.disabled=false;saveBtn.textContent='Save';
+async function loadResources() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/resources`, {
+      headers: {'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY}
+    });
+    state.resources = await response.json();
+    renderResourcesTable();
+  } catch (e) {
+    console.error('Error loading resources:', e);
+    document.getElementById('resourcesTable').innerHTML = '<p class="table-empty">Error loading resources</p>';
   }
 }
 
-// ══════════════════════════════════════════════
-// RESPONSIVE
-// ══════════════════════════════════════════════
-function checkMobile(){
-  const toggle=document.getElementById('menuToggle');
-  if(window.innerWidth<=768){toggle.style.display='block'}else{toggle.style.display='none';document.getElementById('sidebar').classList.remove('open')}
+function renderResourcesTable() {
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Public</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.resources.length ? state.resources.map(resource => `
+          <tr>
+            <td><a href="${resource.file_url}" target="_blank">${resource.name}</a></td>
+            <td>${resource.category || 'N/A'}</td>
+            <td>${resource.description || 'N/A'}</td>
+            <td><span class="badge ${resource.is_public ? 'badge-success' : 'badge-warning'}">${resource.is_public ? 'Yes' : 'No'}</span></td>
+            <td>${resource.created_at ? new Date(resource.created_at).toLocaleDateString() : 'N/A'}</td>
+            <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="table-empty">No resources found</td></tr>'}
+      </tbody>
+    </table>
+  `;
+  document.getElementById('resourcesTable').innerHTML = table;
 }
-window.addEventListener('resize',checkMobile);
-checkMobile();
+
+async function saveResource() {
+  const resource = {
+    name: document.getElementById('resource_name').value,
+    description: document.getElementById('resource_description').value,
+    file_url: document.getElementById('resource_file_url').value,
+    category: document.getElementById('resource_category').value,
+    is_public: document.getElementById('resource_is_public').checked
+  };
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/resources`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(resource)
+    });
+    if (response.ok) {
+      showToast('Resource saved successfully');
+      closeModal('resource');
+      loadResources();
+    }
+  } catch (e) {
+    showToast('Error saving resource', 'error');
+  }
+}
+
+function handleLogout() {
+  showToast('Logged out successfully');
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  loadDashboard();
+});
 </script>
+
 </body>
 </html>

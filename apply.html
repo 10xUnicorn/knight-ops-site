@@ -521,10 +521,12 @@ function submitForm() {
         email: answers.email,
         phone: answers.phone || null,
         company: answers.company || null,
-        source: 'website',
+        source: 'intake_form',
         status: 'new',
-        estimated_budget: answers.budget ? parseInt(answers.budget.replace(/[^0-9]/g,'')) : null,
-        notes: 'Applied via intake form. Timeline: ' + (answers.timeline||'Not specified')
+        service_interest: answers.q4 || null,
+        budget_range: answers.budget || null,
+        timeline: answers.timeline || null,
+        notes: 'Applied via intake form. Core outcome: ' + (answers.q4||'—') + '. Non-negotiables: ' + (answers.q9||'—')
       })
     });
   }).then(() => {
