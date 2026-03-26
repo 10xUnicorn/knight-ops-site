@@ -145,6 +145,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
+      <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -168,6 +169,31 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
       <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
+      <div class="view" id="v-notifications">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+          <div class="kpi"><div class="label">Total Notifications Sent</div><div class="value" id="notifCount">-</div></div>
+          <div class="kpi"><div class="label">Emails Delivered</div><div class="value" id="emailCount">-</div></div>
+        </div>
+        <div class="table-card" style="margin-bottom:1.5rem">
+          <div class="table-header"><h2>Broadcast Message</h2><span class="badge badge-gold">Send to all clients &amp; leads</span></div>
+          <div style="padding:1.25rem">
+            <div class="form-group"><label>Subject</label><input type="text" id="broadcastSubject" placeholder="Update from Knight Ops Command"></div>
+            <div class="form-group"><label>Message</label><textarea id="broadcastMessage" rows="5" placeholder="Write your message here..."></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label>Action Button URL (optional)</label><input type="text" id="broadcastUrl" placeholder="https://..."></div>
+              <div class="form-group"><label>Button Text (optional)</label><input type="text" id="broadcastBtnText" placeholder="Learn More"></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-primary" onclick="sendBroadcast()" id="broadcastSendBtn">&#9993; Send Broadcast</button>
+              <span id="broadcastStatus" style="font-size:0.85rem;color:var(--text-muted)"></span>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header"><h2>Notification Log</h2><div class="table-filters"><select id="notifTypeFilter" onchange="renderNotifLog()"><option value="">All Types</option><option value="new_lead">New Lead</option><option value="task_assigned">Task Assigned</option><option value="task_completed">Task Completed</option><option value="project_update">Project Update</option><option value="comment_added">Comment</option><option value="event_invite">Event Invite</option><option value="broadcast">Broadcast</option></select></div></div>
+          <div id="notifLogTable"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -188,7 +214,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog()]);
   loadDashboard();
 })();
 
@@ -528,6 +554,60 @@ async function saveResource(id){
   else{({error:err}=await sb.from('resources').insert([obj]));}
   if(err){showToast('Error: '+err.message,'error');return;}
   showToast(id?'Resource updated!':'Resource saved!');closeEditModal();selectedFile=null;await loadResources();
+}
+
+// NOTIFICATIONS
+let notifLog=[];
+async function loadNotifLog(){
+  const{data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);
+  notifLog=data||[];
+  renderNotifLog();
+  document.getElementById('notifCount').textContent=notifLog.length;
+  document.getElementById('emailCount').textContent=notifLog.filter(n=>n.email_sent).length;
+}
+function renderNotifLog(){
+  const filter=document.getElementById('notifTypeFilter')?.value||'';
+  const filtered=filter?notifLog.filter(n=>n.type===filter):notifLog;
+  const c=document.getElementById('notifLogTable');
+  if(!filtered.length){c.innerHTML='<div class="table-empty">No notifications yet</div>';return;}
+  let h='<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>Title</th><th>Recipient</th><th>Email</th><th>Date</th></tr></thead><tbody>';
+  for(const n of filtered){
+    const typeColors={new_lead:'badge-warning',task_assigned:'badge-info',task_completed:'badge-success',project_update:'badge-gold',comment_added:'badge-info',event_invite:'badge-gold',broadcast:'badge-gold',event_reminder:'badge-warning'};
+    h+="<tr><td><span class='badge "+((typeColors[n.type])||'badge-info')+"'>"+((n.type||'').replace(/_/g,' '))+"</span></td><td>"+(n.title||'-')+"</td><td style='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+(n.message||'-')+"</td><td>"+(n.email_sent?"<span style='color:var(--success)'>&#10003; Sent</span>":"<span style='color:var(--text-muted)'>-</span>")+"</td><td style='white-space:nowrap;color:var(--text-muted);font-size:0.8rem'>"+new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+"</td></tr>";
+  }
+  h+='</tbody></table></div>';
+  c.innerHTML=h;
+}
+async function sendBroadcast(){
+  const subject=document.getElementById('broadcastSubject').value.trim();
+  const message=document.getElementById('broadcastMessage').value.trim();
+  const actionUrl=document.getElementById('broadcastUrl').value.trim()||null;
+  const actionText=document.getElementById('broadcastBtnText').value.trim()||null;
+  if(!subject||!message){showToast('Subject and message are required','error');return;}
+  const btn=document.getElementById('broadcastSendBtn');
+  const status=document.getElementById('broadcastStatus');
+  btn.disabled=true;btn.textContent='Sending...';status.textContent='';
+  try{
+    const res=await fetch(SUPABASE_URL+'/functions/v1/send-notification',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'broadcast',data:{subject,message,action_url:actionUrl,action_text:actionText,preheader:message.substring(0,80)}})
+    });
+    const result=await res.json();
+    if(result.success){
+      showToast('Broadcast sent to '+result.sent_count+' recipients!');
+      status.textContent='Sent to '+result.sent_count+' recipients';status.style.color='var(--success)';
+      document.getElementById('broadcastSubject').value='';
+      document.getElementById('broadcastMessage').value='';
+      document.getElementById('broadcastUrl').value='';
+      document.getElementById('broadcastBtnText').value='';
+      await loadNotifLog();
+    }else{
+      showToast('Broadcast failed: '+(result.error||'Unknown error'),'error');
+      status.textContent='Failed';status.style.color='var(--error)';
+    }
+  }catch(e){showToast('Error: '+e.message,'error');status.textContent='Error';status.style.color='var(--error)';}
+  btn.disabled=false;btn.textContent='Send Broadcast';
 }
 
 // LOGOUT
