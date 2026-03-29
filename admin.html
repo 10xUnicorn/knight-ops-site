@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin | Knight Ops Command</title>
+<title>Admin | Knight Ops</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
@@ -138,6 +138,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     <a href="/" class="sidebar-logo" style="text-decoration:none"><div class="shield">K</div><span>KNIGHT OPS</span></a>
     <nav>
       <div class="nav-item active" data-view="dashboard"><span class="icon">&#9632;</span> Dashboard</div>
+      <div class="nav-item" data-view="applications"><span class="icon">&#9998;</span> Applications</div>
       <div class="nav-item" data-view="leads"><span class="icon">&#9733;</span> Leads</div>
       <div class="nav-item" data-view="clients"><span class="icon">&#9673;</span> Clients</div>
       <div class="nav-item" data-view="projects"><span class="icon">&#9881;</span> Projects</div>
@@ -169,6 +170,27 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
       <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
+      <div class="view" id="v-applications">
+        <div id="appsListView">
+          <div class="kpi-grid" id="appKpis"></div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Incoming Applications</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search..." id="appSearch" oninput="renderApps2()">
+                <select id="appStatusFilter" onchange="renderApps2()">
+                  <option value="">All</option>
+                  <option value="new">New</option>
+                  <option value="reviewed">Reviewed</option>
+                  <option value="converted">Converted</option>
+                </select>
+              </div>
+            </div>
+            <div id="appsTable2"></div>
+          </div>
+        </div>
+        <div id="appDetailView" style="display:none"></div>
+      </div>
       <div class="view" id="v-notifications">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
           <div class="kpi"><div class="label">Total Notifications Sent</div><div class="value" id="notifCount">-</div></div>
@@ -204,7 +226,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -214,7 +236,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications()]);
   loadDashboard();
 })();
 
@@ -242,6 +264,9 @@ document.querySelectorAll('.nav-item').forEach(item=>{
       const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
       const dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
     });
+    // Also reset applications view
+    const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
+    const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
     if(v==='dashboard')loadDashboard();
     closeSidebar();
   });
@@ -293,7 +318,8 @@ const EVENT_TYPE_OPTS=[{v:'workshop',l:'Workshop'},{v:'mastermind',l:'Mastermind
 // ═══ DASHBOARD ═══
 function loadDashboard(){
   const revenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
-  document.getElementById('kpiGrid').innerHTML='<div class="kpi"><div class="label">New Leads</div><div class="value">'+S.leads.filter(l=>l.status==='new').length+'</div><div class="sub">'+S.leads.length+' total</div></div><div class="kpi"><div class="label">Active Clients</div><div class="value">'+S.clients.filter(c=>c.status==='active').length+'</div><div class="sub">'+S.clients.length+' total</div></div><div class="kpi"><div class="label">In Progress</div><div class="value">'+S.projects.filter(p=>p.status==='in_progress').length+'</div><div class="sub">'+S.projects.length+' projects</div></div><div class="kpi"><div class="label">Open Tasks</div><div class="value">'+S.tasks.filter(t=>t.status!=='done').length+'</div><div class="sub">'+S.tasks.length+' total</div></div><div class="kpi"><div class="label">Pipeline Revenue</div><div class="value">'+fmtMoney(revenue)+'</div></div><div class="kpi"><div class="label">Upcoming Events</div><div class="value">'+S.events.filter(e=>new Date(e.start_time)>new Date()).length+'</div></div>';
+  const newApps=(S.applications||[]).filter(x=>x.status==='new').length;
+  document.getElementById('kpiGrid').innerHTML='<div class="kpi"><div class="label">New Applications</div><div class="value" style="cursor:pointer" onclick="navTo(\'applications\')">'+newApps+'</div><div class="sub">'+(S.applications||[]).length+' total</div></div><div class="kpi"><div class="label">New Leads</div><div class="value">'+S.leads.filter(l=>l.status==='new').length+'</div><div class="sub">'+S.leads.length+' total</div></div><div class="kpi"><div class="label">Active Clients</div><div class="value">'+S.clients.filter(c=>c.status==='active').length+'</div><div class="sub">'+S.clients.length+' total</div></div><div class="kpi"><div class="label">In Progress</div><div class="value">'+S.projects.filter(p=>p.status==='in_progress').length+'</div><div class="sub">'+S.projects.length+' projects</div></div><div class="kpi"><div class="label">Open Tasks</div><div class="value">'+S.tasks.filter(t=>t.status!=='done').length+'</div><div class="sub">'+S.tasks.length+' total</div></div><div class="kpi"><div class="label">Pipeline Revenue</div><div class="value">'+fmtMoney(revenue)+'</div></div><div class="kpi"><div class="label">Upcoming Events</div><div class="value">'+S.events.filter(e=>new Date(e.start_time)>new Date()).length+'</div></div>';
   const recent=S.leads.slice(0,5);
   document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
 }
@@ -608,6 +634,244 @@ async function sendBroadcast(){
     }
   }catch(e){showToast('Error: '+e.message,'error');status.textContent='Error';status.style.color='var(--error)';}
   btn.disabled=false;btn.textContent='Send Broadcast';
+}
+
+// ═══ APPLICATIONS (intake_submissions) ═══
+async function loadApplications(){
+  const{data}=await sb.from('intake_submissions').select('*').order('created_at',{ascending:false});
+  S.applications=data||[];renderApps2();renderAppKpis();
+}
+function renderAppKpis(){
+  const a=S.applications||[];
+  const nw=a.filter(x=>x.status==='new').length;
+  const rv=a.filter(x=>x.status==='reviewed').length;
+  const cv=a.filter(x=>x.status==='converted').length;
+  const today=a.filter(x=>new Date(x.created_at).toDateString()===new Date().toDateString()).length;
+  document.getElementById('appKpis').innerHTML=
+    '<div class="kpi"><div class="label">New</div><div class="value">'+nw+'</div><div class="sub">awaiting review</div></div>'+
+    '<div class="kpi"><div class="label">Reviewed</div><div class="value">'+rv+'</div></div>'+
+    '<div class="kpi"><div class="label">Converted</div><div class="value">'+cv+'</div></div>'+
+    '<div class="kpi"><div class="label">Today</div><div class="value">'+today+'</div><div class="sub">'+a.length+' total</div></div>';
+}
+function renderApps2(){
+  const s=(document.getElementById('appSearch')?.value||'').toLowerCase();
+  const st=document.getElementById('appStatusFilter')?.value||'';
+  const f=(S.applications||[]).filter(a=>
+    (!s||a.first_name?.toLowerCase().includes(s)||a.last_name?.toLowerCase().includes(s)||a.email?.toLowerCase().includes(s)||a.company?.toLowerCase().includes(s)||a.q4_core_outcome?.toLowerCase().includes(s))&&
+    (!st||a.status===st));
+  document.getElementById('appsTable2').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
+    (f.length?f.map(a=>'<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+a.first_name+' '+a.last_name+'</td><td>'+a.email+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(a.q4_core_outcome||'—')+'</td><td>'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No applications yet</td></tr>')+
+    '</tbody></table>';
+}
+function fmtBudget(b){
+  const m={under_1500:'< $1.5K','1500_5000':'$1.5K-$5K','5000_10000':'$5K-$10K','10000_25000':'$10K-$25K','25000_plus':'$25K+',not_sure:'TBD'};
+  return m[b]||b||'—';
+}
+function fmtTimeline2(t){
+  const m={asap:'ASAP','2_weeks':'2 Weeks','30_days':'30 Days','60_days':'60 Days','90_days':'90 Days',flexible:'Flexible'};
+  return m[t]||t||'—';
+}
+function showAppDetail(id){
+  const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  navTo('applications');
+  document.getElementById('appsListView').style.display='none';
+  document.getElementById('appDetailView').style.display='block';
+  const fullName=a.first_name+' '+a.last_name;
+  document.getElementById('appDetailView').innerHTML=
+    '<div class="detail-back" onclick="document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'">&#8592; Back to Applications</div>'+
+    '<div class="detail-header"><h2>'+fullName+'</h2><div>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')" style="margin-right:6px">&#128203; Copy Build Prompt</button>'+
+      '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>'+
+    '</div></div>'+
+    '<div class="detail-grid">'+
+      '<div><div class="dg-label">Email</div><div class="dg-value">'+a.email+'</div></div>'+
+      '<div><div class="dg-label">Phone</div><div class="dg-value">'+(a.phone||'—')+'</div></div>'+
+      '<div><div class="dg-label">Company</div><div class="dg-value">'+(a.company||'—')+'</div></div>'+
+      '<div><div class="dg-label">Platform</div><div class="dg-value">'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</div></div>'+
+      '<div><div class="dg-label">App Store</div><div class="dg-value">'+(a.q8_app_store_deploy||'—').replace(/_/g,' ')+'</div></div>'+
+      '<div><div class="dg-label">Budget</div><div class="dg-value">'+fmtBudget(a.budget)+'</div></div>'+
+      '<div><div class="dg-label">Timeline</div><div class="dg-value">'+fmtTimeline2(a.timeline)+'</div></div>'+
+      '<div><div class="dg-label">Status</div><div class="dg-value">'+B(a.status)+'</div></div>'+
+      '<div><div class="dg-label">Submitted</div><div class="dg-value">'+fmtDateTime(a.created_at)+'</div></div>'+
+      (a.utm_source?'<div><div class="dg-label">UTM Source</div><div class="dg-value">'+a.utm_source+'</div></div>':'')+
+      (a.utm_campaign?'<div><div class="dg-label">UTM Campaign</div><div class="dg-value">'+a.utm_campaign+'</div></div>':'')+
+    '</div>'+
+    (a.q4_core_outcome?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">What They Want to Build</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q4_core_outcome+'</p></div>':'')+
+    (a.q9_non_negotiables?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Additional Notes / Must-Haves</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q9_non_negotiables+'</p></div>':'')+
+    (a.admin_notes?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Admin Notes</h3><p style="font-size:0.95rem;white-space:pre-wrap">'+a.admin_notes+'</p></div>':'')+
+    '<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.75rem">Admin Notes</h3>'+
+      '<textarea id="adminNotesField" style="width:100%;min-height:80px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.9rem">'+(a.admin_notes||'')+'</textarea>'+
+      '<button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="saveAdminNotes(\''+a.id+'\')">Save Notes</button>'+
+    '</div>'+
+    '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><h3 style="font-size:0.9rem">Build Prompt Preview</h3><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Copy to Clipboard</button></div>'+
+      '<pre id="promptPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
+    '</div>';
+  // Render the prompt preview
+  document.getElementById('promptPreview-'+a.id).textContent=generateBuildPrompt(a);
+}
+
+function generateBuildPrompt(a){
+  const fullName=a.first_name+' '+a.last_name;
+  const platform=(a.q7_platform_type||'not specified').replace(/_/g,' ');
+  const appStore=(a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
+  const budget=fmtBudget(a.budget);
+  const timeline=fmtTimeline2(a.timeline);
+  const projectDesc=a.q4_core_outcome||'No description provided';
+  const notes=a.q9_non_negotiables||'';
+
+  // Infer primary outcome if not explicitly stated
+  let primaryOutcome='';
+  const desc=projectDesc.toLowerCase();
+  if(desc.includes('revenue')||desc.includes('money')||desc.includes('sell')||desc.includes('pay')||desc.includes('ecommerce')||desc.includes('marketplace'))primaryOutcome='Generate revenue through a digital product/platform';
+  else if(desc.includes('automate')||desc.includes('save time')||desc.includes('streamline')||desc.includes('efficiency'))primaryOutcome='Automate operations and reduce manual workload';
+  else if(desc.includes('community')||desc.includes('members')||desc.includes('social')||desc.includes('connect'))primaryOutcome='Build and engage a community or audience';
+  else if(desc.includes('booking')||desc.includes('schedule')||desc.includes('appointment'))primaryOutcome='Streamline booking/scheduling to increase conversions';
+  else if(desc.includes('course')||desc.includes('learn')||desc.includes('education')||desc.includes('training'))primaryOutcome='Deliver educational content and monetize expertise';
+  else if(desc.includes('track')||desc.includes('dashboard')||desc.includes('analytics')||desc.includes('data'))primaryOutcome='Centralize data and gain actionable insights';
+  else primaryOutcome='Launch a custom digital product that solves a specific market problem';
+
+  // Infer recommended tier
+  let recTier='';
+  if(a.budget==='under_1500')recTier='Night Launch ($1,497) — Multi-page conversion site';
+  else if(a.budget==='1500_5000'||a.budget==='5000_10000')recTier='Night Build ($7,497) — Full-stack web or mobile app';
+  else if(a.budget==='10000_25000'||a.budget==='25000_plus')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
+  else if(platform==='web')recTier='Night Build ($7,497) or Night Launch ($1,497) depending on complexity';
+  else if(platform==='mobile'||platform==='both')recTier='Night Build ($7,497) or Night Build Pro ($14,997) for App Store deployment';
+  else recTier='To be determined after discovery call';
+
+  return `You are a senior full-stack product architect and technical strategist for Knight Ops, a premium overnight development firm. You specialize in scoping MVPs that ship fast and generate real revenue from day one.
+
+A new application just came in. Analyze the submission below and deliver a comprehensive build brief.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+APPLICANT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name: ${fullName}
+Email: ${a.email}
+Phone: ${a.phone||'Not provided'}
+Company: ${a.company||'Not provided'}
+Platform: ${platform}
+App Store Deployment: ${appStore}
+Budget: ${budget}
+Timeline: ${timeline}
+Submitted: ${fmtDateTime(a.created_at)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THEY WANT TO BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${projectDesc}
+${notes?'\nADDITIONAL NOTES / MUST-HAVES:\n'+notes:''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFERRED PRIMARY OUTCOME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${primaryOutcome}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECOMMENDED TIER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${recTier}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR TASK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Deliver the following in a structured format:
+
+1. PROJECT SUMMARY (2-3 sentences)
+   - What this is, who it's for, and the core value proposition
+   - If the applicant's description is vague, infer the most viable product and state your reasoning
+
+2. PRIMARY OUTCOME & SUCCESS METRIC
+   - The #1 result this build must achieve
+   - One measurable KPI to validate success within 30 days of launch
+
+3. RECOMMENDED BUILD SCOPE (MVP)
+   - Core features only — what ships in the first version
+   - List each feature as: Feature Name → What it does → Why it matters
+   - Maximum 6-8 features for MVP. Ruthlessly cut anything that isn't launch-critical
+
+4. TECH STACK RECOMMENDATION
+   - Frontend, backend, database, auth, payments, hosting
+   - Justify each choice in one line
+
+5. USER FLOW (Step-by-step)
+   - Map the primary user journey from landing to core action to conversion
+   - Include admin/owner flow if applicable
+
+6. REVENUE MODEL
+   - How this generates money (or saves money) from day one
+   - Pricing suggestions if applicable
+
+7. 10x EXPANSION IDEAS (Post-MVP)
+   - 3-5 features that turn the MVP into a platform/ecosystem
+   - Think: what makes this a $1M+ product, not just a $10K build
+   - Include AI/automation opportunities, partnership plays, and network effects
+
+8. RISKS & GOTCHAS
+   - Technical risks, market risks, scope creep traps
+   - What could kill this project and how to prevent it
+
+9. KNIGHT OPS DELIVERY PLAN
+   - Recommended tier: ${recTier}
+   - Phase breakdown with deliverables and timeline
+   - What the client needs to provide before we start
+
+10. DISCOVERY CALL TALKING POINTS
+    - 3-5 questions to ask on the call that will close this deal
+    - Objection handlers based on their budget/timeline
+    - The "aha moment" pitch: one sentence that makes them say "let's go"
+
+Format everything with clear headers, bullet points, and bold key terms. Be specific — no generic filler. Every recommendation should reference their actual project description.`;
+}
+
+function copyBuildPrompt(id){
+  const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  const prompt=generateBuildPrompt(a);
+  navigator.clipboard.writeText(prompt).then(()=>showToast('Build prompt copied to clipboard!')).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Build prompt copied to clipboard!');
+  });
+}
+
+async function updateAppStatus(id,status){
+  const{error}=await sb.from('intake_submissions').update({status,reviewed_at:new Date().toISOString()}).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Status updated!');await loadApplications();showAppDetail(id);
+}
+
+async function saveAdminNotes(id){
+  const notes=document.getElementById('adminNotesField').value;
+  const{error}=await sb.from('intake_submissions').update({admin_notes:notes}).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Notes saved!');await loadApplications();
+}
+
+async function convertAppToLead(id){
+  const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  // Check if lead already exists
+  const existing=S.leads.find(l=>l.email===a.email);
+  if(existing){showToast('Lead already exists for '+a.email,'error');return;}
+  const{error}=await sb.from('leads').insert([{
+    name:a.first_name+' '+a.last_name,
+    email:a.email,
+    phone:a.phone||null,
+    company:a.company||null,
+    source:'intake_form',
+    status:'new',
+    service_interest:a.q4_core_outcome||null,
+    budget_range:a.budget||null,
+    timeline:a.timeline||null,
+    notes:'Platform: '+(a.q7_platform_type||'N/A')+'. App Store: '+(a.q8_app_store_deploy||'N/A')+'.'+(a.q9_non_negotiables?' Notes: '+a.q9_non_negotiables:'')
+  }]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  await sb.from('intake_submissions').update({status:'converted',converted_at:new Date().toISOString()}).eq('id',id);
+  showToast('Converted to lead!');
+  await Promise.all([loadLeads(),loadApplications()]);
+  showAppDetail(id);
 }
 
 // LOGOUT
