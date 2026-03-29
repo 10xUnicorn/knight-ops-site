@@ -721,7 +721,7 @@ function generateBuildPrompt(a){
   const projectDesc=a.q4_core_outcome||'No description provided';
   const notes=a.q9_non_negotiables||'';
 
-  // Infer primary outcome if not explicitly stated
+  // Infer primary outcome
   let primaryOutcome='';
   const desc=projectDesc.toLowerCase();
   if(desc.includes('revenue')||desc.includes('money')||desc.includes('sell')||desc.includes('pay')||desc.includes('ecommerce')||desc.includes('marketplace'))primaryOutcome='Generate revenue through a digital product/platform';
@@ -741,12 +741,27 @@ function generateBuildPrompt(a){
   else if(platform==='mobile'||platform==='both')recTier='Night Build ($7,497) or Night Build Pro ($14,997) for App Store deployment';
   else recTier='To be determined after discovery call';
 
-  return `You are a senior full-stack product architect and technical strategist for Knight Ops, a premium overnight development firm. You specialize in scoping MVPs that ship fast and generate real revenue from day one.
+  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal writer for Knight Ops — a premium overnight development firm founded by Daniel Knight. Knight Ops builds apps, platforms, and websites overnight and deploys them ready to generate real revenue from day one.
 
-A new application just came in. Analyze the submission below and deliver a comprehensive build brief.
+BRAND CONTEXT — KNIGHT OPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Brand Voice: Bold, direct, confident, premium. No fluff, no filler. We speak like operators who ship, not agencies that deck.
+Tagline: "Built Overnight. Scaled Forever."
+Founder: Daniel Knight — builder, public speaker, community leader (Unicorn Universe, Future Self Universe, 10xUnicorn Mastermind)
+Core Promise: We don't just build your app — we architect a revenue machine, deploy it fast, and hand you the keys to scale it.
+
+Service Tiers:
+• Night Launch ($1,497) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. No backend.
+• Night Build ($7,497) — Full-stack web or mobile app. Auth, payments, CRM hooks, API integrations. Deploy-ready in 48hrs. 5-day post-launch support.
+• Night Build Pro ($14,997) — Everything in Night Build + full iOS & Android App Store submission. Store assets, compliance review, 7-day support.
+• Build Your App Workshop ($1,000) — 2-day, 4-hour hands-on workshop where entrepreneurs build their own app.
+
+Differentiators: Overnight speed. Full code ownership. No retainers. No lock-in. You own everything.
+Discovery Call: https://knightops.biz/book
+Blueprint Session: For bigger builds — deep-dive technical planning before we start.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-APPLICANT DETAILS
+APPLICATION SUBMISSION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Name: ${fullName}
 Email: ${a.email}
@@ -757,74 +772,154 @@ App Store Deployment: ${appStore}
 Budget: ${budget}
 Timeline: ${timeline}
 Submitted: ${fmtDateTime(a.created_at)}
+${a.utm_source?'Source: '+a.utm_source:''}${a.utm_campaign?' / Campaign: '+a.utm_campaign:''}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-WHAT THEY WANT TO BUILD
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THEY WANT TO BUILD:
 ${projectDesc}
-${notes?'\nADDITIONAL NOTES / MUST-HAVES:\n'+notes:''}
+${notes?'\nMUST-HAVES / ADDITIONAL NOTES:\n'+notes:''}
+
+INFERRED PRIMARY OUTCOME: ${primaryOutcome}
+RECOMMENDED TIER: ${recTier}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INFERRED PRIMARY OUTCOME
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${primaryOutcome}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RECOMMENDED TIER
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${recTier}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-YOUR TASK
+DELIVERABLES — PRODUCE BOTH OUTPUTS BELOW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Deliver the following in a structured format:
+You must produce TWO separate documents from this submission. Label them clearly.
+
+╔══════════════════════════════════════════╗
+║  DOCUMENT 1: INTERNAL BUILD BRIEF        ║
+║  (For Daniel's eyes only — strategy doc) ║
+╚══════════════════════════════════════════╝
+
+This is the internal technical and strategic assessment. Be blunt, be thorough, hold nothing back.
 
 1. PROJECT SUMMARY (2-3 sentences)
-   - What this is, who it's for, and the core value proposition
-   - If the applicant's description is vague, infer the most viable product and state your reasoning
+   What this is, who it's for, core value prop. If vague, infer the most viable product and state why.
 
 2. PRIMARY OUTCOME & SUCCESS METRIC
-   - The #1 result this build must achieve
-   - One measurable KPI to validate success within 30 days of launch
+   The #1 result this build must achieve.
+   One measurable KPI to validate success within 30 days of launch.
+   If the applicant didn't state their primary outcome explicitly, state it based on what they described and explain your reasoning.
 
-3. RECOMMENDED BUILD SCOPE (MVP)
-   - Core features only — what ships in the first version
-   - List each feature as: Feature Name → What it does → Why it matters
-   - Maximum 6-8 features for MVP. Ruthlessly cut anything that isn't launch-critical
+3. MVP SCOPE — WHAT SHIPS FIRST
+   Core features only. List each as:
+   Feature Name → What it does → Why it's launch-critical
+   Maximum 6-8 features. Ruthlessly cut anything that's not essential for first dollar or first user.
 
-4. TECH STACK RECOMMENDATION
-   - Frontend, backend, database, auth, payments, hosting
-   - Justify each choice in one line
+4. TECH STACK
+   Frontend, backend, database, auth, payments, hosting, APIs.
+   Justify each in one line. Optimize for Knight Ops speed (Supabase, Vercel, React/Next.js, Stripe preferred where applicable).
 
-5. USER FLOW (Step-by-step)
-   - Map the primary user journey from landing to core action to conversion
-   - Include admin/owner flow if applicable
+5. USER FLOWS
+   Primary end-user journey: landing → core action → conversion/payment.
+   Admin/owner flow: what the client sees and manages.
+   Map step by step.
 
-6. REVENUE MODEL
-   - How this generates money (or saves money) from day one
-   - Pricing suggestions if applicable
+6. REVENUE MODEL & MONETIZATION
+   How this makes money (or saves money) from day one.
+   Pricing strategy suggestions. Freemium vs. paid. Subscription vs. one-time.
 
-7. 10x EXPANSION IDEAS (Post-MVP)
-   - 3-5 features that turn the MVP into a platform/ecosystem
-   - Think: what makes this a $1M+ product, not just a $10K build
-   - Include AI/automation opportunities, partnership plays, and network effects
+7. 10x EXPANSION — POST-MVP PLAYS
+   3-5 features that turn this from an app into a platform/ecosystem.
+   Think: what makes this a $1M+ product, not a $10K build.
+   Include AI/automation hooks, partnership opportunities, network effects, marketplace potential.
 
 8. RISKS & GOTCHAS
-   - Technical risks, market risks, scope creep traps
-   - What could kill this project and how to prevent it
+   Technical risks. Market risks. Scope creep traps. Dependency risks.
+   What could kill this and how to prevent it.
 
 9. KNIGHT OPS DELIVERY PLAN
-   - Recommended tier: ${recTier}
-   - Phase breakdown with deliverables and timeline
-   - What the client needs to provide before we start
+   Recommended tier: ${recTier}
+   Phase breakdown with specific deliverables and day-by-day timeline.
+   What the client must provide before build starts (assets, accounts, content, decisions).
 
-10. DISCOVERY CALL TALKING POINTS
-    - 3-5 questions to ask on the call that will close this deal
-    - Objection handlers based on their budget/timeline
-    - The "aha moment" pitch: one sentence that makes them say "let's go"
+10. DEAL STRATEGY — DISCOVERY CALL PREP
+    3-5 questions that surface their deepest motivation and close the deal.
+    Objection handlers specific to their budget (${budget}) and timeline (${timeline}).
+    The "aha moment" pitch — one sentence that makes them say "let's go."
+    Upsell path: if they're on a lower tier, what would unlock the next level.
 
-Format everything with clear headers, bullet points, and bold key terms. Be specific — no generic filler. Every recommendation should reference their actual project description.`;
+╔══════════════════════════════════════════════════╗
+║  DOCUMENT 2: CLIENT-FACING PROJECT PROPOSAL       ║
+║  (Send directly to ${fullName} — branded, polished) ║
+╚══════════════════════════════════════════════════╝
+
+Write this as a professional proposal that Daniel sends to the client. It should feel premium, confident, and clear. The client should read this and feel like "these people already understand exactly what I need."
+
+Format it as follows:
+
+---
+
+KNIGHT OPS
+Built Overnight. Scaled Forever.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROJECT PROPOSAL FOR: ${fullName}${a.company?' — '+a.company:''}
+Prepared by: Daniel Knight, Founder — Knight Ops
+Date: [Today's date]
+
+---
+
+1. UNDERSTANDING YOUR VISION
+   2-3 paragraphs restating what they want in a way that shows deep understanding. Mirror their language but elevate it. Make them feel heard and validated. End with a single sentence stating the primary outcome this build must achieve.
+
+2. WHAT WE'LL BUILD — YOUR MVP
+   Clean list of features. For each:
+   • Feature name — one-line description of what the user experiences
+   No jargon. Write this like you're explaining to the CEO, not the dev team.
+
+3. HOW IT WORKS — USER EXPERIENCE
+   Walk through the primary user journey in plain language. Paint the picture of what it feels like to use their product. Make them see it.
+
+4. PLATFORM & TECHNOLOGY
+   Brief (3-4 sentences) on the tech stack. Focus on benefits not tools:
+   "Lightning-fast load times. Bank-grade security. Scales to 100K users without rebuilding."
+   Mention full code ownership and no vendor lock-in.
+
+5. RECOMMENDED PACKAGE
+   State the recommended tier clearly.
+   Include what's included (from the tier specs above).
+   State pricing with the full-pay and split-pay options.
+   If they qualify for multiple tiers, explain when to choose each.
+
+6. TIMELINE & DELIVERY
+   Phase-by-phase breakdown in business language.
+   What they get at each milestone.
+   When they can expect to see their live product.
+
+7. WHAT HAPPENS AFTER LAUNCH
+   Post-launch support included in their tier.
+   Growth path — 2-3 expansion opportunities phrased as revenue multipliers, not features.
+   "Phase 2 could add [X], which based on similar projects typically increases [metric] by [Y]%."
+
+8. NEXT STEPS
+   Clear, single CTA. Either:
+   - "Book your Discovery Call: https://knightops.biz/book" (if they haven't yet)
+   - "Book your Blueprint Session: https://knightops.biz/book" (for bigger builds)
+   One line: "Once confirmed, we start building. You'll have a working prototype within 48 hours."
+
+9. WHY KNIGHT OPS
+   3-4 bullet points. Not about Daniel — about the client's outcome:
+   • "You own 100% of the code. No subscriptions. No lock-in. It's yours forever."
+   • "Built by operators who ship — not an agency that decks."
+   • "Overnight turnaround means you're live while your competitors are still in meetings."
+   • "From idea to revenue-generating product in days, not months."
+
+---
+Daniel Knight
+Founder, Knight Ops
+team@knightops.biz | knightops.biz
+Built Overnight. Scaled Forever.
+---
+
+IMPORTANT RULES FOR BOTH DOCUMENTS:
+- Every recommendation must reference the applicant's ACTUAL project description. No generic placeholders.
+- Be specific with feature names, flows, and tech choices — not abstract categories.
+- The internal brief should be brutally honest. The proposal should be confidently optimistic.
+- If something in their submission is vague or missing, make your best inference and flag it as "Assumption: [X] — confirm on discovery call."
+- Format with clear headers, bullets, and bold key terms. Make both documents scannable.
+- The proposal should be ready to copy-paste into an email or doc and send. No placeholders that need manual editing except [Today's date].`;
 }
 
 function copyBuildPrompt(id){
