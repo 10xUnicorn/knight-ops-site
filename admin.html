@@ -714,6 +714,7 @@ function showAppDetail(id){
 
 function generateBuildPrompt(a){
   const fullName=a.first_name+' '+a.last_name;
+  const firstName=a.first_name;
   const platform=(a.q7_platform_type||'not specified').replace(/_/g,' ');
   const appStore=(a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
   const budget=fmtBudget(a.budget);
@@ -741,24 +742,23 @@ function generateBuildPrompt(a){
   else if(platform==='mobile'||platform==='both')recTier='Night Build ($7,497) or Night Build Pro ($14,997) for App Store deployment';
   else recTier='To be determined after discovery call';
 
-  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal writer for Knight Ops — a premium overnight development firm founded by Daniel Knight. Knight Ops builds apps, platforms, and websites overnight and deploys them ready to generate real revenue from day one.
+  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium overnight development firm founded by Daniel Knight.
 
 BRAND CONTEXT — KNIGHT OPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Brand Voice: Bold, direct, confident, premium. No fluff, no filler. We speak like operators who ship, not agencies that deck.
+Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
 Tagline: "Built Overnight. Scaled Forever."
-Founder: Daniel Knight — builder, public speaker, community leader (Unicorn Universe, Future Self Universe, 10xUnicorn Mastermind)
-Core Promise: We don't just build your app — we architect a revenue machine, deploy it fast, and hand you the keys to scale it.
+Founder: Daniel Knight
+Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
+Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
+Font: 'Segoe UI', system-ui, -apple-system, sans-serif
+Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
 Service Tiers:
-• Night Launch ($1,497) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. No backend.
-• Night Build ($7,497) — Full-stack web or mobile app. Auth, payments, CRM hooks, API integrations. Deploy-ready in 48hrs. 5-day post-launch support.
-• Night Build Pro ($14,997) — Everything in Night Build + full iOS & Android App Store submission. Store assets, compliance review, 7-day support.
-• Build Your App Workshop ($1,000) — 2-day, 4-hour hands-on workshop where entrepreneurs build their own app.
-
-Differentiators: Overnight speed. Full code ownership. No retainers. No lock-in. You own everything.
-Discovery Call: https://knightops.biz/book
-Blueprint Session: For bigger builds — deep-dive technical planning before we start.
+• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions. No backend.
+• Night Build — $7,497 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
+• Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
+• Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 APPLICATION SUBMISSION
@@ -781,145 +781,189 @@ ${notes?'\nMUST-HAVES / ADDITIONAL NOTES:\n'+notes:''}
 INFERRED PRIMARY OUTCOME: ${primaryOutcome}
 RECOMMENDED TIER: ${recTier}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DELIVERABLES — PRODUCE BOTH OUTPUTS BELOW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR TASK — PRODUCE 3 OUTPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You must produce TWO separate documents from this submission. Label them clearly.
+╔═══════════════════════════════════════════════╗
+║  OUTPUT 1: IN-CHAT BRIEF (for Daniel)          ║
+║  Respond directly in the conversation.         ║
+╚═══════════════════════════════════════════════╝
 
-╔══════════════════════════════════════════╗
-║  DOCUMENT 1: INTERNAL BUILD BRIEF        ║
-║  (For Daniel's eyes only — strategy doc) ║
-╚══════════════════════════════════════════╝
+Give me a concise strategic brief IN CHAT. Not a document — just talk to me. Cover:
 
-This is the internal technical and strategic assessment. Be blunt, be thorough, hold nothing back.
+- What they actually need (cut through what they said vs. what they mean)
+- The primary outcome this build must achieve. If they didn't state it, state it for me with reasoning.
+- MVP features — 6-8 max, listed fast
+- Recommended tier + why
+- Revenue model for their product
+- 2-3 10x expansion plays post-MVP
+- Risks / gotchas I should know
+- Discovery call strategy: key questions, objection handlers for their budget/timeline, the one-liner "aha" pitch
+- Upsell path if applicable
 
-1. PROJECT SUMMARY (2-3 sentences)
-   What this is, who it's for, core value prop. If vague, infer the most viable product and state why.
+Keep it tight. Bullets and short paragraphs. This is my internal cheat sheet.
 
-2. PRIMARY OUTCOME & SUCCESS METRIC
-   The #1 result this build must achieve.
-   One measurable KPI to validate success within 30 days of launch.
-   If the applicant didn't state their primary outcome explicitly, state it based on what they described and explain your reasoning.
+╔═══════════════════════════════════════════════╗
+║  OUTPUT 2: FORMAL PDF PROPOSAL                 ║
+║  Create as a .pdf file. Branded. Send-ready.   ║
+╚═══════════════════════════════════════════════╝
 
-3. MVP SCOPE — WHAT SHIPS FIRST
-   Core features only. List each as:
-   Feature Name → What it does → Why it's launch-critical
-   Maximum 6-8 features. Ruthlessly cut anything that's not essential for first dollar or first user.
+Generate a formal, branded PDF proposal for ${fullName}. This goes directly to the client. It must feel premium, confident, and personal — like we already understand exactly what they need.
 
-4. TECH STACK
-   Frontend, backend, database, auth, payments, hosting, APIs.
-   Justify each in one line. Optimize for Knight Ops speed (Supabase, Vercel, React/Next.js, Stripe preferred where applicable).
+Structure:
 
-5. USER FLOWS
-   Primary end-user journey: landing → core action → conversion/payment.
-   Admin/owner flow: what the client sees and manages.
-   Map step by step.
+COVER:
+- "KNIGHT OPS" logo text (bold, gold #C8A456)
+- "Built Overnight. Scaled Forever." tagline
+- "Project Proposal for ${fullName}${a.company?' — '+a.company:''}"
+- "Prepared by Daniel Knight, Founder"
+- Today's date
 
-6. REVENUE MODEL & MONETIZATION
-   How this makes money (or saves money) from day one.
-   Pricing strategy suggestions. Freemium vs. paid. Subscription vs. one-time.
+SECTIONS:
+1. UNDERSTANDING YOUR VISION — 2-3 paragraphs restating their idea. Mirror their language, elevate it. End with one sentence stating the primary outcome.
+2. WHAT WE'LL BUILD — Feature list in plain language. No jargon. What the user experiences, not what the developer builds.
+3. HOW IT WORKS — Walk through the user journey. Paint the picture.
+4. PLATFORM & TECHNOLOGY — Benefits-focused (speed, security, scale, ownership). 3-4 sentences.
+5. RECOMMENDED PACKAGE — State the tier, what's included, pricing (full + split), and what they'd miss without the full build.
+6. TIMELINE & DELIVERY — Phase breakdown. When they see each milestone.
+7. AFTER LAUNCH — Post-launch support. 2-3 growth opportunities framed as revenue multipliers.
+8. NEXT STEPS — CTA: "Book your Discovery Call: https://knightops.biz/book" + "Once confirmed, we start building. You'll have a working prototype within 48 hours."
+9. WHY KNIGHT OPS — 3-4 outcome-focused bullet points.
 
-7. 10x EXPANSION — POST-MVP PLAYS
-   3-5 features that turn this from an app into a platform/ecosystem.
-   Think: what makes this a $1M+ product, not a $10K build.
-   Include AI/automation hooks, partnership opportunities, network effects, marketplace potential.
+FOOTER: Daniel Knight | Founder, Knight Ops | team@knightops.biz | knightops.biz
 
-8. RISKS & GOTCHAS
-   Technical risks. Market risks. Scope creep traps. Dependency risks.
-   What could kill this and how to prevent it.
+Use the Knight Ops brand colors: dark background feel, gold accents. Professional typography. Make it look like a $15K agency produced it.
 
-9. KNIGHT OPS DELIVERY PLAN
-   Recommended tier: ${recTier}
-   Phase breakdown with specific deliverables and day-by-day timeline.
-   What the client must provide before build starts (assets, accounts, content, decisions).
+╔═══════════════════════════════════════════════════════════╗
+║  OUTPUT 3: INTERACTIVE HTML PROPOSAL                       ║
+║  Create as a single .html file. Self-contained. No deps.   ║
+╚═══════════════════════════════════════════════════════════╝
 
-10. DEAL STRATEGY — DISCOVERY CALL PREP
-    3-5 questions that surface their deepest motivation and close the deal.
-    Objection handlers specific to their budget (${budget}) and timeline (${timeline}).
-    The "aha moment" pitch — one sentence that makes them say "let's go."
-    Upsell path: if they're on a lower tier, what would unlock the next level.
+Create a single, self-contained HTML file (no external dependencies) that is an interactive proposal ${firstName} can open in their browser. This is the key deliverable — it lets the client explore packages, select features, and email their decision directly.
 
-╔══════════════════════════════════════════════════╗
-║  DOCUMENT 2: CLIENT-FACING PROJECT PROPOSAL       ║
-║  (Send directly to ${fullName} — branded, polished) ║
-╚══════════════════════════════════════════════════╝
+DESIGN SPECS:
+- Dark theme matching Knight Ops brand: background #0A0A0B, surfaces #111113 / #1A1A1F, gold accent #C8A456, text #F5F5F5, muted #999
+- Font: 'Segoe UI', system-ui, -apple-system, sans-serif
+- Smooth scroll, fade-in animations, polished micro-interactions
+- Fully responsive (mobile-first)
+- NO external CDN links. Everything inline. Pure HTML/CSS/JS.
 
-Write this as a professional proposal that Daniel sends to the client. It should feel premium, confident, and clear. The client should read this and feel like "these people already understand exactly what I need."
+STRUCTURE OF THE HTML FILE:
 
-Format it as follows:
+HEADER:
+- "KNIGHT OPS" text logo (styled, not an image)
+- "Built Overnight. Scaled Forever."
+- "Project Proposal for ${fullName}"
 
----
+SECTION 1 — YOUR VISION
+- Restate what they want to build in 2-3 polished paragraphs
 
-KNIGHT OPS
-Built Overnight. Scaled Forever.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — WHAT WE'LL BUILD
+- Feature cards in a clean grid. Each card has:
+  - Feature name
+  - One-line description
+  - Icon or emoji
+  - A subtle indicator showing which tier includes it
 
-PROJECT PROPOSAL FOR: ${fullName}${a.company?' — '+a.company:''}
-Prepared by: Daniel Knight, Founder — Knight Ops
-Date: [Today's date]
+SECTION 3 — CHOOSE YOUR PACKAGE (this is the interactive core)
+- Show ALL THREE tiers as selectable cards side-by-side (stack on mobile):
 
----
+  NIGHT LAUNCH — $1,497
+  • Up to 5 custom pages
+  • Mobile responsive
+  • SEO-ready structure
+  • Embedded forms, Calendly, Stripe links
+  • Overnight delivery
+  • 2 revisions included
+  • Full code ownership
+  ✗ No backend / auth / database
+  ✗ No app store deployment
+  Split: $749 + $749
 
-1. UNDERSTANDING YOUR VISION
-   2-3 paragraphs restating what they want in a way that shows deep understanding. Mirror their language but elevate it. Make them feel heard and validated. End with a single sentence stating the primary outcome this build must achieve.
+  NIGHT BUILD — $7,497 (mark as "RECOMMENDED" if that's the recommended tier)
+  • Full-stack web or mobile app
+  • Auth, payments, CRM hooks, API integrations
+  • Prototype in 48hrs
+  • 3 revisions included
+  • 5-day post-launch support
+  • Full code + repo ownership
+  • Full-pay bonus: 30-min strategy call
+  ✗ No App Store submission
+  Split: $3,749 + $3,749
 
-2. WHAT WE'LL BUILD — YOUR MVP
-   Clean list of features. For each:
-   • Feature name — one-line description of what the user experiences
-   No jargon. Write this like you're explaining to the CEO, not the dev team.
+  NIGHT BUILD PRO — $14,997 (mark as "RECOMMENDED" if that's the recommended tier)
+  • Everything in Night Build
+  • iOS + Android App Store submission
+  • Store assets, screenshots, listing copy
+  • Apple & Google compliance review
+  • 1 free rejection resubmission
+  • 4 revisions, 7-day post-launch support
+  • Full-pay bonus: 45-min growth + monetization call
+  Split: $7,499 + $7,499
 
-3. HOW IT WORKS — USER EXPERIENCE
-   Walk through the primary user journey in plain language. Paint the picture of what it feels like to use their product. Make them see it.
+- Each tier card should be CLICKABLE to select it
+- The selected card gets a gold border + glow effect
+- Below the cards, show a dynamic "YOUR SELECTION" summary that updates based on which card is selected
+- Include a "WHAT YOU GET" vs "WHAT YOU WON'T GET" comparison that updates per tier, specific to THEIR project features
 
-4. PLATFORM & TECHNOLOGY
-   Brief (3-4 sentences) on the tech stack. Focus on benefits not tools:
-   "Lightning-fast load times. Bank-grade security. Scales to 100K users without rebuilding."
-   Mention full code ownership and no vendor lock-in.
+SECTION 4 — FEATURE BREAKDOWN BY TIER
+- A checklist/matrix showing each feature from Section 2 mapped to which tier includes it
+- Use gold checkmarks for included, muted X for excluded
+- This helps the client see exactly what they're getting or missing at each price point
 
-5. RECOMMENDED PACKAGE
-   State the recommended tier clearly.
-   Include what's included (from the tier specs above).
-   State pricing with the full-pay and split-pay options.
-   If they qualify for multiple tiers, explain when to choose each.
+SECTION 5 — TIMELINE
+- Visual timeline (styled divs, not an image) showing phases and milestones for the selected tier
 
-6. TIMELINE & DELIVERY
-   Phase-by-phase breakdown in business language.
-   What they get at each milestone.
-   When they can expect to see their live product.
+SECTION 6 — NEXT STEPS + EMAIL DECISION
 
-7. WHAT HAPPENS AFTER LAUNCH
-   Post-launch support included in their tier.
-   Growth path — 2-3 expansion opportunities phrased as revenue multipliers, not features.
-   "Phase 2 could add [X], which based on similar projects typically increases [metric] by [Y]%."
+This section must have a FUNCTIONAL email button. Here's how it works:
 
-8. NEXT STEPS
-   Clear, single CTA. Either:
-   - "Book your Discovery Call: https://knightops.biz/book" (if they haven't yet)
-   - "Book your Blueprint Session: https://knightops.biz/book" (for bigger builds)
-   One line: "Once confirmed, we start building. You'll have a working prototype within 48 hours."
+- Show a summary of their selected package
+- A "Payment Preference" toggle: "Full Pay" vs "Split Pay"
+- An optional textarea: "Any changes or notes?"
+- A prominent gold CTA button: "Email My Decision to Knight Ops"
 
-9. WHY KNIGHT OPS
-   3-4 bullet points. Not about Daniel — about the client's outcome:
-   • "You own 100% of the code. No subscriptions. No lock-in. It's yours forever."
-   • "Built by operators who ship — not an agency that decks."
-   • "Overnight turnaround means you're live while your competitors are still in meetings."
-   • "From idea to revenue-generating product in days, not months."
+When clicked, the button constructs a mailto: link that opens their email client with:
+  To: team@knightops.biz
+  Subject: "Project Decision — ${fullName} — [Selected Tier Name]"
+  Body: Pre-filled with:
+    - Their name, company, email
+    - Selected tier + pricing
+    - Payment preference
+    - The feature list for their selected tier
+    - Their optional notes
+    - A line: "I'm ready to move forward. Let's build."
 
----
-Daniel Knight
-Founder, Knight Ops
-team@knightops.biz | knightops.biz
-Built Overnight. Scaled Forever.
----
+The mailto body must be URL-encoded and work in all browsers/email clients.
 
-IMPORTANT RULES FOR BOTH DOCUMENTS:
-- Every recommendation must reference the applicant's ACTUAL project description. No generic placeholders.
-- Be specific with feature names, flows, and tech choices — not abstract categories.
-- The internal brief should be brutally honest. The proposal should be confidently optimistic.
-- If something in their submission is vague or missing, make your best inference and flag it as "Assumption: [X] — confirm on discovery call."
-- Format with clear headers, bullets, and bold key terms. Make both documents scannable.
-- The proposal should be ready to copy-paste into an email or doc and send. No placeholders that need manual editing except [Today's date].`;
+SECTION 7 — WHY KNIGHT OPS
+- 3-4 outcome-focused points
+- Closing: "Built Overnight. Scaled Forever."
+
+FOOTER:
+- Daniel Knight | Founder, Knight Ops
+- team@knightops.biz | knightops.biz
+- "Book a Discovery Call" link to https://knightops.biz/book
+
+CRITICAL REQUIREMENTS FOR THE HTML:
+1. The file must be 100% self-contained. No CDN, no external CSS, no external JS. Everything inline.
+2. The package selector MUST be interactive — clicking a tier updates the selection summary, the feature matrix, the timeline, and the email body in real-time.
+3. The mailto button MUST work. Test the URL encoding mentally. Include line breaks (%0A) in the body.
+4. The design must be premium. This is the first thing a potential $15K client sees. If it looks templated or cheap, we lose the deal.
+5. Every feature, flow, and recommendation must reference the applicant's ACTUAL project. No generic placeholders.
+6. Responsive: looks great on desktop and mobile.
+7. Smooth animations: fade-ins on scroll, hover effects on cards, transition on tier selection.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GLOBAL RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Every recommendation must reference the applicant's ACTUAL project description. Zero generic content.
+- The in-chat brief should be brutally honest. The PDF and HTML should be confidently optimistic.
+- If something is vague or missing, make your best inference and flag it as "Assumption: [X] — confirm on discovery call."
+- The PDF and HTML should be ready to send with no manual edits needed.
+- Name the PDF: knight-ops-proposal-${firstName.toLowerCase()}-${a.last_name.toLowerCase()}.pdf
+- Name the HTML: knight-ops-proposal-${firstName.toLowerCase()}-${a.last_name.toLowerCase()}.html`;
 }
 
 function copyBuildPrompt(id){
