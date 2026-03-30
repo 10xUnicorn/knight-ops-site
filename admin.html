@@ -325,7 +325,7 @@ function loadDashboard(){
 }
 
 // ═══ LEADS ═══
-async function loadLeads(){const{data}=await sb.from('leads').select('*').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
+async function loadLeads(){const{data}=await sb.from('leads').select('*').eq('lead_type','inbound').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
 function renderLeads(){
   const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
   const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
