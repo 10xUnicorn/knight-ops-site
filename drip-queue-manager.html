@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knight Ops — Drip Queue Manager</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d0d1a; color: #e0e0e0; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #d4af37; flex-wrap: wrap; gap: 10px; }
+  .header h1 { color: #d4af37; font-size: 22px; }
+  .header .subtitle { color: #888; font-size: 13px; margin-top: 2px; }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .metrics-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 20px 30px; }
+  .metric { background: #1a1a2e; border-radius: 10px; padding: 16px; border: 1px solid #2a2a4a; text-align: center; }
+  .metric .label { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .metric .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .metric .sub { color: #666; font-size: 11px; margin-top: 2px; }
+  .gold { color: #d4af37; }
+  .green { color: #22c55e; }
+  .blue { color: #3b82f6; }
+  .red { color: #ff4444; }
+  .orange { color: #f59e0b; }
+  .cyan { color: #06b6d4; }
+
+  .tz-bar { padding: 0 30px 10px; display: flex; gap: 12px; align-items: center; background: #12121f; margin: 0 30px; border-radius: 10px; padding: 14px 20px; border: 1px solid #2a2a4a; flex-wrap: wrap; }
+  .tz-bar label { color: #888; font-size: 12px; }
+  .tz-select, .tz-input { background: #1a1a2e; border: 1px solid #333; border-radius: 6px; padding: 6px 10px; color: #e0e0e0; font-size: 13px; }
+  .tz-select { min-width: 200px; }
+  .tz-input { width: 60px; text-align: center; }
+
+  .controls { padding: 15px 30px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+  .btn-gold { background: #d4af37; color: #1a1a2e; }
+  .btn-gold:hover { background: #e8c84a; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid #d4af37; color: #d4af37; }
+  .btn-outline:hover { background: #d4af3722; }
+  .btn-red { background: #ff4444; color: white; }
+  .btn-green { background: #22c55e; color: white; }
+  .btn-blue { background: #3b82f6; color: white; }
+  .btn-gray { background: #333; color: #ccc; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .filter-bar { padding: 0 30px 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #333; background: transparent; color: #aaa; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+  .filter-btn.active { border-color: #d4af37; color: #d4af37; background: #d4af3711; }
+  .search-input { background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 8px 14px; color: #e0e0e0; font-size: 13px; width: 250px; }
+  .search-input::placeholder { color: #555; }
+
+  .table-wrap { padding: 0 30px 30px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 12px 10px; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a2a4a; position: sticky; top: 0; background: #0d0d1a; }
+  td { padding: 12px 10px; border-bottom: 1px solid #1a1a2e; font-size: 13px; vertical-align: middle; }
+  tr:hover td { background: #1a1a2e44; }
+  tr.selected td { background: #d4af3711; }
+  .checkbox { width: 16px; height: 16px; accent-color: #d4af37; cursor: pointer; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .badge-active { background: #22c55e22; color: #22c55e; }
+  .badge-paused { background: #f59e0b22; color: #f59e0b; }
+  .badge-completed { background: #3b82f622; color: #3b82f6; }
+  .badge-due { background: #ff444422; color: #ff4444; }
+  .step-dots { display: flex; gap: 4px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .step-dot.sent { background: #22c55e; }
+  .step-dot.current { background: #d4af37; box-shadow: 0 0 6px #d4af3766; }
+  .step-dot.future { background: #333; }
+  .actions-cell { display: flex; gap: 5px; }
+  .icon-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 14px; }
+  .icon-btn:hover { border-color: #d4af37; color: #d4af37; }
+  .icon-btn.send:hover { border-color: #22c55e; color: #22c55e; }
+  .icon-btn.pause:hover { border-color: #f59e0b; color: #f59e0b; }
+  .icon-btn.skip:hover { border-color: #3b82f6; color: #3b82f6; }
+  .icon-btn.delete:hover { border-color: #ff4444; color: #ff4444; }
+  .toast { position: fixed; bottom: 30px; right: 30px; background: #1a1a2e; border: 1px solid #d4af37; border-radius: 10px; padding: 14px 20px; color: #e0e0e0; font-size: 13px; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s; max-width: 400px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { border-color: #ff4444; }
+  .empty { text-align: center; padding: 60px; color: #555; }
+  .loading { text-align: center; padding: 60px; color: #d4af37; }
+  .selected-bar { background: #d4af3711; border: 1px solid #d4af3733; border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+  .selected-count { color: #d4af37; font-weight: 600; font-size: 14px; }
+  @media (max-width: 768px) { .metrics-bar { grid-template-columns: repeat(2, 1fr); } .controls { flex-direction: column; align-items: stretch; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>&#9889; Drip Queue Manager</h1>
+    <div class="subtitle">Knight Ops — Email Nurture Control Center</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="loadQueue()">&#8635; Refresh</button>
+  </div>
+</div>
+
+<div class="metrics-bar" id="metrics">
+  <div class="metric"><div class="label">Total Leads</div><div class="value gold" id="m-total">—</div></div>
+  <div class="metric"><div class="label">Active</div><div class="value green" id="m-active">—</div></div>
+  <div class="metric"><div class="label">Delivered</div><div class="value blue" id="m-delivered">—</div></div>
+  <div class="metric"><div class="label">Opened</div><div class="value cyan" id="m-opened">—</div><div class="sub" id="m-open-rate"></div></div>
+  <div class="metric"><div class="label">Clicked</div><div class="value gold" id="m-clicked">—</div><div class="sub" id="m-click-rate"></div></div>
+  <div class="metric"><div class="label">Bounced</div><div class="value red" id="m-bounced">—</div><div class="sub" id="m-bounce-rate"></div></div>
+  <div class="metric"><div class="label">Due Now</div><div class="value orange" id="m-due">—</div><div class="sub">Ready to send</div></div>
+</div>
+
+<div class="tz-bar" id="tz-bar">
+  <label>&#127760; Timezone:</label>
+  <select class="tz-select" id="tz-select" onchange="saveConfig()">
+    <option value="America/New_York">Eastern (ET)</option>
+    <option value="America/Chicago" selected>Central (CT)</option>
+    <option value="America/Denver">Mountain (MT)</option>
+    <option value="America/Los_Angeles">Pacific (PT)</option>
+    <option value="America/Anchorage">Alaska (AKT)</option>
+    <option value="Pacific/Honolulu">Hawaii (HT)</option>
+    <option value="UTC">UTC</option>
+  </select>
+  <label>Send Window:</label>
+  <input type="number" class="tz-input" id="tz-start" value="7" min="0" max="23" onchange="saveConfig()">
+  <span style="color:#888">:00 to</span>
+  <input type="number" class="tz-input" id="tz-end" value="20" min="0" max="23" onchange="saveConfig()">
+  <span style="color:#888">:00</span>
+  <span id="tz-status" style="color:#22c55e;font-size:12px;margin-left:10px;"></span>
+</div>
+
+<div class="controls" style="margin-top:15px;">
+  <div class="selected-bar" id="selection-bar" style="display:none;">
+    <span class="selected-count" id="selected-count">0 selected</span>
+    <button class="btn btn-green" onclick="bulkAction('resume')">&#9654; Resume</button>
+    <button class="btn btn-gray" onclick="bulkAction('pause')">&#9208; Pause</button>
+    <button class="btn btn-blue" onclick="bulkAction('skip')">&#9197; Skip</button>
+    <button class="btn btn-red" onclick="bulkAction('delete')">&#128465; Delete</button>
+  </div>
+  <div style="flex:1;"></div>
+  <button class="btn btn-gold" onclick="sendAllDue()" id="btn-send-all">&#9889; Send All Due (0)</button>
+  <button class="btn btn-outline" onclick="sendAllForce()" id="btn-send-force">&#128640; Force Send All Active</button>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+  <button class="filter-btn" data-filter="active" onclick="setFilter('active', this)">Active</button>
+  <button class="filter-btn" data-filter="paused" onclick="setFilter('paused', this)">Paused</button>
+  <button class="filter-btn" data-filter="completed" onclick="setFilter('completed', this)">Completed</button>
+  <button class="filter-btn" data-filter="due" onclick="setFilter('due', this)">Due Now</button>
+  <div style="flex:1;"></div>
+  <input type="text" class="search-input" placeholder="Search by name, email, company..." oninput="searchQueue(this.value)">
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" class="checkbox" onchange="toggleSelectAll(this)"></th>
+        <th>Lead</th>
+        <th>Email</th>
+        <th>Company</th>
+        <th>Step</th>
+        <th>Status</th>
+        <th>Next Send</th>
+        <th>Last Sent</th>
+        <th>Score</th>
+        <th>Opened</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="queue-body">
+      <tr><td colspan="11" class="loading">Loading queue...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/manage-drip";
+let allItems = [];
+let selectedIds = new Set();
+let currentFilter = "all";
+let searchTerm = "";
+
+async function apiCall(action, data = {}) {
+  const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, ...data }) });
+  return res.json();
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isError ? " error" : "");
+  setTimeout(() => t.className = "toast", 3500);
+}
+
+function formatDate(d) {
+  if (!d) return "\u2014";
+  const date = new Date(d);
+  const now = new Date();
+  const diff = date - now;
+  if (diff < 0 && diff > -86400000) return "Overdue";
+  if (diff >= 0 && diff < 3600000) return Math.round(diff/60000) + "m";
+  if (diff >= 0 && diff < 86400000) return Math.round(diff/3600000) + "h";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+function isDue(item) {
+  return item.status === "active" && item.next_send_at && new Date(item.next_send_at) <= new Date();
+}
+
+function renderStepDots(currentStep) {
+  let html = '<div class="step-dots">';
+  for (let i = 0; i < 7; i++) {
+    const cls = i < currentStep ? "sent" : i === currentStep ? "current" : "future";
+    html += '<div class="step-dot ' + cls + '" title="Step ' + (i+1) + '"></div>';
+  }
+  return html + '</div>';
+}
+
+function getFilteredItems() {
+  return allItems.filter(item => {
+    if (currentFilter === "active" && item.status !== "active") return false;
+    if (currentFilter === "paused" && item.status !== "paused") return false;
+    if (currentFilter === "completed" && item.status !== "completed") return false;
+    if (currentFilter === "due" && !isDue(item)) return false;
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      return (item.name||"").toLowerCase().includes(s) || (item.email||"").toLowerCase().includes(s) || (item.company||"").toLowerCase().includes(s);
+    }
+    return true;
+  });
+}
+
+function renderTable() {
+  const items = getFilteredItems();
+  const tbody = document.getElementById("queue-body");
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty">No items match this filter</td></tr>'; return; }
+
+  tbody.innerHTML = items.map(item => {
+    const due = isDue(item);
+    const statusClass = due ? "badge-due" : "badge-" + item.status;
+    const statusText = due ? "DUE" : item.status.toUpperCase();
+    const checked = selectedIds.has(item.id) ? "checked" : "";
+    const rowClass = selectedIds.has(item.id) ? "selected" : "";
+    const openedIcon = item.opened_at ? '<span style="color:#22c55e" title="Opened ' + formatDate(item.opened_at) + '">&#9679; Yes</span>' : '<span style="color:#555">No</span>';
+
+    return '<tr class="' + rowClass + '" data-id="' + item.id + '">' +
+      '<td><input type="checkbox" class="checkbox" ' + checked + ' onchange="toggleSelect(\'' + item.id + '\', this)"></td>' +
+      '<td><strong>' + (item.name || "\u2014") + '</strong></td>' +
+      '<td style="color:#aaa;font-size:12px;">' + (item.email || "\u2014") + '</td>' +
+      '<td>' + (item.company || "\u2014") + '</td>' +
+      '<td>' + renderStepDots(item.step) + ' <span style="color:#888;font-size:11px;">Step ' + (item.step + 1) + '/7</span></td>' +
+      '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
+      '<td style="font-size:12px;' + (due ? 'color:#ff4444;font-weight:600;' : '') + '">' + formatDate(item.next_send_at) + '</td>' +
+      '<td style="font-size:12px;color:#888;">' + (item.last_sent_at ? formatDate(item.last_sent_at) : "Never") + '</td>' +
+      '<td><span style="color:' + (item.lead_score >= 75 ? '#22c55e' : item.lead_score >= 50 ? '#f59e0b' : '#888') + '">' + (item.lead_score || "\u2014") + '</span></td>' +
+      '<td>' + openedIcon + '</td>' +
+      '<td><div class="actions-cell">' +
+        (item.status !== "completed" ?
+          '<button class="icon-btn send" title="Send Now" onclick="sendOne(\'' + item.id + '\')">&#9654;</button>' +
+          '<button class="icon-btn ' + (item.status === 'paused' ? 'send' : 'pause') + '" title="' + (item.status === 'paused' ? 'Resume' : 'Pause') + '" onclick="' + (item.status === 'paused' ? "resumeOne('" + item.id + "')" : "pauseOne('" + item.id + "')") + '">' + (item.status === 'paused' ? '&#9654;' : '&#9208;') + '</button>' +
+          '<button class="icon-btn skip" title="Skip Step" onclick="skipOne(\'' + item.id + '\')">&#9197;</button>'
+        : '') +
+        '<button class="icon-btn delete" title="Delete" onclick="deleteOne(\'' + item.id + '\')">&#10005;</button>' +
+      '</div></td></tr>';
+  }).join("");
+}
+
+function updateMetrics(metrics) {
+  document.getElementById("m-total").textContent = allItems.length;
+  document.getElementById("m-active").textContent = metrics?.total_active || allItems.filter(i => i.status === "active").length;
+  document.getElementById("m-delivered").textContent = metrics?.total_delivered || 0;
+  document.getElementById("m-opened").textContent = metrics?.total_opened || 0;
+  document.getElementById("m-open-rate").textContent = (metrics?.open_rate || 0) + "% open rate";
+  document.getElementById("m-clicked").textContent = metrics?.total_clicked || 0;
+  document.getElementById("m-click-rate").textContent = (metrics?.click_rate || 0) + "% click rate";
+  document.getElementById("m-bounced").textContent = metrics?.total_bounced || 0;
+  document.getElementById("m-bounce-rate").textContent = (metrics?.bounce_rate || 0) + "% bounce rate";
+  const dueNow = allItems.filter(isDue).length;
+  document.getElementById("m-due").textContent = dueNow;
+  document.getElementById("btn-send-all").disabled = dueNow === 0;
+  document.getElementById("btn-send-all").textContent = "\u26A1 Send All Due (" + dueNow + ")";
+}
+
+function updateConfig(config) {
+  if (!config) return;
+  document.getElementById("tz-select").value = config.timezone || "America/Chicago";
+  document.getElementById("tz-start").value = config.send_window_start ?? 7;
+  document.getElementById("tz-end").value = config.send_window_end ?? 20;
+  // Show current local time in that timezone
+  try {
+    const now = new Date();
+    const localTime = now.toLocaleTimeString("en-US", { timeZone: config.timezone, hour: "numeric", minute: "2-digit" });
+    const hour = parseInt(now.toLocaleTimeString("en-US", { timeZone: config.timezone, hour: "numeric", hour12: false }));
+    const inWindow = hour >= (config.send_window_start ?? 7) && hour < (config.send_window_end ?? 20);
+    document.getElementById("tz-status").innerHTML = "Current: " + localTime + " \u2014 " + (inWindow ? '<span style="color:#22c55e">&#9679; SENDING</span>' : '<span style="color:#ff4444">&#9679; PAUSED (outside window)</span>');
+  } catch(e) {}
+}
+
+async function saveConfig() {
+  const tz = document.getElementById("tz-select").value;
+  const start = parseInt(document.getElementById("tz-start").value);
+  const end = parseInt(document.getElementById("tz-end").value);
+  await apiCall("update_config", { timezone: tz, send_window_start: start, send_window_end: end });
+  showToast("\u2713 Timezone updated: " + tz + " (" + start + ":00-" + end + ":00)");
+  updateConfig({ timezone: tz, send_window_start: start, send_window_end: end });
+}
+
+function updateSelectionBar() {
+  const bar = document.getElementById("selection-bar");
+  if (selectedIds.size > 0) { bar.style.display = "flex"; document.getElementById("selected-count").textContent = selectedIds.size + " selected"; }
+  else { bar.style.display = "none"; }
+}
+
+function toggleSelect(id, el) { if (el.checked) selectedIds.add(id); else selectedIds.delete(id); updateSelectionBar(); renderTable(); }
+function toggleSelectAll(el) { const items = getFilteredItems(); if (el.checked) items.forEach(i => selectedIds.add(i.id)); else selectedIds.clear(); updateSelectionBar(); renderTable(); }
+function setFilter(filter, btn) { currentFilter = filter; document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active")); btn.classList.add("active"); renderTable(); }
+function searchQueue(term) { searchTerm = term; renderTable(); }
+
+async function loadQueue() {
+  document.getElementById("queue-body").innerHTML = '<tr><td colspan="11" class="loading">Loading...</td></tr>';
+  const data = await apiCall("list");
+  allItems = data.items || [];
+  updateMetrics(data.metrics);
+  updateConfig(data.config);
+  renderTable();
+}
+
+async function sendOne(id) { showToast("Sending..."); const r = await apiCall("send_one", { id }); r.success ? showToast("\u2713 Sent to " + r.email) : showToast("\u2717 Failed: " + JSON.stringify(r.error), true); loadQueue(); }
+async function pauseOne(id) { await apiCall("pause", { id }); showToast("\u23F8 Paused"); loadQueue(); }
+async function resumeOne(id) { await apiCall("resume", { id }); showToast("\u25B6 Resumed"); loadQueue(); }
+async function skipOne(id) { await apiCall("skip", { id }); showToast("\u23ED Skipped"); loadQueue(); }
+async function deleteOne(id) { if (!confirm("Remove from queue?")) return; await apiCall("delete", { id }); showToast("\u2713 Deleted"); loadQueue(); }
+
+async function bulkAction(action) {
+  const ids = [...selectedIds]; if (!ids.length) return;
+  if (action === "delete" && !confirm("Delete " + ids.length + " items?")) return;
+  showToast("Processing " + ids.length + " items...");
+  await apiCall(action, { ids }); selectedIds.clear(); updateSelectionBar();
+  showToast("\u2713 " + action + " done for " + ids.length + " items"); loadQueue();
+}
+
+async function sendAllDue() {
+  const n = allItems.filter(isDue).length; if (!n) return showToast("No emails due");
+  showToast("Sending " + n + " due emails...");
+  const r = await apiCall("send_all");
+  showToast("\u2713 Sent " + (r.sent||0) + ", Failed " + (r.failed||0)); loadQueue();
+}
+
+async function sendAllForce() {
+  const n = allItems.filter(i => i.status === "active").length;
+  if (!confirm("Force send ALL " + n + " active emails now, ignoring schedule?")) return;
+  showToast("Force sending " + n + "...");
+  const r = await apiCall("send_all_force");
+  showToast("\u2713 Sent " + (r.sent||0) + ", Failed " + (r.failed||0)); loadQueue();
+}
+
+loadQueue();
+setInterval(loadQueue, 60000);
+</script>
+</body>
+</html>
