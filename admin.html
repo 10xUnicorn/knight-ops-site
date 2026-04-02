@@ -163,7 +163,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     </div>
     <div class="content" id="content">
       <div class="view active" id="v-dashboard"><div class="kpi-grid" id="kpiGrid"></div><div class="table-card"><div class="table-header"><h2>Recent Leads</h2></div><div id="recentLeads"></div></div></div>
-      <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" style="background:#d4af37;border-color:#d4af37;margin-right:8px" onclick="window.open('drip-queue-manager.html','_blank')">⚡ Drip Queue</button><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
+      <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
       <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
@@ -325,7 +325,7 @@ function loadDashboard(){
 }
 
 // ═══ LEADS ═══
-async function loadLeads(){const{data}=await sb.from('leads').select('*').in('lead_type',['inbound','prospect']).order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
+async function loadLeads(){const{data}=await sb.from('leads').select('*').eq('lead_type','inbound').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
 function renderLeads(){
   const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
   const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
@@ -704,12 +704,18 @@ function showAppDetail(id){
       '<textarea id="adminNotesField" style="width:100%;min-height:80px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.9rem">'+(a.admin_notes||'')+'</textarea>'+
       '<button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="saveAdminNotes(\''+a.id+'\')">Save Notes</button>'+
     '</div>'+
+    '<div id="proposalSection-'+a.id+'" style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:1rem;color:var(--accent)">&#128230; Proposal</h3><div id="proposalActions-'+a.id+'"></div></div>'+
+      '<div id="proposalBody-'+a.id+'"></div>'+
+    '</div>'+
     '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><h3 style="font-size:0.9rem">Build Prompt Preview</h3><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Copy to Clipboard</button></div>'+
       '<pre id="promptPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
     '</div>';
   // Render the prompt preview
   document.getElementById('promptPreview-'+a.id).textContent=generateBuildPrompt(a);
+  // Load proposal state
+  loadProposalSection(a);
 }
 
 function generateBuildPrompt(a){
@@ -1011,6 +1017,225 @@ async function convertAppToLead(id){
   showToast('Converted to lead!');
   await Promise.all([loadLeads(),loadApplications()]);
   showAppDetail(id);
+}
+
+// ─── PROPOSAL MANAGEMENT ───
+const PROPOSAL_EDGE='https://trpnlkntvulkjerevngm.supabase.co/functions/v1';
+const STORAGE_URL='https://trpnlkntvulkjerevngm.supabase.co/storage/v1/object';
+
+function genSlug(name,company){
+  const base=(company||name||'proposal').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
+  return base+'-'+Date.now().toString(36);
+}
+
+async function loadProposalSection(a){
+  const bodyEl=document.getElementById('proposalBody-'+a.id);
+  const actEl=document.getElementById('proposalActions-'+a.id);
+  if(!bodyEl)return;
+  bodyEl.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">Loading proposal data…</p>';
+  // Check for existing proposal linked to this intake
+  const{data:proposals}=await sb.from('proposals').select('*').eq('intake_id',a.id).order('created_at',{ascending:false}).limit(1);
+  const p=proposals&&proposals.length?proposals[0]:null;
+  if(p){
+    renderExistingProposal(a,p);
+  }else{
+    renderNewProposalUI(a);
+  }
+}
+
+function renderNewProposalUI(a){
+  const bodyEl=document.getElementById('proposalBody-'+a.id);
+  const actEl=document.getElementById('proposalActions-'+a.id);
+  actEl.innerHTML='';
+  bodyEl.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1.25rem">'+
+        '<div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--accent)">📄 Upload HTML Proposal</div>'+
+        '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">Upload the interactive HTML proposal file. This becomes a public page the client can view.</p>'+
+        '<input type="file" id="htmlUpload-'+a.id+'" accept=".html,.htm" style="display:none" onchange="handleProposalUpload(\''+a.id+'\',\'html\')">'+
+        '<button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'htmlUpload-'+a.id+'\').click()">Choose HTML File</button>'+
+      '</div>'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1.25rem">'+
+        '<div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--accent)">📎 Upload PDF Proposal</div>'+
+        '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">Upload the formal PDF proposal. Client gets a download link.</p>'+
+        '<input type="file" id="pdfUpload-'+a.id+'" accept=".pdf" style="display:none" onchange="handleProposalUpload(\''+a.id+'\',\'pdf\')">'+
+        '<button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'pdfUpload-'+a.id+'\').click()">Choose PDF File</button>'+
+      '</div>'+
+    '</div>'+
+    '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:10px">Upload the HTML first to create the proposal record, then optionally attach a PDF.</p>';
+}
+
+function renderExistingProposal(a,p){
+  const bodyEl=document.getElementById('proposalBody-'+a.id);
+  const actEl=document.getElementById('proposalActions-'+a.id);
+  const publicUrl=PROPOSAL_EDGE+'/serve-proposal?slug='+p.slug;
+  const pdfUrl=p.pdf_path?PROPOSAL_EDGE+'/serve-proposal?slug='+p.slug+'&dl=pdf':null;
+  const statusColors={draft:'var(--warning)',sent:'var(--info)',viewed:'var(--accent)',accepted:'var(--success)',declined:'var(--error)'};
+  const statusColor=statusColors[p.status]||'var(--text-muted)';
+
+  // Actions bar
+  actEl.innerHTML=
+    '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:'+statusColor+'22;color:'+statusColor+';border:1px solid '+statusColor+'44;margin-right:8px">'+p.status.toUpperCase()+'</span>'+
+    '<button class="btn btn-sm btn-secondary" onclick="copyProposalUrl(\''+p.slug+'\')">🔗 Copy Link</button> '+
+    (p.status==='draft'||p.status==='sent'?'<button class="btn btn-sm btn-primary" onclick="sendProposalEmail(\''+p.id+'\',\''+a.id+'\')">✉️ Send Proposal</button> ':'')+
+    '<button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProposal(\''+p.id+'\',\''+a.id+'\')">🗑️</button>';
+
+  // Body
+  let html=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Public Proposal URL</div>'+
+        '<a href="'+publicUrl+'" target="_blank" style="font-size:0.85rem;word-break:break-all">'+publicUrl+'</a>'+
+      '</div>'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">PDF Download</div>'+
+        (pdfUrl?'<a href="'+pdfUrl+'" target="_blank" style="font-size:0.85rem">Download PDF ↓</a>':
+        '<span style="font-size:0.85rem;color:var(--text-muted)">No PDF attached</span>')+
+      '</div>'+
+    '</div>';
+
+  // Meta row
+  html+=
+    '<div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">'+
+      '<span>Slug: <strong style="color:var(--text)">'+p.slug+'</strong></span>'+
+      '<span>Created: <strong style="color:var(--text)">'+fmtDateTime(p.created_at)+'</strong></span>'+
+      (p.sent_at?'<span>Sent: <strong style="color:var(--text)">'+fmtDateTime(p.sent_at)+'</strong></span>':'')+
+      (p.viewed_at?'<span>First Viewed: <strong style="color:var(--accent)">'+fmtDateTime(p.viewed_at)+'</strong></span>':'')+
+    '</div>';
+
+  // Upload overrides
+  html+=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">Replace HTML</div>'+
+        '<input type="file" id="htmlReplace-'+a.id+'" accept=".html,.htm" style="display:none" onchange="replaceProposalFile(\''+p.id+'\',\''+a.id+'\',\'html\')">'+
+        '<button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'htmlReplace-'+a.id+'\').click()">↻ Replace HTML</button>'+
+      '</div>'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">'+(p.pdf_path?'Replace':'Attach')+' PDF</div>'+
+        '<input type="file" id="pdfReplace-'+a.id+'" accept=".pdf" style="display:none" onchange="replaceProposalFile(\''+p.id+'\',\''+a.id+'\',\'pdf\')">'+
+        '<button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'pdfReplace-'+a.id+'\').click()">'+(p.pdf_path?'↻ Replace PDF':'+ Attach PDF')+'</button>'+
+      '</div>'+
+    '</div>';
+
+  bodyEl.innerHTML=html;
+}
+
+async function handleProposalUpload(intakeId,type){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  const inputEl=document.getElementById((type==='html'?'htmlUpload':'pdfUpload')+'-'+intakeId);
+  const file=inputEl&&inputEl.files[0];if(!file)return;
+  showToast('Uploading '+type.toUpperCase()+'…');
+
+  const slug=genSlug(a.first_name+'-'+a.last_name,a.company);
+  const ext=type==='html'?'html':'pdf';
+  const storagePath=slug+'/proposal.'+ext;
+  const contentType=type==='html'?'text/html':'application/pdf';
+  const token=(await sb.auth.getSession()).data.session.access_token;
+
+  // Upload to storage
+  const upRes=await fetch(STORAGE_URL+'/proposals/'+storagePath,{
+    method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':contentType,'x-upsert':'true'},body:file
+  });
+  if(!upRes.ok){showToast('Upload failed: '+(await upRes.text()),'error');return;}
+
+  if(type==='html'){
+    // Create proposal record
+    const{data:prop,error}=await sb.from('proposals').insert([{
+      intake_id:intakeId,
+      lead_id:null,
+      slug:slug,
+      client_name:a.first_name+' '+a.last_name,
+      client_email:a.email,
+      company:a.company||null,
+      html_path:storagePath,
+      status:'draft'
+    }]).select().single();
+    if(error){showToast('DB error: '+error.message,'error');return;}
+    showToast('HTML proposal uploaded! Public URL ready.');
+    // Also try to link to existing lead
+    const matchLead=(S.leads||[]).find(l=>l.email===a.email);
+    if(matchLead){
+      await sb.from('proposals').update({lead_id:matchLead.id}).eq('id',prop.id);
+    }
+  }else{
+    // PDF on a new proposal without HTML first — create record with pdf only
+    const{error}=await sb.from('proposals').insert([{
+      intake_id:intakeId,
+      lead_id:null,
+      slug:slug,
+      client_name:a.first_name+' '+a.last_name,
+      client_email:a.email,
+      company:a.company||null,
+      pdf_path:storagePath,
+      status:'draft'
+    }]).select().single();
+    if(error){showToast('DB error: '+error.message,'error');return;}
+    showToast('PDF uploaded!');
+  }
+  loadProposalSection(a);
+}
+
+async function replaceProposalFile(proposalId,intakeId,type){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  const inputEl=document.getElementById((type==='html'?'htmlReplace':'pdfReplace')+'-'+intakeId);
+  const file=inputEl&&inputEl.files[0];if(!file)return;
+  showToast('Replacing '+type.toUpperCase()+'…');
+
+  // Get existing proposal for slug
+  const{data:p}=await sb.from('proposals').select('*').eq('id',proposalId).single();
+  if(!p){showToast('Proposal not found','error');return;}
+
+  const ext=type==='html'?'html':'pdf';
+  const storagePath=p.slug+'/proposal.'+ext;
+  const contentType=type==='html'?'text/html':'application/pdf';
+  const token=(await sb.auth.getSession()).data.session.access_token;
+
+  const upRes=await fetch(STORAGE_URL+'/proposals/'+storagePath,{
+    method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':contentType,'x-upsert':'true'},body:file
+  });
+  if(!upRes.ok){showToast('Upload failed: '+(await upRes.text()),'error');return;}
+
+  // Update proposal record with new path
+  const updateCol=type==='html'?{html_path:storagePath}:{pdf_path:storagePath};
+  await sb.from('proposals').update(updateCol).eq('id',proposalId);
+  showToast(type.toUpperCase()+' replaced!');
+  loadProposalSection(a);
+}
+
+async function sendProposalEmail(proposalId,intakeId){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);
+  showToast('Sending proposal email…');
+  try{
+    const res=await fetch(PROPOSAL_EDGE+'/send-proposal',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({proposal_id:proposalId})
+    });
+    const result=await res.json();
+    if(!res.ok)throw new Error(result.error||'Send failed');
+    showToast('Proposal email sent to '+((a&&a.email)||'client')+'!');
+    if(a)loadProposalSection(a);
+  }catch(e){
+    showToast('Email error: '+e.message,'error');
+  }
+}
+
+function copyProposalUrl(slug){
+  const url=PROPOSAL_EDGE+'/serve-proposal?slug='+slug;
+  navigator.clipboard.writeText(url).then(()=>showToast('Proposal URL copied!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Proposal URL copied!');
+  });
+}
+
+async function deleteProposal(proposalId,intakeId){
+  if(!confirm('Delete this proposal? The files in storage will remain but the record will be removed.'))return;
+  const{error}=await sb.from('proposals').delete().eq('id',proposalId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Proposal deleted.');
+  const a=(S.applications||[]).find(x=>x.id===intakeId);
+  if(a)loadProposalSection(a);
 }
 
 // LOGOUT
