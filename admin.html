@@ -177,6 +177,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="table-header">
               <h2>Incoming Applications</h2>
               <div class="table-filters">
+                <button class="btn btn-sm btn-primary" onclick="editApplication()">+ Add Application</button>
                 <input type="text" placeholder="Search..." id="appSearch" oninput="renderApps2()">
                 <select id="appStatusFilter" onchange="renderApps2()">
                   <option value="">All</option>
@@ -336,18 +337,27 @@ function showLeadDetail(id){
   navTo('leads');
   document.getElementById('leadsListView').style.display='none';
   document.getElementById('leadDetailView').style.display='block';
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><h2>'+l.name+'</h2><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+'</div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+l.email+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'');
+  // Find linked applications for this lead
+  const linkedApps=(S.applications||[]).filter(x=>x.lead_id===l.id);
+  const linkedAppsHtml=linkedApps.length?
+    '<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2 style="font-size:0.95rem">Linked Applications ('+linkedApps.length+')</h2></div>'+
+    '<table><thead><tr><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
+    linkedApps.map(a=>'<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+(a.q4_core_outcome||((a.first_name||'')+' '+(a.last_name||'')).trim()||'—')+'</td><td>'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>').join('')+
+    '</tbody></table></div>':
+    '<div style="margin-top:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;font-size:0.85rem;color:var(--text-muted)">No linked applications</div>';
+
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><h2>'+(l.name||l.email||'Unnamed')+'</h2><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+'</div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(l.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'')+linkedAppsHtml;
 }
 function editLead(id){
   const l=id?S.leads.find(x=>x.id===id):null;
   const title=l?'Edit Lead':'Add Lead';
-  const body=FR(FG('Name *','e_name','text',l?.name),FG('Email *','e_email','email',l?.email))+FR(FG('Phone','e_phone','tel',l?.phone),FG('Company','e_company','text',l?.company))+FR(FG('Service Interest','e_service','select',l?.service_interest,SERVICE_OPTS),FG('Budget Range','e_budget','select',l?.budget_range,BUDGET_OPTS))+FR(FG('Timeline','e_timeline','select',l?.timeline,TIMELINE_OPTS),FG('Source','e_source','select',l?.source||'manual',SOURCE_OPTS))+FG('Status','e_status','select',l?.status||'new',LEAD_STATUS_OPTS)+FG('Notes','e_notes','textarea',l?.notes);
+  const body=FR(FG('Name','e_name','text',l?.name),FG('Email','e_email','email',l?.email))+FR(FG('Phone','e_phone','tel',l?.phone),FG('Company','e_company','text',l?.company))+FR(FG('Service Interest','e_service','select',l?.service_interest,SERVICE_OPTS),FG('Budget Range','e_budget','select',l?.budget_range,BUDGET_OPTS))+FR(FG('Timeline','e_timeline','select',l?.timeline,TIMELINE_OPTS),FG('Source','e_source','select',l?.source||'manual',SOURCE_OPTS))+FG('Status','e_status','select',l?.status||'new',LEAD_STATUS_OPTS)+FG('Notes','e_notes','textarea',l?.notes);
   const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLead('+(id?"'"+id+"'":'')+')">Save</button>';
   openEditModal(title,body,foot);
 }
 async function saveLead(id){
   const obj={name:document.getElementById('e_name').value,email:document.getElementById('e_email').value,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null,service_interest:document.getElementById('e_service').value||null,budget_range:document.getElementById('e_budget').value||null,timeline:document.getElementById('e_timeline').value||null,source:document.getElementById('e_source').value||'manual',status:document.getElementById('e_status').value||'new',notes:document.getElementById('e_notes').value||null};
-  if(!obj.name||!obj.email){showToast('Name and Email required','error');return;}
+  if(!obj.name&&!obj.email){showToast('Name or Email required','error');return;}
   let err;
   if(id){({error:err}=await sb.from('leads').update(obj).eq('id',id));}
   else{({error:err}=await sb.from('leads').insert([obj]));}
@@ -660,7 +670,7 @@ function renderApps2(){
     (!s||a.first_name?.toLowerCase().includes(s)||a.last_name?.toLowerCase().includes(s)||a.email?.toLowerCase().includes(s)||a.company?.toLowerCase().includes(s)||a.q4_core_outcome?.toLowerCase().includes(s))&&
     (!st||a.status===st));
   document.getElementById('appsTable2').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
-    (f.length?f.map(a=>'<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+a.first_name+' '+a.last_name+'</td><td>'+a.email+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(a.q4_core_outcome||'—')+'</td><td>'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No applications yet</td></tr>')+
+    (f.length?f.map(a=>'<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+((a.first_name||'')+' '+(a.last_name||'')).trim()||'—'+'</td><td>'+(a.email||'—')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(a.q4_core_outcome||'—')+'</td><td>'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No applications yet</td></tr>')+
     '</tbody></table>';
 }
 function fmtBudget(b){
@@ -676,16 +686,21 @@ function showAppDetail(id){
   navTo('applications');
   document.getElementById('appsListView').style.display='none';
   document.getElementById('appDetailView').style.display='block';
-  const fullName=a.first_name+' '+a.last_name;
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
+  // Find linked lead
+  const linkedLead=a.lead_id?(S.leads||[]).find(l=>l.id===a.lead_id):null;
   document.getElementById('appDetailView').innerHTML=
     '<div class="detail-back" onclick="document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'">&#8592; Back to Applications</div>'+
     '<div class="detail-header"><h2>'+fullName+'</h2><div>'+
       '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')" style="margin-right:6px">&#128203; Copy Build Prompt</button>'+
+      '<button class="btn btn-sm btn-secondary" onclick="editApplication(\''+a.id+'\')" style="margin-right:6px">Edit</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
-      '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>'+
+      (a.lead_id?'<button class="btn btn-sm btn-secondary" onclick="showLeadDetail(\''+a.lead_id+'\')" style="margin-right:6px">View Lead</button>':
+      '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>')+
     '</div></div>'+
+    (linkedLead?'<div style="margin-bottom:1rem;padding:10px 14px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:10px;font-size:0.85rem"><span style="color:var(--accent);font-weight:600">Linked Lead:</span> '+(linkedLead.name||linkedLead.email||'—')+' <span style="color:var(--text-muted)">('+(linkedLead.status||'—')+')</span> <a href="#" onclick="showLeadDetail(\''+linkedLead.id+'\');return false" style="margin-left:8px">View →</a></div>':'')+
     '<div class="detail-grid">'+
-      '<div><div class="dg-label">Email</div><div class="dg-value">'+a.email+'</div></div>'+
+      '<div><div class="dg-label">Email</div><div class="dg-value">'+(a.email||'—')+'</div></div>'+
       '<div><div class="dg-label">Phone</div><div class="dg-value">'+(a.phone||'—')+'</div></div>'+
       '<div><div class="dg-label">Company</div><div class="dg-value">'+(a.company||'—')+'</div></div>'+
       '<div><div class="dg-label">Platform</div><div class="dg-value">'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</div></div>'+
@@ -719,8 +734,8 @@ function showAppDetail(id){
 }
 
 function generateBuildPrompt(a){
-  const fullName=a.first_name+' '+a.last_name;
-  const firstName=a.first_name;
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
+  const firstName=a.first_name||'Client';
   const platform=(a.q7_platform_type||'not specified').replace(/_/g,' ');
   const appStore=(a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
   const budget=fmtBudget(a.budget);
@@ -997,12 +1012,20 @@ async function saveAdminNotes(id){
 
 async function convertAppToLead(id){
   const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
-  // Check if lead already exists
-  const existing=S.leads.find(l=>l.email===a.email);
-  if(existing){showToast('Lead already exists for '+a.email,'error');return;}
-  const{error}=await sb.from('leads').insert([{
-    name:a.first_name+' '+a.last_name,
-    email:a.email,
+  // Check if lead already exists by email
+  if(a.email){
+    const existing=S.leads.find(l=>l.email===a.email);
+    if(existing){
+      // Link existing lead
+      await sb.from('intake_submissions').update({lead_id:existing.id,status:'converted',converted_at:new Date().toISOString()}).eq('id',id);
+      showToast('Linked to existing lead: '+existing.name);
+      await Promise.all([loadLeads(),loadApplications()]);showAppDetail(id);return;
+    }
+  }
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||null;
+  const{data:newLead,error}=await sb.from('leads').insert([{
+    name:fullName,
+    email:a.email||null,
     phone:a.phone||null,
     company:a.company||null,
     source:'intake_form',
@@ -1011,9 +1034,10 @@ async function convertAppToLead(id){
     budget_range:a.budget||null,
     timeline:a.timeline||null,
     notes:'Platform: '+(a.q7_platform_type||'N/A')+'. App Store: '+(a.q8_app_store_deploy||'N/A')+'.'+(a.q9_non_negotiables?' Notes: '+a.q9_non_negotiables:'')
-  }]);
+  }]).select().single();
   if(error){showToast('Error: '+error.message,'error');return;}
-  await sb.from('intake_submissions').update({status:'converted',converted_at:new Date().toISOString()}).eq('id',id);
+  // Link lead_id back to application
+  await sb.from('intake_submissions').update({lead_id:newLead.id,status:'converted',converted_at:new Date().toISOString()}).eq('id',id);
   showToast('Converted to lead!');
   await Promise.all([loadLeads(),loadApplications()]);
   showAppDetail(id);
@@ -1021,7 +1045,6 @@ async function convertAppToLead(id){
 
 // ─── PROPOSAL MANAGEMENT ───
 const PROPOSAL_EDGE='https://trpnlkntvulkjerevngm.supabase.co/functions/v1';
-const STORAGE_URL='https://trpnlkntvulkjerevngm.supabase.co/storage/v1/object';
 
 function genSlug(name,company){
   const base=(company||name||'proposal').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
@@ -1127,45 +1150,44 @@ async function handleProposalUpload(intakeId,type){
   const file=inputEl&&inputEl.files[0];if(!file)return;
   showToast('Uploading '+type.toUpperCase()+'…');
 
-  const slug=genSlug(a.first_name+'-'+a.last_name,a.company);
+  const namePart=((a.first_name||'')+(a.last_name?'-'+a.last_name:'')).trim()||'manual';
+  const slug=genSlug(namePart,a.company);
   const ext=type==='html'?'html':'pdf';
   const storagePath=slug+'/proposal.'+ext;
   const contentType=type==='html'?'text/html':'application/pdf';
-  const token=(await sb.auth.getSession()).data.session.access_token;
 
-  // Upload to storage
-  const upRes=await fetch(STORAGE_URL+'/proposals/'+storagePath,{
-    method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':contentType,'x-upsert':'true'},body:file
-  });
-  if(!upRes.ok){showToast('Upload failed: '+(await upRes.text()),'error');return;}
+  // Upload via Supabase storage client
+  const{error:upErr}=await sb.storage.from('proposals').upload(storagePath,file,{contentType,upsert:true});
+  if(upErr){showToast('Upload failed: '+upErr.message,'error');return;}
+
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown';
+  const leadId=a.lead_id||null;
 
   if(type==='html'){
-    // Create proposal record
     const{data:prop,error}=await sb.from('proposals').insert([{
       intake_id:intakeId,
-      lead_id:null,
+      lead_id:leadId,
       slug:slug,
-      client_name:a.first_name+' '+a.last_name,
-      client_email:a.email,
+      client_name:fullName,
+      client_email:a.email||null,
       company:a.company||null,
       html_path:storagePath,
       status:'draft'
     }]).select().single();
     if(error){showToast('DB error: '+error.message,'error');return;}
     showToast('HTML proposal uploaded! Public URL ready.');
-    // Also try to link to existing lead
-    const matchLead=(S.leads||[]).find(l=>l.email===a.email);
-    if(matchLead){
-      await sb.from('proposals').update({lead_id:matchLead.id}).eq('id',prop.id);
+    // Also try to link to existing lead if not already linked
+    if(!leadId&&a.email){
+      const matchLead=(S.leads||[]).find(l=>l.email===a.email);
+      if(matchLead)await sb.from('proposals').update({lead_id:matchLead.id}).eq('id',prop.id);
     }
   }else{
-    // PDF on a new proposal without HTML first — create record with pdf only
     const{error}=await sb.from('proposals').insert([{
       intake_id:intakeId,
-      lead_id:null,
+      lead_id:leadId,
       slug:slug,
-      client_name:a.first_name+' '+a.last_name,
-      client_email:a.email,
+      client_name:fullName,
+      client_email:a.email||null,
       company:a.company||null,
       pdf_path:storagePath,
       status:'draft'
@@ -1182,21 +1204,16 @@ async function replaceProposalFile(proposalId,intakeId,type){
   const file=inputEl&&inputEl.files[0];if(!file)return;
   showToast('Replacing '+type.toUpperCase()+'…');
 
-  // Get existing proposal for slug
   const{data:p}=await sb.from('proposals').select('*').eq('id',proposalId).single();
   if(!p){showToast('Proposal not found','error');return;}
 
   const ext=type==='html'?'html':'pdf';
   const storagePath=p.slug+'/proposal.'+ext;
   const contentType=type==='html'?'text/html':'application/pdf';
-  const token=(await sb.auth.getSession()).data.session.access_token;
 
-  const upRes=await fetch(STORAGE_URL+'/proposals/'+storagePath,{
-    method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':contentType,'x-upsert':'true'},body:file
-  });
-  if(!upRes.ok){showToast('Upload failed: '+(await upRes.text()),'error');return;}
+  const{error:upErr}=await sb.storage.from('proposals').upload(storagePath,file,{contentType,upsert:true});
+  if(upErr){showToast('Upload failed: '+upErr.message,'error');return;}
 
-  // Update proposal record with new path
   const updateCol=type==='html'?{html_path:storagePath}:{pdf_path:storagePath};
   await sb.from('proposals').update(updateCol).eq('id',proposalId);
   showToast(type.toUpperCase()+' replaced!');
@@ -1236,6 +1253,61 @@ async function deleteProposal(proposalId,intakeId){
   showToast('Proposal deleted.');
   const a=(S.applications||[]).find(x=>x.id===intakeId);
   if(a)loadProposalSection(a);
+}
+
+// ─── MANUAL APPLICATION ───
+const PLATFORM_OPTS=[{v:'',l:'Select…'},{v:'web',l:'Web'},{v:'mobile',l:'Mobile'},{v:'both',l:'Both'}];
+const APP_STORE_OPTS=[{v:'',l:'Select…'},{v:'yes',l:'Yes'},{v:'no',l:'No'},{v:'not_sure',l:'Not Sure'}];
+const APP_BUDGET_OPTS=[{v:'',l:'Select…'},{v:'under_1500',l:'Under $1,500'},{v:'1500_5000',l:'$1,500 - $5,000'},{v:'5000_10000',l:'$5,000 - $10,000'},{v:'10000_25000',l:'$10,000 - $25,000'},{v:'25000_plus',l:'$25,000+'},{v:'not_sure',l:'Not Sure'}];
+const APP_TIMELINE_OPTS=[{v:'',l:'Select…'},{v:'asap',l:'ASAP'},{v:'2_weeks',l:'2 Weeks'},{v:'30_days',l:'30 Days'},{v:'60_days',l:'60 Days'},{v:'90_days',l:'90 Days'},{v:'flexible',l:'Flexible'}];
+
+function editApplication(id){
+  const a=id?(S.applications||[]).find(x=>x.id===id):null;
+  const title=a?'Edit Application':'Add Application';
+  // Build lead picker options
+  const leadOpts=[{v:'',l:'No linked lead'},...(S.leads||[]).map(l=>({v:l.id,l:(l.name||l.email||'Unnamed')+' ('+(l.email||'no email')+')'}))];
+  const body=
+    FR(FG('First Name','ea_fname','text',a?.first_name),FG('Last Name','ea_lname','text',a?.last_name))+
+    FR(FG('Email','ea_email','email',a?.email),FG('Phone','ea_phone','tel',a?.phone))+
+    FR(FG('Company','ea_company','text',a?.company),FG('Link to Lead','ea_leadid','select',a?.lead_id||'',leadOpts))+
+    FG('Project Description','ea_project','textarea',a?.q4_core_outcome)+
+    FR(FG('Platform','ea_platform','select',a?.q7_platform_type||'',PLATFORM_OPTS),FG('App Store','ea_appstore','select',a?.q8_app_store_deploy||'',APP_STORE_OPTS))+
+    FR(FG('Budget','ea_budget','select',a?.budget||'',APP_BUDGET_OPTS),FG('Timeline','ea_timeline','select',a?.timeline||'',APP_TIMELINE_OPTS))+
+    FG('Additional Notes','ea_notes','textarea',a?.q9_non_negotiables);
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveApplication('+(id?"'"+id+"'":'')+')">Save</button>';
+  openEditModal(title,body,foot);
+}
+
+async function saveApplication(id){
+  const obj={
+    first_name:document.getElementById('ea_fname').value||null,
+    last_name:document.getElementById('ea_lname').value||null,
+    email:document.getElementById('ea_email').value||null,
+    phone:document.getElementById('ea_phone').value||null,
+    company:document.getElementById('ea_company').value||null,
+    lead_id:document.getElementById('ea_leadid').value||null,
+    q4_core_outcome:document.getElementById('ea_project').value||null,
+    q7_platform_type:document.getElementById('ea_platform').value||null,
+    q8_app_store_deploy:document.getElementById('ea_appstore').value||null,
+    budget:document.getElementById('ea_budget').value||null,
+    timeline:document.getElementById('ea_timeline').value||null,
+    q9_non_negotiables:document.getElementById('ea_notes').value||null,
+    source:'manual'
+  };
+  // At least a name or project description
+  if(!obj.first_name&&!obj.email&&!obj.q4_core_outcome){showToast('Provide at least a name, email, or project description','error');return;}
+  let err;
+  if(id){
+    delete obj.source;
+    ({error:err}=await sb.from('intake_submissions').update(obj).eq('id',id));
+  }else{
+    obj.status='new';
+    ({error:err}=await sb.from('intake_submissions').insert([obj]));
+  }
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Application updated!':'Application added!');closeEditModal();
+  await loadApplications();
+  if(!id)loadDashboard();
 }
 
 // LOGOUT
