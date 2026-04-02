@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint Session — Knight Ops</title>
+<meta name="description" content="Knight Ops Blueprint Session — deep-dive intake to architect your custom application.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0A0B;--surface:#111113;--surface2:#18181B;--card:#1C1C1F;--card-hover:#222225;
+  --border:#2A2A2E;--border-light:#3A3A3F;
+  --text:#F4F4F5;--muted:#A1A1AA;--dim:#71717A;
+  --gold:#C8A456;--gold-hover:#D4B56A;--gold-subtle:rgba(200,164,86,.1);--gold-border:rgba(200,164,86,.25);
+  --green:#22C55E;--danger:#ef4444;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:72px}
+.nav-logo{font-size:1.25rem;font-weight:900;letter-spacing:.1em;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-back{color:var(--muted);font-size:.875rem;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-back:hover{color:#fff}
+
+/* HERO */
+.hero{padding:120px 0 40px;text-align:center}
+.hero .badge{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);padding:.4rem 1rem;border:1px solid var(--gold-border);border-radius:3px;margin-bottom:1rem;font-family:monospace}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:.75rem;line-height:1.2}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:var(--dim);font-size:.95rem;max-width:600px;margin:0 auto}
+
+/* FORM CONTAINER */
+.form-wrap{max-width:720px;margin:0 auto;padding:2rem 24px 100px}
+
+/* PROGRESS BAR */
+.progress-bar{display:flex;gap:4px;margin-bottom:2.5rem}
+.progress-bar .seg{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .4s}
+.progress-bar .seg.active{background:var(--gold)}
+.progress-bar .seg.done{background:var(--green)}
+
+/* STEP */
+.step{display:none;animation:fadeUp .35s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.step-header{margin-bottom:1.75rem}
+.step-num{font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;font-family:monospace}
+.step-title{font-size:1.35rem;font-weight:700;margin-bottom:.35rem}
+.step-desc{color:var(--dim);font-size:.85rem}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:1.5rem}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.4rem;letter-spacing:.03em}
+.field label .req{color:var(--gold);margin-left:2px}
+.field input,.field select,.field textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:.9rem;font-family:inherit;transition:border-color .2s,box-shadow .2s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-subtle)}
+.field textarea{min-height:100px;resize:vertical;line-height:1.6}
+.field .hint{font-size:.75rem;color:var(--dim);margin-top:.35rem}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23A1A1AA' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.field select option{background:var(--surface);color:var(--text)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:540px){.row2{grid-template-columns:1fr}}
+
+/* RADIO CARDS */
+.radio-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem}
+.radio-card{position:relative;cursor:pointer}
+.radio-card input{position:absolute;opacity:0;pointer-events:none}
+.radio-card .card-inner{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.15rem;transition:all .2s;text-align:center}
+.radio-card .card-inner .card-title{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.radio-card .card-inner .card-sub{font-size:.72rem;color:var(--dim)}
+.radio-card input:checked+.card-inner{border-color:var(--gold);background:var(--gold-subtle);box-shadow:0 0 0 2px var(--gold-border)}
+.radio-card:hover .card-inner{border-color:var(--border-light)}
+
+/* BUTTONS */
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;gap:1rem}
+.btn{padding:12px 28px;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--gold);color:var(--bg)}
+.btn-primary:hover{background:var(--gold-hover);transform:translateY(-1px)}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-secondary:hover{border-color:var(--gold-border);color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* SUCCESS */
+.success-screen{display:none;text-align:center;padding:80px 24px}
+.success-icon{width:72px;height:72px;border-radius:50%;background:rgba(34,197,94,.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem}
+.success-screen h2{font-size:1.6rem;font-weight:800;margin-bottom:.75rem}
+.success-screen p{color:var(--dim);max-width:480px;margin:0 auto 2rem;font-size:.9rem}
+.success-screen .btn{display:inline-block;text-decoration:none}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:.85rem;color:var(--text);z-index:1000;transition:transform .35s ease;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="/" class="nav-logo">KNIGHT<span>OPS</span></a>
+    <a href="/" class="nav-back">&larr; Back to site</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="badge">Blueprint Session</div>
+  <h1>Let's Architect <em>Your System</em></h1>
+  <p>This deep-dive intake captures everything we need to design, build, and launch your application the right way — from day one.</p>
+</div>
+
+<div class="form-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+
+  <form id="blueprintForm" autocomplete="off">
+
+    <!-- STEP 1: Contact -->
+    <div class="step active" data-step="1">
+      <div class="step-header">
+        <div class="step-num">Step 1 of 6</div>
+        <div class="step-title">Who are we building for?</div>
+        <div class="step-desc">Basic contact details so we can link this to your project.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="bp_fname" required>
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="bp_lname">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="bp_email">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="bp_phone">
+        </div>
+        <div class="field">
+          <label>Company / Business Name</label>
+          <input type="text" id="bp_company">
+        </div>
+      </div>
+      <div class="btn-row">
+        <div></div>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Business Intelligence -->
+    <div class="step" data-step="2">
+      <div class="step-header">
+        <div class="step-num">Step 2 of 6</div>
+        <div class="step-title">Your Business Right Now</div>
+        <div class="step-desc">Help us understand where your time and money are going so we can identify the biggest opportunities.</div>
+      </div>
+      <div class="field">
+        <label>Where are you spending the most time in your business? <span class="req">*</span></label>
+        <textarea id="bp_time_sink" required placeholder="What tasks, processes, or operations eat up most of your hours week to week?"></textarea>
+        <div class="hint">Think daily/weekly — the stuff that keeps you busy but may not be moving the needle.</div>
+      </div>
+      <div class="field">
+        <label>Where are you making the most money right now? <span class="req">*</span></label>
+        <textarea id="bp_revenue_driver" required placeholder="What products, services, or activities drive the most revenue?"></textarea>
+      </div>
+      <div class="field">
+        <label>What would need to be in place to 10x that? <span class="req">*</span></label>
+        <textarea id="bp_ten_x" required placeholder="If you could wave a magic wand — what systems, processes, or tools would need to exist to multiply your best revenue driver by 10?"></textarea>
+      </div>
+      <div class="field">
+        <label>What tools or software are you currently using?</label>
+        <textarea id="bp_current_tools" placeholder="CRM, spreadsheets, scheduling tools, payment systems, project management, etc."></textarea>
+        <div class="hint">We'll look for integration opportunities and things we can replace or consolidate.</div>
+      </div>
+      <div class="field">
+        <label>What is your biggest operational bottleneck?</label>
+        <textarea id="bp_bottleneck" placeholder="Where do things break down, get delayed, or require too many manual steps?"></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Core Outcome & Users -->
+    <div class="step" data-step="3">
+      <div class="step-header">
+        <div class="step-num">Step 3 of 6</div>
+        <div class="step-title">The Vision</div>
+        <div class="step-desc">What this system needs to do and who it's for.</div>
+      </div>
+      <div class="field">
+        <label>What is the core outcome you are trying to create and solve with your system? <span class="req">*</span></label>
+        <textarea id="bp_core_outcome" required placeholder="In plain language — what does success look like when this is built and running?"></textarea>
+      </div>
+      <div class="field">
+        <label>Who is this for? What types of people will be using this system? <span class="req">*</span></label>
+        <textarea id="bp_target_users" required placeholder="End users, team members, clients, customers, specific roles — be as specific as possible."></textarea>
+        <div class="hint">Example: "Field technicians in the field + office managers + the end customer checking status online"</div>
+      </div>
+      <div class="field">
+        <label>Is this an internal system, something you plan to sell, or both? <span class="req">*</span></label>
+        <div class="radio-cards">
+          <label class="radio-card">
+            <input type="radio" name="bp_system_type" value="internal" required>
+            <div class="card-inner">
+              <div class="card-title">Internal</div>
+              <div class="card-sub">For my team / operations</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_system_type" value="commercial">
+            <div class="card-inner">
+              <div class="card-title">Commercial</div>
+              <div class="card-sub">Selling it as a product</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_system_type" value="both">
+            <div class="card-inner">
+              <div class="card-title">Both</div>
+              <div class="card-sub">Internal + revenue generating</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Platform & Deployment -->
+    <div class="step" data-step="4">
+      <div class="step-header">
+        <div class="step-num">Step 4 of 6</div>
+        <div class="step-title">Platform &amp; Deployment</div>
+        <div class="step-desc">Where this app will live and how people will access it.</div>
+      </div>
+      <div class="field">
+        <label>What type of application do you need? <span class="req">*</span></label>
+        <div class="radio-cards">
+          <label class="radio-card">
+            <input type="radio" name="bp_platform" value="mobile" required>
+            <div class="card-inner">
+              <div class="card-title">Mobile App</div>
+              <div class="card-sub">iOS &amp; Android native</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_platform" value="web">
+            <div class="card-inner">
+              <div class="card-title">Web App</div>
+              <div class="card-sub">Browser-based platform</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_platform" value="both">
+            <div class="card-inner">
+              <div class="card-title">Both</div>
+              <div class="card-sub">Web + Mobile</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="field" style="margin-top:1.5rem">
+        <label>Do you want it deployed to the App Store and Google Play Store? <span class="req">*</span></label>
+        <div class="radio-cards">
+          <label class="radio-card">
+            <input type="radio" name="bp_deployment" value="app_stores" required>
+            <div class="card-inner">
+              <div class="card-title">App Stores</div>
+              <div class="card-sub">iOS App Store + Google Play</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_deployment" value="web_only">
+            <div class="card-inner">
+              <div class="card-title">Web Only</div>
+              <div class="card-sub">No app store listing</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_deployment" value="both">
+            <div class="card-inner">
+              <div class="card-title">Both</div>
+              <div class="card-sub">Web now + App Stores later</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="bp_deployment" value="unsure">
+            <div class="card-inner">
+              <div class="card-title">Not Sure Yet</div>
+              <div class="card-sub">Let's decide together</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Non-Negotiables & MVP -->
+    <div class="step" data-step="5">
+      <div class="step-header">
+        <div class="step-num">Step 5 of 6</div>
+        <div class="step-title">Must-Haves &amp; MVP</div>
+        <div class="step-desc">What absolutely has to work on day one — and what can come later.</div>
+      </div>
+      <div class="field">
+        <label>What are the non-negotiable features this app must have? <span class="req">*</span></label>
+        <textarea id="bp_non_negotiables" required placeholder="List the features, capabilities, or workflows that are deal-breakers if missing. Be specific."></textarea>
+        <div class="hint">Examples: user login, payment processing, booking system, real-time notifications, admin dashboard, reporting, etc.</div>
+      </div>
+      <div class="field">
+        <label>What is the minimum viable product? What's required to launch? <span class="req">*</span></label>
+        <textarea id="bp_mvp" required placeholder="If you had to launch with the bare minimum to start generating value or revenue — what would that look like?"></textarea>
+        <div class="hint">We build the MVP first, then layer on features. This keeps costs down and speed up.</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: Budget, Timeline, Notes -->
+    <div class="step" data-step="6">
+      <div class="step-header">
+        <div class="step-num">Step 6 of 6</div>
+        <div class="step-title">Budget, Timeline &amp; Final Notes</div>
+        <div class="step-desc">Almost done — just a few more details to scope this properly.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Budget Range</label>
+          <select id="bp_budget">
+            <option value="">Select range</option>
+            <option value="under_5k">Under $5,000</option>
+            <option value="5k_10k">$5,000 – $10,000</option>
+            <option value="10k_25k">$10,000 – $25,000</option>
+            <option value="25k_50k">$25,000 – $50,000</option>
+            <option value="50k_100k">$50,000 – $100,000</option>
+            <option value="100k_plus">$100,000+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Timeline</label>
+          <select id="bp_timeline">
+            <option value="">Select timeline</option>
+            <option value="asap">ASAP — Yesterday</option>
+            <option value="1_3_months">1–3 Months</option>
+            <option value="3_6_months">3–6 Months</option>
+            <option value="6_12_months">6–12 Months</option>
+            <option value="flexible">Flexible</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Anything else we should know?</label>
+        <textarea id="bp_notes" placeholder="Competitors you've looked at, inspiration apps, special requirements, integrations, branding preferences — anything helps."></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="submitBlueprint()">Submit Blueprint &rarr;</button>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">&#10003;</div>
+    <h2>Blueprint Submitted</h2>
+    <p>We've got everything we need to start architecting your system. We'll be in touch within 24 hours with next steps, scope, and timeline.</p>
+    <a href="/book" class="btn btn-primary">Book Your Discovery Call &rarr;</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+const TOTAL_STEPS=6;
+let currentStep=1;
+
+function buildProgress(){
+  const bar=document.getElementById('progressBar');
+  bar.innerHTML='';
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const seg=document.createElement('div');
+    seg.className='seg'+(i<currentStep?' done':'')+(i===currentStep?' active':'');
+    bar.appendChild(seg);
+  }
+}
+buildProgress();
+
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const target=document.querySelector('.step[data-step="'+n+'"]');
+  if(target)target.classList.add('active');
+  currentStep=n;
+  buildProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateStep(n){
+  const step=document.querySelector('.step[data-step="'+n+'"]');
+  const required=step.querySelectorAll('[required]');
+  for(const el of required){
+    if(el.type==='radio'){
+      const name=el.name;
+      const checked=step.querySelector('input[name="'+name+'"]:checked');
+      if(!checked){toast('Please make a selection','error');return false;}
+    }else if(!el.value.trim()){
+      el.focus();toast('Please fill in all required fields','error');return false;
+    }
+  }
+  return true;
+}
+
+function nextStep(){
+  if(!validateStep(currentStep))return;
+  if(currentStep<TOTAL_STEPS)showStep(currentStep+1);
+}
+function prevStep(){if(currentStep>1)showStep(currentStep-1);}
+
+async function submitBlueprint(){
+  if(!validateStep(currentStep))return;
+
+  const btn=document.querySelector('.step[data-step="6"] .btn-primary');
+  btn.disabled=true;btn.textContent='Submitting…';
+
+  const getVal=id=>(document.getElementById(id)||{}).value||'';
+  const getRadio=name=>{const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';};
+
+  const payload={
+    form_type:'blueprint',
+    first_name:getVal('bp_fname'),
+    last_name:getVal('bp_lname'),
+    email:getVal('bp_email')||null,
+    phone:getVal('bp_phone')||null,
+    company:getVal('bp_company')||null,
+    bp_time_sink:getVal('bp_time_sink'),
+    bp_revenue_driver:getVal('bp_revenue_driver'),
+    bp_ten_x:getVal('bp_ten_x'),
+    bp_current_tools:getVal('bp_current_tools')||null,
+    bp_biggest_bottleneck:getVal('bp_bottleneck')||null,
+    bp_core_outcome:getVal('bp_core_outcome'),
+    bp_target_users:getVal('bp_target_users'),
+    bp_system_type:getRadio('bp_system_type'),
+    bp_platform:getRadio('bp_platform'),
+    bp_deployment:getRadio('bp_deployment'),
+    bp_non_negotiables:getVal('bp_non_negotiables'),
+    bp_mvp_requirements:getVal('bp_mvp'),
+    budget:getVal('bp_budget')||null,
+    timeline:getVal('bp_timeline')||null,
+    q9_non_negotiables:getVal('bp_notes')||null,
+    status:'new'
+  };
+
+  try{
+    const res=await fetch(SB_URL+'/rest/v1/intake_submissions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok){const err=await res.json();throw new Error(err.message||'Submission failed');}
+
+    // Also create a lead record
+    const leadPayload={
+      name:((payload.first_name||'')+' '+(payload.last_name||'')).trim(),
+      email:payload.email,
+      phone:payload.phone,
+      company:payload.company,
+      source:'blueprint_session',
+      status:'new',
+      service_interest:payload.bp_core_outcome?payload.bp_core_outcome.substring(0,200):null,
+      budget_range:payload.budget,
+      timeline:payload.timeline,
+      lead_type:'inbound',
+      notes:'Blueprint Session submission. System type: '+payload.bp_system_type+'. Platform: '+payload.bp_platform
+    };
+    await fetch(SB_URL+'/rest/v1/leads',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+      body:JSON.stringify(leadPayload)
+    });
+
+    document.getElementById('blueprintForm').style.display='none';
+    document.getElementById('progressBar').style.display='none';
+    document.getElementById('successScreen').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+
+  }catch(e){
+    toast('Error: '+e.message,'error');
+    btn.disabled=false;btn.textContent='Submit Blueprint →';
+  }
+}
+
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type==='error'?' error':'');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
