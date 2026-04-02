@@ -148,7 +148,9 @@ tr.clickable:hover{background:var(--surface-2)}
 .onb-step .step-info{flex:1}
 .onb-step .step-label{font-size:.85rem;font-weight:600}
 .onb-step .step-desc{font-size:.72rem;color:var(--text-muted)}
-.onb-step .step-action{font-size:.72rem;color:var(--accent);font-weight:600}
+.onb-step .step-action{font-size:.72rem;color:var(--bg);font-weight:700;background:var(--accent);padding:6px 16px;border-radius:6px;white-space:nowrap;transition:all .2s}
+.onb-step.done .step-action{background:var(--success);color:#fff;pointer-events:none}
+.onb-step:hover .step-action{filter:brightness(1.1)}
 
 /* ── WALKTHROUGH MODAL ── */
 .wt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -159,7 +161,9 @@ tr.clickable:hover{background:var(--surface-2)}
 .wt-modal .wt-step{display:flex;gap:1rem;margin-bottom:1.25rem;align-items:flex-start}
 .wt-modal .wt-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .wt-modal .wt-text h4{font-size:.9rem;font-weight:700;margin-bottom:.15rem}
-.wt-modal .wt-text p{font-size:.8rem;margin-bottom:0}
+.wt-modal .wt-text p{font-size:.8rem;margin-bottom:.5rem}
+.wt-modal .wt-go{display:inline-block;padding:5px 14px;background:rgba(200,164,86,.12);border:1px solid rgba(200,164,86,.3);color:var(--accent);border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none}
+.wt-modal .wt-go:hover{background:var(--accent);color:var(--bg)}
 .wt-modal .wt-close{width:100%;padding:12px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;margin-top:1rem}
 
 /* ── FILE UPLOAD ── */
@@ -182,6 +186,32 @@ tr.clickable:hover{background:var(--surface-2)}
 .upload-zone .uz-icon{font-size:2rem;margin-bottom:.5rem}
 .upload-zone .uz-text{font-size:.85rem;color:var(--text-muted)}
 .upload-zone .uz-hint{font-size:.72rem;color:var(--text-muted);margin-top:.25rem}
+
+/* ── NEW PROJECT MODAL ── */
+.bp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.bp-overlay.show{opacity:1;pointer-events:all}
+.bp-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:680px;width:95%;max-height:85vh;overflow-y:auto;padding:2rem}
+.bp-modal h2{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem}
+.bp-modal label{display:block;font-size:.8rem;font-weight:600;color:var(--text-muted);margin-bottom:4px;margin-top:1rem}
+.bp-modal input,.bp-modal textarea,.bp-modal select{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:inherit;font-size:.85rem}
+.bp-modal textarea{min-height:60px;resize:vertical}
+.bp-modal .bp-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.bp-modal .bp-actions{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end}
+.bp-modal .bp-actions button{padding:10px 24px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;border:none}
+.bp-modal .bp-save{background:var(--accent);color:var(--bg)}
+.bp-modal .bp-draft{background:var(--surface-2);color:var(--text);border:1px solid var(--border) !important}
+.bp-modal .bp-cancel{background:none;color:var(--text-muted);border:1px solid var(--border) !important}
+
+/* ── CREDENTIALS ── */
+.cred-row{display:flex;align-items:center;gap:.5rem;padding:.6rem 0;border-bottom:1px solid var(--border-subtle)}
+.cred-row:last-child{border-bottom:none}
+.cred-label{font-size:.8rem;font-weight:600;min-width:140px}
+.cred-value{flex:1;font-family:'Courier New',monospace;font-size:.8rem;background:var(--surface-2);padding:6px 10px;border-radius:6px;position:relative;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cred-value.masked{color:transparent;text-shadow:0 0 6px rgba(255,255,255,.4)}
+.cred-actions{display:flex;gap:4px}
+.cred-actions button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:.7rem}
+.cred-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.cred-type-badge{font-size:.65rem;padding:2px 6px;border-radius:4px;background:rgba(200,164,86,.1);color:var(--accent);border:1px solid rgba(200,164,86,.2);font-weight:600;margin-left:4px}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.9rem;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s}
@@ -298,8 +328,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
   <!-- PROJECTS -->
   <div class="view" id="v-projects">
     <div id="projectsList">
-      <h1 class="page-title">My Projects</h1>
-      <p class="page-sub">Track progress, milestones, and deliverables for all your builds.</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:.5rem">
+        <div><h1 class="page-title" style="margin-bottom:0">My Projects</h1><p class="page-sub" style="margin-bottom:0">Track progress, milestones, and deliverables for all your builds.</p></div>
+        <button class="btn btn-primary" onclick="openBPModal()" style="background:var(--accent);color:var(--bg);border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem">+ New Project</button>
+      </div>
       <div class="grid-2" id="projCards"></div>
     </div>
     <div id="projectDetail" style="display:none"></div>
@@ -365,12 +397,53 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
   <div class="wt-modal">
     <h2>Welcome to Your Portal</h2>
     <p>Here's a quick walkthrough of how to get started and make the most of your Knight Ops client dashboard.</p>
-    <div class="wt-step"><div class="wt-num">1</div><div class="wt-text"><h4>Complete Onboarding</h4><p style="color:var(--text-muted)">Head to the Onboarding tab and complete each step. Start with the Blueprint Intake form — this gives us everything we need to architect your system.</p></div></div>
-    <div class="wt-step"><div class="wt-num">2</div><div class="wt-text"><h4>Upload Your Files</h4><p style="color:var(--text-muted)">Go to the Files tab to upload logos, branding assets, wireframes, content, and any other files we need. Each folder has instructions on what to put in it.</p></div></div>
-    <div class="wt-step"><div class="wt-num">3</div><div class="wt-text"><h4>Track Your Project</h4><p style="color:var(--text-muted)">Once we kick off your build, your Projects tab will show real-time progress, milestones, deliverables, and tasks. You can leave comments directly on any project.</p></div></div>
-    <div class="wt-step"><div class="wt-num">4</div><div class="wt-text"><h4>Stay in the Loop</h4><p style="color:var(--text-muted)">Check My Tasks for action items assigned to you, Resources for guides and templates, and Events for upcoming workshops and calls.</p></div></div>
-    <div class="wt-step"><div class="wt-num">5</div><div class="wt-text"><h4>Need Help?</h4><p style="color:var(--text-muted)">You can always book a strategy call from your Account page, leave a comment on your project, or reach out to team@knightops.biz.</p></div></div>
+    <div class="wt-step"><div class="wt-num">1</div><div class="wt-text"><h4>Complete Onboarding</h4><p style="color:var(--text-muted)">Head to the Onboarding tab and complete each step. Start with the Blueprint Intake form — this gives us everything we need to architect your system.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('onboarding')">Go to Onboarding &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">2</div><div class="wt-text"><h4>Upload Your Files</h4><p style="color:var(--text-muted)">Go to the Files tab to upload logos, branding assets, wireframes, content, and any other files we need. Each folder has instructions on what to put in it.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('files')">Go to Files &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">3</div><div class="wt-text"><h4>Track Your Project</h4><p style="color:var(--text-muted)">Once we kick off your build, your Projects tab will show real-time progress, milestones, deliverables, and tasks. You can leave comments directly on any project.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('projects')">Go to Projects &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">4</div><div class="wt-text"><h4>Stay in the Loop</h4><p style="color:var(--text-muted)">Check My Tasks for action items assigned to you, Resources for guides and templates, and Events for upcoming workshops and calls.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('tasks')">My Tasks &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">5</div><div class="wt-text"><h4>Need Help?</h4><p style="color:var(--text-muted)">You can always book a strategy call from your Account page, leave a comment on your project, or reach out to team@knightops.biz.</p><a class="wt-go" onclick="closeWalkthrough();window.open('/book','_blank')">Book a Call &rarr;</a></div></div>
     <button class="wt-close" onclick="closeWalkthrough()">Got It — Let's Go</button>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="bp-overlay" id="bpOverlay" onclick="if(event.target===this)closeBPModal()">
+  <div class="bp-modal">
+    <h2 id="bpModalTitle">New Project — Blueprint</h2>
+    <input type="hidden" id="bpEditId" value="">
+    <div class="bp-row">
+      <div><label>What wastes the most time in your business?</label><textarea id="m_time_sink" placeholder="Manual processes, repetitive tasks..."></textarea></div>
+      <div><label>What drives the most revenue?</label><textarea id="m_revenue_driver" placeholder="Your highest-value offer or system..."></textarea></div>
+    </div>
+    <label>If you could 10x one thing, what would it be?</label>
+    <textarea id="m_ten_x" placeholder="Dream big..."></textarea>
+    <div class="bp-row">
+      <div><label>Core outcome for this build</label><textarea id="m_core_outcome" placeholder="What should this system achieve?"></textarea></div>
+      <div><label>Target users</label><input id="m_target_users" placeholder="Who will use this?"></div>
+    </div>
+    <div class="bp-row">
+      <div><label>System Type</label><select id="m_system_type"><option value="internal">Internal Tool</option><option value="commercial">Commercial Product</option><option value="both">Both</option></select></div>
+      <div><label>Platform</label><select id="m_platform"><option value="web">Web App</option><option value="mobile">Mobile App</option><option value="both">Both</option></select></div>
+    </div>
+    <div class="bp-row">
+      <div><label>Deployment</label><select id="m_deployment"><option value="web_only">Web Only</option><option value="app_stores">App Stores</option><option value="both">Both</option><option value="unsure">Unsure</option></select></div>
+      <div><label>Budget Range</label><select id="m_budget"><option value="">Select...</option><option value="under_5k">Under $5K</option><option value="5k_10k">$5K–$10K</option><option value="10k_25k">$10K–$25K</option><option value="25k_50k">$25K–$50K</option><option value="50k_100k">$50K–$100K</option><option value="100k_plus">$100K+</option></select></div>
+    </div>
+    <label>Non-negotiable features</label>
+    <textarea id="m_non_negotiables" placeholder="What absolutely must be in V1?"></textarea>
+    <label>MVP requirements</label>
+    <textarea id="m_mvp" placeholder="Minimum to launch and validate..."></textarea>
+    <div class="bp-row">
+      <div><label>Timeline</label><select id="m_timeline"><option value="">Select...</option><option value="1_3_months">1–3 months</option><option value="3_6_months">3–6 months</option><option value="6_12_months">6–12 months</option></select></div>
+      <div><label>Current tools / tech stack</label><input id="m_current_tools" placeholder="Stripe, Notion, etc."></div>
+    </div>
+    <label>Additional notes</label>
+    <textarea id="m_notes" placeholder="Anything else..."></textarea>
+    <div class="bp-actions">
+      <button class="bp-cancel" onclick="closeBPModal()">Cancel</button>
+      <button class="bp-draft" onclick="saveBPDraft()">Save Draft</button>
+      <button class="bp-save" onclick="submitBPModal()">Create Project &rarr;</button>
+    </div>
   </div>
 </div>
 
@@ -398,7 +471,20 @@ let taskFilterMode='mine'; // 'mine' or 'all'
   currentUser=session.user;
 
   const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-  const{data:client}=await sb.from('clients').select('*').eq('profile_id',currentUser.id).single();
+  let{data:client}=await sb.from('clients').select('*').eq('profile_id',currentUser.id).single();
+
+  // Auto-create client record if none exists (first portal visit)
+  if(!client){
+    const name=profile?.full_name||currentUser.email.split('@')[0];
+    const{data:newClient}=await sb.from('clients').insert({
+      profile_id:currentUser.id,
+      name:name,
+      email:currentUser.email,
+      status:'onboarding'
+    }).select().single();
+    client=newClient;
+  }
+
   clientRecord=client;
   clientId=client?.id;
 
@@ -599,11 +685,12 @@ async function loadProjects(){
 async function openProjectDetail(id){
   const{data:project}=await sb.from('projects').select('*').eq('id',id).single();
   if(!project)return;
-  const[{data:tasks},{data:milestones},{data:files},{data:comments}]=await Promise.all([
+  const[{data:tasks},{data:milestones},{data:files},{data:comments},{data:creds}]=await Promise.all([
     sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
     sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
     sb.from('project_files').select('*').eq('project_id',id).order('created_at',{ascending:false}),
-    sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:false})
+    sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:false}),
+    sb.from('project_credentials').select('*').eq('project_id',id).order('created_at')
   ]);
 
   document.getElementById('projectsList').style.display='none';
@@ -640,9 +727,29 @@ async function openProjectDetail(id){
     </div>`;
   });
 
+  // Credentials / API Keys
+  let credRows='';
+  (creds||[]).forEach(c=>{
+    credRows+=`<div class="cred-row">
+      <div class="cred-label">${c.credential_label}<span class="cred-type-badge">${c.credential_type}</span></div>
+      <div class="cred-value ${c.is_secret?'masked':''}" id="cv-${c.id}">${c.credential_value||'—'}</div>
+      <div class="cred-actions">
+        <button onclick="toggleCredVis('${c.id}')" title="Show/Hide">${c.is_secret?'&#128065;':'&#128274;'}</button>
+        <button onclick="copyCred('${c.id}')" title="Copy">&#128203;</button>
+        <button onclick="deleteCred('${c.id}','${id}')" title="Delete" style="color:var(--error)">&#10005;</button>
+      </div>
+    </div>`;
+  });
+
   d.innerHTML=`
     <div class="detail-back" onclick="loadProjects()">&#8592; Back to Projects</div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:1rem">${project.name}</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700;margin:0">${project.name}</h2>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-sm btn-secondary" onclick="editProjectModal('${id}')" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.75rem">Edit</button>
+        <button class="btn btn-sm btn-secondary" onclick="duplicateProject('${id}')" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.75rem">Duplicate</button>
+      </div>
+    </div>
     <div class="info-grid">
       <div class="info-item"><div class="info-label">Tier</div><div class="info-value"><span class="badge badge-gold">${(project.tier||'').replace(/_/g,' ')}</span></div></div>
       <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(project.status)}</div></div>
@@ -651,11 +758,12 @@ async function openProjectDetail(id){
       <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.due_date)}</div></div>
       <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
     </div>
-    ${project.description?`<div class="rich-desc">${project.description}</div><br>`:''}
+    ${project.description?`<div class="rich-desc" style="white-space:pre-line;font-size:.85rem;color:var(--text-muted);margin:1rem 0;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px">${project.description}</div>`:''}
     <div class="detail-tabs">
       <div class="detail-tab active" onclick="switchTab(this)">Tasks (${(tasks||[]).length})</div>
       <div class="detail-tab" onclick="switchTab(this)">Milestones (${(milestones||[]).length})</div>
       <div class="detail-tab" onclick="switchTab(this)">Files (${(files||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">API Keys (${(creds||[]).length})</div>
       <div class="detail-tab" onclick="switchTab(this)">Comments (${(comments||[]).length})</div>
     </div>
     <div class="detail-pane active">
@@ -665,7 +773,54 @@ async function openProjectDetail(id){
       ${msRows?`<table><thead><tr><th>Milestone</th><th>Status</th><th>Due</th></tr></thead><tbody>${msRows}</tbody></table>`:'<div class="empty">No milestones yet</div>'}
     </div>
     <div class="detail-pane">
+      <div style="margin-bottom:1rem">
+        <div class="upload-zone" onclick="document.getElementById('projFileInput').click()" style="padding:1rem">
+          <div class="uz-text" style="font-size:.8rem">&#128194; Drop files or <strong style="color:var(--accent)">click to upload</strong> project files</div>
+          <input type="file" id="projFileInput" multiple style="display:none" onchange="uploadProjectFile(this.files,'${id}')">
+        </div>
+      </div>
       ${fileRows?`<table><thead><tr><th>File</th><th>Uploaded</th><th></th></tr></thead><tbody>${fileRows}</tbody></table>`:'<div class="empty">No files shared yet</div>'}
+    </div>
+    <div class="detail-pane">
+      <div style="margin-bottom:1.25rem;padding:1rem;background:var(--surface-2);border-radius:10px;border:1px solid var(--border-subtle)">
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:.75rem">Add API Key / Credential</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
+          <select id="credType" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem">
+            <option value="stripe_secret">Stripe Secret Key</option>
+            <option value="stripe_publishable">Stripe Publishable Key</option>
+            <option value="supabase_url">Supabase URL</option>
+            <option value="supabase_anon">Supabase Anon Key</option>
+            <option value="supabase_service">Supabase Service Role Key</option>
+            <option value="openai">OpenAI API Key</option>
+            <option value="anthropic">Anthropic API Key</option>
+            <option value="google_oauth">Google OAuth Client ID</option>
+            <option value="google_secret">Google OAuth Secret</option>
+            <option value="firebase">Firebase Config</option>
+            <option value="aws_access">AWS Access Key ID</option>
+            <option value="aws_secret">AWS Secret Access Key</option>
+            <option value="twilio_sid">Twilio Account SID</option>
+            <option value="twilio_token">Twilio Auth Token</option>
+            <option value="sendgrid">SendGrid API Key</option>
+            <option value="resend">Resend API Key</option>
+            <option value="vercel_token">Vercel Token</option>
+            <option value="github_token">GitHub Token</option>
+            <option value="domain_registrar">Domain Registrar</option>
+            <option value="smtp_host">SMTP Host</option>
+            <option value="smtp_user">SMTP Username</option>
+            <option value="smtp_pass">SMTP Password</option>
+            <option value="database_url">Database URL</option>
+            <option value="webhook_secret">Webhook Secret</option>
+            <option value="custom">Custom</option>
+          </select>
+          <input id="credLabel" placeholder="Label (e.g. Production Stripe Key)" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem">
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <input id="credValue" placeholder="Paste key or value here..." style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem;font-family:monospace">
+          <label style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;white-space:nowrap"><input type="checkbox" id="credSecret" checked> Secret</label>
+          <button onclick="addCredential('${id}')" style="background:var(--accent);color:var(--bg);border:none;padding:8px 18px;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap">Add Key</button>
+        </div>
+      </div>
+      ${credRows||'<div class="empty" style="margin-top:.5rem">No API keys or credentials stored yet.</div>'}
     </div>
     <div class="detail-pane">
       <div style="margin-bottom:1rem">
@@ -1100,21 +1255,31 @@ async function loadOnboarding(){
   document.getElementById('onbStatus').textContent=pct===100?'All steps completed — you\'re all set!':completed+' of '+total+' steps completed. Keep going!';
 
   let h='';
+  const buttonLabels={
+    walkthrough:'View Guide',
+    blueprint_form:'Fill Out Form',
+    upload_logo:'Upload Logo',
+    upload_content:'Upload Files',
+    upload_wireframes:'Upload Wireframes',
+    review_project:'View Project',
+    book_call:'Book Call'
+  };
   for(const s of onboardingSteps){
     const stepMeta=DEFAULT_ONBOARDING_STEPS.find(d=>d.step_key===s.step_key)||{};
     const actionMap={
-      walkthrough:'onclick="showWalkthrough();markOnboardingStep(\'walkthrough\')"',
-      blueprint_form:'onclick="window.open(\'/blueprint\',\'_blank\');markOnboardingStep(\'blueprint_form\')"',
-      upload_logo:'onclick="goToFilesTab(\'branding\')"',
-      upload_content:'onclick="goToFilesTab(\'content\')"',
-      upload_wireframes:'onclick="goToFilesTab(\'wireframes\')"',
-      review_project:'onclick="goToNav(\'projects\')"',
-      book_call:'onclick="window.open(\'/book\',\'_blank\');markOnboardingStep(\'book_call\')"'
+      walkthrough:'onclick="event.stopPropagation();showWalkthrough();markOnboardingStep(\'walkthrough\')"',
+      blueprint_form:'onclick="event.stopPropagation();window.open(\'/blueprint\',\'_blank\');markOnboardingStep(\'blueprint_form\')"',
+      upload_logo:'onclick="event.stopPropagation();goToFilesTab(\'branding\')"',
+      upload_content:'onclick="event.stopPropagation();goToFilesTab(\'content\')"',
+      upload_wireframes:'onclick="event.stopPropagation();goToFilesTab(\'wireframes\')"',
+      review_project:'onclick="event.stopPropagation();goToNav(\'projects\')"',
+      book_call:'onclick="event.stopPropagation();window.open(\'/book\',\'_blank\');markOnboardingStep(\'book_call\')"'
     };
-    h+=`<div class="onb-step${s.completed?' done':''}" ${actionMap[s.step_key]||''}>
+    const btnLabel=buttonLabels[s.step_key]||'Start';
+    h+=`<div class="onb-step${s.completed?' done':''}">
       <div class="check">${s.completed?'&#10003;':''}</div>
       <div class="step-info"><div class="step-label">${s.step_label}</div><div class="step-desc">${stepMeta.desc||''}</div></div>
-      <div class="step-action">${s.completed?'Done':'Start &rarr;'}</div>
+      <div class="step-action" ${actionMap[s.step_key]||''}>${s.completed?'&#10003; Done':btnLabel+' &rarr;'}</div>
     </div>`;
   }
   document.getElementById('onbSteps').innerHTML=h;
@@ -1295,6 +1460,215 @@ async function downloadFile(path,name){
   const a=document.createElement('a');a.href=url;a.download=name;a.click();
   URL.revokeObjectURL(url);
 }
+
+// ══════════════════════════════════
+// ── NEW PROJECT MODAL (Blueprint) ──
+// ══════════════════════════════════
+let bpDrafts=JSON.parse(localStorage.getItem('ko_bp_drafts')||'[]');
+let editingProjectId=null;
+
+function openBPModal(editId){
+  editingProjectId=editId||null;
+  document.getElementById('bpEditId').value=editId||'';
+  document.getElementById('bpModalTitle').textContent=editId?'Edit Project':'New Project — Blueprint';
+  // Clear fields
+  ['m_time_sink','m_revenue_driver','m_ten_x','m_core_outcome','m_target_users','m_non_negotiables','m_mvp','m_current_tools','m_notes'].forEach(id=>{document.getElementById(id).value=''});
+  ['m_system_type','m_platform','m_deployment','m_budget','m_timeline'].forEach(id=>{document.getElementById(id).selectedIndex=0});
+
+  if(editId){
+    // Load project data into form
+    sb.from('projects').select('*').eq('id',editId).single().then(({data:p})=>{
+      if(!p)return;
+      // Parse description back into fields
+      const desc=p.description||'';
+      const extract=(key)=>{const m=desc.match(new RegExp(key+': (.+?)(?:\\n|$)'));return m?m[1]:''};
+      document.getElementById('m_core_outcome').value=extract('Core Outcome');
+      document.getElementById('m_target_users').value=extract('Target Users');
+      document.getElementById('m_non_negotiables').value=extract('Must-Haves');
+      document.getElementById('m_mvp').value=extract('MVP');
+      document.getElementById('m_time_sink').value=extract('Time Sink');
+      document.getElementById('m_revenue_driver').value=extract('Revenue Driver');
+      document.getElementById('m_ten_x').value=extract('10x Vision');
+      document.getElementById('m_current_tools').value=extract('Current Tools')||'';
+      const sysMatch=extract('System Type');if(sysMatch){const sel=document.getElementById('m_system_type');for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===sysMatch)sel.selectedIndex=i}}
+      const platMatch=extract('Platform');if(platMatch){const sel=document.getElementById('m_platform');for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===platMatch)sel.selectedIndex=i}}
+    });
+  }
+
+  document.getElementById('bpOverlay').classList.add('show');
+}
+
+function closeBPModal(){
+  document.getElementById('bpOverlay').classList.remove('show');
+  editingProjectId=null;
+}
+
+function getBPFormData(){
+  return{
+    core_outcome:document.getElementById('m_core_outcome').value.trim(),
+    target_users:document.getElementById('m_target_users').value.trim(),
+    system_type:document.getElementById('m_system_type').value,
+    platform:document.getElementById('m_platform').value,
+    deployment:document.getElementById('m_deployment').value,
+    budget:document.getElementById('m_budget').value,
+    timeline:document.getElementById('m_timeline').value,
+    time_sink:document.getElementById('m_time_sink').value.trim(),
+    revenue_driver:document.getElementById('m_revenue_driver').value.trim(),
+    ten_x:document.getElementById('m_ten_x').value.trim(),
+    non_negotiables:document.getElementById('m_non_negotiables').value.trim(),
+    mvp:document.getElementById('m_mvp').value.trim(),
+    current_tools:document.getElementById('m_current_tools').value.trim(),
+    notes:document.getElementById('m_notes').value.trim()
+  };
+}
+
+function buildProjectDesc(d){
+  return[
+    d.core_outcome?'Core Outcome: '+d.core_outcome:'',
+    d.system_type?'System Type: '+d.system_type:'',
+    d.platform?'Platform: '+d.platform:'',
+    d.deployment?'Deployment: '+d.deployment:'',
+    d.non_negotiables?'Must-Haves: '+d.non_negotiables:'',
+    d.mvp?'MVP: '+d.mvp:'',
+    d.target_users?'Target Users: '+d.target_users:'',
+    d.time_sink?'Time Sink: '+d.time_sink:'',
+    d.revenue_driver?'Revenue Driver: '+d.revenue_driver:'',
+    d.ten_x?'10x Vision: '+d.ten_x:'',
+    d.current_tools?'Current Tools: '+d.current_tools:'',
+    d.notes?'Notes: '+d.notes:''
+  ].filter(Boolean).join('\n\n');
+}
+
+function saveBPDraft(){
+  const d=getBPFormData();
+  d.saved_at=new Date().toISOString();
+  d.id=Date.now().toString();
+  bpDrafts.push(d);
+  localStorage.setItem('ko_bp_drafts',JSON.stringify(bpDrafts));
+  toast('Draft saved');
+  closeBPModal();
+}
+
+async function submitBPModal(){
+  const d=getBPFormData();
+  if(!d.core_outcome){toast('Core outcome is required');return}
+  const tierMap={'under_5k':'night_launch','5k_10k':'night_build','10k_25k':'night_build','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
+  const tier=tierMap[d.budget]||'custom';
+  const desc=buildProjectDesc(d);
+
+  if(editingProjectId){
+    // Update existing
+    const{error}=await sb.from('projects').update({name:d.core_outcome.substring(0,80),description:desc,tier:tier}).eq('id',editingProjectId);
+    if(error){toast('Error: '+error.message);return}
+    toast('Project updated');
+    closeBPModal();
+    openProjectDetail(editingProjectId);
+  }else{
+    // Create new
+    const{data:newP,error}=await sb.from('projects').insert({
+      client_id:clientId,
+      name:d.core_outcome.substring(0,80),
+      description:desc,
+      tier:tier,
+      status:'discovery'
+    }).select().single();
+    if(error){toast('Error: '+error.message);return}
+    toast('Project created!');
+    closeBPModal();
+    // Mark onboarding
+    markOnboardingStep('blueprint_form');
+    if(newP)openProjectDetail(newP.id);
+    else loadProjects();
+  }
+}
+
+function editProjectModal(id){
+  openBPModal(id);
+}
+
+async function duplicateProject(id){
+  const{data:orig}=await sb.from('projects').select('*').eq('id',id).single();
+  if(!orig)return;
+  const{data:dup,error}=await sb.from('projects').insert({
+    client_id:clientId,
+    name:orig.name+' (Copy)',
+    description:orig.description,
+    tier:orig.tier,
+    status:'discovery'
+  }).select().single();
+  if(error){toast('Error: '+error.message);return}
+  toast('Project duplicated');
+  if(dup)openProjectDetail(dup.id);
+  else loadProjects();
+}
+
+// ══════════════════════════════════
+// ── CREDENTIALS / API KEYS ──
+// ══════════════════════════════════
+const CRED_TYPE_LABELS={
+  stripe_secret:'Stripe Secret',stripe_publishable:'Stripe Pub',supabase_url:'Supabase URL',supabase_anon:'Supabase Anon',supabase_service:'Supabase Service',
+  openai:'OpenAI',anthropic:'Anthropic',google_oauth:'Google OAuth',google_secret:'Google Secret',firebase:'Firebase',
+  aws_access:'AWS Access',aws_secret:'AWS Secret',twilio_sid:'Twilio SID',twilio_token:'Twilio Token',
+  sendgrid:'SendGrid',resend:'Resend',vercel_token:'Vercel',github_token:'GitHub',
+  domain_registrar:'Domain',smtp_host:'SMTP Host',smtp_user:'SMTP User',smtp_pass:'SMTP Pass',
+  database_url:'DB URL',webhook_secret:'Webhook',custom:'Custom'
+};
+
+async function addCredential(projectId){
+  const type=document.getElementById('credType').value;
+  const label=document.getElementById('credLabel').value.trim()||CRED_TYPE_LABELS[type]||type;
+  const value=document.getElementById('credValue').value.trim();
+  const secret=document.getElementById('credSecret').checked;
+  if(!value){toast('Enter a value');return}
+  const{error}=await sb.from('project_credentials').insert({
+    project_id:projectId,client_id:clientId,
+    credential_type:type,credential_label:label,
+    credential_value:value,is_secret:secret
+  });
+  if(error){toast('Error: '+error.message);return}
+  toast('Credential added');
+  openProjectDetail(projectId);
+}
+
+function toggleCredVis(credId){
+  const el=document.getElementById('cv-'+credId);
+  if(el)el.classList.toggle('masked');
+}
+
+function copyCred(credId){
+  const el=document.getElementById('cv-'+credId);
+  if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(()=>toast('Copied to clipboard'));
+}
+
+async function deleteCred(credId,projectId){
+  if(!confirm('Delete this credential?'))return;
+  await sb.from('project_credentials').delete().eq('id',credId);
+  toast('Credential deleted');
+  openProjectDetail(projectId);
+}
+
+// ══════════════════════════════════
+// ── PROJECT FILE UPLOAD ──
+// ══════════════════════════════════
+async function uploadProjectFile(fileList,projectId){
+  for(const file of fileList){
+    if(file.size>52428800){toast('File too large (max 50MB): '+file.name);continue}
+    toast('Uploading '+file.name+'...');
+    const path=clientId+'/projects/'+projectId+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const{error:upErr}=await sb.storage.from('client-files').upload(path,file,{contentType:file.type,upsert:false});
+    if(upErr){toast('Upload failed: '+upErr.message);continue}
+    // Store in client_files with project reference
+    await sb.from('client_files').insert({
+      client_id:clientId,project_id:projectId,folder_id:null,
+      file_name:file.name,file_path:path,file_size:file.size,
+      mime_type:file.type,uploaded_by:currentUser.id
+    });
+    toast('Uploaded: '+file.name);
+  }
+  openProjectDetail(projectId);
+}
+
 </script>
 </body>
 </html>
