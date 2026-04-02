@@ -475,10 +475,10 @@ async function submitBlueprint(){
   try{
     const res=await fetch(SB_URL+'/rest/v1/intake_submissions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'},
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
       body:JSON.stringify(payload)
     });
-    if(!res.ok){const err=await res.json();throw new Error(err.message||'Submission failed');}
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.message||'Submission failed');}
 
     // Also create a lead record
     const leadPayload={
@@ -499,6 +499,50 @@ async function submitBlueprint(){
       headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
       body:JSON.stringify(leadPayload)
     });
+
+    // Auto-create project if user is authenticated (submitted from portal)
+    try{
+      const sbClient=supabase.createClient(SB_URL,SB_KEY);
+      const{data:{session}}=await sbClient.auth.getSession();
+      if(session){
+        const token=session.access_token;
+        // Get client record
+        const cRes=await fetch(SB_URL+'/rest/v1/clients?profile_id=eq.'+session.user.id+'&select=id',{
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        });
+        const clients=await cRes.json();
+        if(clients&&clients.length>0){
+          const cid=clients[0].id;
+          // Determine tier from budget
+          const tierMap={'under_5k':'night_launch','5k_10k':'night_build','10k_25k':'night_build','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
+          const tier=tierMap[payload.budget]||'custom';
+          const projName=(payload.bp_core_outcome||'New Project').substring(0,80);
+          const projDesc=[
+            payload.bp_core_outcome?'Core Outcome: '+payload.bp_core_outcome:'',
+            payload.bp_system_type?'System Type: '+payload.bp_system_type:'',
+            payload.bp_platform?'Platform: '+payload.bp_platform:'',
+            payload.bp_deployment?'Deployment: '+payload.bp_deployment:'',
+            payload.bp_non_negotiables?'Must-Haves: '+payload.bp_non_negotiables:'',
+            payload.bp_mvp_requirements?'MVP: '+payload.bp_mvp_requirements:'',
+            payload.bp_target_users?'Target Users: '+payload.bp_target_users:'',
+            payload.bp_time_sink?'Time Sink: '+payload.bp_time_sink:'',
+            payload.bp_revenue_driver?'Revenue Driver: '+payload.bp_revenue_driver:'',
+            payload.bp_ten_x?'10x Vision: '+payload.bp_ten_x:''
+          ].filter(Boolean).join('\n\n');
+          await fetch(SB_URL+'/rest/v1/projects',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=minimal'},
+            body:JSON.stringify({client_id:cid,name:projName,description:projDesc,tier:tier,status:'discovery'})
+          });
+          // Mark onboarding step
+          await fetch(SB_URL+'/rest/v1/client_onboarding?client_id=eq.'+cid+'&step_key=eq.blueprint_form',{
+            method:'PATCH',
+            headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=minimal'},
+            body:JSON.stringify({completed:true,completed_at:new Date().toISOString()})
+          });
+        }
+      }
+    }catch(e){console.log('Auto-project creation skipped:',e.message)}
 
     document.getElementById('blueprintForm').style.display='none';
     document.getElementById('progressBar').style.display='none';
