@@ -1045,6 +1045,7 @@ async function convertAppToLead(id){
 
 // ─── PROPOSAL MANAGEMENT ───
 const PROPOSAL_EDGE='https://trpnlkntvulkjerevngm.supabase.co/functions/v1';
+const PROPOSAL_PUBLIC='https://knightops.biz/proposal';
 
 function genSlug(name,company){
   const base=(company||name||'proposal').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
@@ -1091,8 +1092,8 @@ function renderNewProposalUI(a){
 function renderExistingProposal(a,p){
   const bodyEl=document.getElementById('proposalBody-'+a.id);
   const actEl=document.getElementById('proposalActions-'+a.id);
-  const publicUrl=PROPOSAL_EDGE+'/serve-proposal?slug='+p.slug;
-  const pdfUrl=p.pdf_path?PROPOSAL_EDGE+'/serve-proposal?slug='+p.slug+'&dl=pdf':null;
+  const publicUrl=PROPOSAL_PUBLIC+'/'+p.slug;
+  const pdfUrl=p.pdf_path?PROPOSAL_PUBLIC+'/'+p.slug+'/pdf':null;
   const statusColors={draft:'var(--warning)',sent:'var(--info)',viewed:'var(--accent)',accepted:'var(--success)',declined:'var(--error)'};
   const statusColor=statusColors[p.status]||'var(--text-muted)';
 
@@ -1239,7 +1240,7 @@ async function sendProposalEmail(proposalId,intakeId){
 }
 
 function copyProposalUrl(slug){
-  const url=PROPOSAL_EDGE+'/serve-proposal?slug='+slug;
+  const url=PROPOSAL_PUBLIC+'/'+slug;
   navigator.clipboard.writeText(url).then(()=>showToast('Proposal URL copied!')).catch(()=>{
     const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
     showToast('Proposal URL copied!');
