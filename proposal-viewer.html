@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading Proposal…</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#08080A;color:#EEEAE0;font-family:'Segoe UI',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .loader{text-align:center}
+  .loader .spinner{width:40px;height:40px;border:3px solid #222;border-top-color:#C8A456;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .error{color:#e74c3c;max-width:480px;text-align:center;padding:2rem}
+  .error a{color:#C8A456}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <p>Loading proposal…</p>
+</div>
+<div class="error" id="error" style="display:none"></div>
+<script>
+(function(){
+  var parts = location.pathname.split('/').filter(Boolean);
+  var slug = parts[1];
+  var isPdf = parts[2] === 'pdf';
+
+  if (!slug) {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').innerHTML = '<p>No proposal found.</p><p><a href="https://knightops.biz">Return to Knight Ops</a></p>';
+    return;
+  }
+
+  var url = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=' + encodeURIComponent(slug);
+
+  if (isPdf) {
+    url += '&dl=pdf';
+    window.location.href = url;
+    return;
+  }
+
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('Proposal not found');
+      return r.text();
+    })
+    .then(function(html) {
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(function(err) {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').innerHTML = '<p>' + err.message + '</p><p><a href="https://knightops.biz">Return to Knight Ops</a></p>';
+    });
+})();
+</script>
+</body>
+</html>
