@@ -1,18 +1,50 @@
 {
   "rewrites": [
-    { "source": "/apply", "destination": "/apply.html" },
-    { "source": "/apps", "destination": "/apps.html" },
-    { "source": "/book", "destination": "/book.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/portal", "destination": "/portal.html" },
-    { "source": "/auth", "destination": "/auth.html" }
+    {
+      "source": "/apply",
+      "destination": "/apply.html"
+    },
+    {
+      "source": "/apps",
+      "destination": "/apps.html"
+    },
+    {
+      "source": "/book",
+      "destination": "/book.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/portal",
+      "destination": "/portal.html"
+    },
+    {
+      "source": "/auth",
+      "destination": "/auth.html"
+    },
+    {
+      "source": "/proposal/:slug",
+      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug"
+    },
+    {
+      "source": "/proposal/:slug/pdf",
+      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug&dl=pdf"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ]
