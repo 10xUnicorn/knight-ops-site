@@ -669,16 +669,24 @@ function renderApps2(){
   const f=(S.applications||[]).filter(a=>
     (!s||a.first_name?.toLowerCase().includes(s)||a.last_name?.toLowerCase().includes(s)||a.email?.toLowerCase().includes(s)||a.company?.toLowerCase().includes(s)||a.q4_core_outcome?.toLowerCase().includes(s))&&
     (!st||a.status===st));
-  document.getElementById('appsTable2').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
-    (f.length?f.map(a=>'<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+((a.first_name||'')+' '+(a.last_name||'')).trim()||'—'+'</td><td>'+(a.email||'—')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(a.q4_core_outcome||'—')+'</td><td>'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No applications yet</td></tr>')+
+  document.getElementById('appsTable2').innerHTML='<table><thead><tr><th>Name</th><th>Type</th><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
+    (f.length?f.map(a=>{
+      const name=((a.first_name||'')+' '+(a.last_name||'')).trim()||'—';
+      const formBadge=a.form_type==='blueprint'?'<span style="font-size:.65rem;padding:2px 6px;border-radius:4px;background:rgba(200,164,86,.12);color:var(--accent);font-weight:600;margin-left:4px">BP</span>':'';
+      const plat=a.bp_platform||a.q7_platform_type||'—';
+      const desc=a.bp_core_outcome||a.q4_core_outcome||'—';
+      return '<tr class="clickable" onclick="showAppDetail(\''+a.id+'\')"><td>'+name+formBadge+'</td><td>'+(a.form_type==='blueprint'?'Blueprint':'Public')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+desc+'</td><td>'+plat.replace(/_/g,' ')+'</td><td>'+fmtBudget(a.budget)+'</td><td>'+B(a.status)+'</td><td>'+fmtDate(a.created_at)+'</td></tr>';
+    }).join(''):'<tr><td colspan="7" class="table-empty">No applications yet</td></tr>')+
     '</tbody></table>';
 }
 function fmtBudget(b){
-  const m={under_1500:'< $1.5K','1500_5000':'$1.5K-$5K','5000_10000':'$5K-$10K','10000_25000':'$10K-$25K','25000_plus':'$25K+',not_sure:'TBD'};
+  const m={under_1500:'< $1.5K','1500_5000':'$1.5K-$5K','5000_10000':'$5K-$10K','10000_25000':'$10K-$25K','25000_plus':'$25K+',not_sure:'TBD',
+    under_5k:'< $5K','5k_10k':'$5K-$10K','10k_25k':'$10K-$25K','25k_50k':'$25K-$50K','50k_100k':'$50K-$100K','100k_plus':'$100K+'};
   return m[b]||b||'—';
 }
 function fmtTimeline2(t){
-  const m={asap:'ASAP','2_weeks':'2 Weeks','30_days':'30 Days','60_days':'60 Days','90_days':'90 Days',flexible:'Flexible'};
+  const m={asap:'ASAP','2_weeks':'2 Weeks','30_days':'30 Days','60_days':'60 Days','90_days':'90 Days',flexible:'Flexible',
+    '1_3_months':'1-3 Months','3_6_months':'3-6 Months','6_12_months':'6-12 Months'};
   return m[t]||t||'—';
 }
 function showAppDetail(id){
@@ -709,9 +717,24 @@ function showAppDetail(id){
       '<div><div class="dg-label">Timeline</div><div class="dg-value">'+fmtTimeline2(a.timeline)+'</div></div>'+
       '<div><div class="dg-label">Status</div><div class="dg-value">'+B(a.status)+'</div></div>'+
       '<div><div class="dg-label">Submitted</div><div class="dg-value">'+fmtDateTime(a.created_at)+'</div></div>'+
+      (a.form_type==='blueprint'?'<div><div class="dg-label">Form Type</div><div class="dg-value"><span class="badge" style="background:rgba(200,164,86,0.15);color:var(--accent);border:1px solid var(--border)">Blueprint Session</span></div></div>':'')+
+      (a.bp_platform?'<div><div class="dg-label">Platform</div><div class="dg-value">'+(a.bp_platform||'—').replace(/_/g,' ')+'</div></div>':'')+
+      (a.bp_deployment?'<div><div class="dg-label">Deployment</div><div class="dg-value">'+(a.bp_deployment||'—').replace(/_/g,' ')+'</div></div>':'')+
+      (a.bp_system_type?'<div><div class="dg-label">System Type</div><div class="dg-value">'+(a.bp_system_type||'—').replace(/_/g,' ')+'</div></div>':'')+
       (a.utm_source?'<div><div class="dg-label">UTM Source</div><div class="dg-value">'+a.utm_source+'</div></div>':'')+
       (a.utm_campaign?'<div><div class="dg-label">UTM Campaign</div><div class="dg-value">'+a.utm_campaign+'</div></div>':'')+
     '</div>'+
+    // Blueprint-specific deep-dive sections
+    (a.bp_time_sink?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Where They Spend the Most Time</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_time_sink+'</p></div>':'')+
+    (a.bp_revenue_driver?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Where They Make the Most Money</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_revenue_driver+'</p></div>':'')+
+    (a.bp_ten_x?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">What Would 10x That</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_ten_x+'</p></div>':'')+
+    (a.bp_core_outcome?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Core Outcome</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_core_outcome+'</p></div>':'')+
+    (a.bp_target_users?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Target Users</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_target_users+'</p></div>':'')+
+    (a.bp_non_negotiables?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Non-Negotiable Features</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_non_negotiables+'</p></div>':'')+
+    (a.bp_mvp_requirements?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">MVP Requirements</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_mvp_requirements+'</p></div>':'')+
+    (a.bp_current_tools?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Current Tools & Software</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_current_tools+'</p></div>':'')+
+    (a.bp_biggest_bottleneck?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Biggest Bottleneck</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_biggest_bottleneck+'</p></div>':'')+
+    // Original public form fields (only show if present and not blueprint)
     (a.q4_core_outcome?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">What They Want to Build</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q4_core_outcome+'</p></div>':'')+
     (a.q9_non_negotiables?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Additional Notes / Must-Haves</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q9_non_negotiables+'</p></div>':'')+
     (a.admin_notes?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Admin Notes</h3><p style="font-size:0.95rem;white-space:pre-wrap">'+a.admin_notes+'</p></div>':'')+
@@ -736,12 +759,13 @@ function showAppDetail(id){
 function generateBuildPrompt(a){
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
   const firstName=a.first_name||'Client';
-  const platform=(a.q7_platform_type||'not specified').replace(/_/g,' ');
-  const appStore=(a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
+  const platform=(a.bp_platform||a.q7_platform_type||'not specified').replace(/_/g,' ');
+  const appStore=(a.bp_deployment||a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
   const budget=fmtBudget(a.budget);
   const timeline=fmtTimeline2(a.timeline);
-  const projectDesc=a.q4_core_outcome||'No description provided';
+  const projectDesc=a.bp_core_outcome||a.q4_core_outcome||'No description provided';
   const notes=a.q9_non_negotiables||'';
+  const isBlueprint=a.form_type==='blueprint';
 
   // Infer primary outcome
   let primaryOutcome='';
@@ -798,7 +822,19 @@ ${a.utm_source?'Source: '+a.utm_source:''}${a.utm_campaign?' / Campaign: '+a.utm
 WHAT THEY WANT TO BUILD:
 ${projectDesc}
 ${notes?'\nMUST-HAVES / ADDITIONAL NOTES:\n'+notes:''}
-
+${isBlueprint?`
+BLUEPRINT SESSION DEEP DIVE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+System Type: ${(a.bp_system_type||'not specified').replace(/_/g,' ')}
+Target Users: ${a.bp_target_users||'Not specified'}
+Time Sink (where they spend most time): ${a.bp_time_sink||'Not specified'}
+Revenue Driver (where they make most money): ${a.bp_revenue_driver||'Not specified'}
+10x Vision (what would multiply their revenue): ${a.bp_ten_x||'Not specified'}
+Non-Negotiable Features: ${a.bp_non_negotiables||'Not specified'}
+MVP Requirements: ${a.bp_mvp_requirements||'Not specified'}
+Current Tools: ${a.bp_current_tools||'Not specified'}
+Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}
+`:''}
 INFERRED PRIMARY OUTCOME: ${primaryOutcome}
 RECOMMENDED TIER: ${recTier}
 
