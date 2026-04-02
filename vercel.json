@@ -25,6 +25,10 @@
       "destination": "/auth.html"
     },
     {
+      "source": "/blueprint",
+      "destination": "/blueprint.html"
+    },
+    {
       "source": "/privacy-policy",
       "destination": "/privacy-policy.html"
     },
