@@ -25,12 +25,12 @@
       "destination": "/auth.html"
     },
     {
-      "source": "/proposal/:slug/pdf",
-      "destination": "/api/proposal/:slug?dl=pdf"
+      "source": "/proposal/:slug",
+      "destination": "/proposal-viewer.html"
     },
     {
-      "source": "/proposal/:slug",
-      "destination": "/api/proposal/:slug"
+      "source": "/proposal/:slug/pdf",
+      "destination": "/proposal-viewer.html"
     }
   ],
   "headers": [
