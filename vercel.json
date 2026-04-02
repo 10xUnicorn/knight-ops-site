@@ -25,6 +25,10 @@
       "destination": "/auth.html"
     },
     {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy.html"
+    },
+    {
       "source": "/proposal/:slug",
       "destination": "/proposal-viewer.html"
     },
