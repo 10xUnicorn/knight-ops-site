@@ -397,8 +397,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludeWeb" checked> 🌐 Website Link</label>
           <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludePdf"> 📎 PDF Attachment Link</label>
           <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludeStripe"> 💳 Stripe Payment Link</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludeInvoice"> 🧾 Attach Invoice</label>
         </div>
         <input type="text" id="sendStripeUrl" placeholder="Stripe payment URL (optional)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.8rem;margin-top:8px;display:none">
+        <div id="sendInvoiceSelect" style="display:none;margin-top:8px">
+          <select id="sendInvoiceId" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.8rem">
+            <option value="">— Select an Invoice —</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="modal-foot" style="display:flex;justify-content:flex-end;gap:8px">
@@ -1763,7 +1769,7 @@ function renderExistingProposal(a,p){
   actEl.innerHTML=
     '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:'+statusColor+'22;color:'+statusColor+';border:1px solid '+statusColor+'44;margin-right:8px">'+p.status.toUpperCase()+'</span>'+
     '<button class="btn btn-sm btn-secondary" onclick="copyProposalUrl(\''+p.slug+'\')">🔗 Copy Link</button> '+
-    (p.status==='draft'||p.status==='sent'?'<button class="btn btn-sm btn-primary" onclick="sendProposalEmail(\''+p.id+'\',\''+a.id+'\')">✉️ Send Proposal</button> ':'')+
+    '<button class="btn btn-sm btn-primary" onclick="sendProposalEmail(\''+p.id+'\',\''+a.id+'\')">✉️ Send Proposal</button> '+
     '<button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProposal(\''+p.id+'\',\''+a.id+'\')">🗑️</button>';
 
   // Body
@@ -1928,6 +1934,21 @@ team@knightops.biz`;
     document.getElementById('sendStripeUrl').style.display='block';
   }
 
+  // Invoice attachment setup
+  document.getElementById('sendIncludeInvoice').checked=false;
+  document.getElementById('sendInvoiceSelect').style.display='none';
+  document.getElementById('sendIncludeInvoice').onchange=function(){
+    document.getElementById('sendInvoiceSelect').style.display=this.checked?'block':'none';
+  };
+  // Populate invoice dropdown
+  const invSelect=document.getElementById('sendInvoiceId');
+  invSelect.innerHTML='<option value="">— Select an Invoice —</option>';
+  (S.invoices||[]).forEach(inv=>{
+    const cname=inv.clients?.profiles?.full_name||inv.bill_to_name||'';
+    const label=inv.invoice_number+' — '+(inv.title||cname||'Untitled')+' ('+fmtMoney(inv.total)+')';
+    invSelect.innerHTML+='<option value="'+inv.id+'">'+label+'</option>';
+  });
+
   document.getElementById('sendProposalModal').classList.add('active');
 }
 
@@ -1945,28 +1966,41 @@ async function executeSendProposal(){
   const includePdf=document.getElementById('sendIncludePdf').checked;
   const includeStripe=document.getElementById('sendIncludeStripe').checked;
   const stripeUrl=document.getElementById('sendStripeUrl').value.trim();
+  const includeInvoice=document.getElementById('sendIncludeInvoice').checked;
+  const invoiceId=document.getElementById('sendInvoiceId').value;
 
   if(!recipients.length){showToast('Add at least one recipient','error');return;}
   if(!message){showToast('Enter a message','error');return;}
+  if(includeInvoice&&!invoiceId){showToast('Select an invoice to attach','error');return;}
 
   document.getElementById('sendProposalBtn').disabled=true;
   document.getElementById('sendProposalBtn').textContent='Sending…';
   showToast('Sending proposal email…');
 
   try{
+    const payload={
+      proposal_id:proposalId,
+      recipients:recipients,
+      subject:subject,
+      message:message,
+      include_web:includeWeb,
+      include_pdf:includePdf,
+      include_stripe:includeStripe,
+      stripe_url:stripeUrl
+    };
+    if(includeInvoice&&invoiceId){
+      const inv=S.invoices.find(x=>x.id===invoiceId);
+      payload.include_invoice=true;
+      payload.invoice_id=invoiceId;
+      payload.invoice_number=inv?.invoice_number||'';
+      payload.invoice_total=inv?.total||0;
+      payload.invoice_due_date=inv?.due_date||'';
+      payload.invoice_stripe_link=inv?.stripe_payment_link||'';
+    }
     const res=await fetch(PROPOSAL_EDGE+'/send-proposal',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        proposal_id:proposalId,
-        recipients:recipients,
-        subject:subject,
-        message:message,
-        include_web:includeWeb,
-        include_pdf:includePdf,
-        include_stripe:includeStripe,
-        stripe_url:stripeUrl
-      })
+      body:JSON.stringify(payload)
     });
     const result=await res.json();
     if(!res.ok)throw new Error(result.error||'Send failed');
