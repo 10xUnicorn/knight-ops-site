@@ -165,6 +165,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
+      <div class="nav-item" data-view="careers"><span class="icon">&#9733;</span> Careers</div>
+      <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
     </nav>
     <div class="sidebar-footer">
@@ -219,6 +221,56 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
       <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
+
+      <!-- ═══ CAREERS VIEW ═══ -->
+      <div class="view" id="v-careers">
+        <div id="careersMain">
+          <!-- Sub-tabs: Roles | Jobs | Applications -->
+          <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border)">
+            <button class="career-tab active" onclick="switchCareerTab(this,'careersRolesPanel')" style="padding:10px 20px;background:none;border:none;color:var(--accent);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-2px">Roles</button>
+            <button class="career-tab" onclick="switchCareerTab(this,'careersJobsPanel')" style="padding:10px 20px;background:none;border:none;color:var(--text-muted);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Job Postings</button>
+            <button class="career-tab" onclick="switchCareerTab(this,'careersAppsPanel')" style="padding:10px 20px;background:none;border:none;color:var(--text-muted);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Applications</button>
+          </div>
+          <!-- Roles Panel -->
+          <div class="career-panel active" id="careersRolesPanel">
+            <div class="table-card"><div class="table-header"><h2>Career Roles</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editCareerRole()">+ Add Role</button></div></div><div id="rolesTable"></div></div>
+          </div>
+          <!-- Jobs Panel -->
+          <div class="career-panel" id="careersJobsPanel" style="display:none">
+            <div class="kpi-grid" id="jobKpis"></div>
+            <div class="table-card"><div class="table-header"><h2>Job Postings</h2><div class="table-filters"><select id="jobStatusFilter" onchange="renderJobPostings()"><option value="">All</option><option value="draft">Draft</option><option value="open">Open</option><option value="closed">Closed</option><option value="filled">Filled</option></select><button class="btn btn-primary btn-sm" onclick="editJobPosting()">+ New Job</button></div></div><div id="jobsTable"></div></div>
+          </div>
+          <!-- Applications Panel -->
+          <div class="career-panel" id="careersAppsPanel" style="display:none">
+            <div class="kpi-grid" id="jobAppKpis"></div>
+            <div class="table-card"><div class="table-header"><h2>Job Applications</h2><div class="table-filters"><select id="jobAppStatusFilter" onchange="renderJobApplications()"><option value="">All</option><option value="submitted">Submitted</option><option value="reviewing">Reviewing</option><option value="interview">Interview</option><option value="offered">Offered</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><select id="jobAppJobFilter" onchange="renderJobApplications()"><option value="">All Jobs</option></select><input type="text" placeholder="Search..." id="jobAppSearch" oninput="renderJobApplications()"></div></div><div id="jobAppsTable"></div></div>
+          </div>
+          <div id="jobAppDetailView" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- ═══ EDUCATION VIEW ═══ -->
+      <div class="view" id="v-education">
+        <div id="educationMain">
+          <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border)">
+            <button class="edu-tab active" onclick="switchEduTab(this,'eduCoursesPanel')" style="padding:10px 20px;background:none;border:none;color:var(--accent);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-2px">Courses</button>
+            <button class="edu-tab" onclick="switchEduTab(this,'eduResourcesPanel')" style="padding:10px 20px;background:none;border:none;color:var(--text-muted);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Training Resources</button>
+            <button class="edu-tab" onclick="switchEduTab(this,'eduEmployeesPanel')" style="padding:10px 20px;background:none;border:none;color:var(--text-muted);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Employees</button>
+          </div>
+          <div class="edu-panel active" id="eduCoursesPanel">
+            <div class="table-card"><div class="table-header"><h2>Training Courses</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editCourse()">+ New Course</button></div></div><div id="coursesTable"></div></div>
+          </div>
+          <div class="edu-panel" id="eduResourcesPanel" style="display:none">
+            <div class="table-card"><div class="table-header"><h2>Training Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editTrainingResource()">+ Add Resource</button></div></div><div id="trainingResourcesTable"></div></div>
+          </div>
+          <div class="edu-panel" id="eduEmployeesPanel" style="display:none">
+            <div class="table-card"><div class="table-header"><h2>Employees &amp; Access</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEmployee()">+ Add Employee</button></div></div><div id="employeesTable"></div></div>
+          </div>
+          <div id="courseDetailView" style="display:none"></div>
+          <div id="employeeDetailView" style="display:none"></div>
+        </div>
+      </div>
+
       <div class="view" id="v-applications">
         <div id="appsListView">
           <div class="kpi-grid" id="appKpis"></div>
@@ -312,7 +364,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -322,7 +374,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees()]);
   loadDashboard();
 })();
 
@@ -1947,6 +1999,451 @@ async function saveApplication(id){
   showToast(id?'Application updated!':'Application added!');closeEditModal();
   await loadApplications();
   if(!id)loadDashboard();
+}
+
+// ═══════════════════════════════════════════════
+// CAREERS SYSTEM
+// ═══════════════════════════════════════════════
+const EMPLOYMENT_OPTS=[{v:'full_time',l:'Full-Time'},{v:'part_time',l:'Part-Time'},{v:'contract',l:'Contract'},{v:'internship',l:'Internship'},{v:'freelance',l:'Freelance'}];
+const JOB_STATUS_OPTS=[{v:'draft',l:'Draft'},{v:'open',l:'Open'},{v:'closed',l:'Closed'},{v:'filled',l:'Filled'},{v:'archived',l:'Archived'}];
+const JOB_APP_STATUS_OPTS=[{v:'submitted',l:'Submitted'},{v:'reviewing',l:'Reviewing'},{v:'interview',l:'Interview'},{v:'offered',l:'Offered'},{v:'approved',l:'Approved'},{v:'rejected',l:'Rejected'},{v:'withdrawn',l:'Withdrawn'}];
+const FIELD_TYPE_OPTS=[{v:'single_line',l:'Single Line'},{v:'textarea',l:'Multi-Line Text'},{v:'multi_select',l:'Multi Select'},{v:'radio',l:'Radio Buttons'},{v:'dropdown',l:'Dropdown'},{v:'checklist',l:'Checklist'},{v:'attachment',l:'File Attachment'},{v:'number',l:'Number'},{v:'date',l:'Date'},{v:'email',l:'Email'},{v:'url',l:'URL'}];
+const DIFFICULTY_OPTS=[{v:'beginner',l:'Beginner'},{v:'intermediate',l:'Intermediate'},{v:'advanced',l:'Advanced'}];
+const VISIBILITY_OPTS=[{v:'global',l:'Everyone'},{v:'role',l:'Role-Based'},{v:'individual',l:'Individual'}];
+
+function switchCareerTab(btn,panelId){
+  document.querySelectorAll('.career-tab').forEach(t=>{t.style.color='var(--text-muted)';t.style.borderBottomColor='transparent';});
+  btn.style.color='var(--accent)';btn.style.borderBottomColor='var(--accent)';
+  document.querySelectorAll('.career-panel').forEach(p=>p.style.display='none');
+  document.getElementById(panelId).style.display='block';
+  document.getElementById('jobAppDetailView').style.display='none';
+}
+function switchEduTab(btn,panelId){
+  document.querySelectorAll('.edu-tab').forEach(t=>{t.style.color='var(--text-muted)';t.style.borderBottomColor='transparent';});
+  btn.style.color='var(--accent)';btn.style.borderBottomColor='var(--accent)';
+  document.querySelectorAll('.edu-panel').forEach(p=>p.style.display='none');
+  document.getElementById(panelId).style.display='block';
+  document.getElementById('courseDetailView').style.display='none';
+  document.getElementById('employeeDetailView').style.display='none';
+}
+
+// ─── CAREER ROLES ───
+async function loadCareerRoles(){const{data}=await sb.from('career_roles').select('*').order('title');S.careerRoles=data||[];renderCareerRoles();}
+function renderCareerRoles(){
+  const r=S.careerRoles;
+  document.getElementById('rolesTable').innerHTML='<table><thead><tr><th>Title</th><th>Department</th><th>Active</th><th>Actions</th></tr></thead><tbody>'+(r.length?r.map(x=>'<tr><td style="font-weight:600">'+x.title+'</td><td>'+(x.department||'—')+'</td><td>'+(x.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-error">Inactive</span>')+'</td><td><button class="btn btn-sm btn-secondary" onclick="editCareerRole(\''+x.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="4" class="table-empty">No roles yet</td></tr>')+'</tbody></table>';
+}
+function editCareerRole(id){
+  const r=id?S.careerRoles.find(x=>x.id===id):null;
+  const body=FG('Role Title *','e_rtitle','text',r?.title)+FG('Department','e_rdept','text',r?.department)+FG('Description','e_rdesc','textarea',r?.description)+FG('Active','e_ractive','checkbox',r?.is_active!==false);
+  openEditModal(r?'Edit Role':'Add Role',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveCareerRole('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveCareerRole(id){
+  const obj={title:document.getElementById('e_rtitle').value,department:document.getElementById('e_rdept').value||null,description:document.getElementById('e_rdesc').value||null,is_active:document.getElementById('e_ractive').checked};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('career_roles').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('career_roles').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Role updated!':'Role saved!');closeEditModal();await loadCareerRoles();
+}
+
+// ─── JOB POSTINGS ───
+async function loadJobPostings(){
+  const{data}=await sb.from('job_postings').select('*,career_roles(title)').order('created_at',{ascending:false});
+  S.jobPostings=data||[];
+  renderJobPostings();
+  // Populate job filter in applications tab
+  const sel=document.getElementById('jobAppJobFilter');
+  if(sel)sel.innerHTML='<option value="">All Jobs</option>'+S.jobPostings.map(j=>'<option value="'+j.id+'">'+j.title+'</option>').join('');
+}
+function renderJobPostings(){
+  const st=document.getElementById('jobStatusFilter')?.value||'';
+  const f=S.jobPostings.filter(j=>!st||j.status===st);
+  const open=S.jobPostings.filter(j=>j.status==='open').length;
+  const total=S.jobPostings.length;
+  const apps=(S.jobApplications||[]).length;
+  document.getElementById('jobKpis').innerHTML='<div class="kpi"><div class="label">Total Postings</div><div class="value">'+total+'</div></div><div class="kpi"><div class="label">Open Now</div><div class="value" style="color:var(--success)">'+open+'</div></div><div class="kpi"><div class="label">Total Applicants</div><div class="value">'+apps+'</div></div>';
+  document.getElementById('jobsTable').innerHTML='<table><thead><tr><th>Title</th><th>Role</th><th>Type</th><th>Location</th><th>Status</th><th>Open</th><th>Close</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(j=>'<tr><td style="font-weight:600">'+j.title+'</td><td>'+(j.career_roles?.title||'—')+'</td><td>'+B(j.employment_type)+'</td><td>'+(j.location||'Remote')+'</td><td>'+B(j.status)+'</td><td>'+fmtDate(j.open_date)+'</td><td>'+fmtDate(j.close_date)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editJobPosting(\''+j.id+'\')">Edit</button> <button class="btn btn-sm btn-secondary" onclick="manageJobFields(\''+j.id+'\')">Fields</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No job postings</td></tr>')+'</tbody></table>';
+}
+function roleOptions(sel){return '<option value="">No Role</option>'+S.careerRoles.map(r=>'<option value="'+r.id+'"'+(r.id===sel?' selected':'')+'>'+r.title+'</option>').join('');}
+function editJobPosting(id){
+  const j=id?S.jobPostings.find(x=>x.id===id):null;
+  const body='<div class="form-group"><label>Role</label><select id="e_jrole" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem">'+roleOptions(j?.role_id)+'</select></div>'+
+    FG('Job Title *','e_jtitle','text',j?.title)+FG('Description','e_jdesc','textarea',j?.description)+
+    FR(FG('Employment Type','e_jtype','select',j?.employment_type||'full_time',EMPLOYMENT_OPTS),FG('Location','e_jloc','text',j?.location||'Remote'))+
+    FG('Requirements','e_jreq','textarea',j?.requirements)+FG('Responsibilities','e_jresp','textarea',j?.responsibilities)+
+    FR(FG('Compensation','e_jcomp','text',j?.compensation),FG('Benefits','e_jben','text',j?.benefits))+
+    FR(FG('Open Date','e_jopen','date',j?.open_date),FG('Close Date','e_jclose','date',j?.close_date))+
+    FR(FG('Status','e_jstatus','select',j?.status||'draft',JOB_STATUS_OPTS),FG('Featured','e_jfeat','checkbox',j?.is_featured));
+  openEditModal(j?'Edit Job Posting':'New Job Posting',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveJobPosting('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveJobPosting(id){
+  const obj={role_id:document.getElementById('e_jrole').value||null,title:document.getElementById('e_jtitle').value,description:document.getElementById('e_jdesc').value||null,employment_type:document.getElementById('e_jtype').value,location:document.getElementById('e_jloc').value||'Remote',requirements:document.getElementById('e_jreq').value||null,responsibilities:document.getElementById('e_jresp').value||null,compensation:document.getElementById('e_jcomp').value||null,benefits:document.getElementById('e_jben').value||null,open_date:document.getElementById('e_jopen').value||null,close_date:document.getElementById('e_jclose').value||null,status:document.getElementById('e_jstatus').value,is_featured:document.getElementById('e_jfeat').checked};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('job_postings').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('job_postings').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Job updated!':'Job posted!');closeEditModal();await loadJobPostings();
+}
+
+// ─── CUSTOM FIELDS MANAGER ───
+async function manageJobFields(jobId){
+  const{data}=await sb.from('job_custom_fields').select('*').eq('job_id',jobId).order('sort_order');
+  const fields=data||[];
+  const job=S.jobPostings.find(j=>j.id===jobId);
+  let body='<h3 style="margin-bottom:1rem">Custom Fields for: '+job.title+'</h3>';
+  body+='<div id="cfList">';
+  if(fields.length){
+    fields.forEach((f,i)=>{
+      body+='<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center"><div><strong>'+f.label+'</strong> <span class="badge badge-info">'+f.field_type+'</span>'+(f.is_required?' <span class="badge badge-warning">Required</span>':'')+(f.options&&f.options.length?' <span style="font-size:.75rem;color:var(--text-muted)">Options: '+f.options.join(', ')+'</span>':'')+'</div><div style="display:flex;gap:4px"><button class="btn btn-sm btn-secondary" onclick="editCustomField(\''+f.id+'\',\''+jobId+'\')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteCustomField(\''+f.id+'\',\''+jobId+'\')">×</button></div></div>';
+    });
+  }else{body+='<p style="color:var(--text-muted);font-size:.85rem">No custom fields yet. Add fields below.</p>';}
+  body+='</div><hr style="border-color:var(--border);margin:1rem 0"><h4 style="margin-bottom:.75rem">Add New Field</h4>';
+  body+=FG('Label *','cf_label','text','')+FR(FG('Type','cf_type','select','single_line',FIELD_TYPE_OPTS),FG('Required','cf_req','checkbox',false))+'<div class="form-group" id="cfOptionsWrap" style="display:none"><label>Options (comma-separated)</label><input id="cf_options" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem" placeholder="Option 1, Option 2, Option 3"></div>'+FG('Sort Order','cf_sort','number',fields.length);
+  openEditModal('Manage Custom Fields',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="addCustomField(\''+jobId+'\')">Add Field</button>');
+  setTimeout(()=>{
+    const typeEl=document.getElementById('cf_type');
+    if(typeEl)typeEl.addEventListener('change',function(){
+      const needsOpts=['multi_select','radio','dropdown','checklist'].includes(this.value);
+      document.getElementById('cfOptionsWrap').style.display=needsOpts?'block':'none';
+    });
+  },50);
+}
+async function addCustomField(jobId){
+  const label=document.getElementById('cf_label').value;
+  if(!label){showToast('Label required','error');return;}
+  const ft=document.getElementById('cf_type').value;
+  const opts=(document.getElementById('cf_options').value||'').split(',').map(o=>o.trim()).filter(Boolean);
+  const{error}=await sb.from('job_custom_fields').insert([{job_id:jobId,label:label,field_type:ft,options:opts.length?opts:[],is_required:document.getElementById('cf_req').checked,sort_order:parseInt(document.getElementById('cf_sort').value)||0}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Field added!');closeEditModal();manageJobFields(jobId);
+}
+function editCustomField(fieldId,jobId){
+  sb.from('job_custom_fields').select('*').eq('id',fieldId).single().then(({data:f})=>{
+    if(!f)return;
+    const body=FG('Label *','cf_label','text',f.label)+FR(FG('Type','cf_type','select',f.field_type,FIELD_TYPE_OPTS),FG('Required','cf_req','checkbox',f.is_required))+'<div class="form-group"><label>Options (comma-separated)</label><input id="cf_options" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem" value="'+(f.options||[]).join(', ')+'"></div>'+FG('Sort Order','cf_sort','number',f.sort_order);
+    openEditModal('Edit Field',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="updateCustomField(\''+fieldId+'\',\''+jobId+'\')">Save</button>');
+  });
+}
+async function updateCustomField(fieldId,jobId){
+  const opts=(document.getElementById('cf_options').value||'').split(',').map(o=>o.trim()).filter(Boolean);
+  const{error}=await sb.from('job_custom_fields').update({label:document.getElementById('cf_label').value,field_type:document.getElementById('cf_type').value,options:opts,is_required:document.getElementById('cf_req').checked,sort_order:parseInt(document.getElementById('cf_sort').value)||0}).eq('id',fieldId);
+  if(error){showToast('Error','error');return;}
+  showToast('Field updated!');closeEditModal();manageJobFields(jobId);
+}
+async function deleteCustomField(fieldId,jobId){
+  if(!confirm('Delete this field?'))return;
+  await sb.from('job_custom_fields').delete().eq('id',fieldId);
+  showToast('Field removed');manageJobFields(jobId);
+}
+
+// ─── JOB APPLICATIONS ───
+async function loadJobApplications(){
+  const{data}=await sb.from('job_applications').select('*,job_postings(title)').order('submitted_at',{ascending:false});
+  S.jobApplications=data||[];renderJobApplications();
+}
+function renderJobApplications(){
+  const st=document.getElementById('jobAppStatusFilter')?.value||'';
+  const jf=document.getElementById('jobAppJobFilter')?.value||'';
+  const q=(document.getElementById('jobAppSearch')?.value||'').toLowerCase();
+  const f=S.jobApplications.filter(a=>(!st||a.status===st)&&(!jf||a.job_id===jf)&&(!q||(a.first_name+' '+a.last_name+' '+a.email).toLowerCase().includes(q)));
+  const sub=S.jobApplications.filter(a=>a.status==='submitted').length;
+  const rev=S.jobApplications.filter(a=>a.status==='reviewing').length;
+  const appr=S.jobApplications.filter(a=>a.status==='approved').length;
+  document.getElementById('jobAppKpis').innerHTML='<div class="kpi"><div class="label">Total Applications</div><div class="value">'+S.jobApplications.length+'</div></div><div class="kpi"><div class="label">New / Submitted</div><div class="value" style="color:var(--info)">'+sub+'</div></div><div class="kpi"><div class="label">In Review</div><div class="value" style="color:var(--warning)">'+rev+'</div></div><div class="kpi"><div class="label">Approved</div><div class="value" style="color:var(--success)">'+appr+'</div></div>';
+  document.getElementById('jobAppsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Job</th><th>Status</th><th>Rating</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(a=>'<tr class="clickable" onclick="showJobAppDetail(\''+a.id+'\')"><td style="font-weight:600">'+a.first_name+' '+a.last_name+'</td><td>'+a.email+'</td><td>'+(a.job_postings?.title||'—')+'</td><td>'+B(a.status)+'</td><td>'+(a.rating?'★'.repeat(a.rating):'—')+'</td><td>'+fmtDate(a.submitted_at)+'</td><td onclick="event.stopPropagation()"><select onchange="updateJobAppStatus(\''+a.id+'\',this.value)" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:.78rem">'+JOB_APP_STATUS_OPTS.map(o=>'<option value="'+o.v+'"'+(o.v===a.status?' selected':'')+'>'+o.l+'</option>').join('')+'</select></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No applications</td></tr>')+'</tbody></table>';
+}
+async function updateJobAppStatus(appId,status){
+  const{error}=await sb.from('job_applications').update({status:status}).eq('id',appId);
+  if(error){showToast('Error','error');return;}
+  showToast('Status updated!');
+  // If approved, auto-create employee and grant role access
+  if(status==='approved'){
+    const app=S.jobApplications.find(a=>a.id===appId);
+    if(app){
+      const job=S.jobPostings.find(j=>j.id===app.job_id);
+      const roleId=job?.role_id||null;
+      // Check if employee already exists
+      const{data:existing}=await sb.from('employee_access').select('id').eq('email',app.email).limit(1);
+      if(!existing?.length){
+        const{data:emp,error:empErr}=await sb.from('employee_access').insert([{application_id:appId,email:app.email,name:app.first_name+' '+app.last_name,role_id:roleId}]).select().single();
+        if(!empErr&&emp&&roleId){
+          // Grant role courses
+          const{data:rc}=await sb.from('role_courses').select('course_id').eq('role_id',roleId);
+          if(rc?.length){
+            await sb.from('employee_course_access').insert(rc.map(r=>({employee_id:emp.id,course_id:r.course_id,source:'role'})));
+          }
+          // Grant role resources
+          const{data:rr}=await sb.from('role_resources').select('resource_id').eq('role_id',roleId);
+          if(rr?.length){
+            await sb.from('employee_resource_access').insert(rr.map(r=>({employee_id:emp.id,resource_id:r.resource_id,source:'role'})));
+          }
+          showToast('Employee created with role access!');
+        }
+      }else{showToast('Employee record already exists for this email');}
+    }
+  }
+  await loadJobApplications();await loadEmployees();
+}
+async function showJobAppDetail(id){
+  const a=S.jobApplications.find(x=>x.id===id);if(!a)return;
+  document.querySelectorAll('.career-panel').forEach(p=>p.style.display='none');
+  const dv=document.getElementById('jobAppDetailView');dv.style.display='block';
+  // Fetch custom fields for this job
+  const{data:fields}=await sb.from('job_custom_fields').select('*').eq('job_id',a.job_id).order('sort_order');
+  const customAnswers=a.custom_answers||{};
+  let html='<div class="detail-back" onclick="document.getElementById(\'jobAppDetailView\').style.display=\'none\';document.querySelectorAll(\'.career-panel\')[2].style.display=\'block\'">&#8592; Back to Applications</div>';
+  html+='<div class="detail-header"><h2>'+a.first_name+' '+a.last_name+'</h2><div style="display:flex;gap:6px"><select onchange="updateJobAppStatus(\''+a.id+'\',this.value)" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:.85rem">'+JOB_APP_STATUS_OPTS.map(o=>'<option value="'+o.v+'"'+(o.v===a.status?' selected':'')+'>'+o.l+'</option>').join('')+'</select></div></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+a.email+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(a.phone||'—')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value">'+(a.location||'—')+'</div></div><div><div class="dg-label">Job</div><div class="dg-value">'+(a.job_postings?.title||'—')+'</div></div><div><div class="dg-label">Experience</div><div class="dg-value">'+(a.years_experience?a.years_experience+' years':'—')+'</div></div><div><div class="dg-label">Education</div><div class="dg-value">'+(a.education||'—')+'</div></div></div>';
+  if(a.resume_url)html+='<p style="margin:1rem 0"><a href="'+a.resume_url+'" target="_blank" class="btn btn-sm btn-secondary">View Resume</a></p>';
+  if(a.cover_letter)html+='<div class="table-card" style="padding:1rem;margin:1rem 0"><h4 style="font-size:.85rem;margin-bottom:.5rem">Cover Letter</h4><p style="font-size:.85rem;white-space:pre-wrap">'+a.cover_letter+'</p></div>';
+  if(a.linkedin_url||a.portfolio_url){
+    html+='<div style="display:flex;gap:8px;margin:1rem 0">';
+    if(a.linkedin_url)html+='<a href="'+a.linkedin_url+'" target="_blank" class="btn btn-sm btn-secondary">LinkedIn</a>';
+    if(a.portfolio_url)html+='<a href="'+a.portfolio_url+'" target="_blank" class="btn btn-sm btn-secondary">Portfolio</a>';
+    html+='</div>';
+  }
+  // Custom fields answers
+  if(fields?.length){
+    html+='<div class="table-card" style="padding:1rem;margin:1rem 0"><h4 style="font-size:.85rem;margin-bottom:.75rem">Custom Responses</h4>';
+    fields.forEach(f=>{
+      const answer=customAnswers[f.id]||'—';
+      const displayVal=Array.isArray(answer)?answer.join(', '):answer;
+      html+='<div style="margin-bottom:.75rem"><div style="font-size:.75rem;color:var(--text-muted)">'+f.label+'</div><div style="font-size:.85rem;font-weight:500">'+(typeof displayVal==='string'&&displayVal.startsWith('http')&&f.field_type==='attachment'?'<a href="'+displayVal+'" target="_blank">Download</a>':displayVal)+'</div></div>';
+    });
+    html+='</div>';
+  }
+  // Notes & Rating
+  html+='<div style="margin-top:1rem;display:flex;gap:1rem;align-items:start"><div class="form-group" style="flex:1"><label>Internal Notes</label><textarea id="jaNote" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.85rem">'+(a.notes||'')+'</textarea></div><div class="form-group"><label>Rating</label><select id="jaRating" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px"><option value="">—</option><option value="1"'+(a.rating===1?' selected':'')+'>★</option><option value="2"'+(a.rating===2?' selected':'')+'>★★</option><option value="3"'+(a.rating===3?' selected':'')+'>★★★</option><option value="4"'+(a.rating===4?' selected':'')+'>★★★★</option><option value="5"'+(a.rating===5?' selected':'')+'>★★★★★</option></select></div></div>';
+  html+='<button class="btn btn-primary" onclick="saveJobAppNotes(\''+a.id+'\')">Save Notes & Rating</button>';
+  dv.innerHTML=html;
+}
+async function saveJobAppNotes(id){
+  const notes=document.getElementById('jaNote').value||null;
+  const rating=parseInt(document.getElementById('jaRating').value)||null;
+  const{error}=await sb.from('job_applications').update({notes:notes,rating:rating,reviewed_by:currentUser?.id}).eq('id',id);
+  if(error){showToast('Error','error');return;}
+  showToast('Saved!');await loadJobApplications();
+}
+
+// ═══════════════════════════════════════════════
+// EDUCATION / TRAINING SYSTEM
+// ═══════════════════════════════════════════════
+async function loadCourses(){
+  const{data}=await sb.from('training_courses').select('*').order('sort_order');S.courses=data||[];renderCourses();
+}
+function renderCourses(){
+  const c=S.courses;
+  document.getElementById('coursesTable').innerHTML='<table><thead><tr><th>Title</th><th>Category</th><th>Difficulty</th><th>Hours</th><th>Published</th><th>Actions</th></tr></thead><tbody>'+(c.length?c.map(x=>'<tr class="clickable" onclick="showCourseDetail(\''+x.id+'\')"><td style="font-weight:600">'+x.title+'</td><td>'+(x.category||'—')+'</td><td>'+B(x.difficulty)+'</td><td>'+(x.estimated_hours||'—')+'</td><td>'+(x.is_published?'<span class="badge badge-success">Published</span>':'<span class="badge badge-warning">Draft</span>')+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editCourse(\''+x.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No courses yet</td></tr>')+'</tbody></table>';
+}
+function editCourse(id){
+  const c=id?S.courses.find(x=>x.id===id):null;
+  const body=FG('Course Title *','e_ctitle','text',c?.title)+FG('Description','e_cdesc','textarea',c?.description)+FR(FG('Category','e_ccat','text',c?.category),FG('Difficulty','e_cdiff','select',c?.difficulty||'beginner',DIFFICULTY_OPTS))+FR(FG('Estimated Hours','e_chrs','number',c?.estimated_hours),FG('Sort Order','e_csort','number',c?.sort_order||0))+FG('Thumbnail URL','e_cthumb','url',c?.thumbnail_url)+FG('Published','e_cpub','checkbox',c?.is_published);
+  openEditModal(c?'Edit Course':'New Course',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveCourse('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveCourse(id){
+  const obj={title:document.getElementById('e_ctitle').value,description:document.getElementById('e_cdesc').value||null,category:document.getElementById('e_ccat').value||null,difficulty:document.getElementById('e_cdiff').value,estimated_hours:parseFloat(document.getElementById('e_chrs').value)||null,sort_order:parseInt(document.getElementById('e_csort').value)||0,thumbnail_url:document.getElementById('e_cthumb').value||null,is_published:document.getElementById('e_cpub').checked};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('training_courses').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('training_courses').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Course updated!':'Course created!');closeEditModal();await loadCourses();
+}
+async function showCourseDetail(id){
+  const c=S.courses.find(x=>x.id===id);if(!c)return;
+  document.querySelectorAll('.edu-panel').forEach(p=>p.style.display='none');
+  const dv=document.getElementById('courseDetailView');dv.style.display='block';
+  const[{data:modules},{data:resources},{data:roleCourses}]=await Promise.all([
+    sb.from('training_modules').select('*').eq('course_id',id).order('sort_order'),
+    sb.from('training_resources').select('*').eq('course_id',id).order('created_at',{ascending:false}),
+    sb.from('role_courses').select('*,career_roles(title)').eq('course_id',id)
+  ]);
+  let html='<div class="detail-back" onclick="document.getElementById(\'courseDetailView\').style.display=\'none\';document.querySelectorAll(\'.edu-panel\')[0].style.display=\'block\'">&#8592; Back to Courses</div>';
+  html+='<div class="detail-header"><h2>'+c.title+'</h2><div style="display:flex;gap:6px"><button class="btn btn-sm btn-secondary" onclick="editCourse(\''+c.id+'\')">Edit</button>'+(c.is_published?'<span class="badge badge-success">Published</span>':'<span class="badge badge-warning">Draft</span>')+'</div></div>';
+  if(c.description)html+='<p style="margin-bottom:1rem;font-size:.9rem;color:var(--text-muted)">'+c.description+'</p>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Category</div><div class="dg-value">'+(c.category||'—')+'</div></div><div><div class="dg-label">Difficulty</div><div class="dg-value">'+B(c.difficulty)+'</div></div><div><div class="dg-label">Est. Hours</div><div class="dg-value">'+(c.estimated_hours||'—')+'</div></div></div>';
+
+  // Assigned Roles
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Assigned Roles</h2><div style="display:flex;gap:6px;align-items:center"><select id="addRoleToCourse" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:.82rem"><option value="">Select role...</option>'+S.careerRoles.filter(r=>!(roleCourses||[]).find(rc=>rc.role_id===r.id)).map(r=>'<option value="'+r.id+'">'+r.title+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="assignRoleToCourse(\''+id+'\')">Assign</button></div></div>';
+  if(roleCourses?.length){
+    html+='<table><thead><tr><th>Role</th><th>Required</th><th>Actions</th></tr></thead><tbody>'+roleCourses.map(rc=>'<tr><td>'+rc.career_roles?.title+'</td><td>'+(rc.is_required?'Yes':'No')+'</td><td><button class="btn btn-sm btn-danger" onclick="removeRoleCourse(\''+rc.id+'\',\''+id+'\')">Remove</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No roles assigned</p>';}
+  html+='</div>';
+
+  // Modules
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Modules</h2><button class="btn btn-primary btn-sm" onclick="editModule(null,\''+id+'\')">+ Add Module</button></div>';
+  if(modules?.length){
+    html+='<table><thead><tr><th>Order</th><th>Title</th><th>Video</th><th>Duration</th><th>Actions</th></tr></thead><tbody>'+modules.map(m=>'<tr><td>'+m.sort_order+'</td><td style="font-weight:600">'+m.title+'</td><td>'+(m.video_url?'<a href="'+m.video_url+'" target="_blank">Watch</a>':'—')+'</td><td>'+(m.duration_minutes?m.duration_minutes+' min':'—')+'</td><td><button class="btn btn-sm btn-secondary" onclick="editModule(\''+m.id+'\',\''+id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteModule(\''+m.id+'\',\''+id+'\')">×</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No modules yet</p>';}
+  html+='</div>';
+
+  // Resources
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Course Resources</h2><button class="btn btn-primary btn-sm" onclick="editTrainingResource(null,\''+id+'\')">+ Add Resource</button></div>';
+  if(resources?.length){
+    html+='<table><thead><tr><th>Title</th><th>Type</th><th>Visibility</th><th>Actions</th></tr></thead><tbody>'+resources.map(r=>'<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+B(r.type)+'</td><td>'+B(r.visibility)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editTrainingResource(\''+r.id+'\')">Edit</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No resources</p>';}
+  html+='</div>';
+  dv.innerHTML=html;
+}
+async function assignRoleToCourse(courseId){
+  const roleId=document.getElementById('addRoleToCourse')?.value;
+  if(!roleId){showToast('Select a role','error');return;}
+  const{error}=await sb.from('role_courses').insert([{role_id:roleId,course_id:courseId}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Role assigned!');showCourseDetail(courseId);
+}
+async function removeRoleCourse(rcId,courseId){
+  await sb.from('role_courses').delete().eq('id',rcId);
+  showToast('Role removed');showCourseDetail(courseId);
+}
+
+// ─── MODULES ───
+function editModule(id,courseId){
+  if(id){
+    sb.from('training_modules').select('*').eq('id',id).single().then(({data:m})=>{
+      if(!m)return;
+      const body=FG('Title *','e_mtitle','text',m.title)+FG('Description','e_mdesc','textarea',m.description)+FG('Video URL','e_mvid','url',m.video_url)+FG('Content (HTML)','e_mcontent','textarea',m.content_html)+FR(FG('Duration (min)','e_mdur','number',m.duration_minutes),FG('Sort Order','e_msort','number',m.sort_order));
+      openEditModal('Edit Module',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveModule(\''+id+'\',\''+courseId+'\')">Save</button>');
+    });
+  }else{
+    const body=FG('Title *','e_mtitle','text','')+FG('Description','e_mdesc','textarea','')+FG('Video URL','e_mvid','url','')+FG('Content (HTML)','e_mcontent','textarea','')+FR(FG('Duration (min)','e_mdur','number',''),FG('Sort Order','e_msort','number','0'));
+    openEditModal('Add Module',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveModule(null,\''+courseId+'\')">Save</button>');
+  }
+}
+async function saveModule(id,courseId){
+  const obj={course_id:courseId,title:document.getElementById('e_mtitle').value,description:document.getElementById('e_mdesc').value||null,video_url:document.getElementById('e_mvid').value||null,content_html:document.getElementById('e_mcontent').value||null,duration_minutes:parseInt(document.getElementById('e_mdur').value)||null,sort_order:parseInt(document.getElementById('e_msort').value)||0};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('training_modules').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('training_modules').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Module updated!':'Module added!');closeEditModal();showCourseDetail(courseId);
+}
+async function deleteModule(id,courseId){
+  if(!confirm('Delete this module?'))return;
+  await sb.from('training_modules').delete().eq('id',id);
+  showToast('Module deleted');showCourseDetail(courseId);
+}
+
+// ─── TRAINING RESOURCES ───
+async function loadTrainingResources(){
+  const{data}=await sb.from('training_resources').select('*,training_courses(title)').order('created_at',{ascending:false});
+  S.trainingResources=data||[];renderTrainingResources();
+}
+function renderTrainingResources(){
+  const r=S.trainingResources;
+  document.getElementById('trainingResourcesTable').innerHTML='<table><thead><tr><th>Title</th><th>Type</th><th>Course</th><th>Visibility</th><th>Actions</th></tr></thead><tbody>'+(r.length?r.map(x=>'<tr><td>'+(x.url?'<a href="'+x.url+'" target="_blank">'+x.title+'</a>':x.title)+'</td><td>'+B(x.type)+'</td><td>'+(x.training_courses?.title||'General')+'</td><td>'+B(x.visibility)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editTrainingResource(\''+x.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="5" class="table-empty">No training resources</td></tr>')+'</tbody></table>';
+}
+function editTrainingResource(id,courseId){
+  const loadAndShow=(r)=>{
+    const body=FG('Title *','e_trtitle','text',r?.title)+'<div class="form-group"><label>Course</label><select id="e_trcourse" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem"><option value="">General (no course)</option>'+S.courses.map(c=>'<option value="'+c.id+'"'+(c.id===(r?.course_id||courseId)?' selected':'')+'>'+c.title+'</option>').join('')+'</select></div>'+FR(FG('Type','e_trtype','select',r?.type||'url',[{v:'file',l:'File'},{v:'url',l:'URL'},{v:'document',l:'Document'}]),FG('Visibility','e_trvis','select',r?.visibility||'role',VISIBILITY_OPTS))+FG('URL','e_trurl','url',r?.url)+FG('Description','e_trdesc','textarea',r?.description);
+    openEditModal(r?'Edit Resource':'Add Training Resource',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveTrainingResource('+(id?"'"+id+"'":'')+')">Save</button>');
+  };
+  if(id){sb.from('training_resources').select('*').eq('id',id).single().then(({data})=>loadAndShow(data));}
+  else{loadAndShow(null);}
+}
+async function saveTrainingResource(id){
+  const obj={title:document.getElementById('e_trtitle').value,course_id:document.getElementById('e_trcourse').value||null,type:document.getElementById('e_trtype').value,visibility:document.getElementById('e_trvis').value,url:document.getElementById('e_trurl').value||null,description:document.getElementById('e_trdesc').value||null};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(id){({error:err}=await sb.from('training_resources').update(obj).eq('id',id));}
+  else{({error:err}=await sb.from('training_resources').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Resource updated!':'Resource added!');closeEditModal();await loadTrainingResources();
+}
+
+// ─── EMPLOYEES ───
+async function loadEmployees(){
+  const{data}=await sb.from('employee_access').select('*,career_roles(title)').order('created_at',{ascending:false});
+  S.employees=data||[];renderEmployees();
+}
+function renderEmployees(){
+  const e=S.employees;
+  document.getElementById('employeesTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Hired</th><th>Actions</th></tr></thead><tbody>'+(e.length?e.map(x=>'<tr class="clickable" onclick="showEmployeeDetail(\''+x.id+'\')"><td style="font-weight:600">'+x.name+'</td><td>'+x.email+'</td><td>'+(x.career_roles?.title||'—')+'</td><td>'+B(x.status)+'</td><td>'+fmtDate(x.hired_at)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editEmployee(\''+x.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No employees yet</td></tr>')+'</tbody></table>';
+}
+function editEmployee(id){
+  const e=id?S.employees.find(x=>x.id===id):null;
+  const body=FG('Name *','e_ename','text',e?.name)+FG('Email *','e_eemail','email',e?.email)+'<div class="form-group"><label>Role</label><select id="e_erole" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem">'+roleOptions(e?.role_id)+'</select></div>'+FG('Status','e_estatus','select',e?.status||'active',[{v:'active',l:'Active'},{v:'inactive',l:'Inactive'},{v:'terminated',l:'Terminated'}]);
+  openEditModal(e?'Edit Employee':'Add Employee',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmployee('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveEmployee(id){
+  const obj={name:document.getElementById('e_ename').value,email:document.getElementById('e_eemail').value,role_id:document.getElementById('e_erole').value||null,status:document.getElementById('e_estatus').value};
+  if(!obj.name||!obj.email){showToast('Name and Email required','error');return;}
+  let err;
+  if(id){
+    ({error:err}=await sb.from('employee_access').update(obj).eq('id',id));
+  }else{
+    ({error:err}=await sb.from('employee_access').insert([obj]));
+    // If role assigned, auto-grant courses and resources
+    if(!err&&obj.role_id){
+      const{data:emp}=await sb.from('employee_access').select('id').eq('email',obj.email).order('created_at',{ascending:false}).limit(1);
+      if(emp?.length){
+        const empId=emp[0].id;
+        const{data:rc}=await sb.from('role_courses').select('course_id').eq('role_id',obj.role_id);
+        if(rc?.length)await sb.from('employee_course_access').upsert(rc.map(r=>({employee_id:empId,course_id:r.course_id,source:'role'})),{onConflict:'employee_id,course_id'});
+        const{data:rr}=await sb.from('role_resources').select('resource_id').eq('role_id',obj.role_id);
+        if(rr?.length)await sb.from('employee_resource_access').upsert(rr.map(r=>({employee_id:empId,resource_id:r.resource_id,source:'role'})),{onConflict:'employee_id,resource_id'});
+      }
+    }
+  }
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Employee updated!':'Employee added!');closeEditModal();await loadEmployees();
+}
+async function showEmployeeDetail(id){
+  const e=S.employees.find(x=>x.id===id);if(!e)return;
+  document.querySelectorAll('.edu-panel').forEach(p=>p.style.display='none');
+  const dv=document.getElementById('employeeDetailView');dv.style.display='block';
+  const[{data:courseAccess},{data:resAccess},{data:progress}]=await Promise.all([
+    sb.from('employee_course_access').select('*,training_courses(title,category)').eq('employee_id',id),
+    sb.from('employee_resource_access').select('*,training_resources(title,url,type)').eq('employee_id',id),
+    sb.from('employee_progress').select('*,training_modules(title,course_id)').eq('employee_id',id)
+  ]);
+  let html='<div class="detail-back" onclick="document.getElementById(\'employeeDetailView\').style.display=\'none\';document.querySelectorAll(\'.edu-panel\')[2].style.display=\'block\'">&#8592; Back to Employees</div>';
+  html+='<div class="detail-header"><h2>'+e.name+'</h2><button class="btn btn-sm btn-secondary" onclick="editEmployee(\''+e.id+'\')">Edit</button></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+e.email+'</div></div><div><div class="dg-label">Role</div><div class="dg-value">'+(e.career_roles?.title||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(e.status)+'</div></div><div><div class="dg-label">Hired</div><div class="dg-value">'+fmtDate(e.hired_at)+'</div></div></div>';
+
+  // Course access + assign individual
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Course Access</h2><div style="display:flex;gap:6px;align-items:center"><select id="addCourseToEmp" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:.82rem"><option value="">Add course...</option>'+S.courses.filter(c=>!(courseAccess||[]).find(ca=>ca.course_id===c.id)).map(c=>'<option value="'+c.id+'">'+c.title+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="grantCourseToEmployee(\''+id+'\')">Grant</button></div></div>';
+  if(courseAccess?.length){
+    html+='<table><thead><tr><th>Course</th><th>Source</th><th>Actions</th></tr></thead><tbody>'+courseAccess.map(ca=>{
+      const completed=(progress||[]).filter(p=>p.training_modules?.course_id===ca.course_id&&p.status==='completed').length;
+      return '<tr><td>'+ca.training_courses?.title+'</td><td>'+B(ca.source)+'</td><td><button class="btn btn-sm btn-danger" onclick="revokeCourseFromEmployee(\''+ca.id+'\',\''+id+'\')">Revoke</button></td></tr>';
+    }).join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No courses assigned</p>';}
+  html+='</div>';
+
+  // Resource access
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Resource Access</h2><div style="display:flex;gap:6px;align-items:center"><select id="addResToEmp" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:.82rem"><option value="">Add resource...</option>'+S.trainingResources.filter(r=>!(resAccess||[]).find(ra=>ra.resource_id===r.id)).map(r=>'<option value="'+r.id+'">'+r.title+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="grantResourceToEmployee(\''+id+'\')">Grant</button></div></div>';
+  if(resAccess?.length){
+    html+='<table><thead><tr><th>Resource</th><th>Type</th><th>Source</th><th>Actions</th></tr></thead><tbody>'+resAccess.map(ra=>'<tr><td>'+(ra.training_resources?.url?'<a href="'+ra.training_resources.url+'" target="_blank">'+ra.training_resources.title+'</a>':ra.training_resources?.title||'—')+'</td><td>'+B(ra.training_resources?.type)+'</td><td>'+B(ra.source)+'</td><td><button class="btn btn-sm btn-danger" onclick="revokeResourceFromEmployee(\''+ra.id+'\',\''+id+'\')">Revoke</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No resources assigned</p>';}
+  html+='</div>';
+  dv.innerHTML=html;
+}
+async function grantCourseToEmployee(empId){
+  const courseId=document.getElementById('addCourseToEmp')?.value;
+  if(!courseId){showToast('Select a course','error');return;}
+  const{error}=await sb.from('employee_course_access').insert([{employee_id:empId,course_id:courseId,source:'individual'}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Course granted!');showEmployeeDetail(empId);
+}
+async function revokeCourseFromEmployee(accessId,empId){
+  await sb.from('employee_course_access').delete().eq('id',accessId);
+  showToast('Course revoked');showEmployeeDetail(empId);
+}
+async function grantResourceToEmployee(empId){
+  const resId=document.getElementById('addResToEmp')?.value;
+  if(!resId){showToast('Select a resource','error');return;}
+  const{error}=await sb.from('employee_resource_access').insert([{employee_id:empId,resource_id:resId,source:'individual'}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Resource granted!');showEmployeeDetail(empId);
+}
+async function revokeResourceFromEmployee(accessId,empId){
+  await sb.from('employee_resource_access').delete().eq('id',accessId);
+  showToast('Resource revoked');showEmployeeDetail(empId);
 }
 
 // LOGOUT
