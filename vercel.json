@@ -33,6 +33,14 @@
       "destination": "/privacy-policy.html"
     },
     {
+      "source": "/careers",
+      "destination": "/careers.html"
+    },
+    {
+      "source": "/careers/:id",
+      "destination": "/careers.html"
+    },
+    {
       "source": "/proposal/:slug",
       "destination": "/proposal-viewer.html"
     },
