@@ -8,6 +8,8 @@
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--border-subtle:rgba(255,255,255,0.06);--error:#E53935;--success:#4CAF50;--warning:#FF9800;--info:#2196F3;--sidebar-w:240px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2394,6 +2396,7 @@ async function showInvoiceDetail(id){
   const cname=inv.clients?.profiles?.full_name||inv.bill_to_name||'—';
   let html='<div class="detail-back" onclick="document.getElementById(\'invoicesListView\').style.display=\'\';document.getElementById(\'invoiceDetailView\').style.display=\'none\'">&#8592; Back to Invoices</div>';
   html+='<div class="detail-header"><h2>Invoice '+inv.invoice_number+'</h2><div style="display:flex;gap:6px"><button class="btn btn-sm btn-secondary" onclick="editInvoice(\''+inv.id+'\')">Edit</button>';
+  html+='<button class="btn btn-sm btn-secondary" onclick="generateInvoicePDF(\''+inv.id+'\')">📄 Download PDF</button>';
   if(inv.status==='draft')html+='<button class="btn btn-sm btn-primary" onclick="updateInvoiceStatus(\''+inv.id+'\',\'sent\')">Mark Sent</button>';
   if(['sent','viewed','overdue'].includes(inv.status))html+='<button class="btn btn-sm" style="background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="markInvoicePaid(\''+inv.id+'\')">Mark Paid</button>';
   html+='</div></div>';
@@ -2488,6 +2491,211 @@ async function deleteInvoiceItem(itemId,invoiceId){
   const total=subtotal+taxAmt-(parseFloat(inv?.discount_amount)||0);
   await sb.from('invoices').update({subtotal:subtotal,tax_amount:taxAmt,total:total}).eq('id',invoiceId);
   showToast('Item deleted');await loadInvoices();showInvoiceDetail(invoiceId);
+}
+
+// ═══════════════════════════════════════════════
+// INVOICE PDF GENERATOR
+// ═══════════════════════════════════════════════
+async function generateInvoicePDF(invoiceId){
+  const inv=S.invoices.find(x=>x.id===invoiceId);
+  if(!inv){showToast('Invoice not found','error');return;}
+  const{data:items}=await sb.from('invoice_items').select('*').eq('invoice_id',invoiceId).order('sort_order');
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,H=297,M=18;
+  const gold=[200,164,86],dark=[10,10,11],surface=[17,17,19],white=[245,245,245],muted=[153,153,153];
+
+  // === BACKGROUND ===
+  doc.setFillColor(...dark);
+  doc.rect(0,0,W,H,'F');
+
+  // === GOLD ACCENT BAR (top) ===
+  doc.setFillColor(...gold);
+  doc.rect(0,0,W,3,'F');
+
+  // === COMPANY HEADER ===
+  doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(...gold);
+  doc.text('KNIGHT OPS',M,24);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...muted);
+  doc.text('AI & Tech Consulting  |  Systems That Scale',M,31);
+  doc.text('KnightOps.biz  |  hello@knightops.biz',M,36);
+
+  // === INVOICE TITLE (right side) ===
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(...white);
+  doc.text('INVOICE',W-M,22,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(...gold);
+  doc.text(inv.invoice_number||'',W-M,29,{align:'right'});
+
+  // === DIVIDER ===
+  doc.setDrawColor(...gold);doc.setLineWidth(0.3);
+  doc.line(M,42,W-M,42);
+
+  // === INVOICE DETAILS ROW ===
+  let y=50;
+  doc.setFontSize(8);doc.setTextColor(...muted);doc.setFont('helvetica','bold');
+  doc.text('BILL TO',M,y);
+  doc.text('INVOICE DETAILS',110,y);
+
+  y+=6;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...white);
+  const clientName=inv.clients?.profiles?.full_name||inv.bill_to_name||'Client';
+  doc.text(clientName,M,y);
+
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...muted);
+  let cy=y+5;
+  if(inv.bill_to_email){doc.text(inv.bill_to_email,M,cy);cy+=4.5;}
+  if(inv.bill_to_address){
+    const addrLines=doc.splitTextToSize(inv.bill_to_address,75);
+    addrLines.forEach(l=>{doc.text(l,M,cy);cy+=4.5;});
+  }
+
+  // Right col — details
+  const detailX=110,valX=155;
+  let dy=y;
+  doc.setFontSize(9);
+  const detailRows=[
+    ['Issue Date',fmtDate(inv.issue_date)],
+    ['Due Date',fmtDate(inv.due_date)],
+    ['Status',(inv.status||'draft').toUpperCase()],
+    ['Payment Method',(inv.payment_method||'—').replace(/_/g,' ')]
+  ];
+  if(inv.paid_date)detailRows.push(['Paid Date',fmtDate(inv.paid_date)]);
+
+  detailRows.forEach(([label,val])=>{
+    doc.setTextColor(...muted);doc.setFont('helvetica','normal');
+    doc.text(label,detailX,dy);
+    doc.setTextColor(...white);doc.setFont('helvetica','bold');
+    doc.text(val||'—',valX,dy);
+    dy+=5.5;
+  });
+
+  // === LINE ITEMS TABLE ===
+  const tableY=Math.max(cy,dy)+8;
+  const bodyRows=(items||[]).map(it=>[
+    it.description||'',
+    String(it.quantity||1),
+    fmtMoney(it.unit_price),
+    fmtMoney(it.amount)
+  ]);
+
+  doc.autoTable({
+    startY:tableY,
+    head:[['Description','Qty','Unit Price','Amount']],
+    body:bodyRows.length?bodyRows:[['No line items','','','']],
+    margin:{left:M,right:M},
+    theme:'plain',
+    styles:{
+      font:'helvetica',
+      fontSize:9,
+      textColor:white,
+      cellPadding:{top:4,bottom:4,left:4,right:4},
+      lineColor:[40,40,42],
+      lineWidth:0
+    },
+    headStyles:{
+      fillColor:surface,
+      textColor:gold,
+      fontStyle:'bold',
+      fontSize:8,
+      cellPadding:{top:5,bottom:5,left:4,right:4}
+    },
+    bodyStyles:{
+      fillColor:dark
+    },
+    alternateRowStyles:{
+      fillColor:[15,15,17]
+    },
+    columnStyles:{
+      0:{cellWidth:85},
+      1:{halign:'center',cellWidth:20},
+      2:{halign:'right',cellWidth:35},
+      3:{halign:'right',cellWidth:35}
+    },
+    didDrawPage:function(data){
+      // Gold line under header
+      doc.setDrawColor(...gold);doc.setLineWidth(0.3);
+      doc.line(M,data.table.headerRow?data.table.headerRow.y+data.table.headerRow.height:tableY+8,W-M,data.table.headerRow?data.table.headerRow.y+data.table.headerRow.height:tableY+8);
+    }
+  });
+
+  // === TOTALS SECTION (right-aligned) ===
+  let tY=doc.lastAutoTable.finalY+10;
+  const totX=130,totVX=W-M;
+
+  function totRow(label,value,opts={}){
+    doc.setFont('helvetica',opts.bold?'bold':'normal');
+    doc.setFontSize(opts.large?12:9.5);
+    doc.setTextColor(...(opts.color||muted));
+    doc.text(label,totX,tY);
+    doc.setTextColor(...(opts.valColor||white));
+    doc.text(value,totVX,tY,{align:'right'});
+    tY+=opts.large?8:6;
+  }
+
+  totRow('Subtotal',fmtMoney(inv.subtotal));
+  if(parseFloat(inv.tax_rate)>0)totRow('Tax ('+inv.tax_rate+'%)',fmtMoney(inv.tax_amount));
+  if(parseFloat(inv.discount_amount)>0)totRow('Discount','-'+fmtMoney(inv.discount_amount),{valColor:[76,175,80]});
+
+  // Total divider
+  doc.setDrawColor(...gold);doc.setLineWidth(0.3);
+  doc.line(totX,tY-2,totVX,tY-2);
+  tY+=3;
+
+  totRow('TOTAL DUE',fmtMoney(inv.total),{bold:true,large:true,color:white,valColor:gold});
+
+  if(parseFloat(inv.amount_paid)>0){
+    totRow('Amount Paid',fmtMoney(inv.amount_paid),{valColor:[76,175,80]});
+    const balance=(parseFloat(inv.total)||0)-(parseFloat(inv.amount_paid)||0);
+    totRow('Balance Due',fmtMoney(balance),{bold:true,color:white,valColor:balance>0?[255,107,107]:gold});
+  }
+
+  // === PAYMENT LINK ===
+  if(inv.stripe_payment_link){
+    tY+=4;
+    doc.setFillColor(...gold);
+    const btnW=55,btnH=9,btnX=totVX-btnW;
+    doc.roundedRect(btnX,tY,btnW,btnH,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...dark);
+    doc.textWithLink('Pay Online →',btnX+btnW/2,tY+6.2,{url:inv.stripe_payment_link,align:'center'});
+    doc.link(btnX,tY,btnW,btnH,{url:inv.stripe_payment_link});
+    tY+=btnH+6;
+  }
+
+  // === NOTES & TERMS ===
+  let footY=Math.max(tY+6,doc.lastAutoTable.finalY+10);
+  if(footY>250)footY=tY+4; // prevent overflow
+
+  if(inv.notes){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...gold);
+    doc.text('NOTES',M,footY);footY+=5;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...muted);
+    const noteLines=doc.splitTextToSize(inv.notes,W-M*2);
+    noteLines.forEach(l=>{doc.text(l,M,footY);footY+=4;});
+    footY+=3;
+  }
+  if(inv.terms){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...gold);
+    doc.text('TERMS & CONDITIONS',M,footY);footY+=5;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...muted);
+    const termLines=doc.splitTextToSize(inv.terms,W-M*2);
+    termLines.forEach(l=>{doc.text(l,M,footY);footY+=4;});
+  }
+
+  // === FOOTER ===
+  doc.setDrawColor(...gold);doc.setLineWidth(0.2);
+  doc.line(M,H-18,W-M,H-18);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...muted);
+  doc.text('Knight Ops  •  AI & Tech Consulting  •  KnightOps.biz',W/2,H-13,{align:'center'});
+  doc.text('Thank you for your business.',W/2,H-9,{align:'center'});
+
+  // === GOLD ACCENT BAR (bottom) ===
+  doc.setFillColor(...gold);
+  doc.rect(0,H-3,W,3,'F');
+
+  // === SAVE ===
+  const fname='KnightOps-Invoice-'+(inv.invoice_number||inv.id).replace(/[^a-zA-Z0-9-]/g,'')+'.pdf';
+  doc.save(fname);
+  showToast('Invoice PDF downloaded');
 }
 
 // ═══════════════════════════════════════════════
