@@ -162,6 +162,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="clients"><span class="icon">&#9673;</span> Clients</div>
       <div class="nav-item" data-view="projects"><span class="icon">&#9881;</span> Projects</div>
       <div class="nav-item" data-view="tasks"><span class="icon">&#10003;</span> Tasks</div>
+      <div class="nav-item" data-view="deals"><span class="icon">&#9830;</span> Deals</div>
+      <div class="nav-item" data-view="invoices"><span class="icon">&#9783;</span> Invoices</div>
       <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
@@ -218,6 +220,48 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
       <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
+      <!-- ═══ DEALS VIEW ═══ -->
+      <div class="view" id="v-deals">
+        <div id="dealsListView">
+          <div class="kpi-grid" id="dealKpis"></div>
+          <div style="display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:1.5rem">
+            <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Deal Pipeline</h3><div id="dealPipeline"></div></div>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>All Deals</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search..." id="dealSearch" oninput="renderDeals()">
+                <select id="dealStageFilter" onchange="renderDeals()"><option value="">All Stages</option><option value="discovery">Discovery</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option><option value="contract">Contract</option><option value="closed_won">Won</option><option value="closed_lost">Lost</option><option value="on_hold">On Hold</option></select>
+                <select id="dealStatusFilter" onchange="renderDeals()"><option value="">All</option><option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option></select>
+                <button class="btn btn-primary btn-sm" onclick="editDeal()">+ New Deal</button>
+              </div>
+            </div>
+            <div id="dealsTable"></div>
+          </div>
+        </div>
+        <div id="dealDetailView" style="display:none"></div>
+      </div>
+
+      <!-- ═══ INVOICES VIEW ═══ -->
+      <div class="view" id="v-invoices">
+        <div id="invoicesListView">
+          <div class="kpi-grid" id="invoiceKpis"></div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Invoices</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search..." id="invoiceSearch" oninput="renderInvoices()">
+                <select id="invoiceStatusFilter" onchange="renderInvoices()"><option value="">All</option><option value="draft">Draft</option><option value="sent">Sent</option><option value="paid">Paid</option><option value="overdue">Overdue</option><option value="cancelled">Cancelled</option></select>
+                <button class="btn btn-primary btn-sm" onclick="editInvoice()">+ New Invoice</button>
+              </div>
+            </div>
+            <div id="invoicesTable"></div>
+          </div>
+        </div>
+        <div id="invoiceDetailView" style="display:none"></div>
+      </div>
+
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
       <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
@@ -284,6 +328,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
                   <option value="">All</option>
                   <option value="new">New</option>
                   <option value="reviewed">Reviewed</option>
+                  <option value="proposal_sent">Proposal Sent</option>
                   <option value="converted">Converted</option>
                 </select>
               </div>
@@ -364,7 +409,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -374,7 +419,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices()]);
   loadDashboard();
 })();
 
@@ -1175,12 +1220,14 @@ function renderAppKpis(){
   const a=S.applications||[];
   const nw=a.filter(x=>x.status==='new').length;
   const rv=a.filter(x=>x.status==='reviewed').length;
+  const ps=a.filter(x=>x.status==='proposal_sent').length;
   const cv=a.filter(x=>x.status==='converted').length;
   const today=a.filter(x=>new Date(x.created_at).toDateString()===new Date().toDateString()).length;
   document.getElementById('appKpis').innerHTML=
     '<div class="kpi"><div class="label">New</div><div class="value">'+nw+'</div><div class="sub">awaiting review</div></div>'+
     '<div class="kpi"><div class="label">Reviewed</div><div class="value">'+rv+'</div></div>'+
-    '<div class="kpi"><div class="label">Converted</div><div class="value">'+cv+'</div></div>'+
+    '<div class="kpi"><div class="label">Proposal Sent</div><div class="value" style="color:var(--info)">'+ps+'</div></div>'+
+    '<div class="kpi"><div class="label">Converted</div><div class="value" style="color:var(--success)">'+cv+'</div></div>'+
     '<div class="kpi"><div class="label">Today</div><div class="value">'+today+'</div><div class="sub">'+a.length+' total</div></div>';
 }
 function renderApps2(){
@@ -1223,6 +1270,8 @@ function showAppDetail(id){
       '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')" style="margin-right:6px">&#128203; Copy Build Prompt</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="editApplication(\''+a.id+'\')" style="margin-right:6px">Edit</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
+      '<button class="btn btn-sm btn-secondary" style="margin-right:6px;background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="createDealFromApp(\''+a.id+'\')" style="margin-right:6px">Create Deal</button>'+
       (a.lead_id?'<button class="btn btn-sm btn-secondary" onclick="showLeadDetail(\''+a.lead_id+'\')" style="margin-right:6px">View Lead</button>':
       '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>')+
     '</div></div>'+
@@ -1999,6 +2048,444 @@ async function saveApplication(id){
   showToast(id?'Application updated!':'Application added!');closeEditModal();
   await loadApplications();
   if(!id)loadDashboard();
+}
+
+// ═══════════════════════════════════════════════
+// DEALS SYSTEM
+// ═══════════════════════════════════════════════
+const DEAL_STAGE_OPTS=[{v:'discovery',l:'Discovery'},{v:'proposal',l:'Proposal'},{v:'negotiation',l:'Negotiation'},{v:'contract',l:'Contract'},{v:'closed_won',l:'Closed Won'},{v:'closed_lost',l:'Closed Lost'},{v:'on_hold',l:'On Hold'}];
+const DEAL_STATUS_OPTS2=[{v:'open',l:'Open'},{v:'won',l:'Won'},{v:'lost',l:'Lost'},{v:'on_hold',l:'On Hold'},{v:'cancelled',l:'Cancelled'}];
+const DEAL_PRIORITY_OPTS=[{v:'low',l:'Low'},{v:'medium',l:'Medium'},{v:'high',l:'High'},{v:'urgent',l:'Urgent'}];
+const STAGE_COLORS={discovery:'#2196F3',proposal:'#FF9800',negotiation:'#9C27B0',contract:'#00BCD4',closed_won:'#4CAF50',closed_lost:'#E53935',on_hold:'#607D8B'};
+
+async function loadDeals(){
+  const{data}=await sb.from('deals').select('*,clients(*,profiles(*)),leads(name,email)').order('created_at',{ascending:false});
+  S.deals=data||[];renderDeals();renderDealKpis();renderDealPipeline();
+}
+function renderDealKpis(){
+  const d=S.deals;
+  const open=d.filter(x=>x.status==='open');
+  const won=d.filter(x=>x.status==='won');
+  const totalVal=open.reduce((s,x)=>s+(parseFloat(x.deal_value)||0),0);
+  const wonVal=won.reduce((s,x)=>s+(parseFloat(x.deal_value)||0),0);
+  const weighted=open.reduce((s,x)=>s+((parseFloat(x.deal_value)||0)*(x.probability||50)/100),0);
+  document.getElementById('dealKpis').innerHTML=
+    '<div class="kpi"><div class="label">Open Deals</div><div class="value">'+open.length+'</div></div>'+
+    '<div class="kpi"><div class="label">Pipeline Value</div><div class="value">'+fmtMoney(totalVal)+'</div></div>'+
+    '<div class="kpi"><div class="label">Weighted Pipeline</div><div class="value">'+fmtMoney(weighted)+'</div></div>'+
+    '<div class="kpi"><div class="label">Deals Won</div><div class="value" style="color:var(--success)">'+won.length+'</div><div class="sub">'+fmtMoney(wonVal)+'</div></div>';
+}
+function renderDealPipeline(){
+  const stages=['discovery','proposal','negotiation','contract','closed_won'];
+  const open=S.deals.filter(x=>x.status==='open'||x.status==='won');
+  let html='<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px">';
+  stages.forEach(st=>{
+    const deals=open.filter(d=>d.stage===st);
+    const val=deals.reduce((s,x)=>s+(parseFloat(x.deal_value)||0),0);
+    const label=st.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    html+='<div style="min-width:180px;flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:.75rem">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><span style="font-size:.75rem;font-weight:700;color:'+STAGE_COLORS[st]+'">'+label+'</span><span style="font-size:.7rem;color:var(--text-muted)">'+deals.length+'</span></div>';
+    html+='<div style="font-size:.8rem;font-weight:600;margin-bottom:.5rem">'+fmtMoney(val)+'</div>';
+    deals.slice(0,5).forEach(d=>{
+      html+='<div onclick="showDealDetail(\''+d.id+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;margin-bottom:4px;cursor:pointer;font-size:.78rem;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">';
+      html+='<div style="font-weight:600;margin-bottom:2px">'+d.title+'</div>';
+      html+='<div style="color:var(--text-muted)">'+fmtMoney(d.deal_value)+'</div>';
+      html+='</div>';
+    });
+    if(deals.length>5)html+='<div style="font-size:.7rem;color:var(--text-muted);text-align:center">+'+(deals.length-5)+' more</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('dealPipeline').innerHTML=html;
+}
+function renderDeals(){
+  const q=(document.getElementById('dealSearch')?.value||'').toLowerCase();
+  const st=document.getElementById('dealStageFilter')?.value||'';
+  const ss=document.getElementById('dealStatusFilter')?.value||'';
+  const f=S.deals.filter(d=>(!q||d.title.toLowerCase().includes(q)||(d.clients?.profiles?.full_name||'').toLowerCase().includes(q))&&(!st||d.stage===st)&&(!ss||d.status===ss));
+  document.getElementById('dealsTable').innerHTML='<table><thead><tr><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
+    const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
+    return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span style="color:'+STAGE_COLORS[d.stage]+'">'+d.stage.replace(/_/g,' ').replace(/\b\\w/g,c=>c.toUpperCase())+'</span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td>'+B(d.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button></td></tr>';
+  }).join(''):'<tr><td colspan="8" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
+}
+function dealClientOptions(sel){return '<option value="">No Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
+function dealLeadOptions(sel){return '<option value="">No Lead</option>'+(S.leads||[]).map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+(l.name||l.email||'Lead')+'</option>').join('');}
+
+function editDeal(id){
+  const d=id?S.deals.find(x=>x.id===id):null;
+  const body=FG('Deal Title *','e_dtitle','text',d?.title)+FG('Description','e_ddesc','textarea',d?.description)+
+    '<div class="form-row"><div class="form-group"><label>Client</label><select id="e_dclient" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem">'+dealClientOptions(d?.client_id)+'</select></div>'+
+    '<div class="form-group"><label>Lead</label><select id="e_dlead" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem">'+dealLeadOptions(d?.lead_id)+'</select></div></div>'+
+    FR(FG('Deal Value ($)','e_dvalue','number',d?.deal_value),FG('Probability (%)','e_dprob','number',d?.probability||50))+
+    FR(FG('Stage','e_dstage','select',d?.stage||'discovery',DEAL_STAGE_OPTS),FG('Status','e_dstatus','select',d?.status||'open',DEAL_STATUS_OPTS2))+
+    FR(FG('Priority','e_dpriority','select',d?.priority||'medium',DEAL_PRIORITY_OPTS),FG('Expected Close Date','e_dclose','date',d?.expected_close_date))+
+    FG('Source','e_dsource','text',d?.source)+FG('Assigned To','e_dassigned','text',d?.assigned_to)+FG('Notes','e_dnotes','textarea',d?.notes);
+  openEditModal(d?'Edit Deal':'New Deal',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveDeal('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveDeal(id){
+  const obj={title:document.getElementById('e_dtitle').value,description:document.getElementById('e_ddesc').value||null,client_id:document.getElementById('e_dclient').value||null,lead_id:document.getElementById('e_dlead').value||null,deal_value:parseFloat(document.getElementById('e_dvalue').value)||0,probability:parseInt(document.getElementById('e_dprob').value)||50,stage:document.getElementById('e_dstage').value,status:document.getElementById('e_dstatus').value,priority:document.getElementById('e_dpriority').value,expected_close_date:document.getElementById('e_dclose').value||null,source:document.getElementById('e_dsource').value||null,assigned_to:document.getElementById('e_dassigned').value||null,notes:document.getElementById('e_dnotes').value||null};
+  if(!obj.title){showToast('Title required','error');return;}
+  // Auto-set dates for won/lost
+  if(obj.status==='won'&&!id){obj.won_at=new Date().toISOString();obj.actual_close_date=new Date().toISOString().slice(0,10);}
+  if(obj.status==='lost'&&!id){obj.lost_at=new Date().toISOString();}
+  let err;
+  if(id){
+    obj.updated_at=new Date().toISOString();
+    ({error:err}=await sb.from('deals').update(obj).eq('id',id));
+  }else{
+    obj.created_by=currentUser?.id;
+    ({error:err}=await sb.from('deals').insert([obj]));
+  }
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Deal updated!':'Deal created!');closeEditModal();await loadDeals();loadDashboard();
+}
+
+async function createDealFromApp(appId){
+  const a=(S.applications||[]).find(x=>x.id===appId);if(!a)return;
+  const name=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
+  const desc=a.bp_core_outcome||a.q4_core_outcome||'';
+  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':7497,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':7497,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
+  const val=budgetMap[a.budget]||0;
+  // Find or match client/lead
+  const lead=a.lead_id?(S.leads||[]).find(l=>l.id===a.lead_id):null;
+  const obj={title:name+' — '+(desc.substring(0,50)||'Project'),description:desc,lead_id:a.lead_id||null,intake_id:a.id,deal_value:val,stage:'proposal',status:'open',priority:'medium',source:'application',created_by:currentUser?.id};
+  const{data:deal,error}=await sb.from('deals').insert([obj]).select().single();
+  if(error){showToast('Error: '+error.message,'error');return;}
+  // Log activity
+  await sb.from('deal_activities').insert([{deal_id:deal.id,activity_type:'other',title:'Deal created from application',description:'Auto-created from intake submission: '+name,created_by:currentUser?.id}]);
+  showToast('Deal created!');await loadDeals();navTo('deals');showDealDetail(deal.id);
+}
+
+async function showDealDetail(id){
+  const d=S.deals.find(x=>x.id===id);if(!d)return;
+  navTo('deals');
+  document.getElementById('dealsListView').style.display='none';
+  document.getElementById('dealDetailView').style.display='block';
+  const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
+  const[{data:projects},{data:activities},{data:invs},{data:tasks},{data:contacts}]=await Promise.all([
+    sb.from('deal_projects').select('*,projects(name,status,contract_value)').eq('deal_id',id),
+    sb.from('deal_activities').select('*').eq('deal_id',id).order('created_at',{ascending:false}).limit(20),
+    sb.from('invoices').select('*').eq('deal_id',id).order('created_at',{ascending:false}),
+    sb.from('tasks').select('*').eq('deal_id',id).order('created_at',{ascending:false}),
+    sb.from('deal_contacts').select('*,leads(name,email),clients(*,profiles(full_name,email))').eq('deal_id',id)
+  ]);
+  let html='<div class="detail-back" onclick="document.getElementById(\'dealsListView\').style.display=\'\';document.getElementById(\'dealDetailView\').style.display=\'none\'">&#8592; Back to Deals</div>';
+  html+='<div class="detail-header"><h2>'+d.title+'</h2><div style="display:flex;gap:6px;flex-wrap:wrap">';
+  html+='<button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button>';
+  html+='<select onchange="updateDealStage(\''+d.id+'\',this.value)" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:.82rem">'+DEAL_STAGE_OPTS.map(o=>'<option value="'+o.v+'"'+(o.v===d.stage?' selected':'')+'>'+o.l+'</option>').join('')+'</select>';
+  html+='<button class="btn btn-sm btn-primary" onclick="createInvoiceFromDeal(\''+d.id+'\')">Create Invoice</button>';
+  if(d.status==='open')html+='<button class="btn btn-sm" style="background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="markDealWon(\''+d.id+'\')">Mark Won</button><button class="btn btn-sm btn-danger" onclick="markDealLost(\''+d.id+'\')">Mark Lost</button>';
+  html+='</div></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Value</div><div class="dg-value">'+fmtMoney(d.deal_value)+'</div></div><div><div class="dg-label">Stage</div><div class="dg-value" style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ')+'</div></div><div><div class="dg-label">Probability</div><div class="dg-value">'+d.probability+'%</div></div><div><div class="dg-label">Priority</div><div class="dg-value">'+B(d.priority)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(d.status)+'</div></div><div><div class="dg-label">Expected Close</div><div class="dg-value">'+fmtDate(d.expected_close_date)+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(d.source||'—')+'</div></div></div>';
+  if(d.description)html+='<p style="margin:1rem 0;font-size:.9rem;color:var(--text-muted)">'+d.description+'</p>';
+
+  // Linked Projects
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Projects</h2><div style="display:flex;gap:6px;align-items:center"><select id="addProjToDeal" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:.82rem"><option value="">Link project...</option>'+S.projects.filter(p=>!(projects||[]).find(dp=>dp.project_id===p.id)).map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="linkProjectToDeal(\''+id+'\')">Link</button></div></div>';
+  if(projects?.length){
+    html+='<table><thead><tr><th>Project</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>'+projects.map(dp=>'<tr><td style="font-weight:600">'+dp.projects?.name+'</td><td>'+B(dp.projects?.status)+'</td><td>'+fmtMoney(dp.projects?.contract_value)+'</td><td><button class="btn btn-sm btn-danger" onclick="unlinkProjectFromDeal(\''+dp.id+'\',\''+id+'\')">Unlink</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No projects linked</p>';}
+  html+='</div>';
+
+  // Invoices
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Invoices</h2><button class="btn btn-sm btn-primary" onclick="createInvoiceFromDeal(\''+id+'\')">+ Invoice</button></div>';
+  if(invs?.length){
+    html+='<table><thead><tr><th>#</th><th>Title</th><th>Total</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+invs.map(inv=>'<tr class="clickable" onclick="navTo(\'invoices\');showInvoiceDetail(\''+inv.id+'\')"><td>'+inv.invoice_number+'</td><td>'+(inv.title||'—')+'</td><td>'+fmtMoney(inv.total)+'</td><td>'+B(inv.status)+'</td><td>'+fmtDate(inv.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editInvoice(\''+inv.id+'\')">Edit</button></td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No invoices</p>';}
+  html+='</div>';
+
+  // Tasks
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Tasks</h2><button class="btn btn-sm btn-primary" onclick="editDealTask(null,\''+id+'\')">+ Task</button></div>';
+  if(tasks?.length){
+    html+='<table><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due</th></tr></thead><tbody>'+tasks.map(t=>'<tr><td>'+t.title+'</td><td>'+B(t.status)+'</td><td>'+B(t.priority)+'</td><td>'+fmtDate(t.due_date)+'</td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No tasks</p>';}
+  html+='</div>';
+
+  // Activity Timeline
+  html+='<div class="table-card" style="margin-top:1rem;padding:1.25rem"><h3 style="font-size:.95rem;margin-bottom:1rem">Activity Timeline</h3>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:1rem"><input type="text" id="activityNote" placeholder="Add a note..." style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="activityType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:8px;font-size:.82rem"><option value="note">Note</option><option value="call">Call</option><option value="email">Email</option><option value="meeting">Meeting</option><option value="other">Other</option></select><button class="btn btn-sm btn-primary" onclick="addDealActivity(\''+id+'\')">Add</button></div>';
+  if(activities?.length){
+    activities.forEach(act=>{
+      const icon={note:'📝',call:'📞',email:'📧',meeting:'🤝',status_change:'🔄',stage_change:'📊',task:'✅',proposal_sent:'📤',invoice_sent:'💰',payment_received:'💵',other:'📌'}[act.activity_type]||'📌';
+      html+='<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle)">';
+      html+='<span style="font-size:1rem">'+icon+'</span>';
+      html+='<div style="flex:1"><div style="font-size:.85rem;font-weight:600">'+(act.title||act.activity_type.replace(/_/g,' '))+'</div>';
+      if(act.description)html+='<div style="font-size:.82rem;color:var(--text-muted)">'+act.description+'</div>';
+      html+='<div style="font-size:.72rem;color:var(--text-muted);margin-top:2px">'+fmtDateTime(act.created_at)+'</div>';
+      html+='</div></div>';
+    });
+  }else{html+='<p style="font-size:.85rem;color:var(--text-muted)">No activity yet</p>';}
+  html+='</div>';
+
+  document.getElementById('dealDetailView').innerHTML=html;
+}
+
+async function updateDealStage(dealId,stage){
+  const oldDeal=S.deals.find(d=>d.id===dealId);
+  const oldStage=oldDeal?.stage;
+  const updates={stage:stage,updated_at:new Date().toISOString()};
+  if(stage==='closed_won'){updates.status='won';updates.won_at=new Date().toISOString();updates.actual_close_date=new Date().toISOString().slice(0,10);}
+  if(stage==='closed_lost'){updates.status='lost';updates.lost_at=new Date().toISOString();}
+  const{error}=await sb.from('deals').update(updates).eq('id',dealId);
+  if(error){showToast('Error','error');return;}
+  await sb.from('deal_activities').insert([{deal_id:dealId,activity_type:'stage_change',title:'Stage changed: '+oldStage+' → '+stage,created_by:currentUser?.id}]);
+  showToast('Stage updated!');await loadDeals();showDealDetail(dealId);
+}
+async function markDealWon(id){
+  await updateDealStage(id,'closed_won');
+}
+async function markDealLost(id){
+  const reason=prompt('Loss reason (optional):');
+  const{error}=await sb.from('deals').update({stage:'closed_lost',status:'lost',lost_at:new Date().toISOString(),loss_reason:reason||null}).eq('id',id);
+  if(error){showToast('Error','error');return;}
+  await sb.from('deal_activities').insert([{deal_id:id,activity_type:'status_change',title:'Deal marked as lost',description:reason||'',created_by:currentUser?.id}]);
+  showToast('Deal marked as lost');await loadDeals();showDealDetail(id);
+}
+async function linkProjectToDeal(dealId){
+  const projId=document.getElementById('addProjToDeal')?.value;
+  if(!projId){showToast('Select a project','error');return;}
+  const{error}=await sb.from('deal_projects').insert([{deal_id:dealId,project_id:projId}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Project linked!');showDealDetail(dealId);
+}
+async function unlinkProjectFromDeal(dpId,dealId){
+  await sb.from('deal_projects').delete().eq('id',dpId);
+  showToast('Unlinked');showDealDetail(dealId);
+}
+async function addDealActivity(dealId){
+  const note=document.getElementById('activityNote')?.value?.trim();
+  if(!note){showToast('Enter a note','error');return;}
+  const type=document.getElementById('activityType')?.value||'note';
+  await sb.from('deal_activities').insert([{deal_id:dealId,activity_type:type,title:note,created_by:currentUser?.id}]);
+  showToast('Activity added!');showDealDetail(dealId);
+}
+function editDealTask(taskId,dealId){
+  // Reuse existing task editor but pre-set deal_id
+  const t=taskId?S.tasks.find(x=>x.id===taskId):null;
+  const body='<div class="form-group"><label>Project</label><select id="e_project">'+projectOptions(t?.project_id)+'</select></div>'+FG('Title *','e_title','text',t?.title)+FG('Description','e_desc','textarea',t?.description)+FR(FG('Status','e_status','select',t?.status||'todo',TASK_STATUS_OPTS),FG('Priority','e_priority','select',t?.priority||'medium',PRIORITY_OPTS))+FR(FG('Type','e_type','select',t?.task_type||'development',TASK_TYPE_OPTS),FG('Due Date','e_due','date',t?.due_date))+FG('Assigned To','e_assigned','text',t?.assigned_name);
+  openEditModal(t?'Edit Task':'Add Deal Task',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveDealTask('+(taskId?"'"+taskId+"'":'null')+',\''+dealId+'\')">Save</button>');
+}
+async function saveDealTask(taskId,dealId){
+  const obj={project_id:document.getElementById('e_project').value||null,deal_id:dealId,title:document.getElementById('e_title').value,description:document.getElementById('e_desc').value||null,status:document.getElementById('e_status').value,priority:document.getElementById('e_priority').value,task_type:document.getElementById('e_type').value,due_date:document.getElementById('e_due').value||null,assigned_name:document.getElementById('e_assigned').value||null};
+  if(!obj.title){showToast('Title required','error');return;}
+  let err;
+  if(taskId){({error:err}=await sb.from('tasks').update(obj).eq('id',taskId));}
+  else{({error:err}=await sb.from('tasks').insert([obj]));}
+  if(err){showToast('Error','error');return;}
+  showToast(taskId?'Task updated!':'Task added!');closeEditModal();await loadTasks();showDealDetail(dealId);
+}
+
+// ═══════════════════════════════════════════════
+// INVOICES SYSTEM
+// ═══════════════════════════════════════════════
+async function loadInvoices(){
+  const{data}=await sb.from('invoices').select('*,deals(title),clients(*,profiles(*))').order('created_at',{ascending:false});
+  S.invoices=data||[];renderInvoices();renderInvoiceKpis();
+}
+function renderInvoiceKpis(){
+  const inv=S.invoices;
+  const draft=inv.filter(x=>x.status==='draft').length;
+  const sent=inv.filter(x=>x.status==='sent').length;
+  const paid=inv.filter(x=>x.status==='paid');
+  const overdue=inv.filter(x=>x.status==='overdue'||(!['paid','cancelled','refunded','draft'].includes(x.status)&&x.due_date&&new Date(x.due_date)<new Date()));
+  const totalPaid=paid.reduce((s,x)=>s+(parseFloat(x.total)||0),0);
+  const outstanding=inv.filter(x=>['sent','viewed','overdue'].includes(x.status)).reduce((s,x)=>s+(parseFloat(x.total)||0)-(parseFloat(x.amount_paid)||0),0);
+  document.getElementById('invoiceKpis').innerHTML=
+    '<div class="kpi"><div class="label">Draft</div><div class="value">'+draft+'</div></div>'+
+    '<div class="kpi"><div class="label">Sent</div><div class="value" style="color:var(--info)">'+sent+'</div></div>'+
+    '<div class="kpi"><div class="label">Paid</div><div class="value" style="color:var(--success)">'+paid.length+'</div><div class="sub">'+fmtMoney(totalPaid)+'</div></div>'+
+    '<div class="kpi"><div class="label">Overdue</div><div class="value" style="color:var(--error)">'+overdue.length+'</div></div>'+
+    '<div class="kpi"><div class="label">Outstanding</div><div class="value">'+fmtMoney(outstanding)+'</div></div>';
+}
+function renderInvoices(){
+  const q=(document.getElementById('invoiceSearch')?.value||'').toLowerCase();
+  const st=document.getElementById('invoiceStatusFilter')?.value||'';
+  const f=S.invoices.filter(i=>(!q||i.invoice_number.toLowerCase().includes(q)||(i.title||'').toLowerCase().includes(q)||(i.bill_to_name||'').toLowerCase().includes(q))&&(!st||i.status===st));
+  document.getElementById('invoicesTable').innerHTML='<table><thead><tr><th>#</th><th>Title</th><th>Client</th><th>Deal</th><th>Total</th><th>Paid</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(i=>{
+    const cname=i.clients?.profiles?.full_name||i.bill_to_name||'—';
+    return '<tr class="clickable" onclick="showInvoiceDetail(\''+i.id+'\')"><td style="font-weight:600">'+i.invoice_number+'</td><td>'+(i.title||'—')+'</td><td>'+cname+'</td><td>'+(i.deals?.title||'—')+'</td><td>'+fmtMoney(i.total)+'</td><td>'+fmtMoney(i.amount_paid)+'</td><td>'+B(i.status)+'</td><td>'+fmtDate(i.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editInvoice(\''+i.id+'\')">Edit</button></td></tr>';
+  }).join(''):'<tr><td colspan="9" class="table-empty">No invoices yet</td></tr>')+'</tbody></table>';
+}
+
+async function createInvoiceFromDeal(dealId){
+  const d=S.deals.find(x=>x.id===dealId);if(!d)return;
+  // Generate invoice number
+  const{data:seqData}=await sb.rpc('nextval',{seq_name:'invoice_number_seq'}).catch(()=>({data:null}));
+  const invNum='KO-'+(seqData||Date.now().toString().slice(-6));
+  const cname=d.clients?.profiles?.full_name||d.leads?.name||'';
+  const cemail=d.clients?.profiles?.email||d.leads?.email||'';
+  const dueDate=new Date();dueDate.setDate(dueDate.getDate()+30);
+  const obj={
+    invoice_number:invNum,deal_id:dealId,client_id:d.client_id||null,
+    title:d.title,status:'draft',issue_date:new Date().toISOString().slice(0,10),
+    due_date:dueDate.toISOString().slice(0,10),
+    subtotal:parseFloat(d.deal_value)||0,total:parseFloat(d.deal_value)||0,
+    bill_to_name:cname,bill_to_email:cemail,created_by:currentUser?.id
+  };
+  const{data:inv,error}=await sb.from('invoices').insert([obj]).select().single();
+  if(error){
+    // Sequence might not work via RPC, fallback
+    obj.invoice_number='KO-'+Date.now().toString().slice(-6);
+    const{data:inv2,error:e2}=await sb.from('invoices').insert([obj]).select().single();
+    if(e2){showToast('Error: '+e2.message,'error');return;}
+    // Add default line item
+    await sb.from('invoice_items').insert([{invoice_id:inv2.id,description:d.title||'Project Services',quantity:1,unit_price:parseFloat(d.deal_value)||0,amount:parseFloat(d.deal_value)||0}]);
+    await sb.from('deal_activities').insert([{deal_id:dealId,activity_type:'invoice_sent',title:'Invoice created: '+obj.invoice_number,created_by:currentUser?.id}]);
+    showToast('Invoice created!');await loadInvoices();navTo('invoices');showInvoiceDetail(inv2.id);return;
+  }
+  await sb.from('invoice_items').insert([{invoice_id:inv.id,description:d.title||'Project Services',quantity:1,unit_price:parseFloat(d.deal_value)||0,amount:parseFloat(d.deal_value)||0}]);
+  await sb.from('deal_activities').insert([{deal_id:dealId,activity_type:'invoice_sent',title:'Invoice created: '+invNum,created_by:currentUser?.id}]);
+  showToast('Invoice created!');await loadInvoices();navTo('invoices');showInvoiceDetail(inv.id);
+}
+
+function editInvoice(id){
+  const inv=id?S.invoices.find(x=>x.id===id):null;
+  const invNum=inv?.invoice_number||('KO-'+Date.now().toString().slice(-6));
+  const dueDefault=new Date();dueDefault.setDate(dueDefault.getDate()+30);
+  const body=FR(FG('Invoice # *','e_invnum','text',invNum),FG('Title','e_invtitle','text',inv?.title))+
+    '<div class="form-row"><div class="form-group"><label>Deal</label><select id="e_invdeal" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem"><option value="">No Deal</option>'+S.deals.map(d=>'<option value="'+d.id+'"'+(d.id===inv?.deal_id?' selected':'')+'>'+d.title+'</option>').join('')+'</select></div>'+
+    '<div class="form-group"><label>Client</label><select id="e_invclient" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.9rem">'+dealClientOptions(inv?.client_id)+'</select></div></div>'+
+    FR(FG('Issue Date','e_invissue','date',inv?.issue_date||new Date().toISOString().slice(0,10)),FG('Due Date','e_invdue','date',inv?.due_date||dueDefault.toISOString().slice(0,10)))+
+    FG('Status','e_invstatus','select',inv?.status||'draft',[{v:'draft',l:'Draft'},{v:'sent',l:'Sent'},{v:'viewed',l:'Viewed'},{v:'paid',l:'Paid'},{v:'overdue',l:'Overdue'},{v:'cancelled',l:'Cancelled'},{v:'refunded',l:'Refunded'}])+
+    FR(FG('Bill To Name','e_invname','text',inv?.bill_to_name),FG('Bill To Email','e_invemail','email',inv?.bill_to_email))+
+    FG('Bill To Address','e_invaddr','textarea',inv?.bill_to_address)+
+    FR(FG('Subtotal ($)','e_invsub','number',inv?.subtotal||0),FG('Tax Rate (%)','e_invtax','number',inv?.tax_rate||0))+
+    FR(FG('Discount ($)','e_invdisc','number',inv?.discount_amount||0),FG('Amount Paid ($)','e_invpaid','number',inv?.amount_paid||0))+
+    FG('Stripe Payment Link','e_invstripe','url',inv?.stripe_payment_link)+
+    FG('Notes','e_invnotes','textarea',inv?.notes)+
+    FG('Terms','e_invterms','textarea',inv?.terms||'Payment due within 30 days of invoice date.');
+  openEditModal(inv?'Edit Invoice':'New Invoice',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveInvoice('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+async function saveInvoice(id){
+  const sub=parseFloat(document.getElementById('e_invsub').value)||0;
+  const taxRate=parseFloat(document.getElementById('e_invtax').value)||0;
+  const taxAmt=sub*(taxRate/100);
+  const disc=parseFloat(document.getElementById('e_invdisc').value)||0;
+  const total=sub+taxAmt-disc;
+  const obj={
+    invoice_number:document.getElementById('e_invnum').value,title:document.getElementById('e_invtitle').value||null,
+    deal_id:document.getElementById('e_invdeal').value||null,client_id:document.getElementById('e_invclient').value||null,
+    issue_date:document.getElementById('e_invissue').value||null,due_date:document.getElementById('e_invdue').value||null,
+    status:document.getElementById('e_invstatus').value,
+    bill_to_name:document.getElementById('e_invname').value||null,bill_to_email:document.getElementById('e_invemail').value||null,
+    bill_to_address:document.getElementById('e_invaddr').value||null,
+    subtotal:sub,tax_rate:taxRate,tax_amount:taxAmt,discount_amount:disc,total:total,
+    amount_paid:parseFloat(document.getElementById('e_invpaid').value)||0,
+    stripe_payment_link:document.getElementById('e_invstripe').value||null,
+    notes:document.getElementById('e_invnotes').value||null,terms:document.getElementById('e_invterms').value||null,
+    updated_at:new Date().toISOString()
+  };
+  if(!obj.invoice_number){showToast('Invoice number required','error');return;}
+  if(obj.status==='paid'&&!id){obj.paid_date=new Date().toISOString().slice(0,10);}
+  let err;
+  if(id){({error:err}=await sb.from('invoices').update(obj).eq('id',id));}
+  else{obj.created_by=currentUser?.id;({error:err}=await sb.from('invoices').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Invoice updated!':'Invoice created!');closeEditModal();await loadInvoices();
+}
+
+async function showInvoiceDetail(id){
+  const inv=S.invoices.find(x=>x.id===id);if(!inv)return;
+  navTo('invoices');
+  document.getElementById('invoicesListView').style.display='none';
+  document.getElementById('invoiceDetailView').style.display='block';
+  const{data:items}=await sb.from('invoice_items').select('*').eq('invoice_id',id).order('sort_order');
+  const cname=inv.clients?.profiles?.full_name||inv.bill_to_name||'—';
+  let html='<div class="detail-back" onclick="document.getElementById(\'invoicesListView\').style.display=\'\';document.getElementById(\'invoiceDetailView\').style.display=\'none\'">&#8592; Back to Invoices</div>';
+  html+='<div class="detail-header"><h2>Invoice '+inv.invoice_number+'</h2><div style="display:flex;gap:6px"><button class="btn btn-sm btn-secondary" onclick="editInvoice(\''+inv.id+'\')">Edit</button>';
+  if(inv.status==='draft')html+='<button class="btn btn-sm btn-primary" onclick="updateInvoiceStatus(\''+inv.id+'\',\'sent\')">Mark Sent</button>';
+  if(['sent','viewed','overdue'].includes(inv.status))html+='<button class="btn btn-sm" style="background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="markInvoicePaid(\''+inv.id+'\')">Mark Paid</button>';
+  html+='</div></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Email</div><div class="dg-value">'+(inv.bill_to_email||'—')+'</div></div><div><div class="dg-label">Deal</div><div class="dg-value">'+(inv.deals?.title||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(inv.status)+'</div></div><div><div class="dg-label">Issue Date</div><div class="dg-value">'+fmtDate(inv.issue_date)+'</div></div><div><div class="dg-label">Due Date</div><div class="dg-value">'+fmtDate(inv.due_date)+'</div></div></div>';
+
+  // Line Items
+  html+='<div class="table-card" style="margin-top:1.25rem"><div class="table-header"><h2>Line Items</h2><button class="btn btn-sm btn-primary" onclick="addInvoiceItem(\''+id+'\')">+ Add Item</button></div>';
+  if(items?.length){
+    html+='<table><thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th>Actions</th></tr></thead><tbody>';
+    items.forEach(it=>{
+      html+='<tr><td>'+it.description+'</td><td>'+it.quantity+'</td><td>'+fmtMoney(it.unit_price)+'</td><td>'+fmtMoney(it.amount)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editInvoiceItem(\''+it.id+'\',\''+id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteInvoiceItem(\''+it.id+'\',\''+id+'\')">×</button></td></tr>';
+    });
+    html+='</tbody></table>';
+  }else{html+='<p class="table-empty">No line items</p>';}
+  html+='</div>';
+
+  // Totals
+  html+='<div style="margin-top:1rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;max-width:350px;margin-left:auto">';
+  html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem"><span>Subtotal</span><span>'+fmtMoney(inv.subtotal)+'</span></div>';
+  if(parseFloat(inv.tax_rate)>0)html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem"><span>Tax ('+inv.tax_rate+'%)</span><span>'+fmtMoney(inv.tax_amount)+'</span></div>';
+  if(parseFloat(inv.discount_amount)>0)html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem;color:var(--success)"><span>Discount</span><span>-'+fmtMoney(inv.discount_amount)+'</span></div>';
+  html+='<div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border);font-size:1.1rem;font-weight:700"><span>Total</span><span style="color:var(--accent)">'+fmtMoney(inv.total)+'</span></div>';
+  if(parseFloat(inv.amount_paid)>0)html+='<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:.85rem;color:var(--success)"><span>Paid</span><span>'+fmtMoney(inv.amount_paid)+'</span></div><div style="display:flex;justify-content:space-between;font-size:.85rem;font-weight:600"><span>Balance</span><span>'+fmtMoney((parseFloat(inv.total)||0)-(parseFloat(inv.amount_paid)||0))+'</span></div>';
+  html+='</div>';
+
+  if(inv.stripe_payment_link)html+='<div style="margin-top:1rem"><a href="'+inv.stripe_payment_link+'" target="_blank" class="btn btn-primary">Stripe Payment Link →</a></div>';
+  if(inv.notes)html+='<p style="margin-top:1rem;font-size:.88rem;color:var(--text-muted)"><strong>Notes:</strong> '+inv.notes+'</p>';
+  if(inv.terms)html+='<p style="margin-top:.5rem;font-size:.82rem;color:var(--text-muted)"><strong>Terms:</strong> '+inv.terms+'</p>';
+
+  document.getElementById('invoiceDetailView').innerHTML=html;
+}
+
+async function updateInvoiceStatus(id,status){
+  const updates={status:status,updated_at:new Date().toISOString()};
+  if(status==='paid')updates.paid_date=new Date().toISOString().slice(0,10);
+  const{error}=await sb.from('invoices').update(updates).eq('id',id);
+  if(error){showToast('Error','error');return;}
+  // Log to deal activity
+  const inv=S.invoices.find(x=>x.id===id);
+  if(inv?.deal_id){
+    const actType=status==='paid'?'payment_received':'invoice_sent';
+    await sb.from('deal_activities').insert([{deal_id:inv.deal_id,activity_type:actType,title:'Invoice '+inv.invoice_number+' → '+status,created_by:currentUser?.id}]);
+  }
+  showToast('Invoice status updated!');await loadInvoices();showInvoiceDetail(id);
+}
+async function markInvoicePaid(id){
+  const inv=S.invoices.find(x=>x.id===id);
+  const amt=parseFloat(inv?.total)||0;
+  await sb.from('invoices').update({status:'paid',paid_date:new Date().toISOString().slice(0,10),amount_paid:amt,updated_at:new Date().toISOString()}).eq('id',id);
+  if(inv?.deal_id)await sb.from('deal_activities').insert([{deal_id:inv.deal_id,activity_type:'payment_received',title:'Payment received: '+fmtMoney(amt)+' ('+inv.invoice_number+')',created_by:currentUser?.id}]);
+  showToast('Invoice marked as paid!');await loadInvoices();showInvoiceDetail(id);
+}
+
+function addInvoiceItem(invoiceId){
+  const body=FG('Description *','e_iidesc','text','')+FR(FG('Quantity','e_iiqty','number',1),FG('Unit Price ($)','e_iiup','number',0));
+  openEditModal('Add Line Item',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveInvoiceItem(null,\''+invoiceId+'\')">Add</button>');
+}
+function editInvoiceItem(itemId,invoiceId){
+  sb.from('invoice_items').select('*').eq('id',itemId).single().then(({data:it})=>{
+    if(!it)return;
+    const body=FG('Description *','e_iidesc','text',it.description)+FR(FG('Quantity','e_iiqty','number',it.quantity),FG('Unit Price ($)','e_iiup','number',it.unit_price));
+    openEditModal('Edit Line Item',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveInvoiceItem(\''+itemId+'\',\''+invoiceId+'\')">Save</button>');
+  });
+}
+async function saveInvoiceItem(itemId,invoiceId){
+  const desc=document.getElementById('e_iidesc').value;
+  if(!desc){showToast('Description required','error');return;}
+  const qty=parseFloat(document.getElementById('e_iiqty').value)||1;
+  const up=parseFloat(document.getElementById('e_iiup').value)||0;
+  const amt=qty*up;
+  let err;
+  if(itemId){({error:err}=await sb.from('invoice_items').update({description:desc,quantity:qty,unit_price:up,amount:amt}).eq('id',itemId));}
+  else{({error:err}=await sb.from('invoice_items').insert([{invoice_id:invoiceId,description:desc,quantity:qty,unit_price:up,amount:amt}]));}
+  if(err){showToast('Error','error');return;}
+  // Recalculate invoice totals
+  const{data:allItems}=await sb.from('invoice_items').select('amount').eq('invoice_id',invoiceId);
+  const subtotal=(allItems||[]).reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const inv=S.invoices.find(x=>x.id===invoiceId);
+  const taxAmt=subtotal*((parseFloat(inv?.tax_rate)||0)/100);
+  const total=subtotal+taxAmt-(parseFloat(inv?.discount_amount)||0);
+  await sb.from('invoices').update({subtotal:subtotal,tax_amount:taxAmt,total:total}).eq('id',invoiceId);
+  showToast(itemId?'Item updated!':'Item added!');closeEditModal();await loadInvoices();showInvoiceDetail(invoiceId);
+}
+async function deleteInvoiceItem(itemId,invoiceId){
+  if(!confirm('Delete this line item?'))return;
+  await sb.from('invoice_items').delete().eq('id',itemId);
+  // Recalculate
+  const{data:allItems}=await sb.from('invoice_items').select('amount').eq('invoice_id',invoiceId);
+  const subtotal=(allItems||[]).reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const inv=S.invoices.find(x=>x.id===invoiceId);
+  const taxAmt=subtotal*((parseFloat(inv?.tax_rate)||0)/100);
+  const total=subtotal+taxAmt-(parseFloat(inv?.discount_amount)||0);
+  await sb.from('invoices').update({subtotal:subtotal,tax_amount:taxAmt,total:total}).eq('id',invoiceId);
+  showToast('Item deleted');await loadInvoices();showInvoiceDetail(invoiceId);
 }
 
 // ═══════════════════════════════════════════════
