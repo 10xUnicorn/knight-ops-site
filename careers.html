@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Careers — Knight Ops</title>
+<meta name="description" content="Join the Knight Ops team. We build apps overnight and change the game for entrepreneurs worldwide.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--success:#4CAF50;--error:#E53935;--info:#2196F3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo .shield{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#A08636);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
+.nav-logo span{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:1px}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{color:var(--text-muted);font-size:.85rem;transition:color .3s}
+.nav-links a:hover{color:var(--accent)}
+
+/* HERO */
+.hero{padding:8rem 2rem 4rem;text-align:center;max-width:800px;margin:0 auto}
+.hero h1{font-size:3rem;font-weight:800;line-height:1.15;margin-bottom:1rem;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.15rem;color:var(--text-muted);max-width:600px;margin:0 auto 2rem}
+
+/* JOB LISTINGS */
+.jobs-section{max-width:900px;margin:0 auto;padding:0 2rem 4rem}
+.jobs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.jobs-header h2{font-size:1.5rem;font-weight:700}
+.filters{display:flex;gap:.5rem;flex-wrap:wrap}
+.filter-btn{padding:6px 16px;border-radius:50px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text-muted);transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.job-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.job-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity .3s}
+.job-card:hover{border-color:rgba(200,164,86,0.4);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.job-card:hover::before{opacity:1}
+.job-card .job-title{font-size:1.15rem;font-weight:700;margin-bottom:.35rem}
+.job-card .job-meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem}
+.job-card .job-meta span{display:flex;align-items:center;gap:4px}
+.job-card .job-desc{font-size:.9rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.72rem;font-weight:600}
+.badge-gold{background:rgba(200,164,86,0.1);color:var(--accent);border:1px solid rgba(200,164,86,0.2)}
+.badge-info{background:rgba(33,150,243,0.1);color:var(--info);border:1px solid rgba(33,150,243,0.2)}
+.no-jobs{text-align:center;padding:3rem;color:var(--text-muted);font-size:1rem}
+
+/* APPLICATION MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:2rem;overflow-y:auto}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:700px;margin-top:2rem}
+.modal-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{font-size:1.15rem;font-weight:700}
+.modal-head .close{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer}
+.modal-body{padding:1.5rem}
+.modal-foot{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.82rem;color:var(--text-muted);margin-bottom:4px;font-weight:500}
+.form-group label .req{color:var(--error)}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{min-height:80px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.checkbox-group,.radio-group{display:flex;flex-direction:column;gap:.35rem;margin-top:4px}
+.checkbox-group label,.radio-group label{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--text);cursor:pointer;font-weight:400}
+.checkbox-group input,.radio-group input{accent-color:var(--accent);width:16px;height:16px}
+.btn{padding:10px 24px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg)}
+.btn-primary:hover{box-shadow:0 0 25px var(--accent-glow)}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:.9rem;z-index:2000;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(76,175,80,0.4)}
+
+/* JOB DETAIL */
+.job-detail{max-width:900px;margin:0 auto;padding:6rem 2rem 4rem}
+.job-detail .back{color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem;display:inline-block;cursor:pointer;transition:color .3s}
+.job-detail .back:hover{color:var(--accent)}
+.job-detail h1{font-size:2rem;font-weight:800;margin-bottom:.5rem}
+.job-detail .meta{display:flex;gap:1.25rem;flex-wrap:wrap;font-size:.88rem;color:var(--text-muted);margin-bottom:2rem}
+.job-detail .section{margin-bottom:2rem}
+.job-detail .section h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem;color:var(--accent)}
+.job-detail .section p,.job-detail .section div{font-size:.95rem;line-height:1.7;color:var(--text-muted);white-space:pre-wrap}
+
+.file-drop{border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .3s}
+.file-drop:hover,.file-drop.dragover{border-color:var(--accent)}
+
+@media(max-width:640px){
+  .hero h1{font-size:2rem}
+  .form-row{grid-template-columns:1fr}
+  nav{padding:0 1rem}
+  .jobs-section,.job-detail{padding-left:1rem;padding-right:1rem}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo"><div class="shield">K</div><span>KNIGHT OPS</span></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/apply">Start a Build</a>
+    <a href="/book">Book a Call</a>
+  </div>
+</nav>
+
+<!-- LISTINGS VIEW -->
+<div id="listingsView">
+  <div class="hero">
+    <h1>Build the Future With Us</h1>
+    <p>We ship apps overnight and help entrepreneurs create world-class technology. Join the team that makes it happen.</p>
+  </div>
+  <div class="jobs-section">
+    <div class="jobs-header">
+      <h2>Open Positions</h2>
+      <div class="filters" id="typeFilters"></div>
+    </div>
+    <div id="jobsList"></div>
+  </div>
+</div>
+
+<!-- JOB DETAIL VIEW -->
+<div id="detailView" style="display:none">
+  <div class="job-detail" id="jobDetail"></div>
+</div>
+
+<!-- APPLICATION MODAL -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="appModalTitle">Apply</h2>
+      <button class="close" onclick="closeAppModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="appModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeAppModal()">Cancel</button>
+      <button class="btn btn-primary" id="submitAppBtn" onclick="submitApplication()">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+
+let allJobs=[],currentJob=null,currentFields=[];
+
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(type==='success'?' success':'');setTimeout(()=>t.classList.remove('show'),3000);}
+
+async function init(){
+  const{data}=await sb.from('job_postings').select('*').eq('status','open').order('is_featured',{ascending:false}).order('sort_order');
+  allJobs=data||[];
+  buildFilters();
+  renderJobs(allJobs);
+  // Check for direct link: /careers/job-id
+  const path=location.pathname.replace(/\/$/,'');
+  const parts=path.split('/');
+  if(parts.length===3&&parts[2]){
+    const job=allJobs.find(j=>j.id===parts[2]);
+    if(job)showDetail(job.id);
+  }
+}
+
+function buildFilters(){
+  const types=[...new Set(allJobs.map(j=>j.employment_type))];
+  const depts=[...new Set(allJobs.map(j=>j.department).filter(Boolean))];
+  let html='<button class="filter-btn active" onclick="filterJobs(this,\'\')">All</button>';
+  types.forEach(t=>{
+    const label=t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    html+='<button class="filter-btn" onclick="filterJobs(this,\''+t+'\')">'+label+'</button>';
+  });
+  document.getElementById('typeFilters').innerHTML=html;
+}
+
+function filterJobs(btn,type){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJobs(type?allJobs.filter(j=>j.employment_type===type):allJobs);
+}
+
+function renderJobs(jobs){
+  if(!jobs.length){document.getElementById('jobsList').innerHTML='<div class="no-jobs">No open positions right now. Check back soon!</div>';return;}
+  document.getElementById('jobsList').innerHTML=jobs.map(j=>{
+    const type=j.employment_type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    return '<div class="job-card" onclick="showDetail(\''+j.id+'\')">'+
+      (j.is_featured?'<span class="badge badge-gold" style="position:absolute;top:1rem;right:1rem">Featured</span>':'')+
+      '<div class="job-title">'+j.title+'</div>'+
+      '<div class="job-meta">'+
+        '<span>'+type+'</span>'+
+        '<span>'+(j.location||'Remote')+'</span>'+
+        (j.department?'<span>'+j.department+'</span>':'')+
+        (j.compensation?'<span>'+j.compensation+'</span>':'')+
+      '</div>'+
+      (j.description?'<div class="job-desc">'+j.description+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+async function showDetail(jobId){
+  const j=allJobs.find(x=>x.id===jobId);if(!j)return;
+  currentJob=j;
+  document.getElementById('listingsView').style.display='none';
+  document.getElementById('detailView').style.display='block';
+  window.scrollTo(0,0);
+  const type=j.employment_type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  let html='<div class="back" onclick="backToList()">&larr; All Positions</div>';
+  html+='<h1>'+j.title+'</h1>';
+  html+='<div class="meta"><span>'+type+'</span><span>'+(j.location||'Remote')+'</span>'+(j.department?'<span>'+j.department+'</span>':'')+(j.compensation?'<span>'+j.compensation+'</span>':'')+'</div>';
+  if(j.description)html+='<div class="section"><h3>About This Role</h3><p>'+j.description+'</p></div>';
+  if(j.responsibilities)html+='<div class="section"><h3>Responsibilities</h3><div>'+j.responsibilities+'</div></div>';
+  if(j.requirements)html+='<div class="section"><h3>Requirements</h3><div>'+j.requirements+'</div></div>';
+  if(j.benefits)html+='<div class="section"><h3>Benefits</h3><div>'+j.benefits+'</div></div>';
+  html+='<div style="margin-top:2rem"><button class="btn btn-primary" onclick="openAppModal()" style="font-size:1rem;padding:14px 36px">Apply Now &rarr;</button></div>';
+  document.getElementById('jobDetail').innerHTML=html;
+}
+
+function backToList(){
+  document.getElementById('detailView').style.display='none';
+  document.getElementById('listingsView').style.display='block';
+  currentJob=null;
+}
+
+async function openAppModal(){
+  if(!currentJob)return;
+  document.getElementById('appModalTitle').textContent='Apply — '+currentJob.title;
+  // Fetch custom fields
+  const{data}=await sb.from('job_custom_fields').select('*').eq('job_id',currentJob.id).order('sort_order');
+  currentFields=data||[];
+  let html='';
+  // Standard fields
+  html+='<div class="form-row"><div class="form-group"><label>First Name <span class="req">*</span></label><input id="af_fname" required></div><div class="form-group"><label>Last Name <span class="req">*</span></label><input id="af_lname" required></div></div>';
+  html+='<div class="form-row"><div class="form-group"><label>Email <span class="req">*</span></label><input id="af_email" type="email" required></div><div class="form-group"><label>Phone</label><input id="af_phone" type="tel"></div></div>';
+  html+='<div class="form-row"><div class="form-group"><label>Location</label><input id="af_location" placeholder="City, State"></div><div class="form-group"><label>Years of Experience</label><input id="af_exp" type="number" min="0"></div></div>';
+  html+='<div class="form-group"><label>Education</label><input id="af_edu" placeholder="e.g., BS Computer Science, Self-taught, etc."></div>';
+  html+='<div class="form-row"><div class="form-group"><label>LinkedIn URL</label><input id="af_linkedin" type="url" placeholder="https://linkedin.com/in/..."></div><div class="form-group"><label>Portfolio URL</label><input id="af_portfolio" type="url" placeholder="https://..."></div></div>';
+  html+='<div class="form-group"><label>Resume</label><div class="file-drop" id="resumeDrop" onclick="document.getElementById(\'af_resume\').click()"><div style="font-size:1.5rem;margin-bottom:.5rem;color:var(--text-muted)">&#128206;</div><div style="font-size:.85rem;color:var(--text-muted)">Click or drag to upload resume</div><div id="resumeName" style="font-size:.82rem;color:var(--accent);margin-top:.5rem"></div><input type="file" id="af_resume" style="display:none" accept=".pdf,.doc,.docx,.txt" onchange="handleResume(this)"></div></div>';
+  html+='<div class="form-group"><label>Cover Letter</label><textarea id="af_cover" placeholder="Tell us why you want to join Knight Ops..."></textarea></div>';
+
+  // Custom fields
+  if(currentFields.length){
+    html+='<hr style="border-color:var(--border);margin:1.5rem 0"><h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Additional Questions</h3>';
+    currentFields.forEach(f=>{
+      const req=f.is_required?'<span class="req">*</span>':'';
+      html+='<div class="form-group"><label>'+f.label+' '+req+'</label>';
+      switch(f.field_type){
+        case 'single_line': html+='<input id="cf_'+f.id+'" '+(f.is_required?'required':'')+'>';break;
+        case 'textarea': html+='<textarea id="cf_'+f.id+'" '+(f.is_required?'required':'')+'></textarea>';break;
+        case 'number': html+='<input type="number" id="cf_'+f.id+'" '+(f.is_required?'required':'')+'>';break;
+        case 'date': html+='<input type="date" id="cf_'+f.id+'" '+(f.is_required?'required':'')+'>';break;
+        case 'email': html+='<input type="email" id="cf_'+f.id+'" '+(f.is_required?'required':'')+'>';break;
+        case 'url': html+='<input type="url" id="cf_'+f.id+'" '+(f.is_required?'required':'')+'>';break;
+        case 'dropdown':
+          html+='<select id="cf_'+f.id+'" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:10px;font-size:.9rem"><option value="">Select...</option>'+(f.options||[]).map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
+          break;
+        case 'radio':
+          html+='<div class="radio-group">'+(f.options||[]).map(o=>'<label><input type="radio" name="cf_'+f.id+'" value="'+o+'">'+o+'</label>').join('')+'</div>';
+          break;
+        case 'multi_select':
+        case 'checklist':
+          html+='<div class="checkbox-group">'+(f.options||[]).map(o=>'<label><input type="checkbox" name="cf_'+f.id+'" value="'+o+'">'+o+'</label>').join('')+'</div>';
+          break;
+        case 'attachment':
+          html+='<div class="file-drop" onclick="document.getElementById(\'cf_file_'+f.id+'\').click()" style="padding:1rem"><div style="font-size:.85rem;color:var(--text-muted)">Upload file</div><div id="cf_fname_'+f.id+'" style="color:var(--accent);font-size:.82rem;margin-top:.25rem"></div><input type="file" id="cf_file_'+f.id+'" style="display:none" onchange="this.previousElementSibling.textContent=this.files[0]?.name||\'\'"></div>';
+          break;
+        default: html+='<input id="cf_'+f.id+'">';
+      }
+      html+='</div>';
+    });
+  }
+  document.getElementById('appModalBody').innerHTML=html;
+  document.getElementById('appModal').classList.add('active');
+
+  // Resume drag-drop
+  setTimeout(()=>{
+    const d=document.getElementById('resumeDrop');
+    if(d){
+      ['dragenter','dragover'].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.add('dragover');}));
+      ['dragleave','drop'].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.remove('dragover');}));
+      d.addEventListener('drop',e=>{
+        if(e.dataTransfer.files.length){
+          const inp=document.getElementById('af_resume');
+          inp.files=e.dataTransfer.files;
+          handleResume(inp);
+        }
+      });
+    }
+  },50);
+}
+
+function handleResume(input){
+  document.getElementById('resumeName').textContent=input.files[0]?.name?input.files[0].name+' ('+Math.round(input.files[0].size/1024)+'KB)':'';
+}
+
+function closeAppModal(){document.getElementById('appModal').classList.remove('active');}
+
+async function submitApplication(){
+  const fname=document.getElementById('af_fname').value.trim();
+  const lname=document.getElementById('af_lname').value.trim();
+  const email=document.getElementById('af_email').value.trim();
+  if(!fname||!lname||!email){showToast('First name, last name, and email are required');return;}
+
+  const btn=document.getElementById('submitAppBtn');
+  btn.disabled=true;btn.textContent='Submitting…';
+
+  try{
+    // Upload resume if present
+    let resumeUrl=null;
+    const resumeFile=document.getElementById('af_resume').files[0];
+    if(resumeFile){
+      const path='careers/resumes/'+Date.now()+'_'+resumeFile.name;
+      const{error:ue}=await sb.storage.from('resources').upload(path,resumeFile);
+      if(!ue){const{data:u}=sb.storage.from('resources').getPublicUrl(path);resumeUrl=u.publicUrl;}
+    }
+
+    // Gather custom answers
+    const customAnswers={};
+    for(const f of currentFields){
+      if(f.field_type==='radio'){
+        const checked=document.querySelector('input[name="cf_'+f.id+'"]:checked');
+        customAnswers[f.id]=checked?checked.value:'';
+      }else if(f.field_type==='multi_select'||f.field_type==='checklist'){
+        const checks=[...document.querySelectorAll('input[name="cf_'+f.id+'"]:checked')].map(c=>c.value);
+        customAnswers[f.id]=checks;
+      }else if(f.field_type==='attachment'){
+        const file=document.getElementById('cf_file_'+f.id)?.files[0];
+        if(file){
+          const path='careers/attachments/'+Date.now()+'_'+file.name;
+          const{error:ue}=await sb.storage.from('resources').upload(path,file);
+          if(!ue){const{data:u}=sb.storage.from('resources').getPublicUrl(path);customAnswers[f.id]=u.publicUrl;}
+        }
+      }else{
+        const el=document.getElementById('cf_'+f.id);
+        customAnswers[f.id]=el?el.value:'';
+      }
+      // Validate required
+      if(f.is_required){
+        const val=customAnswers[f.id];
+        if(!val||(Array.isArray(val)&&!val.length)){
+          showToast(f.label+' is required');
+          btn.disabled=false;btn.textContent='Submit Application';return;
+        }
+      }
+    }
+
+    const payload={
+      job_id:currentJob.id,
+      first_name:fname,
+      last_name:lname,
+      email:email,
+      phone:document.getElementById('af_phone').value||null,
+      location:document.getElementById('af_location').value||null,
+      years_experience:parseInt(document.getElementById('af_exp').value)||null,
+      education:document.getElementById('af_edu').value||null,
+      linkedin_url:document.getElementById('af_linkedin').value||null,
+      portfolio_url:document.getElementById('af_portfolio').value||null,
+      resume_url:resumeUrl,
+      cover_letter:document.getElementById('af_cover').value||null,
+      custom_answers:customAnswers
+    };
+
+    const{error}=await sb.from('job_applications').insert([payload]);
+    if(error)throw error;
+
+    closeAppModal();
+    showToast('Application submitted! We\'ll be in touch.','success');
+  }catch(e){
+    showToast('Error: '+e.message);
+  }finally{
+    btn.disabled=false;btn.textContent='Submit Application';
+  }
+}
+
+init();
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>
