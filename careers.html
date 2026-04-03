@@ -46,6 +46,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.9
 .badge-info{background:rgba(33,150,243,0.1);color:var(--info);border:1px solid rgba(33,150,243,0.2)}
 .no-jobs{text-align:center;padding:3rem;color:var(--text-muted);font-size:1rem}
 
+/* CONFIRMATION SCREEN */
+.confirm-overlay{position:fixed;inset:0;background:rgba(10,10,11,0.97);display:none;align-items:center;justify-content:center;z-index:2000;padding:2rem}
+.confirm-overlay.active{display:flex}
+.confirm-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:600px;width:100%;padding:3rem 2.5rem;text-align:center;position:relative;overflow:hidden}
+.confirm-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#A08636,var(--accent))}
+.confirm-icon{width:80px;height:80px;border-radius:50%;background:rgba(76,175,80,0.15);border:2px solid rgba(76,175,80,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2.5rem}
+.confirm-card h2{font-size:1.8rem;font-weight:800;margin-bottom:.75rem;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.confirm-card p{color:var(--text-muted);font-size:1rem;line-height:1.6;margin-bottom:1rem}
+.confirm-card .highlight{color:var(--accent);font-weight:600}
+.confirm-divider{width:60px;height:2px;background:var(--accent);margin:1.5rem auto;border-radius:2px}
+.confirm-card .book-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 40px;font-size:1.05rem;font-weight:700;border-radius:12px;background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg);border:none;cursor:pointer;transition:all .3s;text-decoration:none;margin-top:.5rem}
+.confirm-card .book-btn:hover{box-shadow:0 0 35px var(--accent-glow);transform:translateY(-2px)}
+.confirm-card .skip-link{display:block;margin-top:1rem;color:var(--text-muted);font-size:.85rem;cursor:pointer;transition:color .3s}
+.confirm-card .skip-link:hover{color:var(--accent)}
+
 /* APPLICATION MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:2rem;overflow-y:auto}
 .modal-overlay.active{display:flex}
@@ -109,6 +124,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.9
   <div class="hero">
     <h1>Build the Future With Us</h1>
     <p>We ship apps overnight and help entrepreneurs create world-class technology. Join the team that makes it happen.</p>
+    <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-top:1rem">
+      <div style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--accent)">$25K+</div><div style="font-size:.78rem;color:var(--text-muted)">Per Deal Potential</div></div>
+      <div style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--accent)">100%</div><div style="font-size:.78rem;color:var(--text-muted)">Remote</div></div>
+      <div style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--accent)">Uncapped</div><div style="font-size:.78rem;color:var(--text-muted)">Commission</div></div>
+      <div style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--accent)">Warm</div><div style="font-size:.78rem;color:var(--text-muted)">Leads Provided</div></div>
+    </div>
   </div>
   <div class="jobs-section">
     <div class="jobs-header">
@@ -136,6 +157,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.9
       <button class="btn btn-secondary" onclick="closeAppModal()">Cancel</button>
       <button class="btn btn-primary" id="submitAppBtn" onclick="submitApplication()">Submit Application</button>
     </div>
+  </div>
+</div>
+
+<!-- CONFIRMATION SCREEN -->
+<div class="confirm-overlay" id="confirmScreen">
+  <div class="confirm-card">
+    <div class="confirm-icon">&#10003;</div>
+    <h2>Application Received!</h2>
+    <p>Your application for <span class="highlight" id="confirmJobTitle"></span> has been submitted successfully.</p>
+    <p>We review every application personally. If there's a fit, you'll hear from us fast — we move quick around here.</p>
+    <div class="confirm-divider"></div>
+    <p style="font-size:1.05rem;color:var(--text);font-weight:600;margin-bottom:.25rem">Want to fast-track your application?</p>
+    <p style="font-size:.92rem">Book a 60-minute intro call with Daniel. This is your chance to stand out, ask questions, and show us who you are beyond the resume.</p>
+    <a href="https://10xunicorn.win/daniel60" target="_blank" class="book-btn">Book Your Call With Daniel &rarr;</a>
+    <div class="skip-link" onclick="closeConfirmScreen()">I'll skip for now — take me back to careers</div>
   </div>
 </div>
 
@@ -295,6 +331,10 @@ function handleResume(input){
 }
 
 function closeAppModal(){document.getElementById('appModal').classList.remove('active');}
+function closeConfirmScreen(){
+  document.getElementById('confirmScreen').classList.remove('active');
+  backToList();
+}
 
 async function submitApplication(){
   const fname=document.getElementById('af_fname').value.trim();
@@ -365,7 +405,9 @@ async function submitApplication(){
     if(error)throw error;
 
     closeAppModal();
-    showToast('Application submitted! We\'ll be in touch.','success');
+    // Show confirmation screen
+    document.getElementById('confirmJobTitle').textContent=currentJob.title;
+    document.getElementById('confirmScreen').classList.add('active');
   }catch(e){
     showToast('Error: '+e.message);
   }finally{
