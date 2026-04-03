@@ -1025,6 +1025,7 @@ async function showProjectDetail(id){
   const tasks=S.tasks.filter(t=>t.project_id===id);
   const{data:comments}=await sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:true});
   document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
+  (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="projComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
 }
@@ -1272,6 +1273,21 @@ function renderApps2(){
     }).join(''):'<tr><td colspan="9" class="table-empty">No applications yet</td></tr>')+
     '</tbody></table>';
 }
+function renderIntakeData(d){
+  const labels={first_name:'First Name',last_name:'Last Name',email:'Email',phone:'Phone',company:'Company',title:'Title',form_type:'Form Type',budget:'Budget',timeline:'Timeline',source:'Source',referral_source:'Referral',q1_time_spent:'Where They Spend Time',q2_revenue_source:'Revenue Source',q3_10x_requirement:'10x Requirement',q4_core_outcome:'Core Outcome',q5_target_users:'Target Users',q6_internal_or_commercial:'Internal/Commercial',q7_platform_type:'Platform',q8_app_store_deploy:'App Store',q9_non_negotiables:'Non-Negotiables',q10_mvp_requirements:'MVP Requirements',bp_time_sink:'Time Sink',bp_revenue_driver:'Revenue Driver',bp_ten_x:'10x Vision',bp_core_outcome:'Core Outcome',bp_target_users:'Target Users',bp_system_type:'System Type',bp_platform:'Platform',bp_deployment:'Deployment',bp_non_negotiables:'Must-Haves',bp_mvp_requirements:'MVP',bp_current_tools:'Current Tools',bp_biggest_bottleneck:'Bottleneck',admin_notes:'Admin Notes',admin_rating:'Rating',utm_source:'UTM Source',utm_medium:'UTM Medium',utm_campaign:'UTM Campaign'};
+  let html='';
+  Object.keys(d).forEach(k=>{
+    const val=d[k];if(!val)return;
+    const label=labels[k]||k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const isLong=String(val).length>80;
+    if(isLong){
+      html+='<div style="grid-column:1/-1"><div class="dg-label">'+label+'</div><div class="dg-value" style="white-space:pre-wrap;font-size:.88rem;line-height:1.5">'+val+'</div></div>';
+    }else{
+      html+='<div><div class="dg-label">'+label+'</div><div class="dg-value">'+String(val).replace(/_/g,' ')+'</div></div>';
+    }
+  });
+  return html;
+}
 function fmtBudget(b){
   const m={under_1500:'< $1.5K','1500_5000':'$1.5K-$5K','5000_10000':'$5K-$10K','10000_25000':'$10K-$25K','25000_plus':'$25K+',not_sure:'TBD',
     under_5k:'< $5K','5k_10k':'$5K-$10K','10k_25k':'$10K-$25K','25k_50k':'$25K-$50K','50k_100k':'$50K-$100K','100k_plus':'$100K+'};
@@ -1298,6 +1314,7 @@ function showAppDetail(id){
       '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
       '<button class="btn btn-sm btn-secondary" style="margin-right:6px;background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
       '<button class="btn btn-sm btn-primary" onclick="createDealFromApp(\''+a.id+'\')" style="margin-right:6px">Create Deal</button>'+
+      '<button class="btn btn-sm btn-primary" style="margin-right:6px;background:rgba(76,175,80,0.15);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="createProjectFromApp(\''+a.id+'\')">Create Project</button>'+
       (a.lead_id?'<button class="btn btn-sm btn-secondary" onclick="showLeadDetail(\''+a.lead_id+'\')" style="margin-right:6px">View Lead</button>':
       '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>')+
       '<button class="btn btn-sm btn-danger" onclick="deleteRecord(\'intake_submissions\',\''+a.id+'\',\'Application\',loadApplications).then(()=>{document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'})" style="margin-left:6px">🗑 Delete</button>'+
@@ -2211,6 +2228,104 @@ async function createDealFromApp(appId){
   // Log activity
   await sb.from('deal_activities').insert([{deal_id:deal.id,activity_type:'other',title:'Deal created from application',description:'Auto-created from intake submission: '+name,created_by:currentUser?.id}]);
   showToast('Deal created!');await loadDeals();navTo('deals');showDealDetail(deal.id);
+}
+
+async function createProjectFromApp(appId){
+  const a=(S.applications||[]).find(x=>x.id===appId);if(!a)return;
+  const name=a.title||((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
+  const coreOutcome=a.bp_core_outcome||a.q4_core_outcome||'';
+  const platform=a.bp_platform||a.q7_platform_type||'';
+  const deployment=a.bp_deployment||a.q8_app_store_deploy||'';
+  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':7497,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':7497,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
+  const val=budgetMap[a.budget]||0;
+  const tierMap={under_1500:'night_launch','1500_5000':'night_launch','5000_10000':'night_build','10000_25000':'night_build_pro','25000_plus':'night_build_pro',under_5k:'night_launch','5k_10k':'night_build','10k_25k':'night_build_pro','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
+  const tier=tierMap[a.budget]||'custom';
+
+  // Build comprehensive description from all application fields
+  let desc='';
+  if(coreOutcome)desc+='**Core Outcome:**\n'+coreOutcome+'\n\n';
+  if(a.bp_target_users||a.q5_target_users)desc+='**Target Users:**\n'+(a.bp_target_users||a.q5_target_users)+'\n\n';
+  if(a.bp_non_negotiables||a.q9_non_negotiables)desc+='**Non-Negotiable Features:**\n'+(a.bp_non_negotiables||a.q9_non_negotiables)+'\n\n';
+  if(a.bp_mvp_requirements||a.q10_mvp_requirements)desc+='**MVP Requirements:**\n'+(a.bp_mvp_requirements||a.q10_mvp_requirements)+'\n\n';
+  if(a.bp_time_sink||a.q1_time_spent)desc+='**Where They Spend Most Time:**\n'+(a.bp_time_sink||a.q1_time_spent)+'\n\n';
+  if(a.bp_revenue_driver||a.q2_revenue_source)desc+='**Revenue Driver:**\n'+(a.bp_revenue_driver||a.q2_revenue_source)+'\n\n';
+  if(a.bp_ten_x||a.q3_10x_requirement)desc+='**10x Requirement:**\n'+(a.bp_ten_x||a.q3_10x_requirement)+'\n\n';
+  if(a.bp_system_type||a.q6_internal_or_commercial)desc+='**System Type:**\n'+(a.bp_system_type||a.q6_internal_or_commercial)+'\n\n';
+  if(a.bp_current_tools)desc+='**Current Tools:**\n'+a.bp_current_tools+'\n\n';
+  if(a.bp_biggest_bottleneck)desc+='**Biggest Bottleneck:**\n'+a.bp_biggest_bottleneck+'\n\n';
+  if(platform)desc+='**Platform:** '+platform.replace(/_/g,' ')+'\n';
+  if(deployment)desc+='**Deployment:** '+deployment.replace(/_/g,' ')+'\n';
+  if(a.budget)desc+='**Budget:** '+fmtBudget(a.budget)+'\n';
+  if(a.timeline)desc+='**Timeline:** '+(a.timeline||'').replace(/_/g,' ')+'\n';
+  if(a.notes)desc+='\n**Notes:**\n'+a.notes+'\n';
+  if(a.admin_notes)desc+='\n**Admin Notes:**\n'+a.admin_notes+'\n';
+
+  // Store all raw intake data as JSON
+  const intakeData={};
+  const fields=['first_name','last_name','email','phone','company','title','form_type','budget','timeline','source','referral_source','utm_source','utm_medium','utm_campaign','q1_time_spent','q2_revenue_source','q3_10x_requirement','q4_core_outcome','q5_target_users','q6_internal_or_commercial','q7_platform_type','q8_app_store_deploy','q9_non_negotiables','q10_mvp_requirements','bp_time_sink','bp_revenue_driver','bp_ten_x','bp_core_outcome','bp_target_users','bp_system_type','bp_platform','bp_deployment','bp_non_negotiables','bp_mvp_requirements','bp_current_tools','bp_biggest_bottleneck','admin_notes','admin_rating','notes'];
+  fields.forEach(f=>{if(a[f])intakeData[f]=a[f];});
+
+  // Find client if lead was converted
+  let clientId=null;
+  if(a.lead_id){
+    const lead=(S.leads||[]).find(l=>l.id===a.lead_id);
+    if(lead?.profile_id){
+      const client=(S.clients||[]).find(c=>c.profile_id===lead.profile_id);
+      if(client)clientId=client.id;
+    }
+  }
+
+  // Pre-fill edit modal so user can review before saving
+  const projName=name+(coreOutcome?' — '+coreOutcome.substring(0,60):'');
+  const body='<div class="form-group"><label>Client</label><select id="e_client">'+clientOptions(clientId)+'</select></div>'+
+    FG('Project Name *','e_name','text',projName)+
+    FG('Description','e_desc','textarea',desc.trim())+
+    FR(FG('Tier','e_tier','select',tier,TIER_OPTS),FG('Contract Value ($)','e_value','number',val))+
+    FR(FG('Start Date','e_start','date',new Date().toISOString().slice(0,10)),FG('Due Date','e_due','date',''))+
+    FG('Status','e_status','select','discovery',PROJ_STATUS_OPTS)+
+    '<input type="hidden" id="e_intakeid" value="'+a.id+'">';
+
+  openEditModal('Create Project from Application',body,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>'+
+    '<button class="btn btn-primary" onclick="saveProjectFromApp()">Create Project</button>');
+}
+
+async function saveProjectFromApp(){
+  const intakeId=document.getElementById('e_intakeid').value;
+  const a=(S.applications||[]).find(x=>x.id===intakeId);
+  const obj={
+    client_id:document.getElementById('e_client').value||null,
+    name:document.getElementById('e_name').value,
+    description:document.getElementById('e_desc').value||null,
+    tier:document.getElementById('e_tier').value,
+    contract_value:parseFloat(document.getElementById('e_value').value)||0,
+    start_date:document.getElementById('e_start').value||null,
+    due_date:document.getElementById('e_due').value||null,
+    status:document.getElementById('e_status').value,
+    intake_id:intakeId,
+    platform:a?.bp_platform||a?.q7_platform_type||null,
+    target_users:a?.bp_target_users||a?.q5_target_users||null,
+    deployment_type:a?.bp_deployment||a?.q8_app_store_deploy||null
+  };
+  // Build intake_data JSON
+  const intakeData={};
+  if(a){
+    const fields=['first_name','last_name','email','phone','company','title','form_type','budget','timeline','source','referral_source','utm_source','utm_medium','utm_campaign','q1_time_spent','q2_revenue_source','q3_10x_requirement','q4_core_outcome','q5_target_users','q6_internal_or_commercial','q7_platform_type','q8_app_store_deploy','q9_non_negotiables','q10_mvp_requirements','bp_time_sink','bp_revenue_driver','bp_ten_x','bp_core_outcome','bp_target_users','bp_system_type','bp_platform','bp_deployment','bp_non_negotiables','bp_mvp_requirements','bp_current_tools','bp_biggest_bottleneck','admin_notes','admin_rating','notes'];
+    fields.forEach(f=>{if(a[f])intakeData[f]=a[f];});
+  }
+  obj.intake_data=intakeData;
+
+  if(!obj.name){showToast('Project name required','error');return;}
+  const{data:proj,error}=await sb.from('projects').insert([obj]).select().single();
+  if(error){showToast('Error: '+error.message,'error');return;}
+  // Update application status
+  await sb.from('intake_submissions').update({status:'converted',converted_at:new Date().toISOString()}).eq('id',intakeId);
+  // Link to deal if one exists
+  const linkedDeal=(S.deals||[]).find(d=>d.intake_id===intakeId);
+  if(linkedDeal){
+    await sb.from('deal_projects').insert([{deal_id:linkedDeal.id,project_id:proj.id}]);
+  }
+  showToast('Project created from application!');closeEditModal();await Promise.all([loadProjects(),loadApplications()]);navTo('projects');showProjectDetail(proj.id);
 }
 
 async function showDealDetail(id){
