@@ -1260,7 +1260,7 @@ function renderApps2(){
   const s=(document.getElementById('appSearch')?.value||'').toLowerCase();
   const st=document.getElementById('appStatusFilter')?.value||'';
   const f=(S.applications||[]).filter(a=>
-    (!s||a.first_name?.toLowerCase().includes(s)||a.last_name?.toLowerCase().includes(s)||a.email?.toLowerCase().includes(s)||a.company?.toLowerCase().includes(s)||a.q4_core_outcome?.toLowerCase().includes(s))&&
+    (!s||a.title?.toLowerCase().includes(s)||a.first_name?.toLowerCase().includes(s)||a.last_name?.toLowerCase().includes(s)||a.email?.toLowerCase().includes(s)||a.company?.toLowerCase().includes(s)||a.q4_core_outcome?.toLowerCase().includes(s))&&
     (!st||a.status===st));
   document.getElementById('appsTable2').innerHTML='<table><thead><tr><th>Name</th><th>Title</th><th>Type</th><th>Project</th><th>Platform</th><th>Budget</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+
     (f.length?f.map(a=>{
