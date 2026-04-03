@@ -222,6 +222,42 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 </div>
 <!-- UNIVERSAL EDIT MODAL -->
 <div class="modal-overlay" id="editModal"><div class="modal"><div class="modal-head"><h2 id="editModalTitle">Edit</h2><button class="close" onclick="closeEditModal()">&#10005;</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-foot" id="editModalFoot"></div></div></div>
+
+<!-- SEND PROPOSAL EMAIL MODAL -->
+<div class="modal-overlay" id="sendProposalModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><h2>✉️ Send Proposal</h2><button class="close" onclick="closeSendModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="sendPropId">
+      <input type="hidden" id="sendIntakeId">
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Recipients (comma-separated emails)</label>
+        <input type="text" id="sendRecipients" placeholder="client@email.com, partner@email.com" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:0.85rem">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Subject Line</label>
+        <input type="text" id="sendSubject" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:0.85rem">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Email Message</label>
+        <textarea id="sendMessage" rows="8" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.85rem;resize:vertical"></textarea>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:8px">Include in Email</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludeWeb" checked> 🌐 Website Link</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludePdf"> 📎 PDF Attachment Link</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer"><input type="checkbox" id="sendIncludeStripe"> 💳 Stripe Payment Link</label>
+        </div>
+        <input type="text" id="sendStripeUrl" placeholder="Stripe payment URL (optional)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.8rem;margin-top:8px;display:none">
+      </div>
+    </div>
+    <div class="modal-foot" style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" onclick="closeSendModal()">Cancel</button>
+      <button class="btn btn-primary" id="sendProposalBtn" onclick="executeSendProposal()">Send Email →</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
@@ -747,16 +783,50 @@ function showAppDetail(id){
       '<div id="proposalBody-'+a.id+'"></div>'+
     '</div>'+
     '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><h3 style="font-size:0.9rem">Build Prompt Preview</h3><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Copy to Clipboard</button></div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem">Build Prompt Preview</h3><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Copy to Clipboard</button></div>'+
+      // Prompt config controls
+      '<div id="promptConfig-'+a.id+'" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">'+
+        '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+          '<div style="font-size:0.8rem;font-weight:600;color:var(--accent);margin-bottom:8px">💳 Stripe Payment Link</div>'+
+          '<input type="text" id="promptStripeUrl-'+a.id+'" placeholder="https://buy.stripe.com/... or leave blank" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.8rem;margin-bottom:8px" oninput="refreshPromptPreview(\''+a.id+'\')">'+
+          '<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);cursor:pointer">'+
+            '<input type="checkbox" id="promptStripeCreate-'+a.id+'" onchange="refreshPromptPreview(\''+a.id+'\')"> Auto-create or search Stripe product in prompt (Claude will handle it)'+
+          '</label>'+
+        '</div>'+
+        '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+          '<div style="font-size:0.8rem;font-weight:600;color:var(--accent);margin-bottom:8px">📄 Output Format</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+            '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="promptFormat-'+a.id+'" value="both" checked onchange="refreshPromptPreview(\''+a.id+'\')"> PDF + HTML</label>'+
+            '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="promptFormat-'+a.id+'" value="pdf" onchange="refreshPromptPreview(\''+a.id+'\')"> PDF Only</label>'+
+            '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="promptFormat-'+a.id+'" value="html" onchange="refreshPromptPreview(\''+a.id+'\')"> HTML Only</label>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
       '<pre id="promptPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
     '</div>';
   // Render the prompt preview
-  document.getElementById('promptPreview-'+a.id).textContent=generateBuildPrompt(a);
+  refreshPromptPreview(a.id);
   // Load proposal state
   loadProposalSection(a);
 }
 
-function generateBuildPrompt(a){
+function refreshPromptPreview(intakeId){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  const opts=getPromptOptions(intakeId);
+  document.getElementById('promptPreview-'+intakeId).textContent=generateBuildPrompt(a,opts);
+}
+
+function getPromptOptions(intakeId){
+  const stripeUrl=(document.getElementById('promptStripeUrl-'+intakeId)||{}).value||'';
+  const stripeCreate=(document.getElementById('promptStripeCreate-'+intakeId)||{}).checked||false;
+  const formatRadios=document.querySelectorAll('input[name="promptFormat-'+intakeId+'"]');
+  let format='both';
+  formatRadios.forEach(r=>{if(r.checked)format=r.value});
+  return{stripeUrl,stripeCreate,format};
+}
+
+function generateBuildPrompt(a,opts){
+  opts=opts||{};
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
   const firstName=a.first_name||'Client';
   const platform=(a.bp_platform||a.q7_platform_type||'not specified').replace(/_/g,' ');
@@ -838,8 +908,23 @@ Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}
 INFERRED PRIMARY OUTCOME: ${primaryOutcome}
 RECOMMENDED TIER: ${recTier}
 
+${opts.stripeUrl?`
+STRIPE PAYMENT LINK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Payment URL: ${opts.stripeUrl}
+Include this Stripe payment link prominently in the proposal wherever pricing / payment CTAs appear. Add it as a "Pay Now" or "Get Started" button alongside the package selector and in the Next Steps section. The mailto decision email should also reference it.
+`:''}${opts.stripeCreate?`
+STRIPE PRODUCT INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Before generating the proposal, search for an existing Stripe product matching this client/project. If one exists, use that product's payment link. If none exists, create a new Stripe product with:
+- Product name: "Knight Ops — ${fullName}${a.company?' ('+a.company+')':''}"
+- Description: Based on the recommended tier and project scope
+- Price: Based on the recommended tier (Night Launch $1,497 / Night Build $7,497 / Night Build Pro $14,997)
+- Create a payment link for the product
+Then embed the payment link in the proposal.
+`:''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-YOUR TASK — PRODUCE 3 OUTPUTS
+YOUR TASK — PRODUCE ${opts.format==='both'?'3':opts.format==='pdf'?'2':'2'} OUTPUTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ╔═══════════════════════════════════════════════╗
@@ -860,13 +945,15 @@ Give me a concise strategic brief IN CHAT. Not a document — just talk to me. C
 - Upsell path if applicable
 
 Keep it tight. Bullets and short paragraphs. This is my internal cheat sheet.
-
+${opts.stripeUrl?`\n- Include the Stripe payment link in your recommendations: ${opts.stripeUrl}`:''}
+${opts.format==='pdf'||opts.format==='both'?`
 ╔═══════════════════════════════════════════════╗
-║  OUTPUT 2: FORMAL PDF PROPOSAL                 ║
+║  OUTPUT ${opts.format==='html'?'—':'2'}: FORMAL PDF PROPOSAL                 ║
 ║  Create as a .pdf file. Branded. Send-ready.   ║
 ╚═══════════════════════════════════════════════╝
 
-Generate a formal, branded PDF proposal for ${fullName}. This goes directly to the client. It must feel premium, confident, and personal — like we already understand exactly what they need.
+Generate a formal, branded PDF proposal for ${fullName}. This goes directly to the client. It must feel premium, confident, and personal — like we already understand exactly what they need.`:`
+(PDF OUTPUT SKIPPED — format set to HTML only)`}
 
 Structure:
 
@@ -891,13 +978,15 @@ SECTIONS:
 FOOTER: Daniel Knight | Founder, Knight Ops | team@knightops.biz | knightops.biz
 
 Use the Knight Ops brand colors: dark background feel, gold accents. Professional typography. Make it look like a $15K agency produced it.
-
+${opts.stripeUrl?`Include a prominent "Pay Now" button linking to: ${opts.stripeUrl}`:''}
+${opts.format==='html'||opts.format==='both'?`
 ╔═══════════════════════════════════════════════════════════╗
-║  OUTPUT 3: INTERACTIVE HTML PROPOSAL                       ║
+║  OUTPUT ${opts.format==='both'?'3':'2'}: INTERACTIVE HTML PROPOSAL                       ║
 ║  Create as a single .html file. Self-contained. No deps.   ║
 ╚═══════════════════════════════════════════════════════════╝
 
-Create a single, self-contained HTML file (no external dependencies) that is an interactive proposal ${firstName} can open in their browser. This is the key deliverable — it lets the client explore packages, select features, and email their decision directly.
+Create a single, self-contained HTML file (no external dependencies) that is an interactive proposal ${firstName} can open in their browser. This is the key deliverable — it lets the client explore packages, select features, and email their decision directly.`:`
+(HTML OUTPUT SKIPPED — format set to PDF only)`}
 
 DESIGN SPECS:
 - Dark theme matching Knight Ops brand: background #0A0A0B, surfaces #111113 / #1A1A1F, gold accent #C8A456, text #F5F5F5, muted #999
@@ -979,7 +1068,7 @@ This section must have a FUNCTIONAL email button. Here's how it works:
 - Show a summary of their selected package
 - A "Payment Preference" toggle: "Full Pay" vs "Split Pay"
 - An optional textarea: "Any changes or notes?"
-- A prominent gold CTA button: "Email My Decision to Knight Ops"
+${opts.stripeUrl?`- A prominent gold CTA button: "Pay & Get Started" linking to ${opts.stripeUrl}\n- Below it, a secondary button: "Email My Decision to Knight Ops"`:'- A prominent gold CTA button: "Email My Decision to Knight Ops"'}
 
 When clicked, the button constructs a mailto: link that opens their email client with:
   To: team@knightops.biz
@@ -1025,9 +1114,9 @@ GLOBAL RULES
 
 function copyBuildPrompt(id){
   const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
-  const prompt=generateBuildPrompt(a);
+  const opts=getPromptOptions(id);
+  const prompt=generateBuildPrompt(a,opts);
   navigator.clipboard.writeText(prompt).then(()=>showToast('Build prompt copied to clipboard!')).catch(()=>{
-    // Fallback
     const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
     showToast('Build prompt copied to clipboard!');
   });
@@ -1257,21 +1346,102 @@ async function replaceProposalFile(proposalId,intakeId,type){
   loadProposalSection(a);
 }
 
-async function sendProposalEmail(proposalId,intakeId){
+function sendProposalEmail(proposalId,intakeId){
   const a=(S.applications||[]).find(x=>x.id===intakeId);
+  if(!a)return;
+  const{data:proposals}=sb.from('proposals').select('*').eq('id',proposalId);
+
+  // Pre-populate the modal
+  document.getElementById('sendPropId').value=proposalId;
+  document.getElementById('sendIntakeId').value=intakeId;
+  document.getElementById('sendRecipients').value=a.email||'';
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Client';
+  document.getElementById('sendSubject').value='Your Project Proposal — Knight Ops';
+
+  // Default message
+  const msg=`Hi ${a.first_name||'there'},
+
+Thank you for submitting your project details to Knight Ops. I've put together a custom proposal based on everything you shared.
+
+I'd love to walk you through it on a quick call — you can book a time here: https://knightops.biz/book
+
+Looking forward to building something great together.
+
+Daniel Knight
+Founder, Knight Ops
+team@knightops.biz`;
+  document.getElementById('sendMessage').value=msg;
+
+  // Check for existing proposal to determine which checkboxes to show
+  document.getElementById('sendIncludeWeb').checked=true;
+  document.getElementById('sendIncludePdf').checked=false;
+  document.getElementById('sendIncludeStripe').checked=false;
+  document.getElementById('sendStripeUrl').style.display='none';
+
+  // Wire stripe checkbox toggle
+  document.getElementById('sendIncludeStripe').onchange=function(){
+    document.getElementById('sendStripeUrl').style.display=this.checked?'block':'none';
+  };
+
+  // Pre-fill stripe URL if it exists in the prompt config
+  const promptStripeEl=document.getElementById('promptStripeUrl-'+intakeId);
+  if(promptStripeEl&&promptStripeEl.value){
+    document.getElementById('sendStripeUrl').value=promptStripeEl.value;
+    document.getElementById('sendIncludeStripe').checked=true;
+    document.getElementById('sendStripeUrl').style.display='block';
+  }
+
+  document.getElementById('sendProposalModal').classList.add('active');
+}
+
+function closeSendModal(){
+  document.getElementById('sendProposalModal').classList.remove('active');
+}
+
+async function executeSendProposal(){
+  const proposalId=document.getElementById('sendPropId').value;
+  const intakeId=document.getElementById('sendIntakeId').value;
+  const recipients=document.getElementById('sendRecipients').value.split(',').map(e=>e.trim()).filter(Boolean);
+  const subject=document.getElementById('sendSubject').value.trim();
+  const message=document.getElementById('sendMessage').value.trim();
+  const includeWeb=document.getElementById('sendIncludeWeb').checked;
+  const includePdf=document.getElementById('sendIncludePdf').checked;
+  const includeStripe=document.getElementById('sendIncludeStripe').checked;
+  const stripeUrl=document.getElementById('sendStripeUrl').value.trim();
+
+  if(!recipients.length){showToast('Add at least one recipient','error');return;}
+  if(!message){showToast('Enter a message','error');return;}
+
+  document.getElementById('sendProposalBtn').disabled=true;
+  document.getElementById('sendProposalBtn').textContent='Sending…';
   showToast('Sending proposal email…');
+
   try{
     const res=await fetch(PROPOSAL_EDGE+'/send-proposal',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({proposal_id:proposalId})
+      body:JSON.stringify({
+        proposal_id:proposalId,
+        recipients:recipients,
+        subject:subject,
+        message:message,
+        include_web:includeWeb,
+        include_pdf:includePdf,
+        include_stripe:includeStripe,
+        stripe_url:stripeUrl
+      })
     });
     const result=await res.json();
     if(!res.ok)throw new Error(result.error||'Send failed');
-    showToast('Proposal email sent to '+((a&&a.email)||'client')+'!');
+    showToast('Proposal sent to '+recipients.join(', ')+'!');
+    closeSendModal();
+    const a=(S.applications||[]).find(x=>x.id===intakeId);
     if(a)loadProposalSection(a);
   }catch(e){
     showToast('Email error: '+e.message,'error');
+  }finally{
+    document.getElementById('sendProposalBtn').disabled=false;
+    document.getElementById('sendProposalBtn').textContent='Send Email →';
   }
 }
 
