@@ -652,13 +652,214 @@ function renderClients(){
   const f=S.clients.filter(c=>(!s||(c.profiles?.full_name||'').toLowerCase().includes(s)||(c.profiles?.email||'').toLowerCase().includes(s))&&(!st||c.status===st));
   document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td>'+B(c.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No clients</td></tr>')+'</tbody></table>';
 }
-function showClientDetail(id){
+async function showClientDetail(id){
   const c=S.clients.find(x=>x.id===id);if(!c)return;const p=c.profiles||{};
   navTo('clients');
   document.getElementById('clientsListView').style.display='none';
   document.getElementById('clientDetailView').style.display='block';
   const projs=S.projects.filter(x=>x.client_id===id);
-  document.getElementById('clientDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'">&#8592; Back to Clients</div><div class="detail-header"><h2>'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(p.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(p.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(p.company||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(c.tier)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(c.status)+'</div></div></div>'+(projs.length?'<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Projects</h2></div><table><thead><tr><th>Name</th><th>Status</th><th>Value</th><th>Due</th></tr></thead><tbody>'+projs.map(pr=>'<tr class="clickable" onclick="showProjectDetail(\''+pr.id+'\')"><td>'+pr.name+'</td><td>'+B(pr.status)+'</td><td>'+fmtMoney(pr.contract_value)+'</td><td>'+fmtDate(pr.due_date)+'</td></tr>').join('')+'</tbody></table></div>':'');
+  // Fetch client apps, credentials, resources
+  const[{data:cApps},{data:cCreds},{data:cRes}]=await Promise.all([
+    sb.from('client_apps').select('*,app_library(*)').eq('client_id',id).order('granted_at',{ascending:false}),
+    sb.from('client_app_credentials').select('*').eq('client_id',id).order('created_at',{ascending:false}),
+    sb.from('resources').select('*').or('client_id.eq.'+id+',client_id.is.null').order('created_at',{ascending:false})
+  ]);
+  const clientApps=cApps||[],clientCreds=cCreds||[],clientRes=cRes||[];
+  const sharedAppIds=clientApps.map(a=>a.app_id);
+  const unsharedApps=S.apps.filter(a=>!sharedAppIds.includes(a.id));
+
+  let html='<div class="detail-back" onclick="document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'">&#8592; Back to Clients</div>';
+  html+='<div class="detail-header"><h2>'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(p.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(p.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(p.company||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(c.tier)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(c.status)+'</div></div></div>';
+
+  // Tabs
+  html+='<div class="cd-tabs" style="display:flex;gap:0;margin-top:1.25rem;border-bottom:2px solid var(--border)">';
+  ['Projects','Apps','Resources','Credentials'].forEach((t,i)=>{
+    html+='<button class="cd-tab'+(i===0?' active':'')+'" onclick="switchCDTab(this,\'cdPanel_'+t.toLowerCase()+'\')" style="padding:10px 20px;background:none;border:none;color:'+(i===0?'var(--accent)':'var(--text-muted)')+';font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid '+(i===0?'var(--accent)':'transparent')+';margin-bottom:-2px;transition:all .2s">'+t+' <span style="font-size:.7rem;opacity:.7">('+[projs.length,clientApps.length,clientRes.length,clientCreds.length][i]+')</span></button>';
+  });
+  html+='</div>';
+
+  // Projects Panel
+  html+='<div class="cd-panel active" id="cdPanel_projects" style="margin-top:1rem">';
+  if(projs.length){
+    html+='<table><thead><tr><th>Name</th><th>Status</th><th>Value</th><th>Due</th></tr></thead><tbody>'+projs.map(pr=>'<tr class="clickable" onclick="showProjectDetail(\''+pr.id+'\')"><td>'+pr.name+'</td><td>'+B(pr.status)+'</td><td>'+fmtMoney(pr.contract_value)+'</td><td>'+fmtDate(pr.due_date)+'</td></tr>').join('')+'</tbody></table>';
+  }else{html+='<p class="table-empty">No projects yet</p>';}
+  html+='</div>';
+
+  // Apps Panel
+  html+='<div class="cd-panel" id="cdPanel_apps" style="margin-top:1rem;display:none">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.95rem">Shared Apps</h3>';
+  if(unsharedApps.length){
+    html+='<div style="display:flex;gap:6px;align-items:center"><select id="shareAppSelect" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.82rem">';
+    html+='<option value="">Select app to share...</option>'+unsharedApps.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('')+'</select>';
+    html+='<button class="btn btn-sm btn-primary" onclick="shareAppToClient(\''+id+'\')">Share</button>';
+    html+='<button class="btn btn-sm btn-secondary" onclick="shareAllAppsToClient(\''+id+'\')">Share All</button></div>';
+  }
+  html+='</div>';
+  if(clientApps.length){
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem">';
+    clientApps.forEach(ca=>{
+      const app=ca.app_library||{};
+      html+='<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:.5rem"><div><h4 style="font-size:.9rem">'+app.name+'</h4><p style="font-size:.75rem;color:var(--text-muted)">'+(app.tagline||app.category||'')+'</p></div>'+B(ca.status)+'</div>';
+      if(ca.notes)html+='<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:.5rem">'+ca.notes+'</p>';
+      html+='<div style="display:flex;gap:6px;margin-top:.5rem">';
+      if(app.access_url||ca.custom_access_url)html+='<a href="'+(ca.custom_access_url||app.access_url)+'" target="_blank" class="btn btn-sm btn-secondary">Open</a>';
+      html+='<button class="btn btn-sm btn-secondary" onclick="editClientApp(\''+ca.id+'\',\''+id+'\')">Edit</button>';
+      html+='<button class="btn btn-sm btn-danger" onclick="revokeClientApp(\''+ca.id+'\',\''+id+'\')">Revoke</button></div></div>';
+    });
+    html+='</div>';
+  }else{html+='<p class="table-empty">No apps shared with this client yet</p>';}
+  html+='</div>';
+
+  // Resources Panel
+  html+='<div class="cd-panel" id="cdPanel_resources" style="margin-top:1rem;display:none">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.95rem">Resources</h3>';
+  html+='<button class="btn btn-sm btn-primary" onclick="editResource()">+ Add Resource</button></div>';
+  const clientOnly=clientRes.filter(r=>r.client_id===id);
+  const globalRes=clientRes.filter(r=>!r.client_id);
+  if(clientOnly.length){
+    html+='<h4 style="font-size:.82rem;color:var(--accent);margin-bottom:.5rem">Client-Specific</h4>';
+    html+='<table><thead><tr><th>Title</th><th>Type</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+    clientOnly.forEach(r=>{
+      html+='<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+B(r.type)+'</td><td>'+fmtDate(r.created_at)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editResource(\''+r.id+'\')">Edit</button></td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  if(globalRes.length){
+    html+='<h4 style="font-size:.82rem;color:var(--text-muted);margin:'+(clientOnly.length?'1rem':'0')+' 0 .5rem">Global Resources</h4>';
+    html+='<table><thead><tr><th>Title</th><th>Type</th><th>Created</th></tr></thead><tbody>';
+    globalRes.forEach(r=>{
+      html+='<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+B(r.type)+'</td><td>'+fmtDate(r.created_at)+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  if(!clientRes.length)html+='<p class="table-empty">No resources</p>';
+  html+='</div>';
+
+  // Credentials Panel
+  html+='<div class="cd-panel" id="cdPanel_credentials" style="margin-top:1rem;display:none">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.95rem">API Keys &amp; Credentials</h3>';
+  html+='<button class="btn btn-sm btn-primary" onclick="addClientCred(\''+id+'\')">+ Add Credential</button></div>';
+  if(clientCreds.length){
+    html+='<table><thead><tr><th>Key</th><th>Value</th><th>App</th><th>Actions</th></tr></thead><tbody>';
+    clientCreds.forEach(cr=>{
+      const linkedApp=clientApps.find(a=>a.id===cr.client_app_id);
+      const appName=linkedApp?.app_library?.name||'General';
+      const masked=cr.is_secret?'••••••••'+cr.credential_value.slice(-4):cr.credential_value;
+      html+='<tr><td style="font-weight:600;font-size:.85rem">'+cr.credential_key+'</td>';
+      html+='<td><span id="credVal_'+cr.id+'" style="font-family:monospace;font-size:.8rem">'+masked+'</span>';
+      if(cr.is_secret)html+=' <button class="btn btn-sm btn-secondary" onclick="toggleAdminCred(\''+cr.id+'\',\''+cr.credential_value.replace(/'/g,"\\'")+'\')" style="padding:2px 6px;font-size:.7rem">Show</button>';
+      html+=' <button class="btn btn-sm btn-secondary" onclick="copyAdminCred(\''+cr.credential_value.replace(/'/g,"\\'")+'\')" style="padding:2px 6px;font-size:.7rem">Copy</button></td>';
+      html+='<td style="font-size:.82rem">'+appName+'</td>';
+      html+='<td><button class="btn btn-sm btn-danger" onclick="deleteAdminCred(\''+cr.id+'\',\''+id+'\')">Delete</button></td></tr>';
+    });
+    html+='</tbody></table>';
+  }else{html+='<p class="table-empty">No credentials stored for this client</p>';}
+  html+='</div>';
+
+  document.getElementById('clientDetailView').innerHTML=html;
+}
+
+function switchCDTab(btn,panelId){
+  document.querySelectorAll('.cd-tab').forEach(t=>{t.style.color='var(--text-muted)';t.style.borderBottomColor='transparent';t.classList.remove('active');});
+  btn.style.color='var(--accent)';btn.style.borderBottomColor='var(--accent)';btn.classList.add('active');
+  document.querySelectorAll('.cd-panel').forEach(p=>{p.style.display='none';p.classList.remove('active');});
+  const panel=document.getElementById(panelId);if(panel){panel.style.display='block';panel.classList.add('active');}
+}
+
+async function shareAppToClient(clientId){
+  const appId=document.getElementById('shareAppSelect')?.value;
+  if(!appId){showToast('Select an app first','error');return;}
+  const{error}=await sb.from('client_apps').insert([{client_id:clientId,app_id:appId,granted_by:currentUser?.id,status:'active'}]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('App shared!');showClientDetail(clientId);
+}
+
+async function shareAllAppsToClient(clientId){
+  const{data:existing}=await sb.from('client_apps').select('app_id').eq('client_id',clientId);
+  const existingIds=(existing||[]).map(e=>e.app_id);
+  const toShare=S.apps.filter(a=>!existingIds.includes(a.id));
+  if(!toShare.length){showToast('All apps already shared','info');return;}
+  const rows=toShare.map(a=>({client_id:clientId,app_id:a.id,granted_by:currentUser?.id,status:'active'}));
+  const{error}=await sb.from('client_apps').insert(rows);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(toShare.length+' apps shared!');showClientDetail(clientId);
+}
+
+async function revokeClientApp(clientAppId,clientId){
+  if(!confirm('Revoke this app access?'))return;
+  const{error}=await sb.from('client_apps').delete().eq('id',clientAppId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('App access revoked');showClientDetail(clientId);
+}
+
+function editClientApp(clientAppId,clientId){
+  const body=FG('Custom Access URL','e_ca_url','url','')+FG('Notes','e_ca_notes','textarea','')+FG('Username (optional)','e_ca_user','text','')+FG('Password (optional)','e_ca_pass','text','');
+  // Pre-fill from existing
+  sb.from('client_apps').select('*').eq('id',clientAppId).single().then(({data:ca})=>{
+    if(ca){
+      document.getElementById('e_ca_url').value=ca.custom_access_url||'';
+      document.getElementById('e_ca_notes').value=ca.notes||'';
+      document.getElementById('e_ca_user').value=ca.username||'';
+      document.getElementById('e_ca_pass').value=ca.password||'';
+    }
+  });
+  openEditModal('Edit App Access',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveClientApp(\''+clientAppId+'\',\''+clientId+'\')">Save</button>');
+}
+
+async function saveClientApp(clientAppId,clientId){
+  const obj={
+    custom_access_url:document.getElementById('e_ca_url').value||null,
+    notes:document.getElementById('e_ca_notes').value||null,
+    username:document.getElementById('e_ca_user').value||null,
+    password:document.getElementById('e_ca_pass').value||null
+  };
+  const{error}=await sb.from('client_apps').update(obj).eq('id',clientAppId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('App access updated!');closeEditModal();showClientDetail(clientId);
+}
+
+function addClientCred(clientId){
+  const appOpts='<option value="">General (no app)</option>';
+  // We'll fetch client apps for the dropdown
+  sb.from('client_apps').select('id,app_library(name)').eq('client_id',clientId).then(({data:apps})=>{
+    const sel=document.getElementById('e_cred_app');
+    if(sel&&apps){apps.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.app_library?.name||'App';sel.appendChild(o);});}
+  });
+  const body='<div class="form-group"><label>Linked App</label><select id="e_cred_app" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:0.9rem"><option value="">General (no app)</option></select></div>'+FG('Key Name *','e_cred_key','text','')+FG('Value *','e_cred_val','text','')+FG('Secret?','e_cred_secret','checkbox',true);
+  openEditModal('Add Credential',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveClientCred(\''+clientId+'\')">Save</button>');
+}
+
+async function saveClientCred(clientId){
+  const key=document.getElementById('e_cred_key').value;
+  const val=document.getElementById('e_cred_val').value;
+  if(!key||!val){showToast('Key and Value required','error');return;}
+  const appId=document.getElementById('e_cred_app').value||null;
+  const{error}=await sb.from('client_app_credentials').insert([{
+    client_id:clientId,
+    client_app_id:appId,
+    credential_key:key,
+    credential_value:val,
+    is_secret:document.getElementById('e_cred_secret').checked
+  }]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Credential saved!');closeEditModal();showClientDetail(clientId);
+}
+
+function toggleAdminCred(credId,fullVal){
+  const el=document.getElementById('credVal_'+credId);
+  if(!el)return;
+  if(el.dataset.shown==='1'){el.textContent='••••••••'+fullVal.slice(-4);el.dataset.shown='0';}
+  else{el.textContent=fullVal;el.dataset.shown='1';}
+}
+
+function copyAdminCred(val){navigator.clipboard.writeText(val);showToast('Copied!');}
+
+async function deleteAdminCred(credId,clientId){
+  if(!confirm('Delete this credential?'))return;
+  const{error}=await sb.from('client_app_credentials').delete().eq('id',credId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Credential deleted');showClientDetail(clientId);
 }
 function editClient(id){
   const c=id?S.clients.find(x=>x.id===id):null;const p=c?.profiles||{};
