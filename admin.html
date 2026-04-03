@@ -2576,9 +2576,11 @@ async function saveInvoiceTotals(invoiceId){
 // INVOICE PDF GENERATOR
 // ═══════════════════════════════════════════════
 async function generateInvoicePDF(invoiceId){
+  try{
   const inv=S.invoices.find(x=>x.id===invoiceId);
   if(!inv){showToast('Invoice not found','error');return;}
   const{data:items}=await sb.from('invoice_items').select('*').eq('invoice_id',invoiceId).order('sort_order');
+  if(!window.jspdf){showToast('PDF library not loaded — refresh and try again','error');return;}
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const W=210,H=297,M=18;
@@ -2690,10 +2692,19 @@ async function generateInvoicePDF(invoiceId){
       2:{halign:'right',cellWidth:35},
       3:{halign:'right',cellWidth:35}
     },
+    didParseCell:function(data){
+      // Gold line under header handled via headStyles border
+    },
     didDrawPage:function(data){
-      // Gold line under header
-      doc.setDrawColor(...gold);doc.setLineWidth(0.3);
-      doc.line(M,data.table.headerRow?data.table.headerRow.y+data.table.headerRow.height:tableY+8,W-M,data.table.headerRow?data.table.headerRow.y+data.table.headerRow.height:tableY+8);
+      try{
+        const hCells=data.table.head;
+        if(hCells&&hCells.length>0&&hCells[0].cells){
+          const firstCell=hCells[0].cells[0];
+          const lineY=firstCell.y+firstCell.height;
+          doc.setDrawColor(...gold);doc.setLineWidth(0.3);
+          doc.line(M,lineY,W-M,lineY);
+        }
+      }catch(e){}
     }
   });
 
@@ -2735,7 +2746,9 @@ async function generateInvoicePDF(invoiceId){
     const btnW=55,btnH=9,btnX=totVX-btnW;
     doc.roundedRect(btnX,tY,btnW,btnH,2,2,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...dark);
-    doc.textWithLink('Pay Online →',btnX+btnW/2,tY+6.2,{url:inv.stripe_payment_link,align:'center'});
+    const payText='Pay Online';
+    const payTW=doc.getTextWidth(payText);
+    doc.textWithLink(payText,btnX+(btnW-payTW)/2,tY+6.2,{url:inv.stripe_payment_link});
     doc.link(btnX,tY,btnW,btnH,{url:inv.stripe_payment_link});
     tY+=btnH+6;
   }
@@ -2775,6 +2788,7 @@ async function generateInvoicePDF(invoiceId){
   const fname='KnightOps-Invoice-'+(inv.invoice_number||inv.id).replace(/[^a-zA-Z0-9-]/g,'')+'.pdf';
   doc.save(fname);
   showToast('Invoice PDF downloaded');
+  }catch(err){console.error('PDF generation error:',err);showToast('PDF error: '+err.message,'error');}
 }
 
 // ═══════════════════════════════════════════════
