@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--border-subtle:rgba(255,255,255,0.06);--error:#E53935;--success:#4CAF50;--warning:#FF9800;--info:#2196F3;--sidebar-w:240px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -42,6 +43,24 @@ a{color:var(--accent);text-decoration:none}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
 .kpi .label{font-size:0.8rem;color:var(--text-muted);margin-bottom:6px}
 .kpi .value{font-size:1.8rem;font-weight:800;color:var(--accent)}
+.kpi .delta{font-size:.7rem;font-weight:600;margin-top:2px}
+.kpi .delta.up{color:#22c55e}
+.kpi .delta.down{color:#ef4444}
+.af-btn{padding:5px 12px !important;font-size:.72rem !important;border-radius:6px !important}
+.af-btn.active{background:var(--accent) !important;color:var(--bg) !important;border-color:var(--accent) !important}
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-bar{height:28px;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:.75rem;font-weight:600;color:var(--bg);transition:width .4s}
+.funnel-label{font-size:.8rem;color:var(--text-muted);min-width:110px;text-align:right}
+.funnel-count{font-size:.8rem;font-weight:700;min-width:40px}
+.source-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.source-bar-wrap{flex:1;height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.source-bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.source-label{font-size:.78rem;color:var(--text-muted);min-width:80px}
+.source-count{font-size:.78rem;font-weight:600;min-width:30px;text-align:right}
+.page-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-subtle);font-size:.8rem}
+.page-row:last-child{border-bottom:none}
+.page-path{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.page-views{color:var(--accent);font-weight:700}
 .kpi .sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
 .table-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .table-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
@@ -162,7 +181,37 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       </div>
     </div>
     <div class="content" id="content">
-      <div class="view active" id="v-dashboard"><div class="kpi-grid" id="kpiGrid"></div><div class="table-card"><div class="table-header"><h2>Recent Leads</h2></div><div id="recentLeads"></div></div></div>
+      <div class="view active" id="v-dashboard">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+          <h2 style="font-size:1.1rem;font-weight:700;margin:0">Analytics Overview</h2>
+          <div id="analyticsFilters" style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-secondary af-btn active" data-range="7d" onclick="setAnalyticsRange('7d',this)">7 Days</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="30d" onclick="setAnalyticsRange('30d',this)">30 Days</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="90d" onclick="setAnalyticsRange('90d',this)">90 Days</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="mtd" onclick="setAnalyticsRange('mtd',this)">This Month</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="ytd" onclick="setAnalyticsRange('ytd',this)">Year to Date</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="1y" onclick="setAnalyticsRange('1y',this)">1 Year</button>
+            <button class="btn btn-sm btn-secondary af-btn" data-range="all" onclick="setAnalyticsRange('all',this)">All Time</button>
+          </div>
+        </div>
+        <!-- Website Traffic Row -->
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Website Traffic</div>
+        <div class="kpi-grid" id="trafficKPIs" style="margin-bottom:1.5rem"></div>
+        <!-- Business Pipeline Row -->
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Business Pipeline</div>
+        <div class="kpi-grid" id="pipelineKPIs" style="margin-bottom:1.5rem"></div>
+        <!-- Charts Row -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Daily Pageviews</h3><canvas id="pvChart" height="200"></canvas></div>
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Traffic Sources</h3><div id="sourcesList"></div></div>
+        </div>
+        <!-- Pipeline funnel + recent activity -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Pipeline Funnel</h3><div id="funnelChart"></div></div>
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Top Pages</h3><div id="topPages"></div></div>
+        </div>
+        <div class="table-card"><div class="table-header"><h2>Recent Leads</h2></div><div id="recentLeads"></div></div>
+      </div>
       <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
@@ -353,12 +402,194 @@ const TASK_TYPE_OPTS=[{v:'development',l:'Development'},{v:'design',l:'Design'},
 const EVENT_TYPE_OPTS=[{v:'workshop',l:'Workshop'},{v:'mastermind',l:'Mastermind'},{v:'webinar',l:'Webinar'},{v:'office_hours',l:'Office Hours'},{v:'launch',l:'Launch'}];
 
 // ═══ DASHBOARD ═══
-function loadDashboard(){
-  const revenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
-  const newApps=(S.applications||[]).filter(x=>x.status==='new').length;
-  document.getElementById('kpiGrid').innerHTML='<div class="kpi"><div class="label">New Applications</div><div class="value" style="cursor:pointer" onclick="navTo(\'applications\')">'+newApps+'</div><div class="sub">'+(S.applications||[]).length+' total</div></div><div class="kpi"><div class="label">New Leads</div><div class="value">'+S.leads.filter(l=>l.status==='new').length+'</div><div class="sub">'+S.leads.length+' total</div></div><div class="kpi"><div class="label">Active Clients</div><div class="value">'+S.clients.filter(c=>c.status==='active').length+'</div><div class="sub">'+S.clients.length+' total</div></div><div class="kpi"><div class="label">In Progress</div><div class="value">'+S.projects.filter(p=>p.status==='in_progress').length+'</div><div class="sub">'+S.projects.length+' projects</div></div><div class="kpi"><div class="label">Open Tasks</div><div class="value">'+S.tasks.filter(t=>t.status!=='done').length+'</div><div class="sub">'+S.tasks.length+' total</div></div><div class="kpi"><div class="label">Pipeline Revenue</div><div class="value">'+fmtMoney(revenue)+'</div></div><div class="kpi"><div class="label">Upcoming Events</div><div class="value">'+S.events.filter(e=>new Date(e.start_time)>new Date()).length+'</div></div>';
+let analyticsRange='7d';
+let pvChartInstance=null;
+
+function getDateRange(range){
+  const now=new Date();
+  let from;
+  switch(range){
+    case '7d':from=new Date(now);from.setDate(from.getDate()-7);break;
+    case '30d':from=new Date(now);from.setDate(from.getDate()-30);break;
+    case '90d':from=new Date(now);from.setDate(from.getDate()-90);break;
+    case 'mtd':from=new Date(now.getFullYear(),now.getMonth(),1);break;
+    case 'ytd':from=new Date(now.getFullYear(),0,1);break;
+    case '1y':from=new Date(now);from.setFullYear(from.getFullYear()-1);break;
+    case 'all':from=new Date('2024-01-01');break;
+    default:from=new Date(now);from.setDate(from.getDate()-7);
+  }
+  return{from:from.toISOString(),to:now.toISOString()};
+}
+
+function setAnalyticsRange(range,btn){
+  analyticsRange=range;
+  document.querySelectorAll('.af-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  loadDashboard();
+}
+
+async function loadDashboard(){
+  const{from,to}=getDateRange(analyticsRange);
+
+  // Parallel fetch: analytics + business data
+  const[analyticsRes,proposalsRes]=await Promise.all([
+    sb.from('site_analytics').select('*').gte('created_at',from).lte('created_at',to).order('created_at',{ascending:true}),
+    sb.from('proposals').select('*').order('created_at',{ascending:false})
+  ]);
+  const analytics=analyticsRes.data||[];
+  const proposals=proposalsRes.data||[];
+
+  // ── TRAFFIC METRICS ──
+  const pageviews=analytics.filter(e=>e.event_type==='pageview');
+  const clicks=analytics.filter(e=>e.event_type==='click');
+  const sessions=analytics.filter(e=>e.event_type==='session_end');
+  const uniqueVisitors=new Set(pageviews.map(e=>e.visitor_id)).size;
+  const totalPageviews=pageviews.length;
+  const totalClicks=clicks.length;
+  const avgDuration=sessions.length?Math.round(sessions.reduce((s,e)=>s+(e.duration_seconds||0),0)/sessions.length):0;
+  const avgDurMin=Math.floor(avgDuration/60);
+  const avgDurSec=avgDuration%60;
+
+  document.getElementById('trafficKPIs').innerHTML=
+    kpiCard('Page Views',fmtNum(totalPageviews),uniqueVisitors+' unique visitors')+
+    kpiCard('Clicks',fmtNum(totalClicks),totalPageviews?Math.round(totalClicks/totalPageviews*100)+'% click rate':'—')+
+    kpiCard('Avg. Time on Site',avgDurMin+'m '+avgDurSec+'s',sessions.length+' sessions tracked')+
+    kpiCard('Unique Visitors',fmtNum(uniqueVisitors),new Set(pageviews.map(e=>e.session_id)).size+' sessions');
+
+  // ── BUSINESS PIPELINE METRICS ──
+  const leadsInRange=S.leads.filter(l=>new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to));
+  const appsInRange=(S.applications||[]).filter(a=>new Date(a.created_at)>=new Date(from)&&new Date(a.created_at)<=new Date(to));
+  const proposalsSent=proposals.filter(p=>p.sent_at&&new Date(p.sent_at)>=new Date(from)&&new Date(p.sent_at)<=new Date(to));
+  const dealsWon=S.leads.filter(l=>l.status==='won'&&l.updated_at&&new Date(l.updated_at)>=new Date(from)&&new Date(l.updated_at)<=new Date(to));
+  const revenueInRange=S.projects.filter(p=>new Date(p.created_at)>=new Date(from)&&new Date(p.created_at)<=new Date(to)).reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+  const totalRevenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+
+  // Meetings booked = leads from book source or any booking-related source
+  const meetingsBooked=S.leads.filter(l=>(l.source==='book'||l.source==='calendly'||l.source==='booking')&&new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to)).length;
+
+  document.getElementById('pipelineKPIs').innerHTML=
+    kpiCard('Leads Submitted',fmtNum(leadsInRange.length),S.leads.length+' all time','cursor:pointer','navTo(\'leads\')')+
+    kpiCard('Applications',fmtNum(appsInRange.length),(S.applications||[]).length+' all time','cursor:pointer','navTo(\'applications\')')+
+    kpiCard('Proposals Sent',fmtNum(proposalsSent.length),proposals.length+' all time')+
+    kpiCard('Meetings Booked',fmtNum(meetingsBooked),'via booking links')+
+    kpiCard('Deals Closed',fmtNum(dealsWon.length),S.leads.filter(l=>l.status==='won').length+' all time')+
+    kpiCard('Revenue (Period)',fmtMoney(revenueInRange),fmtMoney(totalRevenue)+' all time')+
+    kpiCard('Active Projects',S.projects.filter(p=>p.status==='in_progress').length+'',S.projects.length+' total','cursor:pointer','navTo(\'projects\')');
+
+  // ── PAGEVIEWS CHART ──
+  renderPVChart(pageviews);
+
+  // ── TRAFFIC SOURCES ──
+  renderSources(pageviews);
+
+  // ── PIPELINE FUNNEL ──
+  renderFunnel(totalPageviews,leadsInRange.length+appsInRange.length,proposalsSent.length,dealsWon.length,revenueInRange);
+
+  // ── TOP PAGES ──
+  renderTopPages(pageviews);
+
+  // ── RECENT LEADS ──
   const recent=S.leads.slice(0,5);
   document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
+}
+
+function kpiCard(label,value,sub,style,onclick){
+  return'<div class="kpi"'+(style?' style="'+style+'"':'')+(onclick?' onclick="'+onclick+'"':'')+'><div class="label">'+label+'</div><div class="value">'+value+'</div>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>';
+}
+
+function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':n.toString()}
+
+function renderPVChart(pageviews){
+  // Group by day
+  const daily={};
+  pageviews.forEach(pv=>{
+    const day=pv.created_at.substring(0,10);
+    daily[day]=(daily[day]||0)+1;
+  });
+  const labels=Object.keys(daily).sort();
+  const data=labels.map(d=>daily[d]);
+
+  const ctx=document.getElementById('pvChart');
+  if(!ctx)return;
+  if(pvChartInstance){pvChartInstance.destroy();}
+
+  pvChartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:labels.map(d=>{const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}),
+      datasets:[{
+        label:'Pageviews',
+        data:data,
+        backgroundColor:'rgba(200,164,86,0.3)',
+        borderColor:'#C8A456',
+        borderWidth:1,
+        borderRadius:4,
+        hoverBackgroundColor:'rgba(200,164,86,0.6)'
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#999',font:{size:10},maxRotation:45}},
+        y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#999',font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderSources(pageviews){
+  const sources={};
+  pageviews.forEach(pv=>{
+    let src='Direct';
+    if(pv.utm_source)src=pv.utm_source;
+    else if(pv.referrer){
+      try{src=new URL(pv.referrer).hostname.replace('www.','');}catch(e){src=pv.referrer.substring(0,30);}
+    }
+    sources[src]=(sources[src]||0)+1;
+  });
+  const sorted=Object.entries(sources).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max=sorted.length?sorted[0][1]:1;
+  const el=document.getElementById('sourcesList');
+  if(!el)return;
+  if(!sorted.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.8rem">No traffic data yet</p>';return;}
+  el.innerHTML=sorted.map(([src,cnt])=>
+    '<div class="source-row"><div class="source-label">'+src+'</div><div class="source-bar-wrap"><div class="source-bar-fill" style="width:'+Math.round(cnt/max*100)+'%"></div></div><div class="source-count">'+cnt+'</div></div>'
+  ).join('');
+}
+
+function renderFunnel(views,leads,proposals,deals,revenue){
+  const steps=[
+    {label:'Page Views',count:views,color:'#C8A456'},
+    {label:'Leads / Apps',count:leads,color:'#D4B56A'},
+    {label:'Proposals Sent',count:proposals,color:'#22C55E'},
+    {label:'Deals Closed',count:deals,color:'#16A34A'},
+    {label:'Revenue',count:revenue,color:'#0EA5E9',isMoney:true}
+  ];
+  const maxCount=Math.max(...steps.filter(s=>!s.isMoney).map(s=>s.count),1);
+  const el=document.getElementById('funnelChart');
+  if(!el)return;
+  el.innerHTML=steps.map(s=>{
+    const w=s.isMoney?60:Math.max(Math.round(s.count/maxCount*100),8);
+    const val=s.isMoney?fmtMoney(s.count):s.count;
+    return'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div><div class="funnel-bar" style="width:'+w+'%;background:'+s.color+'">'+val+'</div></div>';
+  }).join('');
+}
+
+function renderTopPages(pageviews){
+  const pages={};
+  pageviews.forEach(pv=>{
+    const p=pv.page_path||'/';
+    pages[p]=(pages[p]||0)+1;
+  });
+  const sorted=Object.entries(pages).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const el=document.getElementById('topPages');
+  if(!el)return;
+  if(!sorted.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.8rem">No page data yet</p>';return;}
+  el.innerHTML=sorted.map(([path,cnt])=>
+    '<div class="page-row"><div class="page-path">'+path+'</div><div class="page-views">'+cnt+'</div></div>'
+  ).join('');
 }
 
 // ═══ LEADS ═══
