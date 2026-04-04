@@ -2214,7 +2214,7 @@ function renderIntakeData(d){
     const val=d[k];if(!val)return;
     const label=labels[k]||k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
     const isLong=String(val).length>80;
-    const id='collapse_'+k+'_'+Math.random().toString(36).substr(2,9)';
+    const id='collapse_'+k+'_'+Math.random().toString(36).substr(2,9);
     if(isLong){
       html+='<div style="grid-column:1/-1"><div class="dg-label">'+label+' <span onclick="toggleCollapse(\''+id+'\')" style="cursor:pointer;user-select:none;font-size:0.8rem;color:var(--text-muted)">▼</span></div><div class="dg-value" id="'+id+'" style="white-space:pre-wrap;font-size:.88rem;line-height:1.5;max-height:80px;overflow:hidden;transition:max-height 0.3s ease;text-overflow:ellipsis">'+val+'</div></div>';
     }else{
