@@ -1026,9 +1026,943 @@ async function showProjectDetail(id){
   const{data:comments}=await sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:true});
   document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="filesList-'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="projComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
+  loadProjectFiles(id);
 }
+
+// ═══ PROMPT GENERATORS ═══
+function generateWebsitePrompt(p){
+  const d=p.intake_data||{};
+  return `You are an elite web designer and conversion strategist combining the storytelling frameworks of Donald Miller (StoryBrand), the persuasion patterns of Milton Erickson's Neuro-Linguistic Programming (NLP), and the visual design standards of Apple's Human Interface Guidelines. Your job is to build a complete, production-ready, single-file HTML website that is visually stunning, psychologically compelling, and engineered to convert.
+
+---
+
+## CLIENT BRIEF
+
+**Business Name:** ${d.company||p.name}
+**Industry / Niche:** ${d.form_type||d.bp_system_type||'To be determined'}
+**Website Type:** LANDING PAGE
+**Primary URL (if redesign):** New build
+**Brand Colors:** Match industry best practice — modern, clean, premium
+**Logo:** To be provided
+**Font Preferences:** Match industry best practice — modern, clean, premium
+**Tone of Voice:** Bold & energetic, Professional & authoritative
+
+---
+
+## TARGET AUDIENCE
+
+**Who is the ideal customer?** ${d.bp_target_users||d.q5_target_users||'To be determined based on business type'}
+**What is their primary pain point?** ${d.bp_biggest_bottleneck||d.q1_time_spent||'To be determined'}
+**What is their desired outcome?** ${d.bp_core_outcome||d.q4_core_outcome||'To be determined'}
+**What objections might they have?** Price, trust, timing, complexity
+
+---
+
+## PRIMARY CALL TO ACTION (CTA)
+
+**What is the #1 action you want visitors to take?** Book a call / Sign up / Learn more
+**Secondary CTA (optional):** Download guide, Watch video
+**CTA Destination:** Embed form on page
+
+---
+
+## STORYBRAND FRAMEWORK
+
+1. **The Hero (Customer):** ${d.bp_target_users||d.q5_target_users||'The customer'} who wants ${d.bp_core_outcome||d.q4_core_outcome||'transformation'}
+2. **The Problem:**
+   - External: ${d.bp_biggest_bottleneck||d.q1_time_spent||'The tangible problem'}
+   - Internal: How it makes them feel — frustrated, overwhelmed, stuck
+   - Philosophical: Why it's just wrong — ${d.bp_ten_x||d.q3_10x_requirement||'People deserve better'}
+3. **The Guide (Business):** ${d.company||p.name} — ${d.bp_revenue_driver||d.q2_revenue_source||'trusted expert in their field'}
+4. **The Plan:** 3 simple steps — 1. Discovery → 2. Build → 3. Launch
+5. **The Call to Action:** Direct: "Get Started" | Transitional: "Learn More"
+6. **Success (Stakes):** ${d.bp_core_outcome||d.q4_core_outcome||'Transformation achieved'}
+7. **Failure (Stakes):** Continue struggling with ${d.bp_biggest_bottleneck||'current problems'}
+
+---
+
+## OFFERS & PRICING (if applicable)
+
+Based on project tier: ${p.tier||'To be determined'} — Contract value: ${p.contract_value?'$'+Number(p.contract_value).toLocaleString():'TBD'}
+
+---
+
+## SOCIAL PROOF & TRUST ELEMENTS
+
+**Testimonials:** Generate placeholder testimonials matching industry
+**Stats / Numbers:** To be provided by client
+**Certifications / Awards:** To be provided by client
+
+---
+
+## ADDITIONAL FEATURES TO INCLUDE
+
+- Email capture / newsletter signup
+- FAQ accordion section
+- Contact form
+- Embedded Calendly / booking widget
+
+---
+
+## PAGES TO BUILD
+
+| Page | Purpose | Key Elements |
+|------|---------|-------------|
+| HOME | Primary conversion | Hero, offers, testimonials, CTA |
+
+---
+
+## ADDITIONAL CONTEXT FROM CLIENT INTAKE
+
+**Non-Negotiables:** ${d.bp_non_negotiables||d.q9_non_negotiables||'None specified'}
+**MVP Requirements:** ${d.bp_mvp_requirements||d.q10_mvp_requirements||'None specified'}
+**Current Tools:** ${d.bp_current_tools||'Not specified'}
+**Platform:** ${d.bp_platform||d.q7_platform_type||'Web'}
+**Timeline:** ${p.due_date||d.timeline||'Flexible'}
+${p.description?'\n**Project Description:** '+p.description:''}
+
+---
+
+## BUILD INSTRUCTIONS
+
+### Design System (8 Core Rules)
+
+1. **Color Palette:** Establish a 6-color system (Primary, Secondary, Success, Warning, Danger, Neutral). All text must maintain 4.5:1 contrast ratio for WCAG AA.
+
+2. **Typography Stack:** Use system fonts for performance (San Francisco, Segoe UI, Roboto). Max 3 font weights: regular (400), medium (500), bold (700). Maintain 1.5 line-height minimum for readability.
+
+3. **Spacing System:** Use 8px base unit. Margin/padding scale: 8, 16, 24, 32, 48, 64, 96px. Components must use this scale exclusively.
+
+4. **Component Library:** Buttons (primary, secondary, tertiary, danger), Cards, Forms, Modals, Alerts. Each variant must be defined with hover, active, and disabled states.
+
+5. **Responsive Breakpoints:** Mobile-first approach. Breakpoints: 640px (tablet), 1024px (desktop), 1440px (wide). Test all breakpoints.
+
+6. **Shadows & Depth:** Subtle shadows (0 1px 2px rgba(0,0,0,0.1)). Never more than 4 elevation levels. Use shadow to indicate interactivity.
+
+7. **Animation:** Transitions max 300ms. Use ease-in-out. Disable animations via prefers-reduced-motion.
+
+8. **Accessibility:** All images require alt text. Form labels must be explicit. Keyboard navigation fully supported. Semantic HTML throughout.
+
+### NLP Conversion Patterns (8 Strategic Patterns)
+
+1. **Open Loop & Curiosity:** Start headlines with pattern interrupts. "What if..." or "Discover..." to trigger curiosity loop that resolves with CTA.
+
+2. **Anchoring:** Establish the customer's current pain as anchor, then reframe problem as opportunity your solution solves.
+
+3. **Presupposition:** Use language that assumes the customer wants the benefit. "As you grow your business..." presupposes growth is coming.
+
+4. **Reframing:** Take objections and reframe them. "Yes, this costs X, AND you'll save Y, getting ROI in Z months."
+
+5. **Pacing & Leading:** Match customer's current state (pacing) before leading to desired state. "You're frustrated by X... imagine if instead..."
+
+6. **Metaphor & Modeling:** Use relevant metaphors to simplify complex ideas. "Your business is like a garden—we help it grow."
+
+7. **Authority & Social Proof:** Display credentials, testimonials, case studies. Use specificity: "87% saw results in 30 days" beats "Most saw results."
+
+8. **Scarcity & Urgency (Ethical):** Limited spots, time-bound offers. Must be genuine. "Offering 3 spots for custom strategy sessions this quarter."
+
+### CTA Strategy (7 Points)
+
+1. **Primary CTA Button:** High contrast, 3x padding, clear action verb. "Book Your Discovery Call" > "Learn More".
+
+2. **Button Placement:** Above fold, mid-page, and end of page. Sticky CTAs on mobile.
+
+3. **Micro-Copy:** CTA buttons have supporting text. "30-min consultation, no charge" increases conversion by removing friction.
+
+4. **Form Fields:** Max 3-5 fields for primary CTA. Second form (deeper engagement) can have more. Progressive disclosure.
+
+5. **Exit Intent:** Optional: Show offer when cursor leaves viewport to capture abandoning visitors.
+
+6. **Multi-CTA Strategy:** Primary (highest value), Secondary (alternative), Tertiary (information). Guide visitors along the journey.
+
+7. **Post-CTA:** Clear next step message. "Check your email in 2 minutes for your calendly link."
+
+### Page Structure (13 Sections)
+
+1. **Header/Navigation:** Sticky on scroll. Company logo (left), nav links (center), CTA button (right). Max 5 nav items.
+
+2. **Hero Section:** Headline (8-12 words, benefit-focused), subheading (clarifies headline), hero image/video, primary CTA, trust badges.
+
+3. **Problem Section:** 3-5 statements describing the customer's struggle. Use customer language, not jargon.
+
+4. **Solution Overview:** How your business solves the problem. 3-4 key features with icons.
+
+5. **How It Works:** 3-4 step process with visuals. Step 1 → 2 → 3 → Outcome.
+
+6. **Value Proposition:** Why you're different. Competitive advantages, unique methodology, or proprietary process.
+
+7. **Features/Services Grid:** 6-9 feature cards. Icon, title, brief description.
+
+8. **Case Study / Success Story:** Real client result. Before → After → Metrics. Use actual numbers.
+
+9. **Testimonials Section:** 3 testimonials with name, title, company, photo. Use video testimonials if possible.
+
+10. **FAQ Accordion:** 6-8 common questions. Organized by theme. Expandable for cleaner design.
+
+11. **Pricing (if applicable):** 2-3 tiers. Show what's included, what's not. Recommend middle tier as best value.
+
+12. **Final CTA Section:** Re-state the offer, create urgency ("Limited spots available"), primary CTA again.
+
+13. **Footer:** Company info, contact, links, social icons, copyright. Backup CTA button.
+
+### Technical Requirements
+
+- Single HTML file with embedded CSS and JavaScript
+- Responsive design (mobile, tablet, desktop tested)
+- CSS Grid for layout, Flexbox for components
+- Smooth scroll anchors for section navigation
+- Form validation (email, required fields)
+- Mobile menu (hamburger icon, slide-in nav)
+- Optimized images (WebP with JPEG fallback)
+- Fast load time (<3 seconds on 4G)
+- Cross-browser compatible (Chrome, Safari, Firefox, Edge)
+- SEO meta tags (title, description, og:tags)
+- Google Analytics integration (if client provides tracking ID)
+- Email form integration (to be specified by client)
+`;
+}
+
+function generateFullStackPrompt(p){
+  const d=p.intake_data||{};
+  return `You are a full-stack application architect and developer. Your mission is to build a complete, production-ready, native mobile + web application ecosystem that delivers exceptional user experience, high performance, and secure architecture. This application must be fully functional, scalable, and ready for App Store/Play Store deployment.
+
+---
+
+## CLIENT BRIEF
+
+**Business Name:** ${d.company||p.name}
+**Application Name:** To be determined
+**Primary Industry:** ${d.form_type||d.bp_system_type||'To be determined'}
+**Target Users:** ${d.bp_target_users||d.q5_target_users||'To be determined'}
+**Primary Problem Solved:** ${d.bp_biggest_bottleneck||d.q1_time_spent||'To be determined'}
+**Core Outcome Delivered:** ${d.bp_core_outcome||d.q4_core_outcome||'To be determined'}
+**Revenue Model:** ${d.bp_revenue_driver||d.q2_revenue_source||'To be determined'}
+**Contract Tier:** ${p.tier||'To be determined'}
+**Contract Value:** ${p.contract_value?'$'+Number(p.contract_value).toLocaleString():'TBD'}
+
+---
+
+## APPLICATION REQUIREMENTS
+
+### Platform Strategy
+
+**Primary Platform:** ${d.bp_platform||d.q7_platform_type||'Web/iOS/Android'}
+**Deployment Model:** ${d.bp_deployment||'Cloud-hosted'}
+**User Authentication:** Email/password, OAuth, or both
+**Data Residency:** To be specified (US, EU, etc)
+**Compliance Requirements:** GDPR, CCPA, HIPAA (if applicable)
+
+### User Roles & Access Control
+
+Define 3-5 user roles with distinct permission levels:
+- **Admin/Super Admin:** Full system access, user management, billing
+- **Manager/Team Lead:** Team management, reporting, moderation
+- **Standard User:** Core feature access per their subscription tier
+- **Guest/Viewer:** Read-only access (if applicable)
+- **Restricted User:** Limited feature access based on subscription
+
+### Core Features Checklist
+
+- [ ] User registration & email verification
+- [ ] Login/logout with session management
+- [ ] Password reset flow
+- [ ] User profile management
+- [ ] Role-based access control (RBAC)
+- [ ] Dashboard with key metrics
+- [ ] Primary feature module (${d.bp_system_type||'To be determined'})
+- [ ] Secondary feature modules
+- [ ] Real-time notifications
+- [ ] Search & filtering
+- [ ] Export data (CSV, PDF)
+- [ ] User management interface
+- [ ] Activity logs & audit trail
+- [ ] Settings & preferences
+- [ ] Help/Support system
+- [ ] Mobile responsive design
+
+---
+
+## LANDING PAGE SECTION
+
+Create a landing page that drives sign-ups:
+
+- Hero section with value proposition
+- Problem/solution narrative
+- Feature highlights
+- Pricing tiers
+- Testimonials/social proof
+- FAQ section
+- CTA to sign up for trial or demo
+- Contact form
+
+---
+
+## TECH STACK RECOMMENDATIONS
+
+### Frontend
+
+**Web:** React 18+, TypeScript, Tailwind CSS, React Router, TanStack Query
+**Mobile:** React Native or Flutter for cross-platform, or native (Swift/Kotlin) for premium experience
+**State Management:** Zustand or Redux Toolkit
+**UI Components:** Shadcn/ui or Material-UI
+**Forms:** React Hook Form + Zod validation
+**Testing:** Jest, React Testing Library, Cypress for E2E
+
+### Backend
+
+**Runtime:** Node.js (Express, Fastify) or Python (FastAPI, Django)
+**Language:** TypeScript or Python
+**Authentication:** JWT tokens, refresh token rotation
+**API:** RESTful or GraphQL (recommend REST for simplicity)
+**Rate Limiting:** Redis-based rate limiting
+**Logging:** Structured logging (Winston, Pino, or Python logging)
+**Monitoring:** Sentry for error tracking
+
+### Database
+
+**Primary:** PostgreSQL (ACID compliance, JSON support)
+**Caching:** Redis (sessions, rate limiting, real-time data)
+**File Storage:** AWS S3 or Cloudflare R2
+**Search:** Elasticsearch (if needed for complex search)
+
+### DevOps & Infrastructure
+
+**Hosting:** AWS (EC2, RDS, S3) or Vercel/Railway for simpler setup
+**Container:** Docker + Docker Compose
+**CI/CD:** GitHub Actions, GitLab CI
+**CDN:** Cloudflare
+**Monitoring:** Datadog or New Relic
+**Uptime:** StatusPage.io or custom health checks
+
+### Third-Party Integrations (if applicable)
+
+- **Payment:** Stripe, PayPal
+- **Email:** SendGrid, Mailgun
+- **SMS:** Twilio
+- **Analytics:** PostHog, Mixpanel
+- **Chat:** Intercom, Zendesk
+- **Calendar:** Google Calendar API, Calendly
+- **Webhooks:** Zapier integration
+
+---
+
+## DATABASE SCHEMA APPROACH
+
+Key tables (non-exhaustive):
+
+\`\`\`sql
+-- Users & Auth
+users (id, email, password_hash, full_name, role, created_at)
+sessions (id, user_id, token, expires_at)
+
+-- Core Domain
+${d.bp_system_type?d.bp_system_type.toLowerCase().replace(/ /g,'_')+'s':'resources'} (id, user_id, name, description, metadata, created_at)
+
+-- Audit & Logging
+activity_logs (id, user_id, action, resource_type, resource_id, changes, created_at)
+
+-- Notifications
+notifications (id, user_id, type, message, read_at, created_at)
+
+-- Optional: Billing
+subscriptions (id, user_id, plan, status, current_period_start, current_period_end)
+\`\`\`
+
+---
+
+## 7-PHASE BUILD PLAN
+
+**Phase 1: Foundation (Weeks 1-2)**
+- Project setup, dev environment, Git repo
+- Database schema design & migration system
+- User authentication system (signup, login, password reset)
+- Basic API scaffolding
+
+**Phase 2: Core Features (Weeks 3-5)**
+- Primary feature module fully functional
+- CRUD operations for main entity
+- Data validation & error handling
+- Basic dashboard/home page
+
+**Phase 3: Secondary Features (Weeks 6-8)**
+- Additional feature modules
+- User roles & permission system
+- Search & filtering
+- Mobile responsiveness for web app
+
+**Phase 4: Polish & Performance (Weeks 9-10)**
+- Performance optimization
+- Caching strategy (Redis)
+- Database query optimization
+- Error handling & user feedback improvements
+
+**Phase 5: Testing & QA (Weeks 11-12)**
+- Unit tests (80%+ coverage)
+- Integration tests
+- E2E testing with Cypress
+- Manual QA & bug fixes
+
+**Phase 6: Deployment Prep (Weeks 13-14)**
+- Deployment environment setup
+- Secrets management (env vars)
+- CI/CD pipeline configuration
+- Documentation (API docs, deployment guide)
+
+**Phase 7: Launch & Monitoring (Week 15+)**
+- Deploy to production
+- Monitoring & alerting setup
+- User feedback loops
+- Post-launch optimizations
+
+---
+
+## APP STORE COMPLIANCE CHECKLISTS
+
+### iOS App Store Requirements
+
+- [ ] App name & description (max 30 & 4000 chars)
+- [ ] Keywords (up to 100 chars)
+- [ ] Support URL & privacy policy URL (must be HTTPS)
+- [ ] Screenshots (2-5 per language)
+- [ ] App preview video (15-30 seconds)
+- [ ] Rating icons (age-appropriate)
+- [ ] Category selection (Games, Lifestyle, etc)
+- [ ] Terms of Service (if needed)
+- [ ] Privacy Policy (required, HTTPS only)
+- [ ] Sign in method disclosure
+- [ ] Food & Drink/Healthcare disclaimers (if applicable)
+- [ ] TestFlight beta review (recommended)
+
+### Google Play Store Requirements
+
+- [ ] App name & short description
+- [ ] Full description (4000 chars)
+- [ ] App icon (512x512)
+- [ ] Feature graphic (1024x500)
+- [ ] Screenshots (2-8)
+- [ ] Video preview (optional)
+- [ ] Content rating questionnaire
+- [ ] Privacy policy URL (HTTPS)
+- [ ] Contact email for app support
+- [ ] Target audience age
+- [ ] Permissions justification
+- [ ] Testing account (for restricted features)
+
+---
+
+## ADDITIONAL RECOMMENDATIONS
+
+**Analytics:** Implement user behavior tracking (PostHog) to understand usage patterns and identify UX improvements.
+
+**Feedback Loop:** In-app feedback widget or email feedback mechanism to collect user insights.
+
+**Performance Targets:**
+- Page load: < 2 seconds
+- API response: < 200ms (p95)
+- Database query: < 50ms (p95)
+
+**Security Checklist:**
+- All passwords hashed with bcrypt (salt rounds: 12)
+- HTTPS enforced (HSTS)
+- CSRF protection on forms
+- Input validation on all endpoints
+- Rate limiting on auth endpoints (5 attempts/min)
+- Session timeout (15-30 min inactivity)
+- Secure cookies (HttpOnly, Secure flags)
+
+**Scalability:** Design for 100x growth. Use connection pooling, caching layers, and asynchronous job queues (Bull/RQ) for long-running tasks.
+`;
+}
+
+function generateWebAppPrompt(p){
+  const d=p.intake_data||{};
+  return `You are a senior full-stack web application architect and developer. Your mission is to build a complete, production-ready web application with public-facing landing/marketing site, customer portal, admin dashboard, and super-admin layer. This application must be secure, scalable, performant, and deliver exceptional UX to all user tiers.
+
+---
+
+## CLIENT BRIEF
+
+**Business Name:** ${d.company||p.name}
+**Application Name:** ${p.name} Platform
+**Business Type:** ${d.form_type||d.bp_system_type||'To be determined'}
+**Primary Users:** ${d.bp_target_users||d.q5_target_users||'To be determined'}
+**Core Problem:** ${d.bp_biggest_bottleneck||d.q1_time_spent||'To be determined'}
+**Primary Outcome:** ${d.bp_core_outcome||d.q4_core_outcome||'To be determined'}
+**Revenue Driver:** ${d.bp_revenue_driver||d.q2_revenue_source||'To be determined'}
+**Contract Tier:** ${p.tier||'To be determined'}
+**Contract Value:** ${p.contract_value?'$'+Number(p.contract_value).toLocaleString():'TBD'}
+**Timeline:** ${p.due_date||d.timeline||'Flexible'}
+
+---
+
+## USER ROLES & ACCESS STRUCTURE
+
+**1. Public Visitor (Unauthenticated)**
+- Browse landing page
+- View features, pricing, testimonials
+- Sign up for trial or request demo
+
+**2. Free Tier User (Authenticated)**
+- Access limited features
+- View starter dashboard
+- Limited data/transaction limits
+- Community support
+
+**3. Standard Tier User (Paid Subscription)**
+- Full feature access
+- Advanced analytics dashboard
+- Priority email support
+- Custom integrations
+
+**4. Premium Tier User (Highest Tier)**
+- All features + advanced APIs
+- Dedicated account manager
+- Custom contracts
+- Priority support (phone + email)
+- White-label options (if applicable)
+
+**5. Manager / Team Admin**
+- Manage team members
+- View team analytics
+- Billing management
+- Team settings
+
+**6. Admin (Support/Moderation)**
+- User support & account management
+- Moderation (if applicable)
+- System monitoring
+- Generate support reports
+
+**7. Super Admin (Founders/Technical Leadership)**
+- Full system access
+- User management
+- Billing & payment processing
+- System configuration
+- Developer API access
+- Infrastructure monitoring
+- Audit logs review
+
+---
+
+## PUBLIC-FACING SITE SECTION
+
+### Landing Page Components
+
+- **Header:** Logo, nav links (Features, Pricing, About, Blog), CTA button, hamburger menu (mobile)
+- **Hero:** Headline, subheading, hero image, primary CTA, trust badges
+- **Benefits Section:** 3-5 key benefits with icons/visuals
+- **How It Works:** 4-step process with visuals
+- **Features Grid:** 8-12 features organized by category
+- **Pricing Table:** 2-4 tiers with comparison matrix
+- **Testimonials:** 4-6 customer quotes with photos/video
+- **FAQ Accordion:** 8-12 common questions
+- **Blog/Resources:** Latest articles/case studies
+- **Final CTA Section:** Re-emphasize offer + urgency
+- **Footer:** Links, contact info, social icons, newsletter signup
+
+### Additional Marketing Pages
+
+- **/about:** Company story, team, mission, values
+- **/features:** Detailed feature breakdown with use cases
+- **/pricing:** Detailed pricing tiers with detailed comparison
+- **/case-studies:** Customer success stories with metrics
+- **/blog:** Blog post listing (SEO optimized)
+- **/contact:** Contact form + company info
+- **/legal:** Privacy Policy, Terms of Service
+- **/help:** Help docs, getting started guide
+
+---
+
+## CUSTOMER PORTAL FEATURES
+
+### Dashboard (Primary Landing After Login)
+
+- **Overview Cards:** Key metrics (total usage, quota remaining, account status)
+- **Activity Timeline:** Recent actions by user
+- **Quick Actions:** Primary workflows (create, upload, etc)
+- **Upcoming Alerts:** Billing date, quota limits, deprecation warnings
+
+### Core Feature Modules
+
+${d.bp_system_type?'- **'+d.bp_system_type.toUpperCase()+':** Main workflow for '+d.bp_core_outcome+'\n':''}
+- **Data Management:** View, create, edit, delete primary entities
+- **Reports & Analytics:** Usage graphs, trends, export capabilities
+- **Integrations:** Connect to third-party services (Zapier, webhooks)
+- **API Keys:** Manage personal API tokens
+- **Billing & Subscriptions:** View current plan, usage, invoices, upgrade/downgrade
+- **Account Settings:** Update profile, email, password, timezone, language
+- **Notifications:** Email preferences, notification history
+- **Help & Support:** In-app help, knowledge base, contact form
+
+---
+
+## ADMIN DASHBOARD FEATURES (Staff Access)
+
+### User Management
+
+- **User List:** Search, filter, sort by email/name/signup date/tier
+- **User Details Modal:** View profile, edit role/tier, see activity, suspend/delete account
+- **Bulk Actions:** Change role, tier, or delete multiple users
+- **Export Users:** CSV export for reporting
+
+### Activity Monitoring
+
+- **Activity Logs:** Filter by action type (login, create, delete, export), user, date range
+- **Resource Usage:** Show which users are consuming most resources
+- **Error Logs:** System errors with stack traces (for debugging)
+- **API Usage:** API calls per user, throttled users, failed requests
+
+### Support Tools
+
+- **Ticket Queue:** Support requests/inquiries (if applicable)
+- **User Impersonation:** Switch to user's account for support debugging
+- **Billing Override:** Adjust billing for disputed charges
+- **Mass Communication:** Send announcements to user segments
+
+### Reporting
+
+- **User Metrics:** Signups, active users, churn, LTV
+- **Feature Usage:** Which features are used most
+- **Revenue Dashboard:** MRR, subscription metrics, LTV/CAC
+- **Custom Reports:** Ability to query and export custom data
+
+---
+
+## SUPER ADMIN LAYER (Founders/Technical Team)
+
+### System Configuration
+
+- **Feature Flags:** Toggle features on/off per user, percentage rollout
+- **Email Templates:** Manage transactional emails (welcome, reset password, notifications)
+- **Webhooks:** Configure outgoing webhooks for third-party integration
+- **API Rate Limits:** Adjust rate limits, quota per tier
+- **Environment Variables:** Access to critical config (read-only)
+
+### Database Management
+
+- **Database Backups:** View backup history, restore from snapshots
+- **Data Integrity:** Run data consistency checks
+- **Schema Monitoring:** Track schema changes, migrations status
+- **Data Exports:** Export entire user data for backups or GDPR requests
+
+### Financial Management
+
+- **Stripe Integration:** View charges, refunds, disputes
+- **Billing Disputes:** Review and resolve billing issues
+- **Dunning Management:** Configure failed payment retry logic
+- **Revenue Recognition:** View monthly revenue, ARR, MRR
+
+### Infrastructure & Monitoring
+
+- **Server Status:** CPU, memory, disk usage, uptime
+- **Error Tracking:** Sentry dashboard for exceptions
+- **Performance Metrics:** Database queries, API response times
+- **Deployment History:** View previous deployments, rollback if needed
+
+### Audit & Compliance
+
+- **Audit Logs:** All admin actions (user deletion, tier change, etc)
+- **Data Access Logs:** Who accessed what data and when
+- **Compliance Reports:** SOC 2, GDPR, CCPA readiness
+- **IP Allowlisting:** Restrict admin access by IP
+
+---
+
+## AUTH & SECURITY
+
+### Authentication Strategy
+
+- **Email/Password:** bcrypt with 12 salt rounds
+- **OAuth (Optional):** Google, GitHub, Microsoft
+- **Magic Links (Optional):** Passwordless email login
+- **2FA (Optional):** TOTP or SMS (especially for admin)
+- **Session Management:** JWT tokens (short-lived) + refresh tokens (long-lived)
+- **Session Timeout:** 15 min inactivity for admin, 30 days for users
+
+### Security Practices
+
+- **HTTPS Enforced:** HSTS headers, secure cookies
+- **CSRF Protection:** Token-based CSRF for all state-changing requests
+- **Input Validation:** Validate all inputs server-side, sanitize HTML
+- **Rate Limiting:** 5 failed logins = 15 min lockout
+- **Password Policy:** Min 8 chars, complexity not enforced (UX friendly)
+- **Secrets Management:** Environment variables, secret rotation
+- **CORS:** Restrict to known domains
+- **Headers:** Security headers (X-Frame-Options, X-Content-Type-Options, etc)
+
+### Data Privacy
+
+- **Encryption at Rest:** Database encryption, S3 encryption
+- **Encryption in Transit:** TLS 1.2+
+- **GDPR Compliance:** Right to export, right to deletion
+- **Data Retention:** Define retention policies per data type
+- **Anonymization:** PII removal for analytics
+
+---
+
+## TECH STACK
+
+### Frontend
+
+- **Framework:** React 18+, TypeScript
+- **Styling:** Tailwind CSS + Shadcn/ui components
+- **Routing:** React Router v6
+- **State:** Zustand or TanStack Query for server state
+- **Forms:** React Hook Form + Zod validation
+- **Charts:** Recharts or Chart.js
+- **Testing:** Jest, React Testing Library, Cypress E2E
+- **Build:** Vite or Next.js
+
+### Backend
+
+- **Framework:** Express.js or Fastify (Node.js) OR FastAPI (Python)
+- **Language:** TypeScript or Python
+- **ORM:** Prisma (Node.js) or SQLAlchemy (Python)
+- **Authentication:** JWT (jsonwebtoken)
+- **Validation:** Zod (TypeScript) or Pydantic (Python)
+- **Logging:** Winston/Pino (Node) or structlog (Python)
+- **Testing:** Jest, Supertest (integration), Artillery (load)
+
+### Database & Cache
+
+- **Primary Database:** PostgreSQL (ACID, JSON support)
+- **Caching:** Redis (sessions, real-time data, job queue)
+- **Search (Optional):** Elasticsearch
+- **File Storage:** AWS S3 or Cloudflare R2
+
+### DevOps & Hosting
+
+- **Hosting:** AWS (RDS, EC2/ECS, S3), Vercel (frontend), Railway (backend)
+- **Container:** Docker + Docker Compose
+- **CI/CD:** GitHub Actions
+- **CDN:** Cloudflare
+- **Email:** SendGrid or Mailgun
+- **Payments:** Stripe
+- **Monitoring:** Sentry, Datadog, or New Relic
+
+---
+
+## DATABASE SCHEMA OVERVIEW
+
+\`\`\`sql
+-- Users & Auth
+users (id, email, password_hash, full_name, role, tier, created_at, updated_at)
+sessions (id, user_id, token, expires_at)
+api_keys (id, user_id, key_hash, name, last_used, created_at)
+
+-- Billing & Subscriptions
+subscriptions (id, user_id, plan, status, stripe_subscription_id, current_period_start, current_period_end)
+invoices (id, user_id, amount, status, stripe_invoice_id, created_at)
+
+-- Core Domain (adjust to business)
+${d.bp_system_type?d.bp_system_type.toLowerCase().replace(/ /g,'_')+' (id, user_id, name, description, created_at)':
+'resources (id, user_id, name, description, created_at)'}
+
+-- Audit & Logging
+audit_logs (id, user_id, action, resource_type, resource_id, changes, ip_address, created_at)
+activity_logs (id, user_id, action, details, created_at)
+
+-- Notifications
+notifications (id, user_id, type, message, read_at, created_at)
+email_logs (id, user_id, template, status, error, created_at)
+\`\`\`
+
+---
+
+## 10-PHASE BUILD PLAN
+
+**Phase 1: Foundation (Weeks 1-2)**
+- Project structure, dev environment, Git repo
+- Database schema design, migration system
+- User model, authentication (email/password)
+- API scaffolding, basic error handling
+
+**Phase 2: Public Site (Weeks 3-4)**
+- Landing page (hero, benefits, CTA)
+- Features page
+- Pricing page
+- Blog/resources listing
+- SEO setup (meta tags, sitemap, robots.txt)
+
+**Phase 3: User Auth & Portal Foundation (Weeks 5-6)**
+- Sign up / login / password reset flows
+- Email verification
+- Basic dashboard/home page
+- User profile settings
+- Subscription tier system
+
+**Phase 4: Core Features (Weeks 7-9)**
+- Primary feature module (CRUD operations)
+- Data validation and error handling
+- Real-time updates (if applicable)
+- Search and filtering
+
+**Phase 5: Advanced Portal Features (Weeks 10-11)**
+- Analytics dashboard
+- Reporting & exports
+- Integrations/API keys
+- Billing dashboard
+- Help & support system
+
+**Phase 6: Admin Dashboard (Weeks 12-13)**
+- User management interface
+- Activity logs & monitoring
+- Billing/payment processing
+- Support tools
+
+**Phase 7: Super Admin Layer (Weeks 14-15)**
+- Feature flags management
+- System configuration
+- Infrastructure monitoring
+- Audit logs
+
+**Phase 8: Performance & Optimization (Weeks 16-17)**
+- Database query optimization
+- Caching strategy (Redis)
+- Frontend code splitting
+- Image optimization
+- Load testing
+
+**Phase 9: Testing & QA (Weeks 18-19)**
+- Unit tests (80%+ coverage)
+- Integration tests
+- E2E tests
+- Security audit
+- Manual QA / bug fixes
+
+**Phase 10: Deployment & Launch (Weeks 20+)**
+- Production deployment
+- Monitoring & alerting
+- Post-launch optimizations
+- User onboarding improvements
+
+---
+
+## INTEGRATIONS & THIRD-PARTY SERVICES
+
+- **Payments:** Stripe (subscriptions, one-time payments)
+- **Email:** SendGrid (transactional + marketing)
+- **Webhooks:** Zapier integration for third-party apps
+- **Analytics:** PostHog or Mixpanel for user behavior
+- **Error Tracking:** Sentry for exception handling
+- **Uptime Monitoring:** Statuspage.io or Uptimerobot
+
+---
+
+## SUCCESS METRICS & KPIs
+
+- **Signup Conversion:** % visitors who sign up
+- **Free-to-Paid:** % free users upgrading
+- **Monthly Active Users (MAU):** Engaged users per month
+- **Retention:** % users returning after 30/60/90 days
+- **Churn:** % subscribers canceling per month
+- **ARPU:** Average revenue per user
+- **Feature Adoption:** % users using each feature
+- **API Uptime:** Target 99.9%
+
+---
+
+## RECOMMENDATIONS
+
+1. **Start with MVP:** Don't build all features day 1. Prioritize core value prop.
+2. **Mobile First:** Design responsive from the start (mobile + desktop).
+3. **Feedback Loops:** Collect user feedback early and iterate.
+4. **Documentation:** Keep API docs, deployment guides, and runbooks updated.
+5. **Monitoring:** Set up observability (logs, metrics, traces) from day 1.
+6. **Security:** Encrypt sensitive data, use HTTPS, regularly audit permissions.
+7. **Scalability:** Design for 10x growth. Use CDN, caching, and async jobs.
+`;
+}
+
+function showBuildPrompt(type,projectId){
+  const p=S.projects.find(x=>x.id===projectId);
+  if(!p)return;
+  let prompt='';
+  if(type==='website')prompt=generateWebsitePrompt(p);
+  else if(type==='fullstack')prompt=generateFullStackPrompt(p);
+  else if(type==='webapp')prompt=generateWebAppPrompt(p);
+
+  document.getElementById('promptOutput').style.display='block';
+  document.getElementById('promptText').textContent=prompt;
+
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp'].forEach(id=>{
+    const btn=document.getElementById(id);
+    if(btn)btn.style.background='transparent';
+  });
+  const activeBtn=document.getElementById('promptBtn'+{website:'Website',fullstack:'FullStack',webapp:'WebApp'}[type]);
+  if(activeBtn)activeBtn.style.background='rgba(200,164,86,0.15)';
+}
+
+function copyBuildPrompt(){
+  const text=document.getElementById('promptText')?.textContent;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>showToast('Prompt copied to clipboard!')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Prompt copied!');
+  });
+}
+
+function toggleCollapse(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(el.style.maxHeight==='none'){
+    el.style.maxHeight='80px';
+    const span=el.closest('div')?.querySelector('.dg-label span');
+    if(span)span.textContent='▼';
+  }else{
+    el.style.maxHeight='none';
+    const span=el.closest('div')?.querySelector('.dg-label span');
+    if(span)span.textContent='▲';
+  }
+}
+
+async function loadProjectFiles(projectId){
+  const{data,error}=await sb.storage.from('project-files').list(projectId+'/');
+  const container=document.getElementById('projectFiles_'+projectId);
+  if(!container)return;
+  if(error||!data||!data.length){
+    container.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">No files uploaded yet</p>';
+    return;
+  }
+  container.innerHTML=data.map(f=>{
+    const url=sb.storage.from('project-files').getPublicUrl(projectId+'/'+f.name).data.publicUrl;
+    const size=f.metadata?.size?Math.round(f.metadata.size/1024)+' KB':'';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle)"><div><a href="'+url+'" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.9rem">'+f.name+'</a>'+(size?' <span style="color:var(--text-muted);font-size:0.8rem">('+size+')</span>':'')+'</div><button class="btn btn-sm btn-danger" onclick="deleteProjectFile(\''+projectId+'\',\''+f.name.replace(/'/g,"\\'")+'\')" style="cursor:pointer">🗑</button></div>';
+  }).join('');
+}
+
+function uploadProjectFile(projectId){
+  const input=document.createElement('input');
+  input.type='file';
+  input.onchange=async(e)=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    showToast('Uploading...');
+    const{error}=await sb.storage.from('project-files').upload(projectId+'/'+file.name,file,{upsert:true});
+    if(error){showToast('Upload error: '+error.message,'error');return;}
+    showToast('File uploaded!');
+    loadProjectFiles(projectId);
+  };
+  input.click();
+}
+
+async function deleteProjectFile(projectId,fileName){
+  if(!confirm('Delete '+fileName+'?'))return;
+  const{error}=await sb.storage.from('project-files').remove([projectId+'/'+fileName]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('File deleted');
+  loadProjectFiles(projectId);
+}
+
 function editProject(id){
   const p=id?S.projects.find(x=>x.id===id):null;
   const body='<div class="form-group"><label>Client *</label><select id="e_client">'+clientOptions(p?.client_id)+'</select></div>'+FG('Project Name *','e_name','text',p?.name)+FG('Description','e_desc','textarea',p?.description)+FR(FG('Tier','e_tier','select',p?.tier||'night_launch',TIER_OPTS),FG('Contract Value ($)','e_value','number',p?.contract_value))+FR(FG('Start Date','e_start','date',p?.start_date),FG('Due Date','e_due','date',p?.due_date))+FG('Status','e_status','select',p?.status||'discovery',PROJ_STATUS_OPTS);
@@ -1280,8 +2214,9 @@ function renderIntakeData(d){
     const val=d[k];if(!val)return;
     const label=labels[k]||k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
     const isLong=String(val).length>80;
+    const id='collapse_'+k+'_'+Math.random().toString(36).substr(2,9)';
     if(isLong){
-      html+='<div style="grid-column:1/-1"><div class="dg-label">'+label+'</div><div class="dg-value" style="white-space:pre-wrap;font-size:.88rem;line-height:1.5">'+val+'</div></div>';
+      html+='<div style="grid-column:1/-1"><div class="dg-label">'+label+' <span onclick="toggleCollapse(\''+id+'\')" style="cursor:pointer;user-select:none;font-size:0.8rem;color:var(--text-muted)">▼</span></div><div class="dg-value" id="'+id+'" style="white-space:pre-wrap;font-size:.88rem;line-height:1.5;max-height:80px;overflow:hidden;transition:max-height 0.3s ease;text-overflow:ellipsis">'+val+'</div></div>';
     }else{
       html+='<div><div class="dg-label">'+label+'</div><div class="dg-value">'+String(val).replace(/_/g,' ')+'</div></div>';
     }
