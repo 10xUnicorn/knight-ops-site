@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knight Ops - Project Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --bg: #0A0A0B;
+            --surface: #111113;
+            --surface-2: #1A1A1D;
+            --border: #2A2A2D;
+            --accent: #C8A456;
+            --text: #F5F5F5;
+            --text-muted: #999;
+            --success: #4CAF50;
+            --error: #FF6B6B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-name {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Auth Status */
+        .auth-status {
+            padding: 1rem;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .auth-status.error {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .auth-status.loading {
+            color: var(--text-muted);
+        }
+
+        .auth-status.success {
+            border-color: var(--success);
+            color: var(--success);
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Form Section */
+        .form-section {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .form-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        /* Type Selector */
+        .type-selector {
+            margin-bottom: 2rem;
+        }
+
+        .type-selector label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .type-btn {
+            padding: 0.75rem 1rem;
+            background-color: var(--surface-2);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .type-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .type-btn.active {
+            background-color: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(200, 164, 86, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            padding: 0.85rem 2rem;
+            background-color: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(200, 164, 86, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Success Message */
+        .success-message {
+            padding: 1rem;
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 6px;
+            color: var(--success);
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Previous Submissions */
+        .submissions-section {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .submissions-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .submissions-empty {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Submissions Table */
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .submissions-table thead {
+            border-bottom: 2px solid var(--border);
+        }
+
+        .submissions-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submissions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .submissions-table tbody tr:hover {
+            background-color: var(--surface-2);
+        }
+
+        .submission-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .submission-type.feedback {
+            border-color: #64B5F6;
+            color: #64B5F6;
+        }
+
+        .submission-type.bug {
+            border-color: #FF6B6B;
+            color: #FF6B6B;
+        }
+
+        .submission-type.feature {
+            border-color: #81C784;
+            color: #81C784;
+        }
+
+        .submission-type.other {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .submission-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-section,
+            .submissions-section {
+                padding: 1.5rem;
+            }
+
+            .type-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .submissions-table {
+                font-size: 0.9rem;
+            }
+
+            .submissions-table th,
+            .submissions-table td {
+                padding: 0.75rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">⚡ KNIGHT OPS</div>
+            <div class="header-info">
+                <h1>Project Portal</h1>
+                <div class="project-name" id="projectName">Loading project<span class="loading"></span></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Auth Status -->
+            <div class="auth-status" id="authStatus"></div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <strong>Success!</strong> Your submission has been sent to the team.
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>Submit Feedback</h2>
+
+                <div class="type-selector">
+                    <label>Submission Type</label>
+                    <div class="type-buttons">
+                        <button class="type-btn active" data-type="feedback">Feedback</button>
+                        <button class="type-btn" data-type="bug">Bug Report</button>
+                        <button class="type-btn" data-type="feature">Feature Request</button>
+                        <button class="type-btn" data-type="other">Other</button>
+                    </div>
+                </div>
+
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label for="title">Title <span style="color: var(--error);">*</span></label>
+                        <input type="text" id="title" name="title" required placeholder="Brief summary of your feedback">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Description <span style="color: var(--error);">*</span></label>
+                        <textarea id="content" name="content" required placeholder="Provide details about your feedback, bug, or feature request..."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+                </form>
+            </div>
+
+            <!-- Previous Submissions -->
+            <div class="submissions-section">
+                <h2>Your Previous Submissions</h2>
+                <div id="submissionsList">
+                    <div class="submissions-empty">Loading submissions<span class="loading"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // State
+        let session = null;
+        let projectData = null;
+        let selectedType = 'feedback';
+
+        // Show auth status
+        function showAuthStatus(message, type = 'loading') {
+            const statusEl = document.getElementById('authStatus');
+            statusEl.textContent = message;
+            statusEl.className = `auth-status ${type}`;
+            statusEl.style.display = 'block';
+        }
+
+        // Hide auth status
+        function hideAuthStatus() {
+            const statusEl = document.getElementById('authStatus');
+            statusEl.style.display = 'none';
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                showAuthStatus('Verifying access...', 'loading');
+
+                // Check for existing session
+                const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) {
+                    throw new Error('Session error: ' + sessionError.message);
+                }
+
+                session = currentSession;
+
+                if (!session) {
+                    showAuthStatus('No active session. Please use the magic link from your email.', 'error');
+                    document.getElementById('feedbackForm').style.display = 'none';
+                    return;
+                }
+
+                hideAuthStatus();
+
+                // Load user data and project
+                await loadProjectData();
+                await loadPreviousSubmissions();
+
+                // Form handling
+                setupFormHandlers();
+            } catch (error) {
+                console.error('Init error:', error);
+                showAuthStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Load project data
+        async function loadProjectData() {
+            try {
+                const userId = session.user.id;
+                const userEmail = session.user.email;
+
+                // Look up client_id from user metadata or profile
+                // First, check if user is in a clients table or has profile
+                const { data: userData, error: userError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (userError && userError.code !== 'PGRST116') {
+                    throw userError;
+                }
+
+                let clientId = userData?.client_id;
+
+                // If not found in profiles, try to find by email in clients table
+                if (!clientId) {
+                    const { data: clientData, error: clientError } = await supabase
+                        .from('clients')
+                        .select('id')
+                        .eq('email', userEmail)
+                        .single();
+
+                    if (clientError && clientError.code !== 'PGRST116') {
+                        throw clientError;
+                    }
+
+                    clientId = clientData?.id;
+                }
+
+                if (!clientId) {
+                    throw new Error('Could not identify your client account.');
+                }
+
+                // Get projects for this client
+                const { data: projects, error: projectError } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .eq('client_id', clientId);
+
+                if (projectError) {
+                    throw projectError;
+                }
+
+                if (!projects || projects.length === 0) {
+                    throw new Error('No projects found for your account.');
+                }
+
+                // Use first project (or could implement selector if multiple)
+                projectData = projects[0];
+                document.getElementById('projectName').textContent = projectData.name || 'Your Project';
+
+            } catch (error) {
+                console.error('Load project error:', error);
+                throw error;
+            }
+        }
+
+        // Load previous submissions
+        async function loadPreviousSubmissions() {
+            try {
+                const { data: submissions, error } = await supabase
+                    .from('comments')
+                    .select('*')
+                    .eq('project_id', projectData.id)
+                    .eq('user_id', session.user.id)
+                    .eq('is_client_facing', true)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                const submissionsList = document.getElementById('submissionsList');
+
+                if (!submissions || submissions.length === 0) {
+                    submissionsList.innerHTML = '<div class="submissions-empty">No submissions yet. Submit your first feedback above!</div>';
+                    return;
+                }
+
+                // Build table
+                let html = `
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                submissions.forEach(sub => {
+                    const date = new Date(sub.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    const typeClass = getTypeClass(sub.comment_type);
+                    const typeLabel = getTypeLabel(sub.comment_type);
+
+                    html += `
+                        <tr>
+                            <td><span class="submission-type ${typeClass}">${typeLabel}</span></td>
+                            <td>${escapeHtml(sub.title)}</td>
+                            <td class="submission-date">${date}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                submissionsList.innerHTML = html;
+
+            } catch (error) {
+                console.error('Load submissions error:', error);
+                document.getElementById('submissionsList').innerHTML = '<div class="submissions-empty">Error loading submissions.</div>';
+            }
+        }
+
+        // Setup form handlers
+        function setupFormHandlers() {
+            // Type selector
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedType = btn.dataset.type;
+                });
+            });
+
+            // Form submission
+            document.getElementById('feedbackForm').addEventListener('submit', handleSubmit);
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title || !content) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                // Insert into comments table
+                const { data: comment, error: insertError } = await supabase
+                    .from('comments')
+                    .insert([
+                        {
+                            comment_type: selectedType,
+                            title: title,
+                            content: content,
+                            project_id: projectData.id,
+                            user_id: session.user.id,
+                            user_name: session.user.email,
+                            is_client_facing: true
+                        }
+                    ])
+                    .select();
+
+                if (insertError) {
+                    throw insertError;
+                }
+
+                // Call notification edge function
+                try {
+                    const typeLabel = getTypeLabel(selectedType);
+                    await fetch(`${SUPABASE_URL}/functions/v1/notify-comment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + session.access_token
+                        },
+                        body: JSON.stringify({
+                            project_name: projectData.name,
+                            title: title,
+                            content: content,
+                            type: typeLabel,
+                            submitted_by: session.user.email
+                        })
+                    });
+                } catch (notifyError) {
+                    console.error('Notification error (non-fatal):', notifyError);
+                }
+
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                successMsg.classList.add('show');
+                setTimeout(() => {
+                    successMsg.classList.remove('show');
+                }, 5000);
+
+                // Reset form
+                document.getElementById('feedbackForm').reset();
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-type="feedback"]').classList.add('active');
+                selectedType = 'feedback';
+
+                // Reload submissions
+                await loadPreviousSubmissions();
+
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Error submitting feedback: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+        }
+
+        // Utility functions
+        function getTypeClass(type) {
+            const classes = {
+                'feedback': 'feedback',
+                'bug': 'bug',
+                'feature': 'feature',
+                'other': 'other'
+            };
+            return classes[type] || 'other';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'feedback': 'Feedback',
+                'bug': 'Bug Report',
+                'feature': 'Feature Request',
+                'other': 'Other'
+            };
+            return labels[type] || type;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
