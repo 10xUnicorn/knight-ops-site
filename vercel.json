@@ -51,6 +51,10 @@
     {
       "source": "/client-portal",
       "destination": "/client-portal.html"
+    },
+    {
+      "source": "/review",
+      "destination": "/review.html"
     }
   ],
   "headers": [
