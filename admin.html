@@ -169,7 +169,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
-      <div class="nav-item" data-view="careers"><span class="icon">💼</span> Careers</div>
+      <div class="nav-item" data-view="careers"><span class="icon">&#9645;</span> Careers</div>
       <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
@@ -4437,8 +4437,9 @@ async function loadReviews(){
   S.reviews=data||[];renderReviews();
 }
 async function loadReviewSettings(){
-  const{data}=await sb.from('settings').select('*').eq('key','review_prompt').single();
-  S.reviewSettings=data?.value||'Tell us about your experience with our service. What worked well? What could we improve?';
+  const{data}=await sb.from('review_settings').select('*').eq('is_active',true).limit(1).single();
+  S.reviewSettings=data?.review_prompt||'Tell us about your experience with our service. What worked well? What could we improve?';
+  S.reviewSettingsId=data?.id||null;
 }
 function renderReviews(){
   const st=document.getElementById('reviewStatusFilter')?.value||'';
@@ -4469,11 +4470,11 @@ function editReviewPrompt(){
 }
 async function saveReviewPrompt(){
   const prompt=document.getElementById('prompt').value;
-  const{data:existing}=await sb.from('settings').select('*').eq('key','review_prompt').single();
-  if(existing){
-    await sb.from('settings').update({value:prompt}).eq('key','review_prompt');
+  if(S.reviewSettingsId){
+    await sb.from('review_settings').update({review_prompt:prompt,updated_at:new Date().toISOString()}).eq('id',S.reviewSettingsId);
   }else{
-    await sb.from('settings').insert({key:'review_prompt',value:prompt});
+    const{data}=await sb.from('review_settings').insert({review_prompt:prompt,is_active:true}).select().single();
+    if(data) S.reviewSettingsId=data.id;
   }
   S.reviewSettings=prompt;closeEditModal();showToast('Prompt saved','success');
 }
