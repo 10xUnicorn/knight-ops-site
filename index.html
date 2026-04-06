@@ -790,6 +790,46 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   </div>
 </section>
 
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="testimonials-section" id="testimonials">
+  <style>
+    .testimonials-section{padding:60px 0 40px;overflow:hidden;position:relative;background:#0A0A0B}
+    .testimonials-section h2{text-align:center;font-size:2rem;margin-bottom:6px;color:#F5F5F5}
+    .testimonials-section .section-sub{text-align:center;color:#999;font-size:.95rem;margin-bottom:40px}
+    .testimonial-track{display:flex;gap:24px;animation:scrollTestimonials 40s linear infinite;width:max-content}
+    .testimonial-track:hover{animation-play-state:paused}
+    .testimonial-card{min-width:360px;max-width:360px;background:#111113;border:1px solid #2A2A2D;border-radius:16px;padding:28px;flex-shrink:0;transition:border-color .3s}
+    .testimonial-card:hover{border-color:#C8A456}
+    .tc-stars{color:#C8A456;font-size:1.1rem;margin-bottom:12px;letter-spacing:2px}
+    .tc-content{font-size:.9rem;color:#ccc;line-height:1.65;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+    .tc-media{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+    .tc-media img{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #2A2A2D;cursor:pointer;transition:transform .2s}
+    .tc-media img:hover{transform:scale(1.1)}
+    .tc-author{display:flex;align-items:center;gap:10px}
+    .tc-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C8A456,#8B7332);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#0A0A0B}
+    .tc-name{font-size:.85rem;font-weight:600;color:#F5F5F5}
+    .tc-company{font-size:.75rem;color:#999}
+    .testimonials-cta{text-align:center;margin-top:32px}
+    .testimonials-cta a{display:inline-block;padding:12px 32px;background:transparent;border:1px solid #C8A456;color:#C8A456;border-radius:8px;text-decoration:none;font-size:.9rem;font-weight:500;transition:all .3s}
+    .testimonials-cta a:hover{background:#C8A456;color:#0A0A0B}
+    @keyframes scrollTestimonials{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @media(max-width:640px){.testimonial-card{min-width:300px;max-width:300px}}
+    .testimonials-empty{text-align:center;padding:40px 20px;color:#999;font-size:.9rem}
+  </style>
+  <div class="container">
+    <h2 class="fade-up">What Our Clients Say</h2>
+    <p class="section-sub fade-up">Real results from real partnerships</p>
+  </div>
+  <div style="overflow:hidden;position:relative">
+    <div class="testimonial-track" id="testimonialTrack">
+      <div class="testimonials-empty" id="testimonialsLoading">Loading reviews...</div>
+    </div>
+  </div>
+  <div class="testimonials-cta fade-up">
+    <a href="/review">Leave a Review &rarr;</a>
+  </div>
+</section>
+
 <footer>
   <div class="container">
     <div class="footer-brand">KNIGHT <span>OPS</span></div>
@@ -1103,5 +1143,36 @@ async function submitLeadCapture(e) {
 </script>
 
 <script src="/ko-track.js" defer></script>
+<script>
+// ── Load Public Testimonials ──
+(async function loadTestimonials(){
+  try{
+    const res=await fetch('https://trpnlkntvulkjerevngm.supabase.co/rest/v1/reviews?status=eq.public&order=created_at.desc&limit=20',{
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM'}
+    });
+    const reviews=await res.json();
+    const track=document.getElementById('testimonialTrack');
+    if(!reviews||!reviews.length){
+      track.innerHTML='<div class="testimonials-empty">Reviews coming soon — <a href="/review" style="color:#C8A456">be the first!</a></div>';
+      return;
+    }
+    function card(r){
+      const stars='★'.repeat(r.stars)+'☆'.repeat(5-r.stars);
+      const initials=(r.reviewer_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+      const media=(r.media_urls||[]).filter(u=>!u.match(/\.(mp4|mov|webm)$/i)).slice(0,3);
+      let html='<div class="testimonial-card"><div class="tc-stars">'+stars+'</div><div class="tc-content">'+r.content.replace(/</g,'&lt;')+'</div>';
+      if(media.length)html+='<div class="tc-media">'+media.map(u=>'<img src="'+u+'" alt="Review photo" onclick="window.open(\''+u+'\',\'_blank\')">').join('')+'</div>';
+      html+='<div class="tc-author"><div class="tc-avatar">'+initials+'</div><div><div class="tc-name">'+r.reviewer_name+'</div>'+(r.company_name?'<div class="tc-company">'+r.company_name+'</div>':'')+'</div></div></div>';
+      return html;
+    }
+    // Double the cards for infinite scroll effect
+    const cards=reviews.map(card).join('');
+    track.innerHTML=cards+cards;
+  }catch(e){
+    console.log('Testimonials load error:',e);
+    document.getElementById('testimonialTrack').innerHTML='<div class="testimonials-empty">Reviews coming soon</div>';
+  }
+})();
+</script>
 </body>
 </html>
