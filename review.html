@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review - Knight Ops</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --bg: #0A0A0B;
+            --surface: #111113;
+            --surface-2: #1A1A1D;
+            --border: #2A2A2D;
+            --accent: #C8A456;
+            --text: #F5F5F5;
+            --text-muted: #999;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .logo-accent {
+            color: var(--accent);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Review Prompt Box */
+        .review-prompt-box {
+            background-color: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .review-prompt-box p {
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .required {
+            color: var(--accent);
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(200, 164, 86, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .star {
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s, transform 0.1s;
+        }
+
+        .star:hover {
+            transform: scale(1.1);
+        }
+
+        .star.selected {
+            color: var(--accent);
+        }
+
+        /* File Upload */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+            background-color: var(--surface);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background-color: var(--surface-2);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--accent);
+            background-color: var(--surface-2);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* File Thumbnails */
+        .file-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-thumbnail {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .file-thumbnail img,
+        .file-thumbnail video {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .file-thumbnail-placeholder {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--surface-2);
+            font-size: 2rem;
+        }
+
+        .file-thumbnail-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: background-color 0.2s;
+        }
+
+        .file-thumbnail-remove:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Form Row for 2-column layout */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Button */
+        .submit-btn {
+            background-color: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .success-screen.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .success-message {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--bg);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .star-rating {
+                font-size: 2rem;
+            }
+
+            .file-thumbnails {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .file-thumbnail img,
+            .file-thumbnail video,
+            .file-thumbnail-placeholder {
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>KNIGHT</span> <span class="logo-accent">OPS</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div id="formSection">
+            <h1 class="page-title">Leave a Review</h1>
+
+            <!-- Review Prompt -->
+            <div class="review-prompt-box" id="promptBox" style="display: none;">
+                <p id="promptText"></p>
+            </div>
+
+            <!-- Form -->
+            <form id="reviewForm">
+                <!-- Name and Company Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Your Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" required>
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company Name</label>
+                        <input type="text" id="company" name="company">
+                    </div>
+                </div>
+
+                <!-- Star Rating -->
+                <div class="form-group">
+                    <label>Star Rating <span class="required">*</span></label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="stars" name="stars" value="">
+                    <div class="error-message" id="starsError"></div>
+                </div>
+
+                <!-- Review Text -->
+                <div class="form-group">
+                    <label for="review">Your Review <span class="required">*</span></label>
+                    <textarea id="review" name="review" required></textarea>
+                    <div class="error-message" id="reviewError"></div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <label>Upload Photos/Videos (Optional)</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <div class="upload-text">Drag and drop files here or click to browse</div>
+                        <div class="upload-hint">JPG, PNG, GIF, WebP, MP4, MOV, WebM • Max 5 files • 100MB each</div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+                    <div class="file-thumbnails" id="thumbnails"></div>
+                    <div class="error-message" id="fileError"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Review</button>
+            </form>
+        </div>
+
+        <!-- Success Screen -->
+        <div class="success-screen" id="successScreen">
+            <div class="success-icon">🎉</div>
+            <h2 class="success-title">Thank you for your review!</h2>
+            <p class="success-message">Your review has been submitted and is being reviewed by our team. We appreciate your feedback!</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // State
+        let selectedStars = 0;
+        let uploadedFiles = [];
+
+        // Load review prompt on page load
+        document.addEventListener('DOMContentLoaded', loadReviewPrompt);
+
+        async function loadReviewPrompt() {
+            try {
+                const { data, error } = await sb
+                    .from('review_settings')
+                    .select('review_prompt')
+                    .eq('is_active', true)
+                    .limit(1)
+                    .single();
+
+                if (error || !data) {
+                    console.warn('No active review prompt found');
+                    document.getElementById('promptBox').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('promptText').textContent = data.review_prompt;
+                document.getElementById('promptBox').style.display = 'block';
+            } catch (err) {
+                console.error('Error loading review prompt:', err);
+            }
+        }
+
+        // Star rating interaction
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', () => {
+                selectedStars = parseInt(star.dataset.value);
+                document.getElementById('stars').value = selectedStars;
+                updateStarDisplay();
+                clearError('starsError');
+            });
+
+            star.addEventListener('mouseover', () => {
+                const value = parseInt(star.dataset.value);
+                document.querySelectorAll('.star').forEach((s, idx) => {
+                    if (idx < value) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+
+        document.getElementById('starRating').addEventListener('mouseleave', updateStarDisplay);
+
+        function updateStarDisplay() {
+            document.querySelectorAll('.star').forEach((star, idx) => {
+                if (idx < selectedStars) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+        }
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            clearError('fileError');
+
+            if (uploadedFiles.length + files.length > 5) {
+                showError('fileError', 'Maximum 5 files allowed');
+                return;
+            }
+
+            for (let file of files) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+                if (!validTypes.includes(file.type)) {
+                    showError('fileError', 'Invalid file type. Please use JPG, PNG, GIF, WebP, MP4, MOV, or WebM');
+                    return;
+                }
+
+                // Validate file size (100MB)
+                if (file.size > 100 * 1024 * 1024) {
+                    showError('fileError', 'File size exceeds 100MB limit');
+                    return;
+                }
+
+                uploadedFiles.push(file);
+            }
+
+            renderThumbnails();
+        }
+
+        function renderThumbnails() {
+            const container = document.getElementById('thumbnails');
+            container.innerHTML = '';
+
+            uploadedFiles.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'file-thumbnail';
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        div.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        video.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    div.appendChild(video);
+                } else {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'file-thumbnail-placeholder';
+                    placeholder.textContent = '📄';
+                    div.appendChild(placeholder);
+                }
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'file-thumbnail-remove';
+                removeBtn.type = 'button';
+                removeBtn.textContent = '×';
+                removeBtn.addEventListener('click', () => {
+                    uploadedFiles.splice(index, 1);
+                    renderThumbnails();
+                });
+                div.appendChild(removeBtn);
+
+                container.appendChild(div);
+            });
+        }
+
+        // Form submission
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear all errors
+            document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+
+            // Validate required fields
+            const name = document.getElementById('name').value.trim();
+            const review = document.getElementById('review').value.trim();
+            const stars = selectedStars;
+
+            let isValid = true;
+
+            if (!name) {
+                showError('nameError', 'Name is required');
+                isValid = false;
+            }
+            if (!review) {
+                showError('reviewError', 'Review is required');
+                isValid = false;
+            }
+            if (!stars) {
+                showError('starsError', 'Please select a star rating');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+
+            try {
+                const company = document.getElementById('company').value.trim();
+                const mediaUrls = [];
+                const timestamp = Date.now();
+
+                // Upload files if any
+                if (uploadedFiles.length > 0) {
+                    for (let file of uploadedFiles) {
+                        const filename = `${timestamp}_${file.name}`;
+                        const path = `reviews/${filename}`;
+
+                        const { error: uploadError } = await sb.storage
+                            .from('review-media')
+                            .upload(path, file);
+
+                        if (uploadError) {
+                            throw new Error(`Failed to upload file: ${uploadError.message}`);
+                        }
+
+                        // Get public URL
+                        const { data: urlData } = sb.storage
+                            .from('review-media')
+                            .getPublicUrl(path);
+
+                        if (urlData) {
+                            mediaUrls.push(urlData.publicUrl);
+                        }
+                    }
+                }
+
+                // Insert review into database
+                const { error: insertError } = await sb
+                    .from('reviews')
+                    .insert({
+                        reviewer_name: name,
+                        company_name: company || null,
+                        content: review,
+                        stars: stars,
+                        media_urls: mediaUrls,
+                        status: 'pending'
+                    });
+
+                if (insertError) {
+                    throw new Error(`Failed to save review: ${insertError.message}`);
+                }
+
+                // Call notify edge function
+                try {
+                    const response = await fetch(
+                        `${SUPABASE_URL}/functions/v1/notify-comment`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${SUPABASE_KEY}`
+                            },
+                            body: JSON.stringify({
+                                project_name: 'Review System',
+                                title: `⭐ New ${stars}-Star Review from ${name}`,
+                                content: review,
+                                type: 'New Review',
+                                submitted_by: name
+                            })
+                        }
+                    );
+
+                    if (!response.ok) {
+                        console.warn('Notification failed, but review was saved');
+                    }
+                } catch (notifyError) {
+                    console.warn('Could not send notification:', notifyError);
+                }
+
+                // Show success screen
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('successScreen').classList.add('show');
+
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showError('reviewError', error.message || 'Failed to submit review. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Review';
+            }
+        });
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.classList.add('show');
+        }
+
+        function clearError(elementId) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('show');
+            el.textContent = '';
+        }
+    </script>
+</body>
+</html>
