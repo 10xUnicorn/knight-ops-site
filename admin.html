@@ -170,6 +170,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
       <div class="nav-item" data-view="careers"><span class="icon">&#9733;</span> Careers</div>
+      <div class="nav-item" data-view="reviews"><span class="icon">⭐</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
     </nav>
@@ -296,6 +297,25 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         </div>
       </div>
 
+      <!-- ═══ REVIEWS VIEW ═══ -->
+      <div class="view" id="v-reviews">
+        <div class="table-card">
+          <div class="table-header">
+            <h2>Reviews Management</h2>
+            <div class="table-filters">
+              <select id="reviewStatusFilter" onchange="renderReviews()">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="editReviewPrompt()">⚙️ Edit Review Prompt</button>
+            </div>
+          </div>
+          <div id="reviewsTable"></div>
+        </div>
+      </div>
+
       <!-- ═══ EDUCATION VIEW ═══ -->
       <div class="view" id="v-education">
         <div id="educationMain">
@@ -418,7 +438,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{}};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -428,7 +448,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings()]);
   loadDashboard();
 })();
 
@@ -1042,9 +1062,11 @@ async function showProjectDetail(id){
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="projectFiles_'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="openEditModal({type:\'addProjectMember\',projectId:\''+id+'\'})">+ Add Member</button></div><div id="projectMembers_'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   '<div class="comment-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Comments & Requests</h3><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="filterComments(\'all\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--border);color:var(--text-muted)">All</button><button class="btn btn-sm" onclick="filterComments(\'update\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #3b82f6;color:#3b82f6">Updates</button><button class="btn btn-sm" onclick="filterComments(\'feedback\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #22c55e;color:#22c55e">Feedback</button><button class="btn btn-sm" onclick="filterComments(\'bug\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #ef4444;color:#ef4444">Bugs</button><button class="btn btn-sm" onclick="filterComments(\'feature_request\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--accent);color:var(--accent)">Features</button></div></div><div id="commentsList_'+id+'">'+(comments?.length?comments.map(c=>renderComment(c)).join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'</div><div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="projCommentTitle" placeholder="Title (optional)" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="projCommentType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><option value="update">Update</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option><option value="feature_request">Feature Request</option><option value="other">Other</option></select></div><textarea id="projComment" placeholder="Add details..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;min-height:80px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
   loadProjectFiles(id);
+  loadProjectMembers(id);
 }
 
 // ═══ PROMPT GENERATORS ═══
@@ -4406,6 +4428,77 @@ async function grantResourceToEmployee(empId){
 async function revokeResourceFromEmployee(accessId,empId){
   await sb.from('employee_resource_access').delete().eq('id',accessId);
   showToast('Resource revoked');showEmployeeDetail(empId);
+}
+
+// ═══ REVIEWS ═══
+async function loadReviews(){
+  const{data}=await sb.from('reviews').select('*').order('created_at',{ascending:false});
+  S.reviews=data||[];renderReviews();
+}
+async function loadReviewSettings(){
+  const{data}=await sb.from('settings').select('*').eq('key','review_prompt').single();
+  S.reviewSettings=data?.value||'Tell us about your experience with our service. What worked well? What could we improve?';
+}
+function renderReviews(){
+  const st=document.getElementById('reviewStatusFilter')?.value||'';
+  const f=st?S.reviews.filter(r=>r.status===st):S.reviews;
+  document.getElementById('reviewsTable').innerHTML='<table><thead><tr><th>Author</th><th>Company</th><th>Rating</th><th>Status</th><th>Featured</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(r=>'<tr class="clickable" onclick="showReviewDetail(\''+r.id+'\')"><td>'+r.author_name+'</td><td>'+(r.company||'—')+'</td><td>'+('⭐'.repeat(r.rating||0))+'</td><td>'+B(r.status)+'</td><td>'+(r.is_featured?'✓':'—')+'</td><td>'+fmtDate(r.created_at)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editReviewStatus(\''+r.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'reviews\',\''+r.id+'\',\'Review\',loadReviews)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No reviews</td></tr>')+'</tbody></table>';
+}
+function showReviewDetail(id){
+  const r=S.reviews.find(x=>x.id===id);if(!r)return;
+  openEditModal('Review Detail','<div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Author</label><div style="color:var(--text)">'+r.author_name+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Company</label><div style="color:var(--text)">'+(r.company||'—')+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Email</label><div style="color:var(--text)">'+(r.author_email||'—')+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Rating</label><div style="color:var(--accent)">⭐ '+(r.rating||0)+'/5</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Review</label><div style="color:var(--text);font-size:0.9rem;line-height:1.6">'+r.review_text+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Admin Notes</label><textarea id="reviewNotes" placeholder="Add notes..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:80px;font-size:0.85rem">'+((r.admin_notes||''))+'</textarea></div></div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewNotes(\''+id+'\')">Save Notes</button>');
+}
+async function editReviewStatus(id){
+  const r=S.reviews.find(x=>x.id===id);if(!r)return;
+  openEditModal('Edit Review Status','<div>'+FG('Status','status','select',r.status,'pending|Pending,public|Public,private|Private')+FG('Featured','featured','checkbox',r.is_featured?1:0)+' </div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewStatus(\''+id+'\')">Save</button>');
+}
+async function saveReviewStatus(id){
+  const status=document.getElementById('status').value;
+  const featured=document.getElementById('featured').checked?1:0;
+  await sb.from('reviews').update({status,is_featured:featured}).eq('id',id);
+  closeEditModal();await loadReviews();showToast('Review updated','success');
+}
+async function saveReviewNotes(id){
+  const notes=document.getElementById('reviewNotes').value;
+  await sb.from('reviews').update({admin_notes:notes}).eq('id',id);
+  closeEditModal();await loadReviews();showToast('Notes saved','success');
+}
+function editReviewPrompt(){
+  openEditModal('Edit Review Prompt','<div>'+FG('Review Prompt','prompt','textarea',S.reviewSettings||'')+' </div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewPrompt()">Save</button>');
+}
+async function saveReviewPrompt(){
+  const prompt=document.getElementById('prompt').value;
+  const{data:existing}=await sb.from('settings').select('*').eq('key','review_prompt').single();
+  if(existing){
+    await sb.from('settings').update({value:prompt}).eq('key','review_prompt');
+  }else{
+    await sb.from('settings').insert({key:'review_prompt',value:prompt});
+  }
+  S.reviewSettings=prompt;closeEditModal();showToast('Prompt saved','success');
+}
+
+// ═══ PROJECT TEAM MEMBERS ═══
+async function loadProjectMembers(projectId){
+  const{data}=await sb.from('project_members').select('*').eq('project_id',projectId);
+  S.projectMembers[projectId]=data||[];
+}
+async function addProjectMember(projectId){
+  const members=S.projectMembers[projectId]||[];
+  const email=prompt('Enter team member email:');if(!email)return;
+  const role=prompt('Role: owner/admin/member/viewer','member');if(!role)return;
+  const id=crypto.randomUUID();
+  await sb.from('project_members').insert({id,project_id:projectId,email,role,status:'pending'});
+  await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Team member added','success');
+}
+async function removeProjectMember(projectId,memberId){
+  if(!confirm('Remove this team member?'))return;
+  await sb.from('project_members').delete().eq('id',memberId);
+  await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Team member removed','success');
+}
+function renderProjectMembers(projectId){
+  const members=S.projectMembers[projectId]||[];
+  const html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent);margin:0">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="addProjectMember(\''+projectId+'\')">+ Add Member</button></div><table style="width:100%;font-size:0.85rem"><thead style="border-bottom:1px solid var(--border)"><tr><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Email</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Role</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Status</th><th style="text-align:left;padding:8px">Actions</th></tr></thead><tbody>'+(members.length?members.map(m=>'<tr style="border-bottom:1px solid var(--border-subtle)"><td style="padding:8px">'+m.email+'</td><td style="padding:8px">'+B(m.role)+'</td><td style="padding:8px">'+B(m.status)+'</td><td style="padding:8px"><button class="btn btn-sm btn-danger" onclick="removeProjectMember(\''+projectId+'\',\''+m.id+'\')">🗑</button></td></tr>').join(''):'<tr><td colspan="4" style="padding:8px;color:var(--text-muted)">No team members</td></tr>')+'</tbody></table>';
+  document.getElementById('projectMembers_'+projectId).innerHTML=html;
 }
 
 // LOGOUT
