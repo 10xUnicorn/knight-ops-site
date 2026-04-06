@@ -169,8 +169,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
       <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
       <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
-      <div class="nav-item" data-view="careers"><span class="icon">&#9733;</span> Careers</div>
-      <div class="nav-item" data-view="reviews"><span class="icon">⭐</span> Reviews</div>
+      <div class="nav-item" data-view="careers"><span class="icon">💼</span> Careers</div>
+      <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
     </nav>
@@ -309,7 +309,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
                 <option value="public">Public</option>
                 <option value="private">Private</option>
               </select>
-              <button class="btn btn-primary btn-sm" onclick="editReviewPrompt()">⚙️ Edit Review Prompt</button>
+              <button class="btn btn-secondary btn-sm" onclick="editReviewPrompt()">⚙️ Edit Prompt</button>
+              <button class="btn btn-primary btn-sm" onclick="addReviewManual()">+ Add Review</button>
             </div>
           </div>
           <div id="reviewsTable"></div>
@@ -4475,6 +4476,44 @@ async function saveReviewPrompt(){
     await sb.from('settings').insert({key:'review_prompt',value:prompt});
   }
   S.reviewSettings=prompt;closeEditModal();showToast('Prompt saved','success');
+}
+
+function addReviewManual(){
+  const body=FG('Reviewer Name *','e_reviewer','text','')+FG('Company Name','e_company','text','')+
+  '<div class="form-group"><label>Star Rating *</label><div id="manualStars" style="display:flex;gap:4px;font-size:1.5rem;cursor:pointer;color:var(--text-muted)">'+[1,2,3,4,5].map(i=>'<span data-star="'+i+'" onclick="setManualStars('+i+')" onmouseover="hoverManualStars('+i+')" onmouseout="hoverManualStars(0)">☆</span>').join('')+'</div><input type="hidden" id="e_stars" value="5"></div>'+
+  FG('Review Content *','e_content','textarea','')+
+  FG('Status','e_status','select','public',[{v:'pending',l:'Pending'},{v:'public',l:'Public'},{v:'private',l:'Private'}])+
+  '<label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-top:8px;cursor:pointer"><input type="checkbox" id="e_featured">Featured Review</label>';
+  openEditModal('Add Review Manually',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveManualReview()">Save Review</button>');
+  setTimeout(()=>setManualStars(5),50);
+}
+function setManualStars(n){
+  document.getElementById('e_stars').value=n;
+  const spans=document.querySelectorAll('#manualStars span');
+  spans.forEach((s,i)=>{s.textContent=i<n?'★':'☆';s.style.color=i<n?'var(--accent)':'var(--text-muted)';});
+}
+function hoverManualStars(n){
+  const spans=document.querySelectorAll('#manualStars span');
+  if(n===0){setManualStars(parseInt(document.getElementById('e_stars').value));return;}
+  spans.forEach((s,i)=>{s.textContent=i<n?'★':'☆';s.style.color=i<n?'var(--accent)':'var(--text-muted)';});
+}
+async function saveManualReview(){
+  const name=document.getElementById('e_reviewer').value?.trim();
+  const content=document.getElementById('e_content').value?.trim();
+  const stars=parseInt(document.getElementById('e_stars').value)||5;
+  if(!name||!content){showToast('Name and content required','error');return;}
+  const obj={
+    reviewer_name:name,
+    company_name:document.getElementById('e_company').value?.trim()||null,
+    stars:stars,
+    content:content,
+    status:document.getElementById('e_status').value||'public',
+    is_featured:document.getElementById('e_featured').checked,
+    media_urls:[]
+  };
+  const{error}=await sb.from('reviews').insert([obj]);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Review added!');closeEditModal();await loadReviews();
 }
 
 // ═══ PROJECT TEAM MEMBERS ═══
