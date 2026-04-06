@@ -792,7 +792,7 @@ async function showClientDetail(id){
   const unsharedApps=S.apps.filter(a=>!sharedAppIds.includes(a.id));
 
   let html='<div class="detail-back" onclick="document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'">&#8592; Back to Clients</div>';
-  html+='<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'prev\',showClientDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'next\',showClientDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients).then(()=>{document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>';
+  html+='<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'prev\',showClientDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'next\',showClientDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-secondary" onclick="sendMagicLink(\''+c.id+'\')">Send Magic Link</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients).then(()=>{document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>';
   html+='<div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(p.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(p.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(p.company||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(c.tier)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(c.status)+'</div></div></div>';
 
   // Tabs
@@ -984,6 +984,18 @@ async function deleteAdminCred(credId,clientId){
   if(error){showToast('Error: '+error.message,'error');return;}
   showToast('Credential deleted');showClientDetail(clientId);
 }
+async function sendMagicLink(clientId){
+  try{
+    const c=S.clients.find(x=>x.id===clientId);
+    if(!c||!c.profiles?.email){showToast('Client email not found','error');return;}
+    const res=await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/send-magic-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:c.profiles.email,client_id:clientId})});
+    const data=await res.json();
+    if(!res.ok){showToast('Error: '+(data.error||'Failed to send magic link'),'error');return;}
+    showToast('Magic link sent to '+c.profiles.email);
+  }catch(err){
+    showToast('Error: '+err.message,'error');
+  }
+}
 function editClient(id){
   const c=id?S.clients.find(x=>x.id===id):null;const p=c?.profiles||{};
   const title=c?'Edit Client':'Add Client / Prospect';
@@ -1024,12 +1036,14 @@ async function showProjectDetail(id){
   document.getElementById('projectDetailView').style.display='block';
   const tasks=S.tasks.filter(t=>t.project_id===id);
   const{data:comments}=await sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:true});
-  document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
+  document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> '+(p.app_id?'<button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">📱 View App</button>':' <button class="btn btn-sm btn-primary" onclick="createAppFromProject(\''+p.id+'\')">🚀 Create App</button>')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>'+
+  '<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
+  (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="filesList-'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
-  '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="projComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
+  '<div class="comment-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Comments & Requests</h3><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="filterComments(\'all\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--border);color:var(--text-muted)">All</button><button class="btn btn-sm" onclick="filterComments(\'update\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #3b82f6;color:#3b82f6">Updates</button><button class="btn btn-sm" onclick="filterComments(\'feedback\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #22c55e;color:#22c55e">Feedback</button><button class="btn btn-sm" onclick="filterComments(\'bug\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #ef4444;color:#ef4444">Bugs</button><button class="btn btn-sm" onclick="filterComments(\'feature_request\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--accent);color:var(--accent)">Features</button></div></div><div id="commentsList_'+id+'">'+(comments?.length?comments.map(c=>renderComment(c)).join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'</div><div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="projCommentTitle" placeholder="Title (optional)" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="projCommentType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><option value="update">Update</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option><option value="feature_request">Feature Request</option><option value="other">Other</option></select></div><textarea id="projComment" placeholder="Add details..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;min-height:80px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
   loadProjectFiles(id);
 }
 
@@ -1963,6 +1977,34 @@ async function deleteProjectFile(projectId,fileName){
   loadProjectFiles(projectId);
 }
 
+function renderComment(c){
+  const typeColors={update:'#3b82f6',feedback:'#22c55e',bug:'#ef4444',feature_request:'var(--accent)',other:'#888'};
+  const typeLabels={update:'Update',feedback:'Feedback',bug:'Bug',feature_request:'Feature Request',other:'Other'};
+  const color=typeColors[c.comment_type]||'#888';
+  const label=typeLabels[c.comment_type]||'Comment';
+  return '<div class="comment-item" data-type="'+(c.comment_type||'update')+'" style="border-left:3px solid '+color+';padding-left:12px;margin-bottom:12px"><div class="comment-meta" style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:.7rem;padding:2px 8px;border-radius:4px;background:'+color+'22;color:'+color+';font-weight:600">'+label+'</span><strong style="font-size:.82rem">'+(c.user_name||'Admin')+'</strong><span style="color:var(--text-muted);font-size:.75rem">'+fmtDateTime(c.created_at)+'</span></div>'+(c.title?'<div style="font-weight:600;font-size:.9rem;margin-bottom:4px">'+c.title+'</div>':'')+'<div class="comment-text" style="font-size:.85rem;color:var(--text-muted)">'+c.content+'</div></div>';
+}
+
+function filterComments(type,projectId){
+  const items=document.querySelectorAll('#commentsList_'+projectId+' .comment-item');
+  items.forEach(item=>{
+    if(type==='all'||item.dataset.type===type)item.style.display='';
+    else item.style.display='none';
+  });
+}
+
+async function sendCommentNotification(projId,title,content,type){
+  try{
+    const p=S.projects.find(x=>x.id===projId);
+    const typeLabels={feedback:'Feedback',bug:'Bug Report',feature_request:'Feature Request'};
+    const resp=await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/notify-comment',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM'},
+      body:JSON.stringify({project_name:p?.name||'Unknown Project',title:title||'No title',content:content,type:typeLabels[type]||type,submitted_by:currentUser?.user_metadata?.full_name||currentUser?.email||'Admin'})
+    });
+  }catch(e){console.log('Notification send failed:',e);}
+}
+
 function editProject(id){
   const p=id?S.projects.find(x=>x.id===id):null;
   const body='<div class="form-group"><label>Client *</label><select id="e_client">'+clientOptions(p?.client_id)+'</select></div>'+FG('Project Name *','e_name','text',p?.name)+FG('Description','e_desc','textarea',p?.description)+FR(FG('Tier','e_tier','select',p?.tier||'night_launch',TIER_OPTS),FG('Contract Value ($)','e_value','number',p?.contract_value))+FR(FG('Start Date','e_start','date',p?.start_date),FG('Due Date','e_due','date',p?.due_date))+FG('Status','e_status','select',p?.status||'discovery',PROJ_STATUS_OPTS);
@@ -2017,11 +2059,70 @@ async function completeTask(id){
 // ═══ COMMENTS ═══
 async function addComment(projId,taskId){
   const el=projId?document.getElementById('projComment'):document.getElementById('taskComment');
-  const content=el?.value?.trim();if(!content){showToast('Enter a comment','error');return;}
-  const{error}=await sb.from('comments').insert([{project_id:projId||null,task_id:taskId||null,user_id:currentUser?.id,user_name:currentUser?.user_metadata?.full_name||currentUser?.email||'Admin',content:content}]);
+  const content=el?.value?.trim();if(!content){showToast('Enter details','error');return;}
+  const titleEl=projId?document.getElementById('projCommentTitle'):null;
+  const typeEl=projId?document.getElementById('projCommentType'):null;
+  const title=titleEl?.value?.trim()||null;
+  const comment_type=typeEl?.value||'update';
+  const obj={project_id:projId||null,task_id:taskId||null,user_id:currentUser?.id,user_name:currentUser?.user_metadata?.full_name||currentUser?.email||'Admin',content:content,title:title,comment_type:comment_type};
+  const{error}=await sb.from('comments').insert([obj]);
   if(error){showToast('Error: '+error.message,'error');return;}
   showToast('Comment added!');
+  // Send notification email for client-facing types
+  if(projId && (comment_type==='bug'||comment_type==='feature_request'||comment_type==='feedback')){
+    sendCommentNotification(projId,title,content,comment_type);
+  }
   if(projId)showProjectDetail(projId);else if(taskId)showTaskDetail(taskId);
+}
+
+function createAppFromProject(projId){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  const d=p.intake_data||{};
+  const clientName=p.clients?.profiles?.full_name||'';
+  const company=p.clients?.profiles?.company||d.company||'';
+  const body=FG('App Name *','e_name','text',p.name)+FG('Tagline','e_tagline','text',company?(company+' — Built by Knight Ops'):'Built by Knight Ops')+FG('Description','e_desc','textarea',p.description)+FR(FG('Category','e_category','text',d.bp_system_type||d.form_type||'Business App'),FG('Price Label','e_price_label','text',p.tier==='night_launch'?'$1,497':p.tier==='night_build'?'$7,497':p.tier==='night_build_pro'?'$14,997':'Custom'))+FR(FG('Launch URL','e_url','url',p.app_site_url||''),FG('Button Text','e_btn','text','Launch App'))+FG('Tags (comma-separated)','e_tags','text',(d.bp_platform||'web')+', '+(d.bp_system_type||'app'))+FR(FG('Featured','e_featured','checkbox',false),FG('Show on Marketplace','e_marketplace','checkbox',true));
+  openEditModal('Create App from Project: '+p.name,body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveAppFromProject(\''+projId+'\')">Create App</button>');
+}
+
+async function saveAppFromProject(projId){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  const name=document.getElementById('e_name').value;if(!name){showToast('Name required','error');return;}
+  const tags=document.getElementById('e_tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const obj={
+    name:name,
+    tagline:document.getElementById('e_tagline').value||null,
+    description:document.getElementById('e_desc').value||null,
+    category:document.getElementById('e_category').value||'Business App',
+    price_label:document.getElementById('e_price_label').value||null,
+    primary_button_url:document.getElementById('e_url').value||null,
+    primary_button_text:document.getElementById('e_btn').value||'Launch App',
+    access_url:document.getElementById('e_url').value||null,
+    tags:tags,
+    is_featured:document.getElementById('e_featured').checked,
+    show_on_marketplace:document.getElementById('e_marketplace').checked,
+    is_active:true,
+    sort_order:0,
+    badge_text:document.getElementById('e_featured').checked?'Featured':null,
+    project_id:projId,
+    client_id:p.client_id||null
+  };
+  const{data,error}=await sb.from('app_library').insert([obj]).select();
+  if(error){showToast('Error: '+error.message,'error');return;}
+  // Link app back to project
+  if(data&&data[0]){
+    await sb.from('projects').update({app_id:data[0].id}).eq('id',projId);
+    // Also assign to client via client_apps
+    if(p.client_id){
+      await sb.from('client_apps').insert([{client_id:p.client_id,app_id:data[0].id,status:'active',granted_by:currentUser?.id}]).select();
+    }
+  }
+  showToast('App created and linked!');closeEditModal();await loadApps();await loadProjects();showProjectDetail(projId);
+}
+
+function showAppFromProject(appId){
+  navTo('apps');
+  // Scroll to or highlight the app
+  showToast('Viewing app in App Library');
 }
 
 // ═══ APPS ═══
