@@ -47,6 +47,10 @@
     {
       "source": "/proposal/:slug/pdf",
       "destination": "/proposal-viewer.html"
+    },
+    {
+      "source": "/client-portal",
+      "destination": "/client-portal.html"
     }
   ],
   "headers": [
