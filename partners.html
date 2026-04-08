@@ -1028,7 +1028,7 @@
                     .from('partners')
                     .insert([
                         {
-                            full_name: fullname,
+                            name: fullname,
                             email: email,
                             phone: phone,
                             company: company,
@@ -1038,7 +1038,7 @@
                             referral_method: referMethod,
                             bio: bio,
                             status: 'pending',
-                            created_at: new Date().toISOString()
+                            magic_link_token: crypto.randomUUID()
                         }
                     ]);
 
@@ -1047,6 +1047,16 @@
                     alert('There was an error submitting your application. Please try again.');
                     return;
                 }
+
+                // Notify admin of new partner application
+                fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/partner-emails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
+                    body: JSON.stringify({ type: 'admin_new_partner', to: 'daniel@unicornuniverse.io', data: {
+                        partner_name: fullname, partner_email: email, partner_company: company,
+                        partner_slug: slug, referral_method: referMethod
+                    }})
+                }).catch(() => {});
 
                 // Show success message
                 const successMsg = document.getElementById('success-message');
