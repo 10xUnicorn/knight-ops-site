@@ -3,1086 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Partner & Affiliate Program | Knight Ops</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    
-    <!-- Supabase JS Client -->
+    <title>Partner Program | Knight Ops</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0A0A0B;
-            --bg-secondary: #111113;
-            --bg-tertiary: #18181B;
-            --bg-card: #1C1C1F;
-            --bg-card-hover: #222225;
-            --border: #2A2A2E;
-            --border-light: #3A3A3F;
-            --text-primary: #F4F4F5;
-            --text-secondary: #A1A1AA;
-            --text-muted: #71717A;
-            --accent: #C8A456;
-            --accent-hover: #D4B56A;
-            --accent-subtle: rgba(200, 164, 86, 0.1);
-            --accent-border: rgba(200, 164, 86, 0.25);
-            --white: #FFFFFF;
-            --success: #22C55E;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 11, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.25rem;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent);
-        }
-
-        .nav-links a.active {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .nav-links .btn-primary {
-            margin-left: 1rem;
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            gap: 0.5rem;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 2px;
-            background: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        /* Buttons */
-        .btn-primary, .btn-secondary {
-            padding: 0.875rem 1.75rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: var(--bg-primary);
-            box-shadow: 0 0 20px rgba(200, 164, 86, 0.3);
-            animation: shimmer 3s infinite;
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 0 30px rgba(200, 164, 86, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            border: 1px solid var(--accent-border);
-            color: var(--accent);
-            background: transparent;
-        }
-
-        .btn-secondary:hover {
-            background: var(--accent-subtle);
-            border-color: var(--accent);
-        }
-
-        @keyframes shimmer {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(200, 164, 86, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 30px rgba(200, 164, 86, 0.5);
-            }
-        }
-
-        /* Sections */
-        .section {
-            padding: 6rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .section-subtitle {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-        }
-
-        /* Hero Section */
-        .hero {
-            padding-top: 8rem;
-            text-align: center;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding-bottom: 4rem;
-            opacity: 1;
-            transform: none;
-        }
-
-        .hero-headline {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            line-height: 1.1;
-        }
-
-        .hero-highlight {
-            color: var(--accent);
-            font-weight: 900;
-        }
-
-        .hero-description {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 2rem auto 3rem;
-            line-height: 1.6;
-        }
-
-        .hero-ctas {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Card Grid */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-border);
-            box-shadow: 0 8px 32px rgba(200, 164, 86, 0.1);
-        }
-
-        .signal-card {
-            position: relative;
-            padding-left: 3rem;
-            font-size: 1.05rem;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-        }
-
-        .signal-card::before {
-            content: '"';
-            position: absolute;
-            left: 0;
-            top: -0.5rem;
-            font-size: 3rem;
-            color: var(--accent);
-            opacity: 0.3;
-        }
-
-        .offer-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--accent);
-        }
-
-        .offer-card p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        /* Template Cards */
-        .template-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 2rem;
-            position: relative;
-        }
-
-        .template-card h3 {
-            color: var(--accent);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .template-text {
-            background: var(--bg-tertiary);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            line-height: 1.6;
-            border-left: 2px solid var(--accent-border);
-        }
-
-        .copy-btn {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--accent-subtle);
-            border: 1px solid var(--accent-border);
-            color: var(--accent);
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: var(--accent);
-            color: var(--bg-primary);
-        }
-
-        .copy-btn.copied {
-            background: var(--success);
-            color: var(--white);
-            border-color: var(--success);
-        }
-
-        /* Form */
-        .form-container {
-            max-width: 600px;
-            margin: 3rem auto;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .required::after {
-            content: ' *';
-            color: var(--accent);
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: var(--bg-card-hover);
-            box-shadow: 0 0 0 3px var(--accent-subtle);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .slug-preview {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .slug-prefix {
-            color: var(--text-muted);
-        }
-
-        .slug-status {
-            margin-left: auto;
-            font-weight: 600;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.85rem;
-        }
-
-        .slug-status.available {
-            color: var(--success);
-            background: rgba(34, 197, 94, 0.1);
-        }
-
-        .slug-status.unavailable {
-            color: #EF4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .slug-status.checking {
-            color: var(--accent);
-            background: var(--accent-subtle);
-        }
-
-        .form-submit {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .form-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(200, 164, 86, 0.4);
-        }
-
-        .form-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .success-message {
-            background: var(--accent-subtle);
-            border: 1px solid var(--accent-border);
-            color: var(--accent);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 2rem;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        /* Toolkit & Commission */
-        .toolkit-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .toolkit-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .toolkit-item strong {
-            color: var(--accent);
-            font-size: 1.1rem;
-        }
-
-        .toolkit-item p {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .commission-flow {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-            text-align: center;
-        }
-
-        .flow-step {
-            background: var(--accent-subtle);
-            border: 1px solid var(--accent-border);
-            border-radius: 0.75rem;
-            padding: 2rem;
-        }
-
-        .flow-step h4 {
-            color: var(--accent);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .flow-step p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 3rem 2rem;
-            background: var(--bg-secondary);
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--accent);
-        }
-
-        .footer-copyright {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .hamburger {
-                display: flex;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .nav-links.active {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: var(--bg-secondary);
-                border-bottom: 1px solid var(--border);
-                padding: 2rem;
-                gap: 1.5rem;
-            }
-
-            .hero-headline {
-                font-size: 2.25rem;
-            }
-
-            .hero-description {
-                font-size: 1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .hero-ctas {
-                flex-direction: column;
-            }
-
-            .hero-ctas .btn-primary, .hero-ctas .btn-secondary {
-                width: 100%;
-            }
-
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .commission-flow {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
-        }
-
-        /* Utility Classes */
-        .fade-in {
-            animation: fadeIn 0.8s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0A0A0B;--surface:#111113;--card:#1C1C1F;--border:#2A2A2E;
+            --text:#F4F4F5;--text2:#A1A1AA;--muted:#71717A;
+            --accent:#C8A456;--accent-hover:#D4B56A;--accent-bg:rgba(200,164,86,.08);
+            --accent-border:rgba(200,164,86,.2);
+            --white:#FFFFFF;
+        }
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+        a{color:var(--accent);text-decoration:none}
+        a:hover{color:var(--accent-hover)}
+
+        /* NAV */
+        .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--text);letter-spacing:-.02em}
+        .nav-brand span{color:var(--accent)}
+        .nav-cta{background:var(--accent);color:#000;font-weight:600;font-size:14px;padding:10px 24px;border-radius:8px;transition:all .2s}
+        .nav-cta:hover{background:var(--accent-hover);color:#000;transform:translateY(-1px)}
+
+        /* HERO */
+        .hero{padding:140px 24px 80px;text-align:center;max-width:800px;margin:0 auto}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-size:13px;font-weight:600;padding:8px 18px;border-radius:100px;margin-bottom:28px;letter-spacing:.02em}
+        .hero h1{font-size:clamp(36px,5vw,56px);font-weight:900;line-height:1.1;letter-spacing:-.03em;margin-bottom:20px}
+        .hero h1 em{font-style:normal;color:var(--accent)}
+        .hero p{font-size:18px;color:var(--text2);max-width:580px;margin:0 auto 36px;line-height:1.7}
+        .hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+        .btn-primary{background:var(--accent);color:#000;font-weight:700;font-size:16px;padding:16px 36px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
+        .btn-primary:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 8px 30px rgba(200,164,86,.25)}
+        .btn-outline{background:transparent;color:var(--text);font-weight:600;font-size:16px;padding:16px 36px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s}
+        .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+        /* SECTION BASE */
+        section{padding:80px 24px}
+        .container{max-width:1080px;margin:0 auto}
+        .section-label{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+        .section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;line-height:1.15}
+        .section-desc{color:var(--text2);font-size:16px;max-width:600px;line-height:1.7}
+
+        /* HOW IT WORKS */
+        .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-top:48px}
+        .step{position:relative;padding:32px 28px;background:var(--surface);border:1px solid var(--border);border-radius:16px;transition:all .3s}
+        .step:hover{border-color:var(--accent-border);transform:translateY(-4px)}
+        .step-num{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;font-weight:800;font-size:16px;color:var(--accent);margin-bottom:20px}
+        .step h3{font-size:18px;font-weight:700;margin-bottom:8px}
+        .step p{color:var(--text2);font-size:14px;line-height:1.6}
+
+        /* EARNINGS */
+        .earnings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:48px}
+        .earn-card{padding:36px 32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;transition:all .3s}
+        .earn-card:hover{border-color:var(--accent-border);transform:translateY(-4px)}
+        .earn-card .amount{font-size:48px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:8px;letter-spacing:-.02em}
+        .earn-card .label{font-size:14px;color:var(--text2);margin-bottom:16px}
+        .earn-card .detail{font-size:13px;color:var(--muted);line-height:1.6}
+        .earn-highlight{border-color:var(--accent-border);background:linear-gradient(135deg,rgba(200,164,86,.06),transparent)}
+
+        /* FREE GIFTS */
+        .gifts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-top:48px}
+        .gift{padding:36px 32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;transition:all .3s}
+        .gift:hover{border-color:var(--accent-border)}
+        .gift-icon{font-size:32px;margin-bottom:16px}
+        .gift h3{font-size:20px;font-weight:700;margin-bottom:10px}
+        .gift p{color:var(--text2);font-size:14px;line-height:1.7}
+        .gift-tag{display:inline-block;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-size:12px;font-weight:600;padding:4px 12px;border-radius:100px;margin-top:16px}
+
+        /* WHO THIS IS FOR */
+        .for-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:36px}
+        .for-item{display:flex;gap:14px;align-items:flex-start;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+        .for-check{width:24px;height:24px;min-width:24px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:14px;font-weight:700;margin-top:2px}
+        .for-item p{color:var(--text2);font-size:14px;line-height:1.6}
+        .for-item strong{color:var(--text);font-weight:600}
+
+        /* APPLY FORM */
+        .apply-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+        .apply-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+        @media(max-width:768px){.apply-grid{grid-template-columns:1fr;gap:40px}}
+        .apply-left h2{font-size:clamp(28px,3.5vw,36px);font-weight:800;margin-bottom:16px;letter-spacing:-.02em}
+        .apply-left p{color:var(--text2);font-size:15px;line-height:1.7;margin-bottom:24px}
+        .apply-points{list-style:none}
+        .apply-points li{padding:8px 0;color:var(--text2);font-size:14px;display:flex;align-items:center;gap:10px}
+        .apply-points li::before{content:"&#10003;";color:var(--accent);font-weight:700;font-size:16px}
+        .form-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 32px}
+        .form-card h3{font-size:20px;font-weight:700;margin-bottom:24px;text-align:center}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+        .form-group input,.form-group select,.form-group textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14px;transition:border-color .2s}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+        .form-group textarea{resize:vertical;min-height:80px}
+        .form-group select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23A1A1AA' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        @media(max-width:480px){.form-row{grid-template-columns:1fr}}
+        .submit-btn{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:16px;padding:14px;border:none;border-radius:10px;cursor:pointer;margin-top:8px;transition:all .2s}
+        .submit-btn:hover{background:var(--accent-hover);transform:translateY(-1px)}
+        .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        .form-note{text-align:center;margin-top:14px;font-size:12px;color:var(--muted)}
+
+        /* SUCCESS STATE */
+        .success-msg{text-align:center;padding:40px 20px;display:none}
+        .success-msg .check{width:64px;height:64px;background:rgba(34,197,94,.12);border:2px solid rgba(34,197,94,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:#22C55E}
+        .success-msg h3{font-size:22px;font-weight:700;margin-bottom:10px}
+        .success-msg p{color:var(--text2);font-size:14px;line-height:1.6}
+
+        /* FOOTER */
+        .footer{padding:40px 24px;text-align:center;border-top:1px solid var(--border)}
+        .footer p{color:var(--muted);font-size:13px}
+        .footer a{color:var(--accent)}
+
+        /* RESPONSIVE */
+        @media(max-width:640px){
+            section{padding:60px 20px}
+            .hero{padding:120px 20px 60px}
+            .form-card{padding:28px 24px}
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <div class="nav-container">
-            <a href="/" class="logo">KNIGHT<span>OPS</span></a>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="/#services">Services</a></li>
-                <li><a href="/#about">About</a></li>
-                <li><a href="/apply">Apply</a></li>
-                <li><a href="/partners" class="active">Partners</a></li>
-                <li><a href="/book" class="btn-primary">Book a Call</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="section hero">
-        <h1 class="hero-headline">Know Someone Building a Business?</h1>
-        <p class="hero-highlight" style="font-size: 1.5rem; margin-bottom: 1.5rem;">You Just Found Their Secret Weapon.</p>
-        <p class="hero-description">Refer entrepreneurs who need apps, websites, or AI systems — and earn commissions when they build with Knight Ops.</p>
-        <div class="hero-ctas">
-            <button class="btn-primary" onclick="document.getElementById('signup').scrollIntoView({ behavior: 'smooth' });">Become a Partner</button>
-            <a href="/assess" class="btn-secondary">Take the Assessment</a>
-        </div>
-    </section>
+<!-- NAV -->
+<nav class="nav">
+    <a href="https://knightops.biz" class="nav-brand">&#9813; Knight<span>Ops</span></a>
+    <a href="#apply" class="nav-cta">Apply Now</a>
+</nav>
 
-    <!-- Who We Help -->
-    <section class="section" id="who-we-help">
-        <h2 class="section-title">Who Should You Send Our Way?</h2>
-        <p class="section-subtitle">If someone in your network says any of these, they're a perfect fit.</p>
-        <div class="card-grid">
-            <div class="card signal-card">I need an app built but I don't know where to start</div>
-            <div class="card signal-card">I've been trying to build this myself and it's taking forever</div>
-            <div class="card signal-card">I want to automate [X] in my business</div>
-            <div class="card signal-card">I need a website that actually converts</div>
-            <div class="card signal-card">I'm spending too much time on manual tasks</div>
-            <div class="card signal-card">I want to use AI but don't know how</div>
-            <div class="card signal-card">I have an idea for a platform but no technical team</div>
-            <div class="card signal-card">My current systems don't talk to each other</div>
-        </div>
-        <p style="margin-top: 3rem; color: var(--text-secondary); text-align: center; font-size: 1rem;">
-            They're typically entrepreneurs, coaches, consultants, and agency owners doing $50K–$5M+ who are ready to invest in systems that scale.
-        </p>
-    </section>
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-badge">&#9733; Partner Program</div>
+    <h1>Earn commissions.<br>Give your network <em>real value.</em></h1>
+    <p>Refer entrepreneurs to Knight Ops and earn 10% on every deal — while giving your people a free tech assessment and a strategy call that actually helps them.</p>
+    <div class="hero-actions">
+        <a href="#apply"><button class="btn-primary">Become a Partner</button></a>
+        <a href="#how"><button class="btn-outline">How It Works</button></a>
+    </div>
+</section>
 
-    <!-- What We Offer -->
-    <section class="section">
-        <h2 class="section-title">What They Get When You Send Them</h2>
-        <div class="card-grid">
-            <div class="card offer-card">
-                <h3>Night Launch</h3>
-                <p>Overnight multi-page website</p>
-                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$1,497</p>
+<!-- HOW IT WORKS -->
+<section id="how">
+    <div class="container">
+        <div class="section-label">How It Works</div>
+        <div class="section-title">Three steps. That's it.</div>
+        <div class="section-desc">No complicated funnels. No technical setup. Just share your link and we handle the rest.</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Apply & Get Your Link</h3>
+                <p>Fill out a quick application below. Once approved, you get a unique referral link and access to your partner portal with tracking, tools, and templates.</p>
             </div>
-            <div class="card offer-card">
-                <h3>Night Build</h3>
-                <p>Full-stack web or mobile app</p>
-                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$7,497</p>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Share the Free Gifts</h3>
+                <p>Give your network access to our free Tech Type Assessment and a complimentary 30-minute discovery call. Real value, zero pressure.</p>
             </div>
-            <div class="card offer-card">
-                <h3>Night Build Pro</h3>
-                <p>Full App Store deployment</p>
-                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$14,997</p>
-            </div>
-            <div class="card offer-card">
-                <h3>Night Vibe Workshop</h3>
-                <p>Build your own app in 2 days</p>
-                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$1,000</p>
-            </div>
-            <div class="card offer-card">
-                <h3>AI/Tech Consulting</h3>
-                <p>Custom solutions and integrations</p>
-                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">Custom</p>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Earn on Every Deal</h3>
+                <p>When a referral becomes a client, you earn a commission. Track everything from your partner dashboard — leads, conversions, and payouts.</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Introduction Templates -->
-    <section class="section">
-        <h2 class="section-title">What To Say</h2>
-        <p class="section-subtitle">Copy-paste these or make them your own.</p>
-        <div class="card-grid">
-            <div class="template-card">
-                <h3>Text / DM</h3>
-                <div class="template-text">Hey [Name] — I know someone who builds apps and AI tools for entrepreneurs. Custom stuff, delivered fast. Check this out: knightops.biz</div>
-                <button class="copy-btn" onclick="copyToClipboard(this, 'Hey [Name] — I know someone who builds apps and AI tools for entrepreneurs. Custom stuff, delivered fast. Check this out: knightops.biz')">Copy</button>
+<!-- FREE GIFTS FOR REFERRALS -->
+<section style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+        <div class="section-label">What Your Referrals Get</div>
+        <div class="section-title">Two free gifts that actually help people.</div>
+        <div class="section-desc">You're not just handing out a link — you're offering something genuinely useful. That's what makes referrals easy.</div>
+        <div class="gifts">
+            <div class="gift">
+                <div class="gift-icon">&#9881;</div>
+                <h3>Tech Type Assessment</h3>
+                <p>A quick quiz that reveals their "Tech Type" — how they naturally approach building with technology. They get personalized AI tool recommendations, and you get insight into what your referrals actually need. Everyone wins.</p>
+                <div class="gift-tag">Lead magnet + insights for you</div>
             </div>
-            <div class="template-card">
-                <h3>Email</h3>
-                <div class="template-text">I wanted to connect you with Daniel at Knight Ops. He builds custom apps, websites, and AI systems for entrepreneurs — some delivered overnight. Thought of you because [reason]. Here's his site: knightops.biz</div>
-                <button class="copy-btn" onclick="copyToClipboard(this, 'I wanted to connect you with Daniel at Knight Ops. He builds custom apps, websites, and AI systems for entrepreneurs — some delivered overnight. Thought of you because [reason]. Here\\'s his site: knightops.biz')">Copy</button>
-            </div>
-            <div class="template-card">
-                <h3>Verbal / In-Person</h3>
-                <div class="template-text">You should talk to my guy Daniel at Knight Ops. He builds apps and websites for entrepreneurs — like custom platforms, AI tools, the whole thing. Want me to introduce you?</div>
-                <button class="copy-btn" onclick="copyToClipboard(this, 'You should talk to my guy Daniel at Knight Ops. He builds apps and websites for entrepreneurs — like custom platforms, AI tools, the whole thing. Want me to introduce you?')">Copy</button>
-            </div>
-            <div class="template-card">
-                <h3>For the Assessment</h3>
-                <div class="template-text">Take this free 2-min quiz — it tells you your AI personality type and the #1 tool to implement in your business right now: knightops.biz/assess</div>
-                <button class="copy-btn" onclick="copyToClipboard(this, 'Take this free 2-min quiz — it tells you your AI personality type and the #1 tool to implement in your business right now: knightops.biz/assess')">Copy</button>
+            <div class="gift">
+                <div class="gift-icon">&#9742;</div>
+                <h3>Free 30-Min Discovery Call</h3>
+                <p>Your referral gets a no-strings strategy session with our team. We'll map out their tech stack, identify gaps, and give them a clear action plan — whether they hire us or not.</p>
+                <div class="gift-tag">High value + zero pressure</div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Partner Toolkit -->
-    <section class="section">
-        <h2 class="section-title">Your Partner Toolkit</h2>
-        <p class="section-subtitle">After signup, partners get:</p>
-        <div class="toolkit-grid">
-            <div class="toolkit-item">
-                <strong>Custom Affiliate Link</strong>
-                <p>knightops.biz/[your-slug]</p>
+<!-- WHAT YOU EARN -->
+<section>
+    <div class="container">
+        <div class="section-label">Commissions</div>
+        <div class="section-title">Simple, transparent earnings.</div>
+        <div class="section-desc">Every referral that becomes a client earns you a percentage. The more you refer, the more you make.</div>
+        <div class="earnings-grid">
+            <div class="earn-card">
+                <div class="amount">10%</div>
+                <div class="label">Standard Commission</div>
+                <div class="detail">Earn 10% on every closed deal from your referrals. Paid out when the project is completed.</div>
             </div>
-            <div class="toolkit-item">
-                <strong>Assessment Link</strong>
-                <p>knightops.biz/assess?ref=[your-slug]</p>
+            <div class="earn-card earn-highlight">
+                <div class="amount">$150–$2,500</div>
+                <div class="label">Typical Payout Per Referral</div>
+                <div class="detail">Our projects range from $1,497 to $25,000 — meaning real earnings per referral, not pennies.</div>
             </div>
-            <div class="toolkit-item">
-                <strong>Booking Link</strong>
-                <p>knightops.biz/book</p>
-            </div>
-            <div class="toolkit-item">
-                <strong>Partner Portal</strong>
-                <p>Track leads & commissions in real-time</p>
-            </div>
-            <div class="toolkit-item">
-                <strong>Real-Time Notifications</strong>
-                <p>Get alerted when leads come in</p>
+            <div class="earn-card">
+                <div class="amount">&#8734;</div>
+                <div class="label">No Cap</div>
+                <div class="detail">Refer as many people as you want. There's no limit on what you can earn.</div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Commission Structure -->
-    <section class="section">
-        <h2 class="section-title">How You Earn</h2>
-        <div class="commission-flow">
-            <div class="flow-step">
-                <h4>Default Rate</h4>
-                <p>10% of closed deal revenue</p>
+<!-- WHO THIS IS FOR -->
+<section style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+        <div class="section-label">Is This For You?</div>
+        <div class="section-title">Perfect if you already talk to entrepreneurs.</div>
+        <div class="for-list">
+            <div class="for-item">
+                <div class="for-check">&#10003;</div>
+                <p><strong>Business coaches & consultants</strong> whose clients need tech built but don't know where to start</p>
             </div>
-            <div class="flow-step">
-                <h4>Tracked Automatically</h4>
-                <p>From referral to close</p>
+            <div class="for-item">
+                <div class="for-check">&#10003;</div>
+                <p><strong>Community leaders & influencers</strong> who want to give their audience a genuinely useful resource</p>
             </div>
-            <div class="flow-step">
-                <h4>Real-Time Dashboard</h4>
-                <p>See earnings in your portal</p>
+            <div class="for-item">
+                <div class="for-check">&#10003;</div>
+                <p><strong>Agency owners & freelancers</strong> who run into projects outside their scope and want a trusted referral partner</p>
             </div>
-            <div class="flow-step">
-                <h4>Paid via PayPal</h4>
-                <p>After approval</p>
+            <div class="for-item">
+                <div class="for-check">&#10003;</div>
+                <p><strong>Entrepreneurs & networkers</strong> who naturally connect people and want to get paid for it</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Signup Form -->
-    <section class="section" id="signup">
-        <h2 class="section-title" style="text-align: center;">Ready to Partner Up?</h2>
-        <div class="form-container">
-            <div class="success-message" id="success-message">
-                <strong>Application submitted!</strong> We'll review and activate your partner account within 24 hours.
+<!-- APPLY -->
+<section class="apply-section" id="apply">
+    <div class="container">
+        <div class="apply-grid">
+            <div class="apply-left">
+                <div class="section-label">Apply</div>
+                <h2>Ready to start earning?</h2>
+                <p>Takes 60 seconds. We review applications within 24 hours and set you up with everything you need to start referring.</p>
+                <ul class="apply-points">
+                    <li>Your own unique referral link</li>
+                    <li>Partner portal with real-time tracking</li>
+                    <li>Intro templates & messaging toolkit</li>
+                    <li>Commission tracking & payout history</li>
+                    <li>Direct support from our team</li>
+                </ul>
             </div>
-            <form id="partner-form">
-                <div class="form-group">
-                    <label for="fullname" class="required">Full Name</label>
-                    <input type="text" id="fullname" name="fullname" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email" class="required">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="tel" id="phone" name="phone">
-                </div>
-
-                <div class="form-group">
-                    <label for="company">Company / Brand</label>
-                    <input type="text" id="company" name="company">
-                </div>
-
-                <div class="form-group">
-                    <label for="website">Website or Social Link</label>
-                    <input type="url" id="website" name="website">
-                </div>
-
-                <div class="form-group">
-                    <label for="slug" class="required">Preferred URL Slug</label>
-                    <input type="text" id="slug" name="slug" placeholder="my-partner-name" required>
-                    <div class="slug-preview">
-                        <span class="slug-prefix">knightops.biz/</span>
-                        <span id="slug-display">-</span>
-                        <span class="slug-status checking" id="slug-status" style="display: none;">Checking...</span>
+            <div>
+                <div class="form-card">
+                    <div id="formContent">
+                        <h3>Partner Application</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First & Last Name *</label>
+                                <input type="text" id="f_name" required placeholder="Jane Smith">
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="f_email" required placeholder="jane@example.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="f_phone" placeholder="(555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label>Company / Brand</label>
+                                <input type="text" id="f_company" placeholder="Your company name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>How do you typically connect with entrepreneurs?</label>
+                            <select id="f_method">
+                                <option value="">Select one...</option>
+                                <option value="coaching">Coaching / Consulting</option>
+                                <option value="community">Community / Membership</option>
+                                <option value="content">Content / Social Media</option>
+                                <option value="events">Events / Speaking</option>
+                                <option value="agency">Agency / Freelance</option>
+                                <option value="networking">Networking / Word of Mouth</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Website or Social Link</label>
+                            <input type="url" id="f_website" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Anything else we should know?</label>
+                            <textarea id="f_notes" placeholder="Tell us about your audience, why you're interested, etc."></textarea>
+                        </div>
+                        <button class="submit-btn" id="submitBtn" onclick="submitApplication()">Submit Application</button>
+                        <p class="form-note">We'll review your application and get back to you within 24 hours.</p>
+                    </div>
+                    <div class="success-msg" id="successMsg">
+                        <div class="check">&#10003;</div>
+                        <h3>Application Received!</h3>
+                        <p>We'll review your application and reach out within 24 hours. Keep an eye on your inbox — once approved, you'll get your partner portal link with everything you need to start earning.</p>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="paypal">PayPal Email</label>
-                    <input type="email" id="paypal" name="paypal" placeholder="your-paypal@email.com">
-                </div>
-
-                <div class="form-group">
-                    <label for="refer-method" class="required">How do you plan to refer?</label>
-                    <select id="refer-method" name="refer-method" required>
-                        <option value="">Select an option</option>
-                        <option value="social-media">Social Media</option>
-                        <option value="email-list">Email List</option>
-                        <option value="conversations">1-on-1 Conversations</option>
-                        <option value="events">Events & Networking</option>
-                        <option value="podcast">Podcast</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="bio">Brief Bio</label>
-                    <textarea id="bio" name="bio" placeholder="Tell us a bit about yourself..."></textarea>
-                </div>
-
-                <button type="submit" class="form-submit">Submit Application</button>
-            </form>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="/">Home</a>
-                <a href="/apply">Apply</a>
-                <a href="/book">Book a Call</a>
-            </div>
-            <div class="footer-copyright">
-                &copy; 2026 Knight Ops. All rights reserved.
             </div>
         </div>
-    </footer>
+    </div>
+</section>
 
-    <script>
-        try {
-            // Supabase Configuration
-            const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2025 Knight Ops &mdash; <a href="https://knightops.biz">knightops.biz</a></p>
+</div>
 
-            // Mobile Menu Toggle
-            const hamburger = document.querySelector('.hamburger');
-            const navLinks = document.querySelector('.nav-links');
+<script>
+const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
+// Check for affiliate slug in URL and set cookie
+(function(){
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if(ref){
+        document.cookie = 'ko_ref=' + encodeURIComponent(ref) + ';max-age=' + (30*24*60*60) + ';path=/;SameSite=Lax';
+    }
+})();
 
-        // Close menu when link is clicked
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-            });
-        });
+function generateSlug(name){
+    return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,30);
+}
 
-        // Intersection Observer for fade-in animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
+async function submitApplication(){
+    const btn = document.getElementById('submitBtn');
+    const name = document.getElementById('f_name').value.trim();
+    const email = document.getElementById('f_email').value.trim();
+    if(!name || !email){ alert('Name and email are required.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+        const slug = generateSlug(name) + '-' + Math.random().toString(36).substring(2,6);
+        const data = {
+            name: name,
+            email: email,
+            phone: document.getElementById('f_phone').value.trim(),
+            company: document.getElementById('f_company').value.trim(),
+            referral_method: document.getElementById('f_method').value,
+            website: document.getElementById('f_website').value.trim(),
+            notes: document.getElementById('f_notes').value.trim(),
+            slug: slug,
+            status: 'pending',
+            commission_rate: 10,
+            commission_type: 'percentage',
+            magic_link_token: crypto.randomUUID()
         };
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.section').forEach(section => {
-            observer.observe(section);
+        const res = await fetch(SUPABASE_URL + '/rest/v1/partners', {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(data)
         });
 
-        // Copy to Clipboard Function
-        function copyToClipboard(btn, text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                btn.classList.add('copied');
-                
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
+        if(!res.ok){
+            const err = await res.json();
+            throw new Error(err.message || 'Failed to submit');
         }
 
-        // Slug Auto-Generation and Validation
-        const fullnameInput = document.getElementById('fullname');
-        const slugInput = document.getElementById('slug');
-        const slugDisplay = document.getElementById('slug-display');
-        const slugStatus = document.getElementById('slug-status');
+        // Send admin notification
+        fetch(SUPABASE_URL + '/functions/v1/partner-emails', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + SUPABASE_KEY
+            },
+            body: JSON.stringify({
+                type: 'admin_new_partner',
+                to: 'daniel@unicornuniverse.io',
+                data: { partner_name: name, partner_email: email, company: data.company || 'N/A', referral_method: data.referral_method || 'N/A' }
+            })
+        }).catch(()=>{});
 
-        fullnameInput.addEventListener('input', () => {
-            const autoSlug = fullnameInput.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/^-|-$/g, '');
-            
-            slugInput.value = autoSlug;
-            slugDisplay.textContent = autoSlug || '-';
-        });
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
 
-        slugInput.addEventListener('input', () => {
-            const cleanSlug = slugInput.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/^-|-$/g, '');
-            
-            slugInput.value = cleanSlug;
-            slugDisplay.textContent = cleanSlug || '-';
-        });
+    } catch(e) {
+        alert('Something went wrong. Please try again or email us directly at daniel@unicornuniverse.io');
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+    }
+}
+</script>
 
-        slugInput.addEventListener('blur', checkSlugAvailability);
-
-        async function checkSlugAvailability() {
-            const slug = slugInput.value.trim();
-            
-            if (!slug) {
-                slugStatus.style.display = 'none';
-                return;
-            }
-
-            slugStatus.style.display = 'inline-block';
-            slugStatus.textContent = 'Checking...';
-            slugStatus.className = 'slug-status checking';
-
-            try {
-                const { data, error } = await supabase
-                    .from('partners')
-                    .select('id')
-                    .eq('slug', slug)
-                    .single();
-
-                if (error && error.code === 'PGRST116') {
-                    // No results - slug is available
-                    slugStatus.textContent = 'Available';
-                    slugStatus.className = 'slug-status available';
-                } else if (data) {
-                    // Slug exists - unavailable
-                    slugStatus.textContent = 'Taken';
-                    slugStatus.className = 'slug-status unavailable';
-                } else {
-                    slugStatus.style.display = 'none';
-                }
-            } catch (err) {
-                console.error('Error checking slug:', err);
-                slugStatus.style.display = 'none';
-            }
-        }
-
-        // Form Submission
-        document.getElementById('partner-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const fullname = document.getElementById('fullname').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value || null;
-            const company = document.getElementById('company').value || null;
-            const website = document.getElementById('website').value || null;
-            const slug = document.getElementById('slug').value;
-            const paypal = document.getElementById('paypal').value || null;
-            const referMethod = document.getElementById('refer-method').value;
-            const bio = document.getElementById('bio').value || null;
-
-            // Validate slug availability one more time
-            try {
-                const { data: existingSlug, error } = await supabase
-                    .from('partners')
-                    .select('id')
-                    .eq('slug', slug)
-                    .single();
-
-                if (!error && existingSlug) {
-                    alert('This slug is already taken. Please choose another.');
-                    return;
-                }
-            } catch (err) {
-                console.error('Error validating slug:', err);
-            }
-
-            // Insert into partners table
-            try {
-                const { data, error } = await supabase
-                    .from('partners')
-                    .insert([
-                        {
-                            name: fullname,
-                            email: email,
-                            phone: phone,
-                            company: company,
-                            website: website,
-                            slug: slug,
-                            paypal_email: paypal,
-                            referral_method: referMethod,
-                            bio: bio,
-                            status: 'pending',
-                            magic_link_token: crypto.randomUUID()
-                        }
-                    ]);
-
-                if (error) {
-                    console.error('Error submitting form:', error);
-                    alert('There was an error submitting your application. Please try again.');
-                    return;
-                }
-
-                // Notify admin of new partner application
-                fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/partner-emails', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
-                    body: JSON.stringify({ type: 'admin_new_partner', to: 'daniel@unicornuniverse.io', data: {
-                        partner_name: fullname, partner_email: email, partner_company: company,
-                        partner_slug: slug, referral_method: referMethod
-                    }})
-                }).catch(() => {});
-
-                // Show success message
-                const successMsg = document.getElementById('success-message');
-                successMsg.classList.add('show');
-
-                // Reset form
-                document.getElementById('partner-form').reset();
-                slugDisplay.textContent = '-';
-                slugStatus.style.display = 'none';
-
-                // Scroll to success message
-                successMsg.scrollIntoView({ behavior: 'smooth' });
-
-            } catch (err) {
-                console.error('Error:', err);
-                alert('An error occurred. Please try again.');
-            }
-        });
-        } catch (err) {
-            console.error('Script error:', err);
-        }
-
-        // Safety fallback: ensure all sections are visible after 500ms
-        setTimeout(() => {
-            document.querySelectorAll('.section').forEach(s => s.classList.add('visible'));
-        }, 500);
-    </script>
 </body>
 </html>
