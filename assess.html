@@ -1490,34 +1490,119 @@
         }
 
         async function submitResults() {
-            const techType = Object.entries(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-            const aiOpportunitScore = Math.min(100, Math.round((painPoints.length * 15) + (5 - Math.min(5, techComfort)) * 10));
+            // Determine tech type
+            let techType = 'architect';
+            let maxScore = scores.architect;
+            for (const [type, score] of Object.entries(scores)) {
+                if (score > maxScore) { maxScore = score; techType = type; }
+            }
+            const aiScore = Math.min(100, Math.round((painPoints.length * 15) + (5 - Math.min(5, techComfort)) * 10));
+            const tools = typeof getRecommendedTools === 'function' ? getRecommendedTools() : [];
+            const typeInfo = TECH_TYPES[techType] || TECH_TYPES.architect;
 
-            const resultPayload = {
-                full_name: contactData.fullName,
+            // Resolve partner
+            let partnerId = null;
+            const slug = referralSource || getCookie('ko_ref');
+            if (slug) {
+                try {
+                    const pr = await fetch(`${SUPABASE_URL}/rest/v1/partners?slug=eq.${slug}&status=eq.active&select=id`, {
+                        headers: { 'apikey': SUPABASE_KEY }
+                    });
+                    const pdata = await pr.json();
+                    if (pdata && pdata[0]) partnerId = pdata[0].id;
+                } catch(e) {}
+            }
+
+            const payload = {
+                name: contactData.fullName,
                 email: contactData.email,
                 phone: contactData.phone || null,
                 company: contactData.company || null,
+                partner_id: partnerId,
+                partner_slug: slug || null,
                 tech_type: techType,
-                tech_type_scores: JSON.stringify(scores),
-                recommended_tools: JSON.stringify(getRecommendedTools()),
-                pain_points: JSON.stringify(painPoints),
-                ai_opportunity_score: aiOpportunitScore,
-                referral_source: referralSource || null
+                tech_type_scores: scores,
+                recommended_tools: tools.map(t => t.name || t),
+                pain_points: painPoints,
+                ai_opportunity_score: aiScore
             };
 
             try {
-                await fetch(
-                    `${SUPABASE_URL}/rest/v1/assessment_responses`,
-                    {
+                // Insert assessment response and get back the ID
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/assessment_responses`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+                    body: JSON.stringify(payload)
+                });
+                const [inserted] = await res.json();
+                const assessmentId = inserted?.id;
+
+                // If partner attributed, create affiliate lead
+                if (partnerId && assessmentId) {
+                    await fetch(`${SUPABASE_URL}/rest/v1/affiliate_leads`, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(resultPayload)
-                    }
-                );
+                        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            partner_id: partnerId, name: contactData.fullName, email: contactData.email,
+                            phone: contactData.phone || null, company: contactData.company || null,
+                            source: 'assessment', tech_type: techType, assessment_id: assessmentId
+                        })
+                    });
+                    // Notify partner
+                    await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+                        body: JSON.stringify({ type: 'partner_new_lead', to: '', data: {
+                            lead_name: contactData.fullName, lead_email: contactData.email,
+                            lead_company: contactData.company, source: 'assessment', tech_type: typeInfo.name
+                        }})
+                    }).catch(() => {});
+                }
+
+                // Send assessment results email (email 1)
+                if (assessmentId) {
+                    await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+                        body: JSON.stringify({ type: 'assessment_result', to: contactData.email, data: {
+                            name: contactData.fullName.split(' ')[0], tech_type: techType,
+                            tech_type_name: typeInfo.name, tagline: typeInfo.tagline,
+                            description: typeInfo.description, ai_score: aiScore,
+                            recommended_tools: tools.slice(0, 3).map(t => ({ name: t.name || t, description: t.description || '' }))
+                        }})
+                    }).catch(() => {});
+
+                    // Queue drip emails 2-7 (days 2, 4, 6, 8, 11, 14)
+                    const dripSchedule = [
+                        { email_number: 2, days: 2 }, { email_number: 3, days: 4 },
+                        { email_number: 4, days: 6 }, { email_number: 5, days: 8 },
+                        { email_number: 6, days: 11 }, { email_number: 7, days: 14 }
+                    ];
+                    const dripRows = dripSchedule.map(d => {
+                        const scheduled = new Date();
+                        scheduled.setDate(scheduled.getDate() + d.days);
+                        scheduled.setHours(10, 0, 0, 0); // 10am
+                        return { assessment_id: assessmentId, email_number: d.email_number, scheduled_at: scheduled.toISOString() };
+                    });
+                    await fetch(`${SUPABASE_URL}/rest/v1/assessment_drip_queue`, {
+                        method: 'POST',
+                        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dripRows)
+                    }).catch(() => {});
+                }
+
+                // Also create a lead in the main leads table
+                await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: contactData.fullName, email: contactData.email,
+                        phone: contactData.phone || null, company: contactData.company || null,
+                        source: 'assessment', status: 'new',
+                        notes: `Tech Type: ${typeInfo.name} | AI Score: ${aiScore}/100 | Partner: ${slug || 'organic'}`
+                    })
+                }).catch(() => {});
+
                 setCookie('ko_assessed', 'true');
             } catch (error) {
                 console.error('Failed to submit results:', error);
