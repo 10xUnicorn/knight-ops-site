@@ -173,6 +173,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
+      <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -387,6 +388,55 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <div id="notifLogTable"></div>
         </div>
       </div>
+      <!-- ═══ PARTNERS VIEW ═══ -->
+      <div class="view" id="v-partners">
+        <div id="partnersListView">
+          <div class="kpi-grid" id="partnerKpis"></div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Partners</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search..." id="partnerSearch" oninput="renderPartners()">
+                <select id="partnerStatusFilter" onchange="renderPartners()"><option value="">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="removed">Removed</option></select>
+                <button class="btn btn-primary btn-sm" onclick="editPartner()">+ Add Partner</button>
+              </div>
+            </div>
+            <div id="partnersTable"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Affiliate Leads</h2>
+              <div class="table-filters">
+                <select id="affLeadPartnerFilter" onchange="renderAffiliateLeads()"><option value="">All Partners</option></select>
+                <select id="affLeadStatusFilter" onchange="renderAffiliateLeads()"><option value="">All</option><option value="pending">Pending</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="converted">Converted</option><option value="lost">Lost</option></select>
+                <select id="affLeadSourceFilter" onchange="renderAffiliateLeads()"><option value="">All Sources</option><option value="assessment">Assessment</option><option value="referral">Referral</option><option value="direct">Direct</option><option value="booking">Booking</option></select>
+              </div>
+            </div>
+            <div id="affiliateLeadsTable"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Commissions</h2>
+              <div class="table-filters">
+                <select id="commStatusFilter" onchange="renderCommissions()"><option value="">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="paid">Paid</option><option value="rejected">Rejected</option></select>
+                <button class="btn btn-secondary btn-sm" onclick="exportCommissions()">Export CSV</button>
+                <button class="btn btn-secondary btn-sm" onclick="bulkApproveCommissions()">Bulk Approve</button>
+              </div>
+            </div>
+            <div id="commissionsTable"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Assessment Responses</h2>
+              <div class="table-filters">
+                <select id="assessTechFilter" onchange="renderAssessments()"><option value="">All Types</option><option value="architect">Architect</option><option value="vibe_coder">Vibe Coder</option><option value="blitz_builder">Blitz Builder</option><option value="scholar">Scholar</option></select>
+              </div>
+            </div>
+            <div id="assessmentsTable"></div>
+          </div>
+        </div>
+        <div id="partnerDetailView" style="display:none"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -439,7 +489,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{}};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -449,7 +499,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments()]);
   loadDashboard();
 })();
 
@@ -4539,6 +4589,239 @@ function renderProjectMembers(projectId){
   const members=S.projectMembers[projectId]||[];
   const html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent);margin:0">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="addProjectMember(\''+projectId+'\')">+ Add Member</button></div><table style="width:100%;font-size:0.85rem"><thead style="border-bottom:1px solid var(--border)"><tr><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Email</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Role</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Status</th><th style="text-align:left;padding:8px">Actions</th></tr></thead><tbody>'+(members.length?members.map(m=>'<tr style="border-bottom:1px solid var(--border-subtle)"><td style="padding:8px">'+m.email+'</td><td style="padding:8px">'+B(m.role)+'</td><td style="padding:8px">'+B(m.status)+'</td><td style="padding:8px"><button class="btn btn-sm btn-danger" onclick="removeProjectMember(\''+projectId+'\',\''+m.id+'\')">🗑</button></td></tr>').join(''):'<tr><td colspan="4" style="padding:8px;color:var(--text-muted)">No team members</td></tr>')+'</tbody></table>';
   document.getElementById('projectMembers_'+projectId).innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// PARTNERS MODULE
+// ═══════════════════════════════════════
+async function loadPartners(){
+  const{data}=await sb.from('partners').select('*').order('created_at',{ascending:false});
+  S.partners=data||[];renderPartners();
+}
+async function loadAffiliateLeads(){
+  const{data}=await sb.from('affiliate_leads').select('*').order('created_at',{ascending:false});
+  S.affiliateLeads=data||[];renderAffiliateLeads();
+}
+async function loadCommissions(){
+  const{data}=await sb.from('commissions').select('*').order('created_at',{ascending:false});
+  S.commissions=data||[];renderCommissions();
+}
+async function loadAssessments(){
+  const{data}=await sb.from('assessment_responses').select('*').order('created_at',{ascending:false});
+  S.assessments=data||[];renderAssessments();
+}
+
+function renderPartners(){
+  const st=document.getElementById('partnerStatusFilter')?.value||'';
+  const q=(document.getElementById('partnerSearch')?.value||'').toLowerCase();
+  let f=S.partners;
+  if(st) f=f.filter(p=>p.status===st);
+  if(q) f=f.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q)||(p.company||'').toLowerCase().includes(q));
+  // KPIs
+  const active=S.partners.filter(p=>p.status==='active').length;
+  const pending=S.partners.filter(p=>p.status==='pending').length;
+  const totalLeads=S.affiliateLeads.length;
+  const totalEarned=S.commissions.filter(c=>c.status==='approved'||c.status==='paid').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+  document.getElementById('partnerKpis').innerHTML='<div class="kpi"><div class="label">Active Partners</div><div class="value">'+active+'</div></div><div class="kpi"><div class="label">Pending Applications</div><div class="value">'+pending+'</div></div><div class="kpi"><div class="label">Total Affiliate Leads</div><div class="value">'+totalLeads+'</div></div><div class="kpi"><div class="label">Total Commissions</div><div class="value">$'+totalEarned.toLocaleString('en-US',{minimumFractionDigits:2})+'</div></div>';
+  // Populate partner filter on affiliate leads
+  const pf=document.getElementById('affLeadPartnerFilter');
+  if(pf&&pf.options.length<=1){S.partners.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;pf.appendChild(o);})}
+  // Table
+  document.getElementById('partnersTable').innerHTML='<table><thead><tr><th>Name</th><th>Company</th><th>Slug</th><th>Status</th><th>Leads</th><th>Rate</th><th>Earned</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>{
+    const leads=S.affiliateLeads.filter(l=>l.partner_id===p.id).length;
+    const earned=S.commissions.filter(c=>c.partner_id===p.id&&(c.status==='approved'||c.status==='paid')).reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+    return '<tr class="clickable" onclick="showPartnerDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.company||'—')+'</td><td style="font-family:JetBrains Mono;font-size:.8rem;color:var(--accent)">/'+p.slug+'</td><td>'+B(p.status)+'</td><td>'+leads+'</td><td>'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</td><td>$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editPartner(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'partners\',\''+p.id+'\',\'Partner\',loadPartners)">&#128465;</button></td></tr>';
+  }).join(''):'<tr><td colspan="8" class="table-empty">No partners</td></tr>')+'</tbody></table>';
+}
+
+function renderAffiliateLeads(){
+  const pf=document.getElementById('affLeadPartnerFilter')?.value||'';
+  const sf=document.getElementById('affLeadStatusFilter')?.value||'';
+  const src=document.getElementById('affLeadSourceFilter')?.value||'';
+  let f=S.affiliateLeads;
+  if(pf) f=f.filter(l=>l.partner_id===pf);
+  if(sf) f=f.filter(l=>l.status===sf);
+  if(src) f=f.filter(l=>l.source===src);
+  const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
+  document.getElementById('affiliateLeadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Partner</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>{
+    const partner=S.partners.find(p=>p.id===l.partner_id);
+    return '<tr><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(partner?partner.name:'Organic')+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editAffLeadStatus(\''+l.id+'\')">Status</button></td></tr>';
+  }).join(''):'<tr><td colspan="8" class="table-empty">No affiliate leads</td></tr>')+'</tbody></table>';
+}
+
+function renderCommissions(){
+  const sf=document.getElementById('commStatusFilter')?.value||'';
+  let f=S.commissions;
+  if(sf) f=f.filter(c=>c.status===sf);
+  const totPending=S.commissions.filter(c=>c.status==='pending').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+  const totApproved=S.commissions.filter(c=>c.status==='approved').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+  const totPaid=S.commissions.filter(c=>c.status==='paid').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+  document.getElementById('commissionsTable').innerHTML='<div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:.85rem"><span style="color:#f59e0b">Pending: $'+totPending.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#22c55e">Approved: $'+totApproved.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#3b82f6">Paid: $'+totPaid.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div><table><thead><tr><th>Partner</th><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>{
+    const partner=S.partners.find(p=>p.id===c.partner_id);
+    const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);
+    return '<tr><td>'+(partner?partner.name:'—')+'</td><td>'+(lead?lead.name:'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+c.commission_rate+'%</td><td style="font-weight:600;color:var(--accent)">$'+parseFloat(c.commission_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td><td>'+
+    (c.status==='pending'?'<button class="btn btn-sm btn-primary" onclick="approveCommission(\''+c.id+'\')">Approve</button> <button class="btn btn-sm btn-danger" onclick="rejectCommission(\''+c.id+'\')">Reject</button>':c.status==='approved'?'<button class="btn btn-sm btn-secondary" onclick="markCommissionPaid(\''+c.id+'\')">Mark Paid</button>':'')+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="table-empty">No commissions</td></tr>')+'</tbody></table>';
+}
+
+function renderAssessments(){
+  const tf=document.getElementById('assessTechFilter')?.value||'';
+  let f=S.assessments;
+  if(tf) f=f.filter(a=>a.tech_type===tf);
+  const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
+  document.getElementById('assessmentsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Tech Type</th><th>AI Score</th><th>Partner</th><th>Date</th></tr></thead><tbody>'+(f.length?f.map(a=>{
+    const partner=a.partner_id?S.partners.find(p=>p.id===a.partner_id):null;
+    return '<tr class="clickable" onclick="showAssessmentDetail(\''+a.id+'\')"><td>'+a.name+'</td><td>'+a.email+'</td><td>'+(a.company||'—')+'</td><td>'+techBadge(a.tech_type)+'</td><td>'+(a.ai_opportunity_score||0)+'/100</td><td>'+(partner?partner.name:'Organic')+'</td><td>'+fmtDate(a.created_at)+'</td></tr>';
+  }).join(''):'<tr><td colspan="7" class="table-empty">No assessment responses</td></tr>')+'</tbody></table>';
+}
+
+// PARTNER DETAIL
+function showPartnerDetail(id){
+  const p=S.partners.find(x=>x.id===id);if(!p)return;
+  const leads=S.affiliateLeads.filter(l=>l.partner_id===id);
+  const comms=S.commissions.filter(c=>c.partner_id===id);
+  const earned=comms.filter(c=>c.status==='approved'||c.status==='paid').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
+  const converted=leads.filter(l=>l.status==='converted').length;
+  const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
+  document.getElementById('partnersListView').style.display='none';
+  document.getElementById('partnerDetailView').style.display='block';
+  document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button></div>'+
+  '<div class="kpi-grid"><div class="kpi"><div class="label">Total Leads</div><div class="value">'+leads.length+'</div></div><div class="kpi"><div class="label">Conversions</div><div class="value">'+converted+'</div></div><div class="kpi"><div class="label">Commission Rate</div><div class="value">'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</div></div><div class="kpi"><div class="label">Total Earned</div><div class="value">$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</div></div></div>'+
+  '<div class="table-card" style="margin-top:1.5rem"><div style="padding:1.25rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+p.email+'</div></div><div class="form-group"><label>Phone</label><div>'+(p.phone||'—')+'</div></div><div class="form-group"><label>Company</label><div>'+(p.company||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Slug</label><div style="font-family:JetBrains Mono;color:var(--accent)">knightops.biz/'+p.slug+'</div></div><div class="form-group"><label>PayPal</label><div>'+(p.paypal_email||'—')+'</div></div><div class="form-group"><label>Website</label><div>'+(p.website||'—')+'</div></div></div>'+(p.bio?'<div class="form-group"><label>Bio</label><div>'+p.bio+'</div></div>':'')+(p.notes?'<div class="form-group"><label>Notes</label><div>'+p.notes+'</div></div>':'')+'</div></div>'+
+  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Leads from '+p.name+'</h3></div><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(leads.length?leads.map(l=>'<tr><td>'+l.name+'</td><td>'+l.email+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No leads yet</td></tr>')+'</tbody></table></div>'+
+  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Commissions</h3></div><table><thead><tr><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(comms.length?comms.map(c=>{const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);return '<tr><td>'+(lead?lead.name:'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString()+'</td><td>'+c.commission_rate+'%</td><td style="color:var(--accent);font-weight:600">$'+parseFloat(c.commission_amount||0).toLocaleString()+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td></tr>';}).join(''):'<tr><td colspan="6" class="table-empty">No commissions</td></tr>')+'</tbody></table></div>';
+}
+
+// EDIT PARTNER
+function editPartner(id){
+  const p=id?S.partners.find(x=>x.id===id):null;
+  const body=FG('Name *','e_pname','text',p?.name||'')+FG('Email *','e_pemail','email',p?.email||'')+FG('Phone','e_pphone','tel',p?.phone||'')+FG('Company','e_pcompany','text',p?.company||'')+FG('Slug *','e_pslug','text',p?.slug||'')+FG('PayPal Email','e_ppaypal','email',p?.paypal_email||'')+
+  FG('Commission Rate','e_prate','number',p?.commission_rate||10)+FG('Commission Type','e_pctype','select',p?.commission_type||'percentage',[{v:'percentage',l:'Percentage'},{v:'flat',l:'Flat Amount'}])+
+  FG('Status','e_pstatus','select',p?.status||'pending',[{v:'pending',l:'Pending'},{v:'active',l:'Active'},{v:'paused',l:'Paused'},{v:'removed',l:'Removed'}])+
+  FG('Website','e_pwebsite','text',p?.website||'')+FG('Bio','e_pbio','textarea',p?.bio||'')+FG('Notes (Admin)','e_pnotes','textarea',p?.notes||'');
+  openEditModal((p?'Edit':'Add')+' Partner',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="savePartner(\''+( id||'')+'\')">Save</button>');
+}
+async function savePartner(id){
+  const d={name:document.getElementById('e_pname').value,email:document.getElementById('e_pemail').value,phone:document.getElementById('e_pphone').value,company:document.getElementById('e_pcompany').value,slug:document.getElementById('e_pslug').value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''),paypal_email:document.getElementById('e_ppaypal').value,commission_rate:parseFloat(document.getElementById('e_prate').value)||10,commission_type:document.getElementById('e_pctype').value,status:document.getElementById('e_pstatus').value,website:document.getElementById('e_pwebsite').value,bio:document.getElementById('e_pbio').value,notes:document.getElementById('e_pnotes').value,updated_at:new Date().toISOString()};
+  if(!d.name||!d.email||!d.slug){showToast('Name, email, and slug are required','error');return;}
+  if(id){
+    const{error}=await sb.from('partners').update(d).eq('id',id);
+    if(error){showToast('Error: '+error.message,'error');return;}
+  }else{
+    d.magic_link_token=crypto.randomUUID();
+    const{error}=await sb.from('partners').insert(d);
+    if(error){showToast('Error: '+error.message,'error');return;}
+  }
+  closeEditModal();await loadPartners();showToast('Partner saved','success');
+}
+
+// AFFILIATE LEAD STATUS
+function editAffLeadStatus(id){
+  const l=S.affiliateLeads.find(x=>x.id===id);if(!l)return;
+  openEditModal('Update Lead Status','<div>'+FG('Status','e_alstatus','select',l.status,[{v:'pending',l:'Pending'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'converted',l:'Converted'},{v:'lost',l:'Lost'}])+FG('Notes','e_alnotes','textarea',l.notes||'')+'</div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveAffLeadStatus(\''+id+'\')">Save</button>');
+}
+async function saveAffLeadStatus(id){
+  const status=document.getElementById('e_alstatus').value;
+  const notes=document.getElementById('e_alnotes').value;
+  await sb.from('affiliate_leads').update({status,notes,updated_at:new Date().toISOString()}).eq('id',id);
+  closeEditModal();await loadAffiliateLeads();showToast('Lead updated','success');
+}
+
+// COMMISSION ACTIONS
+async function approveCommission(id){
+  if(!confirm('Approve this commission?'))return;
+  await sb.from('commissions').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id);
+  await loadCommissions();showToast('Commission approved','success');
+  // Notify partner
+  const c=S.commissions.find(x=>x.id===id);
+  if(c){await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_approved',title:'Commission Approved',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been approved!',metadata:{commission_id:id}});}
+}
+async function rejectCommission(id){
+  if(!confirm('Reject this commission?'))return;
+  await sb.from('commissions').update({status:'rejected'}).eq('id',id);
+  await loadCommissions();showToast('Commission rejected');
+}
+async function markCommissionPaid(id){
+  if(!confirm('Mark as paid?'))return;
+  await sb.from('commissions').update({status:'paid',paid_at:new Date().toISOString()}).eq('id',id);
+  await loadCommissions();showToast('Commission marked paid','success');
+  const c=S.commissions.find(x=>x.id===id);
+  if(c){await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_paid',title:'Commission Paid',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been paid!',metadata:{commission_id:id}});}
+}
+async function bulkApproveCommissions(){
+  const pending=S.commissions.filter(c=>c.status==='pending');
+  if(!pending.length){showToast('No pending commissions');return;}
+  if(!confirm('Approve all '+pending.length+' pending commissions?'))return;
+  for(const c of pending){
+    await sb.from('commissions').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',c.id);
+    await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_approved',title:'Commission Approved',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been approved!',metadata:{commission_id:c.id}});
+  }
+  await loadCommissions();showToast(pending.length+' commissions approved','success');
+}
+
+// EXPORT COMMISSIONS CSV
+function exportCommissions(){
+  const rows=[['Partner','Partner Email','PayPal','Lead','Deal Amount','Rate','Commission','Status','Date']];
+  S.commissions.forEach(c=>{
+    const p=S.partners.find(x=>x.id===c.partner_id);
+    const l=S.affiliateLeads.find(x=>x.id===c.affiliate_lead_id);
+    rows.push([p?.name||'',p?.email||'',p?.paypal_email||'',l?.name||'',c.deal_amount,c.commission_rate+'%',c.commission_amount,c.status,c.created_at?.split('T')[0]||'']);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+(v+'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='commissions_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  showToast('CSV exported','success');
+}
+
+// ASSESSMENT DETAIL
+function showAssessmentDetail(id){
+  const a=S.assessments.find(x=>x.id===id);if(!a)return;
+  const partner=a.partner_id?S.partners.find(p=>p.id===a.partner_id):null;
+  const scores=a.tech_type_scores||{};
+  const tools=a.recommended_tools||[];
+  const pains=a.pain_points||[];
+  const techColors={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};
+  const typeNames={architect:'The Architect',vibe_coder:'The Vibe Coder',blitz_builder:'The Blitz Builder',scholar:'The Scholar'};
+  let scoreHtml=Object.entries(scores).map(([k,v])=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:100px;font-size:.8rem;color:'+(techColors[k]||'#888')+'">'+k.replace('_',' ')+'</span><div style="flex:1;background:var(--border);border-radius:4px;height:12px"><div style="width:'+Math.min(v*25,100)+'%;background:'+(techColors[k]||'#888')+';border-radius:4px;height:100%"></div></div><span style="font-size:.8rem;color:var(--text-muted)">'+v+'</span></div>').join('');
+  openEditModal('Assessment: '+a.name,'<div style="display:grid;gap:1rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+a.email+'</div></div><div class="form-group"><label>Company</label><div>'+(a.company||'—')+'</div></div><div class="form-group"><label>Industry</label><div>'+(a.industry||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Team Size</label><div>'+(a.team_size||'—')+'</div></div><div class="form-group"><label>Revenue</label><div>'+(a.revenue_range||'—')+'</div></div><div class="form-group"><label>Partner</label><div>'+(partner?partner.name:'Organic')+'</div></div></div><div class="form-group"><label>Tech Type</label><div style="font-size:1.1rem;font-weight:700;color:'+(techColors[a.tech_type]||'var(--accent)')+'">'+( typeNames[a.tech_type]||'—')+'</div></div><div class="form-group"><label>Type Scores</label>'+scoreHtml+'</div><div class="form-group"><label>AI Opportunity Score</label><div style="font-size:1.5rem;font-weight:800;color:var(--accent)">'+(a.ai_opportunity_score||0)+'/100</div></div>'+(tools.length?'<div class="form-group"><label>Recommended Tools</label><div>'+tools.map(t=>'<span class="badge badge-gold" style="margin-right:4px">'+t+'</span>').join('')+'</div></div>':'')+(pains.length?'<div class="form-group"><label>Pain Points</label><div>'+pains.map(p=>'<span class="badge" style="margin-right:4px">'+p+'</span>').join('')+'</div></div>':'')+'</div>','<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');
+}
+
+// SEND PARTNER MAGIC LINK
+async function sendPartnerMagicLink(id){
+  const p=S.partners.find(x=>x.id===id);if(!p)return;
+  if(!p.magic_link_token){
+    const token=crypto.randomUUID();
+    await sb.from('partners').update({magic_link_token:token}).eq('id',id);
+    p.magic_link_token=token;
+  }
+  const portalUrl='https://knightops.biz/partner-portal#token='+p.magic_link_token;
+  // Send via Resend edge function or notify-comment
+  try{
+    await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/notify-comment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({type:'partner_portal_link',partner_name:p.name,partner_email:p.email,portal_url:portalUrl})});
+    showToast('Portal link sent to '+p.email,'success');
+  }catch(e){
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(portalUrl);
+    showToast('Link copied (email may not have sent): '+portalUrl,'success');
+  }
+}
+
+// AUTO-CALCULATE COMMISSION (call when deal status changes to won)
+async function autoCalculateCommission(dealId){
+  const deal=S.deals.find(d=>d.id===dealId);
+  if(!deal||!deal.partner_id)return;
+  const partner=S.partners.find(p=>p.id===deal.partner_id);
+  if(!partner)return;
+  // Check if commission already exists for this deal
+  const existing=S.commissions.find(c=>c.deal_id===dealId);
+  if(existing)return;
+  const dealAmount=parseFloat(deal.value||0);
+  const rate=parseFloat(partner.commission_rate||10);
+  const amount=partner.commission_type==='flat'?rate:(dealAmount*rate/100);
+  const affLead=S.affiliateLeads.find(l=>l.deal_id===dealId);
+  await sb.from('commissions').insert({partner_id:partner.id,affiliate_lead_id:affLead?.id||null,deal_id:dealId,deal_amount:dealAmount,commission_rate:rate,commission_amount:amount,status:'pending'});
+  await sb.from('partner_notifications').insert({partner_id:partner.id,type:'commission_pending',title:'New Commission Pending',message:'A commission of $'+amount.toFixed(2)+' is pending approval for a $'+dealAmount.toLocaleString()+' deal.',metadata:{deal_id:dealId}});
+  await loadCommissions();
 }
 
 // LOGOUT
