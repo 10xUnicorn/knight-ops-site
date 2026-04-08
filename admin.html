@@ -4838,7 +4838,7 @@ async function sendPartnerMagicLink(id){
   const portalUrl='https://knightops.biz/partner-portal#token='+p.magic_link_token;
   // Send via Resend edge function or notify-comment
   try{
-    await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/notify-comment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({type:'partner_portal_link',partner_name:p.name,partner_email:p.email,portal_url:portalUrl})});
+    await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/partner-emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({type:'partner_portal_link',to:p.email,data:{partner_name:p.name,portal_url:portalUrl}})});
     showToast('Portal link sent to '+p.email,'success');
   }catch(e){
     // Fallback: copy to clipboard
