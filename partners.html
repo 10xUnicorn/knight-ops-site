@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner & Affiliate Program | Knight Ops</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0B;
+            --bg-secondary: #111113;
+            --bg-tertiary: #18181B;
+            --bg-card: #1C1C1F;
+            --bg-card-hover: #222225;
+            --border: #2A2A2E;
+            --border-light: #3A3A3F;
+            --text-primary: #F4F4F5;
+            --text-secondary: #A1A1AA;
+            --text-muted: #71717A;
+            --accent: #C8A456;
+            --accent-hover: #D4B56A;
+            --accent-subtle: rgba(200, 164, 86, 0.1);
+            --accent-border: rgba(200, 164, 86, 0.25);
+            --white: #FFFFFF;
+            --success: #22C55E;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-links .btn-primary {
+            margin-left: 1rem;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Buttons */
+        .btn-primary, .btn-secondary {
+            padding: 0.875rem 1.75rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(200, 164, 86, 0.3);
+            animation: shimmer 3s infinite;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(200, 164, 86, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(200, 164, 86, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(200, 164, 86, 0.5);
+            }
+        }
+
+        /* Sections */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: 8rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-bottom: 4rem;
+        }
+
+        .hero-headline {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero-highlight {
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 2rem auto 3rem;
+            line-height: 1.6;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-border);
+            box-shadow: 0 8px 32px rgba(200, 164, 86, 0.1);
+        }
+
+        .signal-card {
+            position: relative;
+            padding-left: 3rem;
+            font-size: 1.05rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+        }
+
+        .signal-card::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: -0.5rem;
+            font-size: 3rem;
+            color: var(--accent);
+            opacity: 0.3;
+        }
+
+        .offer-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .offer-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Template Cards */
+        .template-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .template-card h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .template-text {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            border-left: 2px solid var(--accent-border);
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            color: var(--white);
+            border-color: var(--success);
+        }
+
+        /* Form */
+        .form-container {
+            max-width: 600px;
+            margin: 3rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .required::after {
+            content: ' *';
+            color: var(--accent);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+            box-shadow: 0 0 0 3px var(--accent-subtle);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .slug-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .slug-prefix {
+            color: var(--text-muted);
+        }
+
+        .slug-status {
+            margin-left: auto;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .slug-status.available {
+            color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .slug-status.unavailable {
+            color: #EF4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .slug-status.checking {
+            color: var(--accent);
+            background: var(--accent-subtle);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(200, 164, 86, 0.4);
+        }
+
+        .form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Toolkit & Commission */
+        .toolkit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .toolkit-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .toolkit-item strong {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .toolkit-item p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .commission-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .flow-step {
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+
+        .flow-step h4 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                border-bottom: 1px solid var(--border);
+                padding: 2rem;
+                gap: 1.5rem;
+            }
+
+            .hero-headline {
+                font-size: 2.25rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+            }
+
+            .hero-ctas .btn-primary, .hero-ctas .btn-secondary {
+                width: 100%;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .commission-flow {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Utility Classes */
+        .fade-in {
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">KNIGHT<span>OPS</span></a>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/#services">Services</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/apply">Apply</a></li>
+                <li><a href="/partners" class="active">Partners</a></li>
+                <li><a href="/book" class="btn-primary">Book a Call</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="section hero">
+        <h1 class="hero-headline">Know Someone Building a Business?</h1>
+        <p class="hero-highlight" style="font-size: 1.5rem; margin-bottom: 1.5rem;">You Just Found Their Secret Weapon.</p>
+        <p class="hero-description">Refer entrepreneurs who need apps, websites, or AI systems — and earn commissions when they build with Knight Ops.</p>
+        <div class="hero-ctas">
+            <button class="btn-primary" onclick="document.getElementById('signup').scrollIntoView({ behavior: 'smooth' });">Become a Partner</button>
+            <a href="/assess" class="btn-secondary">Take the Assessment</a>
+        </div>
+    </section>
+
+    <!-- Who We Help -->
+    <section class="section" id="who-we-help">
+        <h2 class="section-title">Who Should You Send Our Way?</h2>
+        <p class="section-subtitle">If someone in your network says any of these, they're a perfect fit.</p>
+        <div class="card-grid">
+            <div class="card signal-card">I need an app built but I don't know where to start</div>
+            <div class="card signal-card">I've been trying to build this myself and it's taking forever</div>
+            <div class="card signal-card">I want to automate [X] in my business</div>
+            <div class="card signal-card">I need a website that actually converts</div>
+            <div class="card signal-card">I'm spending too much time on manual tasks</div>
+            <div class="card signal-card">I want to use AI but don't know how</div>
+            <div class="card signal-card">I have an idea for a platform but no technical team</div>
+            <div class="card signal-card">My current systems don't talk to each other</div>
+        </div>
+        <p style="margin-top: 3rem; color: var(--text-secondary); text-align: center; font-size: 1rem;">
+            They're typically entrepreneurs, coaches, consultants, and agency owners doing $50K–$5M+ who are ready to invest in systems that scale.
+        </p>
+    </section>
+
+    <!-- What We Offer -->
+    <section class="section">
+        <h2 class="section-title">What They Get When You Send Them</h2>
+        <div class="card-grid">
+            <div class="card offer-card">
+                <h3>Night Launch</h3>
+                <p>Overnight multi-page website</p>
+                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$1,497</p>
+            </div>
+            <div class="card offer-card">
+                <h3>Night Build</h3>
+                <p>Full-stack web or mobile app</p>
+                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$7,497</p>
+            </div>
+            <div class="card offer-card">
+                <h3>Night Build Pro</h3>
+                <p>Full App Store deployment</p>
+                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$14,997</p>
+            </div>
+            <div class="card offer-card">
+                <h3>Night Vibe Workshop</h3>
+                <p>Build your own app in 2 days</p>
+                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">$1,000</p>
+            </div>
+            <div class="card offer-card">
+                <h3>AI/Tech Consulting</h3>
+                <p>Custom solutions and integrations</p>
+                <p style="margin-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.25rem;">Custom</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction Templates -->
+    <section class="section">
+        <h2 class="section-title">What To Say</h2>
+        <p class="section-subtitle">Copy-paste these or make them your own.</p>
+        <div class="card-grid">
+            <div class="template-card">
+                <h3>Text / DM</h3>
+                <div class="template-text">Hey [Name] — I know someone who builds apps and AI tools for entrepreneurs. Custom stuff, delivered fast. Check this out: knightops.biz</div>
+                <button class="copy-btn" onclick="copyToClipboard(this, 'Hey [Name] — I know someone who builds apps and AI tools for entrepreneurs. Custom stuff, delivered fast. Check this out: knightops.biz')">Copy</button>
+            </div>
+            <div class="template-card">
+                <h3>Email</h3>
+                <div class="template-text">I wanted to connect you with Daniel at Knight Ops. He builds custom apps, websites, and AI systems for entrepreneurs — some delivered overnight. Thought of you because [reason]. Here's his site: knightops.biz</div>
+                <button class="copy-btn" onclick="copyToClipboard(this, 'I wanted to connect you with Daniel at Knight Ops. He builds custom apps, websites, and AI systems for entrepreneurs — some delivered overnight. Thought of you because [reason]. Here\\'s his site: knightops.biz')">Copy</button>
+            </div>
+            <div class="template-card">
+                <h3>Verbal / In-Person</h3>
+                <div class="template-text">You should talk to my guy Daniel at Knight Ops. He builds apps and websites for entrepreneurs — like custom platforms, AI tools, the whole thing. Want me to introduce you?</div>
+                <button class="copy-btn" onclick="copyToClipboard(this, 'You should talk to my guy Daniel at Knight Ops. He builds apps and websites for entrepreneurs — like custom platforms, AI tools, the whole thing. Want me to introduce you?')">Copy</button>
+            </div>
+            <div class="template-card">
+                <h3>For the Assessment</h3>
+                <div class="template-text">Take this free 2-min quiz — it tells you your AI personality type and the #1 tool to implement in your business right now: knightops.biz/assess</div>
+                <button class="copy-btn" onclick="copyToClipboard(this, 'Take this free 2-min quiz — it tells you your AI personality type and the #1 tool to implement in your business right now: knightops.biz/assess')">Copy</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partner Toolkit -->
+    <section class="section">
+        <h2 class="section-title">Your Partner Toolkit</h2>
+        <p class="section-subtitle">After signup, partners get:</p>
+        <div class="toolkit-grid">
+            <div class="toolkit-item">
+                <strong>Custom Affiliate Link</strong>
+                <p>knightops.biz/[your-slug]</p>
+            </div>
+            <div class="toolkit-item">
+                <strong>Assessment Link</strong>
+                <p>knightops.biz/assess?ref=[your-slug]</p>
+            </div>
+            <div class="toolkit-item">
+                <strong>Booking Link</strong>
+                <p>knightops.biz/book</p>
+            </div>
+            <div class="toolkit-item">
+                <strong>Partner Portal</strong>
+                <p>Track leads & commissions in real-time</p>
+            </div>
+            <div class="toolkit-item">
+                <strong>Real-Time Notifications</strong>
+                <p>Get alerted when leads come in</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commission Structure -->
+    <section class="section">
+        <h2 class="section-title">How You Earn</h2>
+        <div class="commission-flow">
+            <div class="flow-step">
+                <h4>Default Rate</h4>
+                <p>10% of closed deal revenue</p>
+            </div>
+            <div class="flow-step">
+                <h4>Tracked Automatically</h4>
+                <p>From referral to close</p>
+            </div>
+            <div class="flow-step">
+                <h4>Real-Time Dashboard</h4>
+                <p>See earnings in your portal</p>
+            </div>
+            <div class="flow-step">
+                <h4>Paid via PayPal</h4>
+                <p>After approval</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signup Form -->
+    <section class="section" id="signup">
+        <h2 class="section-title" style="text-align: center;">Ready to Partner Up?</h2>
+        <div class="form-container">
+            <div class="success-message" id="success-message">
+                <strong>Application submitted!</strong> We'll review and activate your partner account within 24 hours.
+            </div>
+            <form id="partner-form">
+                <div class="form-group">
+                    <label for="fullname" class="required">Full Name</label>
+                    <input type="text" id="fullname" name="fullname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="required">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company / Brand</label>
+                    <input type="text" id="company" name="company">
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Website or Social Link</label>
+                    <input type="url" id="website" name="website">
+                </div>
+
+                <div class="form-group">
+                    <label for="slug" class="required">Preferred URL Slug</label>
+                    <input type="text" id="slug" name="slug" placeholder="my-partner-name" required>
+                    <div class="slug-preview">
+                        <span class="slug-prefix">knightops.biz/</span>
+                        <span id="slug-display">-</span>
+                        <span class="slug-status checking" id="slug-status" style="display: none;">Checking...</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paypal">PayPal Email</label>
+                    <input type="email" id="paypal" name="paypal" placeholder="your-paypal@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="refer-method" class="required">How do you plan to refer?</label>
+                    <select id="refer-method" name="refer-method" required>
+                        <option value="">Select an option</option>
+                        <option value="social-media">Social Media</option>
+                        <option value="email-list">Email List</option>
+                        <option value="conversations">1-on-1 Conversations</option>
+                        <option value="events">Events & Networking</option>
+                        <option value="podcast">Podcast</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Brief Bio</label>
+                    <textarea id="bio" name="bio" placeholder="Tell us a bit about yourself..."></textarea>
+                </div>
+
+                <button type="submit" class="form-submit">Submit Application</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/apply">Apply</a>
+                <a href="/book">Book a Call</a>
+            </div>
+            <div class="footer-copyright">
+                &copy; 2024 Knight Ops. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Mobile Menu Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when link is clicked
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Copy to Clipboard Function
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Slug Auto-Generation and Validation
+        const fullnameInput = document.getElementById('fullname');
+        const slugInput = document.getElementById('slug');
+        const slugDisplay = document.getElementById('slug-display');
+        const slugStatus = document.getElementById('slug-status');
+
+        fullnameInput.addEventListener('input', () => {
+            const autoSlug = fullnameInput.value
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            
+            slugInput.value = autoSlug;
+            slugDisplay.textContent = autoSlug || '-';
+        });
+
+        slugInput.addEventListener('input', () => {
+            const cleanSlug = slugInput.value
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            
+            slugInput.value = cleanSlug;
+            slugDisplay.textContent = cleanSlug || '-';
+        });
+
+        slugInput.addEventListener('blur', checkSlugAvailability);
+
+        async function checkSlugAvailability() {
+            const slug = slugInput.value.trim();
+            
+            if (!slug) {
+                slugStatus.style.display = 'none';
+                return;
+            }
+
+            slugStatus.style.display = 'inline-block';
+            slugStatus.textContent = 'Checking...';
+            slugStatus.className = 'slug-status checking';
+
+            try {
+                const { data, error } = await supabase
+                    .from('partners')
+                    .select('id')
+                    .eq('slug', slug)
+                    .single();
+
+                if (error && error.code === 'PGRST116') {
+                    // No results - slug is available
+                    slugStatus.textContent = 'Available';
+                    slugStatus.className = 'slug-status available';
+                } else if (data) {
+                    // Slug exists - unavailable
+                    slugStatus.textContent = 'Taken';
+                    slugStatus.className = 'slug-status unavailable';
+                } else {
+                    slugStatus.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Error checking slug:', err);
+                slugStatus.style.display = 'none';
+            }
+        }
+
+        // Form Submission
+        document.getElementById('partner-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value || null;
+            const company = document.getElementById('company').value || null;
+            const website = document.getElementById('website').value || null;
+            const slug = document.getElementById('slug').value;
+            const paypal = document.getElementById('paypal').value || null;
+            const referMethod = document.getElementById('refer-method').value;
+            const bio = document.getElementById('bio').value || null;
+
+            // Validate slug availability one more time
+            try {
+                const { data: existingSlug, error } = await supabase
+                    .from('partners')
+                    .select('id')
+                    .eq('slug', slug)
+                    .single();
+
+                if (!error && existingSlug) {
+                    alert('This slug is already taken. Please choose another.');
+                    return;
+                }
+            } catch (err) {
+                console.error('Error validating slug:', err);
+            }
+
+            // Insert into partners table
+            try {
+                const { data, error } = await supabase
+                    .from('partners')
+                    .insert([
+                        {
+                            full_name: fullname,
+                            email: email,
+                            phone: phone,
+                            company: company,
+                            website: website,
+                            slug: slug,
+                            paypal_email: paypal,
+                            referral_method: referMethod,
+                            bio: bio,
+                            status: 'pending',
+                            created_at: new Date().toISOString()
+                        }
+                    ]);
+
+                if (error) {
+                    console.error('Error submitting form:', error);
+                    alert('There was an error submitting your application. Please try again.');
+                    return;
+                }
+
+                // Show success message
+                const successMsg = document.getElementById('success-message');
+                successMsg.classList.add('show');
+
+                // Reset form
+                document.getElementById('partner-form').reset();
+                slugDisplay.textContent = '-';
+                slugStatus.style.display = 'none';
+
+                // Scroll to success message
+                successMsg.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                console.error('Error:', err);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
