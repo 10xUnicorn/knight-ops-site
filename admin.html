@@ -4735,8 +4735,19 @@ async function savePartner(id){
   const d={name:document.getElementById('e_pname').value,email:document.getElementById('e_pemail').value,phone:document.getElementById('e_pphone').value,company:document.getElementById('e_pcompany').value,slug:document.getElementById('e_pslug').value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''),paypal_email:document.getElementById('e_ppaypal').value,commission_rate:parseFloat(document.getElementById('e_prate').value)||10,commission_type:document.getElementById('e_pctype').value,status:document.getElementById('e_pstatus').value,website:document.getElementById('e_pwebsite').value,bio:document.getElementById('e_pbio').value,notes:document.getElementById('e_pnotes').value,updated_at:new Date().toISOString()};
   if(!d.name||!d.email||!d.slug){showToast('Name, email, and slug are required','error');return;}
   if(id){
+    // Check if status changed to active (send welcome email)
+    const prev=S.partners.find(p=>p.id===id);
     const{error}=await sb.from('partners').update(d).eq('id',id);
     if(error){showToast('Error: '+error.message,'error');return;}
+    // If just activated, send welcome email + portal link
+    if(prev&&prev.status!=='active'&&d.status==='active'){
+      const token=prev.magic_link_token||crypto.randomUUID();
+      if(!prev.magic_link_token) await sb.from('partners').update({magic_link_token:token}).eq('id',id);
+      const portalUrl='https://knightops.biz/partner-portal#token='+token;
+      fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/partner-emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({type:'partner_welcome',to:d.email,data:{partner_name:d.name,slug:d.slug,commission_rate:d.commission_rate,portal_url:portalUrl}})}).catch(()=>{});
+      await sb.from('partner_notifications').insert({partner_id:id,type:'welcome',title:'Welcome to Knight Ops Partners!',message:'Your account has been activated. Check your email for your partner toolkit and portal access.'});
+      showToast('Welcome email sent to '+d.email,'success');
+    }
   }else{
     d.magic_link_token=crypto.randomUUID();
     const{error}=await sb.from('partners').insert(d);
