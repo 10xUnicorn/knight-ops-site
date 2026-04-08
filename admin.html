@@ -208,7 +208,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <!-- Business Pipeline Row -->
         <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Business Pipeline</div>
         <div class="kpi-grid" id="pipelineKPIs1" style="margin-bottom:.5rem"></div>
-        <div class="kpi-grid" id="pipelineKPIs2" style="margin-bottom:1.5rem;grid-template-columns:repeat(3,1fr)"></div>
+        <div class="kpi-grid" id="pipelineKPIs2" style="margin-bottom:1.5rem;grid-template-columns:repeat(4,1fr)"></div>
         <!-- Charts Row -->
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
           <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Daily Pageviews</h3><div style="position:relative;height:220px;width:100%"><canvas id="pvChart"></canvas></div></div>
@@ -649,7 +649,14 @@ async function loadDashboard(){
     kpiCard('Applications',fmtNum(appsInRange.length),(S.applications||[]).length+' all time','cursor:pointer','navTo(\'applications\')')+
     kpiCard('Proposals Sent',fmtNum(proposalsSent.length),proposals.length+' all time')+
     kpiCard('Meetings Booked',fmtNum(meetingsBooked),'via booking links');
+  // Pipeline Revenue — Next 30 Days
+  const now30=new Date();now30.setDate(now30.getDate()+30);
+  const pipelineDeals=S.deals.filter(d=>d.status==='open'&&d.expected_close_date&&new Date(d.expected_close_date)<=now30&&new Date(d.expected_close_date)>=new Date());
+  const pipelineRevenue=pipelineDeals.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
+  const pipelineWeighted=pipelineDeals.reduce((s,d)=>s+((parseFloat(d.deal_value)||0)*(d.probability||50)/100),0);
+
   document.getElementById('pipelineKPIs2').innerHTML=
+    kpiCard('Pipeline (Next 30 Days)',fmtMoney(pipelineRevenue),pipelineDeals.length+' deals | '+fmtMoney(pipelineWeighted)+' weighted','cursor:pointer','navTo(\'deals\')')+
     kpiCard('Deals Closed',fmtNum(dealsWon.length),S.leads.filter(l=>l.status==='won').length+' all time')+
     kpiCard('Revenue (Period)',fmtMoney(revenueInRange),fmtMoney(totalRevenue)+' all time')+
     kpiCard('Active Projects',S.projects.filter(p=>p.status==='in_progress').length+'',S.projects.length+' total','cursor:pointer','navTo(\'projects\')');
@@ -4498,22 +4505,45 @@ function renderReviews(){
 }
 function showReviewDetail(id){
   const r=S.reviews.find(x=>x.id===id);if(!r)return;
-  openEditModal('Review Detail','<div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Author</label><div style="color:var(--text)">'+r.author_name+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Company</label><div style="color:var(--text)">'+(r.company||'—')+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Email</label><div style="color:var(--text)">'+(r.author_email||'—')+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Rating</label><div style="color:var(--accent)">⭐ '+(r.rating||0)+'/5</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Review</label><div style="color:var(--text);font-size:0.9rem;line-height:1.6">'+r.review_text+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Admin Notes</label><textarea id="reviewNotes" placeholder="Add notes..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:80px;font-size:0.85rem">'+((r.admin_notes||''))+'</textarea></div></div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewNotes(\''+id+'\')">Save Notes</button>');
+  const stars='<span style="color:var(--accent);font-size:1.2rem">'+Array(5).fill(0).map((_,i)=>i<(r.rating||0)?'&#9733;':'&#9734;').join('')+'</span> <span style="color:var(--text-muted);font-size:0.9rem">'+(r.rating||0)+'/5</span>';
+  const mediaHtml=(r.media_urls&&r.media_urls.length)?'<div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Attachments</label><div style="display:flex;gap:8px;flex-wrap:wrap">'+r.media_urls.map(u=>'<a href="'+u+'" target="_blank" style="color:var(--accent);font-size:.85rem">View File</a>').join(' ')+'</div></div>':'';
+  openEditModal('Review from '+r.author_name,'<div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem"><div><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Author</label><div style="font-weight:600">'+r.author_name+'</div></div><div><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Company</label><div>'+(r.company||'—')+'</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem"><div><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Email</label><div>'+(r.author_email||'—')+'</div></div><div><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Status</label><div>'+B(r.status)+' '+(r.is_featured?'<span style="color:var(--accent);font-size:.8rem">&#9733; Featured</span>':'')+'</div></div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Rating</label><div>'+stars+'</div></div><div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px">Review Content</label><div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.9rem;line-height:1.7;white-space:pre-wrap">'+(r.review_text||'No content')+'</div></div>'+mediaHtml+'<div style="margin-bottom:1rem"><label style="font-size:0.8rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px">Submitted</label><div style="font-size:0.85rem">'+fmtDate(r.created_at)+'</div></div></div>','<button class="btn btn-secondary" onclick="closeEditModal()">Close</button><button class="btn btn-primary" onclick="closeEditModal();editReviewFull(\''+id+'\')">Edit Review</button>');
+}
+function editReviewFull(id){
+  const r=S.reviews.find(x=>x.id===id);if(!r)return;
+  const body=FG('Author Name *','e_rauthor','text',r.author_name||'')+FG('Company','e_rcompany','text',r.company||'')+FG('Email','e_remail','email',r.author_email||'')+
+  '<div class="form-group"><label>Star Rating *</label><div id="editStars" style="display:flex;gap:4px;font-size:1.5rem;cursor:pointer;color:var(--text-muted)">'+[1,2,3,4,5].map(i=>'<span data-star="'+i+'" onclick="setEditStars('+i+')" onmouseover="hoverEditStars('+i+')" onmouseout="hoverEditStars(0)">&#9734;</span>').join('')+'</div><input type="hidden" id="e_rstars" value="'+(r.rating||5)+'"></div>'+
+  FG('Review Content *','e_rcontent','textarea',r.review_text||'')+
+  FG('Status','e_rstatus','select',r.status,[{v:'pending',l:'Pending'},{v:'public',l:'Public'},{v:'private',l:'Private'}])+
+  '<label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-top:8px;cursor:pointer"><input type="checkbox" id="e_rfeatured"'+(r.is_featured?' checked':'')+'> Featured Review</label>'+
+  FG('Admin Notes','e_rnotes','textarea',r.admin_notes||'');
+  openEditModal('Edit Review',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewFull(\''+id+'\')">Save</button>');
+  setTimeout(()=>setEditStars(r.rating||5),50);
+}
+function setEditStars(n){
+  document.getElementById('e_rstars').value=n;
+  document.querySelectorAll('#editStars span').forEach(s=>{s.innerHTML=parseInt(s.dataset.star)<=n?'&#9733;':'&#9734;';s.style.color=parseInt(s.dataset.star)<=n?'var(--accent)':'var(--text-muted)';});
+}
+function hoverEditStars(n){
+  if(n===0){setEditStars(parseInt(document.getElementById('e_rstars').value));return;}
+  document.querySelectorAll('#editStars span').forEach(s=>{s.innerHTML=parseInt(s.dataset.star)<=n?'&#9733;':'&#9734;';s.style.color=parseInt(s.dataset.star)<=n?'var(--accent)':'var(--text-muted)';});
+}
+async function saveReviewFull(id){
+  const d={author_name:document.getElementById('e_rauthor').value,company:document.getElementById('e_rcompany').value,author_email:document.getElementById('e_remail').value,rating:parseInt(document.getElementById('e_rstars').value)||5,review_text:document.getElementById('e_rcontent').value,status:document.getElementById('e_rstatus').value,is_featured:document.getElementById('e_rfeatured').checked,admin_notes:document.getElementById('e_rnotes').value};
+  if(!d.author_name||!d.review_text){showToast('Author name and content required','error');return;}
+  await sb.from('reviews').update(d).eq('id',id);
+  closeEditModal();await loadReviews();showToast('Review updated','success');
 }
 async function editReviewStatus(id){
   const r=S.reviews.find(x=>x.id===id);if(!r)return;
-  openEditModal('Edit Review Status','<div>'+FG('Status','status','select',r.status,'pending|Pending,public|Public,private|Private')+FG('Featured','featured','checkbox',r.is_featured?1:0)+' </div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewStatus(\''+id+'\')">Save</button>');
+  openEditModal('Edit Review','<div>'+FG('Status','e_qstatus','select',r.status,[{v:'pending',l:'Pending'},{v:'public',l:'Public'},{v:'private',l:'Private'}])+
+  '<label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-top:8px;cursor:pointer"><input type="checkbox" id="e_qfeatured"'+(r.is_featured?' checked':'')+'> Featured Review</label></div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewStatus(\''+id+'\')">Save</button>');
 }
 async function saveReviewStatus(id){
-  const status=document.getElementById('status').value;
-  const featured=document.getElementById('featured').checked?1:0;
+  const status=document.getElementById('e_qstatus').value;
+  const featured=document.getElementById('e_qfeatured').checked;
   await sb.from('reviews').update({status,is_featured:featured}).eq('id',id);
   closeEditModal();await loadReviews();showToast('Review updated','success');
-}
-async function saveReviewNotes(id){
-  const notes=document.getElementById('reviewNotes').value;
-  await sb.from('reviews').update({admin_notes:notes}).eq('id',id);
-  closeEditModal();await loadReviews();showToast('Notes saved','success');
 }
 function editReviewPrompt(){
   openEditModal('Edit Review Prompt','<div>'+FG('Review Prompt','prompt','textarea',S.reviewSettings||'')+' </div>','<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveReviewPrompt()">Save</button>');
