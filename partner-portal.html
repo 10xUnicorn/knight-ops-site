@@ -1138,8 +1138,48 @@
     async function requestMagicLink() {
       const email = document.getElementById('emailInput').value.trim();
       if (!email) return;
-
-      alert('Magic link sending is not yet implemented. In production, we would send a secure link to ' + email);
+      const btn = document.querySelector('.login-btn');
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      try {
+        // Look up partner by email
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/partners?email=eq.${encodeURIComponent(email)}&status=eq.active&select=id,name,email,magic_link_token`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        const partners = await res.json();
+        if (!partners || partners.length === 0) {
+          alert('No active partner account found for this email. Please contact us if you believe this is an error.');
+          btn.textContent = 'Send Access Link'; btn.disabled = false;
+          return;
+        }
+        const partner = partners[0];
+        // Ensure magic_link_token exists
+        let token = partner.magic_link_token;
+        if (!token) {
+          token = crypto.randomUUID();
+          await fetch(`${SUPABASE_URL}/rest/v1/partners?id=eq.${partner.id}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ magic_link_token: token })
+          });
+        }
+        const portalUrl = 'https://knightops.biz/partner-portal#token=' + token;
+        // Send email via partner-emails edge function
+        await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({ type: 'partner_portal_link', to: email, data: { partner_name: partner.name, portal_url: portalUrl } })
+        });
+        document.getElementById('loginScreen').innerHTML = `
+          <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:48px;margin-bottom:20px;">&#9993;</div>
+            <h2 style="color:var(--text-primary);margin-bottom:12px;">Check Your Email</h2>
+            <p style="color:var(--text-secondary);max-width:400px;margin:0 auto;">We sent a secure access link to <strong style="color:var(--accent);">${email}</strong>. Click the link in your email to access your partner portal.</p>
+            <p style="color:var(--text-muted);margin-top:24px;font-size:13px;">Didn't receive it? Check your spam folder or <a href="#" onclick="location.reload()" style="color:var(--accent);">try again</a>.</p>
+          </div>`;
+      } catch (e) {
+        alert('Something went wrong sending your access link. Please try again or contact support.');
+        btn.textContent = 'Send Access Link'; btn.disabled = false;
+      }
     }
 
     function showLoginScreen() {
