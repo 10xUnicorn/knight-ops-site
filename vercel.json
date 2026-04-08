@@ -49,12 +49,24 @@
       "destination": "/proposal-viewer.html"
     },
     {
+      "source": "/review",
+      "destination": "/review.html"
+    },
+    {
       "source": "/client-portal",
       "destination": "/client-portal.html"
     },
     {
-      "source": "/review",
-      "destination": "/review.html"
+      "source": "/partners",
+      "destination": "/partners.html"
+    },
+    {
+      "source": "/assess",
+      "destination": "/assess.html"
+    },
+    {
+      "source": "/partner-portal",
+      "destination": "/partner-portal.html"
     }
   ],
   "headers": [
