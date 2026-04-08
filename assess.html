@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech Type Assessment - KnightOps</title>
+    <title>Tech Type Assessment - Knight Ops</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
             --accent-border: rgba(200, 164, 86, 0.25);
             --white: #FFFFFF;
             --success: #22C55E;
-            --architect: #3b82f6;
+            --architect: #3b82f7;
             --vibe-coder: #a855f7;
             --blitz-builder: #f59e0b;
             --scholar: #22c55e;
@@ -40,14 +40,13 @@
         html, body {
             width: 100%;
             height: 100%;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
         }
 
         body {
-            display: flex;
-            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
         }
 
         /* Navigation */
@@ -56,67 +55,399 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 64px;
+            z-index: 1000;
+            padding: 1.5rem 2rem;
             background: rgba(10, 10, 11, 0.8);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
         }
 
-        .nav-logo {
+        nav a {
+            display: inline-block;
             font-size: 1.25rem;
             font-weight: 700;
             text-decoration: none;
             color: var(--text-primary);
-            cursor: pointer;
         }
 
-        .nav-logo span {
+        nav span {
             color: var(--accent);
         }
 
-        nav a, nav button {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.875rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0.5rem 1rem;
-            transition: color 0.2s;
-        }
-
-        nav a:hover, nav button:hover {
-            color: var(--accent);
-        }
-
-        main {
-            flex: 1;
-            margin-top: 64px;
+        /* Main Container */
+        .container {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            padding-top: 80px;
+        }
+
+        .content {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 3rem 2rem;
+        }
+
+        /* Step 1: Landing */
+        .step-1 {
+            text-align: center;
+        }
+
+        .step-1 h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .step-1 .subhead {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .tech-types-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .type-card {
+            padding: 2rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .type-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-border);
+        }
+
+        .type-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .type-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Contact Form */
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .required {
+            color: var(--accent);
+        }
+
+        .form-wrapper {
+            max-width: 450px;
+            margin: 3rem auto 0;
+            text-align: left;
+        }
+
+        .partner-badge {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 0.875rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(-100%, -100%); }
+            100% { transform: translate(100%, 100%); }
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(200, 164, 86, 0.2);
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+        }
+
+        /* Step 2: Quiz */
+        .step-2 {
+            display: none;
+        }
+
+        .step-2.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 2px;
+            margin-bottom: 3rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            transition: width 0.5s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .question-slide {
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .answer-card {
+            padding: 1.25rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .answer-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-border);
+        }
+
+        .answer-card.selected {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .answer-card.multi-select.selected {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+        }
+
+        .scale-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .scale-option {
+            flex: 1;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-            min-height: calc(100vh - 64px - 60px);
         }
 
-        /* Containers */
-        .container {
-            width: 100%;
-            max-width: 900px;
+        .scale-option:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-border);
         }
 
-        .step {
+        .scale-option.selected {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+        }
+
+        .scale-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .quiz-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: 3rem;
+        }
+
+        .btn-back {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-next {
+            margin-left: auto;
+        }
+
+        /* Step 3: Results */
+        .step-3 {
             display: none;
-            animation: fadeIn 0.4s ease-out;
         }
 
-        .step.active {
+        .step-3.active {
             display: block;
+        }
+
+        .processing-screen {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 2rem auto;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-content {
+            display: none;
+        }
+
+        .results-content.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
         }
 
         @keyframes fadeIn {
@@ -130,400 +461,86 @@
             }
         }
 
-        /* Step 1: Landing */
-        .landing {
+        .tech-type-hero {
             text-align: center;
-        }
-
-        .landing h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .landing p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
             margin-bottom: 3rem;
-            line-height: 1.6;
-        }
-
-        .tech-types {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .tech-type-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .tech-type-card:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent);
-            transform: translateY(-4px);
-        }
-
-        .tech-type-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.75rem;
-            display: block;
-        }
-
-        .tech-type-card h3 {
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .tech-type-card p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        .contact-form {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
             padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 0.875rem 2rem;
-            border: none;
-            border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: var(--bg-primary);
-            box-shadow: 0 8px 24px rgba(200, 164, 86, 0.3);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 12px 32px rgba(200, 164, 86, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--accent-border);
-            color: var(--accent);
-        }
-
-        .btn-secondary:hover {
-            background: var(--accent-subtle);
-            border-color: var(--accent);
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-back:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* Step 2: Quiz */
-        .quiz {
-            max-width: 600px;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
-            width: 0%;
-            transition: width 0.4s ease-out;
-        }
-
-        .question-meta {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-        }
-
-        .question-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .options {
-            display: grid;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .option-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .option-card:hover {
-            border-color: var(--accent);
-            background: var(--bg-card-hover);
-            transform: translateY(-2px);
-        }
-
-        .option-card.selected {
-            background: var(--accent-subtle);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(200, 164, 86, 0.2);
-        }
-
-        .scale-options {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-
-        .scale-btn {
-            flex: 1;
-            padding: 1rem;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .scale-btn:hover {
-            border-color: var(--accent);
-        }
-
-        .scale-btn.selected {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--bg-primary);
-        }
-
-        .quiz-controls {
-            display: flex;
-            gap: 1rem;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Step 3: Results */
-        .results {
-            max-width: 800px;
-        }
-
-        .loading-animation {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            gap: 2rem;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .tech-type-reveal {
-            background: linear-gradient(135deg, var(--bg-card), var(--bg-tertiary));
-            border: 1px solid var(--accent-border);
             border-radius: 12px;
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .tech-type-icon-large {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
         }
 
-        .tech-type-reveal h2 {
-            font-size: 2.5rem;
+        .tech-type-name {
+            font-size: 2rem;
             font-weight: 900;
             margin-bottom: 0.5rem;
         }
 
         .tech-type-tagline {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
-            font-weight: 600;
         }
 
         .tech-type-description {
             font-size: 1rem;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .strengths-warnings {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .strength-box, .warning-box {
-            text-align: left;
-            background: var(--bg-tertiary);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent);
-        }
-
-        .strength-box h4, .warning-box h4 {
-            font-size: 0.875rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .strength-box p, .warning-box p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
             line-height: 1.6;
-            margin: 0;
-        }
-
-        .scores-chart {
-            background: var(--bg-tertiary);
-            padding: 1.5rem;
-            border-radius: 8px;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
         }
 
-        .scores-chart h3 {
-            font-size: 0.875rem;
-            font-weight: 700;
+        .strengths {
+            text-align: left;
             margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
+        }
+
+        .strengths-label {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .strengths-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .watch-out {
+            text-align: left;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .scores-breakdown {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
         }
 
         .score-item {
             margin-bottom: 1.5rem;
         }
 
+        .score-item:last-child {
+            margin-bottom: 0;
+        }
+
         .score-label {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .score-bar {
+            width: 100%;
             height: 8px;
             background: var(--border);
             border-radius: 4px;
@@ -533,1087 +550,1225 @@
         .score-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--accent-hover));
-            transition: width 0.6s ease-out;
+            transition: width 1s ease;
         }
 
-        .ai-score {
-            background: var(--bg-tertiary);
-            border-radius: 12px;
+        .opportunity-section {
+            margin: 3rem 0;
             padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             text-align: center;
-            margin-bottom: 2rem;
         }
 
-        .ai-score h3 {
-            font-size: 0.875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-        }
-
-        .circular-progress {
-            width: 120px;
-            height: 120px;
+        .opportunity-circle {
+            width: 150px;
+            height: 150px;
+            margin: 1.5rem auto;
             border-radius: 50%;
-            background: conic-gradient(var(--accent) var(--conic-rotation), var(--border) 0deg);
+            background: conic-gradient(var(--accent) 0deg, var(--accent) var(--opportunity-angle, 0deg), var(--border) var(--opportunity-angle, 0deg));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
-            --conic-rotation: 0deg;
-            animation: conic-spin 2s ease-out;
-        }
-
-        @keyframes conic-spin {
-            from {
-                --conic-rotation: 0deg;
-            }
-            to {
-                --conic-rotation: var(--target-rotation);
-            }
-        }
-
-        .circular-progress-inner {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: var(--bg-tertiary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .circular-progress-value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            color: var(--accent);
         }
 
-        .circular-progress-label {
-            font-size: 0.625rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .ai-score-description {
-            font-size: 1rem;
+        .opportunity-explanation {
+            margin-top: 1rem;
             color: var(--text-secondary);
-            line-height: 1.6;
+            font-size: 0.95rem;
         }
 
         .tools-section {
-            margin-bottom: 3rem;
+            margin: 3rem 0;
         }
 
         .section-title {
             font-size: 1.5rem;
-            font-weight: 800;
+            font-weight: 700;
             margin-bottom: 1.5rem;
+            text-align: center;
         }
 
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .tool-card {
+            padding: 1.5rem;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: all 0.3s;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
         .tool-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(200, 164, 86, 0.1);
+            background: var(--bg-card-hover);
+            border-color: var(--accent-border);
         }
 
-        .tool-card h4 {
-            font-size: 1.125rem;
+        .tool-name {
+            font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
         }
 
-        .tool-card p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
+        .tool-solves {
+            font-size: 0.9rem;
+            color: var(--accent);
             margin-bottom: 1rem;
-            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .tool-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 1rem;
         }
 
         .tool-steps {
-            background: var(--bg-tertiary);
-            padding: 1rem;
-            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
             margin-bottom: 1rem;
         }
 
-        .tool-steps p {
-            font-size: 0.75rem;
-            margin: 0;
+        .tool-step {
+            margin: 0.5rem 0 0.5rem 1.5rem;
         }
 
         .tool-cta {
             display: inline-block;
-            font-size: 0.875rem;
-            font-weight: 600;
             color: var(--accent);
             text-decoration: none;
-            padding-top: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
         }
 
         .tool-cta:hover {
             color: var(--accent-hover);
         }
 
-        .claude-prompt-section {
-            background: linear-gradient(135deg, rgba(200, 164, 86, 0.1), rgba(200, 164, 86, 0.05));
-            border: 1px solid var(--accent-border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .claude-prompt-section h3 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .claude-prompt-section p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        .prompt-code {
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            overflow-x: auto;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .copy-prompt-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.5rem 1rem;
-            background: var(--accent);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .copy-prompt-btn:hover {
-            background: var(--accent-hover);
-        }
-
-        .copy-prompt-btn.copied {
-            background: var(--success);
-        }
-
-        .ctas-section {
+        .next-steps {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 3rem;
+            margin: 3rem 0;
         }
 
-        .cta-card {
+        .next-step-card {
+            padding: 1.5rem;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2rem 1.5rem;
+            border-radius: 12px;
             text-align: center;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: var(--text-primary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 140px;
+            transition: all 0.3s ease;
         }
 
-        .cta-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
+        .next-step-card:hover {
             background: var(--bg-card-hover);
+            border-color: var(--accent-border);
         }
 
-        .cta-card h4 {
-            font-size: 1rem;
+        .next-step-title {
             font-weight: 700;
-            margin: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        .next-step-card a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .next-step-card a:hover {
+            color: var(--accent-hover);
         }
 
         .share-section {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            margin: 3rem 0;
             padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             text-align: center;
         }
 
-        .share-section h3 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
         .share-text {
-            background: var(--bg-card);
             padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 1rem 0;
             font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            word-break: break-word;
         }
 
-        .share-copy-btn {
+        .btn-copy {
             padding: 0.75rem 1.5rem;
-            background: var(--accent);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .share-copy-btn:hover {
-            background: var(--accent-hover);
+        .btn-copy:hover {
+            background: var(--accent-subtle);
         }
 
-        /* Footer */
-        footer {
-            height: 60px;
-            border-top: 1px solid var(--border);
-            background: rgba(10, 10, 11, 0.5);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        footer a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        footer a:hover {
-            color: var(--accent);
+        /* Error Message */
+        .error-message {
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            color: #fca5a5;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .landing h1 {
-                font-size: 2rem;
+            .content {
+                padding: 2rem 1.5rem;
             }
 
-            .landing p {
-                font-size: 1rem;
+            .step-1 h1 {
+                font-size: 1.75rem;
             }
 
-            .tech-types {
+            .tech-types-preview {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
             }
 
-            .tech-type-reveal h2 {
-                font-size: 2rem;
+            .question-text {
+                font-size: 1.25rem;
             }
 
-            .strengths-warnings {
-                grid-template-columns: 1fr;
+            .scale-options {
+                flex-wrap: wrap;
+            }
+
+            .scale-option {
+                flex: 0 1 calc(50% - 0.25rem);
             }
 
             .tools-grid {
                 grid-template-columns: 1fr;
             }
 
-            .section-title {
-                font-size: 1.25rem;
+            .next-steps {
+                grid-template-columns: 1fr;
             }
 
-            nav {
-                padding: 0 1rem;
+            .tech-type-hero {
+                padding: 1.5rem;
             }
 
-            .nav-logo {
-                font-size: 1rem;
+            .tech-type-icon-large {
+                font-size: 2.5rem;
             }
 
-            main {
-                padding: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing h1 {
+            .tech-type-name {
                 font-size: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .tech-types {
-                grid-template-columns: 1fr;
-            }
-
-            .quiz-controls {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .quiz-controls button {
-                width: 100%;
-            }
-
-            footer {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav>
-        <div class="nav-logo" onclick="goToHome()">KNIGHT<span>OPS</span></div>
-        <div>
-            <a href="/" style="display:none;">Home</a>
-        </div>
+        <a href="/">KNIGHT<span>OPS</span></a>
     </nav>
 
-    <main>
-        <div class="container">
-            <!-- Step 1: Landing -->
-            <div class="step active" id="step1">
-                <div class="landing">
-                    <h1>What's Your Tech Type?</h1>
-                    <p>Discover your builder personality and the #1 AI tool for your business — in under 3 minutes.</p>
+    <div class="container">
+        <div class="content">
+            <!-- STEP 1: Landing & Contact -->
+            <div class="step-1 active" id="step1">
+                <h1>What's Your Tech Type?</h1>
+                <p class="subhead">Discover your builder personality and the #1 AI tool to implement in your business — in under 3 minutes.</p>
 
-                    <div class="tech-types">
-                        <div class="tech-type-card">
-                            <span class="tech-type-icon">Blueprint</span>
-                            <h3>The Architect</h3>
-                            <p>Strategic Builder</p>
-                        </div>
-                        <div class="tech-type-card">
-                            <span class="tech-type-icon">Design</span>
-                            <h3>The Vibe Coder</h3>
-                            <p>Creative Builder</p>
-                        </div>
-                        <div class="tech-type-card">
-                            <span class="tech-type-icon">Flash</span>
-                            <h3>The Blitz Builder</h3>
-                            <p>Momentum Machine</p>
-                        </div>
-                        <div class="tech-type-card">
-                            <span class="tech-type-icon">Books</span>
-                            <h3>The Scholar</h3>
-                            <p>Deep Diver</p>
-                        </div>
+                <div class="tech-types-preview">
+                    <div class="type-card">
+                        <span class="type-icon">⬡</span>
+                        <div class="type-name">The Architect</div>
                     </div>
+                    <div class="type-card">
+                        <span class="type-icon">≈</span>
+                        <div class="type-name">The Vibe Coder</div>
+                    </div>
+                    <div class="type-card">
+                        <span class="type-icon">⚡</span>
+                        <div class="type-name">The Blitz Builder</div>
+                    </div>
+                    <div class="type-card">
+                        <span class="type-icon">◇</span>
+                        <div class="type-name">The Scholar</div>
+                    </div>
+                </div>
 
-                    <div class="contact-form">
-                        <form id="contactForm">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="fullName">Full Name *</label>
-                                    <input type="text" id="fullName" name="fullName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email *</label>
-                                    <input type="email" id="email" name="email" required>
-                                </div>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="phone">Phone (Optional)</label>
-                                    <input type="tel" id="phone" name="phone">
-                                </div>
-                                <div class="form-group">
-                                    <label for="company">Company (Optional)</label>
-                                    <input type="text" id="company" name="company">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">
-                                Discover My Tech Type
-                            </button>
-                        </form>
-                    </div>
+                <div class="form-wrapper">
+                    <div id="partnerBadge"></div>
+
+                    <form id="contactForm">
+                        <div id="formError"></div>
+
+                        <div class="form-group">
+                            <label for="fullName">Full Name <span class="required">*</span></label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="company">Company Name</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <span>Discover My Tech Type</span>
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <!-- Step 2: Quiz -->
-            <div class="step" id="step2">
-                <div class="quiz">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
+            <!-- STEP 2: Quiz -->
+            <div class="step-2" id="step2">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
 
-                    <div class="question-meta" id="questionMeta"></div>
-                    <h2 class="question-text" id="questionText"></h2>
+                <div class="question-counter" id="questionCounter"></div>
 
-                    <div class="options" id="optionsContainer"></div>
+                <div id="questionContainer" class="question-slide">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answer-options" id="answerOptions"></div>
+                </div>
 
-                    <div class="quiz-controls">
-                        <button class="btn btn-back" id="backBtn" onclick="previousQuestion()" style="display:none;">Back</button>
-                        <button class="btn btn-secondary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next</button>
-                    </div>
+                <div class="quiz-controls">
+                    <button class="btn-back" id="backBtn" style="display:none;">Back</button>
+                    <button class="btn-primary btn-next" id="nextBtn" style="display:none;">
+                        <span>Next</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Step 3: Results -->
-            <div class="step" id="step3">
-                <div class="results">
-                    <div id="loadingContainer" class="loading-animation" style="display:none;">
-                        <div class="loading-spinner"></div>
-                        <p>Analyzing your tech DNA...</p>
+            <!-- STEP 3: Results -->
+            <div class="step-3" id="step3">
+                <div class="processing-screen" id="processingScreen">
+                    <h2>Analyzing your tech DNA...</h2>
+                    <div class="spinner"></div>
+                </div>
+
+                <div class="results-content" id="resultsContent">
+                    <!-- Tech Type Hero -->
+                    <div class="tech-type-hero" id="techTypeHero"></div>
+
+                    <!-- Scores Breakdown -->
+                    <div class="scores-breakdown" id="scoresBreakdown"></div>
+
+                    <!-- Opportunity Score -->
+                    <div class="opportunity-section" id="opportunitySection"></div>
+
+                    <!-- Tool Recommendations -->
+                    <div class="tools-section">
+                        <div class="section-title">Your Top 3 Recommended AI Tools</div>
+                        <div class="tools-grid" id="toolsGrid"></div>
                     </div>
 
-                    <div id="resultsContent" style="display:none;">
-                        <div class="tech-type-reveal" id="techTypeReveal"></div>
-                        <div class="scores-chart" id="scoresChart"></div>
-                        <div class="ai-score" id="aiScore"></div>
+                    <!-- Next Steps -->
+                    <div class="next-steps" id="nextSteps"></div>
 
-                        <div class="tools-section">
-                            <h2 class="section-title">Your Top AI Tools</h2>
-                            <div class="tools-grid" id="toolsGrid"></div>
-                        </div>
-
-                        <div class="claude-prompt-section">
-                            <h3>Start Building With AI Right Now</h3>
-                            <p>Copy this prompt into Claude and start building your first AI-powered tool in minutes.</p>
-                            <div class="prompt-code" id="promptCode">
-                                <button class="copy-prompt-btn" onclick="copyPrompt()">Copy Prompt</button>
-                                <pre id="promptText"></pre>
-                            </div>
-                            <p style="font-size: 0.75rem; color: var(--text-muted);">
-                                Paste this into Claude (claude.ai) or any AI assistant to generate a working app in seconds.
-                            </p>
-                        </div>
-
-                        <div class="tools-section">
-                            <h2 class="section-title">What's Next</h2>
-                            <div class="ctas-section">
-                                <a href="https://knightops.biz/book" class="cta-card">
-                                    <h4>Book a Free Discovery Call</h4>
-                                </a>
-                                <a href="https://workshop.nightvibe.me" class="cta-card">
-                                    <h4>Join a Workshop</h4>
-                                </a>
-                                <a href="https://danielknight.me" class="cta-card">
-                                    <h4>Explore danielknight.me</h4>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="share-section">
-                            <h3>Share Your Tech Type</h3>
-                            <div class="share-text" id="shareText"></div>
-                            <button class="share-copy-btn" onclick="copyShareText()">Copy Share Text</button>
-                        </div>
+                    <!-- Share -->
+                    <div class="share-section">
+                        <div class="section-title">Share Your Tech Type</div>
+                        <div class="share-text" id="shareText"></div>
+                        <button class="btn-copy" id="copyBtn">Copy Text</button>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer>
-        <a href="/">Home</a>
-        <a href="/assess">Apply</a>
-        <a href="https://knightops.biz/book">Book a Call</a>
-        <span>Copyright 2026 KnightOps</span>
-    </footer>
+    </div>
 
     <script>
+        // Supabase Config
         const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
-        const TECH_TYPES = {
+        // State
+        let state = {
+            currentStep: 1,
+            currentQuestion: 0,
+            questions: [],
+            answers: {},
+            fullName: '',
+            email: '',
+            phone: '',
+            company: '',
+            partnerSlug: null,
+            partnerId: null,
+            partnerName: null,
+            techType: null,
+            scores: { architect: 0, vibe_coder: 0, blitz_builder: 0, scholar: 0 },
+            painPoints: [],
+            aiOpportunityScore: 0,
+            recommendedTools: []
+        };
+
+        // Tech Types Config
+        const techTypes = {
             architect: {
                 name: 'The Architect',
                 tagline: 'The Strategic Builder',
-                icon: 'Blueprint',
-                color: '#3b82f6',
+                icon: '⬡',
+                color: 'var(--architect)',
                 description: 'You plan, structure, and strategize before touching a single tool. Your systems are bulletproof because nothing gets past your process. Your strength is building things that last — but watch out for analysis paralysis. Sometimes done is better than perfect.',
-                strengths: ['Bulletproof systems', 'Thorough planning', 'Nothing gets missed'],
-                warnings: ['Over-planning', 'Delayed launches', 'Waiting for ready'],
-                claudePrompt: 'Build me a personal project management dashboard in a single HTML file. It should have: a kanban board with drag-and-drop columns (To Do, In Progress, Done), the ability to add tasks with title/description/priority/due date, local storage so data persists, a clean dark theme with #0A0A0B background and #C8A456 gold accents, and a progress summary showing tasks by status. Make it responsive and professional.'
+                strengths: 'Bulletproof systems, thorough planning, nothing gets missed',
+                watchOut: 'Over-planning, delayed launches, waiting for "ready"'
             },
             vibe_coder: {
                 name: 'The Vibe Coder',
                 tagline: 'The Creative Builder',
-                icon: 'Design',
-                color: '#a855f7',
+                icon: '≈',
+                color: 'var(--vibe-coder)',
                 description: 'You build because it\'s fun. You care about how things look and feel — and your instincts are usually right. Your products are magnetic because you understand the user experience at a gut level. Just make sure the engine under the hood matches the paint job.',
-                strengths: ['Beautiful UX', 'Magnetic products', 'Great creative instincts'],
-                warnings: ['Style over substance', 'Missing core functionality'],
-                claudePrompt: 'Build me a stunning personal portfolio landing page in a single HTML file. It should have: a hero section with my name and tagline, a services section with animated cards, a testimonials section with a smooth horizontal scroll, a contact form, smooth scroll animations on section entry, a dark theme with #0A0A0B background and #C8A456 gold accents, and micro-interactions on hover. Make it feel premium and magnetic.'
+                strengths: 'Beautiful UX, magnetic products, great creative instincts',
+                watchOut: 'Style over substance, missing core functionality'
             },
             blitz_builder: {
                 name: 'The Blitz Builder',
                 tagline: 'The Momentum Machine',
-                icon: 'Flash',
-                color: '#f59e0b',
+                icon: '⚡',
+                color: 'var(--blitz-builder)',
                 description: 'You jump in and start building immediately. While others are still planning, you\'ve already shipped v1. Your raw speed is your superpower — but sometimes you build so fast that features pile up, things half-work, and users get overwhelmed. Channel that energy with just enough structure.',
-                strengths: ['Speed to market', 'Raw momentum', 'Bias for action'],
-                warnings: ['Feature bloat', 'Half-finished features', 'Overwhelming UX'],
-                claudePrompt: 'Build me a personal CRM and lead tracker in a single HTML file. It should have: a form to add leads (name, email, company, status, notes), a table to view all leads with search and filter by status (New, Contacted, Qualified, Won, Lost), the ability to edit and delete leads, local storage for persistence, a stats dashboard showing leads by status, a dark theme with #0A0A0B background and #C8A456 gold accents. Make it functional and fast.'
+                strengths: 'Speed to market, raw momentum, bias for action',
+                watchOut: 'Feature bloat, half-finished features, overwhelming UX'
             },
             scholar: {
                 name: 'The Scholar',
                 tagline: 'The Deep Diver',
-                icon: 'Books',
-                color: '#22c55e',
+                icon: '◇',
+                color: 'var(--scholar)',
                 description: 'You learn everything before you build anything. You watch the tutorials, read the docs, study the competitors. When you finally ship — it\'s flawless. The risk? You sometimes learn so much that the project never launches. Your homework is done — now it\'s time to build.',
-                strengths: ['Flawless execution', 'Deep understanding', 'Thorough and detailed'],
-                warnings: ['Perpetual learning mode', 'Projects never launch'],
-                claudePrompt: 'Build me a personal knowledge base and learning tracker in a single HTML file. It should have: the ability to add topics with title/category/notes/resources/status (Learning, In Progress, Mastered), a card-based layout with search and filter by category, a progress tracker showing mastery percentage, the ability to add sub-topics and link resources, local storage for persistence, a dark theme with #0A0A0B background and #C8A456 gold accents. Make it detailed and comprehensive.'
+                strengths: 'Flawless execution, deep understanding, thorough and detailed',
+                watchOut: 'Perpetual learning mode, projects that never launch'
             }
         };
 
-        const TOOL_MAPPING = {
-            content: {
-                name: 'CopyLaunch.app',
-                description: 'AI content at scale',
-                steps: '1. Sign up 2. Connect your brand 3. Generate content',
-                link: 'https://copylaunch.app'
+        // Tool Recommendations
+        const toolMappings = {
+            'content creation': {
+                name: 'CopyLaunch',
+                url: 'copylaunch.app',
+                description: 'AI-powered copywriting for every stage of your funnel.'
             },
-            followup: {
+            'lead gen / outreach': {
                 name: 'Hit Em Up App',
-                description: 'Bulk personalized text outreach',
-                steps: '1. Upload contacts 2. Create message 3. Launch campaign',
-                link: 'https://hitemup.com'
+                url: 'hitemup.com',
+                description: 'Automated outreach and lead generation at scale.'
             },
-            scheduling: {
+            'scheduling': {
                 name: 'Go High Level',
-                description: 'All-in-one CRM + scheduling',
-                steps: '1. Create account 2. Set availability 3. Share booking link',
-                link: 'https://gohighlevel.com'
+                url: 'gohighlevel.com',
+                description: 'All-in-one platform for scheduling, automation, and CRM.'
             },
-            admin: {
+            'admin / operations': {
                 name: 'Go High Level',
-                description: 'Centralized management + automation',
-                steps: '1. Setup workflows 2. Automate tasks 3. Monitor dashboard',
-                link: 'https://gohighlevel.com'
+                url: 'gohighlevel.com',
+                description: 'Streamline operations and automate repetitive tasks.'
             },
-            support: {
-                name: 'Custom AI Chatbot',
-                description: 'Your customers deserve 24/7 support without burning you out',
-                steps: '1. Define FAQs 2. Train chatbot 3. Deploy widget',
-                link: 'https://knightops.biz'
+            'customer support': {
+                name: 'AI Chatbot',
+                url: null,
+                description: 'A custom AI chatbot built for your unique support workflow.',
+                custom: true
             },
-            website: {
-                name: 'Night Launch by Knight Ops',
-                description: 'Professional site delivered overnight. Starting at $1,497',
-                steps: '1. Book call 2. Share vision 3. Launch next day',
-                link: 'https://knightops.biz'
+            'website needed': {
+                name: 'Website by Knight Ops',
+                url: 'knightops.biz',
+                description: 'Premium website design and development starting at $1,497.',
+                custom: true
             },
-            custom: {
+            'project/client management': {
                 name: 'Custom App',
-                description: 'Your workflow is unique. Off-the-shelf won\'t cut it.',
-                steps: '1. Describe workflow 2. Get quote 3. Build together',
-                link: 'https://knightops.biz'
+                url: 'knightops.biz',
+                description: 'Your workflow is unique. Off-the-shelf tools won\'t cut it. Build something built for you.',
+                custom: true
             }
         };
 
-        let currentStep = 1;
-        let currentQuestion = 0;
-        let questions = [];
-        let scores = {
-            architect: 0,
-            vibe_coder: 0,
-            blitz_builder: 0,
-            scholar: 0
-        };
-        let painPoints = [];
-        let techComfort = 0;
-        let contactData = {};
-        let referralSource = null;
-        let selectedAnswers = {};
-
-        function initReferral() {
-            const params = new URLSearchParams(window.location.search);
-            referralSource = params.get('ref');
-            if (!referralSource) {
-                referralSource = getCookie('ko_ref');
-            }
-            if (referralSource) {
-                setCookie('ko_ref', referralSource, 30);
-            }
-        }
-
-        function setCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-        }
-
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i].trim();
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
-            }
-            return null;
-        }
-
-        async function init() {
-            initReferral();
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Handle partner attribution
+            handlePartnerAttribution();
+            
+            // Load questions from Supabase
             await loadQuestions();
+            
+            // Setup event listeners
             setupEventListeners();
+        });
+
+        function handlePartnerAttribution() {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref');
+
+            if (ref) {
+                state.partnerSlug = ref;
+                setCookie('ko_ref', ref, 30);
+
+                // Try to resolve partner from Supabase
+                supabaseCall('partners', { slug: ref })
+                    .then(data => {
+                        if (data && data[0]) {
+                            state.partnerId = data[0].id;
+                            state.partnerName = data[0].name;
+                            showPartnerBadge();
+                        }
+                    })
+                    .catch(err => console.log('Partner not found'));
+            }
         }
 
-        function setupEventListeners() {
-            const form = document.getElementById('contactForm');
-            if (form) {
-                form.addEventListener('submit', handleContactSubmit);
+        function showPartnerBadge() {
+            if (state.partnerName) {
+                const badge = document.getElementById('partnerBadge');
+                badge.innerHTML = `<div class="partner-badge">Referred by ${state.partnerName}</div>`;
             }
         }
 
         async function loadQuestions() {
             try {
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/assessment_questions?is_active=eq.true&order=sort_order.asc`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json'
-                        }
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/assessment_questions?is_active=eq.true&order=sort_order.asc`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
                     }
-                );
-                questions = await response.json();
-            } catch (error) {
-                console.error('Failed to load questions:', error);
-                questions = [];
+                });
+
+                if (!response.ok) throw new Error('Failed to load questions');
+                const raw = await response.json();
+                // Normalize Supabase format → page format
+                state.questions = raw.map(q => {
+                    const scoringMap = q.scoring_map || {};
+                    const opts = (q.options || []).map((o, i) => ({
+                        id: o.key || String(i),
+                        text: o.text,
+                        mapping: q.category === 'personality' && scoringMap[o.key]
+                            ? { [scoringMap[o.key]]: 1 }
+                            : (q.category === 'pain_point' && scoringMap[o.key]
+                                ? { tool: scoringMap[o.key] }
+                                : undefined)
+                    }));
+                    return {
+                        id: q.id,
+                        text: q.question_text,
+                        type: q.question_type,
+                        category: q.category,
+                        options: opts,
+                        sort_order: q.sort_order
+                    };
+                });
+            } catch (err) {
+                console.error('Error loading questions:', err);
+                loadDemoQuestions();
             }
+        }
+
+        function loadDemoQuestions() {
+            state.questions = [
+                {
+                    id: 1,
+                    text: 'When starting a new project, what\'s your first move?',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 1, text: 'Create a detailed plan and system architecture', mapping: { architect: 3 } },
+                        { id: 2, text: 'Start prototyping to test the idea', mapping: { vibe_coder: 3 } },
+                        { id: 3, text: 'Jump in and build the MVP immediately', mapping: { blitz_builder: 3 } },
+                        { id: 4, text: 'Research everything first', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 1
+                },
+                {
+                    id: 2,
+                    text: 'What\'s your biggest challenge right now?',
+                    type: 'multi_select',
+                    category: 'pain_point',
+                    options: [
+                        { id: 5, text: 'Content creation and copywriting' },
+                        { id: 6, text: 'Lead generation and outreach' },
+                        { id: 7, text: 'Scheduling and calendar management' },
+                        { id: 8, text: 'Administrative and operational tasks' },
+                        { id: 9, text: 'Customer support and communication' },
+                        { id: 10, text: 'I need a website' },
+                        { id: 11, text: 'Managing projects and deliverables' }
+                    ],
+                    sort_order: 2
+                },
+                {
+                    id: 3,
+                    text: 'How comfortable are you with technical implementation?',
+                    type: 'scale',
+                    category: 'personality',
+                    options: [
+                        { id: 12, text: '1', label: 'Not at all', mapping: { scholar: 1, architect: 1 } },
+                        { id: 13, text: '2', label: 'A bit', mapping: { vibe_coder: 2 } },
+                        { id: 14, text: '3', label: 'Moderate', mapping: { architect: 2, blitz_builder: 1 } },
+                        { id: 15, text: '4', label: 'Very', mapping: { blitz_builder: 2, architect: 1 } },
+                        { id: 16, text: '5', label: 'Expert', mapping: { architect: 3, blitz_builder: 2 } }
+                    ],
+                    sort_order: 3
+                },
+                {
+                    id: 4,
+                    text: 'What matters most in your products?',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 17, text: 'Rock-solid systems and no bugs', mapping: { architect: 3 } },
+                        { id: 18, text: 'Beautiful design and user experience', mapping: { vibe_coder: 3 } },
+                        { id: 19, text: 'Getting to market fast', mapping: { blitz_builder: 3 } },
+                        { id: 20, text: 'Perfect execution and polish', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 4
+                },
+                {
+                    id: 5,
+                    text: 'How long do projects typically take you?',
+                    type: 'scale',
+                    category: 'personality',
+                    options: [
+                        { id: 21, text: '1', label: 'Weeks', mapping: { blitz_builder: 3 } },
+                        { id: 22, text: '2', label: '1-2 months', mapping: { vibe_coder: 2, blitz_builder: 2 } },
+                        { id: 23, text: '3', label: '2-3 months', mapping: { architect: 2 } },
+                        { id: 24, text: '4', label: '3-6 months', mapping: { architect: 3 } },
+                        { id: 25, text: '5', label: '6+ months', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 5
+                },
+                {
+                    id: 6,
+                    text: 'Your biggest strength in building is:',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 26, text: 'Strategic thinking and planning', mapping: { architect: 3 } },
+                        { id: 27, text: 'Creative vision and design sense', mapping: { vibe_coder: 3 } },
+                        { id: 28, text: 'Speed and shipping', mapping: { blitz_builder: 3 } },
+                        { id: 29, text: 'Deep knowledge and expertise', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 6
+                },
+                {
+                    id: 7,
+                    text: 'How do you feel about waiting?',
+                    type: 'scale',
+                    category: 'personality',
+                    options: [
+                        { id: 30, text: '1', label: 'Hate it', mapping: { blitz_builder: 3 } },
+                        { id: 31, text: '2', label: 'Impatient', mapping: { blitz_builder: 2, vibe_coder: 1 } },
+                        { id: 32, text: '3', label: 'Neutral', mapping: { architect: 1 } },
+                        { id: 33, text: '4', label: 'Patient', mapping: { architect: 2, scholar: 1 } },
+                        { id: 34, text: '5', label: 'Happy to wait', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 7
+                },
+                {
+                    id: 8,
+                    text: 'When something breaks, you:',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 35, text: 'Fix it methodically with a documented process', mapping: { architect: 3 } },
+                        { id: 36, text: 'Redesign it to look better', mapping: { vibe_coder: 3 } },
+                        { id: 37, text: 'Ship a quick patch immediately', mapping: { blitz_builder: 3 } },
+                        { id: 38, text: 'Understand exactly why it broke first', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 8
+                },
+                {
+                    id: 9,
+                    text: 'What\'s your relationship with documentation?',
+                    type: 'scale',
+                    category: 'personality',
+                    options: [
+                        { id: 39, text: '1', label: 'Skip it', mapping: { blitz_builder: 3 } },
+                        { id: 40, text: '2', label: 'Do the minimum', mapping: { vibe_coder: 2 } },
+                        { id: 41, text: '3', label: 'Document as I go', mapping: { architect: 2 } },
+                        { id: 42, text: '4', label: 'Thorough docs', mapping: { architect: 2, scholar: 1 } },
+                        { id: 43, text: '5', label: 'Everything documented', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 9
+                },
+                {
+                    id: 10,
+                    text: 'How do you prefer to learn?',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 44, text: 'By doing and shipping', mapping: { blitz_builder: 3 } },
+                        { id: 45, text: 'Through experimentation and iteration', mapping: { vibe_coder: 3 } },
+                        { id: 46, text: 'From frameworks and systems', mapping: { architect: 3 } },
+                        { id: 47, text: 'Through deep study', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 10
+                },
+                {
+                    id: 11,
+                    text: 'Your ideal team member is someone who:',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 48, text: 'Fills the gaps in your process', mapping: { architect: 3 } },
+                        { id: 49, text: 'Brings complementary creative skills', mapping: { vibe_coder: 3 } },
+                        { id: 50, text: 'Can keep up with your pace', mapping: { blitz_builder: 3 } },
+                        { id: 51, text: 'Brings deep expertise you don\'t have', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 11
+                },
+                {
+                    id: 12,
+                    text: 'What would unlock the most value right now?',
+                    type: 'multiple_choice',
+                    category: 'personality',
+                    options: [
+                        { id: 52, text: 'A better system or process', mapping: { architect: 3 } },
+                        { id: 53, text: 'Better design and UX', mapping: { vibe_coder: 3 } },
+                        { id: 54, text: 'Faster execution', mapping: { blitz_builder: 3 } },
+                        { id: 55, text: 'More knowledge or training', mapping: { scholar: 3 } }
+                    ],
+                    sort_order: 12
+                }
+            ];
+        }
+
+        function setupEventListeners() {
+            document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
+            document.getElementById('backBtn').addEventListener('click', handleBack);
+            document.getElementById('nextBtn').addEventListener('click', handleNext);
+            document.getElementById('copyBtn').addEventListener('click', handleCopy);
         }
 
         function handleContactSubmit(e) {
             e.preventDefault();
-            contactData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value || '',
-                company: document.getElementById('company').value || ''
-            };
+            const formError = document.getElementById('formError');
+            formError.innerHTML = '';
+
+            state.fullName = document.getElementById('fullName').value.trim();
+            state.email = document.getElementById('email').value.trim();
+            state.phone = document.getElementById('phone').value.trim();
+            state.company = document.getElementById('company').value.trim();
+
+            if (!state.fullName || !state.email) {
+                formError.innerHTML = '<div class="error-message">Please fill in all required fields.</div>';
+                return;
+            }
+
+            if (!validateEmail(state.email)) {
+                formError.innerHTML = '<div class="error-message">Please enter a valid email address.</div>';
+                return;
+            }
+
             goToStep(2);
         }
 
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
         function goToStep(step) {
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById(`step${step}`).classList.add('active');
-            currentStep = step;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.remove('active');
+
+            state.currentStep = step;
 
             if (step === 2) {
+                document.getElementById('step2').classList.add('active');
                 renderQuestion();
             } else if (step === 3) {
+                document.getElementById('step3').classList.add('active');
                 showResults();
+            } else {
+                document.getElementById('step1').classList.add('active');
             }
         }
 
         function renderQuestion() {
-            if (currentQuestion >= questions.length) {
-                goToStep(3);
-                return;
-            }
+            const q = state.questions[state.currentQuestion];
+            const totalQuestions = state.questions.length;
+            const progressPercent = ((state.currentQuestion) / totalQuestions) * 100;
 
-            const q = questions[currentQuestion];
-            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            document.getElementById('questionCounter').textContent = `Question ${state.currentQuestion + 1} of ${totalQuestions}`;
+            document.getElementById('questionText').textContent = q.text;
 
-            document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('questionMeta').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
-            document.getElementById('questionText').textContent = q.question_text;
+            const answerOptions = document.getElementById('answerOptions');
+            answerOptions.innerHTML = '';
 
-            const container = document.getElementById('optionsContainer');
-            container.innerHTML = '';
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
 
-            if (q.question_type === 'multiple_choice') {
+            backBtn.style.display = state.currentQuestion > 0 ? 'block' : 'none';
+            nextBtn.style.display = 'none';
+
+            if (q.type === 'multiple_choice') {
                 q.options.forEach(opt => {
                     const card = document.createElement('div');
-                    card.className = 'option-card';
+                    card.className = 'answer-card';
                     card.textContent = opt.text;
-                    card.onclick = () => {
-                        recordAnswer(q, opt.key);
-                        setTimeout(() => nextQuestion(), 400);
-                    };
-                    container.appendChild(card);
-                });
-            } else if (q.question_type === 'scale') {
-                const scaleContainer = document.createElement('div');
-                scaleContainer.className = 'scale-options';
-                for (let i = 1; i <= 5; i++) {
-                    const btn = document.createElement('button');
-                    btn.className = 'scale-btn';
-                    btn.textContent = i;
-                    btn.onclick = () => {
-                        recordAnswer(q, String(i));
-                        setTimeout(() => nextQuestion(), 400);
-                    };
-                    scaleContainer.appendChild(btn);
-                }
-                container.appendChild(scaleContainer);
-            } else if (q.question_type === 'multi_select') {
-                selectedAnswers[currentQuestion] = [];
-                q.options.forEach(opt => {
-                    const card = document.createElement('div');
-                    card.className = 'option-card';
-                    card.textContent = opt.text;
-                    card.onclick = () => {
-                        card.classList.toggle('selected');
-                        const idx = selectedAnswers[currentQuestion].indexOf(opt.key);
-                        if (idx === -1) {
-                            selectedAnswers[currentQuestion].push(opt.key);
+                    card.addEventListener('click', () => {
+                        state.answers[q.id] = opt.id;
+                        processAnswer(q, opt);
+                        if (state.currentQuestion < state.questions.length - 1) {
+                            setTimeout(() => {
+                                state.currentQuestion++;
+                                renderQuestion();
+                            }, 400);
                         } else {
-                            selectedAnswers[currentQuestion].splice(idx, 1);
+                            goToStep(3);
                         }
-                    };
-                    container.appendChild(card);
+                    });
+                    answerOptions.appendChild(card);
                 });
-                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else if (q.type === 'multi_select') {
+                q.options.forEach(opt => {
+                    const card = document.createElement('div');
+                    card.className = 'answer-card multi-select';
+                    card.textContent = opt.text;
+                    if (state.answers[q.id] && state.answers[q.id].includes(opt.id)) {
+                        card.classList.add('selected');
+                    }
+                    card.addEventListener('click', () => {
+                        if (!state.answers[q.id]) {
+                            state.answers[q.id] = [];
+                        }
+                        if (state.answers[q.id].includes(opt.id)) {
+                            state.answers[q.id] = state.answers[q.id].filter(id => id !== opt.id);
+                            card.classList.remove('selected');
+                        } else {
+                            state.answers[q.id].push(opt.id);
+                            card.classList.add('selected');
+                        }
+                    });
+                    answerOptions.appendChild(card);
+                });
+                nextBtn.style.display = 'block';
+                nextBtn.addEventListener('click', handleMultiSelectNext, { once: true });
+            } else if (q.type === 'scale') {
+                q.options.forEach(opt => {
+                    const card = document.createElement('div');
+                    card.className = 'scale-option';
+                    card.innerHTML = `<div class="scale-number">${opt.id}</div><div>${opt.text}</div>`;
+                    if (state.answers[q.id] === opt.id) {
+                        card.classList.add('selected');
+                    }
+                    card.addEventListener('click', () => {
+                        state.answers[q.id] = opt.id;
+                        processAnswer(q, opt);
+                        if (state.currentQuestion < state.questions.length - 1) {
+                            setTimeout(() => {
+                                state.currentQuestion++;
+                                renderQuestion();
+                            }, 400);
+                        } else {
+                            goToStep(3);
+                        }
+                    });
+                    answerOptions.appendChild(card);
+                });
+            }
+        }
+
+        function handleMultiSelectNext() {
+            const q = state.questions[state.currentQuestion];
+            const selectedOptions = q.options.filter(opt => state.answers[q.id] && state.answers[q.id].includes(opt.id));
+            selectedOptions.forEach(opt => processAnswer(q, opt));
+
+            if (state.currentQuestion < state.questions.length - 1) {
+                state.currentQuestion++;
+                renderQuestion();
             } else {
-                document.getElementById('nextBtn').style.display = 'none';
-            }
-
-            document.getElementById('backBtn').style.display = currentQuestion > 0 ? 'inline-block' : 'none';
-        }
-
-        function recordAnswer(q, key) {
-            if (q.category === 'personality') {
-                const techType = q.scoring_map[key];
-                if (techType && scores.hasOwnProperty(techType)) {
-                    scores[techType]++;
-                }
-            } else if (q.category === 'pain_point') {
-                const tool = q.scoring_map[key];
-                if (tool) {
-                    painPoints.push(tool);
-                }
-            } else if (q.category === 'tech_comfort') {
-                techComfort += parseInt(key);
+                goToStep(3);
             }
         }
 
-        function nextQuestion() {
-            if (questions[currentQuestion]?.question_type === 'multi_select') {
-                const selected = selectedAnswers[currentQuestion] || [];
-                selected.forEach(key => {
-                    recordAnswer(questions[currentQuestion], key);
+        function processAnswer(question, option) {
+            if (question.category === 'personality' && option.mapping) {
+                Object.keys(option.mapping).forEach(type => {
+                    state.scores[type] += option.mapping[type];
                 });
+            } else if (question.category === 'pain_point') {
+                if (!state.painPoints.includes(option.text)) {
+                    state.painPoints.push(option.text);
+                }
             }
-            currentQuestion++;
-            renderQuestion();
         }
 
-        function previousQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
+        function handleBack() {
+            if (state.currentQuestion > 0) {
+                state.currentQuestion--;
                 renderQuestion();
             }
         }
 
-        async function showResults() {
-            document.getElementById('loadingContainer').style.display = 'flex';
-            document.getElementById('resultsContent').style.display = 'none';
-
-            setTimeout(() => {
-                document.getElementById('loadingContainer').style.display = 'none';
-                document.getElementById('resultsContent').style.display = 'block';
-                renderResults();
-                submitResults();
-            }, 2500);
+        function handleNext() {
+            const q = state.questions[state.currentQuestion];
+            if (state.answers[q.id]) {
+                if (state.currentQuestion < state.questions.length - 1) {
+                    state.currentQuestion++;
+                    renderQuestion();
+                } else {
+                    goToStep(3);
+                }
+            }
         }
 
-        function renderResults() {
-            let techType = 'architect';
-            let maxScore = scores.architect;
-            for (const [type, score] of Object.entries(scores)) {
+        async function showResults() {
+            const processingScreen = document.getElementById('processingScreen');
+            const resultsContent = document.getElementById('resultsContent');
+
+            processingScreen.style.display = 'block';
+            resultsContent.classList.remove('show');
+
+            // Calculate tech type
+            let maxScore = 0;
+            state.techType = 'architect';
+            for (const [type, score] of Object.entries(state.scores)) {
                 if (score > maxScore) {
                     maxScore = score;
-                    techType = type;
+                    state.techType = type;
                 }
             }
 
-            const typeData = TECH_TYPES[techType];
+            // Calculate AI Opportunity Score
+            state.aiOpportunityScore = Math.min(100, Math.round(state.painPoints.length * 15 + (Object.values(state.scores).reduce((a, b) => a + b, 0) % 30)));
 
-            const revealHtml = `
-                <div class="tech-type-icon-large">${typeData.icon}</div>
-                <h2>${typeData.name}</h2>
-                <div class="tech-type-tagline">${typeData.tagline}</div>
-                <div class="tech-type-description">${typeData.description}</div>
-                <div class="strengths-warnings">
-                    <div class="strength-box">
-                        <h4>Strengths</h4>
-                        <p>${typeData.strengths.join(', ')}</p>
-                    </div>
-                    <div class="warning-box">
-                        <h4>Watch Out For</h4>
-                        <p>${typeData.warnings.join(', ')}</p>
-                    </div>
+            // Get tool recommendations
+            state.recommendedTools = getRecommendedTools();
+
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
+            processingScreen.style.display = 'none';
+            renderTechTypeHero();
+            renderScoresBreakdown();
+            renderOpportunityScore();
+            renderToolRecommendations();
+            renderNextSteps();
+            renderShareSection();
+            resultsContent.classList.add('show');
+
+            // Submit data to Supabase
+            submitAssessmentResults();
+        }
+
+        function renderTechTypeHero() {
+            const type = techTypes[state.techType];
+            const container = document.getElementById('techTypeHero');
+
+            container.innerHTML = `
+                <div style="color: ${type.color};">
+                    <span class="tech-type-icon-large">${type.icon}</span>
+                    <div class="tech-type-name">${type.name}</div>
+                    <div class="tech-type-tagline">${type.tagline}</div>
+                </div>
+                <p class="tech-type-description">${type.description}</p>
+                <div class="strengths">
+                    <div class="strengths-label">Your Strengths:</div>
+                    <div class="strengths-text">${type.strengths}</div>
+                </div>
+                <div class="watch-out">
+                    <div class="strengths-label">Watch Out For:</div>
+                    <div class="strengths-text">${type.watchOut}</div>
                 </div>
             `;
-            document.getElementById('techTypeReveal').innerHTML = revealHtml;
+        }
 
-            const scoresHtml = `
-                <h3>Your Type Breakdown</h3>
-                ${Object.entries(scores).map(([type, score]) => {
-                    const typeInfo = TECH_TYPES[type];
-                    const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-                    return `
-                        <div class="score-item">
-                            <div class="score-label">
-                                <span>${typeInfo.name}</span>
-                                <span>${score}</span>
-                            </div>
-                            <div class="score-bar">
-                                <div class="score-fill" style="width: ${percentage}%; background-color: ${typeInfo.color};"></div>
-                            </div>
+        function renderScoresBreakdown() {
+            const container = document.getElementById('scoresBreakdown');
+            const totalScore = Object.values(state.scores).reduce((a, b) => a + b, 0);
+
+            let html = '';
+            const types = ['architect', 'vibe_coder', 'blitz_builder', 'scholar'];
+            const typeNames = ['Architect', 'Vibe Coder', 'Blitz Builder', 'Scholar'];
+
+            types.forEach((type, i) => {
+                const score = state.scores[type];
+                const percent = totalScore > 0 ? Math.round((score / totalScore) * 100) : 0;
+                html += `
+                    <div class="score-item">
+                        <div class="score-label">
+                            <span>${typeNames[i]}</span>
+                            <span>${percent}%</span>
                         </div>
-                    `;
-                }).join('')}
-            `;
-            document.getElementById('scoresChart').innerHTML = scoresHtml;
-
-            const opportunityScore = Math.min(100, Math.round((painPoints.length * 15) + (5 - Math.min(5, techComfort)) * 10));
-            const rotationPercent = (opportunityScore / 100) * 360;
-            const aiScoreHtml = `
-                <h3>Your AI Opportunity Score</h3>
-                <div class="circular-progress" style="--target-rotation: ${rotationPercent}deg;">
-                    <div class="circular-progress-inner">
-                        <div class="circular-progress-value">${opportunityScore}</div>
-                        <div class="circular-progress-label">Out of 100</div>
-                    </div>
-                </div>
-                <div class="ai-score-description">
-                    ${opportunityScore >= 75 ? 'You\'re ready to unlock serious AI leverage right now.' : ''}
-                    ${opportunityScore >= 50 && opportunityScore < 75 ? 'Strategic AI implementation could transform your workflow.' : ''}
-                    ${opportunityScore < 50 ? 'Start with one key AI tool and build from there.' : ''}
-                </div>
-            `;
-            document.getElementById('aiScore').innerHTML = aiScoreHtml;
-
-            const tools = getRecommendedTools();
-            const toolsHtml = tools.map(toolKey => {
-                const tool = TOOL_MAPPING[toolKey];
-                return `
-                    <div class="tool-card">
-                        <h4>${tool.name}</h4>
-                        <p>${tool.description}</p>
-                        <div class="tool-steps"><p><strong>Quick Start:</strong> ${tool.steps}</p></div>
-                        <a href="${tool.link}" target="_blank" class="tool-cta">Learn More</a>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${percent}%; transition: width 1s ease;"></div>
+                        </div>
                     </div>
                 `;
-            }).join('');
-            document.getElementById('toolsGrid').innerHTML = toolsHtml;
+            });
 
-            document.getElementById('promptText').textContent = typeData.claudePrompt;
+            container.innerHTML = html;
+        }
 
-            const shareText = `I just discovered I'm ${typeData.name} — the ${typeData.tagline}. Take the free Tech Type Assessment and find out yours: knightops.biz/assess`;
-            document.getElementById('shareText').textContent = shareText;
+        function renderOpportunityScore() {
+            const container = document.getElementById('opportunitySection');
+            const angle = (state.aiOpportunityScore / 100) * 360;
+
+            container.innerHTML = `
+                <h3>Your AI Opportunity Score</h3>
+                <div class="opportunity-circle" style="--opportunity-angle: ${angle}deg;">
+                    ${state.aiOpportunityScore}
+                </div>
+                <p class="opportunity-explanation">
+                    Your opportunity score reflects your current pain points and needs. Higher scores indicate more immediate opportunities to implement AI tools and automation.
+                </p>
+            `;
         }
 
         function getRecommendedTools() {
-            const uniqueTools = new Set();
-            painPoints.forEach(tool => {
-                if (TOOL_MAPPING[tool]) {
-                    uniqueTools.add(tool);
+            const recommendations = [];
+            const painPointMap = {
+                'Content creation and copywriting': 'content creation',
+                'Lead generation and outreach': 'lead gen / outreach',
+                'Scheduling and calendar management': 'scheduling',
+                'Administrative and operational tasks': 'admin / operations',
+                'Customer support and communication': 'customer support',
+                'I need a website': 'website needed',
+                'Managing projects and deliverables': 'project/client management'
+            };
+
+            const uniqueTools = {};
+            state.painPoints.slice(0, 3).forEach(pain => {
+                const mapped = painPointMap[pain];
+                if (mapped && toolMappings[mapped] && !uniqueTools[mapped]) {
+                    uniqueTools[mapped] = toolMappings[mapped];
                 }
             });
 
-            let toolsArray = Array.from(uniqueTools).slice(0, 3);
-
-            if (toolsArray.length < 3) {
-                const defaults = ['content', 'scheduling', 'custom'];
-                defaults.forEach(tool => {
-                    if (toolsArray.length < 3 && !toolsArray.includes(tool)) {
-                        toolsArray.push(tool);
-                    }
-                });
-            }
-
-            return toolsArray;
+            return Object.values(uniqueTools).slice(0, 3);
         }
 
-        function copyPrompt() {
-            const promptText = document.getElementById('promptText').textContent;
-            navigator.clipboard.writeText(promptText).then(() => {
-                const btn = document.querySelector('.copy-prompt-btn');
+        function renderToolRecommendations() {
+            const container = document.getElementById('toolsGrid');
+            container.innerHTML = '';
+
+            state.recommendedTools.forEach(tool => {
+                const url = tool.url ? `https://${tool.url}` : 'knightops.biz';
+                const card = document.createElement('div');
+                card.className = 'tool-card';
+                card.innerHTML = `
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-solves">What it solves</div>
+                    <div class="tool-description">${tool.description}</div>
+                    <div class="tool-steps">
+                        <strong>How to get started:</strong>
+                        <div class="tool-step">1. Visit ${tool.url || 'knightops.biz'}</div>
+                        <div class="tool-step">2. Explore their features</div>
+                        <div class="tool-step">3. Start with a free trial</div>
+                    </div>
+                    <a href="${url}" target="_blank" class="tool-cta">Learn More →</a>
+                `;
+                container.appendChild(card);
+            });
+
+            // Add Knight Ops CTA if project management or support mentioned
+            if (state.painPoints.some(p => p.includes('project') || p.includes('support'))) {
+                const customCard = document.createElement('div');
+                customCard.className = 'tool-card';
+                customCard.innerHTML = `
+                    <div class="tool-name">Custom Solutions</div>
+                    <div class="tool-solves">What we do</div>
+                    <div class="tool-description">Want someone to build the perfect solution for your workflow? We specialize in custom applications designed for your unique needs.</div>
+                    <div class="tool-steps">
+                        <strong>How to get started:</strong>
+                        <div class="tool-step">1. Book a discovery call</div>
+                        <div class="tool-step">2. Share your workflow</div>
+                        <div class="tool-step">3. Get a custom solution</div>
+                    </div>
+                    <a href="https://knightops.biz/book" target="_blank" class="tool-cta">Book Discovery Call →</a>
+                `;
+                if (state.recommendedTools.length < 3) {
+                    container.appendChild(customCard);
+                }
+            }
+        }
+
+        function renderNextSteps() {
+            const container = document.getElementById('nextSteps');
+            container.innerHTML = `
+                <div class="next-step-card">
+                    <div class="next-step-title">Book a Free Discovery Call</div>
+                    <p>Talk to our team about your specific needs and opportunities.</p>
+                    <a href="https://knightops.biz/book" target="_blank">Schedule Now →</a>
+                </div>
+                <div class="next-step-card">
+                    <div class="next-step-title">Join Our Workshop</div>
+                    <p>Learn hands-on how to build and implement AI tools in your business.</p>
+                    <a href="https://workshop.nightvibe.me" target="_blank">Learn More →</a>
+                </div>
+                <div class="next-step-card">
+                    <div class="next-step-title">Explore Our Services</div>
+                    <p>See how Knight Ops can help you scale with custom solutions.</p>
+                    <a href="https://knightops.biz" target="_blank">Visit Our Site →</a>
+                </div>
+            `;
+        }
+
+        function renderShareSection() {
+            const container = document.getElementById('shareText');
+            const type = techTypes[state.techType];
+            const shareText = `I'm a ${type.name} builder! I just discovered my tech type on the Knight Ops Tech Type Assessment. What's yours? Find out in under 3 minutes.`;
+            container.textContent = shareText;
+        }
+
+        function handleCopy() {
+            const text = document.getElementById('shareText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
                 btn.textContent = 'Copied!';
-                btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = 'Copy Prompt';
-                    btn.classList.remove('copied');
+                    btn.textContent = originalText;
                 }, 2000);
             });
         }
 
-        function copyShareText() {
-            const shareText = document.getElementById('shareText').textContent;
-            navigator.clipboard.writeText(shareText).then(() => {
-                const btn = document.querySelector('.share-copy-btn');
-                btn.textContent = 'Copied!';
-                setTimeout(() => {
-                    btn.textContent = 'Copy Share Text';
-                }, 2000);
-            });
-        }
-
-        async function submitResults() {
-            // Determine tech type
-            let techType = 'architect';
-            let maxScore = scores.architect;
-            for (const [type, score] of Object.entries(scores)) {
-                if (score > maxScore) { maxScore = score; techType = type; }
-            }
-            const aiScore = Math.min(100, Math.round((painPoints.length * 15) + (5 - Math.min(5, techComfort)) * 10));
-            const tools = typeof getRecommendedTools === 'function' ? getRecommendedTools() : [];
-            const typeInfo = TECH_TYPES[techType] || TECH_TYPES.architect;
-
-            // Resolve partner
-            let partnerId = null;
-            const slug = referralSource || getCookie('ko_ref');
-            if (slug) {
-                try {
-                    const pr = await fetch(`${SUPABASE_URL}/rest/v1/partners?slug=eq.${slug}&status=eq.active&select=id`, {
-                        headers: { 'apikey': SUPABASE_KEY }
-                    });
-                    const pdata = await pr.json();
-                    if (pdata && pdata[0]) partnerId = pdata[0].id;
-                } catch(e) {}
-            }
-
-            const payload = {
-                name: contactData.fullName,
-                email: contactData.email,
-                phone: contactData.phone || null,
-                company: contactData.company || null,
-                partner_id: partnerId,
-                partner_slug: slug || null,
-                tech_type: techType,
-                tech_type_scores: scores,
-                recommended_tools: tools.map(t => t.name || t),
-                pain_points: painPoints,
-                ai_opportunity_score: aiScore
-            };
-
+        async function submitAssessmentResults() {
             try {
-                // Insert assessment response and get back the ID
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/assessment_responses`, {
+                const typeInfo = techTypes[state.techType] || techTypes.architect;
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/assessment_responses`, {
                     method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        name: state.fullName,
+                        email: state.email,
+                        phone: state.phone || null,
+                        company: state.company || null,
+                        tech_type: state.techType,
+                        tech_type_scores: state.scores,
+                        pain_points: state.painPoints,
+                        ai_opportunity_score: state.aiOpportunityScore,
+                        recommended_tools: (state.recommendedTools||[]).map(t => t.name||t),
+                        partner_id: state.partnerId || null,
+                        partner_slug: state.partnerSlug || null
+                    })
                 });
-                const [inserted] = await res.json();
+
+                const [inserted] = await response.json().catch(()=>[null]);
                 const assessmentId = inserted?.id;
 
-                // If partner attributed, create affiliate lead
-                if (partnerId && assessmentId) {
+                // Create affiliate lead if partner attributed
+                if (state.partnerId) {
                     await fetch(`${SUPABASE_URL}/rest/v1/affiliate_leads`, {
                         method: 'POST',
                         headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            partner_id: partnerId, name: contactData.fullName, email: contactData.email,
-                            phone: contactData.phone || null, company: contactData.company || null,
-                            source: 'assessment', tech_type: techType, assessment_id: assessmentId
+                            partner_id: state.partnerId,
+                            name: state.fullName, email: state.email,
+                            phone: state.phone || null, company: state.company || null,
+                            source: 'assessment', tech_type: state.techType,
+                            assessment_id: assessmentId || null
                         })
-                    });
-                    // Notify partner
-                    await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-                        body: JSON.stringify({ type: 'partner_new_lead', to: '', data: {
-                            lead_name: contactData.fullName, lead_email: contactData.email,
-                            lead_company: contactData.company, source: 'assessment', tech_type: typeInfo.name
-                        }})
-                    }).catch(() => {});
+                    }).catch(()=>{});
                 }
 
-                // Send assessment results email (email 1)
-                if (assessmentId) {
-                    await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-                        body: JSON.stringify({ type: 'assessment_result', to: contactData.email, data: {
-                            name: contactData.fullName.split(' ')[0], tech_type: techType,
-                            tech_type_name: typeInfo.name, tagline: typeInfo.tagline,
-                            description: typeInfo.description, ai_score: aiScore,
-                            recommended_tools: tools.slice(0, 3).map(t => ({ name: t.name || t, description: t.description || '' }))
-                        }})
-                    }).catch(() => {});
-
-                    // Queue drip emails 2-7 (days 2, 4, 6, 8, 11, 14)
-                    const dripSchedule = [
-                        { email_number: 2, days: 2 }, { email_number: 3, days: 4 },
-                        { email_number: 4, days: 6 }, { email_number: 5, days: 8 },
-                        { email_number: 6, days: 11 }, { email_number: 7, days: 14 }
-                    ];
-                    const dripRows = dripSchedule.map(d => {
-                        const scheduled = new Date();
-                        scheduled.setDate(scheduled.getDate() + d.days);
-                        scheduled.setHours(10, 0, 0, 0); // 10am
-                        return { assessment_id: assessmentId, email_number: d.email_number, scheduled_at: scheduled.toISOString() };
-                    });
-                    await fetch(`${SUPABASE_URL}/rest/v1/assessment_drip_queue`, {
-                        method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(dripRows)
-                    }).catch(() => {});
-                }
-
-                // Also create a lead in the main leads table
+                // Create lead in main leads table
                 await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        full_name: contactData.fullName, email: contactData.email,
-                        phone: contactData.phone || null, company: contactData.company || null,
+                        full_name: state.fullName, email: state.email,
+                        phone: state.phone || null, company: state.company || null,
                         source: 'assessment', status: 'new',
-                        notes: `Tech Type: ${typeInfo.name} | AI Score: ${aiScore}/100 | Partner: ${slug || 'organic'}`
+                        notes: 'Tech Type: ' + typeInfo.name + ' | AI Score: ' + state.aiOpportunityScore + '/100'
                     })
-                }).catch(() => {});
+                }).catch(()=>{});
 
-                setCookie('ko_assessed', 'true');
-            } catch (error) {
-                console.error('Failed to submit results:', error);
+                // Send assessment results email
+                if (assessmentId) {
+                    fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
+                        body: JSON.stringify({ type: 'assessment_result', to: state.email, data: {
+                            name: state.fullName.split(' ')[0], tech_type: state.techType,
+                            tech_type_name: typeInfo.name, tagline: typeInfo.tagline,
+                            description: typeInfo.description, ai_score: state.aiOpportunityScore,
+                            recommended_tools: (state.recommendedTools||[]).slice(0,3).map(t=>({name:t.name||t,description:t.description||''}))
+                        }})
+                    }).catch(()=>{});
+
+                    // Queue drip emails 2-7
+                    const dripSchedule = [{n:2,d:2},{n:3,d:4},{n:4,d:6},{n:5,d:8},{n:6,d:11},{n:7,d:14}];
+                    const dripRows = dripSchedule.map(s => {
+                        const dt = new Date(); dt.setDate(dt.getDate()+s.d); dt.setHours(10,0,0,0);
+                        return { assessment_id: assessmentId, email_number: s.n, scheduled_at: dt.toISOString() };
+                    });
+                    fetch(`${SUPABASE_URL}/rest/v1/assessment_drip_queue`, {
+                        method: 'POST',
+                        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dripRows)
+                    }).catch(()=>{});
+                }
+
+                setCookie('ko_assessed', 'true', 365);
+            } catch (err) {
+                console.error('Error submitting results:', err);
             }
         }
 
-        function goToHome() {
-            window.location.href = '/';
+        function supabaseCall(table, filters) {
+            const query = Object.entries(filters).map(([k, v]) => `${k}=eq.${v}`).join('&');
+            return fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Content-Type': 'application/json'
+                }
+            }).then(r => r.json());
         }
 
-        init();
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Lax`;
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + '=';
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let c = cookies[i].trim();
+                if (c.indexOf(nameEQ) === 0) {
+                    return c.substring(nameEQ.length);
+                }
+            }
+            return null;
+        }
     </script>
 </body>
 </html>
