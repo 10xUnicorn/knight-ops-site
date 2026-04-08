@@ -206,6 +206,8 @@
             flex-direction: column;
             justify-content: center;
             padding-bottom: 4rem;
+            opacity: 1;
+            transform: none;
         }
 
         .hero-headline {
@@ -861,20 +863,21 @@
                 <a href="/book">Book a Call</a>
             </div>
             <div class="footer-copyright">
-                &copy; 2024 Knight Ops. All rights reserved.
+                &copy; 2026 Knight Ops. All rights reserved.
             </div>
         </div>
     </footer>
 
     <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        try {
+            // Supabase Configuration
+            const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Mobile Menu Toggle
-        const hamburger = document.querySelector('.hamburger');
-        const navLinks = document.querySelector('.nav-links');
+            // Mobile Menu Toggle
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
 
         hamburger.addEventListener('click', () => {
             navLinks.classList.toggle('active');
@@ -1062,6 +1065,14 @@
                 alert('An error occurred. Please try again.');
             }
         });
+        } catch (err) {
+            console.error('Script error:', err);
+        }
+
+        // Safety fallback: ensure all sections are visible after 500ms
+        setTimeout(() => {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('visible'));
+        }, 500);
     </script>
 </body>
 </html>
