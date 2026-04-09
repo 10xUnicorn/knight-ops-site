@@ -753,6 +753,80 @@
     </div>
 </section>
 
+<!-- ═══════════════ BUILD YOUR OWN ═══════════════ -->
+<section class="section" id="build-yours" style="border-top:1px solid var(--border)">
+    <div class="container">
+        <div style="text-align:center;max-width:700px;margin:0 auto 48px">
+            <div class="label">Free for Partners</div>
+            <h2 class="title">Want your own <em>partner page</em> like this one?</h2>
+            <p class="subtitle" style="margin:0 auto">Tell us about your business and we'll generate a ready-to-use prompt that builds you a professional partner referral page &mdash; complete with your services, ideal client triggers, intro scripts, and an application form. Paste the prompt into Claude and you're done.</p>
+        </div>
+
+        <!-- STEP 1: INTAKE FORM -->
+        <div id="genFormWrap" style="max-width:720px;margin:0 auto">
+            <div class="form-box">
+                <h3>Your Business Details</h3>
+                <p style="text-align:center;color:var(--text2);font-size:13px;margin:-12px 0 24px">Fill this out and we'll generate your custom prompt below.</p>
+
+                <div class="fg-row">
+                    <div class="fg"><label>Your Name *</label><input type="text" id="g_name" required placeholder="Jane Smith"></div>
+                    <div class="fg"><label>Email *</label><input type="email" id="g_email" required placeholder="jane@example.com"></div>
+                </div>
+                <div class="fg-row">
+                    <div class="fg"><label>Business Name *</label><input type="text" id="g_biz" required placeholder="Acme Consulting"></div>
+                    <div class="fg"><label>Website</label><input type="url" id="g_site" placeholder="https://..."></div>
+                </div>
+                <div class="fg"><label>What does your business do? (2-3 sentences) *</label><textarea id="g_desc" placeholder="We help small businesses build marketing funnels that convert. We specialize in Facebook ads, landing pages, and email automation for service-based businesses."></textarea></div>
+                <div class="fg"><label>Who is your ideal client? *</label><textarea id="g_icp" placeholder="Service-based businesses doing $10K-$100K/mo who want to scale through paid advertising. Coaches, consultants, med spas, law firms, etc."></textarea></div>
+                <div class="fg"><label>List your main services/offers (with prices if possible)</label><textarea id="g_services" placeholder="1. Funnel Build - $2,500 (landing page + email sequence + ads setup)&#10;2. Ads Management - $1,500/mo (ongoing Facebook/Instagram ads)&#10;3. VIP Day - $5,000 (full marketing system built in one day)"></textarea></div>
+                <div class="fg"><label>What free gift(s) can you offer referrals? (strategy call, audit, template, etc.)</label><textarea id="g_gifts" placeholder="Free 30-minute marketing audit call — we'll review their current funnel and give them 3 quick wins they can implement immediately."></textarea></div>
+                <div class="fg"><label>Commission structure for partners</label><input type="text" id="g_commission" placeholder="e.g., 10% on all closed deals, $250 flat per referral, etc."></div>
+                <div class="fg"><label>What pain points or phrases would someone say if they need your help?</label><textarea id="g_triggers" placeholder="&quot;My ads aren't converting&quot;, &quot;I'm getting traffic but no leads&quot;, &quot;I don't have a funnel&quot;, &quot;I need help with Facebook ads&quot;"></textarea></div>
+                <div class="fg"><label>Booking / calendar link (if you have one)</label><input type="text" id="g_booking" placeholder="https://calendly.com/yourname"></div>
+                <div class="fg"><label>What industry are you in?</label><input type="text" id="g_industry" placeholder="e.g., Marketing, Real estate, Health & wellness, SaaS, Finance"></div>
+                <div class="fg"><label>Describe the style, look, and feel you want</label><textarea id="g_style" placeholder="e.g., Clean and modern, bold and energetic, luxury and premium, friendly and approachable, techy and futuristic. What vibe should the page give off?"></textarea></div>
+                <div class="fg"><label>Brand colors (optional)</label><input type="text" id="g_colors" placeholder="e.g., Navy blue #1a2744, Gold #C8A456"></div>
+
+                <button class="submit-btn" id="genBtn" onclick="generatePartnerPrompt()" style="background:linear-gradient(135deg,var(--gold-start),var(--gold-end))">&#10022; Generate My Partner Page Prompt</button>
+                <p class="form-note">We'll also email you a copy of the prompt.</p>
+                <p class="form-error" id="genError"></p>
+            </div>
+        </div>
+
+        <!-- STEP 2: PROMPT OUTPUT -->
+        <div id="genOutput" style="display:none;max-width:720px;margin:0 auto">
+            <div style="text-align:center;margin-bottom:28px">
+                <div style="width:64px;height:64px;background:var(--green-bg);border:2px solid rgba(34,197,94,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:var(--green)">&#10003;</div>
+                <h3 style="font-size:22px;font-weight:700;margin-bottom:8px">Your prompt is ready!</h3>
+                <p style="color:var(--text2);font-size:14px">Copy the prompt below and paste it into Claude to build your partner page.</p>
+            </div>
+
+            <!-- PROMPT BOX -->
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <span style="font-size:13px;font-weight:700;color:var(--accent)">YOUR CUSTOM PROMPT</span>
+                    <button class="copy-btn" id="copyPromptBtn" onclick="copyGenPrompt()">&#128203; Copy Prompt</button>
+                </div>
+                <div id="promptText" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;font-size:12px;color:var(--text2);line-height:1.65;max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:'Inter',monospace"></div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <a href="https://claude.ai/new" target="_blank" rel="noopener" style="text-decoration:none">
+                    <button class="btn btn-gold" style="width:100%;justify-content:center;font-size:14px;padding:16px">&#9889; Open Claude &amp; Paste Prompt</button>
+                </a>
+                <a href="https://knightops.biz/book" target="_blank" rel="noopener" style="text-decoration:none">
+                    <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:14px;padding:16px">&#9742; Want Help? Book a Call</button>
+                </a>
+            </div>
+
+            <div style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center">
+                <p style="font-size:13px;color:var(--text2)"><strong style="color:var(--text)">Pro tip:</strong> Use Claude (free at <a href="https://claude.ai" target="_blank">claude.ai</a>) &mdash; paste the entire prompt, and it will generate a complete, professional HTML partner page you can host anywhere. If you want it deployed or need custom features, <a href="https://knightops.biz/book" target="_blank" style="font-weight:700">book a call</a> and we'll handle it.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ═══════════════ FOOTER ═══════════════ -->
 <footer class="footer">
     <div class="container">
@@ -764,6 +838,7 @@
 <script>
 const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
 
 // Affiliate cookie
 (function(){
@@ -819,22 +894,23 @@ async function submitApplication(){
                 'apikey': SUPABASE_KEY,
                 'Authorization': 'Bearer ' + SUPABASE_KEY,
                 'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
+                'Prefer': 'return=minimal'
             },
             body: JSON.stringify(data)
         });
 
         if(!res.ok){
-            const err = await res.json();
+            let errMsg = '';
+            try { const err = await res.json(); errMsg = err.message || err.msg || err.details || JSON.stringify(err); } catch(pe) { errMsg = 'status ' + res.status; }
             // Handle duplicate email
-            if(err.message && err.message.includes('duplicate') && err.message.includes('email')){
+            if(errMsg.includes('duplicate') || errMsg.includes('unique') || errMsg.includes('partners_email_key') || errMsg.includes('already exists') || res.status === 409){
                 errEl.textContent = 'This email is already registered as a partner. Check your email for your portal link, or contact daniel@unicornuniverse.io for help.';
                 errEl.style.display = 'block';
                 btn.disabled = false;
                 btn.textContent = 'Submit Application';
                 return;
             }
-            if(err.message && err.message.includes('duplicate') && err.message.includes('slug')){
+            if(errMsg.includes('partners_slug_key') || errMsg.includes('idx_partners_slug')){
                 // Retry with different slug
                 data.slug = generateSlug(name) + '-' + Math.random().toString(36).substring(2,8);
                 const res2 = await fetch(SUPABASE_URL + '/rest/v1/partners', {
@@ -843,13 +919,13 @@ async function submitApplication(){
                         'apikey': SUPABASE_KEY,
                         'Authorization': 'Bearer ' + SUPABASE_KEY,
                         'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
+                        'Prefer': 'return=minimal'
                     },
                     body: JSON.stringify(data)
                 });
-                if(!res2.ok) throw new Error('Submission failed');
+                if(!res2.ok) throw new Error('Submission failed after retry');
             } else {
-                throw new Error(err.message || 'Submission failed');
+                throw new Error(errMsg);
             }
         }
 
@@ -873,6 +949,144 @@ async function submitApplication(){
         btn.disabled = false;
         btn.textContent = 'Submit Application';
     }
+}
+
+// ═══════════════ PARTNER PAGE GENERATOR ═══════════════
+function generatePartnerPrompt(){
+    const btn = document.getElementById('genBtn');
+    const errEl = document.getElementById('genError');
+    errEl.style.display = 'none';
+
+    const name = document.getElementById('g_name').value.trim();
+    const email = document.getElementById('g_email').value.trim();
+    const biz = document.getElementById('g_biz').value.trim();
+    const desc = document.getElementById('g_desc').value.trim();
+    const icp = document.getElementById('g_icp').value.trim();
+
+    if(!name||!email||!biz||!desc||!icp){
+        errEl.textContent = 'Please fill in all required fields (name, email, business name, description, ideal client).';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    const site = document.getElementById('g_site').value.trim();
+    const services = document.getElementById('g_services').value.trim();
+    const gifts = document.getElementById('g_gifts').value.trim();
+    const commission = document.getElementById('g_commission').value.trim();
+    const triggers = document.getElementById('g_triggers').value.trim();
+    const booking = document.getElementById('g_booking').value.trim();
+    const industry = document.getElementById('g_industry').value.trim();
+    const style = document.getElementById('g_style').value.trim();
+    const colors = document.getElementById('g_colors').value.trim();
+
+    // Send lead to Supabase (best-effort)
+    fetch(SUPABASE_URL + '/rest/v1/affiliate_leads', {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name, email, company: biz,
+            source: 'partner_page_generator',
+            status: 'pending',
+            tech_type: 'page-builder'
+        })
+    }).catch(()=>{});
+
+    // Notify Daniel
+    fetch(SUPABASE_URL + '/functions/v1/partner-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
+        body: JSON.stringify({
+            type: 'admin_new_partner',
+            to: 'daniel@unicornuniverse.io',
+            data: { partner_name: name, partner_email: email, company: biz, referral_method: 'Partner Page Generator — ' + (industry || 'General') }
+        })
+    }).catch(()=>{});
+
+    // Build the prompt
+    const prompt = `You are an expert copywriter, referral marketing strategist, and web developer. Build me a complete, single-file HTML partner referral page for my business. This page will be shared with referral partners, networking contacts, and strategic allies so they can easily identify, qualify, and refer ideal clients to me.
+
+## MY BUSINESS DETAILS
+
+**Name:** ${name}
+**Business:** ${biz}
+${site ? '**Website:** ' + site : ''}
+${industry ? '**Industry:** ' + industry : ''}
+**What we do:** ${desc}
+**Ideal client:** ${icp}
+${services ? '\n**Services/Offers:**\n' + services : ''}
+${gifts ? '\n**Free gift(s) for referrals:** ' + gifts : ''}
+${commission ? '**Partner commission:** ' + commission : '**Partner commission:** 10% on all closed deals'}
+${triggers ? '\n**Pain points / trigger phrases people say when they need us:**\n' + triggers : ''}
+${booking ? '**Booking / calendar link:** ' + booking : ''}
+
+## DESIGN DIRECTION
+
+${style ? '**Desired style, look, and feel:** ' + style : '**Style:** Professional, clean, and conversion-focused — choose a design aesthetic that is most aligned with the ' + (industry || 'business consulting') + ' industry and follows best practices for that market.'}
+${colors ? '**Brand colors:** ' + colors : '**Colors:** Choose a color scheme that fits the industry and desired style. Use a primary background, secondary surface, and one strong accent color. Dark themes work well for tech/luxury; light themes work well for health/wellness/education.'}
+
+**Typography:** Use the Inter font from Google Fonts. The page tone should mirror the business description above — match the energy, vocabulary, and communication style of the business owner. Use clear, direct language. Avoid jargon unless the industry expects it.
+
+## WHAT TO BUILD
+
+Create a complete, professional, single-file HTML page with inline CSS and JS. Make it fully mobile responsive.
+
+Include ALL of these sections in order:
+
+1. **Fixed navigation** with brand name, section links (Free Gifts, Who to Refer, Scripts), a "Partner Login" button (link to #), and "Apply Now" CTA button
+2. **Hero section** — compelling headline about giving value and earning commissions, tailored to the industry. Subtitle explaining the partner program. Two CTAs: "Become a Partner" (links to apply form) and "See What You Can Gift" (links to gifts section)
+3. **Value strip** — 4 key stats in a connected grid bar: commission rate, typical payout range per referral, number of free gifts available, and "no cap" on referrals
+4. **Philosophy / About section** — "Give value, not a pitch" positioning adapted to this business. Brief intro about what the business does, who they help, and why partners can trust the referral experience will be genuinely valuable
+5. **Service journey / ascension path** — a visual stepped progression showing services from entry-level to premium, so partners understand the full value ladder of what they're referring into
+6. **Free gifts section** — each gift as a visually distinct card. If there's a self-serve tool (quiz, assessment, template, download), style it differently from a live call or session so partners immediately understand the difference. Each card should include: what the gift is, how it works, bullet points of what the referral gets, and a "How partners use this" tip box
+7. **How it works** — 4-step visual timeline with icons and hover animations: Apply → Share/Intro → We Deliver Value → You Get Paid
+8. **Who to refer / trigger signals** — cards organized by pain point category, tailored to this specific industry and ideal client. Include a keyword highlight bar at the top with the most common trigger words styled as highlighted tags. Inside each card, highlight key phrases with a subtle accent-colored background tag
+9. **Commissions section** — commission rate, tracking method, and reward options. Below that, show service tier cards displaying each service's price AND what the partner would earn per referral at that tier
+10. **Intro scripts** — 4 copy-paste referral templates tailored to this business: one for sharing a free tool/resource, one for introducing a strategy call, one formal email introduction connecting both parties, and one casual DM/text. Each script should have a working "Copy to Clipboard" button. Write these in the natural voice and tone of the business — they should sound like something the business owner would actually say
+11. **Best-fit partners** — checklist of 6 ideal partner profiles tailored to this industry (e.g., for marketing: "marketing coaches whose clients need help with execution")
+12. **FAQ** — 6 expandable accordion items covering: is the free gift really free, how tracking works, when partners get paid, whether they need industry expertise, what makes this different from a basic affiliate link, and one industry-specific question
+13. **Partner application form** — fields: name, email, phone, company, how they connect with people (dropdown), website, optional notes. On submit, show a success message. Wire the form to console.log the data (they can replace with their own backend)
+
+## DESIGN REQUIREMENTS
+
+- Design aesthetic that matches the industry and style direction above
+- Professional, conversion-focused layout
+- Cards with subtle borders, hover lift/shadow effects, and rounded corners (14-16px)
+- Section labels in small uppercase accent-colored text above section titles
+- Large bold section titles with one or two accent-colored emphasis words
+- Mobile responsive (single column on mobile, grid layouts on desktop)
+- Smooth scroll behavior
+- FAQ accordion with click-to-toggle (+ icon rotates to x when open)
+- Hover animations on timeline steps and cards
+- Clean typography: body text at 14-15px, line-height 1.65, good letter spacing
+- All CSS in a single inline <style> tag, all JS in a single inline <script> tag
+- No external dependencies except Google Fonts
+- The file should be ready to open directly in a browser
+
+Output the complete HTML file. Do not truncate or abbreviate any section.`;
+
+    document.getElementById('promptText').textContent = prompt;
+    document.getElementById('genFormWrap').style.display = 'none';
+    document.getElementById('genOutput').style.display = 'block';
+    document.getElementById('genOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyGenPrompt(){
+    const text = document.getElementById('promptText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyPromptBtn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '&#10003; Copied!';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#000';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2500);
+    });
 }
 </script>
 
