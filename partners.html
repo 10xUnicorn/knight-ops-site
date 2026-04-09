@@ -755,77 +755,152 @@
 
 <!-- ═══════════════ BUILD YOUR OWN ═══════════════ -->
 <section class="section" id="build-yours" style="border-top:1px solid var(--border)">
-    <div class="container">
-        <div style="text-align:center;max-width:700px;margin:0 auto 48px">
-            <div class="label">Free for Partners</div>
-            <h2 class="title">Want your own <em>partner page</em> like this one?</h2>
-            <p class="subtitle" style="margin:0 auto">Tell us about your business and we'll generate a ready-to-use prompt that builds you a professional partner referral page &mdash; complete with your services, ideal client triggers, intro scripts, and an application form. Paste the prompt into Claude and you're done.</p>
+    <div class="container" style="text-align:center;max-width:680px">
+        <div class="label">Free for Partners</div>
+        <h2 class="title">Want your own <em>partner page</em> like this one?</h2>
+        <p class="subtitle" style="margin:0 auto 32px">Fill out a quick form about your business and we'll generate a ready-to-use prompt that builds you a professional partner referral page &mdash; complete with your services, ideal client triggers, intro scripts, and an application form. Paste it into Claude and you're done.</p>
+        <button class="btn" id="getStartedBtn" onclick="openWizard()" style="background:linear-gradient(135deg,var(--gold-start),var(--gold-mid),var(--gold-end));color:#000;font-size:16px;padding:18px 44px;border-radius:12px;font-weight:800;letter-spacing:.01em;box-shadow:0 4px 20px rgba(200,164,86,.3)">&#10022; Get Started</button>
+    </div>
+</section>
+
+<!-- ═══════════════ WIZARD OVERLAY ═══════════════ -->
+<div id="wizardOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px">
+    <div id="wizardBox" style="background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;animation:wizIn .3s ease">
+        <style>
+            @keyframes wizIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+            .wiz-close{position:absolute;top:16px;right:16px;width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px;cursor:pointer;transition:all .2s;z-index:5}
+            .wiz-close:hover{border-color:var(--accent);color:var(--accent)}
+            .wiz-progress{display:flex;gap:6px;padding:24px 32px 0}
+            .wiz-dot{flex:1;height:4px;border-radius:4px;background:var(--border);transition:background .3s}
+            .wiz-dot.active{background:var(--accent)}
+            .wiz-dot.done{background:var(--green)}
+            .wiz-body{padding:28px 32px 32px}
+            .wiz-step{display:none}
+            .wiz-step.active{display:block}
+            .wiz-step h3{font-size:20px;font-weight:800;margin-bottom:6px}
+            .wiz-step .wiz-sub{color:var(--text2);font-size:13px;margin-bottom:24px;line-height:1.55}
+            .wiz-nav{display:flex;gap:12px;margin-top:20px}
+            .wiz-nav .wiz-back{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;cursor:pointer;transition:all .2s;font-family:inherit}
+            .wiz-nav .wiz-back:hover{border-color:var(--accent);color:var(--accent)}
+            .wiz-nav .wiz-next{flex:1;background:var(--accent);color:#000;font-weight:700;font-size:15px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;font-family:inherit}
+            .wiz-nav .wiz-next:hover{background:var(--accent-hover);transform:translateY(-1px)}
+            .wiz-nav .wiz-next:disabled{opacity:.5;cursor:not-allowed;transform:none}
+            .wiz-agree{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer}
+            .wiz-agree input{margin-top:3px;accent-color:var(--accent)}
+            .wiz-agree span{font-size:12px;color:var(--text2);line-height:1.5}
+        </style>
+
+        <button class="wiz-close" onclick="closeWizard()">&#10005;</button>
+
+        <!-- PROGRESS DOTS -->
+        <div class="wiz-progress">
+            <div class="wiz-dot active" id="wd0"></div>
+            <div class="wiz-dot" id="wd1"></div>
+            <div class="wiz-dot" id="wd2"></div>
+            <div class="wiz-dot" id="wd3"></div>
+            <div class="wiz-dot" id="wd4"></div>
+            <div class="wiz-dot" id="wd5"></div>
         </div>
 
-        <!-- STEP 1: INTAKE FORM -->
-        <div id="genFormWrap" style="max-width:720px;margin:0 auto">
-            <div class="form-box">
-                <h3>Your Business Details</h3>
-                <p style="text-align:center;color:var(--text2);font-size:13px;margin:-12px 0 24px">Fill this out and we'll generate your custom prompt below.</p>
+        <div class="wiz-body">
+            <!-- STEP 0: Name + Email -->
+            <div class="wiz-step active" id="ws0">
+                <h3>Let's start with you</h3>
+                <p class="wiz-sub">We'll use this to set up your partner account and send you the prompt.</p>
+                <div class="fg"><label>Your Name *</label><input type="text" id="g_name" placeholder="Jane Smith"></div>
+                <div class="fg"><label>Email *</label><input type="email" id="g_email" placeholder="jane@example.com"></div>
+                <div class="wiz-nav"><button class="wiz-next" onclick="wizNext(0)">Continue</button></div>
+            </div>
 
-                <div class="fg-row">
-                    <div class="fg"><label>Your Name *</label><input type="text" id="g_name" required placeholder="Jane Smith"></div>
-                    <div class="fg"><label>Email *</label><input type="email" id="g_email" required placeholder="jane@example.com"></div>
-                </div>
-                <div class="fg-row">
-                    <div class="fg"><label>Business Name *</label><input type="text" id="g_biz" required placeholder="Acme Consulting"></div>
-                    <div class="fg"><label>Website</label><input type="url" id="g_site" placeholder="https://..."></div>
-                </div>
+            <!-- STEP 1: Business + Website -->
+            <div class="wiz-step" id="ws1">
+                <h3>About your business</h3>
+                <p class="wiz-sub">This becomes the foundation of your partner page.</p>
+                <div class="fg"><label>Business Name *</label><input type="text" id="g_biz" placeholder="Acme Consulting"></div>
+                <div class="fg"><label>Website</label><input type="url" id="g_site" placeholder="https://..."></div>
+                <div class="fg"><label>What industry are you in?</label><input type="text" id="g_industry" placeholder="e.g., Marketing, Real estate, Health & wellness, SaaS"></div>
+                <div class="wiz-nav"><button class="wiz-back" onclick="wizBack(1)">&#8592; Back</button><button class="wiz-next" onclick="wizNext(1)">Continue</button></div>
+            </div>
+
+            <!-- STEP 2: Description + ICP -->
+            <div class="wiz-step" id="ws2">
+                <h3>Who do you help?</h3>
+                <p class="wiz-sub">Partners need to know exactly who to send your way.</p>
                 <div class="fg"><label>What does your business do? (2-3 sentences) *</label><textarea id="g_desc" placeholder="We help small businesses build marketing funnels that convert. We specialize in Facebook ads, landing pages, and email automation for service-based businesses."></textarea></div>
                 <div class="fg"><label>Who is your ideal client? *</label><textarea id="g_icp" placeholder="Service-based businesses doing $10K-$100K/mo who want to scale through paid advertising. Coaches, consultants, med spas, law firms, etc."></textarea></div>
-                <div class="fg"><label>List your main services/offers (with prices if possible)</label><textarea id="g_services" placeholder="1. Funnel Build - $2,500 (landing page + email sequence + ads setup)&#10;2. Ads Management - $1,500/mo (ongoing Facebook/Instagram ads)&#10;3. VIP Day - $5,000 (full marketing system built in one day)"></textarea></div>
-                <div class="fg"><label>What free gift(s) can you offer referrals? (strategy call, audit, template, etc.)</label><textarea id="g_gifts" placeholder="Free 30-minute marketing audit call — we'll review their current funnel and give them 3 quick wins they can implement immediately."></textarea></div>
-                <div class="fg"><label>Commission structure for partners</label><input type="text" id="g_commission" placeholder="e.g., 10% on all closed deals, $250 flat per referral, etc."></div>
-                <div class="fg"><label>What pain points or phrases would someone say if they need your help?</label><textarea id="g_triggers" placeholder="&quot;My ads aren't converting&quot;, &quot;I'm getting traffic but no leads&quot;, &quot;I don't have a funnel&quot;, &quot;I need help with Facebook ads&quot;"></textarea></div>
-                <div class="fg"><label>Booking / calendar link (if you have one)</label><input type="text" id="g_booking" placeholder="https://calendly.com/yourname"></div>
-                <div class="fg"><label>What industry are you in?</label><input type="text" id="g_industry" placeholder="e.g., Marketing, Real estate, Health & wellness, SaaS, Finance"></div>
-                <div class="fg"><label>Describe the style, look, and feel you want</label><textarea id="g_style" placeholder="e.g., Clean and modern, bold and energetic, luxury and premium, friendly and approachable, techy and futuristic. What vibe should the page give off?"></textarea></div>
+                <div class="wiz-nav"><button class="wiz-back" onclick="wizBack(2)">&#8592; Back</button><button class="wiz-next" onclick="wizNext(2)">Continue</button></div>
+            </div>
+
+            <!-- STEP 3: Services + Gifts + Commission -->
+            <div class="wiz-step" id="ws3">
+                <h3>Your offers &amp; gifts</h3>
+                <p class="wiz-sub">What can partners refer into, and what free gifts can they share?</p>
+                <div class="fg"><label>List your main services/offers (with prices if possible)</label><textarea id="g_services" placeholder="1. Funnel Build - $2,500&#10;2. Ads Management - $1,500/mo&#10;3. VIP Day - $5,000"></textarea></div>
+                <div class="fg"><label>Free gift(s) for referrals (strategy call, audit, template, etc.)</label><textarea id="g_gifts" placeholder="Free 30-minute marketing audit — we review their funnel and give 3 quick wins."></textarea></div>
+                <div class="fg"><label>Commission structure for partners</label><input type="text" id="g_commission" placeholder="e.g., 10% on all closed deals, $250 flat per referral"></div>
+                <div class="wiz-nav"><button class="wiz-back" onclick="wizBack(3)">&#8592; Back</button><button class="wiz-next" onclick="wizNext(3)">Continue</button></div>
+            </div>
+
+            <!-- STEP 4: Triggers + Booking -->
+            <div class="wiz-step" id="ws4">
+                <h3>Referral signals &amp; links</h3>
+                <p class="wiz-sub">What would someone say that means they need you?</p>
+                <div class="fg"><label>Pain points or phrases people say when they need your help</label><textarea id="g_triggers" placeholder="&quot;My ads aren't converting&quot;, &quot;I'm getting traffic but no leads&quot;, &quot;I don't have a funnel&quot;"></textarea></div>
+                <div class="fg"><label>Booking / calendar link</label><input type="text" id="g_booking" placeholder="https://calendly.com/yourname"></div>
+                <div class="wiz-nav"><button class="wiz-back" onclick="wizBack(4)">&#8592; Back</button><button class="wiz-next" onclick="wizNext(4)">Continue</button></div>
+            </div>
+
+            <!-- STEP 5: Style + Submit -->
+            <div class="wiz-step" id="ws5">
+                <h3>Design &amp; style</h3>
+                <p class="wiz-sub">Last step! Tell us how you want it to look.</p>
+                <div class="fg"><label>Describe the style, look, and feel you want</label><textarea id="g_style" placeholder="e.g., Clean and modern, bold and energetic, luxury and premium, friendly and approachable"></textarea></div>
                 <div class="fg"><label>Brand colors (optional)</label><input type="text" id="g_colors" placeholder="e.g., Navy blue #1a2744, Gold #C8A456"></div>
-
-                <button class="submit-btn" id="genBtn" onclick="generatePartnerPrompt()" style="background:linear-gradient(135deg,var(--gold-start),var(--gold-end))">&#10022; Generate My Partner Page Prompt</button>
-                <p class="form-note">We'll also email you a copy of the prompt.</p>
-                <p class="form-error" id="genError"></p>
-            </div>
-        </div>
-
-        <!-- STEP 2: PROMPT OUTPUT -->
-        <div id="genOutput" style="display:none;max-width:720px;margin:0 auto">
-            <div style="text-align:center;margin-bottom:28px">
-                <div style="width:64px;height:64px;background:var(--green-bg);border:2px solid rgba(34,197,94,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:var(--green)">&#10003;</div>
-                <h3 style="font-size:22px;font-weight:700;margin-bottom:8px">Your prompt is ready!</h3>
-                <p style="color:var(--text2);font-size:14px">Copy the prompt below and paste it into Claude to build your partner page.</p>
-            </div>
-
-            <!-- PROMPT BOX -->
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                    <span style="font-size:13px;font-weight:700;color:var(--accent)">YOUR CUSTOM PROMPT</span>
-                    <button class="copy-btn" id="copyPromptBtn" onclick="copyGenPrompt()">&#128203; Copy Prompt</button>
-                </div>
-                <div id="promptText" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;font-size:12px;color:var(--text2);line-height:1.65;max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:'Inter',monospace"></div>
-            </div>
-
-            <!-- ACTION BUTTONS -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <a href="https://claude.ai/new" target="_blank" rel="noopener" style="text-decoration:none">
-                    <button class="btn btn-gold" style="width:100%;justify-content:center;font-size:14px;padding:16px">&#9889; Open Claude &amp; Paste Prompt</button>
-                </a>
-                <a href="https://knightops.biz/book" target="_blank" rel="noopener" style="text-decoration:none">
-                    <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:14px;padding:16px">&#9742; Want Help? Book a Call</button>
-                </a>
-            </div>
-
-            <div style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center">
-                <p style="font-size:13px;color:var(--text2)"><strong style="color:var(--text)">Pro tip:</strong> Use Claude (free at <a href="https://claude.ai" target="_blank">claude.ai</a>) &mdash; paste the entire prompt, and it will generate a complete, professional HTML partner page you can host anywhere. If you want it deployed or need custom features, <a href="https://knightops.biz/book" target="_blank" style="font-weight:700">book a call</a> and we'll handle it.</p>
+                <label class="wiz-agree">
+                    <input type="checkbox" id="g_agree">
+                    <span>By hitting submit, I agree to become a Knight Ops partner and will refer people who I think could utilize their services.</span>
+                </label>
+                <div class="wiz-nav"><button class="wiz-back" onclick="wizBack(5)">&#8592; Back</button><button class="wiz-next" id="genBtn" onclick="generatePartnerPrompt()" style="background:linear-gradient(135deg,var(--gold-start),var(--gold-end))">&#10022; Generate My Partner Page</button></div>
+                <p class="form-error" id="genError" style="margin-top:8px"></p>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<!-- ═══════════════ PROMPT OUTPUT (replaces wizard) ═══════════════ -->
+<div id="genOutput" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;position:relative;animation:wizIn .3s ease">
+        <button class="wiz-close" onclick="closeOutput()">&#10005;</button>
+        <div style="padding:32px">
+            <div style="text-align:center;margin-bottom:24px">
+                <div style="width:56px;height:56px;background:var(--green-bg);border:2px solid rgba(34,197,94,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;color:var(--green)">&#10003;</div>
+                <h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Your prompt is ready!</h3>
+                <p style="color:var(--text2);font-size:13px">Copy the prompt below, open Claude, and paste it in.</p>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase">Your Custom Prompt</span>
+                    <button class="copy-btn" id="copyPromptBtn" onclick="copyGenPrompt()">&#128203; Copy Prompt</button>
+                </div>
+                <div id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:11px;color:var(--text2);line-height:1.6;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:'Inter',monospace"></div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                <a href="https://claude.ai/new" target="_blank" rel="noopener" style="text-decoration:none">
+                    <button class="btn btn-gold" style="width:100%;justify-content:center;font-size:13px;padding:14px 16px;border-radius:10px">&#9889; Open Claude &amp; Paste</button>
+                </a>
+                <a href="https://knightops.biz/book" target="_blank" rel="noopener" style="text-decoration:none">
+                    <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:13px;padding:14px 16px;border-radius:10px">&#9742; Want Help? Book a Call</button>
+                </a>
+            </div>
+
+            <div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center">
+                <p style="font-size:12px;color:var(--text2)"><strong style="color:var(--text)">Pro tip:</strong> Paste the entire prompt into <a href="https://claude.ai" target="_blank">Claude</a> (free) and it will build your complete partner page. Want it deployed? <a href="https://knightops.biz/book" target="_blank" style="font-weight:700">Book a call</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ═══════════════ FOOTER ═══════════════ -->
 <footer class="footer">
@@ -951,62 +1026,95 @@ async function submitApplication(){
     }
 }
 
-// ═══════════════ PARTNER PAGE GENERATOR ═══════════════
+// ═══════════════ WIZARD ═══════════════
+let wizStep = 0;
+const wizTotal = 6;
+
+function openWizard(){
+    document.getElementById('wizardOverlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeWizard(){
+    document.getElementById('wizardOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+function closeOutput(){
+    document.getElementById('genOutput').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function wizShow(step){
+    wizStep = step;
+    for(let i=0;i<wizTotal;i++){
+        document.getElementById('ws'+i).classList.toggle('active',i===step);
+        const dot = document.getElementById('wd'+i);
+        dot.className = 'wiz-dot' + (i<step?' done':'') + (i===step?' active':'');
+    }
+}
+function wizNext(step){
+    // Validate current step
+    if(step===0){
+        if(!document.getElementById('g_name').value.trim()||!document.getElementById('g_email').value.trim()){alert('Name and email are required.');return;}
+    }
+    if(step===1){
+        if(!document.getElementById('g_biz').value.trim()){alert('Business name is required.');return;}
+    }
+    if(step===2){
+        if(!document.getElementById('g_desc').value.trim()||!document.getElementById('g_icp').value.trim()){alert('Please describe your business and ideal client.');return;}
+    }
+    wizShow(step+1);
+}
+function wizBack(step){ wizShow(step-1); }
+
+// ═══════════════ GENERATE PROMPT ═══════════════
 function generatePartnerPrompt(){
-    const btn = document.getElementById('genBtn');
     const errEl = document.getElementById('genError');
     errEl.style.display = 'none';
 
-    const name = document.getElementById('g_name').value.trim();
-    const email = document.getElementById('g_email').value.trim();
-    const biz = document.getElementById('g_biz').value.trim();
-    const desc = document.getElementById('g_desc').value.trim();
-    const icp = document.getElementById('g_icp').value.trim();
-
-    if(!name||!email||!biz||!desc||!icp){
-        errEl.textContent = 'Please fill in all required fields (name, email, business name, description, ideal client).';
+    if(!document.getElementById('g_agree').checked){
+        errEl.textContent = 'Please check the agreement box to continue.';
         errEl.style.display = 'block';
         return;
     }
 
+    const btn = document.getElementById('genBtn');
     btn.disabled = true;
     btn.textContent = 'Generating...';
 
+    const name = document.getElementById('g_name').value.trim();
+    const email = document.getElementById('g_email').value.trim();
+    const biz = document.getElementById('g_biz').value.trim();
     const site = document.getElementById('g_site').value.trim();
+    const industry = document.getElementById('g_industry').value.trim();
+    const desc = document.getElementById('g_desc').value.trim();
+    const icp = document.getElementById('g_icp').value.trim();
     const services = document.getElementById('g_services').value.trim();
     const gifts = document.getElementById('g_gifts').value.trim();
     const commission = document.getElementById('g_commission').value.trim();
     const triggers = document.getElementById('g_triggers').value.trim();
     const booking = document.getElementById('g_booking').value.trim();
-    const industry = document.getElementById('g_industry').value.trim();
     const style = document.getElementById('g_style').value.trim();
     const colors = document.getElementById('g_colors').value.trim();
 
-    // Send lead to Supabase (best-effort)
+    // Send lead + partner application to Supabase
+    const slug = generateSlug(name) + '-' + Math.random().toString(36).substring(2,6);
+    fetch(SUPABASE_URL + '/rest/v1/partners', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ name, email, company: biz, slug, status: 'pending', commission_rate: 10, commission_type: 'percentage', magic_link_token: crypto.randomUUID(), website: site, referral_method: 'page_generator', notes: 'Generated partner page via wizard. Industry: ' + (industry||'N/A') })
+    }).catch(()=>{});
+
     fetch(SUPABASE_URL + '/rest/v1/affiliate_leads', {
         method: 'POST',
-        headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            name, email, company: biz,
-            source: 'partner_page_generator',
-            status: 'pending',
-            tech_type: 'page-builder'
-        })
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, company: biz, source: 'partner_page_generator', status: 'pending', tech_type: 'page-builder' })
     }).catch(()=>{});
 
     // Notify Daniel
     fetch(SUPABASE_URL + '/functions/v1/partner-emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
-        body: JSON.stringify({
-            type: 'admin_new_partner',
-            to: 'daniel@unicornuniverse.io',
-            data: { partner_name: name, partner_email: email, company: biz, referral_method: 'Partner Page Generator — ' + (industry || 'General') }
-        })
+        body: JSON.stringify({ type: 'admin_new_partner', to: 'daniel@unicornuniverse.io', data: { partner_name: name, partner_email: email, company: biz, referral_method: 'Partner Page Generator — ' + (industry || 'General') } })
     }).catch(()=>{});
 
     // Build the prompt
@@ -1031,7 +1139,7 @@ ${booking ? '**Booking / calendar link:** ' + booking : ''}
 ${style ? '**Desired style, look, and feel:** ' + style : '**Style:** Professional, clean, and conversion-focused — choose a design aesthetic that is most aligned with the ' + (industry || 'business consulting') + ' industry and follows best practices for that market.'}
 ${colors ? '**Brand colors:** ' + colors : '**Colors:** Choose a color scheme that fits the industry and desired style. Use a primary background, secondary surface, and one strong accent color. Dark themes work well for tech/luxury; light themes work well for health/wellness/education.'}
 
-**Typography:** Use the Inter font from Google Fonts. The page tone should mirror the business description above — match the energy, vocabulary, and communication style of the business owner. Use clear, direct language. Avoid jargon unless the industry expects it.
+**Typography:** Use the Inter font from Google Fonts. The page tone should mirror the business description above — match the energy, vocabulary, and communication style of the business owner.
 
 ## WHAT TO BUILD
 
@@ -1040,41 +1148,48 @@ Create a complete, professional, single-file HTML page with inline CSS and JS. M
 Include ALL of these sections in order:
 
 1. **Fixed navigation** with brand name, section links (Free Gifts, Who to Refer, Scripts), a "Partner Login" button (link to #), and "Apply Now" CTA button
-2. **Hero section** — compelling headline about giving value and earning commissions, tailored to the industry. Subtitle explaining the partner program. Two CTAs: "Become a Partner" (links to apply form) and "See What You Can Gift" (links to gifts section)
-3. **Value strip** — 4 key stats in a connected grid bar: commission rate, typical payout range per referral, number of free gifts available, and "no cap" on referrals
-4. **Philosophy / About section** — "Give value, not a pitch" positioning adapted to this business. Brief intro about what the business does, who they help, and why partners can trust the referral experience will be genuinely valuable
-5. **Service journey / ascension path** — a visual stepped progression showing services from entry-level to premium, so partners understand the full value ladder of what they're referring into
-6. **Free gifts section** — each gift as a visually distinct card. If there's a self-serve tool (quiz, assessment, template, download), style it differently from a live call or session so partners immediately understand the difference. Each card should include: what the gift is, how it works, bullet points of what the referral gets, and a "How partners use this" tip box
-7. **How it works** — 4-step visual timeline with icons and hover animations: Apply → Share/Intro → We Deliver Value → You Get Paid
-8. **Who to refer / trigger signals** — cards organized by pain point category, tailored to this specific industry and ideal client. Include a keyword highlight bar at the top with the most common trigger words styled as highlighted tags. Inside each card, highlight key phrases with a subtle accent-colored background tag
-9. **Commissions section** — commission rate, tracking method, and reward options. Below that, show service tier cards displaying each service's price AND what the partner would earn per referral at that tier
-10. **Intro scripts** — 4 copy-paste referral templates tailored to this business: one for sharing a free tool/resource, one for introducing a strategy call, one formal email introduction connecting both parties, and one casual DM/text. Each script should have a working "Copy to Clipboard" button. Write these in the natural voice and tone of the business — they should sound like something the business owner would actually say
-11. **Best-fit partners** — checklist of 6 ideal partner profiles tailored to this industry (e.g., for marketing: "marketing coaches whose clients need help with execution")
-12. **FAQ** — 6 expandable accordion items covering: is the free gift really free, how tracking works, when partners get paid, whether they need industry expertise, what makes this different from a basic affiliate link, and one industry-specific question
-13. **Partner application form** — fields: name, email, phone, company, how they connect with people (dropdown), website, optional notes. On submit, show a success message. Wire the form to console.log the data (they can replace with their own backend)
+2. **Hero section** — compelling headline about giving value and earning commissions, tailored to the industry. Subtitle explaining the partner program. Two CTAs: "Become a Partner" and "See What You Can Gift"
+3. **Value strip** — 4 key stats in a connected grid bar: commission rate, typical payout range per referral, number of free gifts, and "no cap" on referrals
+4. **Philosophy / About section** — "Give value, not a pitch" positioning adapted to this business. Brief intro about what the business does and who they help
+5. **Service journey / ascension path** — visual stepped progression showing services from entry-level to premium
+6. **Free gifts section** — each gift as a visually distinct card. Self-serve tools styled differently from live calls. Include: what it is, bullet points, and "How partners use this" tip box
+7. **How it works** — 4-step visual timeline with icons and hover animations: Apply, Share/Intro, We Deliver Value, You Get Paid
+8. **Who to refer / trigger signals** — cards by pain point category. Keyword highlight bar at top. Highlight key phrases inside cards with accent-colored tags
+9. **Commissions section** — rate, tracking, rewards. Show service tier cards with price AND partner earnings per tier
+10. **Intro scripts** — 4 copy-paste templates (tool share, call intro, email intro, casual DM) with working "Copy to Clipboard" buttons
+11. **Best-fit partners** — checklist of 6 ideal partner profiles tailored to this industry
+12. **FAQ** — 6 expandable accordion items
+13. **Partner application form** — name, email, phone, company, dropdown, website, notes. On submit show success. Wire to console.log
 
 ## DESIGN REQUIREMENTS
 
-- Design aesthetic that matches the industry and style direction above
-- Professional, conversion-focused layout
-- Cards with subtle borders, hover lift/shadow effects, and rounded corners (14-16px)
-- Section labels in small uppercase accent-colored text above section titles
-- Large bold section titles with one or two accent-colored emphasis words
-- Mobile responsive (single column on mobile, grid layouts on desktop)
-- Smooth scroll behavior
-- FAQ accordion with click-to-toggle (+ icon rotates to x when open)
-- Hover animations on timeline steps and cards
-- Clean typography: body text at 14-15px, line-height 1.65, good letter spacing
-- All CSS in a single inline <style> tag, all JS in a single inline <script> tag
+- Professional, conversion-focused layout matching the industry
+- Cards with subtle borders, hover lift effects, rounded corners (14-16px)
+- Small uppercase accent-colored section labels
+- Large bold section titles with accent emphasis words
+- Mobile responsive
+- Smooth scroll, FAQ accordion, hover animations
+- Clean typography: 14-15px body, line-height 1.65
+- All CSS in <style>, all JS in <script>
 - No external dependencies except Google Fonts
-- The file should be ready to open directly in a browser
+- Ready to open in a browser
+
+## IMPORTANT
+
+In the footer of the page, include: "Website built by KnightOps.biz" with a link to https://knightops.biz
 
 Output the complete HTML file. Do not truncate or abbreviate any section.`;
 
     document.getElementById('promptText').textContent = prompt;
-    document.getElementById('genFormWrap').style.display = 'none';
-    document.getElementById('genOutput').style.display = 'block';
-    document.getElementById('genOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Close wizard, open output
+    closeWizard();
+    document.getElementById('genOutput').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Reset button
+    btn.disabled = false;
+    btn.innerHTML = '&#10022; Generate My Partner Page';
 }
 
 function copyGenPrompt(){
