@@ -105,7 +105,11 @@ nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-con
 <nav>
   <div class="wrap">
     <a href="/" class="nav-logo">KNIGHT<span>OPS</span></a>
-    <a href="/" class="nav-back">&larr; Back to site</a>
+    <div style="display:flex;gap:24px;align-items:center">
+      <a href="/" class="nav-back">Home</a>
+      <a href="/partners" class="nav-back">Partners</a>
+      <a href="/#book" class="nav-back">Book a Call</a>
+    </div>
   </div>
 </nav>
 
@@ -384,7 +388,7 @@ nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-con
     <div class="success-icon">&#10003;</div>
     <h2>Blueprint Submitted</h2>
     <p>We've got everything we need to start architecting your system. We'll be in touch within 24 hours with next steps, scope, and timeline.</p>
-    <a href="/book" class="btn btn-primary">Book Your Discovery Call &rarr;</a>
+    <a href="/#book" class="btn btn-primary">Book Your Discovery Call &rarr;</a>
   </div>
 </div>
 
@@ -562,7 +566,5 @@ function toast(msg,type){
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
-
-<script src="/ko-track.js" defer></script>
 </body>
 </html>
