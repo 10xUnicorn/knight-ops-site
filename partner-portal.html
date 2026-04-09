@@ -1108,7 +1108,7 @@
     async function authenticateWithToken(token) {
       try {
         const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/partners?magic_link_token=eq.${encodeURIComponent(token)}&status=eq.active&select=id,full_name,email,phone,company,website,paypal_email,slug,commission_rate`,
+          `${SUPABASE_URL}/rest/v1/partners?magic_link_token=eq.${encodeURIComponent(token)}&status=eq.active&select=*`,
           {
             headers: {
               'apikey': SUPABASE_KEY,
@@ -1119,15 +1119,26 @@
 
         const partners = await response.json();
 
-        if (partners.length > 0) {
+        if (partners && partners.length > 0) {
           currentPartnerId = partners[0].id;
           currentPartnerData = partners[0];
           localStorage.setItem('ko_partner_id', currentPartnerId);
           localStorage.setItem('ko_partner_token', token);
-          window.location.hash = '';
           await loadDashboard();
+          // Clear token from URL AFTER dashboard is loaded (use replaceState to avoid reload)
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         } else {
+          console.error('Token auth failed: no active partner found for token');
           showLoginScreen();
+          const loginEl = document.getElementById('loginScreen');
+          if(loginEl) {
+            const msg = document.createElement('p');
+            msg.style.cssText = 'color:#ef4444;font-size:13px;text-align:center;margin-top:16px';
+            msg.textContent = 'This access link is invalid or expired. Please enter your email below to get a new one.';
+            loginEl.querySelector('.login-box')?.appendChild(msg);
+          }
         }
       } catch (error) {
         console.error('Authentication error:', error);
@@ -1196,7 +1207,7 @@
       if (!currentPartnerData) {
         try {
           const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}&select=*`,
+            `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}&status=eq.active&select=*`,
             {
               headers: {
                 'apikey': SUPABASE_KEY,
@@ -1213,7 +1224,7 @@
         }
       }
 
-      document.getElementById('partnerNameDisplay').textContent = currentPartnerData?.full_name || 'Partner';
+      document.getElementById('partnerNameDisplay').textContent = currentPartnerData?.name || 'Partner';
 
       loadTabContent('overview');
     }
@@ -1768,7 +1779,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
 
     // ============ PROFILE TAB ============
     function loadProfile() {
-      document.getElementById('profileFullName').value = currentPartnerData?.full_name || '';
+      document.getElementById('profileFullName').value = currentPartnerData?.name || '';
       document.getElementById('profileEmail').value = currentPartnerData?.email || '';
       document.getElementById('profilePhone').value = currentPartnerData?.phone || '';
       document.getElementById('profileCompany').value = currentPartnerData?.company || '';
@@ -1782,7 +1793,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
       event.preventDefault();
 
       const updates = {
-        full_name: document.getElementById('profileFullName').value,
+        name: document.getElementById('profileFullName').value,
         phone: document.getElementById('profilePhone').value,
         company: document.getElementById('profileCompany').value,
         website: document.getElementById('profileWebsite').value,
@@ -1806,7 +1817,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
 
         if (response.ok) {
           currentPartnerData = { ...currentPartnerData, ...updates };
-          document.getElementById('partnerNameDisplay').textContent = currentPartnerData.full_name;
+          document.getElementById('partnerNameDisplay').textContent = currentPartnerData.name;
           alert('Profile updated successfully!');
         }
       } catch (error) {
