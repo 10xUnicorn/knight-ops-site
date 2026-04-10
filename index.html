@@ -53,7 +53,7 @@ nav .container { display: flex; justify-content: space-between; align-items: cen
 .mobile-menu-btn { display: none; background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; }
 
 /* ─── HERO ─── */
-.hero { padding: 160px 0 100px; position: relative; overflow: hidden; }
+.hero { padding: 150px 0 80px; position: relative; overflow: hidden; }
 .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle, rgba(200,164,86,0.06) 0%, rgba(200,164,86,0.02) 30%, transparent 65%); pointer-events: none; }
 .hero::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, transparent 0%, transparent 70%, var(--bg-primary) 100%); pointer-events: none; z-index: 1; }
 .hero > .container { position: relative; z-index: 2; }
@@ -93,7 +93,7 @@ nav .container { display: flex; justify-content: space-between; align-items: cen
 .hero-accent-line.top-right { top: 200px; right: -20px; width: 250px; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,164,86,0.12), transparent); transform: rotate(20deg); }
 
 /* ─── SECTION SHARED ─── */
-section { padding: 80px 0; }
+section { padding: 72px 0; }
 .section-label { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
 .section-title { font-size: clamp(1.8rem,3.5vw,2.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 20px; }
 .section-subtitle { font-size: 1.05rem; color: var(--text-secondary); max-width: 600px; line-height: 1.7; }
@@ -171,7 +171,7 @@ section { padding: 80px 0; }
 .founder-stat-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 
 /* ─── BOOKING ─── */
-.booking-section { background: var(--bg-secondary); padding: 100px 0 120px; }
+.booking-section { background: var(--bg-secondary); padding: 80px 0 60px; }
 .booking-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: start; }
 .booking-left h3 { font-size: 1.6rem; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
 .booking-left h3 span { color: var(--accent); }
@@ -196,8 +196,8 @@ section { padding: 80px 0; }
 .faq-item.open .faq-a { max-height: 300px; margin-top: 14px; }
 .faq-a p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
 
-footer { padding: 48px 0; border-top: 1px solid var(--border); }
-footer .container { display: flex; justify-content: space-between; align-items: center; }
+footer { padding: 40px 0; border-top: 1px solid var(--border); background: var(--bg-primary); }
+footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .footer-brand { font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; color: var(--white); }
 .footer-brand span { color: var(--accent); }
 .footer-copy { font-size: 0.8rem; color: var(--text-muted); }
@@ -263,13 +263,13 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   <div class="container">
     <div class="hero-badge fade-up">Custom AI Systems for Business</div>
     <h1 class="fade-up"><span class="hero-line-1">Stop running your business.</span><span class="hero-line-2">Start owning it.</span></h1>
-    <p class="hero-sub fade-up">We build the custom dashboards, automations, and AI systems that free you from the daily grind — so you can focus on growth, your team, and the things that matter.</p>
+    <p class="hero-sub fade-up">Custom dashboards, automations, and AI systems that eliminate your biggest bottleneck — so you get your time back, your team moves without you, and your business scales without the chaos.</p>
     <div class="hero-ctas fade-up">
       <a href="#book" class="btn-primary">Book Your Free Blueprint Call &rarr;</a>
     </div>
     <div class="hero-proof fade-up">
-      <div class="hero-stat"><span class="hero-stat-number">$80M+</span><span class="hero-stat-label">Business Impact</span></div>
-      <div class="hero-stat"><span class="hero-stat-number">24hr</span><span class="hero-stat-label">Fastest Deploy</span></div>
+      <div class="hero-stat"><span class="hero-stat-number">$100M+</span><span class="hero-stat-label">Business Impact</span></div>
+      <div class="hero-stat"><span class="hero-stat-number">4hrs</span><span class="hero-stat-label">Fastest Deploy</span></div>
       <div class="hero-stat"><span class="hero-stat-number">85%</span><span class="hero-stat-label">Avg Time Saved</span></div>
     </div>
   </div>
@@ -294,9 +294,9 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     <span class="section-label fade-up">Sound Familiar?</span>
     <h2 class="section-title fade-up">Your business runs. But it shouldn't run <em>you</em>.</h2>
     <div class="pain-grid">
-      <div class="pain-card fade-up"><div class="pain-icon">&#9881;</div><h3>Scattered Systems, Zero Visibility</h3><p>Data lives across spreadsheets, emails, and sticky notes. You can feel something slipping through the cracks — you just can't see what.</p></div>
-      <div class="pain-card fade-up"><div class="pain-icon">&#9200;</div><h3>You're the Bottleneck</h3><p>Your team can't move without you. Every decision, every question — it flows through you. You can't step away, even when you need to.</p></div>
-      <div class="pain-card fade-up"><div class="pain-icon">&#128260;</div><h3>Manual Work That Should Be Automated</h3><p>Same tasks, every day, done by hand. You know exactly how this should work — you just haven't had the right partner to build it.</p></div>
+      <div class="pain-card fade-up"><div class="pain-icon">&#9881;</div><h3>You Can't See What's Working</h3><p>Revenue, clients, operations — scattered across 5 tools. You're making six-figure decisions on gut feel because the data is buried.</p><p style="color:var(--accent);font-weight:600;font-size:0.82rem;margin-top:10px">&#8594; One dashboard. Total visibility. Decisions in seconds.</p></div>
+      <div class="pain-card fade-up"><div class="pain-icon">&#9200;</div><h3>Nothing Moves Without You</h3><p>Every question, every approval — it flows through you. Your team is waiting. Your family is waiting. You can't step away.</p><p style="color:var(--accent);font-weight:600;font-size:0.82rem;margin-top:10px">&#8594; Systems that run without you. Delegation that works.</p></div>
+      <div class="pain-card fade-up"><div class="pain-icon">&#128260;</div><h3>Hours Lost to Work a Machine Should Do</h3><p>Onboarding, follow-ups, reporting — done by hand, every single day. You know this should be automated.</p><p style="color:var(--accent);font-weight:600;font-size:0.82rem;margin-top:10px">&#8594; 4-hour processes become 20 minutes. Your team does what matters.</p></div>
     </div>
     <div style="text-align:center;margin-top:40px" class="fade-up">
       <a href="#book" class="btn-primary">Let's Fix This — Free Blueprint Call &rarr;</a>
@@ -346,6 +346,18 @@ footer .container { display: flex; justify-content: space-between; align-items: 
         <p>Memberships, events, and affiliate systems — on your own land. Own your data, your relationships, your revenue.</p>
         <div class="build-result">~80 affiliates, ~$1M managed in 45 days</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BENEFITS STRIP ─── -->
+<section style="background:var(--bg-secondary);padding:56px 0">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;text-align:center">
+      <div class="fade-up"><div style="font-size:1.5rem;margin-bottom:8px">&#9889;</div><div style="font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:4px">Built in Days, Not Months</div><div style="font-size:0.82rem;color:var(--text-secondary)">Fastest deploy: 4 hours. Most projects live in 1-2 weeks.</div></div>
+      <div class="fade-up"><div style="font-size:1.5rem;margin-bottom:8px">&#128274;</div><div style="font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:4px">You Own Everything</div><div style="font-size:0.82rem;color:var(--text-secondary)">Full code ownership. No lock-in. No recurring platform fees.</div></div>
+      <div class="fade-up"><div style="font-size:1.5rem;margin-bottom:8px">&#129309;</div><div style="font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:4px">Direct Access to the Builder</div><div style="font-size:0.82rem;color:var(--text-secondary)">No project managers in between. You talk to the person writing the code.</div></div>
+      <div class="fade-up"><div style="font-size:1.5rem;margin-bottom:8px">&#127919;</div><div style="font-size:0.9rem;font-weight:700;color:var(--white);margin-bottom:4px">Outcome-Obsessed</div><div style="font-size:0.82rem;color:var(--text-secondary)">Every decision ties back to your bottom line — time saved, revenue gained, chaos removed.</div></div>
     </div>
   </div>
 </section>
@@ -423,22 +435,52 @@ footer .container { display: flex; justify-content: space-between; align-items: 
   </div>
 </section>
 
+<!-- ─── WHO THIS IS FOR ─── -->
+<section style="background:var(--bg-secondary)">
+  <div class="container">
+    <span class="section-label fade-up">Who This Is For</span>
+    <h2 class="section-title fade-up">We build for founders who've <em>outgrown</em> their systems.</h2>
+    <p class="section-subtitle fade-up" style="margin-bottom:36px">If any of these describe you, we should talk.</p>
+    <div class="build-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div class="build-card fade-up" style="border-left:3px solid var(--accent)">
+        <h3>Consultants & Coaches</h3>
+        <p>You've got paying clients but your backend is held together with spreadsheets and willpower. You need a system that makes your delivery look as premium as your expertise.</p>
+      </div>
+      <div class="build-card fade-up" style="border-left:3px solid var(--accent)">
+        <h3>Agency & Firm Owners</h3>
+        <p>Revenue is growing but margins are shrinking because you can't see what's profitable. You need dashboards, automated reporting, and a pipeline that doesn't leak deals.</p>
+      </div>
+      <div class="build-card fade-up" style="border-left:3px solid var(--accent)">
+        <h3>Financial Advisors</h3>
+        <p>You're spending hours on client prep that should take minutes. You need a system that gives you and your team total visibility — so every meeting is focused and every client feels cared for.</p>
+      </div>
+      <div class="build-card fade-up" style="border-left:3px solid var(--accent)">
+        <h3>Community & Event Leaders</h3>
+        <p>You're growing a community but the tech is fighting you. You need a platform that handles memberships, events, affiliates, and engagement — on your terms, on your domain.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:36px" class="fade-up">
+      <a href="#book" class="btn-primary">Book Your Free Blueprint Call &rarr;</a>
+    </div>
+  </div>
+</section>
+
 <!-- ─── FOUNDER ─── -->
 <section id="founder">
   <div class="container">
-    <span class="section-label fade-up">Who You're Working With</span>
+    <span class="section-label fade-up">Why Founders Trust Us</span>
     <div class="founder-grid">
       <div class="founder-content fade-up">
-        <h3>Built by someone who thinks in <span style="color:var(--accent)">systems</span> — and has for decades.</h3>
-        <p class="founder-bio">Knight Ops was founded by someone who's been taking things apart and rebuilding them better since childhood. When you work with Knight Ops, you're working directly with the person who architected and built every system in our portfolio — not a sales team, not a junior dev. Just honest, direct partnership focused on your outcome.</p>
+        <h3>You work directly with <span style="color:var(--accent)">the builder</span>. No middlemen. No runaround.</h3>
+        <p class="founder-bio">When you call Knight Ops, you're talking to the person who architects and builds your system — not a project manager, not a junior dev. Daniel has spent 20+ years inside operations: scaling regions for multi-billion-dollar corporations, building systems that process $75M+ in transactions, and turning 4-hour founder bottlenecks into 20-minute delegated workflows. He cares about your outcome — not just the deliverable.</p>
       </div>
       <div class="founder-visual fade-up">
         <div class="founder-quote">"Most people come to me with a feature list. I help them see the actual problem — and then we build the simplest, most effective system to solve it."</div>
         <div class="founder-stats">
           <div class="founder-stat"><div class="founder-stat-num">20+</div><div class="founder-stat-desc">Years in Systems</div></div>
-          <div class="founder-stat"><div class="founder-stat-num">$80M+</div><div class="founder-stat-desc">Business Impact</div></div>
+          <div class="founder-stat"><div class="founder-stat-num">$100M+</div><div class="founder-stat-desc">Business Impact</div></div>
           <div class="founder-stat"><div class="founder-stat-num">50+</div><div class="founder-stat-desc">Systems Built</div></div>
-          <div class="founder-stat"><div class="founder-stat-num">24hr</div><div class="founder-stat-desc">Fastest Deploy</div></div>
+          <div class="founder-stat"><div class="founder-stat-num">4hrs</div><div class="founder-stat-desc">Fastest Deploy</div></div>
         </div>
       </div>
     </div>
@@ -453,7 +495,7 @@ footer .container { display: flex; justify-content: space-between; align-items: 
     <div class="faq-grid">
       <div class="faq-item fade-up" onclick="this.classList.toggle('open')"><div class="faq-q"><h4>What kinds of businesses do you work with?</h4><div class="faq-toggle">+</div></div><div class="faq-a"><p>Founder-led service businesses — consultants, coaches, agencies, financial firms, community owners. If you have real revenue and real operational pain, we're likely a great fit.</p></div></div>
       <div class="faq-item fade-up" onclick="this.classList.toggle('open')"><div class="faq-q"><h4>Do I need to know exactly what I want built?</h4><div class="faq-toggle">+</div></div><div class="faq-a"><p>Not at all. Most clients come with a problem, not a solution — and that's ideal. Our process translates your operational pain into a clear system plan. You bring the vision; we handle the architecture.</p></div></div>
-      <div class="faq-item fade-up" onclick="this.classList.toggle('open')"><div class="faq-q"><h4>How fast can you build?</h4><div class="faq-toggle">+</div></div><div class="faq-a"><p>Our fastest deployment was 24 hours. Most projects are scoped in days to weeks, not months. Speed comes from clarity — and we ensure we're aligned on exactly what to build before we start.</p></div></div>
+      <div class="faq-item fade-up" onclick="this.classList.toggle('open')"><div class="faq-q"><h4>How fast can you build?</h4><div class="faq-toggle">+</div></div><div class="faq-a"><p>Our fastest deployment was 4 hours. Most projects are scoped in days to weeks, not months. Speed comes from clarity — and we ensure we're aligned on exactly what to build before we start.</p></div></div>
       <div class="faq-item fade-up" onclick="this.classList.toggle('open')"><div class="faq-q"><h4>What happens on the Blueprint Call?</h4><div class="faq-toggle">+</div></div><div class="faq-a"><p>We audit your tech stack, identify your biggest bottleneck, and map a custom automation roadmap. It's a real strategy session — not a pitch. If we're not the right fit, we'll tell you. 30 minutes, completely free, zero obligation.</p></div></div>
     </div>
   </div>
