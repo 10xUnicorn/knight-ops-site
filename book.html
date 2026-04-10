@@ -3,881 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Book a Call | Knight Ops</title>
-<meta name="description" content="Book a Free Discovery Call or Blueprint Session with Knight Ops. Let's build your unfair advantage.">
+<title>10x Systems Blueprint Call — Free | Knight Ops</title>
+<meta name="description" content="Book your free 30-minute 10x Systems Blueprint Call with Knight Ops. Get a tech stack audit, bottleneck analysis, and custom automation roadmap.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --accent: #C8A456;
-  --accent-glow: rgba(200,164,86,0.3);
-  --bg: #0A0A0B;
-  --surface: #111113;
-  --surface-2: #1A1A1F;
-  --text: #F5F5F5;
-  --text-muted: #999;
-  --border: rgba(200,164,86,0.15);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(10, 10, 11, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.nav-logo .shield {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--accent), #A08636);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: var(--bg);
-  font-weight: 800;
-}
-
-.nav-logo span {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: 1px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.nav-links a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover {
-  color: var(--accent);
-}
-
-.nav-cta {
-  background: linear-gradient(135deg, var(--accent), #A08636);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.nav-cta:hover {
-  box-shadow: 0 0 20px var(--accent-glow);
-  transform: translateY(-1px);
-}
-
-/* ── MAIN CONTENT ── */
-main {
-  flex: 1;
-}
-
-/* ── HERO ── */
-.hero {
-  padding: 140px 2rem 60px;
-  text-align: center;
-  position: relative;
-  padding-bottom: 80px;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.hero h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 800;
-  margin-bottom: 1.5rem;
-  line-height: 1.15;
-}
-
-.hero h1 .gold {
-  color: var(--accent);
-}
-
-.hero p {
-  font-size: 1.05rem;
-  color: var(--text-muted);
-  max-width: 650px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* ── BOOKING SECTION ── */
-.booking-section {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 2rem 100px;
-  width: 100%;
-}
-
-/* Booking Tabs */
-.booking-tabs {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.booking-tab {
-  flex: 1;
-  padding: 1.25rem 0;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-bottom: 3px solid transparent;
-  position: relative;
-  text-align: center;
-}
-
-.booking-tab:hover {
-  color: var(--text);
-}
-
-.booking-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-/* Booking Cards Grid */
-.booking-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.booking-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  transition: all 0.3s;
-  display: flex;
-  flex-direction: column;
-}
-
-.booking-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), #A08636, var(--accent));
-}
-
-.booking-card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-}
-
-.booking-card.most-popular {
-  border: 2px solid var(--accent);
-  transform: scale(1.02);
-}
-
-.booking-card.most-popular::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-}
-
-/* Badge */
-.booking-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 1rem;
-}
-
-.booking-card.most-popular .booking-badge {
-  background: rgba(200, 164, 86, 0.15);
-  border-color: var(--accent);
-}
-
-/* Card Header */
-.booking-header {
-  padding: 2rem 2rem 1.5rem;
-  flex: 1;
-}
-
-.booking-header h2 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-}
-
-.booking-header .price {
-  font-size: 1.1rem;
-  color: var(--accent);
-  font-weight: 700;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.booking-header .duration {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.booking-header .description {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
-}
-
-/* Bullet Points */
-.booking-benefits {
-  list-style: none;
-  margin-bottom: 1.5rem;
-}
-
-.booking-benefits li {
-  color: var(--text);
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
-  padding-left: 1.5rem;
-  position: relative;
-  line-height: 1.5;
-}
-
-.booking-benefits li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: var(--accent);
-  font-weight: 800;
-}
-
-/* Choose If Section */
-.booking-choose {
-  background: var(--surface-2);
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(200, 164, 86, 0.1);
-}
-
-.booking-choose-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.booking-choose-text {
-  color: var(--text);
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* CTA Button */
-.booking-cta {
-  background: linear-gradient(135deg, var(--accent), #A08636);
-  color: var(--bg);
-  padding: 1rem;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
-  display: block;
-  margin-top: auto;
-}
-
-.booking-cta:hover {
-  box-shadow: 0 8px 24px var(--accent-glow);
-  transform: translateY(-2px);
-}
-
-/* Booking Embed Area */
-.booking-embed-area {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  min-height: 600px;
-  display: none;
-}
-
-.booking-embed-area.active {
-  display: block;
-}
-
-.booking-embed-area iframe {
-  width: 100%;
-  border: none;
-  border-radius: 12px;
-  min-height: 700px;
-}
-
-.booking-loading {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 2rem;
-}
-
-/* ── WHAT TO EXPECT ── */
-.expect-section {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 2rem 100px;
-  width: 100%;
-}
-
-.expect-section h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  text-align: center;
-  margin-bottom: 3rem;
-  line-height: 1.2;
-}
-
-.expect-section h2 .gold {
-  color: var(--accent);
-}
-
-.expect-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.expect-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  transition: all 0.3s;
-}
-
-.expect-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-}
-
-.expect-icon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, rgba(200, 164, 86, 0.15), rgba(200, 164, 86, 0.05));
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.expect-card h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--text);
-}
-
-.expect-card p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-/* ── STATS BAR ── */
-.stats-bar {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 2rem 100px;
-  width: 100%;
-}
-
-.stats-inner {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  text-align: center;
-}
-
-.stat-item .num {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.stat-item .label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  margin-top: auto;
-}
-
-footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
-}
-
-/* ── ANIMATIONS ── */
-.fade-up {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s ease;
-}
-
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-  .booking-cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .booking-card.most-popular {
-    transform: scale(1);
-  }
-
-  .expect-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .stats-inner {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  nav {
-    padding: 0 1rem;
-  }
-
-  .nav-links {
-    display: none;
-  }
-
-  .hero {
-    padding: 120px 1.5rem 60px;
-  }
-
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-
-  .booking-section,
-  .expect-section,
-  .stats-bar {
-    padding: 0 1.5rem 60px;
-  }
-
-  .booking-tabs {
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .booking-tab {
-    padding: 1rem 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .booking-cards-grid {
-    gap: 1rem;
-  }
-
-  .booking-card {
-    border-radius: 16px;
-  }
-
-  .booking-header {
-    padding: 1.5rem;
-  }
-
-  .booking-header h2 {
-    font-size: 1.25rem;
-  }
-
-  .expect-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-inner {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .stat-item .num {
-    font-size: 1.8rem;
-  }
-
-  .booking-embed-area {
-    padding: 1.5rem;
-    min-height: 500px;
-  }
-
-  .booking-embed-area iframe {
-    min-height: 650px;
-  }
-}
-
-@media (max-width: 480px) {
-  nav {
-    height: 56px;
-    padding: 0 1rem;
-  }
-
-  .nav-logo span {
-    display: none;
-  }
-
-  .hero {
-    padding: 100px 1rem 50px;
-  }
-
-  .hero h1 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .hero p {
-    font-size: 0.95rem;
-  }
-
-  .booking-section,
-  .expect-section,
-  .stats-bar {
-    padding: 0 1rem 50px;
-  }
-
-  .booking-tabs {
-    flex-direction: column;
-    gap: 0;
-    margin-bottom: 1rem;
-  }
-
-  .booking-tab {
-    padding: 0.75rem;
-    font-size: 0.8rem;
-    border-bottom: 2px solid var(--border);
-  }
-
-  .expect-section h2 {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .booking-header h2 {
-    font-size: 1.1rem;
-  }
-
-  .booking-header .price {
-    font-size: 1rem;
-  }
-
-  footer {
-    padding: 1.5rem 1rem;
-    font-size: 0.75rem;
-  }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0A0B;--surface:#111113;--surface2:#18181B;--card:#1C1C1F;
+  --border:#2A2A2E;--border-light:#3A3A3F;
+  --text:#F4F4F5;--muted:#A1A1AA;--dim:#71717A;
+  --gold:#C8A456;--gold-hover:#D4B56A;--gold-subtle:rgba(200,164,86,.1);--gold-border:rgba(200,164,86,.25);
+  --green:#22C55E;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:72px}
+.nav-logo{font-size:1.25rem;font-weight:900;letter-spacing:.1em;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--muted);font-size:.875rem;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:#fff}
+
+.page{max-width:1100px;margin:0 auto;padding:100px 24px 60px}
+
+.layout{display:grid;grid-template-columns:1fr 1.3fr;gap:48px;align-items:start}
+
+.left h1{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:800;line-height:1.2;margin-bottom:8px}
+.left h1 em{font-style:normal;color:var(--gold)}
+.left .tag{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);padding:.35rem .8rem;border:1px solid var(--gold-border);border-radius:4px;margin-bottom:16px;font-family:'JetBrains Mono',monospace}
+.left .desc{color:var(--muted);font-size:.95rem;line-height:1.7;margin-bottom:28px}
+
+.expect{margin-bottom:32px}
+.expect h3{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:16px}
+.expect-item{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.expect-icon{flex-shrink:0;width:32px;height:32px;background:var(--gold-subtle);border:1px solid var(--gold-border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.expect-text h4{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.expect-text p{font-size:.82rem;color:var(--muted);line-height:1.5}
+
+.trust{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.trust-item{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--muted)}
+.trust-item::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;flex-shrink:0}
+
+.cal-wrap{background:var(--card);border:1px solid var(--gold-border);border-radius:18px;overflow:hidden}
+.cal-label{padding:16px 24px;text-align:center;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);background:var(--gold-subtle);border-bottom:1px solid var(--border)}
+.cal-wrap iframe{width:100%;height:700px;border:none}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.stat{text-align:center}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--gold)}
+.stat-label{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:2px}
+
+footer{padding:40px 24px;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.footer-brand{font-size:.9rem;font-weight:800;letter-spacing:.06em;color:#fff}
+.footer-brand span{color:var(--gold)}
+.footer-copy{font-size:.75rem;color:var(--dim)}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;gap:32px}
+  .stats{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:12px;text-align:center}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">
-    <div class="shield">K</div>
-    <span>KNIGHT OPS</span>
-  </a>
-  <div class="nav-links">
-    <a href="/">Home</a>
-    <a href="/apply">Apply</a>
-    <a href="/apps">The Armory</a>
-    <a href="/book" class="nav-cta">Book a Call</a>
+  <div class="wrap">
+    <a href="/" class="nav-logo">KNIGHT<span>OPS</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/partners">Partners</a>
+    </div>
   </div>
 </nav>
 
-<!-- MAIN CONTENT -->
-<main>
+<div class="page">
+  <div class="layout">
+    <div class="left">
+      <div class="tag">Free &bull; 30 Minutes</div>
+      <h1>10x Systems <em>Blueprint Call</em></h1>
+      <p class="desc">In 30 minutes, you'll walk away with a clear picture of what's costing you time, what to automate first, and exactly how to scale without adding chaos. Whether or not we work together.</p>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>Let's Build Your <span class="gold">Unfair Advantage</span></h1>
-  <p>Choose the path that matches where you are now. Whether you're exploring or ready to build, we have the right option for you.</p>
-</section>
-
-<!-- BOOKING -->
-<section class="booking-section fade-up">
-  <!-- Tabs -->
-  <div class="booking-tabs">
-    <button class="booking-tab active" data-tab="discovery">
-      Free Discovery
-    </button>
-    <button class="booking-tab" data-tab="blueprint">
-      $750 Blueprint
-    </button>
-  </div>
-
-  <!-- Cards Grid -->
-  <div class="booking-cards-grid">
-    <!-- Discovery Call Card -->
-    <div class="booking-card fade-up">
-      <div class="booking-header">
-        <span class="booking-badge">FREE</span>
-        <h2>Discovery Call</h2>
-        <span class="price">$0</span>
-        <span class="duration">30 minutes</span>
-        <p class="description">Best if you're exploring, have a rough idea, or want honest feedback before committing</p>
-
-        <ul class="booking-benefits">
-          <li>Identify your biggest operational bottleneck</li>
-          <li>Get clarity on what's possible</li>
-          <li>Honest feedback — even if we're not the right fit</li>
-          <li>Zero pressure, zero obligation</li>
-        </ul>
-
-        <div class="booking-choose">
-          <span class="booking-choose-label">Choose this if:</span>
-          <p class="booking-choose-text">You're not 100% sure what you need yet, or you want to talk it through before investing</p>
+      <div class="expect">
+        <h3>What to Expect</h3>
+        <div class="expect-item">
+          <div class="expect-icon">&#128269;</div>
+          <div class="expect-text">
+            <h4>Tech Stack Audit</h4>
+            <p>We review what you're using, what's working, and what's silently costing you hours every week.</p>
+          </div>
+        </div>
+        <div class="expect-item">
+          <div class="expect-icon">&#127919;</div>
+          <div class="expect-text">
+            <h4>Bottleneck Identification</h4>
+            <p>We pinpoint the single biggest operational bottleneck holding your business back — and show you exactly how to fix it.</p>
+          </div>
+        </div>
+        <div class="expect-item">
+          <div class="expect-icon">&#128506;</div>
+          <div class="expect-text">
+            <h4>Custom Automation Roadmap</h4>
+            <p>You leave with a prioritized roadmap of what to build, in what order, and the expected impact of each system.</p>
+          </div>
         </div>
       </div>
-      <button class="booking-cta" onclick="switchTab('discovery')">Book Discovery Call</button>
-    </div>
 
-    <!-- Blueprint Session Card -->
-    <div class="booking-card most-popular fade-up">
-      <div class="booking-header">
-        <span class="booking-badge">MOST POPULAR</span>
-        <h2>Blueprint Session</h2>
-        <span class="price">$750</span>
-        <span class="duration">90 minutes · Applied to build</span>
-        <p class="description">Best if you know what you want and you're ready to see it architected in real time</p>
-
-        <ul class="booking-benefits">
-          <li>Deep dive into your business model & workflows</li>
-          <li>Full system architecture built with you live</li>
-          <li>Walk away with a build-ready plan you own forever</li>
-          <li>$750 credited toward your project if you move forward</li>
-        </ul>
-
-        <div class="booking-choose">
-          <span class="booking-choose-label">Choose this if:</span>
-          <p class="booking-choose-text">You're ready to move and want a concrete plan with clear next steps</p>
-        </div>
+      <div class="trust">
+        <div class="trust-item">Talk directly with the founder — not a sales rep</div>
+        <div class="trust-item">Honest feedback, even if we're not the right fit</div>
+        <div class="trust-item">No pitch deck. No pressure. Just strategy.</div>
+        <div class="trust-item">Completely free. Zero obligation.</div>
       </div>
-      <button class="booking-cta" onclick="switchTab('blueprint')">Book Blueprint Session</button>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-num">$80M+</div><div class="stat-label">Business Impact</div></div>
+        <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Systems Built</div></div>
+        <div class="stat"><div class="stat-num">24hr</div><div class="stat-label">Fastest Deploy</div></div>
+      </div>
+    </div>
+
+    <div class="cal-wrap">
+      <div class="cal-label">&#128197; Pick a Time That Works</div>
+      <iframe src="https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV" scrolling="yes"></iframe>
     </div>
   </div>
+</div>
 
-  <!-- Booking Embeds -->
-  <div class="booking-embed-area active" id="discovery-embed">
-    <div class="booking-loading">Loading discovery call scheduler...</div>
-  </div>
-
-  <div class="booking-embed-area" id="blueprint-embed">
-    <div class="booking-loading">Loading blueprint session scheduler...</div>
-  </div>
-</section>
-
-<!-- WHAT TO EXPECT -->
-<section class="expect-section fade-up">
-  <h2>What to <span class="gold">Expect</span></h2>
-  <div class="expect-grid">
-    <div class="expect-card">
-      <div class="expect-icon">&#9878;</div>
-      <h3>Vision Mapping</h3>
-      <p>We'll clarify your app concept, target users, and the core problem you're solving — making sure every feature earns its place.</p>
-    </div>
-    <div class="expect-card">
-      <div class="expect-icon">&#9881;</div>
-      <h3>Technical Blueprint</h3>
-      <p>Get a clear picture of the tech stack, integrations, and architecture that will power your app from day one.</p>
-    </div>
-    <div class="expect-card">
-      <div class="expect-icon">&#128640;</div>
-      <h3>Launch Timeline</h3>
-      <p>Walk away with a realistic timeline and next steps — whether that's a Night Launch site or a full Night Build Pro deployment.</p>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section class="stats-bar fade-up">
-  <div class="stats-inner">
-    <div class="stat-item">
-      <div class="num">48hr</div>
-      <div class="label">Average Turnaround</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">100%</div>
-      <div class="label">Code Ownership</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">24/7</div>
-      <div class="label">Post-Launch Support</div>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<!-- FOOTER -->
 <footer>
-  <p>&copy; 2026 Knight Ops. All rights reserved. | <a href="/">KnightOps.biz</a></p>
+  <div class="footer-brand">KNIGHT <span>OPS</span></div>
+  <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
 </footer>
-
-<script>
-// ── Tab Switching ──
-function switchTab(tab) {
-  document.querySelectorAll('.booking-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-  document.querySelectorAll('.booking-embed-area').forEach(e => e.classList.remove('active'));
-  document.getElementById(`${tab}-embed`).classList.add('active');
-  // Lazy-load blueprint calendar
-  if (tab === 'blueprint' && !blueprintLoaded) {
-    const embed = document.getElementById('blueprint-embed');
-    const loading = embed.querySelector('.booking-loading');
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://api.unicornuniverse.io/widget/booking/zjXvnkP3CRGkV4hxoO8L';
-    iframe.style.cssText = 'width:100%;height:700px;border:none;border-radius:12px;';
-    iframe.scrolling = 'yes';
-    iframe.allow = 'payment';
-    iframe.onload = function() { if (loading) loading.style.display = 'none'; };
-    embed.appendChild(iframe);
-    blueprintLoaded = true;
-  }
-}
-
-// Tab click handlers
-document.querySelectorAll('.booking-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    switchTab(this.dataset.tab);
-  });
-});
-
-// ── Load Booking Widgets (lazy-load blueprint) ──
-let blueprintLoaded = false;
-(function() {
-  const discoveryEmbed = document.getElementById('discovery-embed');
-  const discoveryLoading = discoveryEmbed.querySelector('.booking-loading');
-  const iframe = document.createElement('iframe');
-  iframe.src = 'https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV';
-  iframe.style.cssText = 'width:100%;height:700px;border:none;border-radius:12px;';
-  iframe.scrolling = 'yes';
-  iframe.allow = 'payment';
-  iframe.onload = function() { if (discoveryLoading) discoveryLoading.style.display = 'none'; };
-  discoveryEmbed.appendChild(iframe);
-})();
-
-// ── Intersection Observer for fade-up ──
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-</script>
-
 
 <script src="/ko-track.js" defer></script>
 </body>
