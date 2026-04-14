@@ -65,6 +65,10 @@
       "destination": "/assess.html"
     },
     {
+      "source": "/assessment",
+      "destination": "/assess.html"
+    },
+    {
       "source": "/partner-portal",
       "destination": "/partner-portal.html"
     }
