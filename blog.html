@@ -131,8 +131,8 @@ nav .container{display:flex;justify-content:space-between;align-items:center;hei
 .cta-box h3{font-size:1.25rem;font-weight:800;margin-bottom:8px}
 .cta-box h3 span{color:var(--gold)}
 .cta-box p{color:var(--txt2);font-size:.9rem;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto}
-.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold);color:var(--bg);font-size:.9rem;font-weight:700;border-radius:10px;text-decoration:none;transition:all .2s}
-.cta-btn:hover{background:var(--gold-h);transform:translateY(-1px);color:var(--bg)}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold)!important;color:#0A0A0B!important;font-size:.9rem;font-weight:700;border-radius:10px;text-decoration:none!important;transition:all .2s}
+.cta-btn:hover{background:var(--gold-h)!important;transform:translateY(-1px);color:#0A0A0B!important}
 
 /* POST FAQ */
 .faq-section{margin:48px 0}
@@ -418,8 +418,9 @@ async function loadPost(slug){
       const li=document.createElement('li');
       const a=document.createElement('a');
       a.href='#'+id;
-      a.textContent=h.textContent;
+      a.textContent=h.textContent.replace(/\+$/,'').trim();
       if(h.tagName==='H3')a.classList.add('h3');
+      a.addEventListener('click',function(e){e.preventDefault();document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});});
       li.appendChild(a);
       tocList.appendChild(li);
     });
