@@ -1,95 +1,28 @@
 {
   "rewrites": [
     {
-      "source": "/apply",
-      "destination": "/apply.html"
+      "source": "/about",
+      "destination": "/about.html"
     },
     {
-      "source": "/apps",
-      "destination": "/apps.html"
+      "source": "/case-studies",
+      "destination": "/case-studies.html"
     },
     {
-      "source": "/book",
-      "destination": "/book.html"
+      "source": "/vault",
+      "destination": "/vault.html"
     },
     {
-      "source": "/admin",
-      "destination": "/admin.html"
+      "source": "/pricing",
+      "destination": "/pricing.html"
     },
     {
-      "source": "/portal",
-      "destination": "/portal.html"
+      "source": "/blog",
+      "destination": "/blog.html"
     },
     {
-      "source": "/auth",
-      "destination": "/auth.html"
-    },
-    {
-      "source": "/blueprint",
-      "destination": "/blueprint.html"
-    },
-    {
-      "source": "/privacy-policy",
-      "destination": "/privacy-policy.html"
-    },
-    {
-      "source": "/careers",
-      "destination": "/careers.html"
-    },
-    {
-      "source": "/careers/:id",
-      "destination": "/careers.html"
-    },
-    {
-      "source": "/proposal/:slug",
-      "destination": "/proposal-viewer.html"
-    },
-    {
-      "source": "/proposal/:slug/pdf",
-      "destination": "/proposal-viewer.html"
-    },
-    {
-      "source": "/review",
-      "destination": "/review.html"
-    },
-    {
-      "source": "/client-portal",
-      "destination": "/client-portal.html"
-    },
-    {
-      "source": "/partners",
-      "destination": "/partners.html"
-    },
-    {
-      "source": "/assess",
-      "destination": "/assess.html"
-    },
-    {
-      "source": "/assessment",
-      "destination": "/assess.html"
-    },
-    {
-      "source": "/partner-portal",
-      "destination": "/partner-portal.html"
-    },
-    {
-      "source": "/prospecting",
-      "destination": "/prospecting.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
+      "source": "/blog/:slug*",
+      "destination": "/blog.html"
     }
   ]
 }
