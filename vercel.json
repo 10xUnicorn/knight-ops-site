@@ -1,11 +1,21 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path((?!api/).+)\\.html",
+      "destination": "/:path",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/blog/:slug",
       "destination": "/blog.html"
+    },
+    {
+      "source": "/:path",
+      "destination": "/:path.html"
     }
   ]
 }
