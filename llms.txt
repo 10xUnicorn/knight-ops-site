@@ -1,0 +1,49 @@
+# Knight Ops
+> Knight Ops builds custom AI-powered systems, dashboards, workflows, and automations for founder-led service businesses — coaches, consultants, agencies, financial advisors, and community leaders — eliminating operational bottlenecks and creating leverage so founders can scale without chaos.
+
+## Core Pages
+
+- [Home](https://knightops.biz/): Main landing page showcasing services, case studies, process, FAQ, and booking for Discovery Calls and Blueprint Sessions.
+- [Partners](https://knightops.biz/partners): Affiliate and referral partner program with 10% commissions, partner gifts, and dashboard access.
+- [Apply](https://knightops.biz/apply): Development request intake form for custom app and website projects across Night Launch, Night Build, and Night Build Pro tiers.
+- [Assessment](https://knightops.biz/assessment): Free Tech Type Assessment quiz that identifies builder personality (Architect, Vibe Coder, Blitz Builder, Scholar) and recommends AI tools.
+
+## Services
+
+- **Night Launch** ($1,497): High-converting multi-page website delivered overnight. HTML/CSS/JS, mobile responsive, SEO-ready.
+- **Night Build** ($7,497): Full-stack web or mobile app with auth, payments, CRM integrations, deployed in 48 hours.
+- **Night Build Pro** ($14,997): Everything in Night Build plus iOS App Store and Android Play Store submission with compliance review.
+- **Blueprint Session** ($750): 90-minute deep-dive architecture session where founder and client co-design the system live.
+- **Discovery Call** (Free): 30-minute exploratory conversation to identify biggest operational bottleneck.
+
+## Systems Built
+
+- Executive Dashboards and KPI reporting
+- Client Portals with secure document exchange
+- CRM and Sales Pipeline systems
+- Onboarding Automations (paper-to-digital)
+- AI-Powered Internal Tools and assistants
+- Partner and Affiliate tracking systems
+- Event and Campaign management platforms
+- Community and Membership platforms
+
+## Key Results
+
+- $80M+ business impact facilitated
+- 93% reduction in client review prep time for $100M financial advisory book
+- 12 car dealerships unified into #1 region nationally via KPI dashboard
+- $75M+ in charitable contributions processed through automated pipeline
+- $4.5M in CARES Act applications facilitated in 30 days
+- Paper-to-digital onboarding deployed in 24 hours
+- 85% average time saved on automated workflows
+
+## Founder
+
+- **Daniel Knight**: 20+ years in systems, 50+ custom systems built. Background spans multi-billion-dollar corporations, financial services, government programs, and entrepreneur ecosystems.
+
+## Contact
+
+- Website: https://knightops.biz
+- Book Discovery Call: https://knightops.biz/#book
+- Apply for Development: https://knightops.biz/apply
+- Partner Program: https://knightops.biz/partners
