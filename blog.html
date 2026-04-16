@@ -30,8 +30,9 @@ a{color:var(--gold);text-decoration:none;transition:color .2s}
 a:hover{color:var(--gold-h)}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
-nav .container{display:flex;justify-content:space-between;align-items:center;height:72px}
+body>nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+body>nav .container{display:flex;justify-content:space-between;align-items:center;height:72px}
+footer nav{position:static!important;z-index:auto!important;background:none!important;backdrop-filter:none!important;border:none!important}
 .nav-logo{font-size:1.25rem;font-weight:900;letter-spacing:.1em;color:var(--white);text-decoration:none}
 .nav-logo span{color:var(--gold)}
 .nav-links{display:flex;gap:24px;align-items:center}
@@ -164,8 +165,8 @@ footer{padding:40px 0;border-top:1px solid rgba(255,255,255,.06);text-align:cent
 .footer-brand{font-size:1rem;font-weight:900;letter-spacing:.1em;color:var(--white);margin-bottom:8px}
 .footer-brand span{color:var(--gold)}
 .footer-copy{font-size:.75rem;color:var(--muted)}
-footer nav{margin:12px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
-footer nav a{color:var(--muted);font-size:.8rem}
+footer .footer-nav{margin:12px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+footer .footer-nav a{color:var(--muted);font-size:.8rem}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -280,7 +281,7 @@ footer nav a{color:var(--muted);font-size:.8rem}
 <footer role="contentinfo">
   <div class="container">
     <div class="footer-brand">KNIGHT <span>OPS</span></div>
-    <nav aria-label="Footer navigation">
+    <div class="footer-nav" aria-label="Footer navigation">
       <a href="/">Home</a>
       <a href="/about">About</a>
       <a href="/blog">Blog</a>
@@ -289,7 +290,7 @@ footer nav a{color:var(--muted);font-size:.8rem}
       <a href="/partners">Partners</a>
       <a href="/apply">Apply</a>
       <a href="/assessment">Assessment</a>
-    </nav>
+    </div>
     <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
   </div>
 </footer>
