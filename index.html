@@ -57,7 +57,7 @@ body > *:not(#bgCanvas):not(#sparkCanvas) { position: relative; z-index: 1; }
 /* ─── NAV ─── */
 body > nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,11,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); }
 body > nav .container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
-footer nav { position: static; z-index: auto; background: none; backdrop-filter: none; border: none; }
+footer nav { position: static !important; z-index: auto !important; background: none !important; backdrop-filter: none !important; border: none !important; }
 .nav-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); text-decoration: none; transition: all 0.3s; }
 .nav-logo span { color: var(--accent); }
 .nav-logo:hover { text-shadow: 0 0 20px rgba(200,164,86,0.3); }
@@ -374,8 +374,8 @@ section { padding: 100px 0; }
 .faq-item.open .faq-a { max-height: 300px; margin-top: 16px; }
 .faq-a p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
 
-footer { padding: 48px 0; border-top: 1px solid var(--border); position: relative; z-index: 10; background: var(--bg-primary); }
-footer .container { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+footer { padding: 48px 0; border-top: 1px solid var(--border); }
+footer .container { display: flex; justify-content: space-between; align-items: center; }
 .footer-brand { font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; color: var(--white); }
 .footer-brand span { color: var(--accent); }
 .footer-copy { font-size: 0.8rem; color: var(--text-muted); }
