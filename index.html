@@ -373,8 +373,8 @@ section { padding: 100px 0; }
 .faq-item.open .faq-a { max-height: 300px; margin-top: 16px; }
 .faq-a p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
 
-footer { padding: 48px 0; border-top: 1px solid var(--border); }
-footer .container { display: flex; justify-content: space-between; align-items: center; }
+footer { padding: 48px 0; border-top: 1px solid var(--border); position: relative; z-index: 10; background: var(--bg-primary); }
+footer .container { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .footer-brand { font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; color: var(--white); }
 .footer-brand span { color: var(--accent); }
 .footer-copy { font-size: 0.8rem; color: var(--text-muted); }
