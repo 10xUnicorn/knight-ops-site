@@ -4,17 +4,22 @@
 ## Core Pages
 
 - [Home](https://knightops.biz/): Main landing page showcasing services, case studies, process, FAQ, and booking for Discovery Calls and Blueprint Sessions.
+- [About](https://knightops.biz/about): About Daniel Knight, founder and systems architect. 20+ years experience, 50+ custom systems built, $80M+ business impact.
+- [Blog](https://knightops.biz/blog): Expert articles on AI systems, business automation, operational efficiency, and custom technology for founder-led businesses.
+- [Case Studies](https://knightops.biz/case-studies): Real results from custom AI systems — 93% time saved, #1 region nationally, $4.5M processed in 30 days.
+- [App Vault](https://knightops.biz/vault): Marketplace of ready-to-deploy AI-powered business apps built by Knight Ops. Buy, deploy, generate value immediately.
+- [Pricing](https://knightops.biz/pricing): Transparent pricing for all service tiers from free Discovery Call to $14,997 Night Build Pro.
 - [Partners](https://knightops.biz/partners): Affiliate and referral partner program with 10% commissions, partner gifts, and dashboard access.
 - [Apply](https://knightops.biz/apply): Development request intake form for custom app and website projects across Night Launch, Night Build, and Night Build Pro tiers.
 - [Assessment](https://knightops.biz/assessment): Free Tech Type Assessment quiz that identifies builder personality (Architect, Vibe Coder, Blitz Builder, Scholar) and recommends AI tools.
 
 ## Services
 
+- **Discovery Call** (Free): 30-minute exploratory conversation to identify biggest operational bottleneck.
+- **Blueprint Session** ($750): 90-minute deep-dive architecture session where founder and client co-design the system live. Fee applied toward project.
 - **Night Launch** ($1,497): High-converting multi-page website delivered overnight. HTML/CSS/JS, mobile responsive, SEO-ready.
 - **Night Build** ($7,497): Full-stack web or mobile app with auth, payments, CRM integrations, deployed in 48 hours.
 - **Night Build Pro** ($14,997): Everything in Night Build plus iOS App Store and Android Play Store submission with compliance review.
-- **Blueprint Session** ($750): 90-minute deep-dive architecture session where founder and client co-design the system live.
-- **Discovery Call** (Free): 30-minute exploratory conversation to identify biggest operational bottleneck.
 
 ## Systems Built
 
