@@ -1,9 +1,16 @@
 {
-  "cleanUrls": true,
   "routes": [
     {
-      "src": "/blog/.+",
+      "src": "/blog/(.+)",
       "dest": "/blog.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "status": 404
     }
-  ]
+  ],
+  "cleanUrls": true
 }
