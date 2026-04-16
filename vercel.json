@@ -1,9 +1,9 @@
 {
   "cleanUrls": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/blog/(.*)",
-      "destination": "/blog.html"
+      "src": "/blog/.+",
+      "dest": "/blog.html"
     }
   ]
 }
