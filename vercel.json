@@ -71,6 +71,10 @@
     {
       "source": "/partner-portal",
       "destination": "/partner-portal.html"
+    },
+    {
+      "source": "/prospecting",
+      "destination": "/prospecting/index.html"
     }
   ],
   "headers": [
