@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/blog/:path*",
+      "source": "/blog/(.*)",
       "destination": "/blog.html"
     }
   ]
