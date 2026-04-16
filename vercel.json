@@ -1,25 +1,6 @@
 {
+  "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/about",
-      "destination": "/about.html"
-    },
-    {
-      "source": "/case-studies",
-      "destination": "/case-studies.html"
-    },
-    {
-      "source": "/vault",
-      "destination": "/vault.html"
-    },
-    {
-      "source": "/pricing",
-      "destination": "/pricing.html"
-    },
-    {
-      "source": "/blog",
-      "destination": "/blog.html"
-    },
     {
       "source": "/blog/:slug*",
       "destination": "/blog.html"
