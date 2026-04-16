@@ -11,8 +11,12 @@
 <meta property="og:url" id="ogUrl" content="https://knightops.biz/blog">
 <meta property="og:title" id="ogTitle" content="Blog — Knight Ops">
 <meta property="og:description" id="ogDesc" content="Expert insights on custom AI systems, business automation, and operational efficiency.">
+<meta property="og:image" id="ogImage" content="">
 <meta property="og:site_name" content="Knight Ops">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="Blog — Knight Ops">
+<meta name="twitter:description" id="twDesc" content="">
+<meta name="twitter:image" id="twImage" content="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -35,6 +39,9 @@ nav .container{display:flex;justify-content:space-between;align-items:center;hei
 .nav-links a:hover{color:var(--white)}
 .nav-cta{background:var(--gold)!important;color:var(--bg)!important;padding:10px 22px!important;border-radius:8px;font-weight:600!important}
 
+/* READING PROGRESS BAR */
+.reading-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-h));z-index:200;width:0;transition:width .1s linear}
+
 /* HERO */
 .blog-hero{padding:140px 0 60px;border-bottom:1px solid rgba(255,255,255,.05)}
 .blog-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
@@ -50,6 +57,7 @@ nav .container{display:flex;justify-content:space-between;align-items:center;hei
 .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px;margin-bottom:60px}
 .blog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .3s;cursor:pointer}
 .blog-card:hover{border-color:var(--gold-b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(200,164,86,.08)}
+.blog-card-img{width:100%;height:200px;object-fit:cover;background:linear-gradient(135deg,var(--bg3),var(--card));display:block}
 .blog-card-body{padding:24px}
 .blog-card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .blog-card-tag{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);background:var(--gold-s);padding:4px 8px;border-radius:4px}
@@ -59,17 +67,56 @@ nav .container{display:flex;justify-content:space-between;align-items:center;hei
 .blog-card-read{color:var(--gold);font-weight:600}
 
 /* SINGLE POST */
-.post-view{display:none;padding:140px 0 80px}
+.post-view{display:none;padding:100px 0 80px}
 .post-view.active{display:block}
 .post-back{color:var(--txt2);font-size:.85rem;cursor:pointer;margin-bottom:24px;display:inline-flex;align-items:center;gap:6px}
 .post-back:hover{color:var(--gold)}
-.post-header{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.06)}
+
+/* POST HERO IMAGE */
+.post-hero-img{width:100%;max-height:460px;object-fit:cover;border-radius:16px;margin-bottom:32px;border:1px solid var(--border)}
+
+/* POST HEADER */
+.post-header{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.06)}
 .post-header h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;line-height:1.2;letter-spacing:-.02em;margin-bottom:16px}
-.post-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.post-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin-bottom:16px}
 .post-meta span{display:flex;align-items:center;gap:4px}
+.post-tags{display:flex;gap:6px;flex-wrap:wrap}
+.post-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gold);background:var(--gold-s);padding:4px 10px;border-radius:4px}
+
+/* SHARE BAR */
+.share-bar{display:flex;align-items:center;gap:10px;padding:16px 0;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.04)}
+.share-bar-label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.share-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--txt2);font-size:.85rem;cursor:pointer;transition:all .2s;text-decoration:none}
+.share-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-s)}
+.share-btn svg{width:16px;height:16px;fill:currentColor}
+.share-btn.copied{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+/* POST LAYOUT */
+.post-layout{display:grid;grid-template-columns:1fr 280px;gap:48px;align-items:start}
+@media(max-width:900px){.post-layout{grid-template-columns:1fr}}
+
+/* TABLE OF CONTENTS */
+.toc{position:sticky;top:90px}
+.toc-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.toc-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:12px}
+.toc-list{list-style:none}
+.toc-list li{margin-bottom:8px}
+.toc-list a{font-size:.8rem;color:var(--txt2);text-decoration:none;display:block;padding:4px 0;border-left:2px solid transparent;padding-left:10px;transition:all .2s}
+.toc-list a:hover,.toc-list a.active{color:var(--gold);border-left-color:var(--gold)}
+.toc-list a.h3{padding-left:22px;font-size:.75rem}
+
+/* AUTHOR BOX */
+.author-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.author-box-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.author-avatar{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),#A08636);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;color:var(--bg)}
+.author-name{font-size:.9rem;font-weight:700;color:var(--white)}
+.author-title{font-size:.72rem;color:var(--muted)}
+.author-bio{font-size:.78rem;color:var(--txt2);line-height:1.6}
+
+/* POST CONTENT */
 .post-content{max-width:760px;font-size:1rem;line-height:1.8;color:var(--txt2)}
-.post-content h2{font-size:1.5rem;font-weight:800;color:var(--white);margin:40px 0 16px;letter-spacing:-.01em}
-.post-content h3{font-size:1.15rem;font-weight:700;color:var(--white);margin:32px 0 12px}
+.post-content h2{font-size:1.5rem;font-weight:800;color:var(--white);margin:40px 0 16px;letter-spacing:-.01em;scroll-margin-top:90px}
+.post-content h3{font-size:1.15rem;font-weight:700;color:var(--white);margin:32px 0 12px;scroll-margin-top:90px}
 .post-content p{margin-bottom:20px}
 .post-content ul,.post-content ol{margin:0 0 20px 24px}
 .post-content li{margin-bottom:8px}
@@ -80,23 +127,32 @@ nav .container{display:flex;justify-content:space-between;align-items:center;hei
 .post-content img{max-width:100%;border-radius:10px;margin:24px 0}
 
 /* CTA BOX */
-.post-cta{background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(200,164,86,.02));border:1px solid var(--gold-b);border-radius:14px;padding:32px;margin:48px 0;text-align:center}
-.post-cta h3{font-size:1.25rem;font-weight:800;margin-bottom:8px}
-.post-cta h3 span{color:var(--gold)}
-.post-cta p{color:var(--txt2);font-size:.9rem;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto}
-.post-cta .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold);color:var(--bg);font-size:.9rem;font-weight:700;border-radius:10px;text-decoration:none;transition:all .2s}
-.post-cta .btn:hover{background:var(--gold-h);transform:translateY(-1px)}
+.cta-box{background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(200,164,86,.02));border:1px solid var(--gold-b);border-radius:14px;padding:32px;margin:48px 0;text-align:center}
+.cta-box h3{font-size:1.25rem;font-weight:800;margin-bottom:8px}
+.cta-box h3 span{color:var(--gold)}
+.cta-box p{color:var(--txt2);font-size:.9rem;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold);color:var(--bg);font-size:.9rem;font-weight:700;border-radius:10px;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:var(--gold-h);transform:translateY(-1px);color:var(--bg)}
 
 /* POST FAQ */
-.post-faq{margin:48px 0}
-.post-faq h2{font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:20px}
-.post-faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer}
-.post-faq-item:hover{border-color:var(--gold-b)}
-.post-faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;font-weight:600;font-size:.9rem}
-.post-faq-q .toggle{color:var(--gold);font-size:1.2rem;transition:transform .2s}
-.post-faq-item.open .toggle{transform:rotate(45deg)}
-.post-faq-a{display:none;padding:0 20px 16px;font-size:.875rem;color:var(--txt2);line-height:1.7}
-.post-faq-item.open .post-faq-a{display:block}
+.faq-section{margin:48px 0}
+.faq-section h2{font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:20px;scroll-margin-top:90px}
+.faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer}
+.faq-item:hover{border-color:var(--gold-b)}
+.faq-item h3{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;font-weight:600;font-size:.9rem;margin:0;color:var(--txt)}
+.faq-item h3 .toggle{color:var(--gold);font-size:1.2rem;transition:transform .2s}
+.faq-item.open h3 .toggle{transform:rotate(45deg)}
+.faq-item p{display:none;padding:0 20px 16px;font-size:.875rem;color:var(--txt2);line-height:1.7;margin:0}
+.faq-item.open p{display:block}
+
+/* RELATED POSTS */
+.related-section{margin:60px 0 0;padding:48px 0;border-top:1px solid rgba(255,255,255,.06)}
+.related-title{font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:24px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+
+/* BOTTOM SHARE BAR */
+.bottom-share{display:flex;align-items:center;justify-content:center;gap:12px;padding:32px 0;margin-top:40px;border-top:1px solid rgba(255,255,255,.06)}
+.bottom-share-text{font-size:.85rem;color:var(--txt2);font-weight:600}
 
 /* LOAD MORE */
 .load-more{text-align:center;margin:20px 0 60px}
@@ -117,14 +173,17 @@ footer nav a{color:var(--muted);font-size:.8rem}
   .nav-links{display:none}
   .nav-links.open{display:flex;flex-direction:column;position:absolute;top:72px;left:0;right:0;background:rgba(10,10,11,.95);padding:20px;gap:16px}
   .mobile-menu-btn{display:block!important}
+  .share-bar{flex-wrap:wrap}
+  .post-hero-img{border-radius:10px;max-height:300px}
 }
 .mobile-menu-btn{display:none;background:none;border:none;color:var(--white);font-size:1.5rem;cursor:pointer}
-
-/* SCHEMA HIDDEN */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 </style>
 </head>
 <body>
+
+<!-- READING PROGRESS -->
+<div class="reading-progress" id="readingProgress"></div>
 
 <nav>
   <div class="container">
@@ -155,7 +214,7 @@ footer nav a{color:var(--muted);font-size:.8rem}
       <div class="blog-filter active" data-tag="all" onclick="filterPosts('all',this)">All</div>
       <div class="blog-filter" data-tag="automation" onclick="filterPosts('automation',this)">Automation</div>
       <div class="blog-filter" data-tag="dashboards" onclick="filterPosts('dashboards',this)">Dashboards</div>
-      <div class="blog-filter" data-tag="ai-tools" onclick="filterPosts('ai-tools',this)">AI Tools</div>
+      <div class="blog-filter" data-tag="ai" onclick="filterPosts('ai',this)">AI Tools</div>
       <div class="blog-filter" data-tag="scaling" onclick="filterPosts('scaling',this)">Scaling</div>
       <div class="blog-filter" data-tag="case-study" onclick="filterPosts('case-study',this)">Case Studies</div>
       <div class="blog-filter" data-tag="strategy" onclick="filterPosts('strategy',this)">Strategy</div>
@@ -169,8 +228,52 @@ footer nav a{color:var(--muted);font-size:.8rem}
 <article class="post-view" id="postView">
   <div class="container">
     <div class="post-back" onclick="showIndex()">&larr; Back to Blog</div>
+    <img class="post-hero-img" id="postHeroImg" src="" alt="" style="display:none">
     <div class="post-header" id="postHeader"></div>
-    <div class="post-content" id="postContent"></div>
+    <div class="share-bar" id="shareBar">
+      <span class="share-bar-label">Share</span>
+      <a class="share-btn" id="shareX" href="#" target="_blank" rel="noopener" title="Share on X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a class="share-btn" id="shareLinkedIn" href="#" target="_blank" rel="noopener" title="Share on LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      <a class="share-btn" id="shareFB" href="#" target="_blank" rel="noopener" title="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+      <button class="share-btn" id="shareCopy" onclick="copyPostUrl()" title="Copy link"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+    </div>
+    <div class="post-layout">
+      <div>
+        <div class="post-content" id="postContent"></div>
+        <!-- Bottom share -->
+        <div class="bottom-share">
+          <span class="bottom-share-text">Found this useful? Share it:</span>
+          <a class="share-btn" id="shareX2" href="#" target="_blank" rel="noopener" title="Share on X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a class="share-btn" id="shareLinkedIn2" href="#" target="_blank" rel="noopener" title="Share on LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a class="share-btn" id="shareFB2" href="#" target="_blank" rel="noopener" title="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <button class="share-btn" onclick="copyPostUrl()" title="Copy link"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+        </div>
+        <!-- Related posts -->
+        <div class="related-section" id="relatedSection" style="display:none">
+          <div class="related-title">More from Knight Ops</div>
+          <div class="related-grid" id="relatedGrid"></div>
+        </div>
+      </div>
+      <!-- SIDEBAR -->
+      <aside id="postSidebar">
+        <div class="toc" id="tocWrap" style="display:none">
+          <div class="toc-card">
+            <div class="toc-title">In This Article</div>
+            <ul class="toc-list" id="tocList"></ul>
+          </div>
+          <div class="author-box">
+            <div class="author-box-head">
+              <div class="author-avatar">DK</div>
+              <div>
+                <div class="author-name">Daniel Knight</div>
+                <div class="author-title">Founder & Systems Architect</div>
+              </div>
+            </div>
+            <p class="author-bio">20+ years building custom AI systems. 50+ systems deployed. $80M+ business impact facilitated.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 </article>
 
@@ -179,11 +282,10 @@ footer nav a{color:var(--muted);font-size:.8rem}
     <div class="footer-brand">KNIGHT <span>OPS</span></div>
     <nav aria-label="Footer navigation">
       <a href="/">Home</a>
-      <a href="/#services">Services</a>
-      <a href="/#results">Results</a>
-      <a href="/blog">Blog</a>
       <a href="/about">About</a>
+      <a href="/blog">Blog</a>
       <a href="/case-studies">Case Studies</a>
+      <a href="/vault">App Vault</a>
       <a href="/partners">Partners</a>
       <a href="/apply">Apply</a>
       <a href="/assessment">Assessment</a>
@@ -192,28 +294,15 @@ footer nav a{color:var(--muted);font-size:.8rem}
   </div>
 </footer>
 
-<!-- POST SCHEMA (injected dynamically) -->
 <script id="postSchema" type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Blog",
-  "@id": "https://knightops.biz/blog#blog",
-  "name": "Knight Ops Blog",
-  "description": "Expert insights on custom AI systems, business automation, and operational efficiency for founder-led businesses.",
-  "url": "https://knightops.biz/blog",
-  "publisher": {
-    "@type": "Organization",
-    "@id": "https://knightops.biz/#organization",
-    "name": "Knight Ops"
-  }
-}
+{"@context":"https://schema.org","@type":"Blog","@id":"https://knightops.biz/blog#blog","name":"Knight Ops Blog","description":"Expert insights on custom AI systems, business automation, and operational efficiency for founder-led businesses.","url":"https://knightops.biz/blog","publisher":{"@type":"Organization","@id":"https://knightops.biz/#organization","name":"Knight Ops"}}
 </script>
 
 <script>
 const SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
-let posts=[],page=0,perPage=12,activeTag='all';
+let posts=[],allPosts=[],page=0,perPage=12,activeTag='all',currentPost=null;
 
 async function fetchPosts(){
   const r=await fetch(`${SB_URL}/rest/v1/blog_posts?status=eq.published&order=published_at.desc&offset=${page*perPage}&limit=${perPage}`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
@@ -221,25 +310,23 @@ async function fetchPosts(){
 }
 
 async function init(){
-  // Check if URL has a slug
   const path=window.location.pathname;
   const match=path.match(/^\/blog\/(.+)$/);
-  if(match){
-    await loadPost(match[1]);
-    return;
-  }
+  if(match){await loadPost(match[1]);return;}
   posts=await fetchPosts();
+  allPosts=[...posts];
   renderGrid();
 }
 
 function renderGrid(){
   const g=document.getElementById('blogGrid');
-  const filtered=activeTag==='all'?posts:posts.filter(p=>p.tags&&p.tags.includes(activeTag));
+  const filtered=activeTag==='all'?posts:posts.filter(p=>p.tags&&p.tags.some(t=>t.toLowerCase().includes(activeTag)));
   if(!filtered.length){g.innerHTML='<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:60px 0">No posts yet. Check back soon!</p>';return;}
   g.innerHTML=filtered.map(p=>{
     const date=new Date(p.published_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
     const tags=(p.tags||[]).slice(0,3).map(t=>'<span class="blog-card-tag">'+t+'</span>').join('');
-    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')"><div class="blog-card-body"><div class="blog-card-tags">'+tags+'</div><h3>'+p.title+'</h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="blog-card-meta"><span>'+date+' &middot; '+(p.reading_time_min||5)+' min read</span><span class="blog-card-read">Read &rarr;</span></div></div>';
+    const imgHtml=p.featured_image_url?'<img class="blog-card-img" src="'+p.featured_image_url+'" alt="'+p.title+'" loading="lazy">':'<div class="blog-card-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted)">K</div>';
+    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><div class="blog-card-tags">'+tags+'</div><h3>'+p.title+'</h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="blog-card-meta"><span>'+date+' &middot; '+(p.reading_time_min||5)+' min read</span><span class="blog-card-read">Read &rarr;</span></div></div>';
   }).join('');
   document.getElementById('loadMore').style.display=filtered.length>=perPage?'block':'none';
 }
@@ -255,6 +342,7 @@ async function loadMorePosts(){
   page++;
   const more=await fetchPosts();
   posts=[...posts,...more];
+  allPosts=[...new Map([...allPosts,...more].map(p=>[p.id,p])).values()];
   renderGrid();
   if(more.length<perPage)document.getElementById('loadMore').style.display='none';
 }
@@ -269,37 +357,123 @@ async function loadPost(slug){
   const data=await r.json();
   if(!data.length){showIndex();return;}
   const p=data[0];
+  currentPost=p;
 
   // Track view
   fetch(`${SB_URL}/rest/v1/blog_posts?id=eq.${p.id}`,{method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({view_count:(p.view_count||0)+1})});
 
-  // Update page meta
+  // Update meta tags
+  const postUrl='https://knightops.biz/blog/'+p.slug;
   document.getElementById('pageTitle').textContent=p.title+' — Knight Ops Blog';
   document.getElementById('metaDesc').content=p.meta_description||p.excerpt||'';
-  document.getElementById('canonical').href='https://knightops.biz/blog/'+p.slug;
-  document.getElementById('ogUrl').content='https://knightops.biz/blog/'+p.slug;
+  document.getElementById('canonical').href=postUrl;
+  document.getElementById('ogUrl').content=postUrl;
   document.getElementById('ogTitle').content=p.title;
   document.getElementById('ogDesc').content=p.meta_description||'';
+  document.getElementById('ogImage').content=p.featured_image_url||'';
+  document.getElementById('twTitle').content=p.title;
+  document.getElementById('twDesc').content=p.meta_description||'';
+  document.getElementById('twImage').content=p.featured_image_url||'';
 
-  // Inject post schema
-  const schema=p.schema_json||{};
-  if(schema['@context']){
-    document.getElementById('postSchema').textContent=JSON.stringify(schema);
+  // Schema
+  if(p.schema_json&&p.schema_json['@context']){
+    document.getElementById('postSchema').textContent=JSON.stringify(p.schema_json);
   }
 
+  // Hero image
+  const heroImg=document.getElementById('postHeroImg');
+  if(p.featured_image_url){heroImg.src=p.featured_image_url;heroImg.alt=p.title;heroImg.style.display='block';}
+  else{heroImg.style.display='none';}
+
+  // Header
   const date=new Date(p.published_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('postHeader').innerHTML='<h1>'+p.title+'</h1><div class="post-meta"><span>By '+(p.author_name||'Daniel Knight')+'</span><span><time datetime="'+p.published_at+'">'+date+'</time></span><span>'+(p.reading_time_min||5)+' min read</span><span>'+(p.view_count||0)+' views</span></div>';
+  const tags=(p.tags||[]).map(t=>'<span class="post-tag">'+t+'</span>').join('');
+  document.getElementById('postHeader').innerHTML='<h1>'+p.title+'</h1><div class="post-meta"><span>By '+(p.author_name||'Daniel Knight')+'</span><span><time datetime="'+p.published_at+'">'+date+'</time></span><span>'+(p.reading_time_min||5)+' min read</span><span>'+(p.view_count||0)+' views</span></div><div class="post-tags">'+tags+'</div>';
+
+  // Content
   document.getElementById('postContent').innerHTML=p.content;
 
+  // Share URLs
+  const encodedUrl=encodeURIComponent(postUrl);
+  const encodedTitle=encodeURIComponent(p.title);
+  const xUrl='https://twitter.com/intent/tweet?url='+encodedUrl+'&text='+encodedTitle;
+  const liUrl='https://www.linkedin.com/sharing/share-offsite/?url='+encodedUrl;
+  const fbUrl='https://www.facebook.com/sharer/sharer.php?u='+encodedUrl;
+  document.getElementById('shareX').href=xUrl;
+  document.getElementById('shareLinkedIn').href=liUrl;
+  document.getElementById('shareFB').href=fbUrl;
+  document.getElementById('shareX2').href=xUrl;
+  document.getElementById('shareLinkedIn2').href=liUrl;
+  document.getElementById('shareFB2').href=fbUrl;
+
+  // Build TOC from h2/h3
+  const content=document.getElementById('postContent');
+  const headings=content.querySelectorAll('h2,h3');
+  const tocList=document.getElementById('tocList');
+  if(headings.length>2){
+    tocList.innerHTML='';
+    headings.forEach((h,i)=>{
+      const id='section-'+i;
+      h.id=id;
+      const li=document.createElement('li');
+      const a=document.createElement('a');
+      a.href='#'+id;
+      a.textContent=h.textContent;
+      if(h.tagName==='H3')a.classList.add('h3');
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    document.getElementById('tocWrap').style.display='block';
+  } else {
+    document.getElementById('tocWrap').style.display='block'; // Still show author box
+    tocList.innerHTML='';
+  }
+
+  // FAQ accordion
+  content.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('h3').addEventListener('click',()=>item.classList.toggle('open'));
+  });
+
+  // Load related posts
+  loadRelated(p);
+
+  // Show post view
   document.getElementById('blogIndex').style.display='none';
   document.getElementById('postView').classList.add('active');
+  document.getElementById('readingProgress').style.width='0';
   window.scrollTo(0,0);
+}
+
+async function loadRelated(current){
+  if(!allPosts.length){
+    const r=await fetch(`${SB_URL}/rest/v1/blog_posts?status=eq.published&order=published_at.desc&limit=10`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    allPosts=await r.json();
+  }
+  const related=allPosts.filter(p=>p.id!==current.id).slice(0,3);
+  const section=document.getElementById('relatedSection');
+  if(!related.length){section.style.display='none';return;}
+  section.style.display='block';
+  document.getElementById('relatedGrid').innerHTML=related.map(p=>{
+    const date=new Date(p.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const imgHtml=p.featured_image_url?'<img class="blog-card-img" src="'+p.featured_image_url+'" alt="'+p.title+'" loading="lazy" style="height:160px">':'';
+    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><h3 style="font-size:1rem">'+p.title+'</h3><p style="font-size:.8rem">'+(p.excerpt||'').slice(0,100)+'...</p></div><div class="blog-card-meta"><span>'+date+'</span><span class="blog-card-read">Read &rarr;</span></div></div>';
+  }).join('');
+}
+
+function copyPostUrl(){
+  const url='https://knightops.biz/blog/'+(currentPost?currentPost.slug:'');
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('shareCopy');
+    btn.classList.add('copied');
+    setTimeout(()=>btn.classList.remove('copied'),2000);
+  });
 }
 
 function showIndex(){
   history.pushState({},'','/blog');
   document.getElementById('blogIndex').style.display='block';
   document.getElementById('postView').classList.remove('active');
+  document.getElementById('readingProgress').style.width='0';
   document.getElementById('pageTitle').textContent='Blog — Knight Ops | AI Systems, Automation & Business Growth';
   document.getElementById('metaDesc').content='Expert insights on custom AI systems, business automation, dashboards, and operational efficiency for founder-led businesses.';
   document.getElementById('canonical').href='https://knightops.biz/blog';
@@ -309,6 +483,27 @@ function showIndex(){
 window.addEventListener('popstate',()=>{
   const m=location.pathname.match(/^\/blog\/(.+)$/);
   if(m)loadPost(m[1]);else showIndex();
+});
+
+// Reading progress bar
+window.addEventListener('scroll',()=>{
+  if(!document.getElementById('postView').classList.contains('active'))return;
+  const content=document.getElementById('postContent');
+  if(!content)return;
+  const rect=content.getBoundingClientRect();
+  const total=content.scrollHeight;
+  const scrolled=Math.max(0,Math.min(1,(-rect.top)/(total-window.innerHeight)));
+  document.getElementById('readingProgress').style.width=(scrolled*100)+'%';
+
+  // Highlight active TOC item
+  const headings=content.querySelectorAll('h2,h3');
+  let activeId='';
+  headings.forEach(h=>{
+    if(h.getBoundingClientRect().top<120)activeId=h.id;
+  });
+  document.querySelectorAll('.toc-list a').forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+activeId);
+  });
 });
 
 init();
