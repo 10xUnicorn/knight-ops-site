@@ -74,7 +74,7 @@
     },
     {
       "source": "/prospecting",
-      "destination": "/prospecting/index.html"
+      "destination": "/prospecting.html"
     }
   ],
   "headers": [
