@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Blog — Knight Ops | AI Systems, Automation & Business Growth</title>
+<meta id="metaDesc" name="description" content="Expert insights on custom AI systems, business automation, dashboards, and operational efficiency for coaches, consultants, agencies, and founder-led businesses.">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" id="canonical" href="https://knightops.biz/blog">
+<meta property="og:type" content="website">
+<meta property="og:url" id="ogUrl" content="https://knightops.biz/blog">
+<meta property="og:title" id="ogTitle" content="Blog — Knight Ops">
+<meta property="og:description" id="ogDesc" content="Expert insights on custom AI systems, business automation, and operational efficiency.">
+<meta property="og:site_name" content="Knight Ops">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0A0A0B;--bg2:#111113;--bg3:#18181B;--card:#1C1C1F;--card-h:#222225;--border:#2A2A2E;--txt:#F4F4F5;--txt2:#A1A1AA;--muted:#71717A;--gold:#C8A456;--gold-h:#D4B56A;--gold-s:rgba(200,164,86,0.1);--gold-b:rgba(200,164,86,0.25);--white:#fff;--success:#22C55E}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+a{color:var(--gold);text-decoration:none;transition:color .2s}
+a:hover{color:var(--gold-h)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .container{display:flex;justify-content:space-between;align-items:center;height:72px}
+.nav-logo{font-size:1.25rem;font-weight:900;letter-spacing:.1em;color:var(--white);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--txt2);font-size:.875rem;font-weight:500}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{background:var(--gold)!important;color:var(--bg)!important;padding:10px 22px!important;border-radius:8px;font-weight:600!important}
+
+/* HERO */
+.blog-hero{padding:140px 0 60px;border-bottom:1px solid rgba(255,255,255,.05)}
+.blog-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
+.blog-hero h1 span{color:var(--gold)}
+.blog-hero p{color:var(--txt2);font-size:1.05rem;max-width:600px}
+
+/* FILTERS */
+.blog-filters{display:flex;gap:10px;flex-wrap:wrap;margin:32px 0 40px}
+.blog-filter{padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.blog-filter:hover,.blog-filter.active{border-color:var(--gold);color:var(--gold);background:var(--gold-s)}
+
+/* GRID */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px;margin-bottom:60px}
+.blog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .3s;cursor:pointer}
+.blog-card:hover{border-color:var(--gold-b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(200,164,86,.08)}
+.blog-card-body{padding:24px}
+.blog-card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.blog-card-tag{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);background:var(--gold-s);padding:4px 8px;border-radius:4px}
+.blog-card h3{font-size:1.1rem;font-weight:700;line-height:1.35;margin-bottom:8px;color:var(--white)}
+.blog-card p{font-size:.875rem;color:var(--txt2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.blog-card-meta{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid rgba(255,255,255,.04);font-size:.75rem;color:var(--muted)}
+.blog-card-read{color:var(--gold);font-weight:600}
+
+/* SINGLE POST */
+.post-view{display:none;padding:140px 0 80px}
+.post-view.active{display:block}
+.post-back{color:var(--txt2);font-size:.85rem;cursor:pointer;margin-bottom:24px;display:inline-flex;align-items:center;gap:6px}
+.post-back:hover{color:var(--gold)}
+.post-header{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.06)}
+.post-header h1{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;line-height:1.2;letter-spacing:-.02em;margin-bottom:16px}
+.post-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.post-meta span{display:flex;align-items:center;gap:4px}
+.post-content{max-width:760px;font-size:1rem;line-height:1.8;color:var(--txt2)}
+.post-content h2{font-size:1.5rem;font-weight:800;color:var(--white);margin:40px 0 16px;letter-spacing:-.01em}
+.post-content h3{font-size:1.15rem;font-weight:700;color:var(--white);margin:32px 0 12px}
+.post-content p{margin-bottom:20px}
+.post-content ul,.post-content ol{margin:0 0 20px 24px}
+.post-content li{margin-bottom:8px}
+.post-content blockquote{border-left:3px solid var(--gold);padding:16px 20px;margin:24px 0;background:var(--gold-s);border-radius:0 8px 8px 0;font-style:italic}
+.post-content strong{color:var(--white)}
+.post-content a{color:var(--gold);text-decoration:underline}
+.post-content code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.85em}
+.post-content img{max-width:100%;border-radius:10px;margin:24px 0}
+
+/* CTA BOX */
+.post-cta{background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(200,164,86,.02));border:1px solid var(--gold-b);border-radius:14px;padding:32px;margin:48px 0;text-align:center}
+.post-cta h3{font-size:1.25rem;font-weight:800;margin-bottom:8px}
+.post-cta h3 span{color:var(--gold)}
+.post-cta p{color:var(--txt2);font-size:.9rem;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto}
+.post-cta .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold);color:var(--bg);font-size:.9rem;font-weight:700;border-radius:10px;text-decoration:none;transition:all .2s}
+.post-cta .btn:hover{background:var(--gold-h);transform:translateY(-1px)}
+
+/* POST FAQ */
+.post-faq{margin:48px 0}
+.post-faq h2{font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:20px}
+.post-faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer}
+.post-faq-item:hover{border-color:var(--gold-b)}
+.post-faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;font-weight:600;font-size:.9rem}
+.post-faq-q .toggle{color:var(--gold);font-size:1.2rem;transition:transform .2s}
+.post-faq-item.open .toggle{transform:rotate(45deg)}
+.post-faq-a{display:none;padding:0 20px 16px;font-size:.875rem;color:var(--txt2);line-height:1.7}
+.post-faq-item.open .post-faq-a{display:block}
+
+/* LOAD MORE */
+.load-more{text-align:center;margin:20px 0 60px}
+.load-more button{padding:12px 32px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--txt2);font-weight:600;cursor:pointer;transition:all .2s}
+.load-more button:hover{border-color:var(--gold);color:var(--gold)}
+
+/* FOOTER */
+footer{padding:40px 0;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+.footer-brand{font-size:1rem;font-weight:900;letter-spacing:.1em;color:var(--white);margin-bottom:8px}
+.footer-brand span{color:var(--gold)}
+.footer-copy{font-size:.75rem;color:var(--muted)}
+footer nav{margin:12px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+footer nav a{color:var(--muted);font-size:.8rem}
+
+/* MOBILE */
+@media(max-width:768px){
+  .blog-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .nav-links.open{display:flex;flex-direction:column;position:absolute;top:72px;left:0;right:0;background:rgba(10,10,11,.95);padding:20px;gap:16px}
+  .mobile-menu-btn{display:block!important}
+}
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--white);font-size:1.5rem;cursor:pointer}
+
+/* SCHEMA HIDDEN */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="/" class="nav-logo">KNIGHT <span>OPS</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="/#services">Services</a>
+      <a href="/#results">Results</a>
+      <a href="/#process">Process</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/apply">Apply</a>
+      <a href="/#book" class="nav-cta">Book a Call</a>
+    </div>
+    <button class="mobile-menu-btn" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+  </div>
+</nav>
+
+<!-- BLOG INDEX VIEW -->
+<div id="blogIndex">
+  <section class="blog-hero">
+    <div class="container">
+      <h1>The <span>Knight Ops</span> Blog</h1>
+      <p>Actionable insights on AI systems, business automation, and building the machine behind your revenue.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="blog-filters" id="blogFilters">
+      <div class="blog-filter active" data-tag="all" onclick="filterPosts('all',this)">All</div>
+      <div class="blog-filter" data-tag="automation" onclick="filterPosts('automation',this)">Automation</div>
+      <div class="blog-filter" data-tag="dashboards" onclick="filterPosts('dashboards',this)">Dashboards</div>
+      <div class="blog-filter" data-tag="ai-tools" onclick="filterPosts('ai-tools',this)">AI Tools</div>
+      <div class="blog-filter" data-tag="scaling" onclick="filterPosts('scaling',this)">Scaling</div>
+      <div class="blog-filter" data-tag="case-study" onclick="filterPosts('case-study',this)">Case Studies</div>
+      <div class="blog-filter" data-tag="strategy" onclick="filterPosts('strategy',this)">Strategy</div>
+    </div>
+    <div class="blog-grid" id="blogGrid"></div>
+    <div class="load-more" id="loadMore" style="display:none"><button onclick="loadMorePosts()">Load More Posts</button></div>
+  </div>
+</div>
+
+<!-- SINGLE POST VIEW -->
+<article class="post-view" id="postView">
+  <div class="container">
+    <div class="post-back" onclick="showIndex()">&larr; Back to Blog</div>
+    <div class="post-header" id="postHeader"></div>
+    <div class="post-content" id="postContent"></div>
+  </div>
+</article>
+
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-brand">KNIGHT <span>OPS</span></div>
+    <nav aria-label="Footer navigation">
+      <a href="/">Home</a>
+      <a href="/#services">Services</a>
+      <a href="/#results">Results</a>
+      <a href="/blog">Blog</a>
+      <a href="/about">About</a>
+      <a href="/case-studies">Case Studies</a>
+      <a href="/partners">Partners</a>
+      <a href="/apply">Apply</a>
+      <a href="/assessment">Assessment</a>
+    </nav>
+    <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- POST SCHEMA (injected dynamically) -->
+<script id="postSchema" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "https://knightops.biz/blog#blog",
+  "name": "Knight Ops Blog",
+  "description": "Expert insights on custom AI systems, business automation, and operational efficiency for founder-led businesses.",
+  "url": "https://knightops.biz/blog",
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://knightops.biz/#organization",
+    "name": "Knight Ops"
+  }
+}
+</script>
+
+<script>
+const SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+let posts=[],page=0,perPage=12,activeTag='all';
+
+async function fetchPosts(){
+  const r=await fetch(`${SB_URL}/rest/v1/blog_posts?status=eq.published&order=published_at.desc&offset=${page*perPage}&limit=${perPage}`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+  return r.json();
+}
+
+async function init(){
+  // Check if URL has a slug
+  const path=window.location.pathname;
+  const match=path.match(/^\/blog\/(.+)$/);
+  if(match){
+    await loadPost(match[1]);
+    return;
+  }
+  posts=await fetchPosts();
+  renderGrid();
+}
+
+function renderGrid(){
+  const g=document.getElementById('blogGrid');
+  const filtered=activeTag==='all'?posts:posts.filter(p=>p.tags&&p.tags.includes(activeTag));
+  if(!filtered.length){g.innerHTML='<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:60px 0">No posts yet. Check back soon!</p>';return;}
+  g.innerHTML=filtered.map(p=>{
+    const date=new Date(p.published_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+    const tags=(p.tags||[]).slice(0,3).map(t=>'<span class="blog-card-tag">'+t+'</span>').join('');
+    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')"><div class="blog-card-body"><div class="blog-card-tags">'+tags+'</div><h3>'+p.title+'</h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="blog-card-meta"><span>'+date+' &middot; '+(p.reading_time_min||5)+' min read</span><span class="blog-card-read">Read &rarr;</span></div></div>';
+  }).join('');
+  document.getElementById('loadMore').style.display=filtered.length>=perPage?'block':'none';
+}
+
+function filterPosts(tag,el){
+  activeTag=tag;
+  document.querySelectorAll('.blog-filter').forEach(f=>f.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+
+async function loadMorePosts(){
+  page++;
+  const more=await fetchPosts();
+  posts=[...posts,...more];
+  renderGrid();
+  if(more.length<perPage)document.getElementById('loadMore').style.display='none';
+}
+
+function navigateToPost(slug){
+  history.pushState({},'','/blog/'+slug);
+  loadPost(slug);
+}
+
+async function loadPost(slug){
+  const r=await fetch(`${SB_URL}/rest/v1/blog_posts?slug=eq.${slug}&status=eq.published&limit=1`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+  const data=await r.json();
+  if(!data.length){showIndex();return;}
+  const p=data[0];
+
+  // Track view
+  fetch(`${SB_URL}/rest/v1/blog_posts?id=eq.${p.id}`,{method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({view_count:(p.view_count||0)+1})});
+
+  // Update page meta
+  document.getElementById('pageTitle').textContent=p.title+' — Knight Ops Blog';
+  document.getElementById('metaDesc').content=p.meta_description||p.excerpt||'';
+  document.getElementById('canonical').href='https://knightops.biz/blog/'+p.slug;
+  document.getElementById('ogUrl').content='https://knightops.biz/blog/'+p.slug;
+  document.getElementById('ogTitle').content=p.title;
+  document.getElementById('ogDesc').content=p.meta_description||'';
+
+  // Inject post schema
+  const schema=p.schema_json||{};
+  if(schema['@context']){
+    document.getElementById('postSchema').textContent=JSON.stringify(schema);
+  }
+
+  const date=new Date(p.published_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('postHeader').innerHTML='<h1>'+p.title+'</h1><div class="post-meta"><span>By '+(p.author_name||'Daniel Knight')+'</span><span><time datetime="'+p.published_at+'">'+date+'</time></span><span>'+(p.reading_time_min||5)+' min read</span><span>'+(p.view_count||0)+' views</span></div>';
+  document.getElementById('postContent').innerHTML=p.content;
+
+  document.getElementById('blogIndex').style.display='none';
+  document.getElementById('postView').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showIndex(){
+  history.pushState({},'','/blog');
+  document.getElementById('blogIndex').style.display='block';
+  document.getElementById('postView').classList.remove('active');
+  document.getElementById('pageTitle').textContent='Blog — Knight Ops | AI Systems, Automation & Business Growth';
+  document.getElementById('metaDesc').content='Expert insights on custom AI systems, business automation, dashboards, and operational efficiency for founder-led businesses.';
+  document.getElementById('canonical').href='https://knightops.biz/blog';
+  if(!posts.length)init();
+}
+
+window.addEventListener('popstate',()=>{
+  const m=location.pathname.match(/^\/blog\/(.+)$/);
+  if(m)loadPost(m[1]);else showIndex();
+});
+
+init();
+</script>
+</body>
+</html>
