@@ -14,6 +14,14 @@
       "destination": "/blog.html"
     },
     {
+      "source": "/proposal/:slug/pdf",
+      "destination": "/proposal-viewer.html"
+    },
+    {
+      "source": "/proposal/:slug",
+      "destination": "/proposal-viewer.html"
+    },
+    {
       "source": "/:path",
       "destination": "/:path.html"
     }
