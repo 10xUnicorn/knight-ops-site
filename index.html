@@ -55,8 +55,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; back
 body > *:not(#bgCanvas):not(#sparkCanvas) { position: relative; z-index: 1; }
 
 /* ─── NAV ─── */
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,11,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-nav .container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
+body > nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,11,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+body > nav .container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
+footer nav { position: static; z-index: auto; background: none; backdrop-filter: none; border: none; }
 .nav-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); text-decoration: none; transition: all 0.3s; }
 .nav-logo span { color: var(--accent); }
 .nav-logo:hover { text-shadow: 0 0 20px rgba(200,164,86,0.3); }
