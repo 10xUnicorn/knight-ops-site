@@ -151,6 +151,24 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
   .topbar{padding:0 1rem}
   .detail-grid{grid-template-columns:1fr 1fr}
 }
+
+/* Blog editor styles */
+#blogQuillEditor .ql-editor{color:var(--text);font-size:0.95rem;min-height:400px;line-height:1.7}
+#blogQuillEditor .ql-editor h1,#blogQuillEditor .ql-editor h2,#blogQuillEditor .ql-editor h3{color:var(--accent)}
+.ql-toolbar.ql-snow{background:var(--surface-2);border:1px solid var(--border);border-radius:10px 10px 0 0}
+.ql-toolbar .ql-stroke{stroke:var(--text-muted)}
+.ql-toolbar .ql-fill{fill:var(--text-muted)}
+.ql-toolbar .ql-picker-label{color:var(--text-muted)}
+.ql-toolbar button:hover .ql-stroke{stroke:var(--accent)}
+.ql-toolbar button:hover .ql-fill{fill:var(--accent)}
+.ql-toolbar button.ql-active .ql-stroke{stroke:var(--accent)}
+.ql-toolbar button.ql-active .ql-fill{fill:var(--accent)}
+.ql-snow .ql-picker-options{background:var(--surface-2);border-color:var(--border)}
+.blog-status-badge{display:inline-block;padding:2px 8px;border-radius:50px;font-size:0.72rem;font-weight:600}
+.blog-status-badge.published{background:rgba(76,175,80,0.15);color:#4CAF50}
+.blog-status-badge.draft{background:rgba(255,152,0,0.15);color:#FF9800}
+.blog-status-badge.scheduled{background:rgba(33,150,243,0.15);color:#2196F3}
+.blog-status-badge.archived{background:rgba(158,158,158,0.15);color:#9E9E9E}
 </style>
 </head>
 <body>
@@ -173,6 +191,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
+            <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
     </nav>
     <div class="sidebar-footer">
@@ -437,6 +456,120 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         </div>
         <div id="partnerDetailView" style="display:none"></div>
       </div>
+      <div class="view" id="v-blog">
+        <div id="blogListView">
+          <div class="kpi-grid" id="blogKpis">
+            <div class="kpi"><div class="label">Published Posts</div><div class="value" id="blogKpiPublished">0</div></div>
+            <div class="kpi"><div class="label">Total Views</div><div class="value" id="blogKpiViews">0</div></div>
+            <div class="kpi"><div class="label">Drafts</div><div class="value" id="blogKpiDrafts">0</div></div>
+            <div class="kpi"><div class="label">Queued Topics</div><div class="value" id="blogKpiQueued">0</div></div>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Blog Posts</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search posts..." id="blogSearch" oninput="renderBlogPosts()">
+                <select id="blogStatusFilter" onchange="renderBlogPosts()"><option value="">All</option><option value="draft">Draft</option><option value="published">Published</option><option value="scheduled">Scheduled</option><option value="archived">Archived</option></select>
+                <select id="blogCategoryFilter" onchange="renderBlogPosts()"><option value="">All Categories</option><option value="problem">Problem</option><option value="solution">Solution</option><option value="comparison">Comparison</option><option value="case_study">Case Study</option><option value="how_to">How To</option><option value="trend">Trend</option><option value="pricing">Pricing</option><option value="authority">Authority</option></select>
+                <button class="btn btn-primary btn-sm" onclick="editBlogPost()">+ New Post</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table><thead><tr><th>Title</th><th>Status</th><th>Tags</th><th>Views</th><th>Published</th><th>Actions</th></tr></thead><tbody id="blogPostsBody"></tbody></table>
+            </div>
+            <div class="table-empty" id="blogPostsEmpty" style="display:none">No blog posts yet. Click + New Post to create one.</div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Topic Queue</h2>
+              <div class="table-filters">
+                <select id="topicStatusFilter" onchange="renderBlogTopics()"><option value="">All</option><option value="queued">Queued</option><option value="in_progress">In Progress</option><option value="published">Published</option><option value="skipped">Skipped</option></select>
+                <select id="topicCategoryFilter" onchange="renderBlogTopics()"><option value="">All Categories</option><option value="problem">Problem</option><option value="solution">Solution</option><option value="comparison">Comparison</option><option value="case_study">Case Study</option><option value="how_to">How To</option><option value="trend">Trend</option><option value="pricing">Pricing</option><option value="authority">Authority</option></select>
+                <button class="btn btn-secondary btn-sm" onclick="editBlogTopic()">+ Add Topic</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table><thead><tr><th>Title</th><th>Target Query</th><th>Category</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody id="blogTopicsBody"></tbody></table>
+            </div>
+            <div class="table-empty" id="blogTopicsEmpty" style="display:none">No topics in queue.</div>
+          </div>
+        </div>
+        <div id="blogEditorView" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+            <button class="btn btn-secondary btn-sm" onclick="closeBlogEditor()">&#8592; Back to Posts</button>
+            <h2 id="blogEditorTitle" style="font-size:1.1rem">New Post</h2>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" onclick="previewBlogPost()">Preview</button>
+              <button class="btn btn-secondary btn-sm" onclick="saveBlogPost('draft')">Save Draft</button>
+              <button class="btn btn-primary btn-sm" onclick="saveBlogPost('published')">Publish</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem">
+            <div>
+              <input type="hidden" id="blogPostId">
+              <div style="margin-bottom:1rem">
+                <input type="text" id="blogPostTitle" placeholder="Post title..." style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:10px;font-size:1.3rem;font-weight:700;font-family:inherit" oninput="autoSlug()">
+              </div>
+              <div style="margin-bottom:1rem">
+                <div id="blogQuillEditor" style="background:var(--surface);border:1px solid var(--border);border-radius:0 0 10px 10px;min-height:450px"></div>
+              </div>
+            </div>
+            <div>
+              <div class="table-card" style="padding:1rem;margin-bottom:1rem">
+                <h3 style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:var(--accent)">SEO & Meta</h3>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Slug</label>
+                  <input type="text" id="blogPostSlug" placeholder="post-url-slug" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                </div>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Meta Description</label>
+                  <textarea id="blogPostMeta" rows="3" placeholder="SEO description (150-160 chars)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem;font-family:inherit;resize:vertical"></textarea>
+                  <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px"><span id="metaCharCount">0</span>/160</div>
+                </div>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Excerpt</label>
+                  <textarea id="blogPostExcerpt" rows="2" placeholder="Brief excerpt for cards" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem;font-family:inherit;resize:vertical"></textarea>
+                </div>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Tags (comma-separated)</label>
+                  <input type="text" id="blogPostTags" placeholder="ai, automation, systems" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                </div>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Featured Image URL</label>
+                  <input type="text" id="blogPostImage" placeholder="https://..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                </div>
+              </div>
+              <div class="table-card" style="padding:1rem;margin-bottom:1rem">
+                <h3 style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:var(--accent)">CTA & Conversion</h3>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">CTA Type</label>
+                  <select id="blogPostCta" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                    <option value="book_call">Book a Discovery Call</option>
+                    <option value="apply">Submit Application</option>
+                    <option value="assessment">Take Assessment</option>
+                    <option value="vault">Browse App Vault</option>
+                    <option value="none">No CTA</option>
+                  </select>
+                </div>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Link to Topic</label>
+                  <select id="blogPostTopicId" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                    <option value="">— None —</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-card" style="padding:1rem">
+                <h3 style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:var(--accent)">Schedule</h3>
+                <div style="margin-bottom:10px">
+                  <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Schedule For</label>
+                  <input type="datetime-local" id="blogPostSchedule" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem">
+                </div>
+                <button class="btn btn-secondary btn-sm" style="width:100%" onclick="saveBlogPost('scheduled')">Schedule Post</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -489,7 +622,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -499,7 +632,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics()]);
   loadDashboard();
 })();
 
@@ -527,6 +660,9 @@ document.querySelectorAll('.nav-item').forEach(item=>{
       const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
       const dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
     });
+    // Also reset blog view
+    const blv=document.getElementById('blogListView');if(blv)blv.style.display='';
+    const bev=document.getElementById('blogEditorView');if(bev)bev.style.display='none';
     // Also reset applications view
     const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
     const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
@@ -4874,6 +5010,257 @@ async function autoCalculateCommission(dealId){
   await sb.from('commissions').insert({partner_id:partner.id,affiliate_lead_id:affLead?.id||null,deal_id:dealId,deal_amount:dealAmount,commission_rate:rate,commission_amount:amount,status:'pending'});
   await sb.from('partner_notifications').insert({partner_id:partner.id,type:'commission_pending',title:'New Commission Pending',message:'A commission of $'+amount.toFixed(2)+' is pending approval for a $'+dealAmount.toLocaleString()+' deal.',metadata:{deal_id:dealId}});
   await loadCommissions();
+}
+
+
+// ===== BLOG MANAGEMENT =====
+let blogQuill=null;
+async function loadBlogPosts(){
+  const{data}=await sb.from('blog_posts').select('*').order('created_at',{ascending:false});
+  S.blogPosts=data||[];
+  renderBlogPosts();
+  updateBlogKpis();
+}
+async function loadBlogTopics(){
+  const{data}=await sb.from('blog_topics').select('*').order('priority',{ascending:false});
+  S.blogTopics=data||[];
+  renderBlogTopics();
+  updateBlogKpis();
+}
+function updateBlogKpis(){
+  const pub=S.blogPosts.filter(p=>p.status==='published');
+  document.getElementById('blogKpiPublished').textContent=pub.length;
+  document.getElementById('blogKpiViews').textContent=S.blogPosts.reduce((s,p)=>s+(p.view_count||0),0).toLocaleString();
+  document.getElementById('blogKpiDrafts').textContent=S.blogPosts.filter(p=>p.status==='draft').length;
+  document.getElementById('blogKpiQueued').textContent=S.blogTopics.filter(t=>t.status==='queued').length;
+}
+function renderBlogPosts(){
+  const q=(document.getElementById('blogSearch').value||'').toLowerCase();
+  const sf=document.getElementById('blogStatusFilter').value;
+  const cf=document.getElementById('blogCategoryFilter').value;
+  let posts=S.blogPosts.filter(p=>{
+    if(q&&!p.title.toLowerCase().includes(q)&&!(p.tags||[]).join(' ').toLowerCase().includes(q))return false;
+    if(sf&&p.status!==sf)return false;
+    if(cf){const topic=S.blogTopics.find(t=>t.id===p.topic_id);if(!topic||topic.category!==cf)return false;}
+    return true;
+  });
+  const tb=document.getElementById('blogPostsBody');
+  const emp=document.getElementById('blogPostsEmpty');
+  if(!posts.length){tb.innerHTML='';emp.style.display='';return;}
+  emp.style.display='none';
+  tb.innerHTML=posts.map(p=>{
+    const tags=(p.tags||[]).map(t=>'<span style="background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:0.7rem;color:var(--text-muted)">'+t+'</span>').join(' ');
+    const pubDate=p.published_at?new Date(p.published_at).toLocaleDateString():'—';
+    return '<tr class="clickable" ondblclick="editBlogPost(\''+p.id+'\')"><td style="max-width:280px"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.title+'</div><div style="font-size:0.75rem;color:var(--text-muted)">/blog/'+p.slug+'</div></td><td><span class="blog-status-badge '+p.status+'">'+p.status+'</span></td><td style="max-width:200px">'+tags+'</td><td>'+(p.view_count||0)+'</td><td>'+pubDate+'</td><td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editBlogPost(\''+p.id+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteBlogPost(\''+p.id+'\')">Del</button></td></tr>';
+  }).join('');
+}
+function renderBlogTopics(){
+  const sf=document.getElementById('topicStatusFilter').value;
+  const cf=document.getElementById('topicCategoryFilter').value;
+  let topics=S.blogTopics.filter(t=>{
+    if(sf&&t.status!==sf)return false;
+    if(cf&&t.category!==cf)return false;
+    return true;
+  });
+  const tb=document.getElementById('blogTopicsBody');
+  const emp=document.getElementById('blogTopicsEmpty');
+  if(!topics.length){tb.innerHTML='';emp.style.display='';return;}
+  emp.style.display='none';
+  tb.innerHTML=topics.map(t=>{
+    const catColor={problem:'#E53935',solution:'#4CAF50',comparison:'#FF9800',case_study:'#2196F3',how_to:'#9C27B0',trend:'#00BCD4',pricing:'#FF5722',authority:'#C8A456'}[t.category]||'#999';
+    return '<tr><td style="max-width:250px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t.title+'</td><td style="font-size:0.8rem;color:var(--text-muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(t.target_query||'—')+'</td><td><span style="color:'+catColor+';font-size:0.8rem;font-weight:600">'+(t.category||'—')+'</span></td><td>'+(t.priority||0)+'</td><td><span class="blog-status-badge '+(t.status||'queued')+'">'+(t.status||'queued')+'</span></td><td><button class="btn btn-secondary btn-sm" onclick="editBlogTopic(\''+t.id+'\')">Edit</button> <button class="btn btn-sm" style="background:var(--accent);color:var(--bg)" onclick="createPostFromTopic(\''+t.id+'\')">Write</button></td></tr>';
+  }).join('');
+}
+function initBlogQuill(){
+  if(blogQuill)return;
+  blogQuill=new Quill('#blogQuillEditor',{
+    theme:'snow',
+    placeholder:'Write your post content...',
+    modules:{
+      toolbar:[
+        [{'header':[1,2,3,false]}],
+        ['bold','italic','underline','strike'],
+        [{'list':'ordered'},{'list':'bullet'}],
+        ['blockquote','code-block'],
+        ['link','image'],
+        ['clean']
+      ]
+    }
+  });
+}
+function editBlogPost(id){
+  document.getElementById('blogListView').style.display='none';
+  document.getElementById('blogEditorView').style.display='';
+  initBlogQuill();
+  // Populate topic dropdown
+  const topicSel=document.getElementById('blogPostTopicId');
+  topicSel.innerHTML='<option value="">— None —</option>'+S.blogTopics.map(t=>'<option value="'+t.id+'">'+t.title+'</option>').join('');
+  if(id){
+    const p=S.blogPosts.find(x=>x.id===id);
+    if(!p)return;
+    document.getElementById('blogEditorTitle').textContent='Edit Post';
+    document.getElementById('blogPostId').value=p.id;
+    document.getElementById('blogPostTitle').value=p.title||'';
+    document.getElementById('blogPostSlug').value=p.slug||'';
+    document.getElementById('blogPostMeta').value=p.meta_description||'';
+    document.getElementById('blogPostExcerpt').value=p.excerpt||'';
+    document.getElementById('blogPostTags').value=(p.tags||[]).join(', ');
+    document.getElementById('blogPostImage').value=p.featured_image_url||'';
+    document.getElementById('blogPostCta').value=p.cta_type||'book_call';
+    document.getElementById('blogPostTopicId').value=p.topic_id||'';
+    document.getElementById('blogPostSchedule').value=p.scheduled_for?p.scheduled_for.slice(0,16):'';
+    blogQuill.root.innerHTML=p.content||'';
+    updateMetaCount();
+  } else {
+    document.getElementById('blogEditorTitle').textContent='New Post';
+    document.getElementById('blogPostId').value='';
+    document.getElementById('blogPostTitle').value='';
+    document.getElementById('blogPostSlug').value='';
+    document.getElementById('blogPostMeta').value='';
+    document.getElementById('blogPostExcerpt').value='';
+    document.getElementById('blogPostTags').value='';
+    document.getElementById('blogPostImage').value='';
+    document.getElementById('blogPostCta').value='book_call';
+    document.getElementById('blogPostTopicId').value='';
+    document.getElementById('blogPostSchedule').value='';
+    blogQuill.root.innerHTML='';
+  }
+}
+function closeBlogEditor(){
+  document.getElementById('blogEditorView').style.display='none';
+  document.getElementById('blogListView').style.display='';
+}
+function autoSlug(){
+  const title=document.getElementById('blogPostTitle').value;
+  const id=document.getElementById('blogPostId').value;
+  if(!id){
+    document.getElementById('blogPostSlug').value=title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80);
+  }
+}
+function updateMetaCount(){
+  document.getElementById('metaCharCount').textContent=(document.getElementById('blogPostMeta').value||'').length;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const m=document.getElementById('blogPostMeta');
+  if(m)m.addEventListener('input',updateMetaCount);
+});
+async function saveBlogPost(status){
+  const id=document.getElementById('blogPostId').value;
+  const title=document.getElementById('blogPostTitle').value.trim();
+  const slug=document.getElementById('blogPostSlug').value.trim();
+  if(!title||!slug){toast('Title and slug required','error');return;}
+  const htmlContent=blogQuill.root.innerHTML;
+  const textContent=blogQuill.getText();
+  const wordCount=textContent.trim().split(/\s+/).filter(Boolean).length;
+  const readingTime=Math.max(1,Math.round(wordCount/250));
+  const tags=document.getElementById('blogPostTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const obj={
+    title,slug,
+    content:htmlContent,
+    excerpt:document.getElementById('blogPostExcerpt').value.trim()||textContent.slice(0,160).trim(),
+    meta_description:document.getElementById('blogPostMeta').value.trim(),
+    tags,
+    cta_type:document.getElementById('blogPostCta').value,
+    featured_image_url:document.getElementById('blogPostImage').value.trim()||null,
+    topic_id:document.getElementById('blogPostTopicId').value||null,
+    author_name:'Daniel Knight',
+    word_count:wordCount,
+    reading_time_min:readingTime,
+    status
+  };
+  if(status==='published'&&!id){obj.published_at=new Date().toISOString();}
+  if(status==='scheduled'){
+    const sched=document.getElementById('blogPostSchedule').value;
+    if(!sched){toast('Set a schedule date first','error');return;}
+    obj.scheduled_for=new Date(sched).toISOString();
+  }
+  // Build schema JSON
+  obj.schema_json={
+    "@context":"https://schema.org","@type":"BlogPosting",
+    "headline":title,"description":obj.meta_description||obj.excerpt,
+    "author":{"@type":"Person","name":"Daniel Knight"},
+    "publisher":{"@type":"Organization","name":"Knight Ops","url":"https://knightops.biz"},
+    "datePublished":obj.published_at||new Date().toISOString(),
+    "dateModified":new Date().toISOString(),
+    "mainEntityOfPage":"https://knightops.biz/blog/"+slug,
+    "keywords":tags.join(', ')
+  };
+  let err;
+  if(id){
+    const{error}=await sb.from('blog_posts').update(obj).eq('id',id);
+    err=error;
+    // If publishing an existing draft, set published_at
+    if(status==='published'){
+      const existing=S.blogPosts.find(p=>p.id===id);
+      if(existing&&!existing.published_at){
+        await sb.from('blog_posts').update({published_at:new Date().toISOString()}).eq('id',id);
+      }
+    }
+  } else {
+    const{error}=await sb.from('blog_posts').insert(obj);
+    err=error;
+  }
+  if(err){toast('Error: '+err.message,'error');return;}
+  // Update topic status if linked
+  if(obj.topic_id&&status==='published'){
+    await sb.from('blog_topics').update({status:'published',post_id:id||null,published_at:new Date().toISOString()}).eq('id',obj.topic_id);
+    await loadBlogTopics();
+  }
+  toast(status==='published'?'Post published!':status==='scheduled'?'Post scheduled!':'Draft saved!','success');
+  closeBlogEditor();
+  await loadBlogPosts();
+}
+async function deleteBlogPost(id){
+  if(!confirm('Delete this post permanently?'))return;
+  await sb.from('blog_posts').delete().eq('id',id);
+  toast('Post deleted','success');
+  await loadBlogPosts();
+}
+function previewBlogPost(){
+  const slug=document.getElementById('blogPostSlug').value;
+  if(slug)window.open('https://knightops.biz/blog/'+slug,'_blank');
+  else toast('Save the post first to preview','error');
+}
+function editBlogTopic(id){
+  let t=id?S.blogTopics.find(x=>x.id===id):null;
+  const body='<div style="display:grid;gap:12px">'+
+    '<div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Title</label><input type="text" id="topicTitle" value="'+(t?t.title.replace(/"/g,'&quot;'):'')+'" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem"></div>'+
+    '<div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Target Query</label><input type="text" id="topicQuery" value="'+(t?((t.target_query||'').replace(/"/g,'&quot;')):'')+'" placeholder="What people search for..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Category</label><select id="topicCategory" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.85rem"><option value="problem">Problem</option><option value="solution">Solution</option><option value="comparison">Comparison</option><option value="case_study">Case Study</option><option value="how_to">How To</option><option value="trend">Trend</option><option value="pricing">Pricing</option><option value="authority">Authority</option></select></div><div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Priority (1-100)</label><input type="number" id="topicPriority" value="'+(t?t.priority:50)+'" min="1" max="100" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.85rem"></div></div>'+
+    '<div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Source</label><input type="text" id="topicSource" value="'+(t?((t.source||'').replace(/"/g,'&quot;')):'')+'" placeholder="manual, trend, ai-suggested" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem"></div>'+
+    '<div><label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Notes</label><textarea id="topicNotes" rows="2" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.85rem;font-family:inherit;resize:vertical">'+(t?t.notes||'':'')+'</textarea></div>'+
+    '</div>';
+  const foot='<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveBlogTopic(\''+( id||'' )+'\')">Save</button></div>';
+  openEditModal(id?'Edit Topic':'Add Topic',body,foot);
+  if(t)setTimeout(()=>{document.getElementById('topicCategory').value=t.category||'problem';},50);
+}
+async function saveBlogTopic(id){
+  const obj={
+    title:document.getElementById('topicTitle').value.trim(),
+    target_query:document.getElementById('topicQuery').value.trim(),
+    category:document.getElementById('topicCategory').value,
+    priority:parseInt(document.getElementById('topicPriority').value)||50,
+    source:document.getElementById('topicSource').value.trim()||'manual',
+    notes:document.getElementById('topicNotes').value.trim()
+  };
+  if(!obj.title){toast('Title required','error');return;}
+  if(id){await sb.from('blog_topics').update(obj).eq('id',id);}
+  else{await sb.from('blog_topics').insert(obj);}
+  closeEditModal();
+  toast('Topic saved','success');
+  await loadBlogTopics();
+}
+function createPostFromTopic(topicId){
+  const t=S.blogTopics.find(x=>x.id===topicId);
+  if(!t)return;
+  editBlogPost();
+  setTimeout(()=>{
+    document.getElementById('blogPostTitle').value=t.title;
+    autoSlug();
+    document.getElementById('blogPostTopicId').value=t.id;
+    if(t.target_query)document.getElementById('blogPostMeta').value='Learn '+t.target_query.toLowerCase()+'. Expert insights from Knight Ops on building systems that scale.';
+    updateMetaCount();
+  },100);
 }
 
 // LOGOUT
