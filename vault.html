@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Vault — Ready-to-Deploy Business Apps | Knight Ops</title>
+<meta name="description" content="Browse and buy ready-to-deploy AI-powered business apps from Knight Ops. Dashboards, CRMs, client portals, and automation tools built for founder-led businesses.">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://knightops.biz/vault">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/vault">
+<meta property="og:title" content="App Vault — Ready-to-Deploy Business Apps | Knight Ops">
+<meta property="og:description" content="Buy ready-to-deploy AI-powered business apps. Dashboards, CRMs, portals, and automation tools.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"CollectionPage","name":"Knight Ops App Vault","description":"Browse and purchase ready-to-deploy AI-powered business applications built by Knight Ops.","url":"https://knightops.biz/vault","isPartOf":{"@type":"WebSite","name":"Knight Ops","url":"https://knightops.biz"},"provider":{"@type":"Organization","name":"Knight Ops","url":"https://knightops.biz"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg-primary:#0A0A0B;--bg-secondary:#111113;--bg-tertiary:#18181B;--bg-card:#1C1C1F;--bg-card-hover:#222225;--border:#2A2A2E;--border-light:#3A3A3F;--text-primary:#F4F4F5;--text-secondary:#A1A1AA;--text-muted:#71717A;--accent:#C8A456;--accent-hover:#D4B56A;--accent-subtle:rgba(200,164,86,0.1);--accent-border:rgba(200,164,86,0.25);--white:#FFFFFF;--success:#22C55E;--danger:#ef4444}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hover)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,11,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 0}
+.nav .container{display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-weight:800;font-size:1.1rem;letter-spacing:2px;color:var(--text-primary)}
+.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--text-secondary);font-size:0.85rem;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all 0.2s}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg-primary)}
+.btn-primary:hover{box-shadow:0 0 30px rgba(200,164,86,0.3)}
+.btn-secondary{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border)}
+footer{border-top:1px solid var(--border);padding:48px 0 24px;text-align:center}
+.footer-brand{font-weight:800;letter-spacing:3px;font-size:1rem;margin-bottom:6px;color:var(--text-primary)}
+.footer-brand span{color:var(--accent)}
+.footer-copy{color:var(--text-muted);font-size:0.75rem;margin-top:8px}
+.section{padding:100px 0}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.section-title{font-size:2.2rem;font-weight:800;line-height:1.2;margin-bottom:16px}
+.section-sub{color:var(--text-secondary);font-size:1rem;max-width:600px;margin-bottom:40px}
+@media(max-width:768px){.nav-links{display:none}.section-title{font-size:1.6rem}.container{padding:0 16px}}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+.vault-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
+.vault-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.3s;display:flex;flex-direction:column}
+.vault-card:hover{border-color:var(--accent-border);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.vault-thumb{height:180px;background:linear-gradient(135deg,var(--bg-tertiary),var(--bg-card));display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);font-size:3rem}
+.vault-body{padding:24px;flex:1;display:flex;flex-direction:column}
+.vault-body h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.vault-body p{color:var(--text-secondary);font-size:0.85rem;line-height:1.6;flex:1}
+.vault-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-top:1px solid var(--border)}
+.vault-price{font-size:1.2rem;font-weight:800;color:var(--accent)}
+.vault-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.vault-tag{padding:3px 10px;background:var(--accent-subtle);border:1px solid var(--accent-border);border-radius:50px;font-size:0.68rem;color:var(--accent);font-weight:600}
+.vault-filters{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap}
+.vault-filter{padding:8px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.vault-filter:hover,.vault-filter.active{background:var(--accent);color:var(--bg-primary);border-color:var(--accent)}
+.vault-empty{text-align:center;padding:80px 20px;color:var(--text-muted)}
+.vault-empty h3{font-size:1.2rem;margin-bottom:12px;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+<nav class="nav" role="navigation">
+  <div class="container">
+    <a href="/" class="nav-brand">KNIGHT <span>OPS</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/#results">Results</a>
+      <a href="/#process">Process</a>
+      <a href="/blog">Blog</a>
+      <a href="/#book" class="btn btn-primary">Book a Call</a>
+    </div>
+  </div>
+</nav>
+<main>
+<section class="section" style="padding-top:140px">
+  <div class="container">
+    <div class="section-label">App Vault</div>
+    <h1 class="section-title">Ready-to-Deploy Business Apps</h1>
+    <p class="section-sub">Battle-tested applications built by Knight Ops. Buy, deploy, and start generating value immediately. Every app comes with full code ownership and setup documentation.</p>
+    
+    <div class="vault-filters" id="vaultFilters">
+      <button class="vault-filter active" onclick="filterVault('')">All</button>
+      <button class="vault-filter" onclick="filterVault('dashboard')">Dashboards</button>
+      <button class="vault-filter" onclick="filterVault('portal')">Portals</button>
+      <button class="vault-filter" onclick="filterVault('crm')">CRM</button>
+      <button class="vault-filter" onclick="filterVault('automation')">Automation</button>
+      <button class="vault-filter" onclick="filterVault('ai')">AI Tools</button>
+    </div>
+    
+    <div class="vault-grid" id="vaultGrid"></div>
+    <div class="vault-empty" id="vaultEmpty" style="display:none">
+      <h3>Coming Soon</h3>
+      <p style="max-width:400px;margin:0 auto 24px">New apps are being added regularly. Book a Discovery Call to discuss a custom build for your specific needs.</p>
+      <a href="/#book" class="btn btn-primary">Book a Discovery Call</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-secondary);padding:60px 0">
+  <div class="container" style="text-align:center">
+    <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:12px">Need Something Custom?</h2>
+    <p style="color:var(--text-secondary);max-width:500px;margin:0 auto 24px">Every app in the Vault started as a custom build. If you don't see exactly what you need, let's build it.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/#book" class="btn btn-primary">Book a Discovery Call</a>
+      <a href="/apply" class="btn btn-secondary">Submit Application</a>
+    </div>
+  </div>
+</section>
+</main>
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-brand">KNIGHT <span>OPS</span></div>
+    <nav aria-label="Footer navigation" style="margin:12px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+      <a href="/" style="color:var(--text-muted);font-size:0.8rem">Home</a>
+      <a href="/about" style="color:var(--text-muted);font-size:0.8rem">About</a>
+      <a href="/blog" style="color:var(--text-muted);font-size:0.8rem">Blog</a>
+      <a href="/case-studies" style="color:var(--text-muted);font-size:0.8rem">Case Studies</a>
+      <a href="/vault" style="color:var(--text-muted);font-size:0.8rem">App Vault</a>
+      <a href="/partners" style="color:var(--text-muted);font-size:0.8rem">Partners</a>
+      <a href="/apply" style="color:var(--text-muted);font-size:0.8rem">Apply</a>
+      <a href="/assessment" style="color:var(--text-muted);font-size:0.8rem">Assessment</a>
+    </nav>
+    <address style="font-style:normal;color:var(--text-muted);font-size:0.75rem;margin-bottom:8px">Knight Ops — Custom AI Systems &amp; Automations | Founded by Daniel Knight</address>
+    <div class="footer-copy">&copy; <time datetime="2026">2026</time> Knight Ops. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let vaultApps=[];
+let currentFilter='';
+
+async function loadVault(){
+  const{data}=await sb.from('apps').select('*').eq('status','published').order('created_at',{ascending:false});
+  vaultApps=data||[];
+  renderVault();
+}
+function filterVault(cat){
+  currentFilter=cat;
+  document.querySelectorAll('.vault-filter').forEach(b=>{b.classList.remove('active');if(b.textContent.toLowerCase().includes(cat)||(!cat&&b.textContent==='All'))b.classList.add('active')});
+  renderVault();
+}
+function renderVault(){
+  const filtered=currentFilter?vaultApps.filter(a=>(a.category||'').toLowerCase().includes(currentFilter)):vaultApps;
+  const grid=document.getElementById('vaultGrid');
+  const empty=document.getElementById('vaultEmpty');
+  if(!filtered.length){grid.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  grid.innerHTML=filtered.map(a=>{
+    const tags=(a.tags||[]).map(t=>'<span class="vault-tag">'+t+'</span>').join('');
+    const icon=({dashboard:'&#128202;',portal:'&#128274;',crm:'&#128188;',automation:'&#9881;',ai:'&#129302;'})[a.category]||'&#128187;';
+    return '<div class="vault-card"><div class="vault-thumb">'+(a.thumbnail_url?'<img src="'+a.thumbnail_url+'" style="width:100%;height:100%;object-fit:cover">':icon)+'</div><div class="vault-body"><h3>'+a.name+'</h3><p>'+(a.description||'')+'</p><div class="vault-tags">'+tags+'</div></div><div class="vault-footer"><span class="vault-price">'+(a.price?'$'+Number(a.price).toLocaleString():'Contact')+'</span><a href="/#book" class="btn btn-primary btn-sm" style="padding:6px 14px;font-size:0.8rem">Get Started</a></div></div>';
+  }).join('');
+}
+loadVault();
+</script>
+</body>
+</html>
