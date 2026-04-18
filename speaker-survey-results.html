@@ -463,6 +463,50 @@ body {
   background: rgba(239,68,68,0.3);
   color: #ef4444;
 }
+
+/* CTA Bar */
+.cta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 0 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+}
+
+.cta-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cta-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+}
+
+.cta-btn {
+  display: inline-block;
+  padding: 16px 48px;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #0a0a0a;
+  background: linear-gradient(135deg, #c9a84c, #e0c96e);
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(201,168,76,0.3);
+  transition: all 0.3s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(201,168,76,0.5);
+}
 </style>
 </head>
 <body>
@@ -548,6 +592,11 @@ body {
       </div>
       <div class="bar-count-outside" id="countOut4">0</div>
       <div class="bar-percent" id="pct4">0%</div>
+    </div>
+    <!-- CTA after chart -->
+    <div class="cta-bar" id="ctaBar">
+      <p class="cta-text">Haven't taken the survey yet?</p>
+      <a href="/speaker-survey-magnet" class="cta-btn" id="ctaLink">Take the Survey</a>
     </div>
   </div>
 </div>
@@ -726,6 +775,12 @@ body {
       }
 
       setTimeout(function() { render(); }, 400);
+
+      // Show CTA after bars animate in
+      setTimeout(function() {
+        var cta = document.getElementById('ctaBar');
+        if (cta) cta.classList.add('visible');
+      }, 300 + rows.length * 250 + 300);
     }, 500);
   };
 
