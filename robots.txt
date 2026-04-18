@@ -38,3 +38,4 @@ User-agent: cohere-ai
 Allow: /
 
 Sitemap: https://knightops.biz/sitemap.xml
+# v2 - force redeploy from GitHub source
