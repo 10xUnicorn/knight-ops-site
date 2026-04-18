@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knight Ops | Event Exclusive Offer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #0a0a0a;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201, 168, 76, 0.15);
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --white: #f5f5f5;
+  --muted: #6b7280;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Countdown Bar */
+.countdown-bar {
+  width: 100%;
+  background: linear-gradient(90deg, rgba(59,130,246,0.08) 0%, rgba(201,168,76,0.18) 50%, rgba(139,92,246,0.08) 100%);
+  border-bottom: 1px solid rgba(201,168,76,0.35);
+  padding: 20px 20px 22px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.countdown-bar .label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.countdown-bar .timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.countdown-bar .time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 8px;
+  padding: 10px 18px;
+  min-width: 80px;
+}
+
+.countdown-bar .time-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.countdown-bar .time-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(201,168,76,0.7);
+  margin-top: 4px;
+}
+
+.countdown-bar .time-sep {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+  padding-bottom: 16px;
+}
+
+.countdown-bar .expired {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ef4444;
+  padding: 12px 0;
+}
+
+/* Seconds pulse animation */
+@keyframes seconds-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.97); }
+}
+
+.seconds-pulse {
+  animation: seconds-pulse 1s ease-in-out infinite;
+}
+
+/* Brand */
+.brand {
+  text-align: center;
+  padding: 28px 20px 8px;
+}
+
+.brand h1 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+
+/* Main Layout */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Left Column */
+.offer h2 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 14px;
+  color: var(--white);
+}
+
+.offer .subheadline {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #a1a1aa;
+  margin-bottom: 20px;
+}
+
+.price-block {
+  margin-bottom: 18px;
+}
+
+.price-block .original {
+  font-size: 18px;
+  color: var(--muted);
+  text-decoration: line-through;
+  margin-right: 12px;
+}
+
+.price-block .current {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.price-block .savings {
+  font-size: 12px;
+  color: var(--gold);
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.features {
+  list-style: none;
+  margin-bottom: 22px;
+}
+
+.features li {
+  font-size: 13.5px;
+  color: #d4d4d8;
+  padding: 5px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.features li::before {
+  content: "\2713";
+  color: var(--gold);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--black);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 16px 40px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.cta-btn:hover {
+  background: #d4b856;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+}
+
+.cta-fine-print {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+}
+
+.bonus-box {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  background: rgba(201,168,76,0.04);
+}
+
+.bonus-box .bonus-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 5px;
+}
+
+.bonus-box p {
+  font-size: 13px;
+  color: #d4d4d8;
+  line-height: 1.5;
+}
+
+.nlp-line {
+  font-size: 12px;
+  color: #71717a;
+  margin-top: 16px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.guarantee-box {
+  margin-top: 18px;
+  padding: 16px 20px;
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02));
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.guarantee-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.guarantee-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.guarantee-box p {
+  font-size: 13.5px;
+  color: #d4d4d8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Right Column */
+.booking h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--white);
+}
+
+.booking .subtext {
+  font-size: 13px;
+  color: #a1a1aa;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.calendar-wrap {
+  background: #111;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+  min-height: 380px;
+}
+
+.calendar-wrap iframe {
+  width: 100%;
+  min-height: 380px;
+  border: none;
+}
+
+.booking-bonus {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06));
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #d4d4d8;
+  line-height: 1.5;
+}
+
+.booking-bonus strong {
+  color: var(--white);
+}
+
+/* Mobile */
+@media (max-width: 820px) {
+  .main {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 16px 18px 40px;
+  }
+
+  .offer h2 {
+    font-size: 22px;
+  }
+
+  .price-block .current {
+    font-size: 36px;
+  }
+
+  .countdown-bar .time-value {
+    font-size: 2.5rem;
+  }
+
+  .countdown-bar .time-sep {
+    font-size: 2rem;
+  }
+
+  .countdown-bar .time-block {
+    min-width: 64px;
+    padding: 8px 12px;
+  }
+
+  .countdown-bar .expired {
+    font-size: 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Countdown Bar -->
+<div class="countdown-bar">
+  <div class="label">Event Exclusive Offer Expires In:</div>
+  <div class="timer" id="countdown">
+    <div class="time-block">
+      <span class="time-value" id="cd-hours">--</span>
+      <span class="time-label">HOURS</span>
+    </div>
+    <div class="time-sep">:</div>
+    <div class="time-block">
+      <span class="time-value" id="cd-minutes">--</span>
+      <span class="time-label">MINUTES</span>
+    </div>
+    <div class="time-sep">:</div>
+    <div class="time-block">
+      <span class="time-value seconds-pulse" id="cd-seconds">--</span>
+      <span class="time-label">SECONDS</span>
+    </div>
+  </div>
+  <div class="expired" id="cd-expired" style="display:none;"></div>
+</div>
+
+<!-- Brand -->
+<div class="brand">
+  <h1>KNIGHT OPS</h1>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Left: Offer -->
+  <div class="offer">
+    <h2>Your Audience Already Wants to Say Yes. Give Them the Page That Makes It Easy.</h2>
+
+    <p class="subheadline">A fully custom, AEO-optimized website, lead magnet, or landing page built overnight so AI engines recommend YOU as the expert.</p>
+
+    <div class="price-block">
+      <span class="original">$1,497</span>
+      <span class="current">$997</span>
+      <div class="savings">You save $500 today</div>
+    </div>
+
+    <ul class="features">
+      <li>Up to 5 custom pages designed to convert</li>
+      <li>AEO optimized so ChatGPT, Claude &amp; Gemini recommend you</li>
+      <li>Mobile responsive + full code ownership</li>
+      <li>Delivered overnight. Yours forever.</li>
+    </ul>
+
+    <a href="https://buy.stripe.com/3cIaEWeyb9PkaVDdrg8g00u" class="cta-btn">Lock In My $997 Build</a>
+    <div class="cta-fine-print">Full code ownership. No subscriptions. No hidden fees.</div>
+
+    <div class="bonus-box">
+      <div class="bonus-label">Bonus</div>
+      <p>Everyone who purchases today receives a <strong style="color:var(--gold);">FREE VIP ticket to Unicon</strong> valued at $2,000</p>
+    </div>
+
+    <p class="nlp-line">Speakers who invest in their digital presence close 3-5x more from stage. When you lock in your build today, imagine waking up tomorrow with a site that positions you as THE expert in your space. Every day without an AEO-optimized site, AI is recommending your competitors instead of you.</p>
+
+    <div class="guarantee-box">
+      <span class="guarantee-icon">&#x1F6E1;</span>
+      <div>
+        <div class="guarantee-label">SATISFACTION GUARANTEED</div>
+        <p>We will work with you until you're satisfied with your website. Guaranteed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Book a Call -->
+  <div class="booking">
+    <h3>Secure Your Appointment to Lock In Your Bonuses</h3>
+    <p class="subtext">Not sure which build is right for you? Book a free 30-minute 10X System Blueprint session. It's not whether you need this, it's whether you'll act while the price is still available.</p>
+
+    <div class="calendar-wrap">
+      <iframe src="https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV" scrolling="no" id="sHnyJQidcdx3bTdBXdl0_1776491857944"></iframe>
+    </div>
+
+    <div class="booking-bonus">
+      <strong>Book today</strong> and receive a <strong style="color:var(--gold);">FREE Premium ticket to Unicon</strong> valued at $1,000
+    </div>
+  </div>
+
+</div>
+
+<!-- Calendar Embed Script -->
+<script src="https://api.unicornuniverse.io/js/form_embed.js" type="text/javascript"></script>
+
+<!-- Countdown Timer -->
+<script>
+(function() {
+  var el = document.getElementById('countdown');
+
+  // April 18, 2026 at 4:00 PM Pacific (UTC-7)
+  var target = new Date('2026-04-18T16:00:00-07:00').getTime();
+
+  var elHours = document.getElementById('cd-hours');
+  var elMinutes = document.getElementById('cd-minutes');
+  var elSeconds = document.getElementById('cd-seconds');
+  var elExpired = document.getElementById('cd-expired');
+
+  function update() {
+    var now = Date.now();
+    var remaining = target - now;
+
+    if (remaining <= 0) {
+      el.style.display = 'none';
+      elExpired.style.display = 'block';
+      elExpired.textContent = 'OFFER EXPIRED';
+      return;
+    }
+
+    var h = Math.floor(remaining / 3600000);
+    var m = Math.floor((remaining % 3600000) / 60000);
+    var s = Math.floor((remaining % 60000) / 1000);
+
+    elHours.textContent = String(h).padStart(2, '0');
+    elMinutes.textContent = String(m).padStart(2, '0');
+    elSeconds.textContent = String(s).padStart(2, '0');
+
+    // Flash red every 5 seconds
+    if (s % 5 === 0) {
+      elSeconds.style.color = '#ef4444';
+      elSeconds.style.textShadow = '0 0 12px rgba(239,68,68,0.4)';
+    } else if (s % 5 === 2) {
+      elSeconds.style.color = '';
+      elSeconds.style.textShadow = '';
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  update();
+})();
+</script>
+
+</body>
+</html>
