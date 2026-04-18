@@ -573,8 +573,13 @@ body {
   var totalExpected = parseInt(params.get('total')) || 20;
   document.getElementById('totalExpected').value = totalExpected;
 
-  // Auto-reveal if ?reveal=true
+  // Auto-reveal if ?reveal=true (one-shot: strip param so refresh stays on pre-reveal)
   var autoReveal = params.get('reveal') === 'true';
+  if (autoReveal) {
+    var cleanUrl = new URL(window.location);
+    cleanUrl.searchParams.delete('reveal');
+    window.history.replaceState({}, '', cleanUrl);
+  }
 
   var totalInput = document.getElementById('totalExpected');
   totalInput.addEventListener('change', function() {
