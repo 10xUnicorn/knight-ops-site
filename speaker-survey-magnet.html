@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Knight Ops - Speaker Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #0a0a0a;
+  --gold: #c9a84c;
+  --gold-light: #e0c96e;
+  --gold-glow: rgba(201,168,76,0.35);
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --white: #f5f5f5;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100dvh;
+  background: var(--black);
+  font-family: 'Inter', sans-serif;
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#particleCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#confettiCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 28px 16px;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-align: center;
+  text-shadow: 0 0 20px rgba(201,168,76,0.3);
+  margin-bottom: 8px;
+}
+
+.logo-line {
+  width: 140px;
+  height: 3px;
+  margin: 0 auto 32px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--blue), var(--purple));
+  box-shadow: 0 0 12px rgba(201,168,76,0.3);
+}
+
+.container { width: 100%; max-width: 540px; }
+
+#step1 { animation: fadeUp 0.6s ease both; }
+
+.subtitle {
+  font-size: 0.9rem; font-weight: 500; text-align: center;
+  color: var(--gold-light); letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 16px; opacity: 0.8;
+}
+
+.question {
+  font-size: 1.65rem; font-weight: 800; text-align: center;
+  line-height: 1.3; margin-bottom: 32px; color: var(--white);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+
+@media (min-width: 420px) { .question { font-size: 1.9rem; } }
+
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.card {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(201,168,76,0.2);
+  border-radius: 16px;
+  padding: 20px 14px 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 1;
+  animation: cardEntry 0.5s ease both;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes cardEntry {
+  from { opacity: 0; transform: translateY(24px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card:active { transform: scale(0.96); }
+
+@media(hover:hover) {
+  .card:hover {
+    border-color: rgba(201,168,76,0.5);
+    background: rgba(201,168,76,0.06);
+    box-shadow: 0 0 24px rgba(201,168,76,0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.card.selected {
+  border-color: var(--gold) !important;
+  background: rgba(201,168,76,0.12) !important;
+  box-shadow: 0 0 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08), inset 0 0 30px rgba(201,168,76,0.05) !important;
+  transform: scale(1.02);
+}
+
+.card.selected .card-letter {
+  background: var(--gold); color: var(--black);
+  box-shadow: 0 0 16px rgba(201,168,76,0.5);
+}
+
+.card-letter {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid var(--gold); font-size: 0.85rem;
+  font-weight: 800; color: var(--gold); margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.card-text { font-size: 0.95rem; font-weight: 600; line-height: 1.4; color: rgba(245,245,245,0.9); }
+
+@media (max-width: 380px) {
+  .card-text { font-size: 0.85rem; }
+  .card { padding: 16px 12px 14px; }
+}
+
+#step2 { display: none; opacity: 0; }
+#step2.active { display: block; animation: fadeUp 0.5s ease forwards; }
+
+.step2-heading {
+  font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.step2-sub {
+  font-size: 1.05rem; text-align: center; color: rgba(245,245,245,0.65);
+  margin-bottom: 32px; font-weight: 400; line-height: 1.5;
+}
+
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block; font-size: 0.78rem; font-weight: 700;
+  color: rgba(245,245,245,0.5); margin-bottom: 7px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.form-group input {
+  width: 100%; padding: 16px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px; font-family: 'Inter', sans-serif;
+  font-size: 1.05rem; color: var(--white); outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-group input::placeholder { color: rgba(245,245,245,0.22); }
+.form-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(201,168,76,0.15);
+  background: rgba(255,255,255,0.08);
+}
+
+.submit-btn {
+  display: block; width: 100%; padding: 18px; margin-top: 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none; border-radius: 14px; font-family: 'Inter', sans-serif;
+  font-size: 1.1rem; font-weight: 800; color: var(--black);
+  cursor: pointer; transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.25); letter-spacing: 0.02em;
+}
+
+.submit-btn:active { transform: scale(0.97); }
+@media(hover:hover) {
+  .submit-btn:hover { box-shadow: 0 4px 40px rgba(201,168,76,0.4); transform: translateY(-1px); }
+}
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+.form-error { text-align: center; color: #ef4444; font-size: 0.85rem; margin-top: 14px; min-height: 20px; }
+.duplicate-msg {
+  display: none; text-align: center; padding: 18px; border-radius: 14px;
+  background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.25); margin-top: 18px;
+}
+.duplicate-msg p { color: var(--gold-light); font-size: 1rem; font-weight: 500; }
+
+#successScreen { display: none; text-align: center; }
+#successScreen.active {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; animation: fadeUp 0.5s ease forwards;
+}
+
+.success-check { width: 100px; height: 100px; margin-bottom: 28px; }
+.success-check circle { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-dasharray: 220; stroke-dashoffset: 220; animation: drawCircle 0.6s 0.2s ease forwards; }
+.success-check polyline { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: drawCheck 0.4s 0.7s ease forwards; }
+
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.success-title {
+  font-size: 2.5rem; font-weight: 900; color: var(--gold);
+  margin-bottom: 14px; text-shadow: 0 0 30px rgba(201,168,76,0.4);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 15px rgba(201,168,76,0.3); }
+  50% { text-shadow: 0 0 35px rgba(201,168,76,0.6), 0 0 70px rgba(201,168,76,0.2); }
+}
+
+.success-sub { font-size: 1.1rem; color: rgba(245,245,245,0.6); max-width: 320px; line-height: 1.6; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
+
+<div class="wrapper">
+  <div class="logo">KNIGHT OPS</div>
+  <div class="logo-line"></div>
+
+  <div class="container">
+    <div id="step1">
+      <p class="subtitle">Before We Begin</p>
+      <h1 class="question">What is the #1 way to tell if your speech was a good speech?</h1>
+      <div class="card-grid">
+        <div class="card" data-answer="1">
+          <div class="card-letter">A</div>
+          <div class="card-text">How many people come up to you after you speak</div>
+        </div>
+        <div class="card" data-answer="2">
+          <div class="card-letter">B</div>
+          <div class="card-text">You didn't mess up and the audience stayed engaged</div>
+        </div>
+        <div class="card" data-answer="3">
+          <div class="card-letter">C</div>
+          <div class="card-text">How many people converted into your offer or call to action</div>
+        </div>
+        <div class="card" data-answer="4">
+          <div class="card-letter">D</div>
+          <div class="card-text">You got killer content you can leverage forever</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="step2">
+      <h2 class="step2-heading">Almost there...</h2>
+      <p class="step2-sub">This way we can send you your free gift.</p>
+      <form id="surveyForm" onsubmit="handleSubmit(event)">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" placeholder="Your first name" required autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required autocomplete="tel">
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">Submit My Answer</button>
+        <div class="form-error" id="formError"></div>
+        <div class="duplicate-msg" id="duplicateMsg"><p>You've already submitted! We've got your response on file.</p></div>
+      </form>
+    </div>
+
+    <div id="successScreen">
+      <svg class="success-check" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="35"/>
+        <polyline points="25,42 35,52 55,30"/>
+      </svg>
+      <div class="success-title">You're In!</div>
+      <p class="success-sub">Your answer has been recorded. Stay tuned for the results...</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var canvas = document.getElementById('particleCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+  var COUNT = 80;
+  var particles = [];
+
+  var COLORS = [[201,168,76],[201,168,76],[224,201,110],[224,201,110],[245,230,163],[59,130,246],[139,92,246]];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function makeParticle(randomY) {
+    var c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    return {
+      x: Math.random() * W, y: randomY ? Math.random() * H : H + Math.random() * 60,
+      r: 1.2 + Math.random() * 2.5, vy: -(0.2 + Math.random() * 0.5),
+      drift: Math.random() * 6.28, ds: 0.004 + Math.random() * 0.01,
+      da: 12 + Math.random() * 30, op: 0.25 + Math.random() * 0.55,
+      cr: c[0], cg: c[1], cb: c[2], co: 0
+    };
+  }
+
+  resize();
+  for (var i = 0; i < COUNT; i++) particles.push(makeParticle(true));
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.y += p.vy; p.drift += p.ds; p.x += Math.sin(p.drift) * 0.35;
+      var fz = H * 0.18; var o = p.op;
+      if (p.y > H - fz) o *= (H - p.y) / fz;
+      else if (p.y < fz) o *= p.y / fz;
+      p.co = o > 0 ? o : 0;
+      if (p.y < -20) particles[i] = makeParticle(false);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = 'rgba(' + p.cr + ',' + p.cg + ',' + p.cb + ',' + p.co + ')'; ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', resize);
+  tick();
+})();
+</script>
+
+<script>
+(function() {
+  var selectedAnswer = null;
+  var cards = document.querySelectorAll('.card');
+
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function() {
+      if (selectedAnswer !== null) return;
+      selectedAnswer = parseInt(this.getAttribute('data-answer'));
+      window._selectedAnswer = selectedAnswer;
+      for (var j = 0; j < cards.length; j++) cards[j].classList.remove('selected');
+      this.classList.add('selected');
+
+      setTimeout(function() {
+        var s1 = document.getElementById('step1');
+        s1.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+        s1.style.opacity = '0';
+        s1.style.transform = 'translateY(-16px)';
+        setTimeout(function() {
+          s1.style.display = 'none';
+          var s2 = document.getElementById('step2');
+          s2.classList.add('active');
+          document.getElementById('firstName').focus();
+        }, 360);
+      }, 500);
+    });
+  }
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var _sb = null;
+try {
+  _sb = window.supabase.createClient(
+    'https://trpnlkntvulkjerevngm.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM'
+  );
+} catch(e) { console.error('Supabase init error:', e); }
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  var btn = document.getElementById('submitBtn');
+  var errEl = document.getElementById('formError');
+  var dupEl = document.getElementById('duplicateMsg');
+  errEl.textContent = '';
+  dupEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  var name = document.getElementById('firstName').value.trim();
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var phone = document.getElementById('phone').value.trim();
+  var answer = window._selectedAnswer || 1;
+
+  if (!name || !email || !phone) {
+    errEl.textContent = 'Please fill out all fields.';
+    btn.disabled = false; btn.textContent = 'Submit My Answer'; return;
+  }
+
+  if (!_sb) {
+    errEl.textContent = 'Connection error. Please try again.';
+    btn.disabled = false; btn.textContent = 'Submit My Answer'; return;
+  }
+
+  try {
+    var check = await _sb.from('speaker_survey_responses').select('email').eq('email', email).limit(1);
+    if (check.data && check.data.length > 0) {
+      dupEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Submit My Answer'; return;
+    }
+
+    var ins = await _sb.from('speaker_survey_responses').insert([{ name: name, email: email, phone: phone, answer: answer }]);
+    if (ins.error) throw ins.error;
+    showSuccess();
+  } catch(err) {
+    console.error(err);
+    errEl.textContent = 'Something went wrong. Please try again.';
+    btn.disabled = false; btn.textContent = 'Submit My Answer';
+  }
+}
+
+function showSuccess() {
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step2').classList.remove('active');
+  var s = document.getElementById('successScreen');
+  s.classList.add('active');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  var canvas = document.getElementById('confettiCanvas');
+  canvas.style.display = 'block';
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width = window.innerWidth;
+  var H = canvas.height = window.innerHeight;
+  var N = 140; var pieces = [];
+  var colors = ['#c9a84c','#e0c96e','#f5e6a3','#b8942e','#3b82f6','#8b5cf6','#ffffff'];
+  var cx = W/2, cy = H/2;
+
+  for (var i = 0; i < N; i++) {
+    var a = Math.random() * 6.28; var sp = 5 + Math.random() * 12;
+    pieces.push({ x: cx, y: cy, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 4,
+      w: 5+Math.random()*7, h: 3+Math.random()*5, rot: Math.random()*360,
+      rs: (Math.random()-0.5)*14, color: colors[Math.floor(Math.random()*colors.length)],
+      op: 1, grav: 0.13+Math.random()*0.07, drag: 0.98
+    });
+  }
+
+  var frame = 0, max = 200;
+  function go() {
+    ctx.clearRect(0,0,W,H); frame++;
+    var alive = false;
+    for (var i = 0; i < pieces.length; i++) {
+      var c = pieces[i]; c.vy += c.grav; c.vx *= c.drag; c.vy *= c.drag;
+      c.x += c.vx; c.y += c.vy; c.rot += c.rs;
+      if (frame > max*0.4) c.op -= 0.012;
+      if (c.op <= 0) continue; alive = true;
+      ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rot * 0.0175);
+      ctx.globalAlpha = Math.max(0, c.op); ctx.fillStyle = c.color;
+      ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h); ctx.restore();
+    }
+    if (alive && frame < max) requestAnimationFrame(go);
+    else canvas.style.display = 'none';
+  }
+  go();
+}
+</script>
+
+</body>
+</html>
