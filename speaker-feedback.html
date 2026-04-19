@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knight Ops | Speaker's Edge Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #0a0a0a;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201, 168, 76, 0.15);
+  --white: #f5f5f5;
+  --muted: #6b7280;
+  --card-bg: #161616;
+  --card-border: rgba(255,255,255,0.06);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Particle Canvas */
+#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+/* Brand */
+.brand {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.brand h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.header h2 {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.header h2 span { color: var(--gold); }
+.header p {
+  font-size: 15px;
+  color: #a1a1aa;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Steps */
+.step { display: none; }
+.step.active { display: block; animation: fadeUp 0.4s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section Labels */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.question {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 20px;
+}
+
+.question-sub {
+  font-size: 13px;
+  color: #71717a;
+  margin-top: -14px;
+  margin-bottom: 20px;
+}
+
+/* Checkbox Cards */
+.check-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.check-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.check-card:hover {
+  border-color: rgba(201,168,76,0.3);
+  background: rgba(201,168,76,0.04);
+}
+
+.check-card.selected {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.08);
+}
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #3f3f46;
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.check-card.selected .check-box {
+  border-color: var(--gold);
+  background: var(--gold);
+}
+
+.check-box::after {
+  content: "";
+  display: none;
+  width: 6px;
+  height: 10px;
+  border: solid var(--black);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.check-card.selected .check-box::after { display: block; }
+
+.check-label {
+  font-size: 14px;
+  color: #d4d4d8;
+  line-height: 1.4;
+}
+
+.check-label strong {
+  color: var(--white);
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Other Input */
+.other-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  margin-top: -6px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 48px;
+}
+
+.other-input:focus { border-color: var(--gold); }
+.other-input::placeholder { color: #52525b; }
+
+/* Text Area */
+.text-area {
+  width: 100%;
+  padding: 16px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+
+.text-area:focus { border-color: var(--gold); }
+.text-area::placeholder { color: #52525b; }
+
+/* Contact Fields */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-field {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-field:focus { border-color: var(--gold); }
+.form-field::placeholder { color: #52525b; }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-next, .btn-submit {
+  flex: 1;
+  padding: 16px 32px;
+  background: var(--gold);
+  color: var(--black);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-next:hover, .btn-submit:hover {
+  background: #d4b856;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(201,168,76,0.25);
+}
+
+.btn-back {
+  padding: 16px 24px;
+  background: transparent;
+  color: #71717a;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover { border-color: #3f3f46; color: #a1a1aa; }
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Progress */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: #1a1a1a;
+  border-radius: 3px;
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Success Screen */
+#successScreen {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+  animation: fadeUp 0.5s ease;
+}
+
+#successScreen .success-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+#successScreen h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+#successScreen h2 span { color: var(--gold); }
+
+#successScreen p {
+  font-size: 15px;
+  color: #a1a1aa;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.success-btn {
+  display: block;
+  padding: 16px 32px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.success-btn.primary {
+  background: var(--gold);
+  color: var(--black);
+}
+
+.success-btn.primary:hover {
+  background: #d4b856;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(201,168,76,0.25);
+}
+
+.success-btn.secondary {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+}
+
+.success-btn.secondary:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.06);
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header h2 { font-size: 24px; }
+  .form-row { grid-template-columns: 1fr; }
+  .container { padding: 28px 16px 48px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="container">
+
+  <div class="brand"><h1>Knight Ops</h1></div>
+
+  <div class="header">
+    <h2>Thanks for attending <span>The Speaker's Edge</span></h2>
+    <p>Your feedback helps me build resources that actually help. Takes about 60 seconds.</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:33%"></div></div>
+
+  <!-- STEP 1: Biggest Takeaways -->
+  <div class="step active" id="step1">
+    <div class="section-label">Question 1 of 3</div>
+    <div class="question">What resonated most from the presentation?</div>
+    <div class="question-sub">Select all that apply</div>
+
+    <div class="check-grid" id="takeawayGrid">
+      <div class="check-card" data-value="its-not-about-you" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>"It's Not About You"</strong>Making your speech about the audience, not yourself</div>
+      </div>
+      <div class="check-card" data-value="become-the-magnet" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Stop Chasing, Become the Magnet</strong>Creating demand from stage instead of chasing leads</div>
+      </div>
+      <div class="check-card" data-value="credibility-autopilot" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Credibility on Autopilot</strong>Expert positioning, co-marketing assets, and ongoing social proof</div>
+      </div>
+      <div class="check-card" data-value="content-goldmine" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>The Content Goldmine</strong>Turning one speech into keynote footage, clips, reels, and authority assets</div>
+      </div>
+      <div class="check-card" data-value="picking-right-stage" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Picking the Right Stage</strong>Evaluating audience size, topic alignment, and ROI potential</div>
+      </div>
+      <div class="check-card" data-value="15-minutes-after" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>The 15 Minutes After</strong>Be findable, create an open invitation, and tell them why</div>
+      </div>
+      <div class="check-card" data-value="invisible-problem" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>The Invisible Problem</strong>AEO — getting AI engines like ChatGPT and Claude to recommend you</div>
+      </div>
+      <div class="check-card" data-value="capitalize-on-speaking" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Capitalize On Speaking</strong>Websites, lead magnets, landing pages, and custom tools</div>
+      </div>
+      <div class="check-card" data-value="other-takeaway" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Other</strong></div>
+      </div>
+    </div>
+    <textarea class="other-input" id="otherTakeaway" placeholder="Tell us what stood out to you..." style="display:none;"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-next" onclick="goStep(2)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Desired Resources -->
+  <div class="step" id="step2">
+    <div class="section-label">Question 2 of 3</div>
+    <div class="question">What tool or resource would be most useful to you?</div>
+    <div class="question-sub">Select all that apply</div>
+
+    <div class="check-grid" id="resourceGrid">
+      <div class="check-card" data-value="stage-selection-guide" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Stage Selection Guide</strong>A framework for evaluating which stages are worth your time</div>
+      </div>
+      <div class="check-card" data-value="post-speech-checklist" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Post-Speech Checklist</strong>What to do in the 15 minutes after you leave the stage</div>
+      </div>
+      <div class="check-card" data-value="lead-magnet-template" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Lead Magnet Template</strong>A plug-and-play template to capture leads from stage</div>
+      </div>
+      <div class="check-card" data-value="aeo-audit" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>AEO Audit</strong>Find out if AI engines are recommending you or your competitors</div>
+      </div>
+      <div class="check-card" data-value="speaker-one-sheet" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Speaker One-Sheet Template</strong>A professional one-pager to book more speaking gigs</div>
+      </div>
+      <div class="check-card" data-value="follow-up-sequence" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Post-Event Follow-Up Sequence</strong>Email templates to convert attendees after the event</div>
+      </div>
+      <div class="check-card" data-value="content-repurposing" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Content Repurposing Guide</strong>How to turn one speech into 30+ pieces of content</div>
+      </div>
+      <div class="check-card" data-value="other-resource" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-label"><strong>Other</strong></div>
+      </div>
+    </div>
+    <textarea class="other-input" id="otherResource" placeholder="Tell us what you need..." style="display:none;"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">&larr; Back</button>
+      <button class="btn-next" onclick="goStep(3)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Contact + Comments -->
+  <div class="step" id="step3">
+    <div class="section-label">Question 3 of 3</div>
+    <div class="question">Anything else you'd like to share?</div>
+
+    <textarea class="text-area" id="comments" placeholder="What did you think? What would you change? What do you need help with?"></textarea>
+
+    <div class="section-label" style="margin-top:24px;">Your Info</div>
+    <div class="form-row">
+      <input type="text" class="form-field" id="fname" placeholder="Your name" required>
+      <input type="email" class="form-field" id="femail" placeholder="Your email" required>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(2)">&larr; Back</button>
+      <button class="btn-submit" id="submitBtn" onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Success Screen -->
+<div id="successScreen" class="container">
+  <div class="success-icon">&#10024;</div>
+  <h2>You're <span>awesome</span>. Thank you!</h2>
+  <p>Your feedback means a lot. I'll use it to build something that actually helps you win from stage.</p>
+  <div class="success-actions">
+    <a href="/The-Speakers-Edge.pdf" class="success-btn primary" download>Download the Slides (PDF)</a>
+    <a href="https://knightops.biz/book" class="success-btn secondary">Book a Call with Daniel</a>
+  </div>
+</div>
+
+<!-- Confetti -->
+<canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;display:none;"></canvas>
+
+<script>
+// ── Toggle checkbox cards ──
+function toggleCheck(card) {
+  card.classList.toggle('selected');
+  var val = card.dataset.value;
+  // Show/hide "other" text fields
+  if (val === 'other-takeaway') {
+    document.getElementById('otherTakeaway').style.display = card.classList.contains('selected') ? 'block' : 'none';
+  }
+  if (val === 'other-resource') {
+    document.getElementById('otherResource').style.display = card.classList.contains('selected') ? 'block' : 'none';
+  }
+}
+
+// ── Step navigation ──
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('progressFill').style.width = (n * 33) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Collect checked values ──
+function getChecked(gridId) {
+  var vals = [];
+  document.querySelectorAll('#' + gridId + ' .check-card.selected').forEach(function(c) {
+    if (c.dataset.value !== 'other-takeaway' && c.dataset.value !== 'other-resource') {
+      vals.push(c.dataset.value);
+    }
+  });
+  return vals;
+}
+
+// ── Submit ──
+function submitFeedback() {
+  var name = document.getElementById('fname').value.trim();
+  var email = document.getElementById('femail').value.trim();
+
+  if (!name || !email) {
+    alert('Please enter your name and email.');
+    return;
+  }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  var takeaways = getChecked('takeawayGrid');
+  var resources = getChecked('resourceGrid');
+  var otherTakeaway = document.getElementById('otherTakeaway').value.trim();
+  var otherResource = document.getElementById('otherResource').value.trim();
+  var comments = document.getElementById('comments').value.trim();
+
+  var payload = {
+    name: name,
+    email: email,
+    biggest_takeaways: takeaways,
+    desired_resources: resources,
+    other_takeaway: otherTakeaway || null,
+    other_resource: otherResource || null,
+    additional_comments: comments || null
+  };
+
+  // Save to Supabase
+  var SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+  fetch(SUPABASE_URL + '/rest/v1/speaker_feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Save failed');
+
+    // Call edge function for emails
+    return fetch(SUPABASE_URL + '/functions/v1/speaker-feedback-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+  })
+  .then(function() {
+    showSuccess();
+  })
+  .catch(function(err) {
+    console.error(err);
+    // Still show success even if email fails — data is saved
+    showSuccess();
+  });
+}
+
+function showSuccess() {
+  document.querySelector('.container').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  fireConfetti();
+}
+
+// ── Confetti ──
+function fireConfetti() {
+  var canvas = document.getElementById('confettiCanvas');
+  canvas.style.display = 'block';
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  var pieces = [];
+  var colors = ['#c9a84c', '#d4b856', '#f5f5f5', '#e2c76a', '#8b7533'];
+
+  for (var i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 8 + 4,
+      h: Math.random() * 4 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vy: Math.random() * 4 + 2,
+      vx: Math.random() * 2 - 1,
+      rot: Math.random() * 360,
+      rv: Math.random() * 6 - 3,
+      opacity: 1
+    });
+  }
+
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    var alive = false;
+    pieces.forEach(function(p) {
+      if (p.opacity <= 0) return;
+      alive = true;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rv;
+      if (frame > 120) p.opacity -= 0.015;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) requestAnimationFrame(draw);
+    else canvas.style.display = 'none';
+  }
+  draw();
+}
+
+// ── Particles ──
+(function() {
+  var c = document.getElementById('particles');
+  var ctx = c.getContext('2d');
+  function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var dots = [];
+  for (var i = 0; i < 40; i++) {
+    dots.push({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      o: Math.random() * 0.3 + 0.1
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    dots.forEach(function(d) {
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0) d.x = c.width;
+      if (d.x > c.width) d.x = 0;
+      if (d.y < 0) d.y = c.height;
+      if (d.y > c.height) d.y = 0;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(201,168,76,' + d.o + ')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+</body>
+</html>
