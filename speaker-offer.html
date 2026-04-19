@@ -335,7 +335,45 @@ body {
 }
 
 /* Mobile */
+/* Mobile Book-a-Call sticky button */
+.mobile-book-btn {
+  display: none;
+}
+
 @media (max-width: 820px) {
+  .mobile-book-btn {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+    padding: 10px 16px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(201,168,76,0.35);
+  }
+
+  .mobile-book-btn a {
+    display: block;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+
+  body {
+    padding-bottom: 70px;
+  }
+}
   .main {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -440,7 +478,7 @@ body {
   </div>
 
   <!-- Right: Book a Call -->
-  <div class="booking">
+  <div class="booking" id="booking">
     <h3>Secure Your Appointment to Lock In Your Bonuses</h3>
     <p class="subtext">Not sure which build is right for you? Book a free 30-minute 10X System Blueprint session. It's not whether you need this, it's whether you'll act while the price is still available.</p>
 
@@ -453,6 +491,11 @@ body {
     </div>
   </div>
 
+</div>
+
+<!-- Mobile Sticky Book-a-Call Button -->
+<div class="mobile-book-btn">
+  <a href="#booking" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'});return false;">Book a Call to Lock In Your Deal</a>
 </div>
 
 <!-- Calendar Embed Script -->
