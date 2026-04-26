@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Apps for Consultants &amp; Agency Owners | Knight Ops</title>
+    <meta name="description" content="Custom dashboards, CRMs, and client management platforms for consultants and agency owners. Built in 48 hours. Zero monthly SaaS fees. Starting at $1,497.">
+    <meta name="keywords" content="consultant dashboard app, agency management platform, custom CRM for consultants, agency client portal, consultant business automation">
+    <meta name="author" content="Daniel Knight | Knight Ops">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://knightops.biz/apps-for-consultants">
+    <meta property="og:title" content="Custom Apps for Consultants & Agency Owners | Knight Ops">
+    <meta property="og:description" content="Stop paying for bloated CRMs that don't fit your workflow. Get a custom-built dashboard and client portal delivered in 48 hours.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://knightops.biz/apps-for-consultants">
+    <meta property="og:site_name" content="Knight Ops">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Custom Apps for Consultants & Agency Owners | Knight Ops">
+    <meta name="twitter:description" content="Custom dashboards, CRMs, and client portals for consultants and agencies. Built in 48 hours. Zero SaaS fees.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "How much does a custom agency management platform cost?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Knight Ops offers three tiers: Night Launch at $1,497 for a high-converting agency website with overnight delivery, Night Build at $7,497 for a full-stack agency platform with client dashboards, project tracking, reporting, and billing delivered in 48 hours, and Night Build Pro at $14,997 which adds iOS and Android App Store deployment."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I replace my CRM with a custom-built platform?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. Many consultants and agency owners use HubSpot, Dubsado, or Monday at $50 to $500 per month and only use 20% of the features. Knight Ops builds a custom platform with exactly the features you need, no bloat, no monthly fees. You own it outright."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How fast can a custom consultant dashboard be built?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Knight Ops delivers complete consultant and agency platforms in 48 hours. Websites ship overnight. Full-stack applications with dashboards, client portals, and automations ship in 48 hours using AI-accelerated development."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What features should an agency management app include?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "A strong agency management platform should include client dashboards, project and task management, campaign tracking and reporting, billing and invoicing, team collaboration tools, automated status updates, and a professional website that positions your agency. Knight Ops builds all of these in a single integrated system."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is a custom platform better than HubSpot or Monday for agencies?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "For agencies that want to stop paying monthly fees and need a platform that matches their exact workflow, yes. HubSpot and Monday charge per seat, limit customization, and add complexity you do not need. A custom Knight Ops build is tailored to your process, your brand, and your team, with zero monthly costs."
+                        }
+                    }
+                ]
+            },
+            {
+                "@type": "Service",
+                "name": "Custom Apps for Consultants and Agency Owners",
+                "provider": {
+                    "@type": "Organization",
+                    "name": "Knight Ops",
+                    "url": "https://knightops.biz"
+                },
+                "description": "Custom-built dashboards, CRMs, and client management platforms for consultants and agency owners. Delivered in 48 hours with zero recurring SaaS fees.",
+                "url": "https://knightops.biz/apps-for-consultants",
+                "serviceType": "Custom Software Development",
+                "areaServed": "Worldwide",
+                "offers": [
+                    {
+                        "@type": "Offer",
+                        "name": "Night Launch",
+                        "price": "1497",
+                        "priceCurrency": "USD"
+                    },
+                    {
+                        "@type": "Offer",
+                        "name": "Night Build",
+                        "price": "7497",
+                        "priceCurrency": "USD"
+                    },
+                    {
+                        "@type": "Offer",
+                        "name": "Night Build Pro",
+                        "price": "14997",
+                        "priceCurrency": "USD"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+    <style>
+        :root {
+            --ko-blue: #00D4FF;
+            --ko-purple: #8B5CF6;
+            --ko-green: #00FF88;
+            --ko-bg: #0A0A0F;
+            --ko-surface: #12121A;
+            --ko-surface-2: #1A1A25;
+            --ko-text: #E8E8ED;
+            --ko-text-muted: #8A8A9A;
+            --ko-border: #2A2A3A;
+            --ko-gradient: linear-gradient(135deg, #00D4FF, #8B5CF6, #00FF88);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--ko-bg);
+            color: var(--ko-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--ko-border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo {
+            font-size: 1.4rem; font-weight: 700;
+            background: var(--ko-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-decoration: none;
+        }
+        .nav-cta {
+            padding: 0.6rem 1.4rem; background: var(--ko-blue); color: #0A0A0F;
+            text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .nav-cta:hover { background: #33DDFF; transform: translateY(-1px); }
+        .hero {
+            padding: 8rem 2rem 5rem; max-width: 1100px; margin: 0 auto; text-align: center;
+        }
+        .hero-badge {
+            display: inline-block; padding: 0.4rem 1.2rem;
+            background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px; font-size: 0.85rem; color: var(--ko-purple);
+            margin-bottom: 1.5rem; font-weight: 500;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.5rem;
+        }
+        .hero h1 .gradient {
+            background: var(--ko-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero p { font-size: 1.2rem; color: var(--ko-text-muted); max-width: 680px; margin: 0 auto 2.5rem; line-height: 1.8; }
+        .hero-cta {
+            display: inline-block; padding: 1rem 2.5rem; background: var(--ko-blue); color: #0A0A0F;
+            text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .hero-cta:hover { background: #33DDFF; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3); }
+        .hero-sub { margin-top: 1rem; font-size: 0.85rem; color: var(--ko-text-muted); }
+        section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+        .section-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--ko-blue); font-weight: 600; margin-bottom: 1rem; }
+        .section-title { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.2; }
+        .section-desc { font-size: 1.05rem; color: var(--ko-text-muted); max-width: 650px; line-height: 1.8; margin-bottom: 3rem; }
+        .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .pain-card {
+            background: var(--ko-surface); border: 1px solid var(--ko-border); border-radius: 12px; padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .pain-card:hover { border-color: rgba(139, 92, 246, 0.4); transform: translateY(-3px); }
+        .pain-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+        .pain-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .pain-card p { font-size: 0.95rem; color: var(--ko-text-muted); line-height: 1.7; }
+        .solution-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .solution-card {
+            background: var(--ko-surface); border: 1px solid var(--ko-border); border-radius: 12px; padding: 2rem;
+            position: relative; overflow: hidden;
+        }
+        .solution-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ko-gradient); }
+        .solution-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--ko-blue); }
+        .solution-card p { font-size: 0.95rem; color: var(--ko-text-muted); line-height: 1.7; }
+        .case-study {
+            background: var(--ko-surface); border: 1px solid var(--ko-border); border-radius: 16px; padding: 3rem;
+            margin-top: 2rem; position: relative; overflow: hidden;
+        }
+        .case-study::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--ko-gradient); }
+        .case-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--ko-green); font-weight: 600; margin-bottom: 1rem; }
+        .case-study h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; }
+        .case-study .case-desc { font-size: 1.05rem; color: var(--ko-text-muted); line-height: 1.8; margin-bottom: 2rem; }
+        .case-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .case-stat { text-align: center; padding: 1.5rem; background: var(--ko-surface-2); border-radius: 10px; }
+        .case-stat .number { font-size: 2rem; font-weight: 800; background: var(--ko-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .case-stat .label { font-size: 0.85rem; color: var(--ko-text-muted); margin-top: 0.25rem; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .pricing-card {
+            background: var(--ko-surface); border: 1px solid var(--ko-border); border-radius: 14px; padding: 2.5rem 2rem;
+            text-align: center; transition: all 0.3s ease; position: relative;
+        }
+        .pricing-card.featured { border-color: var(--ko-blue); transform: scale(1.03); }
+        .pricing-card.featured::before {
+            content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--ko-blue); color: #0A0A0F; padding: 0.25rem 1rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        }
+        .pricing-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .pricing-card .price { font-size: 2.4rem; font-weight: 800; color: var(--ko-blue); margin-bottom: 0.25rem; }
+        .pricing-card .price-note { font-size: 0.85rem; color: var(--ko-text-muted); margin-bottom: 1.5rem; }
+        .pricing-card ul { list-style: none; text-align: left; margin-bottom: 2rem; }
+        .pricing-card ul li { padding: 0.5rem 0; font-size: 0.95rem; color: var(--ko-text-muted); display: flex; align-items: flex-start; gap: 0.5rem; }
+        .pricing-card ul li::before { content: '\2713'; color: var(--ko-green); font-weight: 700; flex-shrink: 0; }
+        .pricing-cta {
+            display: inline-block; padding: 0.8rem 2rem; background: transparent; border: 2px solid var(--ko-blue);
+            color: var(--ko-blue); text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;
+        }
+        .pricing-card.featured .pricing-cta { background: var(--ko-blue); color: #0A0A0F; }
+        .pricing-cta:hover { background: var(--ko-blue); color: #0A0A0F; transform: translateY(-2px); }
+        .faq-list { margin-top: 2rem; }
+        .faq-item { border-bottom: 1px solid var(--ko-border); padding: 1.5rem 0; }
+        .faq-question {
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; gap: 1rem; color: var(--ko-text); user-select: none;
+        }
+        .faq-question::after { content: '+'; font-size: 1.5rem; color: var(--ko-blue); transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-item.open .faq-question::after { transform: rotate(45deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .faq-item.open .faq-answer { max-height: 400px; }
+        .faq-answer p { padding-top: 1rem; font-size: 1rem; color: var(--ko-text-muted); line-height: 1.8; }
+        .final-cta { text-align: center; padding: 5rem 2rem; max-width: 800px; margin: 0 auto; }
+        .final-cta h2 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1rem; }
+        .final-cta p { font-size: 1.1rem; color: var(--ko-text-muted); margin-bottom: 2rem; line-height: 1.8; }
+        footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--ko-border); color: var(--ko-text-muted); font-size: 0.85rem; }
+        footer a { color: var(--ko-blue); text-decoration: none; }
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; }
+            .hero { padding: 6rem 1.25rem 3rem; }
+            section { padding: 3rem 1.25rem; }
+            .case-study { padding: 2rem 1.5rem; }
+            .pricing-card.featured { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="https://knightops.biz" class="nav-logo">Knight Ops</a>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="nav-cta" target="_blank" rel="noopener">Book a Call</a>
+    </nav>
+
+    <section class="hero">
+        <span class="hero-badge">Built for Consultants &amp; Agencies</span>
+        <h1>Your Agency Runs on Systems.<br><span class="gradient">Build Systems You Own.</span></h1>
+        <p>Stop paying per seat for CRMs and project tools that weren't built for your workflow. Get a custom agency platform with client dashboards, campaign tracking, and automated reporting, delivered in 48 hours.</p>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="hero-cta" target="_blank" rel="noopener">Book Your Strategy Call</a>
+        <p class="hero-sub">No commitment. 15-minute call to see if we're a fit.</p>
+    </section>
+
+    <section>
+        <span class="section-label">The Problem</span>
+        <h2 class="section-title">Your Clients Expect World-Class Delivery. Your Tools Should Deliver It.</h2>
+        <p class="section-desc">Most consultants and agencies operate on a patchwork of SaaS tools that cost too much and do too little.</p>
+        <div class="pain-grid">
+            <div class="pain-card">
+                <div class="pain-icon">&#128176;</div>
+                <h3>Per-Seat Pricing That Scales Against You</h3>
+                <p>Every new team member or client means another monthly charge. HubSpot, Monday, and Asana all penalize you for growing.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#128200;</div>
+                <h3>Manual Reporting That Eats Hours</h3>
+                <p>You pull data from three platforms, paste it into a slide deck, and spend half a day building a client report that should be automated.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#128268;</div>
+                <h3>Disconnected Client Experience</h3>
+                <p>Your clients log into one place for invoices, another for project updates, another for files. It makes your agency look disorganized.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#9881;</div>
+                <h3>Generic Tools That Force Workarounds</h3>
+                <p>You've built Notion databases, Zapier automations, and custom spreadsheets just to make off-the-shelf tools work for your process.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <span class="section-label">The Solution</span>
+        <h2 class="section-title">One Platform Built for How Your Agency Actually Works</h2>
+        <p class="section-desc">Knight Ops builds your agency a custom platform that replaces the tools you're renting. Everything integrated. Everything yours.</p>
+        <div class="solution-grid">
+            <div class="solution-card">
+                <h3>Client Dashboards</h3>
+                <p>Give every client a branded login where they see project status, deliverables, metrics, and invoices in real time.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Campaign and Project Tracking</h3>
+                <p>Track campaigns, tasks, and deliverables across your entire team. Built for your workflow, not a generic template.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Automated Reporting</h3>
+                <p>Client reports generated automatically from your data. No more manual exports, no more slide decks built from scratch.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Billing and Invoicing</h3>
+                <p>Send invoices, track payments, and manage retainers from the same platform where you manage projects.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Team Collaboration</h3>
+                <p>Internal task management, assignments, and status tracking. Your team sees what they need without the noise.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Zero Monthly Fees</h3>
+                <p>One investment. No per-seat charges. No usage limits. Scale your team and client roster without scaling your software costs.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <span class="section-label">Case Study</span>
+        <h2 class="section-title">How a Social Media Agency Built Its Own Client Management Platform</h2>
+        <div class="case-study">
+            <span class="case-label">Rocky / Grow Your Niche</span>
+            <h3>Social Media Agency Dashboard for Client Management, Campaign Tracking, and Reporting</h3>
+            <p class="case-desc">Rocky runs a social media agency and needed a centralized platform to manage clients, track campaigns, and generate reports. Instead of paying for multiple tools, Knight Ops built a complete agency dashboard with client management, campaign tracking, and reporting functionality. The platform gives Rocky's team one place to manage everything while giving clients visibility into their results.</p>
+            <div class="case-results">
+                <div class="case-stat">
+                    <div class="number">48 hrs</div>
+                    <div class="label">Delivery Time</div>
+                </div>
+                <div class="case-stat">
+                    <div class="number">$0/mo</div>
+                    <div class="label">Recurring Fees</div>
+                </div>
+                <div class="case-stat">
+                    <div class="number">All-in-One</div>
+                    <div class="label">Clients, Campaigns, Reports</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <span class="section-label">Investment</span>
+        <h2 class="section-title">Choose Your Build</h2>
+        <p class="section-desc">Every tier includes strategy, design, development, and deployment. No hidden fees.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Night Launch</h3>
+                <div class="price">$1,497</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>High-converting agency website</li>
+                    <li>Mobile responsive design</li>
+                    <li>SEO and AEO optimized</li>
+                    <li>Lead capture and booking integration</li>
+                    <li>Overnight delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Night Build</h3>
+                <div class="price">$7,497</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>Full-stack agency platform</li>
+                    <li>Client dashboards and portals</li>
+                    <li>Campaign and project tracking</li>
+                    <li>Automated reporting</li>
+                    <li>Billing and invoicing</li>
+                    <li>48-hour delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Night Build Pro</h3>
+                <div class="price">$14,997</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>Everything in Night Build</li>
+                    <li>iOS App Store deployment</li>
+                    <li>Android Play Store deployment</li>
+                    <li>Push notifications</li>
+                    <li>Native mobile experience</li>
+                    <li>48-hour delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Common Questions from Consultants and Agency Owners</h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">How much does a custom agency management platform cost?</div>
+                <div class="faq-answer"><p>Knight Ops offers three tiers: Night Launch at $1,497 for a high-converting agency website with overnight delivery, Night Build at $7,497 for a full-stack agency platform with client dashboards, project tracking, reporting, and billing delivered in 48 hours, and Night Build Pro at $14,997 which adds iOS and Android App Store deployment.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Can I replace my CRM with a custom-built platform?</div>
+                <div class="faq-answer"><p>Yes. Many consultants and agency owners use HubSpot, Dubsado, or Monday at $50 to $500 per month and only use 20% of the features. Knight Ops builds a custom platform with exactly the features you need, no bloat, no monthly fees. You own it outright.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How fast can a custom consultant dashboard be built?</div>
+                <div class="faq-answer"><p>Knight Ops delivers complete consultant and agency platforms in 48 hours. Websites ship overnight. Full-stack applications with dashboards, client portals, and automations ship in 48 hours using AI-accelerated development.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What features should an agency management app include?</div>
+                <div class="faq-answer"><p>A strong agency management platform should include client dashboards, project and task management, campaign tracking and reporting, billing and invoicing, team collaboration tools, automated status updates, and a professional website that positions your agency. Knight Ops builds all of these in a single integrated system.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Is a custom platform better than HubSpot or Monday for agencies?</div>
+                <div class="faq-answer"><p>For agencies that want to stop paying monthly fees and need a platform that matches their exact workflow, yes. HubSpot and Monday charge per seat, limit customization, and add complexity you do not need. A custom Knight Ops build is tailored to your process, your brand, and your team, with zero monthly costs.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="final-cta">
+        <h2>Ready to Own Your Agency's Operating System?</h2>
+        <p>Book a 15-minute strategy call. We'll map out what your custom agency platform looks like and how to eliminate your monthly SaaS costs.</p>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="hero-cta" target="_blank" rel="noopener">Book Your Strategy Call</a>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 <a href="https://knightops.biz">Knight Ops</a>. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                const wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+    </script>
+
+</body>
+</html>

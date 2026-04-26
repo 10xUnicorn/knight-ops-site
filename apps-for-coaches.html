@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Apps for Coaches | Knight Ops</title>
+    <meta name="description" content="Get a custom coaching app built and delivered overnight. Client portals, assessment tools, automated onboarding, and zero recurring SaaS fees. Starting at $1,497.">
+    <meta name="keywords" content="custom app for coaching business, coaching platform builder, done for you coaching app, coaching client portal, coaching business automation">
+    <meta name="author" content="Daniel Knight | Knight Ops">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://knightops.biz/apps-for-coaches">
+    <meta property="og:title" content="Custom Apps for Coaches | Knight Ops">
+    <meta property="og:description" content="Stop paying monthly for tools that don't fit your coaching practice. Get a custom-built app delivered overnight with zero recurring fees.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://knightops.biz/apps-for-coaches">
+    <meta property="og:site_name" content="Knight Ops">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Custom Apps for Coaches | Knight Ops">
+    <meta name="twitter:description" content="Custom coaching apps built and delivered overnight. Client portals, assessments, automated onboarding. Zero SaaS fees.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "How much does a custom coaching app cost?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Knight Ops offers three tiers for coaches: Night Launch at $1,497 for a high-converting multi-page website with overnight delivery, Night Build at $7,497 for a full-stack coaching platform with client portals, assessment tools, and automation delivered in 48 hours, and Night Build Pro at $14,997 which includes everything plus iOS and Android App Store deployment."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I get a coaching app without paying monthly SaaS fees?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. Knight Ops builds custom coaching apps that you own outright. Unlike platforms like Kajabi, Teachable, or Thinkific that charge $99 to $499 per month, a Knight Ops build is a one-time investment with zero recurring platform fees. You own the code, the design, and the data."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How fast can a custom coaching platform be built?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Knight Ops delivers full-stack coaching platforms in as little as 48 hours. The Night Launch tier (websites) ships overnight. The Night Build tier (full apps with portals, assessments, and automation) ships in 48 hours. This speed is possible because Knight Ops uses AI-accelerated development workflows."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What features should a coaching app include?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "A strong coaching app should include a client portal for session management, assessment and intake tools, automated onboarding sequences, event and calendar management, a booking system, progress tracking dashboards, and a professional website that converts visitors into clients. Knight Ops builds all of these as a single integrated platform."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is a custom app better than using Kajabi or Teachable for coaching?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "For coaches who want full control and zero monthly fees, yes. Platforms like Kajabi and Teachable charge recurring fees, limit customization, and force you into their templates. A custom Knight Ops build gives you a platform tailored to your exact coaching methodology, your branding, and your workflows, with no monthly costs and no feature limitations."
+                        }
+                    }
+                ]
+            },
+            {
+                "@type": "Service",
+                "name": "Custom Apps for Coaches",
+                "provider": {
+                    "@type": "Organization",
+                    "name": "Knight Ops",
+                    "url": "https://knightops.biz"
+                },
+                "description": "Custom-built coaching platforms with client portals, assessment tools, automated onboarding, and event management. Delivered in 48 hours or less with zero recurring SaaS fees.",
+                "url": "https://knightops.biz/apps-for-coaches",
+                "serviceType": "Custom Software Development",
+                "areaServed": "Worldwide",
+                "offers": [
+                    {
+                        "@type": "Offer",
+                        "name": "Night Launch",
+                        "price": "1497",
+                        "priceCurrency": "USD",
+                        "description": "High-converting multi-page coaching website, overnight delivery"
+                    },
+                    {
+                        "@type": "Offer",
+                        "name": "Night Build",
+                        "price": "7497",
+                        "priceCurrency": "USD",
+                        "description": "Full-stack coaching platform with portals, assessments, and automation, 48-hour delivery"
+                    },
+                    {
+                        "@type": "Offer",
+                        "name": "Night Build Pro",
+                        "price": "14997",
+                        "priceCurrency": "USD",
+                        "description": "Complete coaching platform plus iOS and Android App Store deployment"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+    <style>
+        :root {
+            --ko-blue: #00D4FF;
+            --ko-purple: #8B5CF6;
+            --ko-green: #00FF88;
+            --ko-bg: #0A0A0F;
+            --ko-surface: #12121A;
+            --ko-surface-2: #1A1A25;
+            --ko-text: #E8E8ED;
+            --ko-text-muted: #8A8A9A;
+            --ko-border: #2A2A3A;
+            --ko-gradient: linear-gradient(135deg, #00D4FF, #8B5CF6, #00FF88);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--ko-bg);
+            color: var(--ko-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--ko-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--ko-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-cta {
+            padding: 0.6rem 1.4rem;
+            background: var(--ko-blue);
+            color: #0A0A0F;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: #33DDFF;
+            transform: translateY(-1px);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 8rem 2rem 5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--ko-blue);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gradient {
+            background: var(--ko-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--ko-text-muted);
+            max-width: 680px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--ko-blue);
+            color: #0A0A0F;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .hero-cta:hover {
+            background: #33DDFF;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .hero-sub {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--ko-text-muted);
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--ko-blue);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--ko-text-muted);
+            max-width: 650px;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        /* Pain Points */
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .pain-card {
+            background: var(--ko-surface);
+            border: 1px solid var(--ko-border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .pain-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .pain-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .pain-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--ko-text);
+        }
+
+        .pain-card p {
+            font-size: 0.95rem;
+            color: var(--ko-text-muted);
+            line-height: 1.7;
+        }
+
+        /* Solution */
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .solution-card {
+            background: var(--ko-surface);
+            border: 1px solid var(--ko-border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ko-gradient);
+        }
+
+        .solution-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--ko-blue);
+        }
+
+        .solution-card p {
+            font-size: 0.95rem;
+            color: var(--ko-text-muted);
+            line-height: 1.7;
+        }
+
+        /* Case Study */
+        .case-study {
+            background: var(--ko-surface);
+            border: 1px solid var(--ko-border);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-study::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--ko-gradient);
+        }
+
+        .case-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--ko-green);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .case-study h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .case-study .case-desc {
+            font-size: 1.05rem;
+            color: var(--ko-text-muted);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .case-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .case-stat {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--ko-surface-2);
+            border-radius: 10px;
+        }
+
+        .case-stat .number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--ko-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .case-stat .label {
+            font-size: 0.85rem;
+            color: var(--ko-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Pricing */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: var(--ko-surface);
+            border: 1px solid var(--ko-border);
+            border-radius: 14px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--ko-blue);
+            transform: scale(1.03);
+        }
+
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ko-blue);
+            color: #0A0A0F;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .price {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--ko-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .pricing-card .price-note {
+            font-size: 0.85rem;
+            color: var(--ko-text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-card ul li {
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            color: var(--ko-text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .pricing-card ul li::before {
+            content: '\2713';
+            color: var(--ko-green);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .pricing-cta {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 2px solid var(--ko-blue);
+            color: var(--ko-blue);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured .pricing-cta {
+            background: var(--ko-blue);
+            color: #0A0A0F;
+        }
+
+        .pricing-cta:hover {
+            background: var(--ko-blue);
+            color: #0A0A0F;
+            transform: translateY(-2px);
+        }
+
+        /* FAQ */
+        .faq-list {
+            margin-top: 2rem;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--ko-border);
+            padding: 1.5rem 0;
+        }
+
+        .faq-question {
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            color: var(--ko-text);
+            user-select: none;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--ko-blue);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 400px;
+        }
+
+        .faq-answer p {
+            padding-top: 1rem;
+            font-size: 1rem;
+            color: var(--ko-text-muted);
+            line-height: 1.8;
+        }
+
+        /* CTA Section */
+        .final-cta {
+            text-align: center;
+            padding: 5rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .final-cta h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .final-cta p {
+            font-size: 1.1rem;
+            color: var(--ko-text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--ko-border);
+            color: var(--ko-text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--ko-blue);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; }
+            .hero { padding: 6rem 1.25rem 3rem; }
+            section { padding: 3rem 1.25rem; }
+            .case-study { padding: 2rem 1.5rem; }
+            .pricing-card.featured { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="https://knightops.biz" class="nav-logo">Knight Ops</a>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="nav-cta" target="_blank" rel="noopener">Book a Call</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <span class="hero-badge">Built for Coaches</span>
+        <h1>Your Coaching Business Deserves<br><span class="gradient">Its Own Custom App</span></h1>
+        <p>Stop duct-taping Kajabi, Calendly, and Google Sheets together. Get a fully custom coaching platform built and delivered in 48 hours or less, with zero monthly SaaS fees.</p>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="hero-cta" target="_blank" rel="noopener">Book Your Strategy Call</a>
+        <p class="hero-sub">No commitment. 15-minute call to see if we're a fit.</p>
+    </section>
+
+    <!-- Pain Points -->
+    <section>
+        <span class="section-label">The Problem</span>
+        <h2 class="section-title">You Built a Coaching Business. Your Tech Stack Should Match.</h2>
+        <p class="section-desc">Most coaches end up with 5 to 10 disconnected tools just to run their practice. That creates friction for you and your clients.</p>
+        <div class="pain-grid">
+            <div class="pain-card">
+                <div class="pain-icon">&#128184;</div>
+                <h3>$300+ per Month in SaaS Fees</h3>
+                <p>Kajabi, Calendly, ConvertKit, Zoom, Typeform, Stripe. Each one charges monthly. None of them talk to each other without workarounds.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#128679;</div>
+                <h3>Cobbled Together Client Experience</h3>
+                <p>Your clients bounce between a booking link, a separate portal, email threads, and shared docs. It feels unprofessional and costs you renewals.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#9203;</div>
+                <h3>Manual Work That Should Be Automated</h3>
+                <p>Sending intake forms, onboarding new clients, tracking progress, following up after sessions. You're doing admin work instead of coaching.</p>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">&#128274;</div>
+                <h3>Limited by Templates and Prebuilt Features</h3>
+                <p>Your coaching methodology is unique, but your platform forces you into generic templates. You can't build what you actually need.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution -->
+    <section>
+        <span class="section-label">The Solution</span>
+        <h2 class="section-title">One Platform, Built Around Your Coaching Method</h2>
+        <p class="section-desc">Knight Ops builds you a fully custom coaching platform that replaces your entire SaaS stack. Everything in one place, designed for how you actually work.</p>
+        <div class="solution-grid">
+            <div class="solution-card">
+                <h3>Client Portal</h3>
+                <p>Give your clients one login to access sessions, resources, progress tracking, and communication. No more scattered links.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Assessment and Intake Tools</h3>
+                <p>Custom assessment frameworks built into your platform. Automate intake, score results, and deliver personalized recommendations.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Automated Onboarding</h3>
+                <p>New client signs up, gets their welcome sequence, intake forms, and first session scheduled. All automated, zero manual steps.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Event and Calendar Management</h3>
+                <p>Manage workshops, group sessions, and one-on-one calls from your own platform. Integrated booking, reminders, and follow-ups.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Professional Website That Converts</h3>
+                <p>A high-converting site that positions you as an authority, captures leads, and moves visitors into your coaching funnel.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Zero Recurring Fees</h3>
+                <p>You own the code. You own the data. No monthly platform fees. No per-user charges. One investment, permanent ownership.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Study -->
+    <section>
+        <span class="section-label">Case Study</span>
+        <h2 class="section-title">How an Executive Coach Replaced Her Entire Tech Stack Overnight</h2>
+        <div class="case-study">
+            <span class="case-label">Aabri / Life of Design Network</span>
+            <h3>Executive Coaching Platform with Assessment Tools, Event Management, and Automated Client Onboarding</h3>
+            <p class="case-desc">Aabri is an executive and leadership coach who was using a patchwork of tools to run her practice. She needed a professional platform that matched her brand and methodology. Knight Ops built her a complete coaching platform with custom assessment tools, an event management system, automated client onboarding sequences, and a professional website. The entire build was delivered overnight with zero recurring SaaS fees.</p>
+            <div class="case-results">
+                <div class="case-stat">
+                    <div class="number">Overnight</div>
+                    <div class="label">Delivery Time</div>
+                </div>
+                <div class="case-stat">
+                    <div class="number">$0/mo</div>
+                    <div class="label">Recurring Platform Fees</div>
+                </div>
+                <div class="case-stat">
+                    <div class="number">100%</div>
+                    <div class="label">Custom to Her Method</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section>
+        <span class="section-label">Investment</span>
+        <h2 class="section-title">Choose Your Build</h2>
+        <p class="section-desc">Every tier includes strategy, design, development, and deployment. No hidden fees. No monthly charges after delivery.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Night Launch</h3>
+                <div class="price">$1,497</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>High-converting multi-page website</li>
+                    <li>Mobile responsive design</li>
+                    <li>SEO and AEO optimized</li>
+                    <li>Lead capture and booking integration</li>
+                    <li>Overnight delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Night Build</h3>
+                <div class="price">$7,497</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>Full-stack coaching platform</li>
+                    <li>Client portal and dashboards</li>
+                    <li>Assessment and intake tools</li>
+                    <li>Automated onboarding sequences</li>
+                    <li>Event and calendar management</li>
+                    <li>48-hour delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Night Build Pro</h3>
+                <div class="price">$14,997</div>
+                <div class="price-note">One-time investment</div>
+                <ul>
+                    <li>Everything in Night Build</li>
+                    <li>iOS App Store deployment</li>
+                    <li>Android Play Store deployment</li>
+                    <li>Push notifications</li>
+                    <li>Native mobile experience</li>
+                    <li>48-hour delivery</li>
+                </ul>
+                <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="pricing-cta" target="_blank" rel="noopener">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Common Questions from Coaches</h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">How much does a custom coaching app cost?</div>
+                <div class="faq-answer">
+                    <p>Knight Ops offers three tiers: Night Launch at $1,497 for a high-converting multi-page website with overnight delivery, Night Build at $7,497 for a full-stack coaching platform with client portals, assessment tools, and automation delivered in 48 hours, and Night Build Pro at $14,997 which includes everything plus iOS and Android App Store deployment.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Can I get a coaching app without paying monthly SaaS fees?</div>
+                <div class="faq-answer">
+                    <p>Yes. Knight Ops builds custom coaching apps that you own outright. Unlike platforms like Kajabi, Teachable, or Thinkific that charge $99 to $499 per month, a Knight Ops build is a one-time investment with zero recurring platform fees. You own the code, the design, and the data.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How fast can a custom coaching platform be built?</div>
+                <div class="faq-answer">
+                    <p>Knight Ops delivers full-stack coaching platforms in as little as 48 hours. The Night Launch tier (websites) ships overnight. The Night Build tier (full apps with portals, assessments, and automation) ships in 48 hours. This speed is possible because Knight Ops uses AI-accelerated development workflows.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What features should a coaching app include?</div>
+                <div class="faq-answer">
+                    <p>A strong coaching app should include a client portal for session management, assessment and intake tools, automated onboarding sequences, event and calendar management, a booking system, progress tracking dashboards, and a professional website that converts visitors into clients. Knight Ops builds all of these as a single integrated platform.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Is a custom app better than using Kajabi or Teachable for coaching?</div>
+                <div class="faq-answer">
+                    <p>For coaches who want full control and zero monthly fees, yes. Platforms like Kajabi and Teachable charge recurring fees, limit customization, and force you into their templates. A custom Knight Ops build gives you a platform tailored to your exact coaching methodology, your branding, and your workflows, with no monthly costs and no feature limitations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <h2>Ready to Stop Renting Your Tech Stack?</h2>
+        <p>Book a 15-minute strategy call. We'll map out what your custom coaching platform looks like and give you a clear path to owning your own app.</p>
+        <a href="https://api.leadconnectorhq.com/widget/booking/TgvPWU8wuFKjXCBlzi48" class="hero-cta" target="_blank" rel="noopener">Book Your Strategy Call</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 <a href="https://knightops.biz">Knight Ops</a>. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                const wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+    </script>
+
+</body>
+</html>
