@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Night Vibe Community | Build With the Sharpest Minds in Tech | Knight Ops</title>
+<meta name="description" content="Night Vibe is where 6 & 7-figure entrepreneurs, speakers, authors, and coaches meet every week to build real projects with cutting-edge AI tools, train on emerging tech, and scale with systems that actually work.">
+<meta property="og:title" content="Night Vibe Community — Stop Building Alone">
+<meta property="og:description" content="Weekly live build sessions, AI training, premium apps, and a builder's circle of 6 & 7-figure entrepreneurs. Start your 14-day free trial.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/nightvibecommunity">
+<meta property="og:image" content="https://knightops.biz/og-nightvibe.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Night Vibe Community — Stop Building Alone">
+<meta name="twitter:description" content="Weekly live build sessions, AI training, premium apps, and a builder's circle of 6 & 7-figure entrepreneurs.">
+<link rel="canonical" href="https://knightops.biz/nightvibecommunity">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0A0A0B;--card:#1C1C1F;--border:#2A2A2E;--text:#F4F4F5;--muted:#A1A1AA;
+--gold:#C8A456;--gold-hover:#D4B56A;--blue:#00E5FF;--purple:#7B61FF;--green:#22C55E;
+--font-sans:'Inter',system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;
+--space:8px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+ul{list-style:none}
+.container{width:100%;max-width:1200px;margin:0 auto;padding:0 calc(var(--space)*3)}
+/* ── Canvas BG ── */
+#particle-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+/* ── UTILITIES ── */
+.section-pad{padding:calc(var(--space)*10) 0}
+.text-gold{color:var(--gold)}
+.text-muted{color:var(--muted)}
+.text-green{color:var(--green)}
+.text-blue{color:var(--blue)}
+.mono{font-family:var(--font-mono)}
+.relative{position:relative;z-index:1}
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,11,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:background .3s}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1200px;margin:0 auto;padding:0 calc(var(--space)*3)}
+.nav-logo{font-weight:800;font-size:1.25rem;letter-spacing:-.02em;white-space:nowrap}
+.nav-links{display:flex;align-items:center;gap:calc(var(--space)*3)}
+.nav-links a{font-size:.875rem;font-weight:500;color:var(--muted);transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-vibe{position:relative}
+.nav-vibe::after{content:'';position:absolute;top:-2px;right:-8px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.nav-cta{background:var(--gold);color:var(--bg);padding:calc(var(--space)*1) calc(var(--space)*2.5);border-radius:8px;font-weight:600;font-size:.875rem;transition:background .2s}
+.nav-cta:hover{background:var(--gold-hover)}
+.hamburger{display:none;flex-direction:column;gap:5px;padding:8px;cursor:pointer}
+.hamburger span{display:block;width:24px;height:2px;background:var(--text);transition:all .3s}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.active span:nth-child(2){opacity:0}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(10,10,11,.97);backdrop-filter:blur(20px);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--space)*4)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:1.25rem;font-weight:600;color:var(--text)}
+@media(max-width:768px){
+.nav-links{display:none}
+.hamburger{display:flex}
+}
+/* ── BUTTONS ── */
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-hover));color:var(--bg);padding:calc(var(--space)*2) calc(var(--space)*4);border-radius:12px;font-weight:700;font-size:1.05rem;transition:transform .2s,box-shadow .2s;box-shadow:0 0 30px rgba(200,164,86,.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(200,164,86,.35)}
+.btn-outline{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);color:var(--text);padding:calc(var(--space)*1.5) calc(var(--space)*3);border-radius:12px;font-weight:600;font-size:.95rem;transition:border-color .2s}
+.btn-outline:hover{border-color:var(--gold)}
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:100px;padding-bottom:calc(var(--space)*8)}
+.hero-content{max-width:800px;margin:0 auto;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(200,164,86,.1);border:1px solid rgba(200,164,86,.25);color:var(--gold);padding:6px 16px;border-radius:100px;font-size:.8rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:calc(var(--space)*3)}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2rem,5.5vw,3.75rem);font-weight:900;line-height:1.08;letter-spacing:-.03em;margin-bottom:calc(var(--space)*3)}
+.hero h1 .highlight{background:linear-gradient(135deg,var(--gold),var(--gold-hover));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:var(--muted);max-width:640px;margin:0 auto calc(var(--space)*4);line-height:1.7}
+.hero-ctas{display:flex;flex-direction:column;align-items:center;gap:calc(var(--space)*2);margin-bottom:calc(var(--space)*5)}
+.hero-trial{font-size:.9rem;color:var(--muted)}
+.trust-row{display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--space)*4)}
+.trust-badge{display:flex;flex-direction:column;align-items:center;gap:4px;padding:calc(var(--space)*2) calc(var(--space)*3);background:rgba(28,28,31,.6);border:1px solid var(--border);border-radius:12px}
+.trust-badge .num{font-size:1.2rem;font-weight:800;color:var(--gold);font-family:var(--font-mono)}
+.trust-badge .label{font-size:.75rem;color:var(--muted);font-weight:500}
+/* ── SECTION HEADERS ── */
+.section-header{text-align:center;max-width:700px;margin:0 auto calc(var(--space)*6)}
+.section-header h2{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:calc(var(--space)*2)}
+.section-header p{color:var(--muted);font-size:1.05rem;line-height:1.7}
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:calc(var(--space)*4);transition:border-color .3s,transform .3s}
+.card:hover{border-color:rgba(200,164,86,.3);transform:translateY(-4px)}
+.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:calc(var(--space)*2);font-size:1.4rem}
+.card h3{font-size:1.1rem;font-weight:700;margin-bottom:calc(var(--space)*1)}
+.card p{color:var(--muted);font-size:.92rem;line-height:1.6}
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:calc(var(--space)*3)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*3)}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--space)*3)}
+@media(max-width:768px){
+.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+}
+@media(min-width:769px) and (max-width:1024px){
+.grid-4{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(2,1fr)}
+}
+/* ── PROBLEM ── */
+.problem-card .card-icon{background:rgba(200,164,86,.1)}
+.problem-card .card-icon svg{color:var(--gold)}
+/* ── SOLUTION ── */
+.solution-card .card-icon{background:rgba(34,197,94,.1)}
+.solution-card .card-icon svg{color:var(--green)}
+/* ── HOW IT WORKS ── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*4);position:relative}
+.steps::before{content:'';position:absolute;top:40px;left:16.66%;right:16.66%;height:2px;background:linear-gradient(90deg,var(--gold),var(--purple),var(--blue));opacity:.3}
+.step{text-align:center;position:relative}
+.step-num{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-hover));color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;margin:0 auto calc(var(--space)*2);position:relative;z-index:1}
+.step h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.step p{color:var(--muted);font-size:.9rem;max-width:280px;margin:0 auto;line-height:1.6}
+@media(max-width:768px){
+.steps{grid-template-columns:1fr;gap:calc(var(--space)*5)}
+.steps::before{display:none}
+}
+/* ── VALUE PROP ── */
+.value-section .body-text{max-width:700px;margin:0 auto calc(var(--space)*6);text-align:center;color:var(--muted);font-size:1.05rem;line-height:1.75}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*3)}
+.stat-card{text-align:center;padding:calc(var(--space)*4);background:var(--card);border:1px solid var(--border);border-radius:16px}
+.stat-card .big{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;font-family:var(--font-mono);color:var(--gold)}
+.stat-card .label{color:var(--muted);font-size:.85rem;margin-top:4px}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr}}
+/* ── FEATURES GRID ── */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*3)}
+.feature-card{text-align:center;padding:calc(var(--space)*4) calc(var(--space)*3)}
+.feature-card .feat-icon{font-size:2rem;margin-bottom:calc(var(--space)*1.5)}
+.feature-card h3{font-size:1rem;font-weight:700}
+.feature-card p{color:var(--muted);font-size:.85rem;margin-top:4px}
+@media(max-width:768px){.features-grid{grid-template-columns:1fr}}
+@media(min-width:769px) and (max-width:1024px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── BONUS APPS ── */
+.app-card{position:relative;overflow:hidden}
+.app-card .included-badge{position:absolute;top:16px;right:16px;background:rgba(34,197,94,.15);color:var(--green);font-size:.7rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:6px;text-transform:uppercase}
+.app-card h3{margin-top:8px}
+/* ── CASE STUDY ── */
+.case-grid{display:grid;grid-template-columns:1fr 60px 1fr;gap:calc(var(--space)*3);align-items:center}
+.case-arrow{text-align:center;font-size:2rem;color:var(--gold)}
+.case-box{padding:calc(var(--space)*4);border-radius:16px}
+.case-before{background:rgba(200,164,86,.05);border:1px solid rgba(200,164,86,.15)}
+.case-after{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15)}
+.case-box h3{font-size:1rem;font-weight:700;margin-bottom:12px}
+.case-box ul{display:flex;flex-direction:column;gap:8px}
+.case-box li{color:var(--muted);font-size:.9rem;padding-left:20px;position:relative}
+.case-box li::before{content:'';position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%}
+.case-before li::before{background:var(--gold);opacity:.5}
+.case-after li::before{background:var(--green)}
+.case-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*3);margin-top:calc(var(--space)*5)}
+.case-metric{text-align:center;padding:calc(var(--space)*3);background:var(--card);border:1px solid var(--border);border-radius:12px}
+.case-metric .val{font-size:1.6rem;font-weight:900;font-family:var(--font-mono);color:var(--gold)}
+.case-metric .lbl{color:var(--muted);font-size:.8rem;margin-top:4px}
+@media(max-width:768px){
+.case-grid{grid-template-columns:1fr;gap:calc(var(--space)*2)}
+.case-arrow{transform:rotate(90deg)}
+.case-metrics{grid-template-columns:1fr}
+}
+/* ── TESTIMONIALS ── */
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space)*3)}
+.testimonial{padding:calc(var(--space)*4);position:relative}
+.testimonial .quote-mark{font-size:3rem;line-height:1;color:var(--gold);opacity:.3;font-family:Georgia,serif;margin-bottom:8px}
+.testimonial blockquote{color:var(--muted);font-size:.95rem;line-height:1.7;font-style:italic;margin-bottom:calc(var(--space)*2)}
+.testimonial .author{font-weight:600;font-size:.85rem}
+.testimonial .role{color:var(--muted);font-size:.8rem}
+@media(max-width:768px){.testimonials-grid{grid-template-columns:1fr}}
+/* ── FAQ ── */
+.faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:calc(var(--space)*1.5)}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--space)*2.5) calc(var(--space)*3);cursor:pointer;font-weight:600;font-size:.95rem;gap:16px;user-select:none;transition:color .2s}
+.faq-q:hover{color:var(--gold)}
+.faq-q .arrow{transition:transform .3s;flex-shrink:0;color:var(--muted);font-size:1.2rem}
+.faq-item.open .faq-q .arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-a-inner{padding:0 calc(var(--space)*3) calc(var(--space)*3);color:var(--muted);font-size:.9rem;line-height:1.7}
+/* ── PRICING ── */
+.pricing-card{max-width:560px;margin:0 auto;background:var(--card);border:2px solid var(--gold);border-radius:24px;padding:calc(var(--space)*6) calc(var(--space)*5);text-align:center;position:relative;overflow:hidden}
+.pricing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-hover),var(--gold))}
+.founding-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--gold-hover));color:var(--bg);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:calc(var(--space)*3)}
+.price-old{font-size:1.3rem;color:var(--muted);text-decoration:line-through;margin-bottom:4px}
+.price-current{font-size:3.5rem;font-weight:900;font-family:var(--font-mono);color:var(--text);line-height:1;margin-bottom:4px}
+.price-current span{font-size:1rem;font-weight:500;color:var(--muted)}
+.price-note{color:var(--muted);font-size:.85rem;margin-bottom:calc(var(--space)*3)}
+.trial-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);color:var(--green);font-weight:700;font-size:.9rem;padding:8px 20px;border-radius:100px;margin-bottom:calc(var(--space)*3)}
+.pricing-list{text-align:left;margin-bottom:calc(var(--space)*4);display:flex;flex-direction:column;gap:12px}
+.pricing-list li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem}
+.pricing-list li .check{color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px}
+.annual-option{margin-top:calc(var(--space)*3);padding-top:calc(var(--space)*3);border-top:1px solid var(--border);text-align:center}
+.annual-option a{color:var(--gold);font-weight:600;font-size:.95rem;text-decoration:underline;text-underline-offset:3px}
+.annual-option .save{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}
+/* ── FINAL CTA ── */
+.final-cta{text-align:center;padding:calc(var(--space)*12) 0}
+.final-cta h2{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:900;letter-spacing:-.02em;margin-bottom:calc(var(--space)*2)}
+.final-cta p{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto calc(var(--space)*4);line-height:1.7}
+.final-cta .spots{color:var(--gold);font-size:.9rem;margin-top:calc(var(--space)*2);font-weight:600}
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--border);padding:calc(var(--space)*6) 0;text-align:center}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--space)*3);margin-bottom:calc(var(--space)*3)}
+.footer-links a{color:var(--muted);font-size:.85rem;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
+.footer-copy{color:var(--muted);font-size:.8rem}
+/* ── EXIT POPUP ── */
+.exit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center}
+.exit-overlay.show{display:flex}
+.exit-box{background:var(--card);border:1px solid var(--gold);border-radius:20px;padding:calc(var(--space)*5);max-width:460px;width:90%;text-align:center;position:relative}
+.exit-box h3{font-size:1.3rem;font-weight:800;margin-bottom:calc(var(--space)*2);line-height:1.3}
+.exit-box p{color:var(--muted);font-size:.92rem;margin-bottom:calc(var(--space)*3);line-height:1.6}
+.exit-skip{color:var(--muted);font-size:.85rem;cursor:pointer;margin-top:calc(var(--space)*2);display:inline-block;border:none;background:none}
+.exit-skip:hover{color:var(--text)}
+/* ── SCROLL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){
+.reveal{opacity:1;transform:none;transition:none}
+#particle-canvas{display:none}
+.eyebrow::before{animation:none}
+}
+/* ── DIVIDER ── */
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto;max-width:600px}
+</style>
+</head>
+<body>
+<!-- Canvas Background -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- NAV -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+<div class="nav-inner">
+<a href="https://knightops.biz" class="nav-logo">KNIGHT<span style="color:#C8A456">OPS</span></a>
+<div class="nav-links">
+<a href="#results">Results</a>
+<a href="#how">How It Works</a>
+<a href="#faq">FAQ</a>
+<a href="/partners">Partners</a>
+<a href="/apply">Apply</a>
+<a href="#pricing" class="nav-vibe">Night Vibe</a>
+<a href="#book" class="nav-cta">Free Blueprint Call</a>
+</div>
+<button class="hamburger" aria-label="Open menu" onclick="toggleMenu()">
+<span></span><span></span><span></span>
+</button>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+<a href="#results" onclick="closeMenu()">Results</a>
+<a href="#how" onclick="closeMenu()">How It Works</a>
+<a href="#faq" onclick="closeMenu()">FAQ</a>
+<a href="/partners" onclick="closeMenu()">Partners</a>
+<a href="/apply" onclick="closeMenu()">Apply</a>
+<a href="#pricing" onclick="closeMenu()" style="color:var(--gold)">Night Vibe</a>
+<a href="#book" class="btn-primary" onclick="closeMenu()">Free Blueprint Call</a>
+</div>
+
+<!-- 1. HERO -->
+<section class="hero relative">
+<div class="container">
+<div class="hero-content reveal">
+<div class="eyebrow">Night Vibe Community — Now Open</div>
+<h1>Stop Building Alone.<br>Start Building With the <span class="highlight">Sharpest Minds in Tech.</span></h1>
+<p class="hero-sub">Night Vibe is where 6 &amp; 7-figure entrepreneurs, speakers, authors, and coaches meet every week to build real projects with cutting-edge AI tools, train on emerging tech, and scale with systems that actually work.</p>
+<div class="hero-ctas">
+<a href="https://buy.stripe.com/bJefZg3Tx4v0e7P9b08g00v" class="btn-primary">Join Night Vibe &mdash; $197/mo</a>
+<span class="hero-trial">14-Day Free Trial &middot; Cancel Anytime</span>
+</div>
+<div class="trust-row">
+<div class="trust-badge"><span class="num">50+</span><span class="label">Active Builders</span></div>
+<div class="trust-badge"><span class="num">$100M+</span><span class="label">Revenue Generated</span></div>
+<div class="trust-badge"><span class="num">Weekly</span><span class="label">Live Sessions</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>You're a 6-Figure Entrepreneur.<br>So Why Does Scaling Still Feel Like <span class="text-gold">Guesswork?</span></h2>
+</div>
+<div class="grid-4 reveal">
+<div class="card problem-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+<h3>Building in Isolation</h3>
+<p>You watch tutorials, prompt AI, read docs alone. No one to bounce ideas off. No one to show you the shortcut that saves 40 hours.</p>
+</div>
+<div class="card problem-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></div>
+<h3>Tech Is Moving Too Fast</h3>
+<p>AI tools change weekly. What worked last month is obsolete. You need a room that's tracking everything in real-time.</p>
+</div>
+<div class="card problem-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div>
+<h3>No Accountability</h3>
+<p>You have the ideas, maybe even the skills. But without a tribe pushing you, projects stall and momentum dies.</p>
+</div>
+<div class="card problem-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg></div>
+<h3>Hiring Is Expensive &amp; Slow</h3>
+<p>Agencies charge $50K+. Freelancers ghost. What if you could build it yourself — with expert guidance?</p>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 3. SOLUTION -->
+<section class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>Night Vibe Is Your <span class="text-gold">Builder's Circle.</span></h2>
+<p>A weekly tech community where purpose-driven entrepreneurs build together, train on cutting-edge tools, and ship faster than they ever could alone.</p>
+</div>
+<div class="grid-4 reveal">
+<div class="card solution-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+<h3>Build Together</h3>
+<p>Weekly live sessions with builders who think at your level. Bounce ideas, pair up, and accelerate in real-time.</p>
+</div>
+<div class="card solution-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+<h3>Stay Cutting-Edge</h3>
+<p>Our community tracks every AI and tech update so you don't have to. Be the first to know what's working now.</p>
+</div>
+<div class="card solution-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+<h3>Get Accountability</h3>
+<p>Partners, weekly check-ins, and a community that asks "Did you ship?" — so you actually do.</p>
+</div>
+<div class="card solution-card">
+<div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+<h3>Learn &amp; Build Yourself</h3>
+<p>Skip the $50K agency. Learn to build it yourself — faster, cheaper, and exactly how you want it.</p>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 4. HOW IT WORKS -->
+<section id="how" class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>3 Steps to Building <span class="text-gold">Faster</span> Than You Ever Have</h2>
+</div>
+<div class="steps reveal">
+<div class="step">
+<div class="step-num">1</div>
+<h3>Join the Community</h3>
+<p>Sign up, introduce yourself, get access to the platform, apps, and all resources.</p>
+</div>
+<div class="step">
+<div class="step-num">2</div>
+<h3>Show Up Weekly</h3>
+<p>Live build sessions, training, brainstorms. All sessions are recorded so you never miss a thing.</p>
+</div>
+<div class="step">
+<div class="step-num">3</div>
+<h3>Ship &amp; Scale</h3>
+<p>Build real projects, get feedback from the community, and launch with confidence.</p>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 5. VALUE PROP -->
+<section class="section-pad relative value-section">
+<div class="container">
+<div class="section-header reveal">
+<h2>Built by the Team Behind <span class="text-gold">$100M+</span> in Business Systems</h2>
+</div>
+<p class="body-text reveal">Night Vibe is run by Knight Ops — an AI-powered app development company that builds custom systems for founders. The founder, Daniel Knight, has built and scaled multiple companies and teams producing over $100M in revenue. This isn't a Discord server — it's a builder's lab backed by real operators.</p>
+<div class="stats-row reveal">
+<div class="stat-card">
+<div class="big">$100M+</div>
+<div class="label">Revenue Impact</div>
+</div>
+<div class="stat-card">
+<div class="big">24hr</div>
+<div class="label">System Deployment</div>
+</div>
+<div class="stat-card">
+<div class="big">50+</div>
+<div class="label">Active Builders</div>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 6. FEATURES GRID -->
+<section class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>Everything You Get Inside <span class="text-gold">Night Vibe</span></h2>
+</div>
+<div class="features-grid reveal">
+<div class="card feature-card"><div class="feat-icon">&#127909;</div><h3>Weekly Live Build Sessions</h3><p>Hands-on building with the community every week</p></div>
+<div class="card feature-card"><div class="feat-icon">&#129302;</div><h3>AI &amp; Automation Training</h3><p>Master the latest AI tools and automation workflows</p></div>
+<div class="card feature-card"><div class="feat-icon">&#128187;</div><h3>Vibe Coding Workshops</h3><p>Learn to build apps with emerging coding frameworks</p></div>
+<div class="card feature-card"><div class="feat-icon">&#128272;</div><h3>Private Community Platform</h3><p>Exclusive access to the Night Vibe members platform</p></div>
+<div class="card feature-card"><div class="feat-icon">&#127916;</div><h3>Full Session Recordings</h3><p>Never miss a session — complete library of recordings</p></div>
+<div class="card feature-card"><div class="feat-icon">&#128640;</div><h3>Premium Knight Ops Apps</h3><p>Included access to production-grade Knight Ops tools</p></div>
+<div class="card feature-card"><div class="feat-icon">&#129309;</div><h3>Accountability Partners</h3><p>Get matched with a builder to keep you shipping</p></div>
+<div class="card feature-card"><div class="feat-icon">&#127891;</div><h3>Expert Office Hours</h3><p>Direct access to the Knight Ops team for guidance</p></div>
+<div class="card feature-card"><div class="feat-icon">&#128736;</div><h3>Collaboration Projects</h3><p>Team up on real builds and launch together</p></div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 7. BONUS APPS -->
+<section class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>Bonus: Premium Knight Ops Apps — <span class="text-gold">Included</span> With Your Membership</h2>
+</div>
+<div class="grid-3 reveal">
+<div class="card app-card">
+<span class="included-badge">Included</span>
+<div class="card-icon" style="background:rgba(200,164,86,.1)"><svg width="24" height="24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+<h3>Launch App</h3>
+<p>Create copy at scale. AI-powered content generation for social, email, ads, and more.</p>
+</div>
+<div class="card app-card">
+<span class="included-badge">Included</span>
+<div class="card-icon" style="background:rgba(0,229,255,.1)"><svg width="24" height="24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+<h3>Event Command</h3>
+<p>Plan, manage, and promote events you're speaking at or hosting. Full event lifecycle management.</p>
+</div>
+<div class="card app-card">
+<span class="included-badge">Included</span>
+<div class="card-icon" style="background:rgba(123,97,255,.1)"><svg width="24" height="24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+<h3>AppDash</h3>
+<p>Build, manage, and sell your custom apps. Your app business in one dashboard. <span class="text-muted mono" style="font-size:.8rem">appdash.me</span></p>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 8. CASE STUDY / RESULTS -->
+<section id="results" class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>From Building Alone to <span class="text-gold">Shipping Weekly</span></h2>
+</div>
+<div class="case-grid reveal">
+<div class="case-box case-before">
+<h3>Before Night Vibe</h3>
+<ul>
+<li>Building alone, no feedback loop</li>
+<li>6 months between launches</li>
+<li>No systems, no accountability</li>
+</ul>
+</div>
+<div class="case-arrow">&#10230;</div>
+<div class="case-box case-after">
+<h3>After Night Vibe</h3>
+<ul>
+<li>Weekly shipping cadence</li>
+<li>3 apps launched in first quarter</li>
+<li>Automated growth systems in place</li>
+</ul>
+</div>
+</div>
+<div class="case-metrics reveal">
+<div class="case-metric"><div class="val">3x</div><div class="lbl">Shipping Speed</div></div>
+<div class="case-metric"><div class="val">6 Figures</div><div class="lbl">Added Revenue</div></div>
+<div class="case-metric"><div class="val">12 Apps</div><div class="lbl">In Community</div></div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 9. TESTIMONIALS -->
+<section class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>What <span class="text-gold">Builders</span> Are Saying</h2>
+</div>
+<div class="testimonials-grid reveal">
+<div class="card testimonial">
+<div class="quote-mark">&ldquo;</div>
+<blockquote>I went from watching tutorials to actually shipping apps every week. Night Vibe changed everything.</blockquote>
+<div class="author">Marcus T.</div>
+<div class="role">AI Developer</div>
+</div>
+<div class="card testimonial">
+<div class="quote-mark">&ldquo;</div>
+<blockquote>The weekly sessions keep me accountable. I've shipped more in 2 months than the entire year before.</blockquote>
+<div class="author">Priya S.</div>
+<div class="role">Full-Stack Builder</div>
+</div>
+<div class="card testimonial">
+<div class="quote-mark">&ldquo;</div>
+<blockquote>The community is the real product. Every call I learn something that saves me hours. The apps are a bonus.</blockquote>
+<div class="author">Jordan K.</div>
+<div class="role">Vibe Coder</div>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 10. FAQ -->
+<section id="faq" class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>Frequently Asked <span class="text-gold">Questions</span></h2>
+</div>
+<div class="faq-list reveal">
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>What skill level do I need?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">All levels are welcome. The only requirement is a willingness to build. Whether you're writing your first line of code or scaling your tenth product, you'll find value here.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>What topics do you cover?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">AI, vibe coding, web and mobile apps, automation, robotics, integrated intelligence, and more. We focus on what's emerging and future-proofed — not yesterday's frameworks.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>When are the weekly meetups?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">Check the community platform for the current schedule. All sessions are recorded, so even if you can't make it live, you'll never miss the content.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>What are the premium Knight Ops apps?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">AI-powered tools built by Knight Ops exclusively for Night Vibe members. Currently includes Launch App, Event Command, and AppDash — with new apps added regularly.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>Can I cancel anytime?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">Yes. Monthly membership cancels anytime with no penalties. Annual membership locks in your rate for the full year.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>Is this just another Discord server?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">No. Night Vibe features structured weekly live sessions, real projects, expert-led training, and premium tools. It's a builder's lab — not a chat room.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>What's the 14-day trial?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">Full access for 14 days. Attend sessions, use the apps, meet the community. If it's not for you, cancel before the trial ends — no charge.</div></div>
+</div>
+<div class="faq-item">
+<div class="faq-q" onclick="toggleFaq(this)"><span>Will the price go up?</span><span class="arrow">&#9662;</span></div>
+<div class="faq-a"><div class="faq-a-inner">Yes. Night Vibe starts at $197/mo for the first 10 founding members. The price increases by $10/mo for every 10 members after that, up to a full price of $297/mo. Lock in your rate now.</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 11. PRICING -->
+<section id="pricing" class="section-pad relative">
+<div class="container">
+<div class="section-header reveal">
+<h2>Lock In Your <span class="text-gold">Founding Member</span> Rate</h2>
+</div>
+<div class="pricing-card reveal">
+<div class="founding-badge">Founding Member Price</div>
+<div class="price-old">$297/mo</div>
+<div class="price-current">$197<span>/mo</span></div>
+<div class="price-note">Price increases $10 for every 10 members. Lock in your rate now.</div>
+<div class="trial-badge"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 14-Day Free Trial</div>
+<ul class="pricing-list">
+<li><span class="check">&#10003;</span>Weekly live build sessions</li>
+<li><span class="check">&#10003;</span>Private community platform access</li>
+<li><span class="check">&#10003;</span>Full session recordings library</li>
+<li><span class="check">&#10003;</span>Premium Knight Ops apps (Launch, Event Command, AppDash)</li>
+<li><span class="check">&#10003;</span>Accountability partner matching</li>
+<li><span class="check">&#10003;</span>AI &amp; automation training</li>
+<li><span class="check">&#10003;</span>Expert office hours</li>
+<li><span class="check">&#10003;</span>Collaboration projects</li>
+</ul>
+<a href="https://buy.stripe.com/bJefZg3Tx4v0e7P9b08g00v" class="btn-primary" style="width:100%;margin-bottom:8px">Start Your 14-Day Free Trial</a>
+<div class="annual-option">
+<a href="https://buy.stripe.com/00w3cudu7e5A3tb9b08g00w">$1,997/year — Save $367</a>
+<span class="save">Best value. Locked-in annual rate.</span>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 12. FINAL CTA -->
+<section class="final-cta relative" id="book">
+<div class="container reveal">
+<h2>The Future Is Built by Those Who <span class="text-gold">Show Up.</span></h2>
+<p>Every week, Night Vibe members are learning, building, and shipping things that matter. The only question is whether you'll be in the room when it happens.</p>
+<a href="https://buy.stripe.com/bJefZg3Tx4v0e7P9b08g00v" class="btn-primary">Join Night Vibe — Start Free for 14 Days</a>
+<div class="spots">Only a few founding member spots remaining at $197/mo</div>
+</div>
+</section>
+
+<!-- 13. FOOTER -->
+<footer class="footer relative">
+<div class="container">
+<div class="nav-logo" style="margin-bottom:24px;font-size:1.1rem;font-weight:800">KNIGHT<span style="color:#C8A456">OPS</span></div>
+<div class="footer-links">
+<a href="https://knightops.biz">knightops.biz</a>
+<a href="https://nightvibe.me">nightvibe.me</a>
+<a href="#pricing">Night Vibe</a>
+<a href="/partners">Partners</a>
+<a href="/apply">Apply</a>
+</div>
+<div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+</div>
+</footer>
+
+<!-- EXIT INTENT POPUP -->
+<div class="exit-overlay" id="exitOverlay">
+<div class="exit-box">
+<h3>Before you go &mdash;</h3>
+<p>Builders who show up weekly ship 3x faster. Lock in <strong>$197/mo</strong> before the price goes up.</p>
+<a href="https://buy.stripe.com/bJefZg3Tx4v0e7P9b08g00v" class="btn-primary" style="width:100%">Join Night Vibe — 14 Days Free</a>
+<button class="exit-skip" onclick="closeExit()">No thanks, I'll keep building alone</button>
+</div>
+</div>
+
+<script>
+/* ── MOBILE MENU ── */
+function toggleMenu(){
+document.getElementById('mobileMenu').classList.toggle('open');
+document.querySelector('.hamburger').classList.toggle('active');
+}
+function closeMenu(){
+document.getElementById('mobileMenu').classList.remove('open');
+document.querySelector('.hamburger').classList.remove('active');
+}
+
+/* ── FAQ ACCORDION ── */
+function toggleFaq(el){
+const item=el.parentElement;
+const answer=item.querySelector('.faq-a');
+const isOpen=item.classList.contains('open');
+// close all
+document.querySelectorAll('.faq-item').forEach(i=>{
+i.classList.remove('open');
+i.querySelector('.faq-a').style.maxHeight=null;
+});
+if(!isOpen){
+item.classList.add('open');
+answer.style.maxHeight=answer.scrollHeight+'px';
+}
+}
+
+/* ── INTERSECTION OBSERVER (scroll reveals) ── */
+const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!prefersReducedMotion){
+const observer=new IntersectionObserver((entries)=>{
+entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}});
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+}else{
+document.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'));
+}
+
+/* ── EXIT INTENT ── */
+let exitShown=false;
+document.addEventListener('mouseout',function(e){
+if(!exitShown && e.clientY<5 && e.relatedTarget==null){
+document.getElementById('exitOverlay').classList.add('show');
+exitShown=true;
+}
+});
+function closeExit(){document.getElementById('exitOverlay').classList.remove('show')}
+document.getElementById('exitOverlay').addEventListener('click',function(e){
+if(e.target===this) closeExit();
+});
+
+/* ── PARTICLE CANVAS ── */
+(function(){
+if(prefersReducedMotion) return;
+const canvas=document.getElementById('particle-canvas');
+const ctx=canvas.getContext('2d');
+let w,h,particles=[],mouse={x:-1000,y:-1000};
+const PARTICLE_COUNT=80;
+const CONNECTION_DIST=140;
+const MOUSE_RADIUS=180;
+
+function resize(){
+w=canvas.width=window.innerWidth;
+h=canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize',resize);
+document.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY});
+
+function Particle(){
+this.x=Math.random()*w;
+this.y=Math.random()*h;
+this.vx=(Math.random()-.5)*.4;
+this.vy=(Math.random()-.5)*.4;
+this.r=Math.random()*2+1;
+this.alpha=Math.random()*.5+.2;
+}
+for(let i=0;i<PARTICLE_COUNT;i++) particles.push(new Particle());
+
+function draw(){
+ctx.clearRect(0,0,w,h);
+for(let i=0;i<particles.length;i++){
+const p=particles[i];
+// mouse repulsion
+const dx=p.x-mouse.x,dy=p.y-mouse.y;
+const dist=Math.sqrt(dx*dx+dy*dy);
+if(dist<MOUSE_RADIUS){
+const force=(MOUSE_RADIUS-dist)/MOUSE_RADIUS*0.6;
+p.vx+=dx/dist*force*.3;
+p.vy+=dy/dist*force*.3;
+}
+// damping
+p.vx*=.99;p.vy*=.99;
+p.x+=p.vx;p.y+=p.vy;
+// wrap
+if(p.x<0)p.x=w;if(p.x>w)p.x=0;
+if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+// draw particle
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle='rgba(200,164,86,'+p.alpha+')';
+ctx.fill();
+// connections
+for(let j=i+1;j<particles.length;j++){
+const p2=particles[j];
+const cdx=p.x-p2.x,cdy=p.y-p2.y;
+const cd=Math.sqrt(cdx*cdx+cdy*cdy);
+if(cd<CONNECTION_DIST){
+ctx.beginPath();
+ctx.moveTo(p.x,p.y);
+ctx.lineTo(p2.x,p2.y);
+ctx.strokeStyle='rgba(200,164,86,'+(1-cd/CONNECTION_DIST)*.15+')';
+ctx.lineWidth=.5;
+ctx.stroke();
+}
+}
+}
+requestAnimationFrame(draw);
+}
+draw();
+})();
+</script>
+</body>
+</html>

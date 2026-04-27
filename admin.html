@@ -194,6 +194,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
       <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
+      <div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">&#128202;</span> KPIs</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -599,6 +600,36 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     </div>
   </div>
 </div>
+      <!-- ═══ KPIs VIEW ═══ -->
+      <div class="view" id="v-kpis">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+          <h2 style="font-size:1.1rem;font-weight:700;margin:0">Key Performance Indicators</h2>
+          <div id="kpiFilters" style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-secondary kf-btn active" data-range="7d" onclick="setKpiRange('7d',this)">7 Days</button>
+            <button class="btn btn-sm btn-secondary kf-btn" data-range="30d" onclick="setKpiRange('30d',this)">30 Days</button>
+            <button class="btn btn-sm btn-secondary kf-btn" data-range="90d" onclick="setKpiRange('90d',this)">90 Days</button>
+            <button class="btn btn-sm btn-secondary kf-btn" data-range="ytd" onclick="setKpiRange('ytd',this)">Year to Date</button>
+            <button class="btn btn-sm btn-secondary kf-btn" data-range="all" onclick="setKpiRange('all',this)">All Time</button>
+          </div>
+        </div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128176; Revenue</div>
+        <div class="kpi-grid" id="kpiRevenue" style="margin-bottom:1.5rem"></div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128200; Pipeline</div>
+        <div class="kpi-grid" id="kpiPipeline" style="margin-bottom:1.5rem"></div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#9733; Leads &amp; Conversion</div>
+        <div class="kpi-grid" id="kpiLeads" style="margin-bottom:1.5rem"></div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#127760; Website Traffic</div>
+        <div class="kpi-grid" id="kpiTraffic" style="margin-bottom:1.5rem"></div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#9881; Projects &amp; Tasks</div>
+        <div class="kpi-grid" id="kpiProjects" style="margin-bottom:1.5rem"></div>
+        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128179; Invoicing</div>
+        <div class="kpi-grid" id="kpiInvoicing" style="margin-bottom:1.5rem"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Revenue Trend</h3><div style="position:relative;height:220px"><canvas id="kpiRevenueChart"></canvas></div></div>
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Lead Sources</h3><div style="position:relative;height:220px"><canvas id="kpiSourceChart"></canvas></div></div>
+        </div>
+      </div>
+
 <!-- UNIVERSAL EDIT MODAL -->
 <div class="modal-overlay" id="editModal"><div class="modal"><div class="modal-head"><h2 id="editModalTitle">Edit</h2><button class="close" onclick="closeEditModal()">&#10005;</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-foot" id="editModalFoot"></div></div></div>
 
@@ -692,7 +723,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     // Also reset applications view
     const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
     const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-    if(v==='dashboard')loadDashboard();
+    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();
     closeSidebar();
   });
 });
@@ -845,6 +876,108 @@ function kpiCard(label,value,sub,style,onclick){
 }
 
 function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':n.toString()}
+
+// KPIs VIEW
+var kpiRange='7d';
+var kpiRevenueChartInst=null,kpiSourceChartInst=null;
+function setKpiRange(r,btn){
+  kpiRange=r;
+  document.querySelectorAll('.kf-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  loadKPIs();
+}
+async function loadKPIs(){
+  const{from,to}=getDateRange(kpiRange);
+  const[analyticsRes,proposalsRes]=await Promise.all([
+    sb.from('site_analytics').select('*').gte('created_at',from).lte('created_at',to).order('created_at',{ascending:true}),
+    sb.from('proposals').select('*').order('created_at',{ascending:false})
+  ]);
+  const analytics=analyticsRes.data||[];
+  const proposals=proposalsRes.data||[];
+  const pageviews=analytics.filter(e=>e.event_type==='pageview');
+  const clicks=analytics.filter(e=>e.event_type==='click');
+  const sessions=analytics.filter(e=>e.event_type==='session_end');
+  const uniqueVisitors=new Set(pageviews.map(e=>e.visitor_id)).size;
+  const avgDuration=sessions.length?Math.round(sessions.reduce((s,e)=>s+(e.duration_seconds||0),0)/sessions.length):0;
+  const revenueInRange=S.projects.filter(p=>new Date(p.created_at)>=new Date(from)&&new Date(p.created_at)<=new Date(to)).reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+  const totalRevenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+  const wonDealsAll=S.deals.filter(d=>d.status==='won');
+  const wonRevenue=wonDealsAll.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
+  const avgDealSize=wonDealsAll.length?wonRevenue/wonDealsAll.length:0;
+  document.getElementById('kpiRevenue').innerHTML=
+    kpiCard('Total Revenue',fmtMoney(totalRevenue),'All time from projects')+
+    kpiCard('Revenue (Period)',fmtMoney(revenueInRange),'In selected range')+
+    kpiCard('Won Deal Value',fmtMoney(wonRevenue),wonDealsAll.length+' deals closed')+
+    kpiCard('Avg Deal Size',fmtMoney(avgDealSize),wonDealsAll.length+' deals');
+  const openDeals=S.deals.filter(d=>d.status==='open');
+  const pipelineVal=openDeals.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
+  const weightedVal=openDeals.reduce((s,d)=>s+((parseFloat(d.deal_value)||0)*(d.probability||50)/100),0);
+  const now30=new Date();now30.setDate(now30.getDate()+30);
+  const closing30=openDeals.filter(d=>d.expected_close_date&&new Date(d.expected_close_date)<=now30&&new Date(d.expected_close_date)>=new Date());
+  const closing30Val=closing30.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
+  document.getElementById('kpiPipeline').innerHTML=
+    kpiCard('Open Deals',openDeals.length+'',fmtMoney(pipelineVal)+' total value','cursor:pointer',"navTo('deals')")+
+    kpiCard('Weighted Pipeline',fmtMoney(weightedVal),'Probability-adjusted')+
+    kpiCard('Closing Next 30d',fmtMoney(closing30Val),closing30.length+' deals')+
+    kpiCard('Avg Probability',openDeals.length?Math.round(openDeals.reduce((s,d)=>s+(d.probability||50),0)/openDeals.length)+'%':'—','Across open deals');
+  const leadsInRange=S.leads.filter(l=>new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to));
+  const appsInRange=(S.applications||[]).filter(a=>new Date(a.created_at)>=new Date(from)&&new Date(a.created_at)<=new Date(to));
+  const dealsWon=S.leads.filter(l=>l.status==='won');
+  const convRate=S.leads.length?Math.round(dealsWon.length/S.leads.length*100):0;
+  const proposalsSent=proposals.filter(p=>p.sent_at&&new Date(p.sent_at)>=new Date(from)&&new Date(p.sent_at)<=new Date(to));
+  document.getElementById('kpiLeads').innerHTML=
+    kpiCard('Total Leads',S.leads.length+'',leadsInRange.length+' in period','cursor:pointer',"navTo('leads')")+
+    kpiCard('Applications',fmtNum((S.applications||[]).length),appsInRange.length+' in period','cursor:pointer',"navTo('applications')")+
+    kpiCard('Proposals Sent',fmtNum(proposalsSent.length),proposals.length+' all time')+
+    kpiCard('Conversion Rate',convRate+'%',dealsWon.length+' won / '+S.leads.length+' total');
+  document.getElementById('kpiTraffic').innerHTML=
+    kpiCard('Page Views',fmtNum(pageviews.length),uniqueVisitors+' unique visitors')+
+    kpiCard('Clicks',fmtNum(clicks.length),pageviews.length?Math.round(clicks.length/pageviews.length*100)+'% click rate':'—')+
+    kpiCard('Avg Time on Site',Math.floor(avgDuration/60)+'m '+(avgDuration%60)+'s',sessions.length+' sessions')+
+    kpiCard('Sessions',fmtNum(new Set(pageviews.map(e=>e.session_id)).size),'Unique sessions tracked');
+  const activePrj=S.projects.filter(p=>p.status==='in_progress');
+  const completedPrj=S.projects.filter(p=>p.status==='completed');
+  const openTasks=S.tasks.filter(t=>t.status!=='done');
+  const urgentTasks=S.tasks.filter(t=>t.priority==='urgent'&&t.status!=='done');
+  document.getElementById('kpiProjects').innerHTML=
+    kpiCard('Active Projects',activePrj.length+'',S.projects.length+' total','cursor:pointer',"navTo('projects')")+
+    kpiCard('Completed Projects',completedPrj.length+'','All time')+
+    kpiCard('Open Tasks',openTasks.length+'',urgentTasks.length+' urgent','cursor:pointer',"navTo('tasks')")+
+    kpiCard('Task Completion',S.tasks.length?Math.round(S.tasks.filter(t=>t.status==='done').length/S.tasks.length*100)+'%':'—','Done / Total');
+  const inv=S.invoices||[];
+  const paidInv=inv.filter(x=>x.status==='paid');
+  const totalPaid=paidInv.reduce((s,x)=>s+(parseFloat(x.total)||0),0);
+  const outstanding=inv.filter(x=>['sent','viewed','overdue'].includes(x.status)).reduce((s,x)=>s+(parseFloat(x.total)||0)-(parseFloat(x.amount_paid)||0),0);
+  const overdueInv=inv.filter(x=>x.status==='overdue'||(!['paid','cancelled','refunded','draft'].includes(x.status)&&x.due_date&&new Date(x.due_date)<new Date()));
+  document.getElementById('kpiInvoicing').innerHTML=
+    kpiCard('Invoices Paid',paidInv.length+'',fmtMoney(totalPaid)+' collected')+
+    kpiCard('Outstanding',fmtMoney(outstanding),inv.filter(x=>['sent','viewed','overdue'].includes(x.status)).length+' pending')+
+    kpiCard('Overdue',overdueInv.length+'',overdueInv.length?'Action needed':'All clear')+
+    kpiCard('Collection Rate',inv.length?Math.round(paidInv.length/inv.length*100)+'%':'—',paidInv.length+' / '+inv.length);
+  const projByMonth={};
+  S.projects.forEach(p=>{
+    if(!p.created_at)return;
+    const m=p.created_at.substring(0,7);
+    projByMonth[m]=(projByMonth[m]||0)+(parseFloat(p.contract_value)||0);
+  });
+  const mLabels=Object.keys(projByMonth).sort().slice(-12);
+  const mData=mLabels.map(m=>projByMonth[m]);
+  const ctx1=document.getElementById('kpiRevenueChart');
+  if(ctx1){
+    if(kpiRevenueChartInst)kpiRevenueChartInst.destroy();
+    kpiRevenueChartInst=new Chart(ctx1.getContext('2d'),{type:'bar',data:{labels:mLabels.map(m=>{const[y,mo]=m.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1]+' '+y.slice(2)}),datasets:[{label:'Revenue',data:mData,backgroundColor:'rgba(200,164,86,0.6)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.06)'},ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v),color:'#999',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#999',font:{size:10}}}}}});
+  }
+  const srcCount={};
+  S.leads.forEach(l=>{const src=l.source||'unknown';srcCount[src]=(srcCount[src]||0)+1});
+  const srcLabels=Object.keys(srcCount).sort((a,b)=>srcCount[b]-srcCount[a]).slice(0,6);
+  const srcData=srcLabels.map(s=>srcCount[s]);
+  const srcColors=['#C8A456','#00D4FF','#00FF88','#8B5CF6','#FF8C00','#FF3366'];
+  const ctx2=document.getElementById('kpiSourceChart');
+  if(ctx2){
+    if(kpiSourceChartInst)kpiSourceChartInst.destroy();
+    kpiSourceChartInst=new Chart(ctx2.getContext('2d'),{type:'doughnut',data:{labels:srcLabels.map(s=>s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())),datasets:[{data:srcData,backgroundColor:srcColors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#999'}}}}});
+  }
+}
 
 function renderPVChart(pageviews){
   // Group by day
