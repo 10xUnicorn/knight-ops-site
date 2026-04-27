@@ -193,6 +193,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
             <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
+      <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -570,6 +571,31 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           </div>
         </div>
       </div>
+
+      <!-- AGENTS VIEW -->
+      <div class="view" id="v-agents">
+        <div class="kpi-grid" id="agentKpis">
+          <div class="kpi"><div class="label">Active Agents</div><div class="value" id="agentKpiActive">0</div></div>
+          <div class="kpi"><div class="label">Total Runs</div><div class="value" id="agentKpiRuns">0</div></div>
+          <div class="kpi"><div class="label">Total Decisions</div><div class="value" id="agentKpiDecisions">0</div></div>
+          <div class="kpi"><div class="label">Revenue Influenced</div><div class="value" id="agentKpiRevenue">$0</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1.25rem;margin-top:1rem" id="agentCards"></div>
+        <div class="table-card" style="margin-top:1.5rem">
+          <div class="table-header">
+            <h2>Recent Agent Decisions</h2>
+            <div class="table-filters">
+              <select id="agentDecisionFilter" onchange="renderAgentDecisions()"><option value="">All Agents</option></select>
+              <select id="agentDecisionStatusFilter" onchange="renderAgentDecisions()"><option value="">All Statuses</option><option value="success">Success</option><option value="error">Error</option><option value="skipped">Skipped</option></select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table><thead><tr><th>Agent</th><th>Action</th><th>Status</th><th>Details</th><th>Time</th></tr></thead><tbody id="agentDecisionsBody"></tbody></table>
+          </div>
+          <div class="table-empty" id="agentDecisionsEmpty" style="display:none">No agent decisions recorded yet.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -622,7 +648,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[],agents:[],agentDecisions:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -632,7 +658,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents()]);
   loadDashboard();
 })();
 
@@ -5261,6 +5287,129 @@ function createPostFromTopic(topicId){
     if(t.target_query)document.getElementById('blogPostMeta').value='Learn '+t.target_query.toLowerCase()+'. Expert insights from Knight Ops on building systems that scale.';
     updateMetaCount();
   },100);
+}
+
+// ========== AGENT BRAINS ==========
+async function loadAgents(){
+  const{data}=await sb.from('agent_registry').select('*').order('created_at');
+  S.agents=data||[];
+  const{data:dec}=await sb.from('agent_decisions').select('*').order('created_at',{ascending:false}).limit(100);
+  S.agentDecisions=dec||[];
+  renderAgents();
+  renderAgentDecisions();
+}
+
+function renderAgents(){
+  const agents=S.agents;
+  const active=agents.filter(a=>a.status==='active').length;
+  const totalRuns=agents.reduce((s,a)=>s+(a.total_runs||0),0);
+  const totalDec=agents.reduce((s,a)=>s+(a.total_decisions||0),0);
+  const totalRev=agents.reduce((s,a)=>s+parseFloat(a.total_revenue_influenced||0),0);
+  document.getElementById('agentKpiActive').textContent=active;
+  document.getElementById('agentKpiRuns').textContent=totalRuns.toLocaleString();
+  document.getElementById('agentKpiDecisions').textContent=totalDec.toLocaleString();
+  document.getElementById('agentKpiRevenue').textContent='$'+totalRev.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0});
+
+  const iconMap={sales:'&#9830;',marketing:'&#9998;',builder:'&#9881;'};
+  const colorMap={sales:'#c8a456',marketing:'#7c6eff',builder:'#56c8a4'};
+  const container=document.getElementById('agentCards');
+  container.innerHTML=agents.map(a=>{
+    const isActive=a.status==='active';
+    const color=colorMap[a.agent_type]||'#c8a456';
+    const icon=iconMap[a.agent_type]||'&#9881;';
+    const lastRun=a.last_run_at?new Date(a.last_run_at).toLocaleString():'Never';
+    const lastStatus=a.last_run_status||'—';
+    const summary=a.last_run_summary?JSON.stringify(a.last_run_summary).slice(0,200):'No runs yet';
+    return `<div class="table-card" style="padding:1.25rem;border-left:4px solid ${color}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.5rem;color:${color}">${icon}</span>
+          <div>
+            <h3 style="font-size:1rem;font-weight:700;margin:0">${a.display_name||a.agent_type}</h3>
+            <span style="font-size:0.75rem;color:var(--text-muted)">${a.agent_type} agent · every ${a.run_interval_minutes}min</span>
+          </div>
+        </div>
+        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+          <input type="checkbox" ${isActive?'checked':''} onchange="toggleAgent('${a.id}',this.checked)" style="opacity:0;width:0;height:0">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:${isActive?color:'#333'};border-radius:26px;transition:0.3s"></span>
+          <span style="position:absolute;content:'';height:20px;width:20px;left:${isActive?'24px':'3px'};bottom:3px;background:white;border-radius:50%;transition:0.3s"></span>
+        </label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem">
+        <div style="background:var(--surface-2);padding:8px 12px;border-radius:8px">
+          <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Runs</div>
+          <div style="font-size:1.1rem;font-weight:700">${a.total_runs||0}</div>
+        </div>
+        <div style="background:var(--surface-2);padding:8px 12px;border-radius:8px">
+          <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Decisions</div>
+          <div style="font-size:1.1rem;font-weight:700">${a.total_decisions||0}</div>
+        </div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px">
+        <strong>Last Run:</strong> ${lastRun} <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;background:${lastStatus==='success'?'rgba(86,200,164,0.15)':lastStatus==='error'?'rgba(255,80,80,0.15)':'rgba(255,255,255,0.05)'};color:${lastStatus==='success'?'#56c8a4':lastStatus==='error'?'#ff5050':'var(--text-muted)'}">${lastStatus}</span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);max-height:60px;overflow:hidden;text-overflow:ellipsis">${summary}</div>
+      <div style="display:flex;gap:8px;margin-top:1rem">
+        <button class="btn btn-sm btn-secondary" onclick="runAgentNow('${a.agent_type}')">&#9654; Run Now</button>
+        <button class="btn btn-sm btn-secondary" onclick="viewAgentHistory('${a.id}')">View History</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Populate decision filter dropdown
+  const filter=document.getElementById('agentDecisionFilter');
+  const existing=filter.value;
+  filter.innerHTML='<option value="">All Agents</option>'+agents.map(a=>`<option value="${a.id}">${a.display_name||a.agent_type}</option>`).join('');
+  filter.value=existing;
+}
+
+function renderAgentDecisions(){
+  const agentFilter=document.getElementById('agentDecisionFilter').value;
+  const statusFilter=document.getElementById('agentDecisionStatusFilter').value;
+  let dec=S.agentDecisions;
+  if(agentFilter) dec=dec.filter(d=>d.agent_id===agentFilter);
+  if(statusFilter) dec=dec.filter(d=>d.status===statusFilter);
+  const tbody=document.getElementById('agentDecisionsBody');
+  const empty=document.getElementById('agentDecisionsEmpty');
+  if(!dec.length){tbody.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  tbody.innerHTML=dec.slice(0,50).map(d=>{
+    const agent=S.agents.find(a=>a.id===d.agent_id);
+    const name=agent?(agent.display_name||agent.agent_type):'Unknown';
+    const statusColor=d.status==='success'?'#56c8a4':d.status==='error'?'#ff5050':'#888';
+    const details=typeof d.result==='object'?JSON.stringify(d.result).slice(0,120):(d.result||'—');
+    const time=new Date(d.created_at).toLocaleString();
+    return `<tr>
+      <td style="font-weight:600">${name}</td>
+      <td>${d.action_type||'—'}</td>
+      <td><span style="color:${statusColor};font-weight:600">${d.status}</span></td>
+      <td style="font-size:0.8rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${details}</td>
+      <td style="font-size:0.8rem;color:var(--text-muted)">${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleAgent(agentId,enabled){
+  const newStatus=enabled?'active':'paused';
+  await sb.from('agent_registry').update({status:newStatus,updated_at:new Date().toISOString()}).eq('id',agentId);
+  const agent=S.agents.find(a=>a.id===agentId);
+  if(agent) agent.status=newStatus;
+  renderAgents();
+}
+
+async function runAgentNow(agentType){
+  const slug=agentType==='sales'?'sales-agent':agentType+'-agent';
+  try{
+    const resp=await fetch(SUPABASE_URL+'/functions/v1/'+slug,{method:'POST',headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:'{}'});
+    const data=await resp.json();
+    alert(agentType.charAt(0).toUpperCase()+agentType.slice(1)+' Agent executed. Check results below.');
+    await loadAgents();
+  }catch(e){alert('Error running agent: '+e.message);}
+}
+
+async function viewAgentHistory(agentId){
+  document.getElementById('agentDecisionFilter').value=agentId;
+  renderAgentDecisions();
 }
 
 // LOGOUT
