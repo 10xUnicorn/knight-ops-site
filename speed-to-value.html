@@ -1147,11 +1147,22 @@ function submitApp(e){
   const f=e.target,b=document.getElementById('subBtn');
   const d=new URLSearchParams(new FormData(f));
   b.textContent='SUBMITTING...';b.disabled=true;
-  fetch('https://hooks.knight-ops.com/speed-to-value',{
-    method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:d.toString(),mode:'no-cors'
-  }).then(()=>{f.style.display='none';document.getElementById('fok').style.display='block'})
-  .catch(()=>{f.style.display='none';document.getElementById('fok').style.display='block'});
+  fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/speed-to-value-intake',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:d.toString()
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    console.log('Application submitted:',data);
+    f.style.display='none';
+    document.getElementById('fok').style.display='block';
+  })
+  .catch(err=>{
+    console.error('Submit error:',err);
+    f.style.display='none';
+    document.getElementById('fok').style.display='block';
+  });
   return false;
 }
 </script>
