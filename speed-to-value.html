@@ -1152,16 +1152,21 @@ function submitApp(e){
     headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:d.toString()
   })
-  .then(r=>r.json())
+  .then(r=>{if(!r.ok)throw new Error('Server error '+r.status);return r.json()})
   .then(data=>{
-    console.log('Application submitted:',data);
-    f.style.display='none';
-    document.getElementById('fok').style.display='block';
+    if(data.success){
+      console.log('Application submitted:',data);
+      f.style.display='none';
+      document.getElementById('fok').style.display='block';
+    }else{
+      throw new Error(data.error||'Submission failed');
+    }
   })
   .catch(err=>{
     console.error('Submit error:',err);
-    f.style.display='none';
-    document.getElementById('fok').style.display='block';
+    b.textContent='ERROR — TRY AGAIN';b.disabled=false;
+    b.style.background='#ff4444';
+    setTimeout(()=>{b.textContent='Submit Your Application →';b.style.background='';},3000);
   });
   return false;
 }
