@@ -395,6 +395,103 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
   font-size:.6rem;font-weight:700;letter-spacing:.08em;
   border-radius:0 0 6px 6px;
 }
+
+/* GOLD CARD — Full Transformation Build */
+.tier.gold-card{
+  background:linear-gradient(165deg,rgba(200,164,86,.18) 0%,rgba(180,140,50,.08) 40%,rgba(200,164,86,.14) 100%);
+  border:1.5px solid rgba(200,164,86,.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255,215,0,.2),
+    inset 0 -1px 0 rgba(160,120,40,.15),
+    inset 1px 0 0 rgba(255,209,102,.1),
+    inset -1px 0 0 rgba(255,209,102,.1),
+    0 0 0 1px rgba(0,0,0,.4),
+    0 0 60px rgba(200,164,86,.12),
+    0 4px 30px rgba(200,164,86,.08);
+}
+.tier.gold-card::before{
+  content:'';position:absolute;inset:0;border-radius:10px;
+  background:linear-gradient(145deg,rgba(255,215,0,.06) 0%,transparent 50%,rgba(200,164,86,.04) 100%);
+  pointer-events:none;
+}
+.tier.gold-card::after{
+  content:'◆ PREMIUM BUILD';
+  position:absolute;top:-1px;right:24px;
+  padding:5px 14px;
+  background:linear-gradient(135deg,#C8A456,#FFD166,#C8A456);
+  color:var(--deep);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  border-radius:0 0 6px 6px;
+}
+.tier.gold-card:hover{
+  border-color:rgba(200,164,86,.65);
+  transform:translateY(-6px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,215,0,.25),
+    inset 0 -1px 0 rgba(160,120,40,.2),
+    inset 1px 0 0 rgba(255,209,102,.15),
+    inset -1px 0 0 rgba(255,209,102,.15),
+    0 0 0 1px rgba(0,0,0,.4),
+    0 0 80px rgba(200,164,86,.18),
+    0 8px 40px rgba(200,164,86,.12);
+}
+.tier.gold-card .tier-name{color:#FFD166}
+.tier.gold-card .tier-ul li::before{color:#FFD166}
+.tier.gold-card .tier-save{background:rgba(200,164,86,.12);border-color:rgba(200,164,86,.25);color:var(--gold-bright)}
+
+/* DIAMOND CARD — Strategic Growth Partnership */
+.tier.diamond-card{
+  background:linear-gradient(165deg,rgba(88,28,135,.15) 0%,rgba(60,20,100,.08) 30%,rgba(123,97,255,.1) 60%,rgba(200,164,86,.08) 100%);
+  border:1.5px solid rgba(123,97,255,.35);
+  box-shadow:
+    inset 0 1px 0 rgba(200,180,255,.15),
+    inset 0 -1px 0 rgba(88,28,135,.12),
+    inset 1px 0 0 rgba(123,97,255,.08),
+    inset -1px 0 0 rgba(200,164,86,.06),
+    0 0 0 1px rgba(0,0,0,.4),
+    0 0 60px rgba(123,97,255,.1),
+    0 0 30px rgba(88,28,135,.06),
+    0 4px 30px rgba(123,97,255,.06);
+}
+.tier.diamond-card::before{
+  content:'';position:absolute;inset:0;border-radius:10px;
+  background:
+    linear-gradient(145deg,rgba(200,180,255,.05) 0%,transparent 40%),
+    linear-gradient(225deg,rgba(200,164,86,.04) 0%,transparent 40%);
+  pointer-events:none;
+}
+.tier.diamond-card::after{
+  content:'💎 ELITE PARTNERSHIP';
+  position:absolute;top:-1px;right:24px;
+  padding:5px 14px;
+  background:linear-gradient(135deg,#7B61FF,#9B7DFF,#C8A456);
+  color:#fff;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  border-radius:0 0 6px 6px;
+  text-shadow:0 1px 2px rgba(0,0,0,.3);
+}
+.tier.diamond-card:hover{
+  border-color:rgba(123,97,255,.5);
+  transform:translateY(-6px);
+  box-shadow:
+    inset 0 1px 0 rgba(200,180,255,.2),
+    inset 0 -1px 0 rgba(88,28,135,.15),
+    inset 1px 0 0 rgba(123,97,255,.12),
+    inset -1px 0 0 rgba(200,164,86,.08),
+    0 0 0 1px rgba(0,0,0,.4),
+    0 0 80px rgba(123,97,255,.15),
+    0 0 40px rgba(88,28,135,.1),
+    0 8px 40px rgba(123,97,255,.1);
+}
+.tier.diamond-card .tier-name{
+  background:linear-gradient(135deg,#C8B8FF,#FFD166);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.tier.diamond-card .tier-ul li::before{color:#9B7DFF}
+.tier.diamond-card .tier-save{background:rgba(123,97,255,.1);border-color:rgba(123,97,255,.2);color:#9B7DFF}
 .tier-name{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600}
 .tier-price{
   font-family:'Cormorant Garamond',serif;
@@ -807,7 +904,7 @@ footer a:hover{color:var(--white)}
       </ul>
       <a href="#apply" class="btn-gold" style="width:100%;justify-content:center;font-size:.85rem">Apply for VIP Day →</a>
     </div>
-    <div class="tier rv d3">
+    <div class="tier gold-card rv d3">
       <div class="tier-name">Full Transformation Build</div>
       <div class="tier-was">$35,000</div>
       <div class="tier-price gold-grad">$25,000</div>
@@ -824,7 +921,7 @@ footer a:hover{color:var(--white)}
       </ul>
       <a href="#apply" class="btn-neon" style="width:100%;justify-content:center">Apply for This Tier</a>
     </div>
-    <div class="tier rv d4">
+    <div class="tier diamond-card rv d4">
       <div class="tier-name">Strategic Growth Partnership</div>
       <div class="tier-was">$77,000/year</div>
       <div class="tier-price gold-grad">$50,000<span style="font-size:.4em;font-weight:400;color:var(--muted)">/year</span></div>
@@ -954,7 +1051,7 @@ footer a:hover{color:var(--white)}
   <div class="alt rv">
     <p>Prefer to reach out directly?</p>
     <div class="alt-row">
-      <a href="sms:602-702-0807,303-475-1778&body=Hi Daniel and Niko, I'm interested in the Speed to Value VIP Day. My name is [Your Name] and I run [Your Company]. I'd love to learn more about working together." class="btn-neon">📱 Text Us</a>
+      <a href="sms:+16027020807,+13034751778?body=Hi Daniel and Niko, I'm interested in the Speed to Value VIP Day. My name is [Your Name] and I run [Your Company]. I'd love to learn more about working together." class="btn-neon">📱 Text Us</a>
       <a href="mailto:dknightunicorn@gmail.com,Niko@VisionEspresso.co?subject=VIP Day Inquiry — [Your Company Name]&body=Hi Daniel and Niko,%0D%0A%0D%0AI'm interested in learning more about the Speed to Value VIP Day.%0D%0A%0D%0A• Name: [Your Name]%0D%0A• Business: [Your Company / What You Do]%0D%0A• What I want to build: [Brief Description]%0D%0A• Timeline: [ASAP / Within a Month / Flexible]%0D%0A%0D%0ALooking forward to connecting.%0D%0A%0D%0ABest,%0D%0A[Your Name]" class="btn-outline" style="padding:14px 32px;font-size:.85rem">✉️ Email Us Directly</a>
     </div>
   </div>
