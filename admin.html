@@ -2926,6 +2926,7 @@ function showAppDetail(id){
     '<div class="detail-back" onclick="document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'">&#8592; Back to Applications</div>'+
     '<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'prev\',showAppDetail)" style="padding:5px 8px">&#8249;</button><div><h2 style="margin:0">'+fullName+'</h2>'+(a.title?'<div style="font-size:.85rem;color:var(--text-muted)">'+a.title+'</div>':'')+'</div><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'next\',showAppDetail)" style="padding:5px 8px">&#8250;</button></div><div>'+
       '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')" style="margin-right:6px">&#128203; Copy Build Prompt</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="margin-right:6px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border:none">&#128218; Copy Blueprint Prompt</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="editApplication(\''+a.id+'\')" style="margin-right:6px">Edit</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
       '<button class="btn btn-sm btn-secondary" style="margin-right:6px;background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
@@ -2996,9 +2997,16 @@ function showAppDetail(id){
         '</div>'+
       '</div>'+
       '<pre id="promptPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
+    '</div>'+
+    '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(139,92,246,0.2);border-radius:14px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem;color:#8B5CF6">&#128218; 10x Blueprint Prompt</h3><button class="btn btn-sm" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none">&#128203; Copy to Clipboard</button></div>'+
+      '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">Generates a full 10x Systems Blueprint analysis prompt with SWOT, strategic recommendations, pricing tiers, and growth architecture based on this application data.</p>'+
+      '<pre id="blueprintPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid rgba(139,92,246,0.15);line-height:1.5"></pre>'+
     '</div>';
   // Render the prompt preview
   refreshPromptPreview(a.id);
+  // Render blueprint preview
+  refreshBlueprintPreview(a.id);
   // Load proposal state
   loadProposalSection(a);
 }
@@ -3313,6 +3321,149 @@ function copyBuildPrompt(id){
     const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
     showToast('Build prompt copied to clipboard!');
   });
+}
+
+function generateBlueprintPrompt(a){
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
+  const firstName=a.first_name||'Client';
+  const platform=(a.bp_platform||a.q7_platform_type||'not specified').replace(/_/g,' ');
+  const appStore=(a.bp_deployment||a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
+  const budget=fmtBudget(a.budget);
+  const timeline=fmtTimeline2(a.timeline);
+  const coreOutcome=a.bp_core_outcome||a.q4_core_outcome||'Not specified';
+  const isBlueprint=a.form_type==='blueprint';
+
+  return `You are a world-class business systems architect and strategic growth consultant for Knight Ops, a premium overnight development firm founded by Daniel Knight. You specialize in creating 10x Systems Blueprints that transform how entrepreneurs and business owners operate.
+
+BRAND CONTEXT -- KNIGHT OPS
+==============================
+Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
+Tagline: "Built Overnight. Scaled Forever."
+Founder: Daniel Knight
+Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
+Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5
+Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
+
+Service Tiers:
+- Night Launch -- $1,497 (split: $749 x2) -- High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions.
+- Night Build -- $7,497 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
+- Night Build Pro -- $14,997 (split: $7,499 x2) -- Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
+- Workshop -- $1,000 -- 2-day, 4-hour hands-on workshop. Build your own app.
+
+==============================
+CLIENT PROFILE
+==============================
+Name: ${fullName}
+Email: ${a.email||'Not provided'}
+Phone: ${a.phone||'Not provided'}
+Company: ${a.company||'Not provided'}
+Platform: ${platform}
+App Store Deployment: ${appStore}
+Budget: ${budget}
+Timeline: ${timeline}
+Form Type: ${a.form_type||'standard'}
+Submitted: ${fmtDateTime(a.created_at)}
+${a.title?'Title/Role: '+a.title:''}
+${a.utm_source?'UTM Source: '+a.utm_source:''}${a.utm_campaign?' / Campaign: '+a.utm_campaign:''}
+
+WHAT THEY WANT TO BUILD:
+${coreOutcome}
+${a.q9_non_negotiables?'MUST-HAVES / NON-NEGOTIABLES: '+a.q9_non_negotiables:''}
+${isBlueprint?`
+BLUEPRINT SESSION DEEP DIVE:
+==============================
+System Type: ${(a.bp_system_type||'not specified').replace(/_/g,' ')}
+Target Users: ${a.bp_target_users||'Not specified'}
+Where They Spend the Most Time: ${a.bp_time_sink||'Not specified'}
+Where They Make the Most Money: ${a.bp_revenue_driver||'Not specified'}
+What Would 10x That: ${a.bp_ten_x||'Not specified'}
+Non-Negotiable Features: ${a.bp_non_negotiables||'Not specified'}
+MVP Requirements: ${a.bp_mvp_requirements||'Not specified'}
+Current Tools & Software: ${a.bp_current_tools||'Not specified'}
+Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}
+`:''}
+==============================
+YOUR TASK: GENERATE A 10x SYSTEMS BLUEPRINT
+==============================
+
+Create a comprehensive, premium 10x Systems Blueprint HTML document for ${fullName}. This is a strategic analysis and systems architecture document that shows the client exactly how Knight Ops will transform their business.
+
+THE BLUEPRINT MUST INCLUDE THESE 8 SECTIONS:
+
+SECTION 1: EXECUTIVE SUMMARY
+- One powerful paragraph summarizing who they are, what they need, and what we will build
+- Frame it as a transformation narrative, not a feature list
+
+SECTION 2: SWOT ANALYSIS
+Create a detailed SWOT analysis based on everything we know about their business:
+- Strengths: What they have going for them (existing audience, expertise, revenue streams, tools)
+- Weaknesses: What's holding them back (manual processes, no systems, scattered tools, time bottlenecks)
+- Opportunities: Where the 10x growth lives (automation, new revenue streams, scaling what works)
+- Threats: What could derail them (competitor platforms, market shifts, tech debt, burnout)
+
+SECTION 3: CURRENT STATE ANALYSIS
+- Map their current tools, processes, and pain points
+- Identify time sinks and revenue leaks
+- Quantify the cost of inaction (time wasted per week, revenue left on the table)
+
+SECTION 4: 10x SYSTEMS ARCHITECTURE
+- The complete systems blueprint: what we build, how it connects, what it automates
+- Visual flow of the client journey through their new system
+- Integration map (what connects to what)
+- Automation triggers and workflows
+
+SECTION 5: STRATEGIC GROWTH ROADMAP
+- Phase 1: MVP (what launches first, 2-4 week timeline)
+- Phase 2: Scale (what we add in months 2-3)
+- Phase 3: 10x (the full vision at 6-12 months)
+- Each phase should have clear deliverables and expected outcomes
+
+SECTION 6: REVENUE IMPACT PROJECTIONS
+- Conservative, moderate, and aggressive revenue projections
+- Time savings calculations (hours per week reclaimed)
+- ROI timeline (when the system pays for itself)
+- Client retention improvements
+
+SECTION 7: RECOMMENDED PACKAGE & INVESTMENT
+- Based on their needs, recommend the right Knight Ops tier
+- Break down exactly what's included
+- Show the value vs. the investment
+- Include payment options (full pay vs. split)
+
+SECTION 8: NEXT STEPS & CALL TO ACTION
+- Clear next steps to get started
+- Book a call link: https://knightops.biz/book
+- Create urgency without being pushy
+- End with a powerful closing statement
+
+CRITICAL FORMATTING RULES:
+- Output as a single, self-contained HTML file
+- Use Knight Ops brand colors: Background #0A0A0B, Gold #C8A456, Surface #111113, Text #F5F5F5
+- Premium, modern design with subtle gold accents
+- Mobile responsive
+- Include the Knight Ops shield logo (CSS-only, no external images)
+- Professional typography using system fonts
+- Smooth scroll navigation between sections
+- Each section should have a gold accent border or divider
+- Include a floating "Book Your Call" CTA button
+- No external dependencies (all CSS/JS inline)
+- Do NOT use dashes (--) in copy. Use commas, periods, or line breaks instead.
+- File name: knight-ops-blueprint-${firstName.toLowerCase()}${a.last_name?'-'+a.last_name.toLowerCase():''}.html`;
+}
+
+function copyBlueprintPrompt(id){
+  const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  const prompt=generateBlueprintPrompt(a);
+  navigator.clipboard.writeText(prompt).then(()=>showToast('Blueprint prompt copied to clipboard!','success')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Blueprint prompt copied to clipboard!','success');
+  });
+}
+
+function refreshBlueprintPreview(intakeId){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  const el=document.getElementById('blueprintPreview-'+intakeId);
+  if(el)el.textContent=generateBlueprintPrompt(a);
 }
 
 async function updateAppStatus(id,status){
