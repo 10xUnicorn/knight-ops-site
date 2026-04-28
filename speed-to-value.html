@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed to Value VIP Day | Knight Ops + Vision Espresso</title>
+    <meta name="description" content="The Speed to Value VIP Day is a two-day intensive where we extract your vision and build your complete application in real-time. No months of back-and-forth. Just clarity and execution.">
+    <meta name="keywords" content="VIP Day, app development, vision extraction, Knight Ops, Vision Espresso, rapid development, full-stack development">
+    <link rel="canonical" href="https://knightops.biz/speed-to-value">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Speed to Value VIP Day | Knight Ops + Vision Espresso">
+    <meta property="og:description" content="Your vision, extracted. Your app, built. One day. A two-day intensive where we extract your vision and build your complete application in real-time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://knightops.biz/speed-to-value">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Speed to Value VIP Day | Knight Ops + Vision Espresso">
+    <meta name="twitter:description" content="Your vision, extracted. Your app, built. One day.">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Speed to Value VIP Day",
+        "provider": [
+            {
+                "@type": "Organization",
+                "name": "Knight Ops",
+                "url": "https://knightops.biz"
+            },
+            {
+                "@type": "Organization",
+                "name": "Vision Espresso"
+            }
+        ],
+        "description": "A two-day intensive where we extract your vision and build your complete application in real-time.",
+        "offers": [
+            {
+                "@type": "Offer",
+                "name": "Vision Clarity Sprint",
+                "price": "5000",
+                "priceCurrency": "USD"
+            },
+            {
+                "@type": "Offer",
+                "name": "Speed to Value VIP Weekend",
+                "price": "15000",
+                "priceCurrency": "USD"
+            },
+            {
+                "@type": "Offer",
+                "name": "Full Transformation Build",
+                "price": "25000",
+                "priceCurrency": "USD"
+            },
+            {
+                "@type": "Offer",
+                "name": "Strategic Growth Partnership",
+                "price": "50000",
+                "priceCurrency": "USD"
+            }
+        ],
+        "url": "https://knightops.biz/speed-to-value"
+    }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --card: #111118;
+            --card-alt: #16161f;
+            --gold: #d4a843;
+            --gold-dim: rgba(212, 168, 67, 0.15);
+            --gold-glow: rgba(212, 168, 67, 0.08);
+            --text: #e4e4e7;
+            --muted: #71717a;
+            --border: #1e1e2e;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Utility */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .section-heading {
+            font-size: clamp(1.75rem, 4vw, 2.75rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .section-sub {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        /* Fade-in animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 120px 24px 100px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 168, 67, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid rgba(212, 168, 67, 0.3);
+            padding: 8px 20px;
+            border-radius: 100px;
+            margin-bottom: 32px;
+            background: var(--gold-dim);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            color: var(--gold);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 640px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: #0a0a0f;
+        }
+
+        .btn-primary:hover {
+            background: #e0b84e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 168, 67, 0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        /* ===== PROBLEM ===== */
+        .problem {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-top: 48px;
+        }
+
+        .problem-list {
+            list-style: none;
+        }
+
+        .problem-list li {
+            padding: 16px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--muted);
+            font-size: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .problem-list li:last-child {
+            border-bottom: none;
+        }
+
+        .problem-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 24px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .problem-contrast {
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-contrast::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        .problem-contrast h3 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .problem-contrast p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* ===== PROCESS ===== */
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .step-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 32px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            border-color: rgba(212, 168, 67, 0.3);
+            box-shadow: 0 0 40px var(--gold-glow);
+            transform: translateY(-4px);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--gold-dim);
+            color: var(--gold);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .step-card h3 {
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .step-lead {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .step-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ===== DELIVERABLES ===== */
+        .deliverables {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .deliverables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 48px;
+        }
+
+        .deliverable-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 24px;
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .deliverable-item:hover {
+            border-color: rgba(212, 168, 67, 0.2);
+        }
+
+        .deliverable-check {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(34, 197, 94, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .deliverable-check svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--green);
+        }
+
+        .deliverable-item h4 {
+            font-size: 0.95rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .deliverable-item p {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        /* ===== TEAM ===== */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .team-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            border-color: rgba(212, 168, 67, 0.3);
+            box-shadow: 0 0 50px var(--gold-glow);
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        .team-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .team-company {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .team-card p {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* ===== PRICING ===== */
+        .pricing {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .pricing-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 168, 67, 0.3);
+            box-shadow: 0 0 40px var(--gold-glow);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--gold);
+            box-shadow: 0 0 60px rgba(212, 168, 67, 0.12);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 16px;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .badge-popular {
+            background: var(--gold);
+            color: #0a0a0f;
+        }
+
+        .badge-value {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .pricing-tier {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .pricing-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+            min-height: 52px;
+        }
+
+        .pricing-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+
+        .pricing-period {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        .pricing-divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 24px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            flex: 1;
+        }
+
+        .pricing-features li {
+            font-size: 0.85rem;
+            color: var(--muted);
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .pricing-features li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 13px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .pricing-cta {
+            margin-top: 28px;
+        }
+
+        .pricing-cta .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 0.85rem;
+        }
+
+        /* ===== WHO THIS IS FOR ===== */
+        .audience-list {
+            margin-top: 48px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .audience-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 28px 32px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .audience-item:hover {
+            border-color: rgba(212, 168, 67, 0.2);
+        }
+
+        .audience-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--gold-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audience-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--gold);
+            fill: none;
+        }
+
+        .audience-item p {
+            font-size: 1.05rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* ===== CONTACT ===== */
+        .contact {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .contact-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 36px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-card:hover {
+            border-color: rgba(212, 168, 67, 0.3);
+            box-shadow: 0 0 40px var(--gold-glow);
+        }
+
+        .contact-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .contact-person {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .contact-person-name {
+            font-size: 0.9rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .contact-person a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .contact-person a:hover {
+            color: #e0b84e;
+        }
+
+        .contact-card .contact-note {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        footer a {
+            color: var(--gold);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #e0b84e;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 72px 0;
+            }
+
+            .problem-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .deliverables-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 100px 20px 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                max-width: 320px;
+            }
+
+            .problem-contrast {
+                padding: 32px 24px;
+            }
+
+            .team-card {
+                padding: 32px 24px;
+            }
+
+            .pricing-card {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content fade-in">
+            <div class="hero-badge">Knight Ops + Vision Espresso</div>
+            <h1>Your Vision, Extracted.<br>Your App, <span>Built</span>. One Day.</h1>
+            <p>The Speed to Value VIP Day is a two-day intensive where we extract your vision and build your complete application in real-time. No months of back-and-forth. No scope creep. Just clarity and execution.</p>
+            <div class="hero-buttons">
+                <a href="#contact" class="btn btn-primary">Text Us to Book</a>
+                <a href="#contact" class="btn btn-secondary">Email Us to Book</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE PROBLEM -->
+    <section class="problem" id="problem">
+        <div class="container">
+            <div class="fade-in">
+                <p class="section-label">The Problem</p>
+                <h2 class="section-heading">Traditional Development Is Broken</h2>
+            </div>
+            <div class="problem-grid">
+                <ul class="problem-list fade-in">
+                    <li>Agencies take months to deliver something you could have had in days</li>
+                    <li>You lose momentum between the discovery phase and the actual build</li>
+                    <li>You end up paying for scope creep that never should have existed</li>
+                    <li>You get a prototype instead of a product, then pay again to finish it</li>
+                </ul>
+                <div class="problem-contrast fade-in">
+                    <h3>What if you could walk in with an idea and walk out with a working app?</h3>
+                    <p>That is exactly what we built the Speed to Value VIP Day to do. Two days. Full extraction. Full build. Full launch. You bring the vision, we bring the execution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="process" id="process">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">The Process</p>
+                <h2 class="section-heading">How It Works</h2>
+                <p class="section-sub" style="margin: 0 auto;">Three phases. Two experts. One outcome: your vision, live and working.</p>
+            </div>
+            <div class="process-steps">
+                <div class="step-card fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Vision Extraction</h3>
+                    <p class="step-lead">Led by Niko Arapkiles, Vision Espresso</p>
+                    <p>Intensive discovery session that distills your business goals, user needs, brand identity, and feature requirements into a clear, actionable build spec. Eliminates the weeks-long back-and-forth discovery phase.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Real-Time Build</h3>
+                    <p class="step-lead">Led by Daniel Knight, Knight Ops</p>
+                    <p>While vision is being extracted, Daniel is already building. Using Next.js, Supabase, Vercel, and AI integrations to deliver a production-ready application.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Review + Launch</h3>
+                    <p class="step-lead">Both teams, together</p>
+                    <p>Walk through everything together. Iterate until it matches the vision. Deploy to production before the day ends.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DELIVERABLES -->
+    <section class="deliverables" id="deliverables">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">Deliverables</p>
+                <h2 class="section-heading">What You Get</h2>
+                <p class="section-sub" style="margin: 0 auto;">Everything you need to go from concept to live product, packaged and handed off.</p>
+            </div>
+            <div class="deliverables-grid">
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Full Vision Espresso extraction session with Niko</h4>
+                        <p>Deep-dive into your business, audience, and goals</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Company vision in audio, video, and workbook formats</h4>
+                        <p>Reusable assets for your team and stakeholders</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Working web app prototype deployed and accessible</h4>
+                        <p>Live on the internet, not a mockup in a slide deck</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Client journey mapping with smart ascension built in</h4>
+                        <p>Strategic funnel architecture from day one</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Strategy and roadmap documentation</h4>
+                        <p>Clear next steps and growth plan</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Post-launch support (5 days)</h4>
+                        <p>We stay with you after launch to handle anything</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>3 revision rounds included</h4>
+                        <p>Refinement built into the process</p>
+                    </div>
+                </div>
+                <div class="deliverable-item fade-in">
+                    <div class="deliverable-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4>Full code ownership and handoff docs</h4>
+                        <p>You own everything we build, fully documented</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE TEAM -->
+    <section class="team" id="team">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">The Team</p>
+                <h2 class="section-heading">Who You Are Working With</h2>
+            </div>
+            <div class="team-grid">
+                <div class="team-card fade-in">
+                    <h3 class="team-name">Niko Arapkiles</h3>
+                    <p class="team-company">Vision Espresso</p>
+                    <p>Vision extraction, strategic clarity. Asks the questions nobody else thinks to ask. Helps founders get crystal clear on direction, then packages that clarity into formats the entire team can rally around.</p>
+                </div>
+                <div class="team-card fade-in">
+                    <h3 class="team-name">Daniel Knight</h3>
+                    <p class="team-company">Knight Ops</p>
+                    <p>Tech architecture, full-stack app development. Has the rare ability to deeply understand what someone needs, then mirror that back as a functional system. Translates vision into technology.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">Investment</p>
+                <h2 class="section-heading">Choose Your Level of Engagement</h2>
+                <p class="section-sub" style="margin: 0 auto;">Every tier is designed to deliver outsized value relative to what you invest.</p>
+            </div>
+            <div class="pricing-grid">
+                <!-- Tier 1 -->
+                <div class="pricing-card fade-in">
+                    <p class="pricing-tier">Tier 1</p>
+                    <h3 class="pricing-name">Vision Clarity Sprint</h3>
+                    <p class="pricing-amount">$5,000</p>
+                    <p class="pricing-period">One-time</p>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li>Half-day extraction session</li>
+                        <li>Vision in 3 formats (audio, video, workbook)</li>
+                        <li>Tech assessment + roadmap</li>
+                        <li>30-min follow-up call</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <a href="#contact" class="btn btn-secondary">Get Started</a>
+                    </div>
+                </div>
+
+                <!-- Tier 2 -->
+                <div class="pricing-card featured fade-in">
+                    <span class="pricing-badge badge-popular">Most Popular</span>
+                    <p class="pricing-tier">Tier 2</p>
+                    <h3 class="pricing-name">Speed to Value VIP Weekend</h3>
+                    <p class="pricing-amount">$15,000</p>
+                    <p class="pricing-period">One-time</p>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li>Day 1: Full Vision Espresso (4hrs) + real-time build</li>
+                        <li>Day 2: App review + refinement (4hrs)</li>
+                        <li>Working web app deployed</li>
+                        <li>Client journey mapping</li>
+                        <li>5-day post-launch support</li>
+                        <li>3 revision rounds</li>
+                        <li>Full code ownership</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <a href="#contact" class="btn btn-primary">Get Started</a>
+                    </div>
+                </div>
+
+                <!-- Tier 3 -->
+                <div class="pricing-card fade-in">
+                    <span class="pricing-badge badge-value">Was $30,000</span>
+                    <p class="pricing-tier">Tier 3</p>
+                    <h3 class="pricing-name">Full Transformation Build</h3>
+                    <p class="pricing-amount">$25,000</p>
+                    <p class="pricing-period">One-time</p>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li>Everything in VIP Weekend</li>
+                        <li>Full iOS + Android app</li>
+                        <li>Vision Espresso integrated for team + clients</li>
+                        <li>40-day alignment challenge</li>
+                        <li>App Store submission + assets</li>
+                        <li>7-day post-launch support</li>
+                        <li>4 revision rounds</li>
+                        <li>45-min growth strategy call</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <a href="#contact" class="btn btn-secondary">Get Started</a>
+                    </div>
+                </div>
+
+                <!-- Tier 4 -->
+                <div class="pricing-card fade-in">
+                    <p class="pricing-tier">Tier 4</p>
+                    <h3 class="pricing-name">Strategic Growth Partnership</h3>
+                    <p class="pricing-amount">$50,000</p>
+                    <p class="pricing-period">Per year</p>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li>Everything in Full Transformation</li>
+                        <li>12-month technology retainer</li>
+                        <li>Monthly vision alignment check-ins</li>
+                        <li>Quarterly vision refresh sessions</li>
+                        <li>Priority 24hr support</li>
+                        <li>Ongoing development + feature builds</li>
+                        <li>Dedicated communication channel</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <a href="#contact" class="btn btn-secondary">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHO THIS IS FOR -->
+    <section class="audience" id="audience">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">Ideal Clients</p>
+                <h2 class="section-heading">Who This Is For</h2>
+            </div>
+            <div class="audience-list">
+                <div class="audience-item fade-in">
+                    <div class="audience-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <p>Coaches, consultants, and course creators doing $500K+ who need a platform that matches their level of service</p>
+                </div>
+                <div class="audience-item fade-in">
+                    <div class="audience-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <p>Founders who are tired of duct-taping together 5 different SaaS tools</p>
+                </div>
+                <div class="audience-item fade-in">
+                    <div class="audience-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    </div>
+                    <p>Business owners whose vision is evolving and need tech that leads the transition</p>
+                </div>
+                <div class="audience-item fade-in">
+                    <div class="audience-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <p>Anyone who values speed to value over months of planning</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="fade-in" style="text-align: center;">
+                <p class="section-label">Get in Touch</p>
+                <h2 class="section-heading">Ready to Build?</h2>
+                <p class="section-sub" style="margin: 0 auto;">Reach out to start the conversation. We will figure out the right fit together.</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-card fade-in">
+                    <h3>Text Us</h3>
+                    <div class="contact-person">
+                        <span class="contact-person-name">Daniel:</span>
+                        <a href="sms:6027020807">602-702-0807</a>
+                    </div>
+                    <div class="contact-person">
+                        <span class="contact-person-name">Niko:</span>
+                        <a href="sms:3034751778">303-475-1778</a>
+                    </div>
+                    <p class="contact-note">Text us your name and what you are building. We will reply within 24 hours.</p>
+                </div>
+                <div class="contact-card fade-in">
+                    <h3>Email Us</h3>
+                    <div class="contact-person">
+                        <span class="contact-person-name">Daniel:</span>
+                        <a href="mailto:dknightunicorn@gmail.com?subject=Speed%20to%20Value%20VIP%20Day%20Inquiry">dknightunicorn@gmail.com</a>
+                    </div>
+                    <div class="contact-person">
+                        <span class="contact-person-name">Niko:</span>
+                        <a href="mailto:Niko@VisionEspresso.co?subject=Speed%20to%20Value%20VIP%20Day%20Inquiry">Niko@VisionEspresso.co</a>
+                    </div>
+                    <p class="contact-note">Send us a quick overview of your business and what you need. We will set up a discovery call.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>Knight Ops + Vision Espresso | Partnership</p>
+            <p style="margin-top: 8px;"><a href="https://knightops.biz">knightops.biz</a></p>
+        </div>
+    </footer>
+
+    <!-- Scroll Animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -40px 0px'
+            });
+
+            document.querySelectorAll('.fade-in').forEach(function(el) {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
