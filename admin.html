@@ -6154,50 +6154,52 @@ async function handleLogout(){await sb.auth.signOut();window.location.href='/aut
 
   // ─── QUERY FUNCTIONS ───
   async function queryPipeline(){
-    const {data,error}=await sbQuery(`
-      SELECT d.name,d.value,d.stage,d.status,d.updated_at,
-             l.name as lead_name,l.company
-      FROM deals d LEFT JOIN leads l ON d.lead_id=l.id
-      WHERE d.status NOT IN ('lost','cancelled')
-      ORDER BY d.value DESC NULLS LAST LIMIT 10
-    `);
+    const {data,error}=await sbRest('deals',
+      'select=title,deal_value,stage,status,updated_at,lead_id,leads(name,company)'+
+      '&status=not.in.(lost,cancelled)'+
+      '&order=deal_value.desc.nullslast'+
+      '&limit=10'
+    );
     if(error)return{content:'Could not fetch pipeline: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No open deals found in pipeline.',source:'supabase'};
 
     let total=0;
     let table='| Deal | Value | Stage | Company |\n|------|-------|-------|---------|\n';
     data.forEach(d=>{
-      const val=d.value||0;total+=val;
-      table+=`| ${d.name||'Untitled'} | $${val.toLocaleString()} | ${d.stage} | ${d.company||d.lead_name||'-'} |\n`;
+      const val=d.deal_value||0;total+=val;
+      const lead=d.leads||{};
+      table+=`| ${d.title||'Untitled'} | $${val.toLocaleString()} | ${d.stage} | ${lead.company||lead.name||'-'} |\n`;
     });
     return{
-      content:`**Pipeline Overview** — ${data.length} open deals\n**Total Value: $${total.toLocaleString()}**\n\n${table}\nMost recently updated: **${data[0].name}** (${timeAgo(data[0].updated_at)})`,
+      content:`**Pipeline Overview** — ${data.length} open deals\n**Total Value: $${total.toLocaleString()}**\n\n${table}\nMost recently updated: **${data[0].title}** (${timeAgo(data[0].updated_at)})`,
       source:'supabase / deals'
     };
   }
 
   async function queryLeads(){
-    const {data,error}=await sbQuery(`
-      SELECT name,email,company,source,lead_status,score,created_at
-      FROM leads WHERE created_at > NOW() - INTERVAL '14 days'
-      ORDER BY created_at DESC LIMIT 15
-    `);
+    const since=new Date(Date.now()-14*86400000).toISOString();
+    const {data,error}=await sbRest('leads',
+      'select=name,email,company,source,status,lead_score,created_at'+
+      '&created_at=gte.'+since+
+      '&order=created_at.desc'+
+      '&limit=15'
+    );
     if(error)return{content:'Could not fetch leads: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No new leads in the last 14 days.',source:'supabase'};
 
     let table='| Name | Company | Status | Score | Source |\n|------|---------|--------|-------|--------|\n';
     data.forEach(l=>{
-      table+=`| ${l.name||'Unknown'} | ${l.company||'-'} | ${l.lead_status||'-'} | ${l.score||'-'} | ${l.source||'-'} |\n`;
+      table+=`| ${l.name||'Unknown'} | ${l.company||'-'} | ${l.status||'-'} | ${l.lead_score||'-'} | ${l.source||'-'} |\n`;
     });
     return{content:`**Recent Leads** — ${data.length} in last 14 days\n\n${table}`,source:'supabase / leads'};
   }
 
   async function queryAgents(){
-    const {data,error}=await sbQuery(`
-      SELECT agent_type,action_type,reasoning,outcome,confidence_score,created_at
-      FROM agent_decisions
-      ORDER BY created_at DESC LIMIT 10
-    `);
+    const {data,error}=await sbRest('agent_decisions',
+      'select=agent_type,action_type,reasoning,outcome,confidence_score,created_at'+
+      '&order=created_at.desc'+
+      '&limit=10'
+    );
     if(error)return{content:'Could not fetch agent decisions: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No recent agent activity found.',source:'supabase'};
 
@@ -6209,63 +6211,66 @@ async function handleLogout(){await sb.auth.signOut();window.location.href='/aut
   }
 
   async function queryActivity(){
-    const {data,error}=await sbQuery(`
-      SELECT da.activity_type,da.description,da.created_at,d.name as deal_name
-      FROM deal_activities da JOIN deals d ON da.deal_id=d.id
-      WHERE da.created_at > NOW() - INTERVAL '72 hours'
-      ORDER BY da.created_at DESC LIMIT 15
-    `);
+    const since=new Date(Date.now()-72*3600000).toISOString();
+    const {data,error}=await sbRest('deal_activities',
+      'select=activity_type,description,created_at,deals(title)'+
+      '&created_at=gte.'+since+
+      '&order=created_at.desc'+
+      '&limit=15'
+    );
     if(error)return{content:'Could not fetch activity: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No deal activity in the last 72 hours.',source:'supabase'};
 
     let out='**Recent Activity** (last 72 hours)\n\n';
     data.forEach(a=>{
-      out+=`• **${a.deal_name}** — ${a.activity_type}: ${a.description||''} (${timeAgo(a.created_at)})\n`;
+      const dealName=(a.deals&&a.deals.title)||'Unknown';
+      out+=`• **${dealName}** — ${a.activity_type}: ${a.description||''} (${timeAgo(a.created_at)})\n`;
     });
     return{content:out,source:'supabase / deal_activities'};
   }
 
   async function queryEmail(text){
-    const {data,error}=await sbQuery(`
-      SELECT dq.lead_id,dq.sequence_type,dq.step,dq.status,dq.sent_at,
-             l.name,l.email
-      FROM drip_queue dq JOIN leads l ON dq.lead_id=l.id
-      WHERE dq.status='sent'
-      ORDER BY dq.sent_at DESC NULLS LAST LIMIT 10
-    `);
+    const {data,error}=await sbRest('drip_queue',
+      'select=lead_id,sequence_type,step,status,sent_at,leads(name,email)'+
+      '&status=eq.sent'+
+      '&order=sent_at.desc.nullslast'+
+      '&limit=10'
+    );
     if(error)return{content:'Could not fetch email data: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No recent sent emails found in drip queue.',source:'supabase'};
 
     let out='**Recent Emails Sent**\n\n| To | Sequence | Step | Sent |\n|----|----------|------|------|\n';
     data.forEach(e=>{
-      out+=`| ${e.name||e.email} | ${e.sequence_type} | ${e.step} | ${e.sent_at?timeAgo(e.sent_at):'-'} |\n`;
+      const lead=e.leads||{};
+      out+=`| ${lead.name||lead.email||'-'} | ${e.sequence_type} | ${e.step} | ${e.sent_at?timeAgo(e.sent_at):'-'} |\n`;
     });
     return{content:out,source:'supabase / drip_queue'};
   }
 
   async function queryTasks(){
-    const {data,error}=await sbQuery(`
-      SELECT t.title,t.status,t.priority,t.due_date,p.name as project_name
-      FROM tasks t LEFT JOIN projects p ON t.project_id=p.id
-      WHERE t.status NOT IN ('done','cancelled')
-      ORDER BY CASE t.priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END, t.due_date ASC NULLS LAST
-      LIMIT 15
-    `);
+    const {data,error}=await sbRest('tasks',
+      'select=title,status,priority,due_date,projects(name)'+
+      '&status=not.in.(done,cancelled)'+
+      '&order=due_date.asc.nullslast'+
+      '&limit=15'
+    );
     if(error)return{content:'Could not fetch tasks: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No open tasks found. All clear!',source:'supabase'};
 
     let out=`**Open Tasks** — ${data.length} items\n\n| Task | Priority | Status | Project |\n|------|----------|--------|---------|\n`;
     data.forEach(t=>{
-      out+=`| ${t.title||'Untitled'} | ${t.priority||'-'} | ${t.status} | ${t.project_name||'-'} |\n`;
+      const proj=t.projects||{};
+      out+=`| ${t.title||'Untitled'} | ${t.priority||'-'} | ${t.status} | ${proj.name||'-'} |\n`;
     });
     return{content:out,source:'supabase / tasks'};
   }
 
   async function queryBlog(){
-    const {data,error}=await sbQuery(`
-      SELECT title,status,slug,published_at,created_at
-      FROM blog_posts ORDER BY created_at DESC LIMIT 10
-    `);
+    const {data,error}=await sbRest('blog_posts',
+      'select=title,status,slug,published_at,created_at'+
+      '&order=created_at.desc'+
+      '&limit=10'
+    );
     if(error)return{content:'Could not fetch blog posts: '+error.message,source:'supabase'};
     if(!data||data.length===0)return{content:'No blog posts found.',source:'supabase'};
 
@@ -6278,11 +6283,12 @@ async function handleLogout(){await sb.auth.signOut();window.location.href='/aut
 
   async function generalQuery(text){
     // Try notifications as a general catch
-    const {data}=await sbQuery(`
-      SELECT type,title,body,is_read,created_at
-      FROM notifications WHERE profile_id='ddefe268-cd04-43d1-9264-90068125f9bd'
-      ORDER BY created_at DESC LIMIT 5
-    `);
+    const {data}=await sbRest('notifications',
+      'select=type,title,body,is_read,created_at'+
+      '&profile_id=eq.ddefe268-cd04-43d1-9264-90068125f9bd'+
+      '&order=created_at.desc'+
+      '&limit=5'
+    );
     let notifText='';
     if(data&&data.length>0){
       notifText='\n\n**Latest Notifications:**\n';
@@ -6296,41 +6302,16 @@ async function handleLogout(){await sb.auth.signOut();window.location.href='/aut
     };
   }
 
-  // ─── SUPABASE QUERY HELPER ───
-  async function sbQuery(sql){
+  // ─── SUPABASE REST QUERY HELPER ───
+  // Uses PostgREST directly — no RPC needed
+  async function sbRest(table,params){
     try{
-      const res=await fetch(SB_URL+'/rest/v1/rpc/exec_sql',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'apikey':SB_KEY,
-          'Authorization':'Bearer '+SB_KEY
-        },
-        body:JSON.stringify({query:sql})
-      });
-      // If RPC doesn't exist, fall back to direct REST
-      if(!res.ok){
-        return await sbQueryDirect(sql);
-      }
-      const json=await res.json();
-      return{data:json,error:null};
-    }catch(e){
-      return await sbQueryDirect(sql);
-    }
-  }
-
-  // Direct REST fallback for common queries
-  async function sbQueryDirect(sql){
-    try{
-      // Parse the SQL to determine which table to query
-      const tableMatch=sql.match(/FROM\s+(\w+)/i);
-      if(!tableMatch)return{data:null,error:{message:'Could not parse query'}};
-      const table=tableMatch[1];
-
-      const res=await fetch(SB_URL+'/rest/v1/'+table+'?select=*&limit=15&order=created_at.desc',{
+      const url=SB_URL+'/rest/v1/'+table+'?'+params;
+      const res=await fetch(url,{
         headers:{
           'apikey':SB_KEY,
-          'Authorization':'Bearer '+SB_KEY
+          'Authorization':'Bearer '+SB_KEY,
+          'Accept':'application/json'
         }
       });
       if(!res.ok){
