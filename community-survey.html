@@ -117,6 +117,8 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
 .btn-row{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:36px;flex-wrap:wrap}
 .btn-skip{color:var(--muted);font-size:.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:color .3s;background:none;border:none}
 .btn-skip:hover{color:var(--gray)}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;background:transparent;border:1px solid rgba(200,164,86,0.15);border-radius:4px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.8rem;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .3s}
+.btn-back:hover{border-color:var(--gold);color:var(--gold)}
 
 /* THANK YOU */
 .thankyou{text-align:center}
@@ -136,7 +138,7 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
   .survey-card{padding:28px 20px}
   .option-grid{grid-template-columns:1fr}
   .btn-row{flex-direction:column;align-items:stretch}
-  .btn-row .btn-gold,.btn-row .btn-outline{width:100%;justify-content:center}
+  .btn-row .btn-gold,.btn-row .btn-outline,.btn-row .btn-back{width:100%;justify-content:center}
   .name-row{flex-direction:column;gap:8px;align-items:flex-start}
 }
 </style>
@@ -181,42 +183,9 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
   </div>
 </div>
 
-<!-- ══ STEP 1: NAME PREFERENCE ══ -->
+<!-- ══ STEP 1: INTERESTS (was step 2) ══ -->
 <div class="step" id="step1">
   <div class="step-badge"><span class="label">Step 1 of 7</span></div>
-  <h2 class="card-title">What Should We <span class="gold-grad">Call It?</span></h2>
-  <p class="card-sub">Rate each name from 1-5 stars. Which one feels right to you?</p>
-  <div class="name-rate" id="nameRate">
-    <div class="name-row" data-name="night_vibe">
-      <div class="name-label">Night Vibe Community</div>
-      <div class="stars" data-target="night_vibe"></div>
-    </div>
-    <div class="name-row" data-name="knight_ops">
-      <div class="name-label">Knight Ops Community</div>
-      <div class="stars" data-target="knight_ops"></div>
-    </div>
-    <div class="name-row" data-name="tech_titans">
-      <div class="name-label">Tech Titans Community</div>
-      <div class="stars" data-target="tech_titans"></div>
-    </div>
-    <div class="name-row" data-name="tech_knight">
-      <div class="name-label">Tech Knight Community</div>
-      <div class="stars" data-target="tech_knight"></div>
-    </div>
-  </div>
-  <div class="field">
-    <label>Have a different name idea? Drop it here</label>
-    <input type="text" id="customName" placeholder="Your name suggestion (optional)" />
-  </div>
-  <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(2)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(2)">Next <span style="font-size:1.1em">&rarr;</span></button>
-  </div>
-</div>
-
-<!-- ══ STEP 2: INTERESTS ══ -->
-<div class="step" id="step2">
-  <div class="step-badge"><span class="label">Step 2 of 7</span></div>
   <h2 class="card-title">What Matters <span class="gold-grad">Most to You?</span></h2>
   <p class="card-sub">Select everything that interests you. Pick as many as you want.</p>
   <div class="chips" id="interestChips">
@@ -234,18 +203,21 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
     <div class="chip" data-val="coaching">1-on-1 Coaching Access</div>
   </div>
   <div class="importance-wrap">
-    <div class="importance-label"><span>How important is the topic focus?</span><span id="imp2Val">3 / 5</span></div>
-    <input type="range" class="importance-slider" id="imp2" min="1" max="5" value="3" oninput="document.getElementById('imp2Val').textContent=this.value+' / 5'" />
+    <div class="importance-label"><span>How important is the topic focus?</span><span id="imp1Val">3 / 5</span></div>
+    <input type="range" class="importance-slider" id="imp1" min="1" max="5" value="3" oninput="document.getElementById('imp1Val').textContent=this.value+' / 5'" />
   </div>
   <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(3)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(3)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    <button class="btn-back" onclick="goBack(0)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(2)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(2)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
   </div>
 </div>
 
-<!-- ══ STEP 3: FORMAT & SCHEDULE ══ -->
-<div class="step" id="step3">
-  <div class="step-badge"><span class="label">Step 3 of 7</span></div>
+<!-- ══ STEP 2: FORMAT & SCHEDULE (was step 3) ══ -->
+<div class="step" id="step2">
+  <div class="step-badge"><span class="label">Step 2 of 7</span></div>
   <h2 class="card-title">How Do You Want <span class="gold-grad">to Show Up?</span></h2>
   <p class="card-sub">Tell us your ideal format and schedule.</p>
   <div class="field">
@@ -287,18 +259,21 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
     </div>
   </div>
   <div class="importance-wrap">
-    <div class="importance-label"><span>How important is the schedule?</span><span id="imp3Val">3 / 5</span></div>
-    <input type="range" class="importance-slider" id="imp3" min="1" max="5" value="3" oninput="document.getElementById('imp3Val').textContent=this.value+' / 5'" />
+    <div class="importance-label"><span>How important is the schedule?</span><span id="imp2Val">3 / 5</span></div>
+    <input type="range" class="importance-slider" id="imp2" min="1" max="5" value="3" oninput="document.getElementById('imp2Val').textContent=this.value+' / 5'" />
   </div>
   <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(4)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(4)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    <button class="btn-back" onclick="goBack(1)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(3)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(3)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
   </div>
 </div>
 
-<!-- ══ STEP 4: FEATURES ══ -->
-<div class="step" id="step4">
-  <div class="step-badge"><span class="label">Step 4 of 7</span></div>
+<!-- ══ STEP 3: FEATURES (was step 4) ══ -->
+<div class="step" id="step3">
+  <div class="step-badge"><span class="label">Step 3 of 7</span></div>
   <h2 class="card-title">What Features <span class="gold-grad">Would You Use?</span></h2>
   <p class="card-sub">Select everything that sounds valuable. No wrong answers.</p>
   <div class="chips" id="featureChips">
@@ -316,18 +291,21 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
     <div class="chip" data-val="coworking">Virtual Coworking</div>
   </div>
   <div class="importance-wrap">
-    <div class="importance-label"><span>How important are the features?</span><span id="imp4Val">3 / 5</span></div>
-    <input type="range" class="importance-slider" id="imp4" min="1" max="5" value="3" oninput="document.getElementById('imp4Val').textContent=this.value+' / 5'" />
+    <div class="importance-label"><span>How important are the features?</span><span id="imp3Val">3 / 5</span></div>
+    <input type="range" class="importance-slider" id="imp3" min="1" max="5" value="3" oninput="document.getElementById('imp3Val').textContent=this.value+' / 5'" />
   </div>
   <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(5)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(5)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    <button class="btn-back" onclick="goBack(2)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(4)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(4)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
   </div>
 </div>
 
-<!-- ══ STEP 5: PLATFORM ══ -->
-<div class="step" id="step5">
-  <div class="step-badge"><span class="label">Step 5 of 7</span></div>
+<!-- ══ STEP 4: PLATFORM (was step 5) ══ -->
+<div class="step" id="step4">
+  <div class="step-badge"><span class="label">Step 4 of 7</span></div>
   <h2 class="card-title">Where Do You <span class="gold-grad">Want to Hang?</span></h2>
   <p class="card-sub">Which platform would you prefer for the community?</p>
   <div class="option-grid" id="platformOptions">
@@ -341,18 +319,21 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
     <div class="option" data-val="no_preference">No Preference</div>
   </div>
   <div class="importance-wrap">
-    <div class="importance-label"><span>How important is the platform?</span><span id="imp5Val">3 / 5</span></div>
-    <input type="range" class="importance-slider" id="imp5" min="1" max="5" value="3" oninput="document.getElementById('imp5Val').textContent=this.value+' / 5'" />
+    <div class="importance-label"><span>How important is the platform?</span><span id="imp4Val">3 / 5</span></div>
+    <input type="range" class="importance-slider" id="imp4" min="1" max="5" value="3" oninput="document.getElementById('imp4Val').textContent=this.value+' / 5'" />
   </div>
   <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(6)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(6)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    <button class="btn-back" onclick="goBack(3)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(5)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(5)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
   </div>
 </div>
 
-<!-- ══ STEP 6: PRICING ══ -->
-<div class="step" id="step6">
-  <div class="step-badge"><span class="label">Step 6 of 7</span></div>
+<!-- ══ STEP 5: PRICING (was step 6) ══ -->
+<div class="step" id="step5">
+  <div class="step-badge"><span class="label">Step 5 of 7</span></div>
   <h2 class="card-title">What Feels <span class="gold-grad">Right for You?</span></h2>
   <p class="card-sub">No pressure, just want to understand where value meets comfort.</p>
   <div class="field">
@@ -376,12 +357,64 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
     </div>
   </div>
   <div class="importance-wrap">
-    <div class="importance-label"><span>How important is pricing?</span><span id="imp6Val">3 / 5</span></div>
-    <input type="range" class="importance-slider" id="imp6" min="1" max="5" value="3" oninput="document.getElementById('imp6Val').textContent=this.value+' / 5'" />
+    <div class="importance-label"><span>How important is pricing?</span><span id="imp5Val">3 / 5</span></div>
+    <input type="range" class="importance-slider" id="imp5" min="1" max="5" value="3" oninput="document.getElementById('imp5Val').textContent=this.value+' / 5'" />
   </div>
   <div class="btn-row">
-    <button class="btn-skip" onclick="nextStep(7)">Skip this &rarr;</button>
-    <button class="btn-gold" onclick="nextStep(7)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    <button class="btn-back" onclick="goBack(4)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(6)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(6)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STEP 6: NAME PREFERENCE + INTERESTED (was step 1, now second to last) ══ -->
+<div class="step" id="step6">
+  <div class="step-badge"><span class="label">Step 6 of 7</span></div>
+  <h2 class="card-title">What Should We <span class="gold-grad">Call It?</span></h2>
+  <p class="card-sub">Now that you know what we're building, which name feels right? Rate each from 1-5 stars.</p>
+  <div class="name-rate" id="nameRate">
+    <div class="name-row" data-name="night_vibe">
+      <div class="name-label">Night Vibe Community</div>
+      <div class="stars" data-target="night_vibe"></div>
+    </div>
+    <div class="name-row" data-name="knight_ops">
+      <div class="name-label">Knight Ops Community</div>
+      <div class="stars" data-target="knight_ops"></div>
+    </div>
+    <div class="name-row" data-name="tech_titans">
+      <div class="name-label">Tech Titans Community</div>
+      <div class="stars" data-target="tech_titans"></div>
+    </div>
+    <div class="name-row" data-name="tech_knight">
+      <div class="name-label">Tech Knight Community</div>
+      <div class="stars" data-target="tech_knight"></div>
+    </div>
+  </div>
+  <div class="field">
+    <label>Have a different name idea? Drop it here</label>
+    <input type="text" id="customName" placeholder="Your name suggestion (optional)" />
+  </div>
+
+  <div style="border-top:1px solid var(--border-gold);margin:28px 0;padding-top:24px">
+    <div class="field">
+      <label>Are you interested in joining this community?</label>
+      <div class="option-grid" id="interestedOptions">
+        <div class="option" data-val="yes_interested">Yes, sign me up!</div>
+        <div class="option" data-val="maybe_interested">Maybe, tell me more</div>
+        <div class="option" data-val="just_feedback">Just giving feedback</div>
+        <div class="option" data-val="not_interested">Not for me right now</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack(5)">&larr; Back</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-skip" onclick="nextStep(7)">Skip this &rarr;</button>
+      <button class="btn-gold" onclick="nextStep(7)">Next <span style="font-size:1.1em">&rarr;</span></button>
+    </div>
   </div>
 </div>
 
@@ -426,7 +459,8 @@ nav.scrolled{padding:12px 0;background:rgba(6,6,26,0.95);border-bottom-color:var
       </select>
     </div>
   </div>
-  <div class="btn-row" style="justify-content:center">
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack(6)">&larr; Back</button>
     <button class="btn-gold" onclick="submitSurvey()" id="submitBtn">Submit My Answers <span style="font-size:1.1em">&rarr;</span></button>
   </div>
 </div>
@@ -488,8 +522,8 @@ document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.chips .chip').forEach(function(c){
     c.addEventListener('click',function(){this.classList.toggle('selected')});
   });
-  // Single select options
-  ['formatOptions','freqOptions','dayOptions','timeOptions','platformOptions','priceOptions','annualOptions'].forEach(function(id){
+  // Single select options (including new interestedOptions)
+  ['formatOptions','freqOptions','dayOptions','timeOptions','platformOptions','priceOptions','annualOptions','interestedOptions'].forEach(function(id){
     var el=document.getElementById(id);
     if(!el)return;
     el.querySelectorAll('.option').forEach(function(o){
@@ -543,6 +577,15 @@ function showToast(msg,isErr){
   setTimeout(function(){t.classList.remove('show')},3000);
 }
 
+// ══ BACK NAVIGATION ══
+function goBack(to){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('step'+to).classList.add('active');
+  currentStep=to;
+  updateProgress();
+  document.getElementById('surveyCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 // ══ STEP NAVIGATION ══
 async function nextStep(to){
   await saveCurrentStep();
@@ -553,7 +596,7 @@ async function nextStep(to){
   document.getElementById('surveyCard').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ══ SAVE LOGIC (progressive) ══
+// ══ SAVE LOGIC (progressive, remapped for new step order) ══
 async function saveCurrentStep(){
   try{
     var data={current_step:currentStep+1};
@@ -571,37 +614,44 @@ async function saveCurrentStep(){
         return;
       }
     }
+    // Step 1: Interests (was step 2)
     if(currentStep===1){
+      data.primary_interests=getSelected('interestChips');
+      data.interest_importance=parseInt(document.getElementById('imp1').value);
+    }
+    // Step 2: Format & Schedule (was step 3)
+    if(currentStep===2){
+      data.preferred_format=getSelectedOne('formatOptions');
+      data.preferred_frequency=getSelectedOne('freqOptions');
+      data.preferred_day=getSelectedOne('dayOptions');
+      data.preferred_time=getSelectedOne('timeOptions');
+      data.format_importance=parseInt(document.getElementById('imp2').value);
+    }
+    // Step 3: Features (was step 4)
+    if(currentStep===3){
+      data.desired_features=getSelected('featureChips');
+      data.features_importance=parseInt(document.getElementById('imp3').value);
+    }
+    // Step 4: Platform (was step 5)
+    if(currentStep===4){
+      data.preferred_platform=getSelectedOne('platformOptions');
+      data.platform_importance=parseInt(document.getElementById('imp4').value);
+    }
+    // Step 5: Pricing (was step 6)
+    if(currentStep===5){
+      data.price_comfort=getSelectedOne('priceOptions');
+      data.would_pay_annual=getSelectedOne('annualOptions')==='yes';
+      data.price_importance=parseInt(document.getElementById('imp5').value);
+    }
+    // Step 6: Name Preference + Interested (was step 1)
+    if(currentStep===6){
       data.name_ratings=nameRatings;
       var best=null,bestScore=0;
       Object.keys(nameRatings).forEach(function(k){if(nameRatings[k]>bestScore){bestScore=nameRatings[k];best=k}});
       data.preferred_name=best;
       var custom=document.getElementById('customName').value.trim();
       if(custom)data.preferred_name=custom;
-    }
-    if(currentStep===2){
-      data.primary_interests=getSelected('interestChips');
-      data.interest_importance=parseInt(document.getElementById('imp2').value);
-    }
-    if(currentStep===3){
-      data.preferred_format=getSelectedOne('formatOptions');
-      data.preferred_frequency=getSelectedOne('freqOptions');
-      data.preferred_day=getSelectedOne('dayOptions');
-      data.preferred_time=getSelectedOne('timeOptions');
-      data.format_importance=parseInt(document.getElementById('imp3').value);
-    }
-    if(currentStep===4){
-      data.desired_features=getSelected('featureChips');
-      data.features_importance=parseInt(document.getElementById('imp4').value);
-    }
-    if(currentStep===5){
-      data.preferred_platform=getSelectedOne('platformOptions');
-      data.platform_importance=parseInt(document.getElementById('imp5').value);
-    }
-    if(currentStep===6){
-      data.price_comfort=getSelectedOne('priceOptions');
-      data.would_pay_annual=getSelectedOne('annualOptions')==='yes';
-      data.price_importance=parseInt(document.getElementById('imp6').value);
+      data.interested_in_community=getSelectedOne('interestedOptions');
     }
 
     if(responseId)await sbPatch('community_survey_responses',responseId,data);
