@@ -48,6 +48,35 @@ a{color:var(--accent);text-decoration:none}
 .kpi .delta{font-size:.7rem;font-weight:600;margin-top:2px}
 .kpi .delta.up{color:#22c55e}
 .kpi .delta.down{color:#ef4444}
+.rev-tracker{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.rev-tracker::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#00FF88)}
+.rev-hero{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.rev-hero .target{font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#C8A456,#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.rev-hero .meta{font-size:.8rem;color:var(--text-muted)}
+.rev-bar-wrap{position:relative;background:rgba(255,255,255,0.06);border-radius:10px;height:32px;margin-bottom:1rem;overflow:hidden}
+.rev-bar-collected{height:100%;border-radius:10px;background:linear-gradient(90deg,#22c55e,#C8A456);transition:width .6s ease}
+.rev-bar-pending{position:absolute;top:0;height:100%;background:repeating-linear-gradient(45deg,rgba(200,164,86,0.3),rgba(200,164,86,0.3) 8px,transparent 8px,transparent 16px);transition:width .6s ease;border-radius:0 10px 10px 0}
+.rev-bar-label{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.7rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.rev-milestones{display:flex;justify-content:space-between;margin-bottom:1.5rem;position:relative;padding:0 4px}
+.rev-milestone{display:flex;flex-direction:column;align-items:center;gap:4px}
+.rev-milestone .dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.2)}
+.rev-milestone .dot.hit{border-color:transparent}
+.rev-milestone .amt{font-size:.65rem;font-weight:600;color:var(--text-muted)}
+.rev-deals-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.8rem}
+.rev-deals-table th{text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.rev-deals-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.rev-deals-table tr:hover td{background:rgba(200,164,86,0.04)}
+.rev-conf{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600}
+.rev-status-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600}
+.rev-gap{background:rgba(255,51,102,0.08);border:1px solid rgba(255,51,102,0.2);border-radius:12px;padding:1.25rem;margin-top:1rem}
+.rev-gap h4{color:#FF3366;font-size:.85rem;margin-bottom:.75rem}
+.rev-gap-items{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.rev-gap-item{text-align:center}
+.rev-gap-item .num{font-size:1.5rem;font-weight:800;color:#FF3366}
+.rev-gap-item .lbl{font-size:.7rem;color:var(--text-muted)}
+.rev-activity-log{max-height:300px;overflow-y:auto;margin-top:.75rem}
+.rev-activity-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:.8rem}
+.collect-check{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
 .af-btn{padding:5px 12px !important;font-size:.72rem !important;border-radius:6px !important}
 .af-btn.active{background:var(--accent) !important;color:var(--bg) !important;border-color:var(--accent) !important}
 .funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -372,7 +401,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
       <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
-      <div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">&#128202;</span> KPIs</div>
+      <div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -806,6 +835,52 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <button class="btn btn-sm btn-secondary kf-btn" data-range="all" onclick="setKpiRange('all',this)">All Time</button>
           </div>
         </div>
+        <!-- ══ $77K REVENUE TRACKER ══ -->
+        <div class="rev-tracker" id="revTrackerSection">
+          <div class="rev-hero">
+            <div>
+              <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Revenue Target</div>
+              <div class="target" id="revTarget">$77,000</div>
+            </div>
+            <div style="text-align:right">
+              <div class="meta" id="revDaysLeft">-- days remaining</div>
+              <div class="meta" id="revEndDate">Ends --</div>
+            </div>
+          </div>
+          <div class="rev-bar-wrap">
+            <div class="rev-bar-collected" id="revBarCollected" style="width:0%"></div>
+            <div class="rev-bar-pending" id="revBarPending" style="width:0%;left:0%"></div>
+            <div class="rev-bar-label" id="revBarLabel">0%</div>
+          </div>
+          <div class="rev-milestones" id="revMilestones"></div>
+          <div class="kpi-grid" id="revKpiCards" style="margin-bottom:1.5rem"></div>
+
+          <!-- Daily Sales Activity -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <div style="font-size:.8rem;font-weight:700">Daily Sales Activity</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="revActFrom" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:.75rem" />
+              <span style="color:var(--text-muted);font-size:.75rem">to</span>
+              <input type="date" id="revActTo" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:.75rem" />
+              <button class="btn btn-sm" onclick="loadRevActivityFiltered()">Filter</button>
+              <button class="btn btn-sm btn-secondary" onclick="openLogActivityModal()">+ Log Activity</button>
+            </div>
+          </div>
+          <div class="rev-activity-log" id="revActivityLog"><div style="color:var(--text-muted);font-size:.8rem;padding:1rem;text-align:center">No activities logged yet</div></div>
+
+          <!-- Monthly Deal Breakdown -->
+          <div style="margin-top:1.5rem">
+            <div style="font-size:.8rem;font-weight:700;margin-bottom:.75rem">Monthly Deal Breakdown</div>
+            <div id="revMonthlyDeals"></div>
+          </div>
+
+          <!-- Gap Analysis -->
+          <div class="rev-gap" id="revGapAnalysis" style="display:none">
+            <h4>Gap Analysis</h4>
+            <div class="rev-gap-items" id="revGapItems"></div>
+          </div>
+        </div>
+
         <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128176; Revenue</div>
         <div class="kpi-grid" id="kpiRevenue" style="margin-bottom:1.5rem"></div>
         <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128200; Pipeline</div>
@@ -1081,9 +1156,11 @@ function setKpiRange(r,btn){
   loadKPIs();
 }
 async function loadKPIs(){
+  try{
   const{from,to}=getDateRange(kpiRange);
+  loadRevenueTracker();
   const[analyticsRes,proposalsRes]=await Promise.all([
-    sb.from('site_analytics').select('*').gte('created_at',from).lte('created_at',to).order('created_at',{ascending:true}),
+    sb.from('site_analytics').select('*').gte('created_at',from).lte('created_at',to).order('created_at',{ascending:true}).limit(2000),
     sb.from('proposals').select('*').order('created_at',{ascending:false})
   ]);
   const analytics=analyticsRes.data||[];
@@ -1171,6 +1248,186 @@ async function loadKPIs(){
     if(kpiSourceChartInst)kpiSourceChartInst.destroy();
     kpiSourceChartInst=new Chart(ctx2.getContext('2d'),{type:'doughnut',data:{labels:srcLabels.map(s=>s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())),datasets:[{data:srcData,backgroundColor:srcColors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#999'}}}}});
   }
+  }catch(err){console.error('loadKPIs error:',err);showToast('KPI load error: '+err.message,'error');}
+}
+
+// ══ REVENUE TRACKER ══
+const GOAL_ID='6bd9edee-620b-421c-a1ef-8ba037a224a0';
+let revGoal=null,revPayments=[],revActivities=[];
+
+async function loadRevenueTracker(){
+  try{
+    const[goalRes,payRes,actRes]=await Promise.all([
+      sb.from('revenue_goals').select('*').eq('id',GOAL_ID).single(),
+      sb.from('revenue_payments').select('*').eq('goal_id',GOAL_ID).order('scheduled_month',{ascending:true}),
+      sb.from('sales_activities').select('*').eq('goal_id',GOAL_ID).order('activity_date',{ascending:false}).limit(100)
+    ]);
+    revGoal=goalRes.data;
+    revPayments=payRes.data||[];
+    revActivities=actRes.data||[];
+    if(!revGoal){document.getElementById('revTrackerSection').style.display='none';return;}
+    renderRevenueTracker();
+  }catch(err){console.error('Revenue tracker error:',err);}
+}
+
+function renderRevenueTracker(){
+  const g=revGoal;
+  const target=parseFloat(g.target_amount);
+  const endDate=new Date(g.end_date+'T23:59:59');
+  const now=new Date();
+  const daysLeft=Math.max(0,Math.ceil((endDate-now)/(1000*60*60*24)));
+
+  document.getElementById('revTarget').textContent=fmtMoney(target);
+  document.getElementById('revDaysLeft').textContent=daysLeft+' days remaining';
+  document.getElementById('revEndDate').textContent='Ends '+endDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  const collected=revPayments.filter(p=>p.status==='collected').reduce((s,p)=>s+parseFloat(p.amount),0);
+  const pending=revPayments.filter(p=>p.status==='pending').reduce((s,p)=>s+parseFloat(p.amount),0);
+  const scheduled=revPayments.filter(p=>p.status==='scheduled').reduce((s,p)=>s+parseFloat(p.amount),0);
+  const collPct=Math.min(100,(collected/target)*100);
+  const pendPct=Math.min(100-collPct,(pending/target)*100);
+
+  document.getElementById('revBarCollected').style.width=collPct+'%';
+  document.getElementById('revBarPending').style.width=pendPct+'%';
+  document.getElementById('revBarPending').style.left=collPct+'%';
+  document.getElementById('revBarLabel').textContent=Math.round(collPct)+'% collected';
+
+  // Milestones
+  const milestones=[5000,15000,30000,50000,77000];
+  const mColors=['#ef4444','#f97316','#eab308','#22c55e','#00FF88'];
+  document.getElementById('revMilestones').innerHTML=milestones.map((m,i)=>{
+    const hit=collected>=m;
+    return '<div class="rev-milestone"><div class="dot'+(hit?' hit':'')+'" style="background:'+(hit?mColors[i]:'transparent')+'"></div><div class="amt">'+fmtMoney(m)+'</div></div>';
+  }).join('');
+
+  // KPI Cards
+  const outreaches=revActivities.filter(a=>a.activity_type==='outreach').length;
+  const calls=revActivities.filter(a=>a.activity_type==='call_booked'||a.activity_type==='call').length;
+  const pitches=revActivities.filter(a=>a.activity_type==='pitch'||a.activity_type==='proposal').length;
+  const activeDeals=S.deals.filter(d=>d.status==='open').length;
+  const conversionRate=pitches>0?Math.round((S.deals.filter(d=>d.status==='won').length/pitches)*100):0;
+
+  document.getElementById('revKpiCards').innerHTML=
+    kpiCard('Collected',fmtMoney(collected),Math.round(collPct)+'% of target')+
+    kpiCard('Pending',fmtMoney(pending),revPayments.filter(p=>p.status==='pending').length+' payments')+
+    kpiCard('Gap',fmtMoney(Math.max(0,target-collected-pending-scheduled)),target>collected+pending+scheduled?'Need to close':'On track')+
+    kpiCard('Active Deals',activeDeals+'',fmtMoney(S.deals.filter(d=>d.status==='open').reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0))+' pipeline')+
+    kpiCard('Outreaches',outreaches+'','All time this sprint')+
+    kpiCard('Calls Booked',calls+'','Discovery + demos')+
+    kpiCard('Pitches',pitches+'','Proposals sent')+
+    kpiCard('Conversion',conversionRate+'%','Pitch to close');
+
+  // Activity Log
+  renderRevActivities(revActivities);
+
+  // Monthly Deal Breakdown
+  renderMonthlyDeals();
+
+  // Gap Analysis
+  renderGapAnalysis(target,collected,pending,scheduled);
+}
+
+function renderRevActivities(activities){
+  const el=document.getElementById('revActivityLog');
+  if(!activities.length){el.innerHTML='<div style="color:var(--text-muted);font-size:.8rem;padding:1rem;text-align:center">No activities logged yet. Click "+ Log Activity" to start tracking.</div>';return;}
+  el.innerHTML=activities.map(a=>{
+    const typeColors={outreach:'#00D4FF',call_booked:'#8B5CF6',call:'#8B5CF6',pitch:'#FF8C00',proposal:'#FF8C00',follow_up:'#C8A456',closed_won:'#22c55e',closed_lost:'#ef4444'};
+    const color=typeColors[a.activity_type]||'var(--text-muted)';
+    return '<div class="rev-activity-row"><div><span style="color:'+color+';font-weight:600">'+a.activity_type.replace(/_/g,' ').toUpperCase()+'</span> '+(a.contact_name||'')+(a.contact_company?' ('+a.contact_company+')':'')+'</div><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text-muted);font-size:.7rem">'+new Date(a.activity_date).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>'+(a.outcome?'<span class="rev-status-badge" style="background:rgba(200,164,86,0.1);color:#C8A456">'+a.outcome+'</span>':'')+'</div></div>';
+  }).join('');
+}
+
+function renderMonthlyDeals(){
+  const months={};
+  revPayments.forEach(p=>{
+    const m=p.scheduled_month||'unscheduled';
+    if(!months[m])months[m]=[];
+    months[m].push(p);
+  });
+  const el=document.getElementById('revMonthlyDeals');
+  let html='';
+  Object.keys(months).sort().forEach(month=>{
+    const payments=months[month];
+    const mTotal=payments.reduce((s,p)=>s+parseFloat(p.amount),0);
+    const mCollected=payments.filter(p=>p.status==='collected').reduce((s,p)=>s+parseFloat(p.amount),0);
+    const label=month.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    html+='<div class="table-card" style="padding:1rem;margin-bottom:.75rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><div style="font-weight:700;font-size:.85rem">'+label+'</div><div style="font-size:.8rem;color:var(--text-muted)">'+fmtMoney(mCollected)+' / '+fmtMoney(mTotal)+'</div></div>';
+    html+='<table class="rev-deals-table"><thead><tr><th>Client</th><th>Description</th><th>Amount</th><th>Status</th><th>Confidence</th><th>Collected</th></tr></thead><tbody>';
+    payments.forEach(p=>{
+      const statusColors={collected:'#22c55e',pending:'#eab308',scheduled:'#00D4FF'};
+      const sColor=statusColors[p.status]||'var(--text-muted)';
+      const confColor=p.confidence>=80?'#22c55e':p.confidence>=50?'#eab308':'#ef4444';
+      html+='<tr><td style="font-weight:600">'+p.client_name+'</td><td style="color:var(--text-muted)">'+p.description+'</td><td>'+fmtMoney(parseFloat(p.amount))+'</td><td><span class="rev-status-badge" style="background:'+sColor+'22;color:'+sColor+'">'+p.status+'</span></td><td><span class="rev-conf" style="background:'+confColor+'22;color:'+confColor+'">'+p.confidence+'%</span></td><td style="text-align:center">'+(p.status!=='collected'?'<input type="checkbox" class="collect-check" onchange="markPaymentCollected(\''+p.id+'\',this.checked)" />':'&#10003;')+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  el.innerHTML=html||'<div style="color:var(--text-muted);font-size:.8rem;text-align:center;padding:1rem">No payments tracked</div>';
+}
+
+function renderGapAnalysis(target,collected,pending,scheduled){
+  const gap=Math.max(0,target-collected-pending-scheduled);
+  const el=document.getElementById('revGapAnalysis');
+  if(gap<=0){el.style.display='none';return;}
+  el.style.display='block';
+  const nightLaunches=Math.ceil(gap/1497);
+  const nightBuilds=Math.ceil(gap/7497);
+  const nightBuildPros=Math.ceil(gap/14997);
+  document.getElementById('revGapItems').innerHTML=
+    '<div class="rev-gap-item"><div class="num">'+nightLaunches+'</div><div class="lbl">Night Launches @ $1,497</div></div>'+
+    '<div class="rev-gap-item"><div class="num">'+nightBuilds+'</div><div class="lbl">Night Builds @ $7,497</div></div>'+
+    '<div class="rev-gap-item"><div class="num">'+nightBuildPros+'</div><div class="lbl">Night Build Pros @ $14,997</div></div>';
+}
+
+async function markPaymentCollected(paymentId,checked){
+  if(!checked)return;
+  const today=new Date().toISOString().split('T')[0];
+  const{error}=await sb.from('revenue_payments').update({status:'collected',collected_date:today,confidence:100,updated_at:new Date().toISOString()}).eq('id',paymentId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Payment marked as collected!');
+  loadRevenueTracker();
+}
+
+function loadRevActivityFiltered(){
+  const from=document.getElementById('revActFrom').value;
+  const to=document.getElementById('revActTo').value;
+  let filtered=revActivities;
+  if(from)filtered=filtered.filter(a=>a.activity_date>=from);
+  if(to)filtered=filtered.filter(a=>a.activity_date<=to);
+  renderRevActivities(filtered);
+}
+
+function openLogActivityModal(){
+  const today=new Date().toISOString().split('T')[0];
+  openEditModal('Log Sales Activity',
+    '<div style="display:grid;gap:1rem">'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Activity Type</label><select id="logActType" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px"><option value="outreach">Outreach</option><option value="call_booked">Call Booked</option><option value="call">Call Completed</option><option value="pitch">Pitch / Proposal</option><option value="follow_up">Follow Up</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Contact Name</label><input id="logActContact" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px" /></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Company</label><input id="logActCompany" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px" /></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Channel</label><select id="logActChannel" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px"><option value="email">Email</option><option value="phone">Phone</option><option value="linkedin">LinkedIn</option><option value="in_person">In Person</option><option value="referral">Referral</option><option value="other">Other</option></select></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Outcome</label><input id="logActOutcome" placeholder="e.g. Booked demo, Sent proposal..." style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px" /></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Date</label><input id="logActDate" type="date" value="'+today+'" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px" /></div>'+
+    '<div><label style="font-size:.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Notes</label><textarea id="logActNotes" rows="2" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px"></textarea></div>'+
+    '</div>',
+    '<button class="btn" onclick="saveActivity()">Save Activity</button> <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>'
+  );
+}
+
+async function saveActivity(){
+  const payload={
+    goal_id:GOAL_ID,
+    activity_type:document.getElementById('logActType').value,
+    contact_name:document.getElementById('logActContact').value||null,
+    contact_company:document.getElementById('logActCompany').value||null,
+    channel:document.getElementById('logActChannel').value,
+    outcome:document.getElementById('logActOutcome').value||null,
+    activity_date:document.getElementById('logActDate').value,
+    notes:document.getElementById('logActNotes').value||null
+  };
+  const{error}=await sb.from('sales_activities').insert(payload);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Activity logged!');
+  closeEditModal();
+  loadRevenueTracker();
 }
 
 function renderPVChart(pageviews){
