@@ -1,368 +1,610 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Vision System Blueprint Call — Clarity, Strategy & a 90-Day Action Plan | Knight Ops + Vision Espresso</title>
-<meta name="description" content="A single call that gives you absolute clarity on your tech stack, a full system architecture blueprint, and a 90-day action plan to transform your business. By application only.">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://knightops.biz/vision-system">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://knightops.biz/vision-system">
-<meta property="og:title" content="Vision System Blueprint Call — Clarity + a 90-Day Action Plan">
-<meta property="og:description" content="One call. Total clarity on your tech, your vision, and your next 90 days. Full system architecture blueprint included.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0A0A0B;--bg2:#111113;--bg3:#18181B;--card:#1C1C1F;--card-h:#222225;
-  --bdr:#2A2A2E;--bdr-l:#3A3A3F;
-  --tx:#F4F4F5;--tx2:#A1A1AA;--txm:#71717A;
-  --gld:#C8A456;--gld-h:#D4B56A;--gld-s:rgba(200,164,86,0.1);--gld-b:rgba(200,164,86,0.25);
-  --teal:#5FC8D7;--purple:#8B5CF6;--green:#22C55E;--white:#fff;
+
+
+*, ::before, ::after { margin: 0px; padding: 0px; box-sizing: border-box; }
+
+:root { --black: #000; --deep: #06061A; --surface: #0A0A0B; --surface2: #111113; --surface3: #18181B; --card: rgba(12,12,22,0.75); --border: rgba(200,164,86,0.06); --border-gold: rgba(200,164,86,0.2); --border-blue: rgba(0,229,255,0.15); --glass-gold: rgba(200,164,86,0.12); --glass-cyan: rgba(0,229,255,0.08); --glass-violet: rgba(123,97,255,0.06); --white: #F4F4F5; --cream: #F0EEFF; --gray: #A1A1AA; --muted: #71717A; --dim: #404050; --gold: #C8A456; --gold-bright: #FFD166; --gold-light: #D4B56A; --gold-glow: rgba(200,164,86,0.4); --violet: #7B61FF; --violet-glow: rgba(123,97,255,0.3); --cyan: #00E5FF; --cyan-glow: rgba(0,229,255,0.25); --neon-blue: #00E5FF; --warm-orange: rgba(255,160,50,0.07); }
+
+html { scroll-behavior: smooth; }
+
+body { font-family: Inter, -apple-system, sans-serif; background: var(--deep); color: var(--white); line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+#bgCanvas { position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+.grid-ov { position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background-image: linear-gradient(rgba(200, 164, 86, 0.024) 1px, transparent 1px), linear-gradient(90deg, rgba(200, 164, 86, 0.024) 1px, transparent 1px); background-size: 80px 80px; z-index: 0; pointer-events: none; }
+
+.amb { position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: radial-gradient(100% 70% at 50% 10%, var(--warm-orange) 0%, transparent 60%),
+    radial-gradient(60% 50% at 85% 85%, rgba(0,229,255,0.04) 0%, transparent 50%),
+    radial-gradient(50% 40% at 5% 65%, rgba(0,229,255,0.02) 0%, transparent 50%),
+    radial-gradient(80% 80% at 40% 20%, rgba(123,97,255,0.03) 0%, transparent 50%); }
+
+h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif; font-weight: 600; letter-spacing: -0.01em; }
+
+.hero-h { font-size: clamp(3.2rem, 7.5vw, 6.5rem); line-height: 1; font-weight: 700; font-style: normal; }
+
+.sec-h { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.08; }
+
+.med-h { font-size: clamp(1.5rem, 2.5vw, 2rem); line-height: 1.2; }
+
+.body-lg { font-size: clamp(1.05rem, 1.4vw, 1.2rem); color: var(--gray); line-height: 1.8; }
+
+.label { font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; }
+
+.gold { color: var(--gold); }
+
+.gold-bright { color: var(--gold-bright); }
+
+.violet { color: var(--violet); }
+
+.cyan { color: var(--cyan); }
+
+.gold-grad { background: linear-gradient(135deg, rgb(200, 164, 86), rgb(255, 209, 102), rgb(212, 181, 106)) text; -webkit-text-fill-color: transparent; }
+
+.neon-glow { text-shadow: rgba(0, 229, 255, 0.5) 0px 0px 10px, rgba(0, 229, 255, 0.3) 0px 0px 40px, rgba(0, 229, 255, 0.15) 0px 0px 80px; color: var(--cyan); }
+
+.gold-glow { text-shadow: rgba(200, 164, 86, 0.5) 0px 0px 10px, rgba(200, 164, 86, 0.25) 0px 0px 40px, rgba(200, 164, 86, 0.1) 0px 0px 80px; }
+
+.violet-glow { text-shadow: rgba(123, 97, 255, 0.5) 0px 0px 10px, rgba(123, 97, 255, 0.25) 0px 0px 40px; }
+
+.wrap { max-width: 1080px; margin: 0px auto; padding: 0px 24px; }
+
+.section { position: relative; z-index: 1; padding: 120px 0px; }
+
+.tc { text-align: center; }
+
+.rv { opacity: 0; transform: translateY(45px); transition: 1s cubic-bezier(0.16, 1, 0.3, 1); }
+
+.rv.vis { opacity: 1; transform: translateY(0px); }
+
+.d1 { transition-delay: 0.1s; }
+
+.d2 { transition-delay: 0.22s; }
+
+.d3 { transition-delay: 0.34s; }
+
+.d4 { transition-delay: 0.46s; }
+
+nav { position: fixed; top: 0px; left: 0px; right: 0px; z-index: 100; padding: 18px 0px; background: rgba(6, 6, 26, 0.6); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); transition: 0.3s; }
+
+nav.scrolled { padding: 12px 0px; background: rgba(6, 6, 26, 0.95); border-bottom-color: var(--border-gold); }
+
+.nav-in { max-width: 1080px; margin: 0px auto; padding: 0px 24px; display: flex; align-items: center; justify-content: space-between; }
+
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: "Cormorant Garamond", serif; font-size: 1.15rem; font-weight: 600; }
+
+.nav-logo .ko { color: var(--gold); }
+
+.nav-logo .x { color: var(--dim); font-weight: 400; margin: 0px 2px; font-family: Inter, sans-serif; font-size: 0.8rem; }
+
+.nav-logo .ve { color: var(--cyan); }
+
+.nav-cta { padding: 9px 24px; background: transparent; border: 1px solid var(--gold); border-radius: 4px; color: var(--gold); font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.8rem; text-decoration: none; text-transform: uppercase; letter-spacing: 0.08em; transition: 0.3s; }
+
+.nav-cta:hover { background: var(--gold); color: var(--deep); box-shadow: 0 0 24px var(--gold-glow); }
+
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 160px 24px 100px; position: relative; }
+
+.hero-content { position: relative; z-index: 2; max-width: 920px; }
+
+.hero-tag { display: inline-block; padding: 6px 20px 6px 28px; border: 1px solid var(--border-gold); border-radius: 3px; margin-bottom: 36px; position: relative; }
+
+.hero-tag::before { content: ""; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-bright),0 0 16px var(--gold-glow); animation: 2.5s ease-in-out 0s infinite normal none running pulse; }
+
+@keyframes pulse { 
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--gold-bright),0 0 16px var(--gold-glow); }
+  50% { opacity: 0.4; box-shadow: 0 0 4px var(--gold-bright); }
 }
-html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.wrap{max-width:900px;margin:0 auto;padding:0 24px}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,11,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--bdr);padding:14px 0}
-nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:1100px}
-.nav-brand{font-weight:800;font-size:1.1rem;letter-spacing:2px;color:var(--tx);text-decoration:none}
-.nav-brand span{color:var(--gld)}
-.nav-links{display:flex;gap:22px;align-items:center}
-.nav-links a{color:var(--tx2);font-size:.85rem;font-weight:500;text-decoration:none;transition:color .2s}
-.nav-links a:hover{color:var(--gld)}
-.nav-cta{background:linear-gradient(135deg,var(--gld),#A08636);color:var(--bg);padding:9px 20px;border-radius:8px;font-weight:700;font-size:.82rem;text-decoration:none;transition:box-shadow .2s}
-.nav-cta:hover{box-shadow:0 0 28px rgba(200,164,86,.35)}
+.hero-h .l1 { display: block; color: var(--white); margin-bottom: 8px; }
 
-/* HERO */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:140px 24px 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(200,164,86,.06) 0%,transparent 70%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.2),transparent)}
-.hero-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gld);margin-bottom:20px;display:inline-block;padding:6px 18px;border:1px solid var(--gld-b);border-radius:50px;background:var(--gld-s)}
-.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.15;margin-bottom:24px;max-width:750px;margin-left:auto;margin-right:auto}
-.hero h1 .gold{background:linear-gradient(135deg,var(--gld),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{font-size:1.1rem;color:var(--tx2);max-width:620px;margin:0 auto 40px;line-height:1.8}
-.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:all .25s}
-.btn-gold{background:linear-gradient(135deg,var(--gld),#A08636);color:var(--bg);box-shadow:0 4px 20px rgba(200,164,86,.2)}
-.btn-gold:hover{box-shadow:0 6px 36px rgba(200,164,86,.4);transform:translateY(-2px)}
-.btn-outline{background:transparent;color:var(--tx);border:1px solid var(--bdr-l)}
-.btn-outline:hover{border-color:var(--gld-b);background:var(--gld-s)}
+.hero-h .l2 { display: block; background-image: ; background-position-x: ; background-position-y: ; background-repeat: ; background-attachment: ; background-origin: ; background-color: ; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: 5s ease-in-out 0s infinite normal none running goldShift; }
 
-/* SECTIONS */
-.sec{padding:80px 0}
-.sec-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gld);margin-bottom:12px}
-.sec h2{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;line-height:1.2;margin-bottom:16px}
-.sec h2 .gold{background:linear-gradient(135deg,var(--gld),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sec-sub{color:var(--tx2);font-size:1rem;max-width:640px;line-height:1.8;margin-bottom:40px}
-.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.15),transparent);margin:0}
+.hero-h .l3 { display: block; color: var(--cyan); text-shadow: rgba(0, 229, 255, 0.4) 0px 0px 20px, rgba(0, 229, 255, 0.15) 0px 0px 60px; }
 
-/* VALUE CARDS */
-.val-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:32px}
-.val-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:28px 24px;position:relative;overflow:hidden;transition:all .3s}
-.val-card:hover{border-color:var(--gld-b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
-.val-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gld),transparent);opacity:.5}
-.val-icon{font-size:1.6rem;margin-bottom:14px}
-.val-title{font-size:1rem;font-weight:700;margin-bottom:8px}
-.val-desc{font-size:.88rem;color:var(--tx2);line-height:1.7}
-
-/* QUOTE BLOCK */
-.quote-block{background:var(--bg2);border-left:3px solid var(--gld);border-radius:0 12px 12px 0;padding:32px 36px;margin:48px 0;position:relative}
-.quote-block p{font-size:1.05rem;font-style:italic;color:var(--tx2);line-height:1.8}
-.quote-block .attr{margin-top:14px;font-style:normal;font-size:.82rem;color:var(--txm);letter-spacing:.5px}
-
-/* WHO */
-.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:32px}
-.who-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:32px;text-align:center;transition:all .3s}
-.who-card:hover{border-color:var(--gld-b)}
-.who-name{font-size:1.1rem;font-weight:800;margin-bottom:4px}
-.who-role{font-size:.78rem;color:var(--gld);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
-.who-bio{font-size:.88rem;color:var(--tx2);line-height:1.7;margin-bottom:20px}
-.who-stat{font-size:.75rem;color:var(--txm);border-top:1px solid var(--bdr);padding-top:14px;line-height:1.6}
-.who-btns{display:flex;gap:10px;justify-content:center;margin-top:16px}
-.who-btn{padding:10px 20px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.who-btn.email{background:var(--gld-s);color:var(--gld);border:1px solid var(--gld-b)}
-.who-btn.email:hover{background:rgba(200,164,86,.2)}
-.who-btn.text{background:rgba(95,200,215,.08);color:var(--teal);border:1px solid rgba(95,200,215,.25)}
-.who-btn.text:hover{background:rgba(95,200,215,.15)}
-
-/* STEPS */
-.steps{counter-reset:step;margin-top:32px}
-.step{display:flex;gap:24px;align-items:flex-start;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.04);position:relative}
-.step:last-child{border-bottom:none}
-.step::before{counter-increment:step;content:counter(step);font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--gld);opacity:.5;min-width:32px;line-height:1}
-.step-content h3{font-size:.95rem;font-weight:700;margin-bottom:6px}
-.step-content p{font-size:.88rem;color:var(--tx2);line-height:1.7}
-
-/* AUDIENCE */
-.aud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:28px}
-.aud-item{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:18px 16px;text-align:center;transition:border-color .2s}
-.aud-item:hover{border-color:var(--gld-b)}
-.aud-icon{font-size:1.4rem;margin-bottom:8px}
-.aud-label{font-size:.82rem;font-weight:600;color:var(--tx2)}
-
-/* CTA FINAL */
-.cta-final{text-align:center;padding:80px 24px;position:relative}
-.cta-final::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.2),transparent)}
-.cta-final h2{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;margin-bottom:16px}
-.cta-final .sub{color:var(--tx2);font-size:1rem;max-width:560px;margin:0 auto 36px;line-height:1.8}
-.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
-.cta-note{font-size:.78rem;color:var(--txm);margin-top:16px}
-
-/* FOOTER */
-footer{border-top:1px solid var(--bdr);padding:40px 0 20px;text-align:center}
-.f-brand{font-weight:800;letter-spacing:3px;font-size:.95rem;margin-bottom:4px;color:var(--tx)}
-.f-brand span{color:var(--gld)}
-.f-partner{font-size:.78rem;color:var(--txm);margin-bottom:12px}
-.f-copy{color:var(--txm);font-size:.72rem}
-.f-links{display:flex;gap:20px;justify-content:center;margin-bottom:12px}
-.f-links a{color:var(--txm);font-size:.78rem;text-decoration:none;transition:color .2s}
-.f-links a:hover{color:var(--gld)}
-
-/* AMBIENT */
-.amb{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
-.amb-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.03;animation:drift 20s ease-in-out infinite alternate}
-.amb-orb.o1{width:600px;height:600px;background:var(--gld);top:-20%;left:-10%}
-.amb-orb.o2{width:400px;height:400px;background:var(--teal);bottom:-15%;right:-5%;animation-delay:-8s}
-.amb-orb.o3{width:300px;height:300px;background:var(--purple);top:40%;right:-10%;animation-delay:-14s}
-@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(40px,30px)}}
-
-.content{position:relative;z-index:1}
-
-@media(max-width:768px){
-  .nav-links{display:none}
-  .who-grid{grid-template-columns:1fr}
-  .val-grid{grid-template-columns:1fr}
-  .aud-grid{grid-template-columns:1fr 1fr}
-  .hero{padding:120px 20px 60px}
-  .sec{padding:60px 0}
-  .who-btns{flex-direction:column}
+@keyframes goldShift { 
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
+
+.hero .body-lg { max-width: 640px; margin: 32px auto 0px; }
+
+.hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 48px; }
+
+.btn-gold { display: inline-flex; align-items: center; gap: 8px; padding: 16px 44px; background: linear-gradient(135deg, rgb(200, 164, 86), rgb(212, 181, 106)); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; border-radius: 4px; color: var(--deep); font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; transition: 0.4s; box-shadow: 0 4px 24px var(--gold-glow),inset 0 1px 0 rgba(255,255,255,.2); }
+
+.btn-gold:hover { transform: translateY(-2px); box-shadow: rgba(200, 164, 86, 0.5) 0px 8px 48px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset; }
+
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; padding: 16px 44px; background: transparent; border: 1px solid var(--border-gold); border-radius: 4px; color: var(--gold-light); font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; transition: 0.3s; }
+
+.btn-outline:hover { border-color: var(--gold); background: rgba(200, 164, 86, 0.05); box-shadow: rgba(200, 164, 86, 0.15) 0px 0px 20px; }
+
+.btn-neon { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: transparent; border: 1px solid var(--border-blue); border-radius: 4px; color: var(--cyan); font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; transition: 0.3s; }
+
+.btn-neon:hover { border-color: var(--cyan); background: rgba(0, 229, 255, 0.04); box-shadow: 0 0 20px var(--cyan-glow); }
+
+.stats { margin-top: 80px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(200, 164, 86, 0.15); border-radius: 10px; overflow: hidden; background: rgba(10, 10, 18, 0.75); backdrop-filter: blur(20px); box-shadow: rgba(255, 209, 102, 0.06) 0px 1px 0px inset, rgba(0, 229, 255, 0.03) 0px -1px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.stat { padding: 28px 16px; text-align: center; border-right: 1px solid var(--border); }
+
+.stat:last-child { border-right-width: medium; border-right-style: none; border-right-color: currentcolor; }
+
+.stat-n { font-family: "Cormorant Garamond", serif; font-size: 2rem; font-weight: 700; color: var(--gold-bright); text-shadow: 0 0 20px var(--gold-glow); line-height: 1.2; }
+
+.stat-l { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 4px; font-family: "Space Grotesk", sans-serif; }
+
+.div-line { width: 100%; height: 1px; background: linear-gradient(90deg,transparent,var(--gold),var(--cyan),var(--violet),transparent); opacity: 0.25; }
+
+.compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0px; margin-top: 56px; border: 1px solid rgba(200, 164, 86, 0.12); border-radius: 10px; overflow: hidden; background: var(--card); backdrop-filter: blur(16px); box-shadow: rgba(200, 164, 86, 0.06) 0px 1px 0px inset, rgba(0, 229, 255, 0.03) 0px -1px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.cmp-col { padding: 44px 36px; }
+
+.cmp-mid { width: 1px; background: linear-gradient(to bottom,transparent,var(--gold),var(--cyan),transparent); align-self: stretch; }
+
+.cmp-tag { margin-bottom: 24px; }
+
+.cmp-tag.red { color: rgb(255, 96, 96); }
+
+.cmp-tag.blue { color: var(--cyan); }
+
+.cmp-list { list-style: none; }
+
+.cmp-list li { padding: 12px 0px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.92rem; color: var(--gray); display: flex; align-items: flex-start; gap: 12px; line-height: 1.5; }
+
+.cmp-list li:last-child { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+
+.cmp-list .x { color: rgb(255, 96, 96); flex-shrink: 0; font-weight: 700; }
+
+.cmp-list .ck { color: var(--cyan); flex-shrink: 0; font-weight: 700; text-shadow: 0 0 8px var(--cyan-glow); }
+
+.process { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0px; margin-top: 56px; border: 1px solid rgba(200, 164, 86, 0.12); border-radius: 10px; overflow: hidden; background: var(--card); backdrop-filter: blur(16px); box-shadow: rgba(200, 164, 86, 0.06) 0px 1px 0px inset, rgba(123, 97, 255, 0.04) 0px -1px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.proc { padding: 48px 32px; border-right: 1px solid var(--border); position: relative; }
+
+.proc:last-child { border-right-width: medium; border-right-style: none; border-right-color: currentcolor; }
+
+.proc::after { content: ""; position: absolute; bottom: 0px; left: 20%; right: 20%; height: 2px; border-radius: 2px; }
+
+.proc:nth-child(1)::after { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); }
+
+.proc:nth-child(2)::after { background: var(--violet); box-shadow: 0 0 12px var(--violet-glow); }
+
+.proc:nth-child(3)::after { background: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
+
+.proc-num { font-family: "Cormorant Garamond", serif; font-size: 3.5rem; font-weight: 700; line-height: 1; margin-bottom: 16px; opacity: 0.15; }
+
+.proc-who { margin-bottom: 8px; }
+
+.proc:nth-child(1) .proc-who { color: var(--cyan); }
+
+.proc:nth-child(2) .proc-who { color: var(--violet); }
+
+.proc:nth-child(3) .proc-who { color: var(--gold); }
+
+.proc-title { font-family: "Cormorant Garamond", serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 12px; color: var(--white); }
+
+.proc-desc { font-size: 0.88rem; color: var(--gray); line-height: 1.7; }
+
+.aud-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+
+.aud { padding: 32px 24px; background: var(--card); border: 1px solid rgba(200, 164, 86, 0.08); border-radius: 10px; text-align: center; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(16px); box-shadow: rgba(200, 164, 86, 0.05) 0px 1px 0px inset, rgba(0, 229, 255, 0.02) 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.aud:hover { border-color: rgba(200, 164, 86, 0.2); transform: translateY(-5px); box-shadow: rgba(200, 164, 86, 0.08) 0px 1px 0px inset, rgba(200, 164, 86, 0.06) 0px 12px 40px, rgba(0, 229, 255, 0.03) 0px 0px 15px; }
+
+.aud-icon { font-size: 2.2rem; margin-bottom: 14px; display: block; }
+
+.aud-title { font-family: "Cormorant Garamond", serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+
+.aud-desc { font-size: 0.83rem; color: var(--gray); line-height: 1.6; }
+
+.tiers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 56px; }
+
+.tier { padding: 40px 32px; background: var(--card); border: 1px solid rgba(200, 164, 86, 0.1); border-radius: 10px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); position: relative; backdrop-filter: blur(16px); box-shadow: rgba(200, 164, 86, 0.06) 0px 1px 0px inset, rgba(0, 229, 255, 0.03) 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.tier:hover { border-color: rgba(200, 164, 86, 0.25); transform: translateY(-5px); box-shadow: rgba(200, 164, 86, 0.1) 0px 1px 0px inset, rgba(0, 229, 255, 0.06) 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(200, 164, 86, 0.06) 0px 12px 48px, rgba(0, 229, 255, 0.03) 0px 0px 20px; }
+
+.tier.pop { border-color: var(--gold); box-shadow: rgba(255, 209, 102, 0.12) 0px 1px 0px inset, rgba(0, 229, 255, 0.05) 1px 0px 0px inset, rgba(123, 97, 255, 0.04) -1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(200, 164, 86, 0.1) 0px 0px 48px, rgba(0, 229, 255, 0.04) 0px 0px 20px; }
+
+.tier.pop:hover { box-shadow: rgba(255, 209, 102, 0.15) 0px 1px 0px inset, rgba(0, 229, 255, 0.08) 1px 0px 0px inset, rgba(123, 97, 255, 0.06) -1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(200, 164, 86, 0.15) 0px 0px 64px, rgba(0, 229, 255, 0.06) 0px 0px 30px; transform: translateY(-6px); }
+
+.tier.pop::after { content: "��� SIGNATURE EXPERIENCE"; position: absolute; top: -1px; right: 24px; padding: 5px 14px; background: linear-gradient(135deg,var(--gold),var(--gold-bright)); color: var(--deep); font-family: "Space Grotesk", sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; border-radius: 0px 0px 6px 6px; }
+
+.tier.gold-card { background: linear-gradient(165deg, rgba(200, 164, 86, 0.18) 0%, rgba(180, 140, 50, 0.08) 40%, rgba(200, 164, 86, 0.14) 100%); border: 1.5px solid rgba(200, 164, 86, 0.45); box-shadow: rgba(255, 215, 0, 0.2) 0px 1px 0px inset, rgba(160, 120, 40, 0.15) 0px -1px 0px inset, rgba(255, 209, 102, 0.1) 1px 0px 0px inset, rgba(255, 209, 102, 0.1) -1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 0px 0px 1px, rgba(200, 164, 86, 0.12) 0px 0px 60px, rgba(200, 164, 86, 0.08) 0px 4px 30px; }
+
+.tier.gold-card::before { content: ""; position: absolute; inset: 0px; border-radius: 10px; background: linear-gradient(145deg, rgba(255, 215, 0, 0.06) 0%, transparent 50%, rgba(200, 164, 86, 0.04) 100%); pointer-events: none; }
+
+.tier.gold-card::after { content: "��� PREMIUM BUILD"; position: absolute; top: -1px; right: 24px; padding: 5px 14px; background: linear-gradient(135deg, rgb(200, 164, 86), rgb(255, 209, 102), rgb(200, 164, 86)); color: var(--deep); font-family: "Space Grotesk", sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; border-radius: 0px 0px 6px 6px; }
+
+.tier.gold-card:hover { border-color: rgba(200, 164, 86, 0.65); transform: translateY(-6px); box-shadow: rgba(255, 215, 0, 0.25) 0px 1px 0px inset, rgba(160, 120, 40, 0.2) 0px -1px 0px inset, rgba(255, 209, 102, 0.15) 1px 0px 0px inset, rgba(255, 209, 102, 0.15) -1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 0px 0px 1px, rgba(200, 164, 86, 0.18) 0px 0px 80px, rgba(200, 164, 86, 0.12) 0px 8px 40px; }
+
+.tier.gold-card .tier-name { color: rgb(255, 209, 102); }
+
+.tier.gold-card .tier-ul li::before { color: rgb(255, 209, 102); }
+
+.tier.gold-card .tier-save { background: rgba(200, 164, 86, 0.12); border-color: rgba(200, 164, 86, 0.25); color: var(--gold-bright); }
+
+.tier.diamond-card { background: linear-gradient(165deg, rgba(88, 28, 135, 0.15) 0%, rgba(60, 20, 100, 0.08) 30%, rgba(123, 97, 255, 0.1) 60%, rgba(200, 164, 86, 0.08) 100%); border: 1.5px solid rgba(123, 97, 255, 0.35); box-shadow: rgba(200, 180, 255, 0.15) 0px 1px 0px inset, rgba(88, 28, 135, 0.12) 0px -1px 0px inset, rgba(123, 97, 255, 0.08) 1px 0px 0px inset, rgba(200, 164, 86, 0.06) -1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 0px 0px 1px, rgba(123, 97, 255, 0.1) 0px 0px 60px, rgba(88, 28, 135, 0.06) 0px 0px 30px, rgba(123, 97, 255, 0.06) 0px 4px 30px; }
+
+.tier.diamond-card::before { content: ""; position: absolute; inset: 0px; border-radius: 10px; background: linear-gradient(145deg, rgba(200, 180, 255, 0.05) 0%, transparent 40%), linear-gradient(225deg, rgba(200, 164, 86, 0.04) 0%, transparent 40%); pointer-events: none; }
+
+.tier.diamond-card::after { content: "���� ELITE PARTNERSHIP"; position: absolute; top: -1px; right: 24px; padding: 5px 14px; background: linear-gradient(135deg, rgb(123, 97, 255), rgb(155, 125, 255), rgb(200, 164, 86)); color: rgb(255, 255, 255); font-family: "Space Grotesk", sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; border-radius: 0px 0px 6px 6px; text-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; }
+
+.tier.diamond-card:hover { border-color: rgba(123, 97, 255, 0.5); transform: translateY(-6px); box-shadow: rgba(200, 180, 255, 0.2) 0px 1px 0px inset, rgba(88, 28, 135, 0.15) 0px -1px 0px inset, rgba(123, 97, 255, 0.12) 1px 0px 0px inset, rgba(200, 164, 86, 0.08) -1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 0px 0px 1px, rgba(123, 97, 255, 0.15) 0px 0px 80px, rgba(88, 28, 135, 0.1) 0px 0px 40px, rgba(123, 97, 255, 0.1) 0px 8px 40px; }
+
+.tier.diamond-card .tier-name { background: linear-gradient(135deg, rgb(200, 184, 255), rgb(255, 209, 102)) text; -webkit-text-fill-color: transparent; }
+
+.tier.diamond-card .tier-ul li::before { color: rgb(155, 125, 255); }
+
+.tier.diamond-card .tier-save { background: rgba(123, 97, 255, 0.1); border-color: rgba(123, 97, 255, 0.2); color: rgb(155, 125, 255); }
+
+.tier-name { font-family: "Cormorant Garamond", serif; font-size: 1.15rem; font-weight: 600; }
+
+.tier-price { font-family: "Cormorant Garamond", serif; font-size: 3rem; font-weight: 700; margin: 8px 0px 4px; line-height: 1; }
+
+.tier.pop .tier-price { color: var(--gold-bright); text-shadow: 0 0 20px var(--gold-glow); }
+
+.tier-sub { font-size: 0.75rem; color: var(--muted); margin-bottom: 20px; font-family: "Space Grotesk", sans-serif; }
+
+.tier-hr { width: 100%; height: 1px; background: var(--border); margin-bottom: 20px; }
+
+.tier-desc { font-size: 0.9rem; color: var(--gray); line-height: 1.6; margin-bottom: 24px; }
+
+.tier-ul { list-style: none; margin-bottom: 28px; }
+
+.tier-ul li { padding: 5px 0px; font-size: 0.85rem; color: var(--gray); display: flex; align-items: flex-start; gap: 10px; }
+
+.tier-ul li::before { content: "���"; color: var(--gold); flex-shrink: 0; font-weight: 500; }
+
+.tier.pop .tier-ul li::before { color: var(--gold-bright); }
+
+.tier-was { font-family: "Space Grotesk", sans-serif; font-size: 0.85rem; color: var(--muted); text-decoration: line-through; margin-bottom: 2px; letter-spacing: 0.02em; }
+
+.tier-save { display: inline-block; padding: 3px 10px; background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 3px; font-family: "Space Grotesk", sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+.team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px; }
+
+.tm { padding: 44px 36px; background: var(--card); border: 1px solid rgba(200, 164, 86, 0.08); border-radius: 10px; text-align: center; backdrop-filter: blur(16px); box-shadow: rgba(200, 164, 86, 0.05) 0px 1px 0px inset, rgba(0, 229, 255, 0.02) 1px 0px 0px inset, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px; }
+
+.tm-init { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: "Cormorant Garamond", serif; font-size: 2rem; font-weight: 700; margin: 0px auto 20px; }
+
+.tm:first-child .tm-init { background: rgba(0, 229, 255, 0.06); border: 1px solid rgba(0, 229, 255, 0.2); color: var(--cyan); }
+
+.tm:last-child .tm-init { background: rgba(200, 164, 86, 0.06); border: 1px solid rgba(200, 164, 86, 0.2); color: var(--gold); }
+
+.tm-name { font-family: "Cormorant Garamond", serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; }
+
+.tm-co { font-size: 0.8rem; font-weight: 600; margin-bottom: 16px; font-family: "Space Grotesk", sans-serif; }
+
+.tm:first-child .tm-co { color: var(--cyan); }
+
+.tm:last-child .tm-co { color: var(--gold); }
+
+.tm-bio { font-size: 0.88rem; color: var(--gray); line-height: 1.7; }
+
+.qt { max-width: 700px; margin: 0px auto; padding: 48px 48px 48px 56px; background: var(--card); border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-left: 3px solid var(--gold); border-radius: 0px 8px 8px 0px; position: relative; }
+
+.qt::before { content: "���"; position: absolute; top: 20px; left: 20px; font-family: "Cormorant Garamond", serif; font-size: 4rem; color: var(--gold); opacity: 0.2; line-height: 1; }
+
+.qt-text { font-family: "Cormorant Garamond", serif; font-size: 1.25rem; line-height: 1.8; font-style: italic; margin-bottom: 20px; color: var(--cream); }
+
+.qt-author { font-weight: 700; color: var(--gold); font-size: 0.9rem; font-family: "Space Grotesk", sans-serif; }
+
+.qt-role { font-size: 0.8rem; color: var(--muted); }
+
+.form-section { padding: 120px 0px 140px; }
+
+.fw { max-width: 620px; margin: 48px auto 0px; padding: 48px 40px; background: rgba(6, 6, 26, 0.95); border: 1px solid var(--border-gold); border-radius: 8px; position: relative; }
+
+.fw::before { content: ""; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 60%; height: 2px; background: linear-gradient(90deg,transparent,var(--gold),transparent); }
+
+.fg { margin-bottom: 18px; }
+
+.fg label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--gray); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.08em; font-family: "Space Grotesk", sans-serif; }
+
+.fg input, .fg select, .fg textarea { width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 4px; color: var(--white); font-family: Inter, sans-serif; font-size: 0.95rem; transition: 0.3s; outline: none; }
+
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--gold); box-shadow: rgba(200, 164, 86, 0.12) 0px 0px 0px 3px; }
+
+.fg textarea { min-height: 90px; resize: vertical; }
+
+.fg select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%23A1A1AA' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+
+.fr { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.fbtn { width: 100%; padding: 18px; margin-top: 10px; background: linear-gradient(135deg,var(--gold),var(--gold-bright)); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; border-radius: 4px; color: var(--deep); font-family: "Space Grotesk", sans-serif; font-weight: 800; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: 0.4s; box-shadow: 0 4px 24px var(--gold-glow); position: relative; overflow: hidden; }
+
+.fbtn::after { content: ""; position: absolute; top: 0px; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); animation: 4s ease-in-out 0s infinite normal none running shimmer; }
+
+@keyframes shimmer { 
+  0% { left: -100%; }
+  40% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.fbtn:hover { transform: translateY(-2px); box-shadow: rgba(200, 164, 86, 0.5) 0px 8px 48px; }
+
+.fnote { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 14px; }
+
+.alt { max-width: 620px; margin: 40px auto 0px; text-align: center; }
+
+.alt p { font-size: 0.88rem; color: var(--muted); margin-bottom: 20px; }
+
+.alt-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.fok { display: none; text-align: center; padding: 48px 32px; }
+
+.fok .chk { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; margin: 0px auto 20px; font-size: 1.6rem; box-shadow: 0 0 20px var(--gold-glow); }
+
+.fok h3 { font-family: "Cormorant Garamond", serif; font-size: 1.5rem; margin-bottom: 10px; color: var(--gold-bright); }
+
+.fok p { color: var(--gray); }
+
+footer { padding: 48px 0px; border-top: 1px solid var(--border); text-align: center; position: relative; z-index: 1; }
+
+footer p { font-size: 0.78rem; color: var(--muted); }
+
+footer a { color: inherit; text-decoration: none; transition: color 0.2s; }
+
+footer a:hover { color: var(--white); }
+
+@media (max-width: 900px) {
+  .compare { grid-template-columns: 1fr; }
+  .cmp-mid { width: 100%; height: 1px; background: linear-gradient(90deg,transparent,var(--gold),transparent); }
+  .process { grid-template-columns: 1fr; }
+  .proc { border-right-width: medium; border-right-style: none; border-right-color: currentcolor; border-bottom: 1px solid var(--border); }
+  .proc:last-child { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+  .team-grid { grid-template-columns: 1fr; }
+  .tiers { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .aud-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(2) { border-right-width: medium; border-right-style: none; border-right-color: currentcolor; }
+  .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+}
+
+@media (max-width: 640px) {
+  .section { padding: 80px 0px; }
+  .hero { padding: 130px 20px 80px; min-height: auto; }
+  .fw { padding: 28px 20px; }
+  .fr { grid-template-columns: 1fr; }
+  .hero-ctas, .alt-row { flex-direction: column; align-items: center; }
+  .stats { grid-template-columns: 1fr; }
+  .stat { border-right-width: medium; border-right-style: none; border-right-color: currentcolor; border-bottom: 1px solid var(--border); }
+  .stat:last-child { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+}
+
+/* Vision System Blueprint Call adjustments */
+.hero { min-height: 92vh; }
+.hero .hero-content { max-width: 960px; }
+.hero-tag { display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border:1px solid var(--border-gold); border-radius:999px; background:rgba(200,164,86,.08); margin-bottom:26px; }
+.hero-h .l1, .hero-h .l2, .hero-h .l3 { display:block; }
+.hero-h .l2 { background:linear-gradient(135deg,#C8A456,#FFD166,#D4B56A); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.value-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:54px; }
+.value-card { text-align:left; border:1px solid var(--border-gold); background:linear-gradient(180deg,rgba(12,12,22,.82),rgba(10,10,11,.72)); border-radius:28px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,.24); position:relative; overflow:hidden; }
+.value-card::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at top right,rgba(200,164,86,.12),transparent 42%); pointer-events:none; }
+.value-icon { font-size:1.8rem; margin-bottom:14px; }
+.value-title { font-family:"Space Grotesk",sans-serif; font-size:1rem; font-weight:700; letter-spacing:.02em; margin-bottom:10px; color:var(--white); position:relative; }
+.value-desc { color:var(--gray); line-height:1.75; position:relative; }
+.promise-card { max-width:820px; margin:0 auto; padding:42px; border-radius:34px; border:1px solid var(--border-blue); background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(200,164,86,.08),rgba(123,97,255,.06)); box-shadow:0 0 90px rgba(0,229,255,.07); }
+.promise-card p { font-size:clamp(1.25rem,2vw,1.7rem); line-height:1.55; color:var(--cream); font-family:"Cormorant Garamond",Georgia,serif; }
+.team-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; margin-top:50px; }
+.team-card { text-align:left; border:1px solid var(--border-gold); background:rgba(12,12,22,.72); border-radius:30px; padding:34px; }
+.team-name { font-family:"Cormorant Garamond",Georgia,serif; font-size:2rem; line-height:1.1; margin-bottom:4px; }
+.team-role { color:var(--gold); margin-bottom:18px; }
+.team-proof { margin-top:18px; padding-top:18px; border-top:1px solid var(--border); color:var(--gray); }
+.team-buttons, .cta-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+.btn-small { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--border-gold); color:var(--white); text-decoration:none; font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:.85rem; background:rgba(200,164,86,.07); transition:.2s; }
+.btn-small:hover { transform:translateY(-2px); border-color:var(--gold); }
+.audience-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:40px; }
+.audience-mini div { border:1px solid var(--border); border-radius:22px; padding:18px; background:rgba(255,255,255,.025); color:var(--cream); font-family:"Space Grotesk",sans-serif; font-weight:600; }
+footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:34px 24px; text-align:center; color:var(--muted); }
+.footer-links { display:flex; justify-content:center; flex-wrap:wrap; gap:18px; margin:12px 0; }
+.footer-links a { color:var(--gray); text-decoration:none; font-family:"Space Grotesk",sans-serif; font-size:.85rem; }
+.footer-links a:hover { color:var(--gold); }
+@media (max-width:900px){ .value-grid,.team-grid,.audience-mini{grid-template-columns:1fr;} .hero{min-height:86vh;} .team-card,.value-card,.promise-card{padding:24px;} }
+
 </style>
 </head>
 <body>
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+<div class="amb"></div>
 
-<!-- AMBIENT -->
-<div class="amb"><div class="amb-orb o1"></div><div class="amb-orb o2"></div><div class="amb-orb o3"></div></div>
-
-<div class="content">
-
-<!-- NAV -->
-<nav>
-  <div class="wrap" style="max-width:1100px">
-    <a href="/" class="nav-brand">KNIGHT <span>OPS</span></a>
-    <div class="nav-links">
-      <a href="/#services">Services</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/speed-to-value">Speed to Value</a>
-      <a href="#book" class="nav-cta">Book a Call</a>
-    </div>
+<nav class="scrolled" id="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://knightops.biz/">
+      <span class="ko">Knight Ops</span>
+      <span class="x">x</span>
+      <span class="ve">Vision Espresso</span>
+    </a>
+    <a class="nav-cta" href="#book">Book a Call</a>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
-  <div>
-    <div class="hero-label">Complimentary Blueprint Call</div>
-    <h1>The Most <span class="gold">Valuable Call</span> You'll Have This Quarter</h1>
-    <p class="hero-sub">Walk away with complete clarity on your vision, a full tech stack blueprint, and a 90-day action plan you can start implementing tomorrow. No pitch. Just a conversation that changes everything.</p>
+  <div class="hero-content rv vis">
+    <div class="hero-tag label gold">Complimentary Blueprint Call</div>
+    <h1 class="hero-h">
+      <span class="l1">The Most Valuable Call</span>
+      <span class="l2">You'll Have This Quarter.</span>
+    </h1>
+    <p class="body-lg">
+      Walk away with complete clarity on your vision, a full tech stack blueprint, and a 90-day action plan you can start implementing tomorrow. No pitch. Just a conversation that changes everything.
+    </p>
     <div class="hero-ctas">
-      <a href="#book" class="btn btn-gold">Book Your Blueprint Call</a>
-      <a href="#what" class="btn btn-outline">See What You'll Get</a>
+      <a class="btn-gold" href="#book">Book Your Blueprint Call →</a>
+      <a class="btn-outline" href="#what">See What You'll Get</a>
     </div>
   </div>
 </section>
 
-<!-- PROBLEM -->
-<div class="divider"></div>
-<section class="sec" id="what">
+<section style="position:relative;z-index:1;padding:0 24px">
   <div class="wrap">
-    <div class="sec-label">The Real Problem</div>
-    <h2>You Don't Need More Tech.<br>You Need <span class="gold">Clarity</span>.</h2>
-    <p class="sec-sub">There are thousands of tools, platforms, and AI solutions competing for your attention. The overwhelm isn't about which one to pick. It's about not being able to see how they all connect to the vision you have for your business and your life.</p>
-    <p class="sec-sub" style="margin-top:-20px">That's what this call solves.</p>
-  </div>
-</section>
-
-<!-- WHAT YOU WALK AWAY WITH -->
-<div class="divider"></div>
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-label">What You Walk Away With</div>
-    <h2>One Call. <span class="gold">Everything Changes</span>.</h2>
-    <p class="sec-sub">This isn't a discovery call disguised as a sales pitch. This is a working session where two people who have spent decades helping business owners see clearly will give you everything you need to move forward with confidence.</p>
-
-    <div class="val-grid">
-      <div class="val-card">
-        <div class="val-icon">&#x1f3af;</div>
-        <div class="val-title">Vision Clarity</div>
-        <div class="val-desc">Get crystal clear on what you're building, why it matters, and how it connects to the life you actually want to live. Not just business goals. The whole picture.</div>
-      </div>
-      <div class="val-card">
-        <div class="val-icon">&#x1f9e9;</div>
-        <div class="val-title">Full Tech Stack Blueprint</div>
-        <div class="val-desc">A complete system design showing exactly which tools, platforms, and integrations you need. No guesswork. No shiny object syndrome. Just what works for your business.</div>
-      </div>
-      <div class="val-card">
-        <div class="val-icon">&#x1f4cb;</div>
-        <div class="val-title">90-Day Action Plan</div>
-        <div class="val-desc">A step-by-step implementation roadmap with clear priorities. You'll know what to build first, what to wait on, and exactly how each piece connects to revenue.</div>
-      </div>
-      <div class="val-card">
-        <div class="val-icon">&#x1f4a1;</div>
-        <div class="val-title">Implementation Guidance</div>
-        <div class="val-desc">Specific recommendations on what to implement first so you start seeing results immediately. We'll tell you what will save you the most money, time, and energy right now.</div>
-      </div>
-      <div class="val-card">
-        <div class="val-icon">&#x1f4b0;</div>
-        <div class="val-title">Revenue Architecture</div>
-        <div class="val-desc">See how your systems connect to your revenue. Understand where money is leaking, where automation creates leverage, and where your next breakthrough lives.</div>
-      </div>
-      <div class="val-card">
-        <div class="val-icon">&#x1f9d8;</div>
-        <div class="val-title">Tech Overwhelm Gone</div>
-        <div class="val-desc">Leave the call feeling lighter, not heavier. You'll understand exactly what tech you need and, just as importantly, what you can ignore. Clarity replaces confusion.</div>
-      </div>
+    <div class="stats rv vis">
+      <div class="stat"><div class="stat-n">1 Call</div><div class="stat-l">Vision to Clear Next Steps</div></div>
+      <div class="stat"><div class="stat-n">2 Experts</div><div class="stat-l">Strategy + Systems</div></div>
+      <div class="stat"><div class="stat-n">90 Days</div><div class="stat-l">Action Plan</div></div>
+      <div class="stat"><div class="stat-n">$0</div><div class="stat-l">Complimentary Session</div></div>
     </div>
   </div>
 </section>
 
-<!-- QUOTE -->
-<div class="divider"></div>
-<section class="sec">
-  <div class="wrap">
-    <div class="quote-block">
-      <p>If you follow the blueprint and the 90-day action plan we give you on this call, that alone will transform your business. That's the standard we hold ourselves to. We're not here to sell you something. We're here to make sure you leave with something so valuable that you'd feel comfortable paying for it.</p>
+<section class="section" id="what">
+  <div class="wrap tc">
+    <div class="rv vis">
+      <div class="label gold">The Real Problem</div>
+      <h2 class="sec-h">You Don't Need More Tech.<br><span class="gold-grad">You Need Clarity.</span></h2>
+      <p class="body-lg" style="max-width:690px;margin:20px auto 0">
+        There are thousands of tools, platforms, and AI solutions competing for your attention. The overwhelm isn't about which one to pick. It's about not being able to see how they all connect to the vision you have for your business and your life.
+      </p>
+      <p class="body-lg" style="max-width:690px;margin:20px auto 0">That's what this call solves.</p>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<div class="divider"></div>
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-label">How It Works</div>
-    <h2>Simple. Intentional. <span class="gold">Transformative</span>.</h2>
-    <p class="sec-sub">No 47-step funnel. No pressure. Just a real conversation between people who care about your outcome.</p>
+<div class="div-line"></div>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-content">
-          <h3>Reach out to Daniel or Niko</h3>
-          <p>Send a quick email or text. Tell us about your business, what you're working on, and what's feeling unclear. We'll coordinate a time that works.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-content">
-          <h3>We jump on a call together</h3>
-          <p>You'll sit down with both of us. Niko will help you see your vision more clearly than you've ever articulated it. Daniel will map the technology to make it real. It's a working session, not an interview.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-content">
-          <h3>You walk away with your blueprint</h3>
-          <p>A full system architecture, a tech stack recommendation, and a 90-day action plan with clear priorities. You'll know exactly what to do next and why it matters.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-content">
-          <h3>If we can help further, we'll let you know</h3>
-          <p>If we feel we can support your implementation through a Speed to Value VIP Day or ongoing partnership, we'll share how. No pressure. The blueprint stands on its own.</p>
-        </div>
-      </div>
+<section class="section">
+  <div class="wrap tc">
+    <div class="rv vis">
+      <div class="label gold">What You Walk Away With</div>
+      <h2 class="sec-h">One Call. <span class="gold-grad">Everything Changes.</span></h2>
+      <p class="body-lg" style="max-width:760px;margin:20px auto 0">
+        This isn't a discovery call disguised as a sales pitch. This is a working session where two people who have spent decades helping business owners see clearly will give you everything you need to move forward with confidence.
+      </p>
+    </div>
+    <div class="value-grid rv d1 vis">
+      <div class="value-card"><div class="value-icon">✨</div><div class="value-title">Vision Clarity</div><div class="value-desc">Get crystal clear on what you're building, why it matters, and how it connects to the life you actually want to live. Not just business goals. The whole picture.</div></div>
+      <div class="value-card"><div class="value-icon">🧩</div><div class="value-title">Full Tech Stack Blueprint</div><div class="value-desc">A complete system design showing exactly which tools, platforms, and integrations you need. No guesswork. No shiny object syndrome. Just what works for your business.</div></div>
+      <div class="value-card"><div class="value-icon">🗺️</div><div class="value-title">90-Day Action Plan</div><div class="value-desc">A step-by-step implementation roadmap with clear priorities. You'll know what to build first, what to wait on, and exactly how each piece connects to revenue.</div></div>
+      <div class="value-card"><div class="value-icon">⚙️</div><div class="value-title">Implementation Guidance</div><div class="value-desc">Specific recommendations on what to implement first so you start seeing results immediately. We'll tell you what will save you the most money, time, and energy right now.</div></div>
+      <div class="value-card"><div class="value-icon">💰</div><div class="value-title">Revenue Architecture</div><div class="value-desc">See how your systems connect to your revenue. Understand where money is leaking, where automation creates leverage, and where your next breakthrough lives.</div></div>
+      <div class="value-card"><div class="value-icon">🧘</div><div class="value-title">Tech Overwhelm Gone</div><div class="value-desc">Leave the call feeling lighter, not heavier. You'll understand exactly what tech you need and, just as importantly, what you can ignore. Clarity replaces confusion.</div></div>
     </div>
   </div>
 </section>
 
-<!-- WHO WE ARE -->
-<div class="divider"></div>
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-label">Your Blueprint Team</div>
-    <h2>Two People. <span class="gold">Decades of Proof</span>.</h2>
-    <p class="sec-sub">This isn't theory. These are two people who have done it at scale and now spend their lives helping others do the same.</p>
+<div class="div-line"></div>
 
-    <div class="who-grid">
-      <div class="who-card">
-        <div class="who-name">Daniel Knight</div>
-        <div class="who-role">Systems Architect</div>
-        <div class="who-bio">Over 20 years designing and building systems that have processed hundreds of millions in revenue. Daniel sees the architecture behind your vision and builds the technology to make it real. He's helped hundreds of business owners install systems that save time, save money, and create freedom.</div>
-        <div class="who-stat">Founder of Knight Ops &amp; 10xUnicorn<br>Custom AI systems for coaches, consultants &amp; agencies</div>
-        <div class="who-btns">
-          <a href="mailto:dknightunicorn@gmail.com?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="who-btn email">&#9993; Email Daniel</a>
-          <a href="sms:+16027020807?body=Hi%20Daniel%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="who-btn text">&#x1f4ac; Text Daniel</a>
-        </div>
+<section class="section" style="padding:85px 0">
+  <div class="wrap tc">
+    <div class="promise-card rv vis">
+      <p>If you follow the blueprint and the 90-day action plan we give you on this call, that alone will transform your business. That's the standard we hold ourselves to.</p>
+      <p style="margin-top:18px;color:var(--gold-bright)">We're not here to sell you something. We're here to make sure you leave with something so valuable that you'd feel comfortable paying for it.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<section class="section" id="how">
+  <div class="wrap tc">
+    <div class="rv vis">
+      <div class="label gold">How It Works</div>
+      <h2 class="sec-h">Simple. Intentional. <span class="gold-grad">Transformative.</span></h2>
+      <p class="body-lg" style="max-width:650px;margin:20px auto 0">No 47-step funnel. No pressure. Just a real conversation between people who care about your outcome.</p>
+    </div>
+    <div class="process rv d1 vis">
+      <div class="proc"><div class="proc-num">01</div><div class="proc-title">Reach out to Daniel or Niko</div><div class="proc-desc">Send a quick email or text. Tell us about your business, what you're working on, and what's feeling unclear. We'll coordinate a time that works.</div></div>
+      <div class="proc"><div class="proc-num">02</div><div class="proc-title">We jump on a call together</div><div class="proc-desc">You'll sit down with both of us. Niko will help you see your vision more clearly than you've ever articulated it. Daniel will map the technology to make it real. It's a working session, not an interview.</div></div>
+      <div class="proc"><div class="proc-num">03</div><div class="proc-title">You walk away with your blueprint</div><div class="proc-desc">A full system architecture, a tech stack recommendation, and a 90-day action plan with clear priorities. You'll know exactly what to do next and why it matters.</div></div>
+      <div class="proc"><div class="proc-num">04</div><div class="proc-title">If we can help further, we'll let you know</div><div class="proc-desc">If we feel we can support your implementation through a build day or ongoing partnership, we'll share how. No pressure. The blueprint stands on its own.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<section class="section" id="team">
+  <div class="wrap tc">
+    <div class="rv vis">
+      <div class="label gold">Your Blueprint Team</div>
+      <h2 class="sec-h">Two People. <span class="gold-grad">Decades of Proof.</span></h2>
+      <p class="body-lg" style="max-width:680px;margin:20px auto 0">This isn't theory. These are two people who have done it at scale and now spend their lives helping others do the same.</p>
+    </div>
+    <div class="team-grid rv d1 vis">
+      <div class="team-card">
+        <div class="team-name">Daniel Knight</div>
+        <div class="label team-role">Systems Architect</div>
+        <p class="body-lg">Over 20 years designing and building systems that have processed hundreds of millions in revenue. Daniel sees the architecture behind your vision and builds the technology to make it real. He's helped hundreds of business owners install systems that save time, save money, and create freedom.</p>
+        <div class="team-proof">Founder of Knight Ops & 10xUnicorn<br>Custom AI systems for coaches, consultants & agencies</div>
+        <div class="team-buttons"><a class="btn-small" href="mailto:dknightunicorn@gmail.com?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A">Email Daniel</a><a class="btn-small" href="sms:+16027020807?body=Hi%20Daniel%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call.">Text Daniel</a></div>
       </div>
-      <div class="who-card">
-        <div class="who-name">Niko Arapkiles</div>
-        <div class="who-role">Vision Architect</div>
-        <div class="who-bio">Niko has spent over two decades helping people see their vision more clearly and install it into their subconscious so it becomes inevitable. He's transformed hundreds of business owners' lives by helping them align with their vision in the clearest, most actionable way possible. He reflects your vision back to you so you can finally see it.</div>
-        <div class="who-stat">Founder of Vision Espresso<br>Vision extraction &amp; strategic clarity for entrepreneurs</div>
-        <div class="who-btns">
-          <a href="mailto:Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Niko%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="who-btn email">&#9993; Email Niko</a>
-          <a href="sms:+13034751778?body=Hi%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="who-btn text">&#x1f4ac; Text Niko</a>
-        </div>
+      <div class="team-card">
+        <div class="team-name">Niko Arapkiles</div>
+        <div class="label team-role">Vision Architect</div>
+        <p class="body-lg">Niko has spent over two decades helping people see their vision more clearly and install it into their subconscious so it becomes inevitable. He's transformed hundreds of business owners' lives by helping them align with their vision in the clearest, most actionable way possible.</p>
+        <div class="team-proof">Founder of Vision Espresso<br>Vision extraction & strategic clarity for entrepreneurs</div>
+        <div class="team-buttons"><a class="btn-small" href="mailto:Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Niko%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A">Email Niko</a><a class="btn-small" href="sms:+13034751778?body=Hi%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call.">Text Niko</a></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- WHO IS THIS FOR -->
-<div class="divider"></div>
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-label">Is This For You?</div>
-    <h2>Built for People Who Are <span class="gold">Ready</span>.</h2>
-    <p class="sec-sub">This call is for business owners who are already doing the work and want the systems to match their ambition.</p>
+<div class="div-line"></div>
 
-    <div class="aud-grid">
-      <div class="aud-item"><div class="aud-icon">&#x1f3a4;</div><div class="aud-label">Coaches &amp; Speakers</div></div>
-      <div class="aud-item"><div class="aud-icon">&#x1f4da;</div><div class="aud-label">Course Creators &amp; Authors</div></div>
-      <div class="aud-item"><div class="aud-icon">&#x1f9e0;</div><div class="aud-label">Consultants &amp; Agencies</div></div>
-      <div class="aud-item"><div class="aud-icon">&#x1f3c6;</div><div class="aud-label">Mastermind Leaders</div></div>
-      <div class="aud-item"><div class="aud-icon">&#x1f680;</div><div class="aud-label">Founders with Vision</div></div>
-      <div class="aud-item"><div class="aud-icon">&#x1f4bc;</div><div class="aud-label">Service Providers</div></div>
+<section class="section" id="who">
+  <div class="wrap tc">
+    <div class="rv vis">
+      <div class="label gold">Is This For You?</div>
+      <h2 class="sec-h">Built for People <span class="gold-grad">Who Are Ready.</span></h2>
+      <p class="body-lg" style="max-width:620px;margin:20px auto 0">This call is for business owners who are already doing the work and want the systems to match their ambition.</p>
+    </div>
+    <div class="audience-mini rv d1 vis">
+      <div>Coaches & Speakers</div><div>Course Creators & Authors</div><div>Consultants & Agencies</div><div>Mastermind Leaders</div><div>Founders with Vision</div><div>Service Providers</div>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<div class="divider"></div>
-<section class="cta-final" id="book">
-  <div class="wrap">
-    <div class="sec-label">Let's Talk</div>
-    <h2>Ready to See Your <span class="gold">Vision Clearly</span>?</h2>
-    <p class="sub">Reach out to either one of us. Share a little about your business and what's on your mind. We'll coordinate the call from there.</p>
+<div class="div-line"></div>
 
-    <div class="cta-row">
-      <a href="mailto:dknightunicorn@gmail.com,Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%20and%20Niko%2C%0A%0AI%27d%20love%20to%20schedule%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="btn btn-gold">&#9993; Email Both of Us</a>
-      <a href="sms:+16027020807,+13034751778?body=Hi%20Daniel%20and%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="btn btn-outline">&#x1f4ac; Text Us to Schedule</a>
+<section class="section form-section" id="book">
+  <div class="wrap tc">
+    <div class="rv vis" style="max-width:760px;margin:0 auto">
+      <div class="label gold">Let's Talk</div>
+      <h2 class="sec-h">Ready to See Your <span class="gold-grad">Vision Clearly?</span></h2>
+      <p class="body-lg" style="margin:20px auto 0">Reach out to either one of us. Share a little about your business and what's on your mind. We'll coordinate the call from there.</p>
+      <div class="cta-row" style="justify-content:center;margin-top:34px">
+        <a class="btn-gold" href="mailto:dknightunicorn@gmail.com,Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%20and%20Niko%2C%0A%0AI%27d%20love%20to%20schedule%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A">Email Both of Us</a>
+        <a class="btn-outline" href="sms:+16027020807,+13034751778?body=Hi%20Daniel%20and%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call.">Text Us to Schedule</a>
+      </div>
+      <p class="body-lg" style="margin-top:22px;font-size:1rem">Or reach out individually above. We respond personally. No bots. No intake forms. Just people.</p>
     </div>
-
-    <p class="cta-note">Or reach out individually above. We respond personally. No bots. No intake forms. Just people.</p>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="wrap">
-    <div class="f-brand">KNIGHT <span>OPS</span></div>
-    <div class="f-partner">In partnership with Vision Espresso</div>
-    <div class="f-links">
-      <a href="/">Home</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/speed-to-value">Speed to Value VIP Day</a>
-      <a href="/blog">Blog</a>
-    </div>
-    <div class="f-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
-  </div>
+  <div class="nav-logo" style="justify-content:center;margin-bottom:8px"><span class="ko">Knight Ops</span><span class="x">x</span><span class="ve">Vision Espresso</span></div>
+  <div class="footer-links"><a href="https://www.knightops.biz/">Home</a><a href="https://www.knightops.biz/pricing">Pricing</a><a href="https://www.knightops.biz/blog">Blog</a></div>
+  <div>© 2026 Knight Ops. All rights reserved.</div>
 </footer>
 
-</div><!-- end content -->
-
+<script>
+const canvas = document.getElementById('bgCanvas');
+if (canvas) {
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [];
+  const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+  window.addEventListener('resize', resize); resize();
+  for (let i = 0; i < 70; i++) particles.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.8+.4, vx:(Math.random()-.5)*.18, vy:(Math.random()-.5)*.18 });
+  function draw() {
+    ctx.clearRect(0,0,w,h);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle = 'rgba(200,164,86,.28)'; ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  } draw();
+}
+</script>
 </body>
 </html>
