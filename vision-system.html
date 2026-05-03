@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision System Blueprint Call — Clarity, Strategy & a 90-Day Action Plan | Knight Ops + Vision Espresso</title>
+<meta name="description" content="A single call that gives you absolute clarity on your tech stack, a full system architecture blueprint, and a 90-day action plan to transform your business. By application only.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://knightops.biz/vision-system">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/vision-system">
+<meta property="og:title" content="Vision System Blueprint Call — Clarity + a 90-Day Action Plan">
+<meta property="og:description" content="One call. Total clarity on your tech, your vision, and your next 90 days. Full system architecture blueprint included.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0A0B;--bg2:#111113;--bg3:#18181B;--card:#1C1C1F;--card-h:#222225;
+  --bdr:#2A2A2E;--bdr-l:#3A3A3F;
+  --tx:#F4F4F5;--tx2:#A1A1AA;--txm:#71717A;
+  --gld:#C8A456;--gld-h:#D4B56A;--gld-s:rgba(200,164,86,0.1);--gld-b:rgba(200,164,86,0.25);
+  --teal:#5FC8D7;--purple:#8B5CF6;--green:#22C55E;--white:#fff;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,11,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--bdr);padding:14px 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:1100px}
+.nav-brand{font-weight:800;font-size:1.1rem;letter-spacing:2px;color:var(--tx);text-decoration:none}
+.nav-brand span{color:var(--gld)}
+.nav-links{display:flex;gap:22px;align-items:center}
+.nav-links a{color:var(--tx2);font-size:.85rem;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--gld)}
+.nav-cta{background:linear-gradient(135deg,var(--gld),#A08636);color:var(--bg);padding:9px 20px;border-radius:8px;font-weight:700;font-size:.82rem;text-decoration:none;transition:box-shadow .2s}
+.nav-cta:hover{box-shadow:0 0 28px rgba(200,164,86,.35)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:140px 24px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(200,164,86,.06) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.2),transparent)}
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gld);margin-bottom:20px;display:inline-block;padding:6px 18px;border:1px solid var(--gld-b);border-radius:50px;background:var(--gld-s)}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.15;margin-bottom:24px;max-width:750px;margin-left:auto;margin-right:auto}
+.hero h1 .gold{background:linear-gradient(135deg,var(--gld),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:1.1rem;color:var(--tx2);max-width:620px;margin:0 auto 40px;line-height:1.8}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:all .25s}
+.btn-gold{background:linear-gradient(135deg,var(--gld),#A08636);color:var(--bg);box-shadow:0 4px 20px rgba(200,164,86,.2)}
+.btn-gold:hover{box-shadow:0 6px 36px rgba(200,164,86,.4);transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--tx);border:1px solid var(--bdr-l)}
+.btn-outline:hover{border-color:var(--gld-b);background:var(--gld-s)}
+
+/* SECTIONS */
+.sec{padding:80px 0}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gld);margin-bottom:12px}
+.sec h2{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;line-height:1.2;margin-bottom:16px}
+.sec h2 .gold{background:linear-gradient(135deg,var(--gld),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sec-sub{color:var(--tx2);font-size:1rem;max-width:640px;line-height:1.8;margin-bottom:40px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.15),transparent);margin:0}
+
+/* VALUE CARDS */
+.val-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:32px}
+.val-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:28px 24px;position:relative;overflow:hidden;transition:all .3s}
+.val-card:hover{border-color:var(--gld-b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.val-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gld),transparent);opacity:.5}
+.val-icon{font-size:1.6rem;margin-bottom:14px}
+.val-title{font-size:1rem;font-weight:700;margin-bottom:8px}
+.val-desc{font-size:.88rem;color:var(--tx2);line-height:1.7}
+
+/* QUOTE BLOCK */
+.quote-block{background:var(--bg2);border-left:3px solid var(--gld);border-radius:0 12px 12px 0;padding:32px 36px;margin:48px 0;position:relative}
+.quote-block p{font-size:1.05rem;font-style:italic;color:var(--tx2);line-height:1.8}
+.quote-block .attr{margin-top:14px;font-style:normal;font-size:.82rem;color:var(--txm);letter-spacing:.5px}
+
+/* WHO */
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:32px}
+.who-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:32px;text-align:center;transition:all .3s}
+.who-card:hover{border-color:var(--gld-b)}
+.who-name{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+.who-role{font-size:.78rem;color:var(--gld);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.who-bio{font-size:.88rem;color:var(--tx2);line-height:1.7;margin-bottom:20px}
+.who-stat{font-size:.75rem;color:var(--txm);border-top:1px solid var(--bdr);padding-top:14px;line-height:1.6}
+.who-btns{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.who-btn{padding:10px 20px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.who-btn.email{background:var(--gld-s);color:var(--gld);border:1px solid var(--gld-b)}
+.who-btn.email:hover{background:rgba(200,164,86,.2)}
+.who-btn.text{background:rgba(95,200,215,.08);color:var(--teal);border:1px solid rgba(95,200,215,.25)}
+.who-btn.text:hover{background:rgba(95,200,215,.15)}
+
+/* STEPS */
+.steps{counter-reset:step;margin-top:32px}
+.step{display:flex;gap:24px;align-items:flex-start;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.04);position:relative}
+.step:last-child{border-bottom:none}
+.step::before{counter-increment:step;content:counter(step);font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--gld);opacity:.5;min-width:32px;line-height:1}
+.step-content h3{font-size:.95rem;font-weight:700;margin-bottom:6px}
+.step-content p{font-size:.88rem;color:var(--tx2);line-height:1.7}
+
+/* AUDIENCE */
+.aud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:28px}
+.aud-item{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:18px 16px;text-align:center;transition:border-color .2s}
+.aud-item:hover{border-color:var(--gld-b)}
+.aud-icon{font-size:1.4rem;margin-bottom:8px}
+.aud-label{font-size:.82rem;font-weight:600;color:var(--tx2)}
+
+/* CTA FINAL */
+.cta-final{text-align:center;padding:80px 24px;position:relative}
+.cta-final::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,86,.2),transparent)}
+.cta-final h2{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;margin-bottom:16px}
+.cta-final .sub{color:var(--tx2);font-size:1rem;max-width:560px;margin:0 auto 36px;line-height:1.8}
+.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.cta-note{font-size:.78rem;color:var(--txm);margin-top:16px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bdr);padding:40px 0 20px;text-align:center}
+.f-brand{font-weight:800;letter-spacing:3px;font-size:.95rem;margin-bottom:4px;color:var(--tx)}
+.f-brand span{color:var(--gld)}
+.f-partner{font-size:.78rem;color:var(--txm);margin-bottom:12px}
+.f-copy{color:var(--txm);font-size:.72rem}
+.f-links{display:flex;gap:20px;justify-content:center;margin-bottom:12px}
+.f-links a{color:var(--txm);font-size:.78rem;text-decoration:none;transition:color .2s}
+.f-links a:hover{color:var(--gld)}
+
+/* AMBIENT */
+.amb{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.amb-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.03;animation:drift 20s ease-in-out infinite alternate}
+.amb-orb.o1{width:600px;height:600px;background:var(--gld);top:-20%;left:-10%}
+.amb-orb.o2{width:400px;height:400px;background:var(--teal);bottom:-15%;right:-5%;animation-delay:-8s}
+.amb-orb.o3{width:300px;height:300px;background:var(--purple);top:40%;right:-10%;animation-delay:-14s}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(40px,30px)}}
+
+.content{position:relative;z-index:1}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .who-grid{grid-template-columns:1fr}
+  .val-grid{grid-template-columns:1fr}
+  .aud-grid{grid-template-columns:1fr 1fr}
+  .hero{padding:120px 20px 60px}
+  .sec{padding:60px 0}
+  .who-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- AMBIENT -->
+<div class="amb"><div class="amb-orb o1"></div><div class="amb-orb o2"></div><div class="amb-orb o3"></div></div>
+
+<div class="content">
+
+<!-- NAV -->
+<nav>
+  <div class="wrap" style="max-width:1100px">
+    <a href="/" class="nav-brand">KNIGHT <span>OPS</span></a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/speed-to-value">Speed to Value</a>
+      <a href="#book" class="nav-cta">Book a Call</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-label">Complimentary Blueprint Call</div>
+    <h1>The Most <span class="gold">Valuable Call</span> You'll Have This Quarter</h1>
+    <p class="hero-sub">Walk away with complete clarity on your vision, a full tech stack blueprint, and a 90-day action plan you can start implementing tomorrow. No pitch. Just a conversation that changes everything.</p>
+    <div class="hero-ctas">
+      <a href="#book" class="btn btn-gold">Book Your Blueprint Call</a>
+      <a href="#what" class="btn btn-outline">See What You'll Get</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<div class="divider"></div>
+<section class="sec" id="what">
+  <div class="wrap">
+    <div class="sec-label">The Real Problem</div>
+    <h2>You Don't Need More Tech.<br>You Need <span class="gold">Clarity</span>.</h2>
+    <p class="sec-sub">There are thousands of tools, platforms, and AI solutions competing for your attention. The overwhelm isn't about which one to pick. It's about not being able to see how they all connect to the vision you have for your business and your life.</p>
+    <p class="sec-sub" style="margin-top:-20px">That's what this call solves.</p>
+  </div>
+</section>
+
+<!-- WHAT YOU WALK AWAY WITH -->
+<div class="divider"></div>
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-label">What You Walk Away With</div>
+    <h2>One Call. <span class="gold">Everything Changes</span>.</h2>
+    <p class="sec-sub">This isn't a discovery call disguised as a sales pitch. This is a working session where two people who have spent decades helping business owners see clearly will give you everything you need to move forward with confidence.</p>
+
+    <div class="val-grid">
+      <div class="val-card">
+        <div class="val-icon">&#x1f3af;</div>
+        <div class="val-title">Vision Clarity</div>
+        <div class="val-desc">Get crystal clear on what you're building, why it matters, and how it connects to the life you actually want to live. Not just business goals. The whole picture.</div>
+      </div>
+      <div class="val-card">
+        <div class="val-icon">&#x1f9e9;</div>
+        <div class="val-title">Full Tech Stack Blueprint</div>
+        <div class="val-desc">A complete system design showing exactly which tools, platforms, and integrations you need. No guesswork. No shiny object syndrome. Just what works for your business.</div>
+      </div>
+      <div class="val-card">
+        <div class="val-icon">&#x1f4cb;</div>
+        <div class="val-title">90-Day Action Plan</div>
+        <div class="val-desc">A step-by-step implementation roadmap with clear priorities. You'll know what to build first, what to wait on, and exactly how each piece connects to revenue.</div>
+      </div>
+      <div class="val-card">
+        <div class="val-icon">&#x1f4a1;</div>
+        <div class="val-title">Implementation Guidance</div>
+        <div class="val-desc">Specific recommendations on what to implement first so you start seeing results immediately. We'll tell you what will save you the most money, time, and energy right now.</div>
+      </div>
+      <div class="val-card">
+        <div class="val-icon">&#x1f4b0;</div>
+        <div class="val-title">Revenue Architecture</div>
+        <div class="val-desc">See how your systems connect to your revenue. Understand where money is leaking, where automation creates leverage, and where your next breakthrough lives.</div>
+      </div>
+      <div class="val-card">
+        <div class="val-icon">&#x1f9d8;</div>
+        <div class="val-title">Tech Overwhelm Gone</div>
+        <div class="val-desc">Leave the call feeling lighter, not heavier. You'll understand exactly what tech you need and, just as importantly, what you can ignore. Clarity replaces confusion.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="divider"></div>
+<section class="sec">
+  <div class="wrap">
+    <div class="quote-block">
+      <p>If you follow the blueprint and the 90-day action plan we give you on this call, that alone will transform your business. That's the standard we hold ourselves to. We're not here to sell you something. We're here to make sure you leave with something so valuable that you'd feel comfortable paying for it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="divider"></div>
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-label">How It Works</div>
+    <h2>Simple. Intentional. <span class="gold">Transformative</span>.</h2>
+    <p class="sec-sub">No 47-step funnel. No pressure. Just a real conversation between people who care about your outcome.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-content">
+          <h3>Reach out to Daniel or Niko</h3>
+          <p>Send a quick email or text. Tell us about your business, what you're working on, and what's feeling unclear. We'll coordinate a time that works.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h3>We jump on a call together</h3>
+          <p>You'll sit down with both of us. Niko will help you see your vision more clearly than you've ever articulated it. Daniel will map the technology to make it real. It's a working session, not an interview.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h3>You walk away with your blueprint</h3>
+          <p>A full system architecture, a tech stack recommendation, and a 90-day action plan with clear priorities. You'll know exactly what to do next and why it matters.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h3>If we can help further, we'll let you know</h3>
+          <p>If we feel we can support your implementation through a Speed to Value VIP Day or ongoing partnership, we'll share how. No pressure. The blueprint stands on its own.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO WE ARE -->
+<div class="divider"></div>
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-label">Your Blueprint Team</div>
+    <h2>Two People. <span class="gold">Decades of Proof</span>.</h2>
+    <p class="sec-sub">This isn't theory. These are two people who have done it at scale and now spend their lives helping others do the same.</p>
+
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-name">Daniel Knight</div>
+        <div class="who-role">Systems Architect</div>
+        <div class="who-bio">Over 20 years designing and building systems that have processed hundreds of millions in revenue. Daniel sees the architecture behind your vision and builds the technology to make it real. He's helped hundreds of business owners install systems that save time, save money, and create freedom.</div>
+        <div class="who-stat">Founder of Knight Ops &amp; 10xUnicorn<br>Custom AI systems for coaches, consultants &amp; agencies</div>
+        <div class="who-btns">
+          <a href="mailto:dknightunicorn@gmail.com?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="who-btn email">&#9993; Email Daniel</a>
+          <a href="sms:+16027020807?body=Hi%20Daniel%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="who-btn text">&#x1f4ac; Text Daniel</a>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-name">Niko Arapkiles</div>
+        <div class="who-role">Vision Architect</div>
+        <div class="who-bio">Niko has spent over two decades helping people see their vision more clearly and install it into their subconscious so it becomes inevitable. He's transformed hundreds of business owners' lives by helping them align with their vision in the clearest, most actionable way possible. He reflects your vision back to you so you can finally see it.</div>
+        <div class="who-stat">Founder of Vision Espresso<br>Vision extraction &amp; strategic clarity for entrepreneurs</div>
+        <div class="who-btns">
+          <a href="mailto:Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Niko%2C%0A%0AI%27d%20love%20to%20book%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="who-btn email">&#9993; Email Niko</a>
+          <a href="sms:+13034751778?body=Hi%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="who-btn text">&#x1f4ac; Text Niko</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<div class="divider"></div>
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-label">Is This For You?</div>
+    <h2>Built for People Who Are <span class="gold">Ready</span>.</h2>
+    <p class="sec-sub">This call is for business owners who are already doing the work and want the systems to match their ambition.</p>
+
+    <div class="aud-grid">
+      <div class="aud-item"><div class="aud-icon">&#x1f3a4;</div><div class="aud-label">Coaches &amp; Speakers</div></div>
+      <div class="aud-item"><div class="aud-icon">&#x1f4da;</div><div class="aud-label">Course Creators &amp; Authors</div></div>
+      <div class="aud-item"><div class="aud-icon">&#x1f9e0;</div><div class="aud-label">Consultants &amp; Agencies</div></div>
+      <div class="aud-item"><div class="aud-icon">&#x1f3c6;</div><div class="aud-label">Mastermind Leaders</div></div>
+      <div class="aud-item"><div class="aud-icon">&#x1f680;</div><div class="aud-label">Founders with Vision</div></div>
+      <div class="aud-item"><div class="aud-icon">&#x1f4bc;</div><div class="aud-label">Service Providers</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="divider"></div>
+<section class="cta-final" id="book">
+  <div class="wrap">
+    <div class="sec-label">Let's Talk</div>
+    <h2>Ready to See Your <span class="gold">Vision Clearly</span>?</h2>
+    <p class="sub">Reach out to either one of us. Share a little about your business and what's on your mind. We'll coordinate the call from there.</p>
+
+    <div class="cta-row">
+      <a href="mailto:dknightunicorn@gmail.com,Niko@VisionEspresso.co?subject=Vision%20System%20Blueprint%20Call&body=Hi%20Daniel%20and%20Niko%2C%0A%0AI%27d%20love%20to%20schedule%20a%20Vision%20System%20Blueprint%20Call.%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A" class="btn btn-gold">&#9993; Email Both of Us</a>
+      <a href="sms:+16027020807,+13034751778?body=Hi%20Daniel%20and%20Niko%2C%20I%27d%20like%20to%20book%20a%20Vision%20System%20Blueprint%20Call." class="btn btn-outline">&#x1f4ac; Text Us to Schedule</a>
+    </div>
+
+    <p class="cta-note">Or reach out individually above. We respond personally. No bots. No intake forms. Just people.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="f-brand">KNIGHT <span>OPS</span></div>
+    <div class="f-partner">In partnership with Vision Espresso</div>
+    <div class="f-links">
+      <a href="/">Home</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/speed-to-value">Speed to Value VIP Day</a>
+      <a href="/blog">Blog</a>
+    </div>
+    <div class="f-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+  </div>
+</footer>
+
+</div><!-- end content -->
+
+</body>
+</html>
