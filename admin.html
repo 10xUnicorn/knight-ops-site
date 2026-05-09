@@ -3054,71 +3054,175 @@ function showAppDetail(id){
   document.getElementById('appsListView').style.display='none';
   document.getElementById('appDetailView').style.display='block';
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
-  // Find linked lead
   const linkedLead=a.lead_id?(S.leads||[]).find(l=>l.id===a.lead_id):null;
+  const formLabel=a.form_type==='blueprint'?'Blueprint Session':a.form_type==='mini_blueprint'?'Mini Blueprint':a.form_type==='website_intake'?'Website Intake':'Public Form';
+
+  // Helper for editable field rows
+  function eField(label,field,val,type){
+    const eid='appEdit_'+field;
+    if(type==='textarea'){
+      return '<div class="table-card" style="padding:1rem;margin-bottom:.75rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:0.8rem;font-weight:600;color:var(--accent)">'+label+'</span><span style="font-size:.7rem;color:var(--text-muted)">'+field+'</span></div><textarea id="'+eid+'" style="width:100%;min-height:80px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.85rem;line-height:1.5">'+(val||'')+'</textarea></div>';
+    }
+    return '<div><div class="dg-label">'+label+'</div><div class="dg-value"><input type="text" id="'+eid+'" value="'+(val||'').replace(/"/g,'&quot;')+'" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:0.85rem"></div></div>';
+  }
+
+  // Build website intake section
+  let wsSection='';
+  if(a.form_type==='website_intake'||a.ws_current_url||a.ws_pages_needed){
+    wsSection='<div style="margin-top:1rem;padding:1.25rem;background:var(--surface);border:1px solid rgba(33,150,243,0.2);border-radius:14px">'+
+      '<h3 style="font-size:0.95rem;color:#2196F3;margin-bottom:1rem">🌐 Website Intake Details</h3>'+
+      '<div class="detail-grid">'+
+        eField('Current URL','ws_current_url',a.ws_current_url)+
+        eField('Has Domain','ws_has_domain',a.ws_has_domain)+
+        eField('Domain Name','ws_domain_name',a.ws_domain_name)+
+        eField('Has Logo','ws_has_logo',a.ws_has_logo)+
+        eField('Has Copy','ws_has_copy',a.ws_has_copy)+
+        eField('Primary CTA','ws_primary_cta',a.ws_primary_cta)+
+        eField('Brand Colors','ws_brand_colors',a.ws_brand_colors)+
+        eField('Style Vibe','ws_style_vibe',a.ws_style_vibe)+
+      '</div>'+
+      eField('Current Likes','ws_current_likes',a.ws_current_likes,'textarea')+
+      eField('Current Dislikes','ws_current_dislikes',a.ws_current_dislikes,'textarea')+
+      eField('Reference Sites','ws_reference_sites',a.ws_reference_sites,'textarea')+
+      eField('Imagery Notes','ws_imagery_notes',a.ws_imagery_notes,'textarea')+
+      eField('Pages Needed','ws_pages_needed',a.ws_pages_needed,'textarea')+
+      eField('Features Needed','ws_features_needed',a.ws_features_needed,'textarea')+
+      eField('Ideal Client','ws_ideal_client',a.ws_ideal_client,'textarea')+
+      eField('Differentiator','ws_differentiator',a.ws_differentiator,'textarea')+
+      eField('Additional Notes','ws_additional_notes',a.ws_additional_notes,'textarea')+
+    '</div>';
+  }
+
+  // Build mini-blueprint SWOT section
+  let mbSection='';
+  if(a.form_type==='mini_blueprint'||a.mb_strengths||a.mb_industry){
+    mbSection='<div style="margin-top:1rem;padding:1.25rem;background:var(--surface);border:1px solid rgba(76,175,80,0.2);border-radius:14px">'+
+      '<h3 style="font-size:0.95rem;color:#4CAF50;margin-bottom:1rem">📊 Mini Blueprint SWOT</h3>'+
+      '<div class="detail-grid">'+
+        eField('Industry','mb_industry',a.mb_industry)+
+        eField('Systems Needed','mb_systems_needed',a.mb_systems_needed)+
+        eField('Competitor Tech','mb_competitor_tech',a.mb_competitor_tech)+
+      '</div>'+
+      eField('Strengths','mb_strengths',a.mb_strengths,'textarea')+
+      eField('Current Delivery','mb_current_delivery',a.mb_current_delivery,'textarea')+
+      eField('Weaknesses','mb_weaknesses',a.mb_weaknesses,'textarea')+
+      eField('Opportunities','mb_opportunities',a.mb_opportunities,'textarea')+
+      eField('Dream System','mb_dream_system',a.mb_dream_system,'textarea')+
+      eField('Threats / Risk','mb_threats',a.mb_threats,'textarea')+
+      eField('Cost of Inaction','mb_cost_of_inaction',a.mb_cost_of_inaction,'textarea')+
+    '</div>';
+  }
+
+  // Build blueprint deep-dive section
+  let bpSection='';
+  if(a.form_type==='blueprint'||a.bp_time_sink||a.bp_core_outcome){
+    bpSection='<div style="margin-top:1rem;padding:1.25rem;background:var(--surface);border:1px solid rgba(200,164,86,0.2);border-radius:14px">'+
+      '<h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:1rem">🔬 Blueprint Session Details</h3>'+
+      '<div class="detail-grid">'+
+        eField('System Type','bp_system_type',a.bp_system_type)+
+        eField('Platform','bp_platform',a.bp_platform)+
+        eField('Deployment','bp_deployment',a.bp_deployment)+
+      '</div>'+
+      eField('Where They Spend Most Time','bp_time_sink',a.bp_time_sink,'textarea')+
+      eField('Where They Make Most Money','bp_revenue_driver',a.bp_revenue_driver,'textarea')+
+      eField('What Would 10x That','bp_ten_x',a.bp_ten_x,'textarea')+
+      eField('Core Outcome','bp_core_outcome',a.bp_core_outcome,'textarea')+
+      eField('Target Users','bp_target_users',a.bp_target_users,'textarea')+
+      eField('Non-Negotiable Features','bp_non_negotiables',a.bp_non_negotiables,'textarea')+
+      eField('MVP Requirements','bp_mvp_requirements',a.bp_mvp_requirements,'textarea')+
+      eField('Current Tools','bp_current_tools',a.bp_current_tools,'textarea')+
+      eField('Biggest Bottleneck','bp_biggest_bottleneck',a.bp_biggest_bottleneck,'textarea')+
+    '</div>';
+  }
+
+  // Original public form fields
+  let qSection='';
+  if(a.q1_time_spent||a.q4_core_outcome||a.q9_non_negotiables){
+    qSection='<div style="margin-top:1rem;padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
+      '<h3 style="font-size:0.95rem;color:var(--text);margin-bottom:1rem">📋 Application Form Responses</h3>'+
+      eField('Time Spent (q1)','q1_time_spent',a.q1_time_spent,'textarea')+
+      eField('Revenue Source (q2)','q2_revenue_source',a.q2_revenue_source,'textarea')+
+      eField('10x Requirement (q3)','q3_10x_requirement',a.q3_10x_requirement,'textarea')+
+      eField('What They Want to Build (q4)','q4_core_outcome',a.q4_core_outcome,'textarea')+
+      eField('Target Users (q5)','q5_target_users',a.q5_target_users,'textarea')+
+      eField('Internal or Commercial (q6)','q6_internal_or_commercial',a.q6_internal_or_commercial)+
+      '<div class="detail-grid">'+
+        eField('Platform Type (q7)','q7_platform_type',a.q7_platform_type)+
+        eField('App Store Deploy (q8)','q8_app_store_deploy',a.q8_app_store_deploy)+
+      '</div>'+
+      eField('Non-Negotiables (q9)','q9_non_negotiables',a.q9_non_negotiables,'textarea')+
+      eField('MVP Requirements (q10)','q10_mvp_requirements',a.q10_mvp_requirements,'textarea')+
+    '</div>';
+  }
+
   document.getElementById('appDetailView').innerHTML=
     '<div class="detail-back" onclick="document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'">&#8592; Back to Applications</div>'+
-    '<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'prev\',showAppDetail)" style="padding:5px 8px">&#8249;</button><div><h2 style="margin:0">'+fullName+'</h2>'+(a.title?'<div style="font-size:.85rem;color:var(--text-muted)">'+a.title+'</div>':'')+'</div><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'next\',showAppDetail)" style="padding:5px 8px">&#8250;</button></div><div>'+
-      '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')" style="margin-right:6px">&#128203; Copy Build Prompt</button>'+
-      '<button class="btn btn-sm btn-primary" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="margin-right:6px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border:none">&#128218; Copy Blueprint Prompt</button>'+
-      '<button class="btn btn-sm btn-secondary" onclick="editApplication(\''+a.id+'\')" style="margin-right:6px">Edit</button>'+
-      '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')" style="margin-right:6px">Mark Reviewed</button>'+
-      '<button class="btn btn-sm btn-secondary" style="margin-right:6px;background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
-      '<button class="btn btn-sm btn-primary" onclick="createDealFromApp(\''+a.id+'\')" style="margin-right:6px">Create Deal</button>'+
-      '<button class="btn btn-sm btn-primary" style="margin-right:6px;background:rgba(76,175,80,0.15);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="createProjectFromApp(\''+a.id+'\')">Create Project</button>'+
-      (a.lead_id?'<button class="btn btn-sm btn-secondary" onclick="showLeadDetail(\''+a.lead_id+'\')" style="margin-right:6px">View Lead</button>':
+    '<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'prev\',showAppDetail)" style="padding:5px 8px">&#8249;</button><div><h2 style="margin:0">'+fullName+'</h2>'+(a.title?'<div style="font-size:.85rem;color:var(--text-muted)">'+a.title+'</div>':'')+'<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px"><span class="badge" style="background:rgba(200,164,86,0.15);color:var(--accent);border:1px solid var(--border);font-size:.7rem">'+formLabel+'</span> · Submitted '+fmtDateTime(a.created_at)+'</div></div><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.applications,\''+a.id+'\',\'next\',showAppDetail)" style="padding:5px 8px">&#8250;</button></div><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+      '<button class="btn btn-sm btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All Changes</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Build Prompt</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);border:none">&#128218; Blueprint</button>'+
+      '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')">Reviewed</button>'+
+      '<button class="btn btn-sm btn-secondary" style="background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="createDealFromApp(\''+a.id+'\')">Create Deal</button>'+
+      '<button class="btn btn-sm btn-primary" style="background:rgba(76,175,80,0.15);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="createProjectFromApp(\''+a.id+'\')">Create Project</button>'+
+      (a.lead_id?'<button class="btn btn-sm btn-secondary" onclick="showLeadDetail(\''+a.lead_id+'\')">View Lead</button>':
       '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>')+
-      '<button class="btn btn-sm btn-danger" onclick="deleteRecord(\'intake_submissions\',\''+a.id+'\',\'Application\',loadApplications).then(()=>{document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'})" style="margin-left:6px">🗑 Delete</button>'+
+      '<button class="btn btn-sm btn-danger" onclick="deleteRecord(\'intake_submissions\',\''+a.id+'\',\'Application\',loadApplications).then(()=>{document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'})">🗑</button>'+
     '</div></div>'+
     (linkedLead?'<div style="margin-bottom:1rem;padding:10px 14px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:10px;font-size:0.85rem"><span style="color:var(--accent);font-weight:600">Linked Lead:</span> '+(linkedLead.name||linkedLead.email||'—')+' <span style="color:var(--text-muted)">('+(linkedLead.status||'—')+')</span> <a href="#" onclick="showLeadDetail(\''+linkedLead.id+'\');return false" style="margin-left:8px">View →</a></div>':'')+
-    '<div class="detail-grid">'+
-      '<div><div class="dg-label">Email</div><div class="dg-value">'+(a.email||'—')+'</div></div>'+
-      '<div><div class="dg-label">Phone</div><div class="dg-value">'+(a.phone||'—')+'</div></div>'+
-      '<div><div class="dg-label">Company</div><div class="dg-value">'+(a.company||'—')+'</div></div>'+
-      '<div><div class="dg-label">Platform</div><div class="dg-value">'+(a.q7_platform_type||'—').replace(/_/g,' ')+'</div></div>'+
-      '<div><div class="dg-label">App Store</div><div class="dg-value">'+(a.q8_app_store_deploy||'—').replace(/_/g,' ')+'</div></div>'+
-      '<div><div class="dg-label">Budget</div><div class="dg-value">'+fmtBudget(a.budget)+'</div></div>'+
-      '<div><div class="dg-label">Timeline</div><div class="dg-value">'+fmtTimeline2(a.timeline)+'</div></div>'+
-      '<div><div class="dg-label">Status</div><div class="dg-value">'+B(a.status)+'</div></div>'+
-      '<div><div class="dg-label">Submitted</div><div class="dg-value">'+fmtDateTime(a.created_at)+'</div></div>'+
-      (a.form_type==='blueprint'?'<div><div class="dg-label">Form Type</div><div class="dg-value"><span class="badge" style="background:rgba(200,164,86,0.15);color:var(--accent);border:1px solid var(--border)">Blueprint Session</span></div></div>':'')+
-      (a.bp_platform?'<div><div class="dg-label">Platform</div><div class="dg-value">'+(a.bp_platform||'—').replace(/_/g,' ')+'</div></div>':'')+
-      (a.bp_deployment?'<div><div class="dg-label">Deployment</div><div class="dg-value">'+(a.bp_deployment||'—').replace(/_/g,' ')+'</div></div>':'')+
-      (a.bp_system_type?'<div><div class="dg-label">System Type</div><div class="dg-value">'+(a.bp_system_type||'—').replace(/_/g,' ')+'</div></div>':'')+
-      (a.utm_source?'<div><div class="dg-label">UTM Source</div><div class="dg-value">'+a.utm_source+'</div></div>':'')+
-      (a.utm_campaign?'<div><div class="dg-label">UTM Campaign</div><div class="dg-value">'+a.utm_campaign+'</div></div>':'')+
-    '</div>'+
-    // Blueprint-specific deep-dive sections
-    (a.bp_time_sink?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Where They Spend the Most Time</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_time_sink+'</p></div>':'')+
-    (a.bp_revenue_driver?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Where They Make the Most Money</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_revenue_driver+'</p></div>':'')+
-    (a.bp_ten_x?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">What Would 10x That</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_ten_x+'</p></div>':'')+
-    (a.bp_core_outcome?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Core Outcome</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_core_outcome+'</p></div>':'')+
-    (a.bp_target_users?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Target Users</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_target_users+'</p></div>':'')+
-    (a.bp_non_negotiables?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Non-Negotiable Features</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_non_negotiables+'</p></div>':'')+
-    (a.bp_mvp_requirements?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">MVP Requirements</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_mvp_requirements+'</p></div>':'')+
-    (a.bp_current_tools?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Current Tools & Software</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_current_tools+'</p></div>':'')+
-    (a.bp_biggest_bottleneck?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Biggest Bottleneck</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.bp_biggest_bottleneck+'</p></div>':'')+
-    // Original public form fields (only show if present and not blueprint)
-    (a.q4_core_outcome?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">What They Want to Build</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q4_core_outcome+'</p></div>':'')+
-    (a.q9_non_negotiables?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--accent)">Additional Notes / Must-Haves</h3><p style="font-size:0.95rem;white-space:pre-wrap;line-height:1.6">'+a.q9_non_negotiables+'</p></div>':'')+
-    (a.admin_notes?'<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Admin Notes</h3><p style="font-size:0.95rem;white-space:pre-wrap">'+a.admin_notes+'</p></div>':'')+
-    '<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.75rem">Admin Notes</h3>'+
-      '<textarea id="adminNotesField" style="width:100%;min-height:80px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.9rem">'+(a.admin_notes||'')+'</textarea>'+
-      '<button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="saveAdminNotes(\''+a.id+'\')">Save Notes</button>'+
-    '</div>'+
-    '<div id="proposalSection-'+a.id+'" style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
+
+    // ═══ PROPOSAL SECTION — NOW AT TOP ═══
+    '<div id="proposalSection-'+a.id+'" style="margin-bottom:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(200,164,86,0.3);border-radius:14px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:1rem;color:var(--accent)">&#128230; Proposal</h3><div id="proposalActions-'+a.id+'"></div></div>'+
       '<div id="proposalBody-'+a.id+'"></div>'+
     '</div>'+
+
+    // ═══ APPLICATION DETAILS — EDITABLE GRID ═══
+    '<div style="padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1rem">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--text)">👤 Client & Project Details</h3><button class="btn btn-sm btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All</button></div>'+
+      '<div class="detail-grid">'+
+        eField('First Name','first_name',a.first_name)+
+        eField('Last Name','last_name',a.last_name)+
+        eField('Email','email',a.email)+
+        eField('Phone','phone',a.phone)+
+        eField('Company','company',a.company)+
+        eField('Title','title',a.title)+
+        eField('Budget','budget',a.budget)+
+        eField('Timeline','timeline',a.timeline)+
+        eField('Platform','q7_platform_type',a.q7_platform_type)+
+        eField('App Store','q8_app_store_deploy',a.q8_app_store_deploy)+
+        eField('Source','source',a.source)+
+        eField('Status','status',a.status)+
+        eField('UTM Source','utm_source',a.utm_source)+
+        eField('UTM Campaign','utm_campaign',a.utm_campaign)+
+        eField('Referral Source','referral_source',a.referral_source)+
+      '</div>'+
+    '</div>'+
+
+    // ═══ ADMIN NOTES ═══
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.75rem">📝 Admin Notes</h3>'+
+      '<textarea id="adminNotesField" style="width:100%;min-height:80px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:0.9rem">'+(a.admin_notes||'')+'</textarea>'+
+      '<button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="saveAdminNotes(\''+a.id+'\')">Save Notes</button>'+
+    '</div>'+
+
+    // ═══ FORM-SPECIFIC SECTIONS ═══
+    bpSection+
+    mbSection+
+    qSection+
+    wsSection+
+
+    // ═══ SAVE ALL BUTTON AT BOTTOM ═══
+    '<div style="margin-top:1rem;display:flex;justify-content:center"><button class="btn btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="padding:12px 40px;font-size:1rem;background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All Changes</button></div>'+
+
+    // ═══ BUILD PROMPT PREVIEW ═══
     '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem">Build Prompt Preview</h3><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Copy to Clipboard</button></div>'+
-      // Prompt config controls
       '<div id="promptConfig-'+a.id+'" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">'+
         '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
           '<div style="font-size:0.8rem;font-weight:600;color:var(--accent);margin-bottom:8px">💳 Stripe Payment Link</div>'+
           '<input type="text" id="promptStripeUrl-'+a.id+'" placeholder="https://buy.stripe.com/... or leave blank" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.8rem;margin-bottom:8px" oninput="refreshPromptPreview(\''+a.id+'\')">'+
           '<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);cursor:pointer">'+
-            '<input type="checkbox" id="promptStripeCreate-'+a.id+'" onchange="refreshPromptPreview(\''+a.id+'\')"> Auto-create or search Stripe product in prompt (Claude will handle it)'+
+            '<input type="checkbox" id="promptStripeCreate-'+a.id+'" onchange="refreshPromptPreview(\''+a.id+'\')"> Auto-create or search Stripe product in prompt'+
           '</label>'+
         '</div>'+
         '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
@@ -3132,16 +3236,15 @@ function showAppDetail(id){
       '</div>'+
       '<pre id="promptPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
     '</div>'+
+
+    // ═══ 10x BLUEPRINT PROMPT ═══
     '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(139,92,246,0.2);border-radius:14px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem;color:#8B5CF6">&#128218; 10x Blueprint Prompt</h3><button class="btn btn-sm" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none">&#128203; Copy to Clipboard</button></div>'+
-      '<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">Generates a full 10x Systems Blueprint analysis prompt with SWOT, strategic recommendations, pricing tiers, and growth architecture based on this application data.</p>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem;color:#8B5CF6">&#128218; 10x Blueprint Prompt</h3><button class="btn btn-sm" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none">&#128203; Copy</button></div>'+
       '<pre id="blueprintPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid rgba(139,92,246,0.15);line-height:1.5"></pre>'+
     '</div>';
-  // Render the prompt preview
+
   refreshPromptPreview(a.id);
-  // Render blueprint preview
   refreshBlueprintPreview(a.id);
-  // Load proposal state
   loadProposalSection(a);
 }
 
@@ -3656,16 +3759,30 @@ function genSlug(name,company){
 }
 
 async function loadProposalSection(a){
-  const bodyEl=document.getElementById('proposalBody-'+a.id);
-  const actEl=document.getElementById('proposalActions-'+a.id);
-  if(!bodyEl)return;
-  bodyEl.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">Loading proposal data…</p>';
-  // Check for existing proposal linked to this intake
-  const{data:proposals}=await sb.from('proposals').select('*').eq('intake_id',a.id).order('created_at',{ascending:false}).limit(1);
-  const p=proposals&&proposals.length?proposals[0]:null;
+  const sec=document.getElementById('proposalSection-'+a.id);if(!sec)return;
+  const{data:props}=await sb.from('proposals').select('*').eq('intake_id',a.id);
+  const p=props&&props.length?props[0]:null;
   if(p){
-    renderExistingProposal(a,p);
-  }else{
+    const publicUrl=PROPOSAL_PUBLIC+'/'+p.slug;
+    const pdfUrl=p.pdf_path?PROPOSAL_PUBLIC+'/'+p.slug+'/pdf':null;
+    // Prominent link at top
+    document.getElementById('proposalBody-'+a.id).innerHTML=
+      '<div style="margin-bottom:1rem;padding:12px 16px;background:rgba(200,164,86,0.08);border:1px solid rgba(200,164,86,0.2);border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
+        '<a href="'+publicUrl+'" target="_blank" style="font-size:1rem;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px">🔗 '+publicUrl+'</a>'+
+        (pdfUrl?'<a href="'+pdfUrl+'" target="_blank" style="font-size:0.85rem;color:var(--info);text-decoration:none">📄 PDF Version</a>':'')+
+        '<span class="badge" style="background:'+(p.status==='sent'?'rgba(76,175,80,0.15);color:#4CAF50':'rgba(255,152,0,0.15);color:#FF9800')+'">'+p.status+'</span>'+
+      '</div>'+
+      '<div style="font-size:0.8rem;color:var(--text-muted)">Slug: '+p.slug+' · Created: '+fmtDateTime(p.created_at)+'</div>';
+    document.getElementById('proposalActions-'+a.id).innerHTML=
+      '<a href="'+publicUrl+'" target="_blank" class="btn btn-sm btn-primary" style="background:linear-gradient(135deg,var(--accent),#8B6914);border:none;text-decoration:none;margin-right:4px">🔗 Open</a>'+
+      '<button class="btn btn-sm btn-primary" onclick="sendProposalEmail(\''+p.id+'\',\''+a.id+'\')" style="margin-right:4px">📧 Send</button>'+
+      '<button class="btn btn-sm btn-secondary" onclick="copyProposalUrl(\''+p.slug+'\')" style="margin-right:4px">📋 Copy URL</button>'+
+      '<button class="btn btn-sm btn-danger" onclick="deleteProposal(\''+p.id+'\',\''+a.id+'\')">🗑</button>'+
+      '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+
+        '<label class="btn btn-sm btn-secondary" style="cursor:pointer"><input type="file" accept=".html" style="display:none" onchange="replaceProposalFile(\''+p.id+'\',\''+a.id+'\',\'html\')">Replace HTML</label>'+
+        '<label class="btn btn-sm btn-secondary" style="cursor:pointer"><input type="file" accept=".pdf" style="display:none" onchange="replaceProposalFile(\''+p.id+'\',\''+a.id+'\',\'pdf\')">Replace PDF</label>'+
+      '</div>';
+  } else {
     renderNewProposalUI(a);
   }
 }
@@ -3973,6 +4090,42 @@ const PLATFORM_OPTS=[{v:'',l:'Select…'},{v:'web',l:'Web'},{v:'mobile',l:'Mobil
 const APP_STORE_OPTS=[{v:'',l:'Select…'},{v:'yes',l:'Yes'},{v:'no',l:'No'},{v:'not_sure',l:'Not Sure'}];
 const APP_BUDGET_OPTS=[{v:'',l:'Select…'},{v:'under_1500',l:'Under $1,500'},{v:'1500_5000',l:'$1,500 - $5,000'},{v:'5000_10000',l:'$5,000 - $10,000'},{v:'10000_25000',l:'$10,000 - $25,000'},{v:'25000_plus',l:'$25,000+'},{v:'not_sure',l:'Not Sure'}];
 const APP_TIMELINE_OPTS=[{v:'',l:'Select…'},{v:'asap',l:'ASAP'},{v:'2_weeks',l:'2 Weeks'},{v:'30_days',l:'30 Days'},{v:'60_days',l:'60 Days'},{v:'90_days',l:'90 Days'},{v:'flexible',l:'Flexible'}];
+
+async function saveAllAppFields(id){
+  const allFields=['first_name','last_name','email','phone','company','title','budget','timeline',
+    'q7_platform_type','q8_app_store_deploy','source','status','utm_source','utm_campaign','referral_source',
+    'q1_time_spent','q2_revenue_source','q3_10x_requirement','q4_core_outcome','q5_target_users',
+    'q6_internal_or_commercial','q9_non_negotiables','q10_mvp_requirements',
+    'bp_time_sink','bp_revenue_driver','bp_ten_x','bp_core_outcome','bp_target_users',
+    'bp_system_type','bp_platform','bp_deployment','bp_non_negotiables','bp_mvp_requirements',
+    'bp_current_tools','bp_biggest_bottleneck',
+    'mb_industry','mb_systems_needed','mb_competitor_tech','mb_strengths','mb_current_delivery',
+    'mb_weaknesses','mb_opportunities','mb_dream_system','mb_threats','mb_cost_of_inaction',
+    'ws_current_url','ws_has_domain','ws_domain_name','ws_has_logo','ws_has_copy','ws_primary_cta',
+    'ws_brand_colors','ws_style_vibe','ws_current_likes','ws_current_dislikes','ws_reference_sites',
+    'ws_imagery_notes','ws_pages_needed','ws_features_needed','ws_ideal_client','ws_differentiator',
+    'ws_additional_notes'];
+  const obj={};
+  let changed=0;
+  allFields.forEach(f=>{
+    const el=document.getElementById('appEdit_'+f);
+    if(el){
+      const val=el.value||null;
+      obj[f]=val;
+      changed++;
+    }
+  });
+  // Also save admin notes
+  const notesEl=document.getElementById('adminNotesField');
+  if(notesEl)obj.admin_notes=notesEl.value||null;
+  if(changed===0){showToast('No fields to save','error');return;}
+  const{error}=await sb.from('intake_submissions').update(obj).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('All changes saved! ('+changed+' fields)');
+  // Update local state
+  const idx=(S.applications||[]).findIndex(x=>x.id===id);
+  if(idx>=0)Object.assign(S.applications[idx],obj);
+}
 
 function editApplication(id){
   const a=id?(S.applications||[]).find(x=>x.id===id):null;
