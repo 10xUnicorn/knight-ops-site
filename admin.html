@@ -48,6 +48,13 @@ a{color:var(--accent);text-decoration:none}
 .kpi .delta{font-size:.7rem;font-weight:600;margin-top:2px}
 .kpi .delta.up{color:#22c55e}
 .kpi .delta.down{color:#ef4444}
+.kpi-group{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;position:relative;overflow:hidden}
+.kpi-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),rgba(200,164,86,0.2))}
+.kpi-group-header{font-size:.8rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.kpi-group-icon{font-size:1rem}
+.kpi-group .kpi{background:rgba(0,0,0,0.2);border-color:rgba(200,164,86,0.1)}
+.kpi-group .kpi::before{display:none}
+.kpi-grid-2{grid-template-columns:repeat(2,1fr)!important;gap:.75rem!important;margin-bottom:0!important}
 .rev-tracker{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
 .rev-tracker::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#00FF88)}
 .rev-hero{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
@@ -755,20 +762,41 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           </div>
         </div>
 
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128176; Revenue</div>
-        <div class="kpi-grid" id="kpiRevenue" style="margin-bottom:1.5rem"></div>
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128200; Pipeline</div>
-        <div class="kpi-grid" id="kpiPipeline" style="margin-bottom:1.5rem"></div>
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#9733; Leads &amp; Conversion</div>
-        <div class="kpi-grid" id="kpiLeads" style="margin-bottom:1.5rem"></div>
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#127760; Website Traffic</div>
-        <div class="kpi-grid" id="kpiTraffic" style="margin-bottom:1.5rem"></div>
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#9881; Projects &amp; Tasks</div>
-        <div class="kpi-grid" id="kpiProjects" style="margin-bottom:1.5rem"></div>
-        <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px">&#128179; Invoicing</div>
-        <div class="kpi-grid" id="kpiInvoicing" style="margin-bottom:1.5rem"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <!-- GROUPED KPI SECTIONS -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#128176;</span> Revenue</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiRevenue"></div>
+          </div>
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#128200;</span> Pipeline</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiPipeline"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#9733;</span> Leads &amp; Conversion</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiLeads"></div>
+          </div>
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#127760;</span> Website Traffic</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiTraffic"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#9881;</span> Projects &amp; Tasks</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiProjects"></div>
+          </div>
+          <div class="kpi-group">
+            <div class="kpi-group-header"><span class="kpi-group-icon">&#128179;</span> Invoicing</div>
+            <div class="kpi-grid kpi-grid-2" id="kpiInvoicing"></div>
+          </div>
+        </div>
+        <!-- TREND CHARTS above deal breakdown -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
           <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Revenue Trend</h3><div style="position:relative;height:220px"><canvas id="kpiRevenueChart"></canvas></div></div>
+          <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Deals Created ($)</h3><div style="position:relative;height:220px"><canvas id="kpiDealsCreatedChart"></canvas></div></div>
           <div class="table-card" style="padding:1.25rem"><h3 style="font-size:.9rem;margin-bottom:1rem">Lead Sources</h3><div style="position:relative;height:220px"><canvas id="kpiSourceChart"></canvas></div></div>
         </div>
       </div>
@@ -1025,7 +1053,7 @@ function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':n.toString()}
 
 // KPIs VIEW
 var kpiRange='7d';
-var kpiRevenueChartInst=null,kpiSourceChartInst=null;
+var kpiRevenueChartInst=null,kpiSourceChartInst=null,kpiDealsCreatedChartInst=null;
 function setKpiRange(r,btn){
   kpiRange=r;
   document.querySelectorAll('.kf-btn').forEach(b=>b.classList.remove('active'));
@@ -1125,7 +1153,15 @@ async function loadKPIs(){
     if(kpiSourceChartInst)kpiSourceChartInst.destroy();
     kpiSourceChartInst=new Chart(ctx2.getContext('2d'),{type:'doughnut',data:{labels:srcLabels.map(s=>s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())),datasets:[{data:srcData,backgroundColor:srcColors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#999'}}}}});
   }
-  }catch(err){console.error('loadKPIs error:',err);showToast('KPI load error: '+err.message,'error');}
+    // DEALS CREATED BY DOLLAR AMOUNT CHART
+  const dealsByMonth={};
+  S.deals.forEach(d=>{if(!d.created_at)return;const m=d.created_at.substring(0,7);if(!dealsByMonth[m])dealsByMonth[m]={count:0,value:0};dealsByMonth[m].count++;dealsByMonth[m].value+=(parseFloat(d.deal_value)||0)});
+  const dLabels=Object.keys(dealsByMonth).sort().slice(-12);
+  const dData=dLabels.map(m=>dealsByMonth[m].value);
+  const dCounts=dLabels.map(m=>dealsByMonth[m].count);
+  const ctx3=document.getElementById('kpiDealsCreatedChart');
+  if(ctx3){if(kpiDealsCreatedChartInst)kpiDealsCreatedChartInst.destroy();kpiDealsCreatedChartInst=new Chart(ctx3.getContext('2d'),{type:'bar',data:{labels:dLabels.map(m=>{const[y,mo]=m.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1]+' '+y.slice(2)}),datasets:[{label:'Deal Value',data:dData,backgroundColor:'rgba(0,212,255,0.5)',borderRadius:6,borderSkipped:false,yAxisID:'y'},{label:'# Deals',data:dCounts,type:'line',borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.1)',pointRadius:4,pointBackgroundColor:'#22c55e',tension:0.3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{boxWidth:8,font:{size:9},color:'#999'}}},scales:{y:{beginAtZero:true,position:'left',grid:{color:'rgba(255,255,255,0.06)'},ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v),color:'#999',font:{size:10}}},y1:{beginAtZero:true,position:'right',grid:{display:false},ticks:{color:'#22c55e',font:{size:10},stepSize:1}},x:{grid:{display:false},ticks:{color:'#999',font:{size:10}}}}}});}
+}catch(err){console.error('loadKPIs error:',err);showToast('KPI load error: '+err.message,'error');}
 }
 
 // ══ REVENUE TRACKER ══
