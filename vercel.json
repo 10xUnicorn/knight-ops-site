@@ -15,39 +15,15 @@
     },
     {
       "source": "/proposal/:slug/pdf",
-      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug&dl=pdf"
+      "destination": "/api/proposal?slug=:slug&dl=pdf"
     },
     {
       "source": "/proposal/:slug",
-      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug"
+      "destination": "/api/proposal?slug=:slug"
     },
     {
       "source": "/:path",
       "destination": "/:path.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/proposal/:slug",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "source": "/proposal/:slug/pdf",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/pdf"
-        }
-      ]
     }
   ]
 }
