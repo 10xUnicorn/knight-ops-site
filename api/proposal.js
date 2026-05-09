@@ -2,7 +2,9 @@ module.exports = async function handler(req, res) {
   const slug = req.query.slug;
 
   if (!slug) {
-    return res.status(400).send('Missing slug');
+    res.statusCode = 400;
+    res.end('Missing slug');
+    return;
   }
 
   const supabaseUrl = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=' + encodeURIComponent(slug);
@@ -11,23 +13,20 @@ module.exports = async function handler(req, res) {
   const fetchUrl = dl ? supabaseUrl + '&dl=' + encodeURIComponent(dl) : supabaseUrl;
 
   try {
-    const upstream = await fetch(fetchUrl, {
-      headers: {
-        'User-Agent': req.headers['user-agent'] || 'VercelProxy/1.0',
-      },
+    const resp = await fetch(fetchUrl, {
+      headers: { 'User-Agent': req.headers['user-agent'] || 'VercelProxy/1.0' },
     });
 
-    const buffer = Buffer.from(await upstream.arrayBuffer());
-    const ct = upstream.headers.get('content-type') || 'text/html; charset=utf-8';
+    const html = await resp.text();
+    const ct = resp.headers.get('content-type') || 'text/html; charset=utf-8';
 
-    res.setHeader('Content-Type', ct);
-    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-
-    const xr = upstream.headers.get('x-robots-tag');
-    if (xr) res.setHeader('X-Robots-Tag', xr);
-
-    res.status(upstream.status).end(buffer);
+    res.writeHead(resp.status, {
+      'Content-Type': ct,
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+    });
+    res.end(html);
   } catch (err) {
-    res.status(502).send('Upstream error: ' + err.message);
+    res.writeHead(502, { 'Content-Type': 'text/plain' });
+    res.end('Upstream error: ' + err.message);
   }
 };
