@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speaker Application — Daniel Knight</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#03030A;--surface:#0A0A14;--card:#0A0A14;--border:rgba(200,164,86,.12);--text:#F0EEFF;--text2:#A1A1AA;--muted:#71717A;--gold:#C8A456;--gold-bright:#FFD166;--purple:#7B61FF;--green:#22C55E;--cyan:#00E5FF;--radius:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:0}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:32px clamp(20px,5vw,60px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.header h1{font-family:'Syne',sans-serif;font-size:clamp(20px,3vw,28px);font-weight:800}
+.header h1 em{font-style:normal;color:var(--gold)}
+.header .event-badge{background:rgba(200,164,86,.1);border:1px solid rgba(200,164,86,.2);border-radius:100px;padding:8px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.container{max-width:900px;margin:0 auto;padding:32px clamp(16px,4vw,60px) 80px}
+.section{margin-bottom:36px}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.section-label::before{content:'';width:20px;height:1px;background:var(--gold)}
+.field{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;position:relative;transition:all .3s}
+.field:hover{border-color:rgba(200,164,86,.3)}
+.field-q{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.field-q .req{color:#ef4444;font-size:10px}
+.field-a{font-size:15px;color:var(--text);line-height:1.8;white-space:pre-wrap}
+.field-a.short{font-size:14px;font-weight:500;color:var(--gold-bright)}
+.copy-btn{position:absolute;top:16px;right:16px;background:rgba(200,164,86,.1);border:1px solid rgba(200,164,86,.2);border-radius:8px;color:var(--gold);font-size:11px;padding:6px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.copy-btn:hover{background:rgba(200,164,86,.2)}
+.copy-btn.copied{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--green)}
+.note{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+@media(max-width:600px){.topics-grid{grid-template-columns:1fr}}
+.topic-pill{background:rgba(123,97,255,.08);border:1px solid rgba(123,97,255,.2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text)}
+.topic-pill strong{color:var(--purple);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.footer-bar{background:var(--surface);border-top:1px solid var(--border);padding:20px clamp(16px,4vw,60px);text-align:center}
+.footer-bar p{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.footer-bar a{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Speaker Application <em>Answer Sheet</em></h1>
+    <div class="event-badge">Ready to Copy & Paste</div>
+</div>
+
+<div class="container">
+
+<div class="section">
+    <div class="section-label">Personal Information</div>
+
+    <div class="field">
+        <div class="field-q">Full Name</div>
+        <div class="field-a short">Daniel Knight</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Email</div>
+        <div class="field-a short">daniel@unicornuniverse.io</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Company / Organization</div>
+        <div class="field-a short">Knight Ops / Unicorn Universe</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Title / Role</div>
+        <div class="field-a short">Founder & CEO</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">LinkedIn URL</div>
+        <div class="field-a short">https://www.linkedin.com/in/danielknightunicorn/</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Website</div>
+        <div class="field-a short">https://danielknight.me</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Speaker Bio (PDF)</div>
+        <div class="field-a short">https://danielknight.me/Daniel-Knight-Speaker-Bio.pdf</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Headshot URL</div>
+        <div class="field-a short">https://www.knightops.biz/headshot.jpg</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Speaker Bio</div>
+
+    <div class="field">
+        <div class="field-q">Short Bio (Under 100 words)</div>
+        <div class="field-a">Daniel Knight is the founder of Unicorn Universe and Knight Ops, where he helps entrepreneurs 10X their businesses through strategic partnerships, AI-powered systems, and future-self alignment. With nearly $100 million in revenue generated through collaborative partnerships, 400+ events hosted, and 25+ stages spoken on, Daniel brings battle-tested frameworks to every audience. A Toastmasters-trained speaker and producer of UNICON, his keynotes blend partnership strategy, AI implementation, and mindset transformation to deliver actionable insights that drive measurable results.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Long Bio (150-250 words)</div>
+        <div class="field-a">Daniel Knight is dedicated to uplifting, inspiring, and motivating billions of individuals to become the best versions of themselves. He embodies the principles of Unity, Equity, Abundance, and Joy, and is a well-rounded, highly experienced professional.
+
+As the founder of Unicorn Universe and Knight Ops, Daniel has generated nearly $100 million in revenue through strategic partnerships and collaborative business ecosystems. He has hosted over 400 events, spoken on 25+ stages, and produced UNICON — a 3-day conference bringing together entrepreneurs, speakers, and visionaries.
+
+Daniel's keynotes cover 10X growth systems, AI-powered business optimization, the art of creating Golden Connections, and future-self alignment. His enthusiasm for delivering impactful, thoughtfully crafted speeches aims to create positive change for everyone in the room.
+
+A Toastmasters-trained speaker and winner of the "Most Attendees Brought to an Event" award, Daniel doesn't just speak — he fills the room. His practical frameworks help entrepreneurs build automated growth engines, leverage strategic partnerships, and use AI tools to multiply their reach without multiplying their effort.
+
+His passion will empower your audience, leaving them energized and ready to pursue improvements that elevate their lives to extraordinary new heights. Daniel's unique combination of partnership strategy, technology implementation, and mindset transformation makes every presentation a catalyst for real business growth.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Proposed Session Topics</div>
+
+    <div class="field">
+        <div class="field-q">Primary Topic / Session Title</div>
+        <div class="field-a short">How to 10X Your Business Through Systems & Partnerships</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Session Description / Abstract</div>
+        <div class="field-a">Most businesses hit a growth ceiling because they try to scale through effort alone. This session reveals the framework for building automated growth engines using strategic partnerships, referral systems, and AI-powered tools that multiply your reach without multiplying your effort.
+
+Drawing from nearly $100M in revenue generated through collaborative partnerships, Daniel Knight breaks down the exact system for identifying high-value partners, building mutually beneficial relationships, and creating automated systems that generate leads, revenue, and opportunities while you sleep.
+
+Attendees will walk away with:
+- A partnership identification framework to find and attract ideal collaborators
+- The "Golden Connection" system for building relationships that create mutual abundance
+- Practical AI implementation strategies for automating marketing, outreach, and operations
+- A 90-day action plan to build their first automated growth engine
+
+This is not theory — it's a battle-tested playbook built from hosting 400+ events, producing a 3-day conference, and building multiple communities from scratch.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">All Available Topic Options</div>
+        <div class="topics-grid">
+            <div class="topic-pill"><strong>Flagship</strong>How to 10X Your Business Through Systems & Partnerships</div>
+            <div class="topic-pill"><strong>Connection</strong>Five Keys to Creating Golden Connections</div>
+            <div class="topic-pill"><strong>Mindset</strong>Future Self Alignment: Build the Business Your Future Self Already Runs</div>
+            <div class="topic-pill"><strong>AI & Tech</strong>How to Use AI to Optimize Your Business</div>
+            <div class="topic-pill"><strong>Growth</strong>The Rocket Fuel to Accomplishing Your Dreams</div>
+            <div class="topic-pill"><strong>Collaboration</strong>Competition Divides Us. Collaboration Unites Us.</div>
+            <div class="topic-pill"><strong>Events</strong>Sponsorships & Vending: The Untapped Revenue Channel</div>
+            <div class="topic-pill"><strong>Speaking</strong>The Speaker's Edge: Turn Every Stage Into a Revenue Machine</div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Speaking Experience & Credentials</div>
+
+    <div class="field">
+        <div class="field-q">Speaking Experience Summary</div>
+        <div class="field-a">I have spoken on 25+ stages including conferences, summits, masterminds, and podcasts. I have hosted and produced over 400 events, including UNICON — a 3-day conference in Scottsdale, Arizona bringing together entrepreneurs, speakers, and visionaries. I am Toastmasters trained and have completed a Speaker Mastermind program. I have been a guest on multiple podcasts and was awarded "Most Attendees Brought to an Event" — because I don't just speak, I fill the room.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">What makes your session unique?</div>
+        <div class="field-a">Unlike most speakers who focus purely on motivation or theory, I bring battle-tested frameworks built from nearly $100M in revenue generated through strategic partnerships. My sessions are interactive — I use live polls, QR codes, and audience engagement technology to keep people leaning in. I also actively promote events I speak at to my network, consistently bringing new attendees. Most importantly, I tailor every talk to the specific audience and event goals, ensuring alignment between my message and the organizer's vision.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Target Audience / Who Benefits Most</div>
+        <div class="field-a">B2B leaders, entrepreneurs, founders, and growth-focused professionals looking to scale through strategic partnerships, AI implementation, and systems thinking. Ideal for audiences at business conferences, marketing summits, entrepreneurship events, and leadership development programs.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Key Takeaways (3-5 bullet points)</div>
+        <div class="field-a">1. A repeatable framework for identifying and securing high-value strategic partnerships
+2. How to build automated growth engines using AI tools (Claude, ChatGPT) for marketing and operations
+3. The "Golden Connection" system for creating relationships that generate mutual abundance and referrals
+4. Future-self alignment principles that transform how entrepreneurs approach goals and execution
+5. A 90-day action plan attendees can implement immediately after the session</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Session Format Preferences</div>
+        <div class="field-a short">Keynote (30-60 min) | Workshop (90-120 min) | Panel/Fireside Chat | Breakout Session</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">A/V Requirements</div>
+        <div class="field-a">Wireless lavalier or headset microphone, HDMI connection for slides, confidence monitor preferred. I bring my own clicker and presentation. I use interactive technology including live audience polls and QR code engagement — reliable Wi-Fi for audience participation is appreciated.</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Social Proof & Links</div>
+
+    <div class="field">
+        <div class="field-q">Sizzle Reel / Speaker Video</div>
+        <div class="field-a short">https://www.knightops.biz/speaker (includes embedded highlight reel)</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Speaker Page</div>
+        <div class="field-a short">https://www.knightops.biz/speaker</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+
+    <div class="field">
+        <div class="field-q">Testimonial Quote</div>
+        <div class="field-a">"Connections are huge in business. Daniel's ability to create visuals throughout his keynote speech on the actions that need to be taken to build your network was invaluable. I'd highly recommend him as a speaker or podcast guest!" — Brandon Gaydorus, Founder of Warm Heart Life</div>
+        <button class="copy-btn" onclick="copyField(this)">Copy</button>
+    </div>
+</div>
+
+</div>
+
+<div class="footer-bar">
+    <p><a href="https://knightops.biz/speaker">knightops.biz/speaker</a> &middot; <a href="https://danielknight.me">danielknight.me</a></p>
+</div>
+
+<script>
+function copyField(btn) {
+    const field = btn.closest('.field');
+    const text = field.querySelector('.field-a').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>
+</body>
+</html>
