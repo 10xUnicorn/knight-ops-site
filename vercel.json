@@ -15,11 +15,11 @@
     },
     {
       "source": "/proposal/:slug/pdf",
-      "destination": "/proposal-viewer.html"
+      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug&dl=pdf"
     },
     {
       "source": "/proposal/:slug",
-      "destination": "/proposal-viewer.html"
+      "destination": "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-proposal?slug=:slug"
     },
     {
       "source": "/:path",
