@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const slug = req.query.slug;
 
   if (!slug) {
@@ -18,16 +18,16 @@ export default async function handler(req, res) {
     });
 
     const buffer = Buffer.from(await upstream.arrayBuffer());
-    const contentType = upstream.headers.get('content-type') || 'text/html; charset=utf-8';
+    const ct = upstream.headers.get('content-type') || 'text/html; charset=utf-8';
 
-    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Type', ct);
     res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
 
-    const xRobots = upstream.headers.get('x-robots-tag');
-    if (xRobots) res.setHeader('X-Robots-Tag', xRobots);
+    const xr = upstream.headers.get('x-robots-tag');
+    if (xr) res.setHeader('X-Robots-Tag', xr);
 
-    res.status(upstream.status).send(buffer);
+    res.status(upstream.status).end(buffer);
   } catch (err) {
     res.status(502).send('Upstream error: ' + err.message);
   }
-}
+};
