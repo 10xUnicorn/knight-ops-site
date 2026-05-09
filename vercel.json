@@ -25,5 +25,25 @@
       "source": "/:path",
       "destination": "/:path.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/proposal",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/proposal/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    }
   ]
 }
