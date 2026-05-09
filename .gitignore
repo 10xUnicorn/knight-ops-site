@@ -1,1 +1,7 @@
-.vercel
+node_modules/
+.DS_Store
+*.bak
+*.bak2
+supabase/.temp/
+.env
+.env.local
