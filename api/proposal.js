@@ -2,8 +2,7 @@ module.exports = async function handler(req, res) {
   const slug = req.query.slug;
 
   if (!slug) {
-    res.statusCode = 400;
-    res.end('Missing slug');
+    res.status(400).send('Missing slug');
     return;
   }
 
@@ -18,15 +17,11 @@ module.exports = async function handler(req, res) {
     });
 
     const html = await resp.text();
-    const ct = resp.headers.get('content-type') || 'text/html; charset=utf-8';
 
-    res.writeHead(resp.status, {
-      'Content-Type': ct,
-      'Cache-Control': 'public, max-age=0, must-revalidate',
-    });
-    res.end(html);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    res.status(200).send(html);
   } catch (err) {
-    res.writeHead(502, { 'Content-Type': 'text/plain' });
-    res.end('Upstream error: ' + err.message);
+    res.status(502).send('Upstream error: ' + err.message);
   }
 };
