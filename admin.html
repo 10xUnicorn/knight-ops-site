@@ -907,7 +907,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     const v=e.currentTarget.dataset.view;
     document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
     document.getElementById('v-'+v).classList.add('active');
-    document.getElementById('pageTitle').textContent=v.charAt(0).toUpperCase()+v.slice(1);
+    var titleMap={ccbuilds:'CC Builds',kpis:'KPIs'};document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
     // Reset to list views
     ['leads','clients','projects','tasks'].forEach(s=>{
       const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
