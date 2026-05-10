@@ -238,7 +238,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
       <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
             <div class="nav-item" data-view="forms"><span class="icon">&#9998;</span> Forms &amp; Surveys</div>
-<div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div>
+<div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div><div class="nav-item" data-view="ccbuilds"><span class="icon">&#9878;</span> CC Builds</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -804,6 +804,28 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     </div>
   </div>
 </div>
+
+      <div class="view" id="v-ccbuilds">
+        <div id="ccListView">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+            <h2 style="font-size:1.1rem;font-weight:700;margin:0">Command Center Builds</h2>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm btn-secondary" onclick="loadCCBuilds()">&#8635; Refresh</button>
+            </div>
+          </div>
+          <div class="stat-row" id="ccStats" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.25rem"></div>
+          <div id="ccKanban" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.5rem;min-height:300px"></div>
+          <div class="table-card" style="margin-top:1rem">
+            <div class="table-wrap"><table id="ccTable"><thead><tr>
+              <th>Client</th><th>Company</th><th>Tier</th><th>Status</th><th>Submitted</th><th></th>
+            </tr></thead><tbody id="ccTableBody"></tbody></table></div>
+          </div>
+        </div>
+        <div id="ccDetailView" style="display:none">
+          <button class="btn btn-sm btn-secondary" onclick="document.getElementById('ccDetailView').style.display='none';document.getElementById('ccListView').style.display=''" style="margin-bottom:1rem">&#8592; Back to Pipeline</button>
+          <div id="ccDetailContent"></div>
+        </div>
+      </div>
 <!-- UNIVERSAL EDIT MODAL -->
 <div class="modal-overlay" id="editModal"><div class="modal"><div class="modal-head"><h2 id="editModalTitle">Edit</h2><button class="close" onclick="closeEditModal()">&#10005;</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-foot" id="editModalFoot"></div></div></div>
 
@@ -863,7 +885,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds()]);
   loadDashboard();
 })();
 
@@ -893,11 +915,11 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     });
     // Also reset blog view
     const blv=document.getElementById('blogListView');if(blv)blv.style.display='';
-    const bev=document.getElementById('blogEditorView');if(bev)bev.style.display='none';
+    const bev=document.getElementById('blogEditorView');if(bev)bev.style.display='none';const cclv=document.getElementById('ccListView');if(cclv)cclv.style.display='';const ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
     // Also reset applications view
     const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
     const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();
+    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='ccbuilds')loadCCBuilds();
     closeSidebar();
   });
 });
@@ -6647,6 +6669,140 @@ function exportFs(fmt){
   }
   draw();
 })();
+
+
+// ===== CC BUILDS =====
+const CC_STAGES=['submitted','reviewed','building','phase_2','qa','delivered'];
+const CC_STAGE_LABELS={submitted:'Submitted',reviewed:'Reviewed',building:'Building',phase_2:'Phase 2',qa:'QA',delivered:'Delivered'};
+const CC_STAGE_COLORS={submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success'};
+let ccSubmissions=[];
+
+async function loadCCBuilds(){
+  var r=await sb.from('cc_intake_submissions').select('*').order('created_at',{ascending:false});
+  if(r.error){console.error('CC load error',r.error);return;}
+  ccSubmissions=r.data||[];
+  if(document.getElementById('ccStats'))renderCCStats();
+  if(document.getElementById('ccKanban'))renderCCKanban();
+  if(document.getElementById('ccTableBody'))renderCCTable();
+}
+
+function renderCCStats(){
+  var el=document.getElementById('ccStats');if(!el)return;
+  var counts={};CC_STAGES.forEach(function(s){counts[s]=0;});
+  ccSubmissions.forEach(function(s){counts[s.status]=(counts[s.status]||0)+1;});
+  var tierVal={cc_brain:10000,cc_brain_dashboard:17500,cc_full_suite:25000};
+  var totalVal=ccSubmissions.reduce(function(a,s){return a+(tierVal[s.selected_tier]||0);},0);
+  el.innerHTML=CC_STAGES.map(function(s){return '<div class="stat-card"><div class="stat-value">'+counts[s]+'</div><div class="stat-label">'+CC_STAGE_LABELS[s]+'</div></div>';}).join('')+'<div class="stat-card"><div class="stat-value">$'+totalVal.toLocaleString()+'</div><div class="stat-label">Pipeline Value</div></div>';
+}
+
+function renderCCKanban(){
+  var el=document.getElementById('ccKanban');if(!el)return;
+  el.innerHTML=CC_STAGES.map(function(stage){
+    var cards=ccSubmissions.filter(function(s){return s.status===stage;});
+    return '<div style="background:var(--surface-2);border-radius:10px;padding:10px;min-height:250px">'+
+      '<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">'+
+        '<span>'+CC_STAGE_LABELS[stage]+'</span><span class="badge '+CC_STAGE_COLORS[stage]+'" style="font-size:.65rem">'+cards.length+'</span>'+
+      '</div>'+
+      cards.map(function(c){
+        var tl={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dash',cc_full_suite:'Full Suite'};
+        return '<div onclick="showCCDetail(\''+c.id+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--primary)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
+          '<div style="font-weight:600;font-size:.8rem;margin-bottom:4px">'+(c.full_name||'Unknown')+'</div>'+
+          '<div style="font-size:.7rem;color:var(--text-muted);margin-bottom:4px">'+(c.company_name||'')+'</div>'+
+          (c.selected_tier?'<span class="badge badge-gold" style="font-size:.6rem">'+(tl[c.selected_tier]||c.selected_tier)+'</span>':'')+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+function renderCCTable(){
+  var tbody=document.getElementById('ccTableBody');if(!tbody)return;
+  var tl={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
+  tbody.innerHTML=ccSubmissions.map(function(c){return '<tr>'+
+    '<td style="font-weight:600">'+(c.full_name||'—')+'</td>'+
+    '<td>'+(c.company_name||'—')+'</td>'+
+    '<td>'+(tl[c.selected_tier]||'—')+'</td>'+
+    '<td>'+B(c.status)+'</td>'+
+    '<td>'+fmtDate(c.created_at)+'</td>'+
+    '<td><button class="btn btn-sm btn-primary" onclick="showCCDetail(\''+c.id+'\')">View</button></td>'+
+  '</tr>';}).join('')||'<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">No CC builds yet</td></tr>';
+}
+
+function showCCDetail(id){
+  var c=ccSubmissions.find(function(s){return s.id===id;});if(!c)return;
+  document.getElementById('ccListView').style.display='none';
+  document.getElementById('ccDetailView').style.display='';
+  var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
+  var TV={cc_brain:'$10,000',cc_brain_dashboard:'$17,500',cc_full_suite:'$25,000'};
+  var offers=[],features=[],tools={},acq=[];
+  try{offers=JSON.parse(c.offers||'[]');}catch(e){}
+  try{features=JSON.parse(c.feature_rankings||'[]');}catch(e){}
+  try{tools=JSON.parse(c.current_tools||'{}');}catch(e){}
+  try{acq=JSON.parse(c.client_acquisition||'[]');}catch(e){}
+
+  function sect(t,b){return '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">'+t+'</h3>'+b+'</div>';}
+  function row(l,v){return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.8rem"><span style="color:var(--text-muted)">'+l+'</span><span style="font-weight:500;text-align:right;max-width:60%">'+(v||'—')+'</span></div>';}
+
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h2 style="font-size:1.1rem;margin:0">'+(c.full_name||'CC Build')+'</h2><div style="display:flex;gap:6px;flex-wrap:wrap">'+
+    CC_STAGES.map(function(s){return '<button class="btn btn-sm '+(c.status===s?'btn-primary':'btn-secondary')+'" onclick="updateCCStatus(\''+c.id+'\',\''+s+'\')">'+CC_STAGE_LABELS[s]+'</button>';}).join('')+
+  '</div></div>';
+
+  h+=sect('Big Picture',row('Name',c.full_name)+row('Email',c.email)+row('Phone',c.phone)+row('Company',c.company_name)+row('Core Outcome',c.core_outcome)+row('Morning Screen',c.morning_screen)+row('Automate Wish',c.automate_wish));
+
+  var toolK={crm:'CRM',email_marketing:'Email Marketing',calendar:'Calendar',project_mgmt:'Project Mgmt',social_media:'Social Media',payments:'Payments',ads:'Ads Platform',meeting_recorder:'Meeting Recorder',course_platform:'Course Platform'};
+  h+=sect('Current Tools',Object.keys(tools).map(function(k){return row(toolK[k]||k,tools[k]);}).join('')+row('Other Tools',c.other_tools));
+
+  h+=sect('Business',
+    '<div style="margin-bottom:8px;font-size:.8rem;font-weight:600">Offers</div>'+
+    (offers.length?'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;font-size:.75rem">'+offers.map(function(o){return '<div style="background:var(--surface-2);padding:8px;border-radius:6px"><strong>'+o.name+'</strong><br>'+o.price+'<br><span style="color:var(--text-muted)">'+o.delivery+'</span></div>';}).join('')+'</div>':'<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px">None listed</div>')+
+    row('Ascension Model',c.ascension_model)+row('Client Acquisition',acq.join(', '))+row('Active Clients',c.active_clients)+row('Monthly Revenue',c.monthly_revenue));
+
+  h+=sect('Team & Access',row('Team Size',c.team_size)+row('Team Roles',c.team_roles)+row('Client Portal',c.needs_client_portal));
+
+  h+=sect('Features & Tier',
+    '<div style="margin-bottom:8px;font-size:.8rem;font-weight:600">Feature Priority (ranked)</div>'+
+    (features.length?'<ol style="font-size:.8rem;margin:0 0 10px 1.2rem;padding:0">'+features.map(function(f){return '<li style="margin-bottom:3px">'+f+'</li>';}).join('')+'</ol>':'<div style="color:var(--text-muted);font-size:.8rem;margin-bottom:10px">Not ranked</div>')+
+    row('Selected Tier',(TL[c.selected_tier]||'—')+' — '+(TV[c.selected_tier]||'')));
+
+  function colorSwatch(v){return v?'<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:4px;background:'+v+';display:inline-block"></span>'+v+'</span>':null;}
+  h+=sect('Brand',row('Primary',colorSwatch(c.brand_color_primary))+row('Secondary',colorSwatch(c.brand_color_secondary))+row('Accent',colorSwatch(c.brand_color_accent))+row('Theme',c.dark_or_light)+row('Font',c.font_preference)+row('Notes',c.additional_notes));
+
+  // Build Prompt Generator
+  h+=ccPromptGen(c,offers,features,tools,acq,TL);
+  document.getElementById('ccDetailContent').innerHTML=h;
+}
+
+async function updateCCStatus(id,status){
+  var r=await sb.from('cc_intake_submissions').update({status:status,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){showToast('Update failed','error');return;}
+  showToast('Status → '+CC_STAGE_LABELS[status]);
+  var c=ccSubmissions.find(function(s){return s.id===id;});if(c)c.status=status;
+  renderCCStats();renderCCKanban();renderCCTable();showCCDetail(id);
+}
+
+function ccPromptGen(c,offers,features,tools,acq,TL){
+  var mvp='You are building a Command Center for '+(c.full_name||'[CLIENT]')+' at '+(c.company_name||'[COMPANY]')+'.\n\nTIER: '+(TL[c.selected_tier]||'TBD')+'\n\nBUSINESS CONTEXT:\n- Core outcome: '+(c.core_outcome||'TBD')+'\n- Morning screen: '+(c.morning_screen||'TBD')+'\n- Automate wish: '+(c.automate_wish||'TBD')+'\n- Active clients: '+(c.active_clients||'TBD')+'\n- Monthly revenue: '+(c.monthly_revenue||'TBD')+'\n\nCURRENT TOOLS:\n'+Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n')+(c.other_tools?'\n- Other: '+c.other_tools:'')+'\n\nOFFERS:\n'+offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n')+'\n\nASCENSION: '+(c.ascension_model||'TBD')+'\nACQUISITION: '+(acq.join(', ')||'TBD')+'\n\nFEATURE PRIORITIES:\n'+features.map(function(f,i){return (i+1)+'. '+f;}).join('\n')+'\n\nBRAND:\n- Primary: '+(c.brand_color_primary||'TBD')+'\n- Secondary: '+(c.brand_color_secondary||'TBD')+'\n- Accent: '+(c.brand_color_accent||'TBD')+'\n- Theme: '+(c.dark_or_light||'dark')+'\n- Font: '+(c.font_preference||'TBD')+'\n\nBUILD RULES:\n1. Single-file HTML, all CSS/JS inline\n2. No external fonts (system stack)\n3. Chart.js CDN only external script\n4. Mobile responsive\n5. Supabase JS CDN for data\n6. Auth check on load\n\nBuild the MVP dashboard with: Auth-gated access, KPI cards, Quick-action buttons, Activity feed, Clean design using brand colors.';
+  var p2='PHASE 2 BUILD for '+(c.full_name||'[CLIENT]')+' Command Center.\n\nContinue from MVP. Add:\n- CRM integration ('+(tools.crm||'manual')+')\n- Pipeline visualization\n- Client management\n- Task/project tracking\n- Email integration\n- Calendar sync\n- Advanced filtering\n- Data export\n\nSame build rules.';
+  var dash='ANALYTICS DASHBOARD for '+(c.full_name||'[CLIENT]')+'.\n\nBuild analytics page with revenue tracking, client acquisition funnel, offer performance, lead sources, period comparisons, pipeline health, goal tracking.\n\nChart.js for charts. Brand: '+(c.brand_color_primary||'#D4A853')+' / '+(c.brand_color_secondary||'#08080F')+' / '+(c.brand_color_accent||'#00D4FF');
+  var mob='MOBILE APP for '+(c.full_name||'[CLIENT]')+'.\n\nReact Native/Expo: push notifications, KPI cards, pipeline, contacts, tasks, offline-capable, Supabase auth.\n\niOS + Android. App Store assets needed.';
+  var spec='# Command Center Spec - '+(c.full_name||'[CLIENT]')+'\nCompany: '+(c.company_name||'TBD')+'\nTier: '+(TL[c.selected_tier]||'TBD')+'\nDate: '+new Date().toLocaleDateString()+'\n\nVision: '+(c.core_outcome||'TBD')+'\nMorning Screen: '+(c.morning_screen||'TBD')+'\nAutomation: '+(c.automate_wish||'TBD')+'\n\nOffers: '+offers.map(function(o){return o.name+' ('+o.price+')';}).join(', ')+'\nAscension: '+(c.ascension_model||'TBD')+'\nAcquisition: '+(acq.join(', ')||'TBD')+'\nClients: '+(c.active_clients||'TBD')+'\nRevenue: '+(c.monthly_revenue||'TBD')+'\n\nTools:\n'+Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n')+'\n\nFeatures:\n'+features.map(function(f,i){return (i+1)+'. '+f;}).join('\n')+'\n\nBrand: '+(c.brand_color_primary||'?')+' / '+(c.brand_color_secondary||'?')+' / '+(c.brand_color_accent||'?')+' | '+(c.dark_or_light||'dark')+' | '+(c.font_preference||'System')+'\n\nNotes: '+(c.additional_notes||'None');
+
+  function cpB(label,prompt){var enc=btoa(unescape(encodeURIComponent(prompt)));return '<button class="btn btn-sm btn-primary" onclick="ccCopy(this)" style="display:flex;align-items:center;gap:4px" data-p="'+enc+'">&#128203; '+label+'</button>';}
+  var sd=c.selected_tier==='cc_brain_dashboard'||c.selected_tier==='cc_full_suite';
+  var sm=c.selected_tier==='cc_full_suite';
+  return '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">&#9881; Build Prompt Generator</h3>'+
+    '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:1rem">One-click copy build prompts pre-filled with intake data. Paste into Claude to generate their Command Center.</p>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+cpB('MVP Build',mvp)+cpB('Phase 2',p2)+(sd?cpB('Dashboard',dash):'')+(sm?cpB('Mobile App',mob):'')+cpB('Master Spec',spec)+'</div></div>';
+}
+
+function ccCopy(btn){
+  var t=decodeURIComponent(escape(atob(btn.getAttribute('data-p'))));
+  navigator.clipboard.writeText(t).then(function(){
+    var o=btn.innerHTML;btn.innerHTML='&#10003; Copied!';btn.classList.replace('btn-primary','btn-success');
+    setTimeout(function(){btn.innerHTML=o;btn.classList.replace('btn-success','btn-primary');},2000);
+  });
+}
+
 </script>
 
 </body>
