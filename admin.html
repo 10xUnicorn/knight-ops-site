@@ -811,9 +811,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               <button class="btn btn-sm btn-secondary" onclick="loadCCBuilds()">&#8635; Refresh</button>
             </div>
           </div>
-          <div class="stat-row" id="ccStats" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.25rem"></div>
-          <div id="ccKanban" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.5rem;min-height:300px"></div>
-          <div class="table-card" style="margin-top:1rem">
+          <div class="kpi-grid" id="ccStats" style="grid-template-columns:repeat(4,1fr)"></div>
+          <div class="table-card" style="padding:1.25rem;margin-bottom:1.5rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin:0">Build Pipeline</h3></div><div id="ccKanban" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;min-height:280px"></div></div>
+          <div class="table-card" style="margin-top:0">
+            <div class="table-header"><h2>All Submissions</h2></div>
             <div class="table-wrap"><table id="ccTable"><thead><tr>
               <th>Client</th><th>Company</th><th>Tier</th><th>Status</th><th>Submitted</th><th></th>
             </tr></thead><tbody id="ccTableBody"></tbody></table></div>
@@ -942,7 +943,7 @@ function showToast(msg,type='success'){const t=document.getElementById('toast');
 function fmtDate(d){return d?new Date(d).toLocaleDateString():'—';}
 function fmtDateTime(d){return d?new Date(d).toLocaleString():'—';}
 function fmtMoney(v){return '$'+Number(v||0).toLocaleString();}
-function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
+function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
 function SL(v){const m={night_launch:'Night Launch',night_build:'Night Build',night_build_pro:'Night Build Pro',ai_marketing_machine:'AI Marketing Machine',workshop:'Workshop',consulting_1on1:'1:1 Consulting',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return m[v]||v||'—';}
 function clientName(cid){const c=S.clients.find(x=>x.id===cid);return c?.profiles?.full_name||c?.profiles?.email||'—';}
 function FG(label,id,type,val,opts){
@@ -1799,11 +1800,29 @@ async function showProjectDetail(id){
   '<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="openEditModal({type:\'addProjectMember\',projectId:\''+id+'\'})">+ Add Member</button></div><div id="projectMembers_'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   '<div class="comment-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Comments & Requests</h3><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="filterComments(\'all\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--border);color:var(--text-muted)">All</button><button class="btn btn-sm" onclick="filterComments(\'update\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #3b82f6;color:#3b82f6">Updates</button><button class="btn btn-sm" onclick="filterComments(\'feedback\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #22c55e;color:#22c55e">Feedback</button><button class="btn btn-sm" onclick="filterComments(\'bug\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #ef4444;color:#ef4444">Bugs</button><button class="btn btn-sm" onclick="filterComments(\'feature_request\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--accent);color:var(--accent)">Features</button></div></div><div id="commentsList_'+id+'">'+(comments?.length?comments.map(c=>renderComment(c)).join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'</div><div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="projCommentTitle" placeholder="Title (optional)" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="projCommentType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><option value="update">Update</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option><option value="feature_request">Feature Request</option><option value="other">Other</option></select></div><textarea id="projComment" placeholder="Add details..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;min-height:80px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
+    // CC Build Prompts in Project Detail
+  if(p.intake_id && typeof ccSubmissions!=='undefined' && typeof ccPromptGen==='function'){
+    var ccSub=ccSubmissions.find(function(s){return s.id===p.intake_id;});
+    if(ccSub){
+      var offers=[],features=[],acq=[];
+      try{offers=JSON.parse(ccSub.offers_json||'[]');}catch(e){}
+      try{features=JSON.parse(ccSub.feature_priorities_json||'[]');}catch(e){}
+      try{acq=typeof ccSub.client_acquisition==='string'?ccSub.client_acquisition.split(',').map(function(s){return s.trim();}):Array.isArray(ccSub.client_acquisition)?ccSub.client_acquisition:[];}catch(e){}
+      var ccTools={};
+      if(ccSub.crm)ccTools.crm=ccSub.crm;if(ccSub.email_provider)ccTools.email_provider=ccSub.email_provider;
+      if(ccSub.calendar)ccTools.calendar=ccSub.calendar;if(ccSub.project_mgmt)ccTools.project_mgmt=ccSub.project_mgmt;
+      if(ccSub.social_tools)ccTools.social_tools=ccSub.social_tools;if(ccSub.payments)ccTools.payments=ccSub.payments;
+      if(ccSub.ads_platforms)ccTools.ads_platforms=ccSub.ads_platforms;if(ccSub.meeting_recorder)ccTools.meeting_recorder=ccSub.meeting_recorder;
+      if(ccSub.course_platform)ccTools.course_platform=ccSub.course_platform;
+      var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
+      el.innerHTML+=ccPromptGen(ccSub,offers,features,ccTools,acq,TL);
+    }
+  }
   loadProjectFiles(id);
   loadProjectMembers(id);
 }
@@ -6691,27 +6710,34 @@ function renderCCStats(){
   ccSubmissions.forEach(function(s){counts[s.status]=(counts[s.status]||0)+1;});
   var tierVal={cc_brain:10000,cc_brain_dashboard:17500,cc_full_suite:25000};
   var totalVal=ccSubmissions.reduce(function(a,s){return a+(tierVal[s.tier_selected]||0);},0);
-  el.innerHTML=CC_STAGES.map(function(s){return '<div class="stat-card"><div class="stat-value">'+counts[s]+'</div><div class="stat-label">'+CC_STAGE_LABELS[s]+'</div></div>';}).join('')+'<div class="stat-card"><div class="stat-value">$'+totalVal.toLocaleString()+'</div><div class="stat-label">Pipeline Value</div></div>';
+  var active=counts.submitted+counts.reviewed+counts.building+counts.phase_2+counts.qa;
+  el.innerHTML=kpiCard('Total Builds',ccSubmissions.length,active+' active')+kpiCard('Pipeline Value','$'+totalVal.toLocaleString(),ccSubmissions.length+' submissions')+kpiCard('In Progress',counts.building+counts.phase_2,counts.qa+' in QA')+kpiCard('Delivered',counts.delivered,counts.reviewed+' reviewing');
 }
 function renderCCKanban(){
   var el=document.getElementById('ccKanban');if(!el)return;
   el.innerHTML=CC_STAGES.map(function(stage){
     var cards=ccSubmissions.filter(function(s){return s.status===stage;});
-    return '<div style="background:var(--surface-2);border-radius:10px;padding:10px;min-height:250px">'+
-      '<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">'+
-        '<span>'+CC_STAGE_LABELS[stage]+'</span><span class="badge '+CC_STAGE_COLORS[stage]+'" style="font-size:.65rem">'+cards.length+'</span>'+
+    return '<div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;padding:12px;min-height:250px">'+
+      '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)">'+
+        '<span>'+CC_STAGE_LABELS[stage]+'</span><span class="badge '+(CC_STAGE_COLORS[stage]||'badge-gold')+'" style="font-size:.6rem">'+cards.length+'</span>'+
       '</div>'+
       cards.map(function(c){
         var tl={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dash',cc_full_suite:'Full Suite'};
-        return '<div onclick="showCCDetail(\''+c.id+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--primary)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
-          '<div style="font-weight:600;font-size:.8rem;margin-bottom:4px">'+ccFullName(c)+'</div>'+
-          '<div style="font-size:.7rem;color:var(--text-muted);margin-bottom:4px">'+(c.company||'')+'</div>'+
+        var tv={cc_brain:'$10K',cc_brain_dashboard:'$17.5K',cc_full_suite:'$25K'};
+        return '<div onclick="showCCDetail(\''+c.id+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'none\'">'+
+          '<div style="font-weight:600;font-size:.82rem;margin-bottom:4px">'+ccFullName(c)+'</div>'+
+          '<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:6px">'+(c.company||'')+'</div>'+
+          '<div style="display:flex;justify-content:space-between;align-items:center">'+
           (c.tier_selected?'<span class="badge badge-gold" style="font-size:.6rem">'+(tl[c.tier_selected]||c.tier_selected)+'</span>':'')+
+          (c.tier_selected?'<span style="font-size:.7rem;font-weight:600;color:var(--accent)">'+(tv[c.tier_selected]||'')+'</span>':'')+
+          '</div>'+
         '</div>';
       }).join('')+
+      (cards.length===0?'<div style="text-align:center;padding:2rem 0;font-size:.75rem;color:var(--text-muted);opacity:.5">No builds</div>':'')+
     '</div>';
   }).join('');
 }
+
 function renderCCTable(){
   var tbody=document.getElementById('ccTableBody');if(!tbody)return;
   var tl={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
@@ -6745,12 +6771,17 @@ function showCCDetail(id){
   if(c.ads_platforms)tools.ads_platforms=c.ads_platforms;
   if(c.meeting_recorder)tools.meeting_recorder=c.meeting_recorder;
   if(c.course_platform)tools.course_platform=c.course_platform;
-  function sect(t,b){return '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">'+t+'</h3>'+b+'</div>';}
+  function sect(t,b){return '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">'+t+'</h3>'+b+'</div>';}
   function row(l,v){return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.8rem"><span style="color:var(--text-muted)">'+l+'</span><span style="font-weight:500;text-align:right;max-width:60%">'+(v||'—')+'</span></div>';}
   var fn=ccFullName(c);
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h2 style="font-size:1.1rem;margin:0">'+fn+'</h2><div style="display:flex;gap:6px;flex-wrap:wrap">'+
     CC_STAGES.map(function(s){return '<button class="btn btn-sm '+(c.status===s?'btn-primary':'btn-secondary')+'" onclick="updateCCStatus(\''+c.id+'\',\''+s+'\')">'+CC_STAGE_LABELS[s]+'</button>';}).join('')+
-  '</div></div>';
+  '</div></div>'+
+  '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'+
+  (S.projects.find(function(pp){return pp.intake_id===c.id;})?
+    '<button class="btn btn-sm btn-secondary" onclick="nav(\'v-applications\');setTimeout(function(){showProjectDetail(\''+S.projects.find(function(pp){return pp.intake_id===c.id;}).id+'\')},200)">&#128194; View Project</button>':
+    '<button class="btn btn-sm btn-primary" onclick="createCCProject(ccSubmissions.find(function(s){return s.id===\''+c.id+'\'})).then(function(){showCCDetail(\''+c.id+'\')})">&#128194; Create Project</button>')+
+  '</div>';
   h+=sect('Big Picture',row('Name',fn)+row('Email',c.email)+row('Phone',c.phone)+row('Company',c.company)+row('Core Outcome',c.core_outcome)+row('Morning Screen',c.morning_screen)+row('Automate Wish',c.automate_wish));
   var toolK={crm:'CRM',email_provider:'Email Marketing',calendar:'Calendar',project_mgmt:'Project Mgmt',social_tools:'Social Media',payments:'Payments',ads_platforms:'Ads Platform',meeting_recorder:'Meeting Recorder',course_platform:'Course Platform'};
   h+=sect('Current Tools',Object.keys(tools).map(function(k){return row(toolK[k]||k,tools[k]);}).join('')+row('Other Tools',c.other_tools));
@@ -6768,6 +6799,30 @@ function showCCDetail(id){
   h+=ccPromptGen(c,offers,features,tools,acq,TL);
   document.getElementById('ccDetailContent').innerHTML=h;
 }
+async function createCCProject(c){
+  if(!c)return;
+  var existing=S.projects.find(function(p){return p.intake_id===c.id;});
+  if(existing){showToast('Project already exists: '+existing.name);return existing;}
+  var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
+  var TV={cc_brain:10000,cc_brain_dashboard:17500,cc_full_suite:25000};
+  var fn=ccFullName(c);
+  var obj={
+    name:'CC Build: '+fn+' — '+(TL[c.tier_selected]||'Command Center'),
+    description:'Command Center build for '+fn+' at '+(c.company||'N/A')+'. Core outcome: '+(c.core_outcome||'TBD'),
+    tier:c.tier_selected||'custom',
+    status:'scoping',
+    priority:'high',
+    contract_value:TV[c.tier_selected]||0,
+    intake_id:c.id,
+    lead_id:c.lead_id||null,
+    start_date:new Date().toISOString().split('T')[0]
+  };
+  var r=await sb.from('projects').insert([obj]).select();
+  if(r.error){showToast('Project creation failed: '+r.error.message,'error');return null;}
+  showToast('Project created: '+obj.name);
+  await loadProjects();
+  return r.data[0];
+}
 async function updateCCStatus(id,status){
   var r=await sb.from('cc_intake_submissions').update({status:status,updated_at:new Date().toISOString()}).eq('id',id);
   if(r.error){showToast('Update failed','error');return;}
@@ -6777,17 +6832,268 @@ async function updateCCStatus(id,status){
 }
 function ccPromptGen(c,offers,features,tools,acq,TL){
   var fn=ccFullName(c);
-  var mvp='You are building a Command Center for '+fn+' at '+(c.company||'[COMPANY]')+'.\n\nTIER: '+(TL[c.tier_selected]||'TBD')+'\n\nBUSINESS CONTEXT:\n- Core outcome: '+(c.core_outcome||'TBD')+'\n- Morning screen: '+(c.morning_screen||'TBD')+'\n- Automate wish: '+(c.automate_wish||'TBD')+'\n- Active clients: '+(c.active_clients||'TBD')+'\n- Monthly revenue: '+(c.monthly_revenue||'TBD')+'\n\nCURRENT TOOLS:\n'+Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n')+(c.other_tools?'\n- Other: '+c.other_tools:'')+'\n\nOFFERS:\n'+offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n')+'\n\nASCENSION: '+(c.ascension_model||'TBD')+'\nACQUISITION: '+(acq.join(', ')||'TBD')+'\n\nFEATURE PRIORITIES:\n'+features.map(function(f,i){return (i+1)+'. '+f;}).join('\n')+'\n\nBRAND:\n- Primary: '+(c.primary_color||'TBD')+'\n- Secondary: '+(c.secondary_color||'TBD')+'\n- Theme: '+(c.dark_or_light||'dark')+'\n- Font: '+(c.font_preference||'TBD')+'\n\nBUILD RULES:\n1. Single-file HTML, all CSS/JS inline\n2. No external fonts (system stack)\n3. Chart.js CDN only external script\n4. Mobile responsive\n5. Supabase JS CDN for data\n6. Auth check on load\n\nBuild the MVP dashboard with: Auth-gated access, KPI cards, Quick-action buttons, Activity feed, Clean design using brand colors.';
-  var p2='PHASE 2 BUILD for '+fn+' Command Center.\n\nContinue from MVP. Add:\n- CRM integration ('+(tools.crm||'manual')+')\n- Pipeline visualization\n- Client management\n- Task/project tracking\n- Email integration\n- Calendar sync\n- Advanced filtering\n- Data export\n\nSame build rules.';
-  var dash='ANALYTICS DASHBOARD for '+fn+'.\n\nBuild analytics page with revenue tracking, client acquisition funnel, offer performance, lead sources, period comparisons, pipeline health, goal tracking.\n\nChart.js for charts. Brand: '+(c.primary_color||'#D4A853')+' / '+(c.secondary_color||'#08080F');
-  var mob='MOBILE APP for '+fn+'.\n\nReact Native/Expo: push notifications, KPI cards, pipeline, contacts, tasks, offline-capable, Supabase auth.\n\niOS + Android. App Store assets needed.';
-  var spec='# Command Center Spec - '+fn+'\nCompany: '+(c.company||'TBD')+'\nTier: '+(TL[c.tier_selected]||'TBD')+'\nDate: '+new Date().toLocaleDateString()+'\n\nVision: '+(c.core_outcome||'TBD')+'\nMorning Screen: '+(c.morning_screen||'TBD')+'\nAutomation: '+(c.automate_wish||'TBD')+'\n\nOffers: '+offers.map(function(o){return o.name+' ('+o.price+')';}).join(', ')+'\nAscension: '+(c.ascension_model||'TBD')+'\nAcquisition: '+(acq.join(', ')||'TBD')+'\nClients: '+(c.active_clients||'TBD')+'\nRevenue: '+(c.monthly_revenue||'TBD')+'\n\nTools:\n'+Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n')+'\n\nFeatures:\n'+features.map(function(f,i){return (i+1)+'. '+f;}).join('\n')+'\n\nBrand: '+(c.primary_color||'?')+' / '+(c.secondary_color||'?')+' | '+(c.dark_or_light||'dark')+' | '+(c.font_preference||'System')+'\n\nNotes: '+(c.additional_notes||'None');
-  function cpB(label,prompt){var enc=btoa(unescape(encodeURIComponent(prompt)));return '<button class="btn btn-sm btn-primary" onclick="ccCopy(this)" style="display:flex;align-items:center;gap:4px" data-p="'+enc+'">&#128203; '+label+'</button>';}
+  var TV={cc_brain:'$10,000',cc_brain_dashboard:'$17,500',cc_full_suite:'$25,000'};
+  var tierLabel=TL[c.tier_selected]||'TBD';
+  var tierPrice=TV[c.tier_selected]||'';
+  var toolList=Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n');
+  if(c.other_tools)toolList+='\n- Other: '+c.other_tools;
+  var offerList=offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n');
+  var featureList=features.map(function(f,i){return (i+1)+'. '+f;}).join('\n');
+  var slug=(c.company||fn).toLowerCase().replace(/[^a-z0-9]+/g,'-');
+
+  var mvp=`/project-selector
+
+Build a Command Center for ${fn} at ${c.company||'[COMPANY]'}.
+
+## Context
+- Tier: ${tierLabel} ${tierPrice}
+- Core outcome: "${c.core_outcome||'TBD'}"
+- Morning screen: "${c.morning_screen||'TBD'}"
+- Biggest time sink to automate: "${c.automate_wish||'TBD'}"
+
+## Brand
+- Primary: ${c.primary_color||'TBD'}
+- Secondary: ${c.secondary_color||'TBD'}
+- Mode: ${c.dark_or_light||'dark'}
+- Font: ${c.font_preference||'system stack'}
+
+## Integrations (Day 1)
+${toolList}
+
+## Phase 1: MVP (Deploy within 24 hours)
+
+Create a Cowork artifact with ID: ${slug}-command-center
+
+### Required Sections:
+1. **KPI Gauges** (4 animated SVG circular gauges with glow)
+   - Total Leads
+   - Revenue (won deals)
+   - Pipeline Value (active deals)
+   - Active Clients
+
+2. **Smart Calendar** (today's meetings from Google Calendar MCP)
+   - Time, title, attendees
+   - Join link buttons
+   - Conflict highlighting
+
+3. **Message Center** (Gmail MCP, unread inbox)
+   - AI-categorized tabs: Need Reply | Revenue | Action | All
+   - Thread preview with sender, subject, snippet
+   - Quick draft button per thread
+
+4. **Active Pipeline** (Supabase deals table)
+   - Deal cards with client name, value, stage
+   - Progress bars
+   - Inactivity alerts (7+ days no activity)
+
+5. **Task Manager** (Supabase tasks table)
+   - Priority sorted: critical > high > medium > low
+   - Checkboxes for completion
+   - Due date indicators
+   - Color-coded priority badges
+
+6. **Neural Command Terminal**
+   - Text input for natural language commands
+   - 6-8 quick command buttons relevant to client's business
+
+### Supabase Setup:
+- Create tables: leads, deals, tasks, meetings, action_items, automations_log, kpis
+- Set up RLS for client auth
+- Populate with any existing data client provided
+
+### Design:
+- Futuristic cyberpunk style (scanlines, glassmorphism, glow effects)
+- Client brand colors: ${c.primary_color||'#C8A456'} / ${c.secondary_color||'#08080F'}
+
+### Data Fetching Pattern:
+function parseRows(res){
+  if(!res)return[];
+  if(Array.isArray(res))return res;
+  if(res.rows&&Array.isArray(res.rows))return res.rows;
+  if(res.result&&Array.isArray(res.result))return res.result;
+  if(res.result&&typeof res.result==='string'){
+    var m=res.result.match(/\\[[\\s\\S]*\\]/);
+    if(m){try{var p=JSON.parse(m[0]);if(Array.isArray(p))return p}catch(e){}}
+  }
+  return[];
+}
+
+### Critical Build Rules:
+1. Never use external fonts (Cowork sandbox blocks them)
+2. All data via window.cowork.callMcpTool (never raw fetch)
+3. Single-file HTML architecture
+4. All SVG filters inline
+5. sendPrompt() available globally for command terminal
+6. No localStorage
+7. All MCP calls wrapped in try/catch with fallback UI
+8. Chart.js v4.5.0 from CDN only external dependency allowed
+
+Deploy MVP and confirm all sections loading with real data.`;
+
+  var p2=`Continue building ${fn}'s Command Center.
+
+MVP is live. Now add Phase 2 features:
+
+## 2A: AI Intelligence Layer
+- Revenue Intelligence (3 AI insight cards via window.cowork.sample)
+- Predictive Focus (top 3 priorities for today, AI-ranked)
+- Recommendations engine with executable prompts
+
+## 2B: Client-Specific Features
+Based on their feature priority ranking:
+${featureList}
+
+## 2C: Automations
+Set up scheduled tasks based on client needs:
+- Daily: Email digest, task prioritization
+- Weekly: Pipeline review, revenue summary
+- On trigger: New lead follow-up, deal stage change alerts
+
+## Business Context:
+- Offers: ${offerList}
+- Ascension: ${c.ascension_model||'TBD'}
+- Acquisition: ${acq.join(', ')||'TBD'}
+- Active clients: ${c.active_clients||'TBD'}
+- Monthly revenue: ${c.monthly_revenue||'TBD'}
+
+Update the artifact with all new sections.
+Verify all data loading correctly.`;
+
+  var dash=`/project-selector
+
+Build a Vercel-hosted web dashboard for ${fn} (${c.company||'[COMPANY]'}).
+
+## Stack
+- Next.js 14+ (App Router)
+- Supabase Auth (magic link)
+- Same Supabase project as Command Center
+- Tailwind CSS
+- Chart.js for visualizations
+- Deploy to Vercel
+
+## Pages Required:
+1. /login - Magic link auth
+2. /dashboard - Main KPI overview (mirrors Command Center gauges)
+3. /pipeline - Kanban board (drag deals between stages)
+4. /tasks - Task board with filters
+5. /calendar - Week view
+6. /settings - Profile, notification preferences
+
+## Role-Based Access:
+- Admin: Full access
+- Manager: Team tasks + pipeline + calendar
+- Member: Own tasks + shared views
+- Viewer: Read-only dashboard
+
+## Design:
+- Brand colors: ${c.primary_color||'TBD'}, ${c.secondary_color||'TBD'}
+- Mode: ${c.dark_or_light||'dark'}
+- Responsive (mobile-first)
+- Same data as Command Center artifact
+
+## Real-time:
+- Supabase Realtime subscriptions for:
+  - New tasks assigned
+  - Deal stage changes
+  - KPI updates
+
+Build and deploy. Provide Vercel URL when complete.`;
+
+  var mob=`Build a mobile app for ${fn}'s Command Center.
+
+## Stack
+- React Native (Expo)
+- Same Supabase project
+- Supabase Auth + biometric unlock
+- Expo Push Notifications
+
+## Screens:
+1. Home - KPI cards + today's top 3 priorities
+2. Pipeline - Swipeable deal cards with stage filter
+3. Tasks - Priority list with swipe-to-complete
+4. Calendar - Day/week toggle with meeting details
+5. Notifications - Push alert history
+6. Settings - Profile, notification preferences, logout
+
+## Push Notifications:
+- New deal created
+- Task assigned to you
+- Task overdue
+- Meeting in 15 minutes
+- Revenue milestone hit
+
+## App Store Assets Needed:
+- App icon (1024x1024)
+- Screenshots (iPhone 15 Pro Max + iPhone SE)
+- App name: ${c.company||fn} Command Center
+- Privacy policy URL: [URL]
+
+## Deploy:
+- TestFlight for iOS testing
+- Google Play internal track for Android testing
+- Submit to both stores once approved by client
+
+Build, test locally, then prepare store submission.`;
+
+  var spec=`# Command Center Spec - ${fn}
+
+## Project Summary
+| Field | Value |
+|-------|-------|
+| Client | ${fn} |
+| Company | ${c.company||'TBD'} |
+| Email | ${c.email||'TBD'} |
+| Phone | ${c.phone||'TBD'} |
+| Tier | ${tierLabel} |
+| Total Price | ${tierPrice} |
+| Core Outcome | ${c.core_outcome||'TBD'} |
+| Morning Screen | ${c.morning_screen||'TBD'} |
+| Automation | ${c.automate_wish||'TBD'} |
+
+## Current Tools
+${toolList}
+
+## Offers
+${offerList}
+
+## Business Model
+- Ascension: ${c.ascension_model||'TBD'}
+- Acquisition: ${acq.join(', ')||'TBD'}
+- Active Clients: ${c.active_clients||'TBD'}
+- Monthly Revenue: ${c.monthly_revenue||'TBD'}
+
+## Team
+- Size: ${c.team_size||'TBD'}
+- Roles: ${Array.isArray(c.team_roles)?c.team_roles.join(', '):(c.team_roles||'TBD')}
+- Client Portal: ${c.wants_client_portal||'TBD'}
+
+## Feature Priorities (ranked)
+${featureList}
+
+## Brand
+- Primary: ${c.primary_color||'TBD'}
+- Secondary: ${c.secondary_color||'TBD'}
+- Theme: ${c.dark_or_light||'dark'}
+- Font: ${c.font_preference||'System'}
+
+## Notes
+${c.additional_notes||'None'}`;
+
+  function cpB(label,prompt,icon){
+    var enc=btoa(unescape(encodeURIComponent(prompt)));
+    return '<button class="btn btn-sm btn-primary" onclick="ccCopy(this)" style="display:flex;align-items:center;gap:6px;padding:8px 14px" data-p="'+enc+'">'+(icon||'&#128203;')+' '+label+'</button>';
+  }
   var sd=c.tier_selected==='cc_brain_dashboard'||c.tier_selected==='cc_full_suite';
   var sm=c.tier_selected==='cc_full_suite';
-  return '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">&#9881; Build Prompt Generator</h3>'+
-    '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:1rem">One-click copy build prompts pre-filled with intake data. Paste into Claude to generate their Command Center.</p>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+cpB('MVP Build',mvp)+cpB('Phase 2',p2)+(sd?cpB('Dashboard',dash):'')+(sm?cpB('Mobile App',mob):'')+cpB('Master Spec',spec)+'</div></div>';
+  return '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem"><h3 style="font-size:.95rem;font-weight:700;margin-bottom:.5rem">&#9881; Build Prompt Generator</h3>'+
+    '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:1rem">Copy pre-filled build prompts and paste into Claude/Cowork to generate their Command Center. Each prompt includes all intake data.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">'+
+    cpB('MVP Build',mvp,'&#128640;')+
+    cpB('Phase 2',p2,'&#9889;')+
+    (sd?cpB('Web Dashboard',dash,'&#127760;'):'')+
+    (sm?cpB('Mobile App',mob,'&#128241;'):'')+
+    cpB('Master Spec',spec,'&#128196;')+
+    '</div></div>';
 }
 function ccCopy(btn){
   var t=decodeURIComponent(escape(atob(btn.getAttribute('data-p'))));
