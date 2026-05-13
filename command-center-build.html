@@ -200,29 +200,29 @@ footer a{color:var(--gold);text-decoration:none}
     <div class="page-sub">Let's understand your vision and what matters most to you.</div>
 
     <div class="fr">
-      <div class="fg"><label>First Name *</label><input type="text" name="first_name" required placeholder="Your first name"></div>
-      <div class="fg"><label>Last Name *</label><input type="text" name="last_name" required placeholder="Your last name"></div>
+      <div class="fg"><label>First Name *</label><input type="text" name="first_name" placeholder="Your first name"></div>
+      <div class="fg"><label>Last Name *</label><input type="text" name="last_name" placeholder="Your last name"></div>
     </div>
     <div class="fr">
-      <div class="fg"><label>Email *</label><input type="email" name="email" required placeholder="you@company.com"></div>
+      <div class="fg"><label>Email *</label><input type="email" name="email" placeholder="you@company.com"></div>
       <div class="fg"><label>Phone</label><input type="tel" name="phone" placeholder="(555) 123-4567"></div>
     </div>
-    <div class="fg"><label>Company *</label><input type="text" name="company" required placeholder="Your company name"></div>
+    <div class="fg"><label>Company *</label><input type="text" name="company" placeholder="Your company name"></div>
 
     <div class="fg">
       <label>What is the ONE core outcome you want your Command Center to achieve? *</label>
       <div class="hint">e.g., "Never miss a follow-up," "See my whole business in one place," "Automate client onboarding"</div>
-      <textarea name="core_outcome" required placeholder="Describe the single most important thing your Command Center should do for you..."></textarea>
+      <textarea name="core_outcome" placeholder="Describe the single most important thing your Command Center should do for you..."></textarea>
     </div>
 
     <div class="fg">
       <label>If you could check ONE screen each morning and know exactly what to do, what would it show? *</label>
-      <textarea name="morning_screen" required placeholder="Describe your ideal morning dashboard view..."></textarea>
+      <textarea name="morning_screen" placeholder="Describe your ideal morning dashboard view..."></textarea>
     </div>
 
     <div class="fg">
       <label>What are you spending the MOST time on that you wish was automated? *</label>
-      <textarea name="automate_wish" required placeholder="What tasks eat up your time that a system could handle..."></textarea>
+      <textarea name="automate_wish" placeholder="What tasks eat up your time that a system could handle..."></textarea>
     </div>
   </div>
 
@@ -233,7 +233,7 @@ footer a{color:var(--gold);text-decoration:none}
 
     <div class="fr">
       <div class="fg"><label>CRM / Contact Management *</label>
-        <select name="crm" required>
+        <select name="crm" >
           <option value="" disabled selected>Select your CRM</option>
           <option value="ghl">Go High Level</option>
           <option value="hubspot">HubSpot</option>
@@ -245,7 +245,7 @@ footer a{color:var(--gold);text-decoration:none}
         </select>
       </div>
       <div class="fg"><label>Email Provider *</label>
-        <select name="email_provider" required>
+        <select name="email_provider" >
           <option value="" disabled selected>Select email</option>
           <option value="gmail">Gmail</option>
           <option value="google_workspace">Google Workspace</option>
@@ -392,10 +392,10 @@ footer a{color:var(--gold);text-decoration:none}
 
     <div class="fr">
       <div class="fg"><label>Active Clients *</label>
-        <input type="number" name="active_clients" required placeholder="How many?" min="0">
+        <input type="number" name="active_clients" placeholder="How many?" min="0">
       </div>
       <div class="fg"><label>Monthly Revenue *</label>
-        <select name="monthly_revenue" required>
+        <select name="monthly_revenue" >
           <option value="" disabled selected>Select range</option>
           <option value="under_10k">Under $10K</option>
           <option value="10k_50k">$10K - $50K</option>
@@ -614,12 +614,12 @@ function renderProgress(){
 function goPage(dir){
   if(dir===1&&currentPage===PAGES){submitForm();return}
   if(dir===1){
-    // Validate required fields on current page
+    // Validate fields on current page
     const page=document.querySelector(`.page[data-page="${currentPage}"]`);
-    const required=page.querySelectorAll('[required]');
-    let valid=true;
-    required.forEach(f=>{if(!f.value.trim()){f.style.borderColor='var(--red)';valid=false}else{f.style.borderColor=''}});
-    if(!valid)return;
+// Validation removed — users can skip fields
+// let valid=true;
+// validation disabled
+// if(!valid)return;
   }
   document.querySelector('.page.active').classList.remove('active');
   currentPage+=dir;

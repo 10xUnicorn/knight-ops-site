@@ -1804,30 +1804,15 @@ async function showProjectDetail(id){
   '<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
-    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'</div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="projectFiles_'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Previews</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectPreview(\''+id+'\')">+ Upload Preview</button></div><div id="previewList_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="openEditModal({type:\'addProjectMember\',projectId:\''+id+'\'})">+ Add Member</button></div><div id="projectMembers_'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   timeTable+'<div class="comment-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Comments & Requests</h3><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="filterComments(\'all\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--border);color:var(--text-muted)">All</button><button class="btn btn-sm" onclick="filterComments(\'update\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #3b82f6;color:#3b82f6">Updates</button><button class="btn btn-sm" onclick="filterComments(\'feedback\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #22c55e;color:#22c55e">Feedback</button><button class="btn btn-sm" onclick="filterComments(\'bug\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #ef4444;color:#ef4444">Bugs</button><button class="btn btn-sm" onclick="filterComments(\'feature_request\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--accent);color:var(--accent)">Features</button></div></div><div id="commentsList_'+id+'">'+(comments?.length?comments.map(c=>renderComment(c)).join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'</div><div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="projCommentTitle" placeholder="Title (optional)" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="projCommentType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><option value="update">Update</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option><option value="feature_request">Feature Request</option><option value="other">Other</option></select></div><textarea id="projComment" placeholder="Add details..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;min-height:80px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
-    // CC Build Prompts in Project Detail
-  if(p.intake_id && typeof ccSubmissions!=='undefined' && typeof ccPromptGen==='function'){
-    var ccSub=ccSubmissions.find(function(s){return s.id===p.intake_id;});
-    if(ccSub){
-      var offers=[],features=[],acq=[];
-      try{offers=JSON.parse(ccSub.offers_json||'[]');}catch(e){}
-      try{features=JSON.parse(ccSub.feature_priorities_json||'[]');}catch(e){}
-      try{acq=typeof ccSub.client_acquisition==='string'?ccSub.client_acquisition.split(',').map(function(s){return s.trim();}):Array.isArray(ccSub.client_acquisition)?ccSub.client_acquisition:[];}catch(e){}
-      var ccTools={};
-      if(ccSub.crm)ccTools.crm=ccSub.crm;if(ccSub.email_provider)ccTools.email_provider=ccSub.email_provider;
-      if(ccSub.calendar)ccTools.calendar=ccSub.calendar;if(ccSub.project_mgmt)ccTools.project_mgmt=ccSub.project_mgmt;
-      if(ccSub.social_tools)ccTools.social_tools=ccSub.social_tools;if(ccSub.payments)ccTools.payments=ccSub.payments;
-      if(ccSub.ads_platforms)ccTools.ads_platforms=ccSub.ads_platforms;if(ccSub.meeting_recorder)ccTools.meeting_recorder=ccSub.meeting_recorder;
-      if(ccSub.course_platform)ccTools.course_platform=ccSub.course_platform;
-      var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
-      el.innerHTML+=ccPromptGen(ccSub,offers,features,ccTools,acq,TL);
-    }
-  }
+    // CC Build Prompts now inline with Build Prompt Generator
   loadProjectFiles(id);
+  loadProjectPreviews(id);
   loadProjectMembers(id);
 }
 
@@ -2676,6 +2661,140 @@ email_logs (id, user_id, template, status, error, created_at)
 `;
 }
 
+function ccInlineButtons(projectId){
+  var p=S.projects.find(function(x){return x.id===projectId;});
+  if(!p)return '';
+  var hasCCSub=false;
+  if(p.intake_id && typeof ccSubmissions!=='undefined'){
+    var cs=ccSubmissions.find(function(s){return s.id===p.intake_id;});
+    if(cs)hasCCSub=true;
+  }
+  var sep='<div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>';
+  var btns=sep;
+  btns+='<button class="btn btn-sm" id="promptBtnCCMvp" onclick="showCCPrompt(\'mvp\',\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#127959; CC MVP</button>';
+  btns+='<button class="btn btn-sm" id="promptBtnCCPhase2" onclick="showCCPrompt(\'phase2\',\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#9889; Phase 2</button>';
+  btns+='<button class="btn btn-sm" id="promptBtnCCDash" onclick="showCCPrompt(\'dashboard\',\''+projectId+'\')" style="border:1px solid #3b82f6;color:#3b82f6">&#127760; CC Dashboard</button>';
+  btns+='<button class="btn btn-sm" id="promptBtnCCMobile" onclick="showCCPrompt(\'mobile\',\''+projectId+'\')" style="border:1px solid #a855f7;color:#a855f7">&#128241; CC Mobile</button>';
+  btns+='<button class="btn btn-sm" id="promptBtnCCSpec" onclick="showCCPrompt(\'spec\',\''+projectId+'\')" style="border:1px solid var(--text-muted);color:var(--text-muted)">&#128203; Master Spec</button>';
+  if(hasCCSub){
+    btns+='<button class="btn btn-sm" id="promptBtnCCTpl" onclick="showCCPrompt(\'template\',\''+projectId+'\')" style="border:1px solid var(--accent);color:var(--accent)">&#128196; Client Tpl</button>';
+  }
+  return btns;
+}
+function showCCPrompt(type,projectId){
+  var p=S.projects.find(function(x){return x.id===projectId;});
+  if(!p)return;
+  var c=null;
+  if(p.intake_id && typeof ccSubmissions!=='undefined'){
+    c=ccSubmissions.find(function(s){return s.id===p.intake_id;});
+  }
+  var fn=c?ccFullName(c):(p.clients&&p.clients.profiles?p.clients.profiles.full_name:p.name);
+  var company=c?(c.company||''):(p.name||'');
+  var offers=[],features=[],acq=[],tools={};
+  if(c){
+    try{offers=JSON.parse(c.offers_json||'[]');}catch(e){}
+    try{features=JSON.parse(c.feature_priorities_json||'[]');}catch(e){}
+    try{acq=typeof c.client_acquisition==='string'?c.client_acquisition.split(',').map(function(s){return s.trim();}):Array.isArray(c.client_acquisition)?c.client_acquisition:[];}catch(e){}
+    if(c.crm)tools.crm=c.crm;if(c.email_provider)tools.email_provider=c.email_provider;
+    if(c.calendar)tools.calendar=c.calendar;if(c.project_mgmt)tools.project_mgmt=c.project_mgmt;
+    if(c.social_tools)tools.social_tools=c.social_tools;if(c.payments)tools.payments=c.payments;
+    if(c.ads_platforms)tools.ads_platforms=c.ads_platforms;if(c.meeting_recorder)tools.meeting_recorder=c.meeting_recorder;
+    if(c.course_platform)tools.course_platform=c.course_platform;
+  }
+  var iData=p.intake_data||{};
+  var toolList=Object.keys(tools).length?Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n'):'- (no tools specified yet)';
+  var offerList=offers.length?offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n'):'- (offers not provided yet)';
+  var featureList=features.length?features.map(function(f,i){return (i+1)+'. '+f;}).join('\n'):'- (not ranked yet)';
+  var slug=company.toLowerCase().replace(/[^a-z0-9]+/g,'-')||'project';
+  var pColor=c?c.primary_color:(iData.brand_color||'#C8A456');
+  var sColor=c?c.secondary_color:'#08080F';
+  var theme=c?c.dark_or_light:'dark';
+  var coreOutcome=c?(c.core_outcome||''):'';
+  var morningScreen=c?(c.morning_screen||''):'';
+  var automateWish=c?(c.automate_wish||''):'';
+  var tier=c?c.tier_selected:'';
+  var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
+  var TV={cc_brain:'$10,000',cc_brain_dashboard:'$17,500',cc_full_suite:'$25,000'};
+  var tierLabel=TL[tier]||'TBD';var tierPrice=TV[tier]||'';
+  var prompt='';
+  if(type==='mvp'){
+    prompt='/project-selector\nBuild a Command Center for '+fn+' at '+(company||'[COMPANY]')+'.\n\n## Context\n- Tier: '+tierLabel+' '+tierPrice+'\n- Contract value: '+(p.contract_value?'$'+p.contract_value:'TBD')+'\n- Core outcome: "'+coreOutcome+'"\n- Morning screen: "'+morningScreen+'"\n- Automate: "'+automateWish+'"\n\n## Brand\n- Primary: '+(pColor||'TBD')+'\n- Secondary: '+(sColor||'TBD')+'\n- Mode: '+(theme||'dark')+'\n\n## Integrations\n'+toolList+'\n\nCreate a Cowork artifact: '+slug+'-command-center\nDeploy MVP with KPI Gauges, Calendar, Message Center, Pipeline, Tasks, Command Terminal.';
+  } else if(type==='phase2'){
+    prompt='Continue building '+fn+"'s Command Center.\nMVP is live. Add Phase 2:\n\n## AI Intelligence Layer\n- Revenue Intelligence\n- Predictive Focus\n- Recommendations\n\n## Client Features\n"+featureList+'\n\n## Business Context\n- Offers: '+offerList+'\n- Acquisition: '+(acq.join(', ')||'TBD')+'\n\nUpdate the artifact.';
+  } else if(type==='dashboard'){
+    prompt='/project-selector\nBuild Vercel web dashboard for '+fn+' ('+(company||'[COMPANY]')+').\n\nStack: Next.js 14+, Supabase Auth, Tailwind, Chart.js\nPages: /login, /dashboard, /pipeline, /tasks, /calendar, /settings\nBrand: '+(pColor||'TBD')+' / '+(sColor||'TBD')+' ('+theme+')\n\nBuild and deploy to Vercel.';
+  } else if(type==='mobile'){
+    prompt='Build mobile app for '+fn+"'s Command Center.\n\nStack: React Native (Expo), Supabase, Push Notifications\nScreens: Home, Pipeline, Tasks, Calendar, Notifications, Settings\n\nBuild and prepare store submission.";
+  } else if(type==='spec'){
+    prompt='# Command Center Spec - '+fn+'\n\n| Field | Value |\n|-------|-------|\n| Client | '+fn+' |\n| Company | '+(company||'TBD')+' |\n| Tier | '+tierLabel+' |\n| Price | '+tierPrice+' |\n| Contract | '+(p.contract_value?'$'+p.contract_value:'TBD')+' |\n| Status | '+(p.status||'TBD')+' |\n| Core Outcome | '+coreOutcome+' |\n\n## Tools\n'+toolList+'\n\n## Offers\n'+offerList+'\n\n## Features\n'+featureList;
+  } else if(type==='template' && c){
+    prompt=ccClientTpl(c,TL,TV);
+  }
+  document.getElementById('promptOutput').style.display='block';
+  document.getElementById('promptText').textContent=prompt;
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCCMvp','promptBtnCCPhase2','promptBtnCCDash','promptBtnCCMobile','promptBtnCCSpec','promptBtnCCTpl'].forEach(function(bid){
+    var btn=document.getElementById(bid);
+    if(btn)btn.style.background='transparent';
+  });
+  var map={mvp:'CCMvp',phase2:'CCPhase2',dashboard:'CCDash',mobile:'CCMobile',spec:'CCSpec',template:'CCTpl'};
+  var ab=document.getElementById('promptBtn'+(map[type]||''));
+  if(ab)ab.style.background='rgba(34,197,94,0.15)';
+}
+function loadProjectPreviews(projectId){
+  sb.from('project_previews').select('*').eq('project_id',projectId).order('created_at',{ascending:false}).then(function(res){
+    var el=document.getElementById('previewList_'+projectId);
+    if(!el)return;
+    var data=res.data||[];
+    if(!data.length){el.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">No preview files uploaded yet</p>';return;}
+    el.innerHTML=data.map(function(pv){
+      var url='https://knightops.biz/preview/'+pv.slug;
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-weight:600;font-size:.9rem">'+pv.title+'</div><div style="font-size:.75rem;color:var(--text-muted)">v'+pv.version+' &middot; '+fmtDate(pv.created_at)+' &middot; <a href="'+url+'" target="_blank" style="color:var(--accent)">'+url+'</a></div></div><div style="display:flex;gap:6px;align-items:center"><label style="display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" '+(pv.is_visible?'checked':'')+' onchange="togglePreviewVisibility(\''+pv.id+'\',this.checked,\''+projectId+'\')"> Visible</label><button class="btn btn-sm btn-secondary" onclick="copyPreviewUrl(\''+url+'\')">Copy URL</button><button class="btn btn-sm btn-danger" onclick="deletePreview(\''+pv.id+'\',\''+projectId+'\')">&#10005;</button></div></div>';
+    }).join('');
+  });
+}
+function uploadProjectPreview(projectId){
+  var p=S.projects.find(function(x){return x.id===projectId;});
+  if(!p)return;
+  var ds=(p.name||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  var m=document.createElement('div');
+  m.className='modal-backdrop';
+  m.innerHTML='<div class="modal" style="max-width:500px"><h2>Upload Preview HTML</h2><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Title</label><input id="prevTitle" placeholder="e.g. Homepage v2" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">URL Slug</label><div style="display:flex;align-items:center;gap:4px"><span style="font-size:.8rem;color:var(--text-muted)">knightops.biz/preview/</span><input id="prevSlug" value="'+ds+'" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">HTML File</label><input type="file" id="prevFile" accept=".html,.htm" style="width:100%;font-size:.85rem"></div><div style="margin-bottom:1rem"><label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="prevVisible" checked> Make visible to client immediately</label></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary" onclick="this.closest(\'.modal-backdrop\').remove()">Cancel</button><button class="btn btn-primary" onclick="submitPreview(\''+projectId+'\')">Upload Preview</button></div></div>';
+  document.body.appendChild(m);
+}
+async function submitPreview(projectId){
+  var title=document.getElementById('prevTitle').value.trim();
+  var slug=document.getElementById('prevSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+  var visible=document.getElementById('prevVisible').checked;
+  var fi=document.getElementById('prevFile');
+  if(!title){showToast('Enter a title','error');return;}
+  if(!slug){showToast('Enter a URL slug','error');return;}
+  if(!fi.files.length){showToast('Select an HTML file','error');return;}
+  var reader=new FileReader();
+  reader.onload=async function(e){
+    var html=e.target.result;
+    var ex=await sb.from('project_previews').select('id,version').eq('slug',slug).order('version',{ascending:false}).limit(1);
+    var ver=1;if(ex.data&&ex.data.length)ver=ex.data[0].version+1;
+    var{error}=await sb.from('project_previews').insert({project_id:projectId,title:title,slug:slug,html_content:html,is_visible:visible,version:ver});
+    if(error){showToast('Failed: '+error.message,'error');return;}
+    showToast('Preview uploaded! knightops.biz/preview/'+slug);
+    document.querySelector('.modal-backdrop').remove();
+    loadProjectPreviews(projectId);
+  };
+  reader.readAsText(fi.files[0]);
+}
+async function togglePreviewVisibility(id,vis,pid){
+  await sb.from('project_previews').update({is_visible:vis,updated_at:new Date().toISOString()}).eq('id',id);
+  showToast(vis?'Preview visible':'Preview hidden');
+  loadProjectPreviews(pid);
+}
+function copyPreviewUrl(url){navigator.clipboard.writeText(url).then(function(){showToast('URL copied!');});}
+async function deletePreview(id,pid){
+  if(!confirm('Delete this preview?'))return;
+  await sb.from('project_previews').delete().eq('id',id);
+  showToast('Preview deleted');
+  loadProjectPreviews(pid);
+}
+
 function showBuildPrompt(type,projectId){
   const p=S.projects.find(x=>x.id===projectId);
   if(!p)return;
@@ -2687,7 +2806,7 @@ function showBuildPrompt(type,projectId){
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
 
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp'].forEach(id=>{
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCCMvp','promptBtnCCPhase2','promptBtnCCDash','promptBtnCCMobile','promptBtnCCSpec','promptBtnCCTpl'].forEach(id=>{
     const btn=document.getElementById(id);
     if(btn)btn.style.background='transparent';
   });

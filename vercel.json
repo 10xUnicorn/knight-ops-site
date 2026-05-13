@@ -22,6 +22,10 @@
       "destination": "/api/proposal?slug=:slug"
     },
     {
+      "source": "/preview/:slug",
+      "destination": "/api/preview?slug=:slug"
+    },
+    {
       "source": "/:path",
       "destination": "/:path.html"
     }
@@ -38,6 +42,15 @@
     },
     {
       "source": "/proposal/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/preview/(.*)",
       "headers": [
         {
           "key": "Content-Type",
