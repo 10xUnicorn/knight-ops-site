@@ -1,48 +1,19 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "trailingSlash": false,
-  "redirects": [
-    {
-      "source": "/:path((?!api/).+)\\.html",
-      "destination": "/:path",
-      "permanent": true
-    }
-  ],
   "rewrites": [
-    {
-      "source": "/blog/:slug",
-      "destination": "/blog.html"
-    },
-    {
-      "source": "/proposal/:slug/pdf",
-      "destination": "/api/proposal?slug=:slug&dl=pdf"
-    },
-    {
-      "source": "/proposal/:slug",
-      "destination": "/api/proposal?slug=:slug"
-    },
-    {
-      "source": "/:path",
-      "destination": "/:path.html"
-    }
+    { "source": "/apply", "destination": "/apply.html" },
+    { "source": "/apps", "destination": "/apps.html" },
+    { "source": "/book", "destination": "/book.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/portal", "destination": "/portal.html" },
+    { "source": "/auth", "destination": "/auth.html" },
+    { "source": "/prospecting-filter-score", "destination": "/prospecting-filter-score.html" }
   ],
   "headers": [
     {
-      "source": "/api/proposal",
+      "source": "/(.*)",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/proposal/(.*)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        }
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
   ]

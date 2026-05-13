@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Prospecting Filter Score Calculator | Knight Ops</title>
+<meta name="description" content="Find out how strong your prospecting filters are in 60 seconds. Free tool from the team that builds automated prospecting systems for 7-figure businesses.">
+<meta property="og:title" content="Free Prospecting Filter Score Calculator | Knight Ops">
+<meta property="og:description" content="Get your personalized filter strength score and AI-powered tool recommendations in 60 seconds.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/prospecting-filter-score">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Prospecting Filter Score Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"Knight Ops","url":"https://knightops.biz"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#111118;--card2:#1a1a24;--border:#1e1e2e;--gold:#e0b341;--gold-dim:rgba(224,179,65,0.15);--text:#e0e0e0;--text-muted:#888;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#60a5fa;--radius:12px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--gold);text-decoration:none}
+.container{max-width:960px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{position:relative;padding:80px 0 60px;text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(224,179,65,0.08) 0%,transparent 60%);pointer-events:none}
+.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;color:#fff;margin-bottom:16px;line-height:1.2}
+.hero h1 span{color:var(--gold)}
+.hero p{font-size:1.05rem;color:var(--text-muted);max-width:560px;margin:0 auto 32px}
+.trust-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+.trust-item{display:flex;align-items:center;gap:6px;color:var(--text-muted);font-size:0.85rem}
+.trust-item svg{width:16px;height:16px;color:var(--green)}
+
+/* Gate Form */
+.gate-form{max-width:440px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px}
+.gate-form h3{font-size:1rem;color:#fff;margin-bottom:16px;text-align:center}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:500}
+.form-group input{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:0.95rem;font-family:inherit;transition:border-color 0.2s}
+.form-group input:focus{outline:none;border-color:var(--gold)}
+.form-group input::placeholder{color:#555}
+.hp-field{position:absolute;left:-9999px}
+.consent{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:0.78rem;color:var(--text-muted)}
+.consent input[type=checkbox]{margin-top:2px;accent-color:var(--gold)}
+.btn-gold{width:100%;padding:14px;background:var(--gold);color:var(--bg);border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.15s,box-shadow 0.15s}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(224,179,65,0.3)}
+.btn-gold:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.privacy-line{text-align:center;font-size:0.75rem;color:#555;margin-top:12px}
+.gate-error{color:var(--red);font-size:0.82rem;margin-top:8px;text-align:center;display:none}
+
+/* Analysis Form */
+.analysis-section{display:none;padding:60px 0}
+.analysis-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 28px;max-width:640px;margin:0 auto}
+.analysis-card h2{color:#fff;font-size:1.4rem;margin-bottom:8px}
+.analysis-card p.sub{color:var(--text-muted);font-size:0.9rem;margin-bottom:24px}
+.toggle-pills{display:flex;gap:0;margin-bottom:20px;background:var(--bg);border-radius:8px;padding:3px;border:1px solid var(--border)}
+.toggle-pill{flex:1;padding:10px;text-align:center;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:500;color:var(--text-muted);transition:all 0.2s}
+.toggle-pill.active{background:var(--gold);color:var(--bg);font-weight:600}
+.url-input,.desc-input{display:none}
+.url-input.active,.desc-input.active{display:block}
+textarea{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:0.95rem;font-family:inherit;resize:vertical;min-height:80px}
+textarea:focus{outline:none;border-color:var(--gold)}
+select{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:0.95rem;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select:focus{outline:none;border-color:var(--gold)}
+.char-count{text-align:right;font-size:0.75rem;color:#555;margin-top:4px}
+.btn-analyze{margin-top:24px}
+
+/* Loading */
+.loading-overlay{display:none;text-align:center;padding:60px 0}
+.loading-overlay.active{display:block}
+.loader-ring{width:60px;height:60px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-step{color:var(--text-muted);font-size:0.95rem;transition:opacity 0.3s}
+
+/* Results */
+.results-section{display:none;padding:40px 0 80px}
+.results-section.active{display:block}
+.results-banner{text-align:center;margin-bottom:40px}
+.results-banner h2{font-size:clamp(1.3rem,4vw,2rem);color:#fff;font-weight:700}
+.results-banner h2 span{color:var(--gold)}
+
+/* Gauge */
+.gauge-wrap{text-align:center;margin:32px 0}
+.gauge-svg{width:240px;height:140px}
+.gauge-score{font-size:3rem;font-weight:800;margin-top:-16px}
+.gauge-label{color:var(--text-muted);font-size:0.85rem}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:32px 0}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.kpi-val{font-size:1.6rem;font-weight:700;color:var(--gold)}
+.kpi-label{font-size:0.78rem;color:var(--text-muted);margin-top:4px}
+
+/* Charts */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:32px 0}
+@media(max-width:640px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.chart-card h3{color:#fff;font-size:1rem;margin-bottom:14px;font-weight:600}
+.chart-card canvas{width:100%!important;max-height:260px}
+
+/* Source Table */
+.source-table-wrap{margin:32px 0;overflow-x:auto}
+.source-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.source-table th{padding:10px 12px;text-align:left;color:var(--gold);font-weight:600;border-bottom:2px solid var(--gold);white-space:nowrap}
+.source-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.tier-badge{padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;white-space:nowrap}
+.tier-start_here{background:rgba(34,197,94,0.15);color:var(--green)}
+.tier-add_in_week_2{background:var(--gold-dim);color:var(--gold)}
+.tier-scale_later{background:rgba(96,165,250,0.15);color:var(--blue)}
+.tier-skip_for_now{background:rgba(136,136,136,0.15);color:#888}
+
+/* Top 3 */
+.top3-section{margin:32px 0}
+.top3-section h3{color:#fff;font-size:1.15rem;margin-bottom:16px}
+.top3-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.top3-rank{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0}
+.top3-info{flex:1;min-width:180px}
+.top3-name{font-size:1.05rem;font-weight:600;color:#fff}
+.top3-why{color:var(--text-muted);font-size:0.85rem;margin-top:4px}
+.top3-stats{display:flex;gap:16px;margin-top:8px;font-size:0.8rem;color:var(--text-muted)}
+.top3-stats strong{color:var(--gold)}
+
+/* Recommendations */
+.recs-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:32px 0}
+.recs-card h3{color:#fff;font-size:1.15rem;margin-bottom:16px}
+.rec-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;font-size:0.9rem;color:var(--text)}
+.rec-item::before{content:'→';color:var(--gold);font-weight:700;flex-shrink:0}
+.red-flags{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.red-flags h4{color:var(--red);font-size:0.95rem;margin-bottom:10px}
+.red-flag-item{color:var(--text-muted);font-size:0.85rem;margin-bottom:6px;padding-left:16px;position:relative}
+.red-flag-item::before{content:'⚠';position:absolute;left:0}
+.keywords-wrap{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.keywords-wrap h4{color:#fff;font-size:0.95rem;margin-bottom:10px}
+.keyword-pill{display:inline-block;padding:4px 12px;background:var(--bg);border:1px solid var(--border);border-radius:20px;font-size:0.78rem;color:var(--text-muted);margin:3px 4px}
+
+/* Stack Estimator */
+.estimator{background:var(--card);border:1px solid var(--gold);border-radius:var(--radius);padding:24px;margin:32px 0}
+.estimator h3{color:var(--gold);font-size:1.1rem;margin-bottom:4px}
+.estimator p.sub{color:var(--text-muted);font-size:0.82rem;margin-bottom:16px}
+.est-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.9rem}
+.est-row label{display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text)}
+.est-row input[type=checkbox]{accent-color:var(--gold)}
+.est-row .est-cost{color:var(--text-muted);font-size:0.85rem}
+.est-totals{margin-top:16px;padding:16px;background:var(--bg);border-radius:8px;text-align:center}
+.est-totals .est-big{font-size:1.4rem;font-weight:700;color:var(--gold)}
+.est-totals .est-detail{font-size:0.82rem;color:var(--text-muted);margin-top:4px}
+
+/* CTA */
+.cta-block{text-align:center;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px;margin:40px 0}
+.cta-block h2{color:#fff;font-size:1.5rem;margin-bottom:8px}
+.cta-block p{color:var(--text-muted);font-size:0.95rem;margin-bottom:24px}
+.cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.btn-cta{padding:14px 32px;border-radius:10px;font-weight:700;font-size:0.95rem;cursor:pointer;border:none;font-family:inherit;transition:transform 0.15s,box-shadow 0.15s}
+.btn-cta:hover{transform:translateY(-1px)}
+.btn-cta.primary{background:var(--gold);color:var(--bg)}
+.btn-cta.secondary{background:transparent;border:2px solid var(--gold);color:var(--gold)}
+.btn-cta.email-report{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-weight:500;font-size:0.85rem;margin-top:12px}
+.email-sent-msg{color:var(--green);font-size:0.85rem;margin-top:8px;display:none}
+
+/* Footer */
+footer{text-align:center;padding:32px 20px;border-top:1px solid var(--border);margin-top:40px}
+footer p{color:#555;font-size:0.8rem}
+footer a{color:#555}
+</style>
+</head>
+<body>
+
+<!-- HERO + EMAIL GATE -->
+<section class="hero" id="heroSection">
+<div class="container">
+  <h1>How strong is your <span>prospecting filter</span>?<br>Get your score in 60 seconds.</h1>
+  <p>Built by the team that's installed prospecting systems for 7+ figure coaches, agencies, and app founders.</p>
+  <div class="trust-row">
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> No credit card</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Free forever</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Results in 60 seconds</div>
+  </div>
+  <div class="gate-form" id="gateForm">
+    <h3>Enter your info to unlock the analyzer</h3>
+    <div class="form-group"><label>First Name *</label><input type="text" id="gateFirst" placeholder="Your first name" required></div>
+    <div class="form-group"><label>Email *</label><input type="email" id="gateEmail" placeholder="you@company.com" required></div>
+    <div class="form-group"><label>Company <span style="color:#555">(optional)</span></label><input type="text" id="gateCompany" placeholder="Your company"></div>
+    <input type="text" name="website" id="gateHoneypot" class="hp-field" tabindex="-1" autocomplete="off">
+    <div class="consent"><input type="checkbox" id="gateConsent" checked><span>I'm okay with Knight Ops emailing me my report and occasional helpful tips. Unsubscribe anytime.</span></div>
+    <button class="btn-gold" id="gateSubmit" onclick="submitGate()">Get My Score →</button>
+    <div class="gate-error" id="gateError"></div>
+    <div class="privacy-line">Your data is safe. <a href="https://knightops.biz/privacy">Privacy Policy</a> · Powered by <a href="https://knightops.biz">Knight Ops</a></div>
+  </div>
+</div>
+</section>
+
+<!-- ANALYSIS FORM -->
+<section class="analysis-section" id="analysisSection">
+<div class="container">
+  <div class="analysis-card">
+    <h2>Tell us about your offer</h2>
+    <p class="sub">The more specific you are, the more accurate your score.</p>
+    <div class="toggle-pills">
+      <div class="toggle-pill active" onclick="toggleInput('url')">Paste a URL</div>
+      <div class="toggle-pill" onclick="toggleInput('desc')">Describe it</div>
+    </div>
+    <div class="url-input active" id="urlInput">
+      <div class="form-group"><label>Your offer URL</label><input type="url" id="offerUrl" placeholder="https://yoursite.com/offer"></div>
+    </div>
+    <div class="desc-input" id="descInput">
+      <div class="form-group"><label>Describe your offer</label><textarea id="offerDesc" maxlength="500" placeholder="e.g. I sell a 12-week high-ticket coaching program for overwhelmed agency owners who want to scale past $50k/month without burning out..." oninput="updateCharCount()"></textarea><div class="char-count"><span id="charCount">0</span>/500</div></div>
+    </div>
+    <div class="form-group" style="margin-top:18px"><label>What type of offer is this? *</label>
+      <select id="offerType">
+        <option value="">Select one...</option>
+        <option value="high-ticket service">High-Ticket Service</option>
+        <option value="coaching">Coaching / Mentoring</option>
+        <option value="course">Online Course</option>
+        <option value="saas">SaaS / Software</option>
+        <option value="e-commerce">E-commerce Product</option>
+        <option value="agency">Agency Service</option>
+        <option value="local service">Local Service Business</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-top:18px"><label>Who's your ideal customer? *</label><textarea id="audience" maxlength="1000" placeholder="Describe the person who buys this. Industry, job title, life stage, what they're struggling with. Be specific." oninput="updateAudienceCount()"></textarea><div class="char-count"><span id="audienceCount">0</span>/1000</div></div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">The more specific, the better the recommendations</p>
+    <button class="btn-gold btn-analyze" id="analyzeBtn" onclick="submitAnalysis()">Analyze My Offer →</button>
+  </div>
+</div>
+</section>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <div class="loading-step" id="loadingStep">Reading your offer...</div>
+</div>
+
+<!-- RESULTS -->
+<section class="results-section" id="resultsSection">
+<div class="container">
+  <div class="results-banner"><h2 id="resultsBannerName">Your Prospecting Filter Score</h2></div>
+
+  <!-- Gauge -->
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 240 140" id="gaugeSvg">
+      <path d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="#1e1e2e" stroke-width="16" stroke-linecap="round"/>
+      <path d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="#e0b341" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 283" id="gaugeArc"/>
+    </svg>
+    <div class="gauge-score" id="gaugeScore">--</div>
+    <div class="gauge-label" id="gaugeLabel">Calculating...</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card"><h3>14-Day Lead Projection</h3><canvas id="projectionChart"></canvas></div>
+    <div class="chart-card"><h3>Audience Archetypes</h3><canvas id="archetypeChart"></canvas></div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card"><h3>Source Volume & Quality</h3><canvas id="sourceChart"></canvas></div>
+    <div class="chart-card"><h3>Offer-Audience Fit</h3><canvas id="fitChart"></canvas></div>
+  </div>
+
+  <!-- Source Ranking Table -->
+  <div class="source-table-wrap">
+    <h3 style="color:#fff;font-size:1.15rem;margin-bottom:14px">Source ROI Ranking</h3>
+    <table class="source-table" id="sourceTable"><thead><tr><th>Rank</th><th>Source</th><th>Tool</th><th>Cost/Mo</th><th>Leads/Mo</th><th>$/Lead</th><th>Priority</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <!-- Top 3 -->
+  <div class="top3-section" id="top3Section"><h3>Where to Put Your First Dollar</h3></div>
+
+  <!-- Recommendations -->
+  <div class="recs-card" id="recsCard"><h3>AI Recommendations</h3><div id="recsList"></div><div class="red-flags" id="redFlags" style="display:none"><h4>Red Flags to Address</h4><div id="redFlagsList"></div></div><div class="keywords-wrap"><h4>Suggested Keywords</h4><div id="keywordsList"></div></div></div>
+
+  <!-- Stack Estimator -->
+  <div class="estimator" id="estimator"><h3>Stack Configuration Estimator</h3><p class="sub">Toggle the tools you'd actually subscribe to and see projected results</p><div id="estRows"></div><div class="est-totals"><div class="est-big" id="estTotalCost">$0/mo</div><div class="est-detail" id="estTotalLeads">for ~0 qualified leads = $0.00 per lead</div></div></div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2>Want this built for you?</h2>
+    <p>Knight Ops installs fully automated prospecting systems — dashboard, archetype-routed nurture, and done-for-you setup.</p>
+    <div class="cta-btns">
+      <a href="https://knightops.biz/book" class="btn-cta primary">Book a Free Strategy Call →</a>
+      <a href="https://knightops.biz/pricing" class="btn-cta secondary">See Packages</a>
+    </div>
+    <button class="btn-cta email-report" id="emailReportBtn" onclick="sendReportEmail()">Email Me My Full Report</button>
+    <div class="email-sent-msg" id="emailSentMsg">Report sent! Check your inbox.</div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p>&copy; 2025 Knight Ops. All rights reserved. <a href="https://knightops.biz/privacy">Privacy</a> · <a href="https://knightops.biz">knightops.biz</a></p>
+</footer>
+
+<script>
+const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwOTMxMTYsImV4cCI6MjA2MjY2OTExNn0.aVGqJFSuWpHMnMFJVsQq7K6a2GIIaopH6MUh4K66OO0';
+
+let STATE={leadId:null,analysisId:null,firstName:'',data:null};
+
+function getUtmParams(){const p=new URLSearchParams(window.location.search);return{utm_source:p.get('utm_source'),utm_medium:p.get('utm_medium'),utm_campaign:p.get('utm_campaign')};}
+
+async function submitGate(){
+  const first=document.getElementById('gateFirst').value.trim();
+  const email=document.getElementById('gateEmail').value.trim();
+  const company=document.getElementById('gateCompany').value.trim();
+  const hp=document.getElementById('gateHoneypot').value;
+  const errEl=document.getElementById('gateError');
+  errEl.style.display='none';
+
+  if(hp){errEl.textContent='Submission blocked.';errEl.style.display='block';return;}
+  if(!first){errEl.textContent='Please enter your first name.';errEl.style.display='block';return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent='Please enter a valid email.';errEl.style.display='block';return;}
+
+  const btn=document.getElementById('gateSubmit');
+  btn.disabled=true;btn.textContent='Submitting...';
+
+  try{
+    const utm=getUtmParams();
+    const resp=await fetch(SUPABASE_URL+'/functions/v1/capture-lead',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({first_name:first,email,company:company||undefined,...utm,referrer_url:document.referrer||undefined})
+    });
+    const data=await resp.json();
+    if(!resp.ok)throw new Error(data.error||'Failed');
+    STATE.leadId=data.lead_id;
+    STATE.firstName=first;
+    document.getElementById('heroSection').style.display='none';
+    document.getElementById('analysisSection').style.display='block';
+    document.getElementById('analysisSection').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    errEl.textContent=e.message||'Something went wrong. Try again.';
+    errEl.style.display='block';
+    btn.disabled=false;btn.textContent='Get My Score →';
+  }
+}
+
+function toggleInput(mode){
+  document.querySelectorAll('.toggle-pill').forEach((p,i)=>{p.classList.toggle('active',mode==='url'?i===0:i===1);});
+  document.getElementById('urlInput').classList.toggle('active',mode==='url');
+  document.getElementById('descInput').classList.toggle('active',mode!=='url');
+}
+function updateCharCount(){document.getElementById('charCount').textContent=document.getElementById('offerDesc').value.length;}
+function updateAudienceCount(){document.getElementById('audienceCount').textContent=document.getElementById('audience').value.length;}
+
+const LOADING_STEPS=['Reading your offer...','Identifying signal sources...','Modeling lead flow...','Generating recommendations...','Computing your score...'];
+
+async function submitAnalysis(){
+  const url=document.getElementById('urlInput').classList.contains('active')?document.getElementById('offerUrl').value.trim():'';
+  const desc=document.getElementById('descInput').classList.contains('active')?document.getElementById('offerDesc').value.trim():'';
+  const offerType=document.getElementById('offerType').value;
+  const audience=document.getElementById('audience').value.trim();
+
+  if(!offerType){alert('Please select an offer type.');return;}
+  if(!audience){alert('Please describe your ideal customer.');return;}
+  if(!url&&!desc){alert('Please provide a URL or describe your offer.');return;}
+
+  document.getElementById('analysisSection').style.display='none';
+  const overlay=document.getElementById('loadingOverlay');
+  overlay.classList.add('active');
+  const stepEl=document.getElementById('loadingStep');
+
+  let stepIdx=0;
+  const stepTimer=setInterval(()=>{stepIdx++;if(stepIdx<LOADING_STEPS.length)stepEl.textContent=LOADING_STEPS[stepIdx];},2500);
+
+  try{
+    const resp=await fetch(SUPABASE_URL+'/functions/v1/analyze-offer',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({lead_id:STATE.leadId,url:url||undefined,description:desc||undefined,audience,offer_type:offerType})
+    });
+    const data=await resp.json();
+    if(!resp.ok)throw new Error(data.error||'Analysis failed');
+    clearInterval(stepTimer);
+    STATE.data=data;
+    STATE.analysisId=data.analysis_id;
+    overlay.classList.remove('active');
+    renderResults(data);
+  }catch(e){
+    clearInterval(stepTimer);
+    overlay.classList.remove('active');
+    document.getElementById('analysisSection').style.display='block';
+    alert(e.message||'Analysis failed. Please try again.');
+  }
+}
+
+function gaugeColor(s){return s<30?'#ef4444':s<50?'#f59e0b':s<85?'#e0b341':'#22c55e';}
+function gaugeLabel(s){return s<30?'Needs Work':s<50?'Getting There':s<85?'Strong':'Elite';}
+
+function renderResults(d){
+  const rs=document.getElementById('resultsSection');
+  rs.classList.add('active');
+
+  // Banner
+  document.getElementById('resultsBannerName').innerHTML=STATE.firstName+', here\'s your <span>Prospecting Filter Score</span>';
+
+  // Gauge animation
+  const score=d.filter_strength_score||0;
+  const color=gaugeColor(score);
+  const arc=document.getElementById('gaugeArc');
+  arc.setAttribute('stroke',color);
+  let current=0;
+  const gaugeAnim=setInterval(()=>{current+=1;if(current>score){clearInterval(gaugeAnim);return;}
+    arc.setAttribute('stroke-dasharray',((current/100)*283)+' 283');
+    document.getElementById('gaugeScore').textContent=current;
+    document.getElementById('gaugeScore').style.color=gaugeColor(current);
+  },20);
+  document.getElementById('gaugeLabel').textContent=gaugeLabel(score);
+
+  // KPIs
+  const kpis=[
+    {val:score+'/100',label:'Filter Strength'},
+    {val:d.estimated_daily_leads||0,label:'Leads/Day'},
+    {val:d.detected_niche||'--',label:'Detected Niche'},
+    {val:(d.estimated_reply_rate||0)+'%',label:'Est. Reply Rate'},
+    {val:d.estimated_weekly_bookings||0,label:'Weekly Bookings'},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kpi-card"><div class="kpi-val">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join('');
+
+  // 14-day projection chart
+  const daily=d.estimated_daily_leads||0;
+  const projLabels=Array.from({length:14},(_,i)=>'Day '+(i+1));
+  const projData=projLabels.map((_,i)=>{const warmup=Math.min(1,(i+1)/14);return Math.round(daily*warmup*0.7+daily*warmup*0.3*Math.random());});
+  new Chart(document.getElementById('projectionChart'),{type:'line',data:{labels:projLabels,datasets:[{label:'Projected Leads',data:projData,borderColor:'#e0b341',backgroundColor:'rgba(224,179,65,0.1)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#e0b341'}]},options:{responsive:true,plugins:{legend:{display:false},annotation:{}},scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1e1e2e'}},y:{ticks:{color:'#555'},grid:{color:'#1e1e2e'},beginAtZero:true}}}});
+
+  // Archetype donut
+  const archs=d.archetypes||[];
+  const archColors=['#e0b341','#60a5fa','#22c55e','#f59e0b','#ef4444'];
+  new Chart(document.getElementById('archetypeChart'),{type:'doughnut',data:{labels:archs.map(a=>a.name),datasets:[{data:archs.map(a=>Math.round((a.share||0)*100)),backgroundColor:archColors.slice(0,archs.length),borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:11},padding:12}}}}});
+
+  // Source bar chart
+  const sources=d.intent_sources||[];
+  new Chart(document.getElementById('sourceChart'),{type:'bar',data:{labels:sources.map(s=>s.source),datasets:[{label:'Daily Volume',data:sources.map(s=>s.base_volume_per_day||0),backgroundColor:'rgba(224,179,65,0.6)',borderRadius:4},{label:'Quality',data:sources.map(s=>Math.round((s.quality_multiplier||0)*100)),backgroundColor:'rgba(96,165,250,0.6)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#888',font:{size:11}}}},scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#555'},grid:{color:'#1e1e2e'}}}}});
+
+  // Offer-Audience Fit radar
+  const fit=d.offer_audience_fit||{};
+  new Chart(document.getElementById('fitChart'),{type:'radar',data:{labels:['Market Size','Signal Access','Conversion Potential'],datasets:[{label:'Fit Score',data:[fit.market_size_score||0,fit.signal_accessibility_score||0,fit.conversion_potential_score||0],borderColor:'#e0b341',backgroundColor:'rgba(224,179,65,0.15)',pointBackgroundColor:'#e0b341',pointRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{r:{angleLines:{color:'#1e1e2e'},grid:{color:'#1e1e2e'},pointLabels:{color:'#888',font:{size:11}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}});
+
+  // Source ranking table
+  const tbody=document.querySelector('#sourceTable tbody');
+  tbody.innerHTML=sources.sort((a,b)=>(a.roi_rank||99)-(b.roi_rank||99)).map(s=>`<tr><td style="font-weight:700;color:var(--gold)">#${s.roi_rank}</td><td>${s.source}</td><td>${s.recommended_paid_tool}</td><td>$${s.monthly_cost_usd}/mo</td><td>${s.expected_qualified_leads_per_month}</td><td>$${(s.cost_per_qualified_lead||0).toFixed(2)}</td><td><span class="tier-badge tier-${s.priority_tier}">${(s.priority_tier||'').replace(/_/g,' ')}</span></td></tr>`).join('');
+
+  // Top 3
+  const t3=d.top_3_paid_recommendations||[];
+  const t3Sec=document.getElementById('top3Section');
+  t3Sec.innerHTML='<h3>Where to Put Your First Dollar</h3><p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">Pick #1 first. Run it for 30 days. Add #2 only after #1 is humming.</p>'+t3.map(t=>`<div class="top3-card"><div class="top3-rank">${t.rank}</div><div class="top3-info"><div class="top3-name">${t.tool}</div><div class="top3-why">${t.why_first}</div><div class="top3-stats"><span><strong>${t.expected_monthly_qualified_leads}</strong> leads/mo</span><span><strong>$${(t.expected_cost_per_lead||0).toFixed(2)}</strong>/lead</span><span><strong>$${t.monthly_cost_usd}</strong>/mo</span></div></div></div>`).join('');
+
+  // Recommendations
+  const recs=d.recommendations||[];
+  document.getElementById('recsList').innerHTML=recs.map(r=>`<div class="rec-item">${r}</div>`).join('');
+
+  const flags=d.red_flags||[];
+  if(flags.length&&flags[0]){
+    document.getElementById('redFlags').style.display='block';
+    document.getElementById('redFlagsList').innerHTML=flags.map(f=>`<div class="red-flag-item">${f}</div>`).join('');
+  }
+
+  const kw=d.suggested_keywords||[];
+  document.getElementById('keywordsList').innerHTML=kw.map(k=>`<span class="keyword-pill">${k}</span>`).join('');
+
+  // Stack Estimator
+  const estRows=document.getElementById('estRows');
+  estRows.innerHTML=sources.map((s,i)=>`<div class="est-row"><label><input type="checkbox" data-idx="${i}" data-cost="${s.monthly_cost_usd||0}" data-leads="${s.expected_qualified_leads_per_month||0}" ${s.priority_tier==='start_here'?'checked':''} onchange="updateEstimator()"> ${s.recommended_paid_tool} (${s.source})</label><span class="est-cost">$${s.monthly_cost_usd}/mo</span></div>`).join('');
+  updateEstimator();
+
+  rs.scrollIntoView({behavior:'smooth'});
+}
+
+function updateEstimator(){
+  const checks=document.querySelectorAll('#estRows input[type=checkbox]');
+  let totalCost=0,totalLeads=0;
+  checks.forEach(c=>{if(c.checked){totalCost+=parseFloat(c.dataset.cost);totalLeads+=parseFloat(c.dataset.leads);}});
+  const cpl=totalLeads>0?(totalCost/totalLeads).toFixed(2):'0.00';
+  document.getElementById('estTotalCost').textContent='$'+totalCost+'/mo';
+  document.getElementById('estTotalLeads').textContent='for ~'+totalLeads+' qualified leads = $'+cpl+' per lead';
+}
+
+async function sendReportEmail(){
+  if(!STATE.analysisId)return;
+  const btn=document.getElementById('emailReportBtn');
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const resp=await fetch(SUPABASE_URL+'/functions/v1/send-report-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({analysis_id:STATE.analysisId})
+    });
+    if(!resp.ok)throw new Error('Failed');
+    btn.style.display='none';
+    document.getElementById('emailSentMsg').style.display='block';
+  }catch(e){
+    btn.disabled=false;btn.textContent='Email Me My Full Report';
+    alert('Failed to send. Try again.');
+  }
+}
+</script>
+</body>
+</html>
