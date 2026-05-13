@@ -251,7 +251,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
       <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
             <div class="nav-item" data-view="forms"><span class="icon">&#9998;</span> Forms &amp; Surveys</div>
-<div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div><div class="nav-item" data-view="ccbuilds"><span class="icon">&#9878;</span> CC Builds</div>
+<div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div>
     </nav>
     <div class="sidebar-footer">
       <span class="user-email" id="userEmail">admin</span>
@@ -816,28 +816,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 
     </div>
 
-      <div class="view" id="v-ccbuilds">
-        <div id="ccListView">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
-            <h2 style="font-size:1.1rem;font-weight:700;margin:0">Command Center Builds</h2>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-sm btn-secondary" onclick="loadCCBuilds()">&#8635; Refresh</button>
-            </div>
-          </div>
-          <div class="kpi-grid" id="ccStats" style="grid-template-columns:repeat(4,1fr)"></div>
-          <div class="table-card" style="padding:1.25rem;margin-bottom:1.5rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.9rem;font-weight:700;margin:0">Build Pipeline</h3></div><div id="ccKanban" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;min-height:280px"></div></div>
-          <div class="table-card" style="margin-top:0">
-            <div class="table-header"><h2>All Submissions</h2></div>
-            <div class="table-wrap"><table id="ccTable"><thead><tr>
-              <th>Client</th><th>Company</th><th>Tier</th><th>Status</th><th>Submitted</th><th></th>
-            </tr></thead><tbody id="ccTableBody"></tbody></table></div>
-          </div>
-        </div>
-        <div id="ccDetailView" style="display:none">
-          <button class="btn btn-sm btn-secondary" onclick="document.getElementById('ccDetailView').style.display='none';document.getElementById('ccListView').style.display=''" style="margin-bottom:1rem">&#8592; Back to Pipeline</button>
-          <div id="ccDetailContent"></div>
-        </div>
-      </div>
+      
   </div>
 </div>
 <!-- UNIVERSAL EDIT MODAL -->
@@ -921,7 +900,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     const v=e.currentTarget.dataset.view;
     document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
     document.getElementById('v-'+v).classList.add('active');
-    var titleMap={ccbuilds:'CC Builds',kpis:'KPIs'};document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
+    var titleMap={kpis:'KPIs'};document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
     // Reset to list views
     ['leads','clients','projects','tasks'].forEach(s=>{
       const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
@@ -933,7 +912,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     // Also reset applications view
     const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
     const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='ccbuilds')loadCCBuilds();
+    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();
     closeSidebar();
   });
 });
@@ -6867,11 +6846,130 @@ async function updateCCStatus(id,status){
   var c=ccSubmissions.find(function(s){return s.id===id;});if(c)c.status=status;
   renderCCStats();renderCCKanban();renderCCTable();showCCDetail(id);
 }
+function ccClientTpl(c,TL,TV){
+var fn=ccFullName(c);var tier=TL[c.tier_selected]||'TBD';var price=TV[c.tier_selected]||'';
+var sd=c.tier_selected==='cc_brain_dashboard'||c.tier_selected==='cc_full_suite';
+var sm=c.tier_selected==='cc_full_suite';var t='';
+t+='# Knight Ops Command Center: Client Build\n\n';
+t+='> Spec doc for '+fn+(c.company?' at '+c.company:'')+'\n\n---\n\n';
+t+='## Pricing Tiers\n\n| Tier | Price | Deliverables |\n|------|-------|-------------|\n';
+t+='| AI Command Center (Brain) | $10,000 | Cowork artifact + Supabase + integrations + AI |\n';
+t+='| + Custom Dashboard | +$7,500 | Vercel web app (team views, project mgmt) |\n';
+t+='| + Mobile App | +$7,500 | iOS + Android App Store deployment |\n';
+t+='| **Full Suite** | **$25,000** | Brain + Dashboard + Mobile App |\n\n';
+t+='**Selected:** '+tier+' '+price+'\n\n---\n\n';
+t+='## Project Summary\n\n| Field | Value |\n|-------|-------|\n';
+t+='| Client | '+fn+' |\n';
+t+='| Company | '+(c.company||'TBD')+' |\n';
+t+='| Email | '+(c.email||'TBD')+' |\n';
+t+='| Phone | '+(c.phone||'TBD')+' |\n';
+t+='| Tier | '+tier+' |\n';
+t+='| Price | '+price+' |\n';
+t+='| Core Outcome | '+(c.core_outcome||'TBD')+' |\n';
+t+='| Morning Screen | '+(c.morning_screen||'TBD')+' |\n';
+t+='| Automate | '+(c.automate_wish||'TBD')+' |\n\n---\n\n';
+t+='## Architecture\n\n| Component | Included | Tech |\n|-----------|----------|------|\n';
+t+='| AI Brain | Yes | Claude + Cowork |\n';
+t+='| Web Dashboard | '+(sd?'Yes':'No')+' | Next.js + Vercel |\n';
+t+='| Mobile App | '+(sm?'Yes':'No')+' | React Native + App Store |\n';
+t+='| Data Layer | Always | Supabase |\n\n---\n\n';
+t+='## Current Tech Stack\n\n| Category | Tool |\n|----------|------|\n';
+if(c.crm)t+='| CRM | '+c.crm+' |\n';
+if(c.email_provider)t+='| Email | '+c.email_provider+' |\n';
+if(c.calendar)t+='| Calendar | '+c.calendar+' |\n';
+if(c.project_mgmt)t+='| Project Mgmt | '+c.project_mgmt+' |\n';
+if(c.social_tools)t+='| Social | '+c.social_tools+' |\n';
+if(c.payments)t+='| Payments | '+c.payments+' |\n';
+if(c.ads_platforms)t+='| Ads | '+c.ads_platforms+' |\n';
+if(c.meeting_recorder)t+='| Meetings | '+c.meeting_recorder+' |\n';
+if(c.course_platform)t+='| Courses | '+c.course_platform+' |\n';
+if(c.other_tools)t+='| Other | '+c.other_tools+' |\n';
+t+='\n---\n\n';
+t+='## Business Model\n\n';
+t+='- **Active Clients:** '+(c.active_clients||'TBD')+'\n';
+t+='- **Monthly Revenue:** '+(c.monthly_revenue||'TBD')+'\n';
+t+='- **Ascension:** '+(c.ascension_model||'TBD')+'\n';
+var acqStr='TBD';try{acqStr=typeof c.client_acquisition==='string'?c.client_acquisition:Array.isArray(c.client_acquisition)?c.client_acquisition.join(', '):'TBD';}catch(e){}
+t+='- **Acquisition:** '+acqStr+'\n\n';
+t+='## Team\n\n';
+t+='- **Size:** '+(c.team_size||'TBD')+'\n';
+t+='- **Roles:** '+(Array.isArray(c.team_roles)?c.team_roles.join(', '):(c.team_roles||'TBD'))+'\n';
+t+='- **Client Portal:** '+(c.wants_client_portal||'TBD')+'\n\n---\n\n';
+t+='## Brand\n\n';
+t+='- Primary: '+(c.primary_color||'TBD')+'\n';
+t+='- Secondary: '+(c.secondary_color||'TBD')+'\n';
+t+='- Theme: '+(c.dark_or_light||'dark')+'\n';
+t+='- Font: '+(c.font_preference||'System')+'\n\n---\n\n';
+t+='## Feature Priorities\n\n';
+try{var fp=JSON.parse(c.feature_priorities_json||'[]');fp.forEach(function(f,i){t+=(i+1)+'. '+f+'\n';});}catch(e){}
+t+='\n---\n\n';
+t+='## MVP (Day 1 Delivery)\n\n| # | Feature | Source |\n|---|---------|--------|\n';
+t+='| 1 | KPI Gauges | Supabase |\n';
+t+='| 2 | Smart Calendar | Google Calendar MCP |\n';
+t+='| 3 | Email Triage | Gmail MCP |\n';
+t+='| 4 | Pipeline | Supabase deals |\n';
+t+='| 5 | Task Manager | Supabase tasks |\n';
+t+='| 6 | Command Terminal | sendPrompt() |\n\n';
+t+='### MVP Delivery Checklist\n\n';
+t+='- [ ] Supabase project created\n';
+t+='- [ ] Core tables deployed\n';
+t+='- [ ] RLS policies set\n';
+t+='- [ ] Gmail connected\n';
+t+='- [ ] Calendar connected\n';
+t+='- [ ] Artifact created (6 sections)\n';
+t+='- [ ] Brand applied\n';
+t+='- [ ] Data populated\n';
+t+='- [ ] Walkthrough done\n';
+t+='- [ ] Handoff delivered\n\n---\n\n';
+t+='## Phase 2 (Days 3-14)\n\n| Phase | Features | Days |\n|-------|----------|------|\n';
+t+='| 2A | AI Recommendations, Predictive Focus | 2 |\n';
+t+='| 2B | Social Media, Automations | 2 |\n';
+t+='| 2C | Ad Tracking, Transcription, Analytics | 3 |\n';
+t+='| 2D | Client Portal, Team Views, Custom | 4 |\n\n---\n\n';
+if(sd){t+='## Web Dashboard\n\n| Page | Purpose |\n|------|---------|\\n';
+t+='| /dashboard | KPI overview |\n';
+t+='| /pipeline | Kanban board |\n';
+t+='| /tasks | Task board |\n';
+t+='| /calendar | Week view |\n';
+t+='| /settings | Profile |\n\n---\n\n';}
+if(sm){t+='## Mobile App\n\n| Screen | Features |\n|--------|---------|\\n';
+t+='| Home | KPIs, priorities |\n';
+t+='| Pipeline | Deal cards |\n';
+t+='| Tasks | Priority list |\n';
+t+='| Calendar | Day/week view |\n';
+t+='| Notifications | Push alerts |\n\n---\n\n';}
+t+='## Design Tokens\n\n```css\n:root {\n';
+t+='  --primary: '+(c.primary_color||'#C8A456')+';\n';
+t+='  --secondary: '+(c.secondary_color||'#08080F')+';\n';
+t+='  --success: #00FF88;\n';
+t+='  --warning: #FF8C00;\n';
+t+='  --danger: #FF3366;\n';
+t+='}\n```\n\n---\n\n';
+t+='## QA Checklist\n\n';
+t+='- [ ] KPIs loading\n- [ ] Calendar live\n- [ ] Email triage working\n- [ ] Pipeline matches CRM\n';
+t+='- [ ] Tasks functional\n- [ ] AI recs generating\n- [ ] Commands executing\n- [ ] Brand applied\n';
+t+='- [ ] Mobile responsive\n- [ ] Load < 3s\n- [ ] Errors handled\n- [ ] Client can login\n';
+t+='- [ ] MCP connections working\n- [ ] Handoff docs complete\n\n---\n\n';
+t+='## Automation Opportunities\n\n| Automation | Trigger | Action |\n|-----------|---------|--------|\n';
+t+='| Lead follow-up | New lead | Draft personalized email |\n';
+t+='| Meeting prep | 30 min before | Generate briefing |\n';
+t+='| Task creation | Meeting ends | Extract action items |\n';
+t+='| Pipeline alerts | Deal stale 7+ days | Notify + suggest next step |\n';
+t+='| Social posting | Scheduled | Generate + post content |\n';
+t+='| Client updates | Milestone done | Email progress |\n';
+t+='| Revenue alerts | Payment received | Update dashboard |\n';
+t+='| Churn risk | Inactive 14+ days | Alert account manager |\n\n---\n\n';
+t+='## Handoff Docs\n\n';
+t+='1. Access Guide\n2. Integration Map\n3. Quick Reference (top 10 commands)\n';
+t+='4. Admin Guide\n5. Support SOP\n6. Expansion Options\n\n---\n\n';
+t+='## Notes\n\n'+(c.additional_notes||'None')+'\n\n---\n\n';
+t+='*Generated from Knight Ops CC Intake - '+new Date().toLocaleDateString()+'*\n';
+return t;}
 function ccPromptGen(c,offers,features,tools,acq,TL){
   var fn=ccFullName(c);
   var TV={cc_brain:'$10,000',cc_brain_dashboard:'$17,500',cc_full_suite:'$25,000'};
   var tierLabel=TL[c.tier_selected]||'TBD';
-  var tierPrice=TV[c.tier_selected]||'';
+  var tierPrice=TV[c.tier_selected]||'';var tplMd=ccClientTpl(c,TL,TV);var tplEnc=btoa(unescape(encodeURIComponent(tplMd)));var tplFn=(c.company||fn).replace(/[^a-zA-Z0-9]/g,'-')+'-CC-Template';
   var toolList=Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n');
   if(c.other_tools)toolList+='\n- Other: '+c.other_tools;
   var offerList=offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n');
@@ -7130,8 +7228,9 @@ ${c.additional_notes||'None'}`;
     (sd?cpB('Web Dashboard',dash,'&#127760;'):'')+
     (sm?cpB('Mobile App',mob,'&#128241;'):'')+
     cpB('Master Spec',spec,'&#128196;')+
-    '</div></div>';
+    '</div><div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px">&#128203; Client Template</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--accent),#a68832);color:#fff;border:none;display:flex;align-items:center;gap:6px;padding:8px 14px" onclick="ccDownloadMd(this)" data-fn="'+tplFn+'" data-p="'+tplEnc+'">&#128229; Download .md</button><button class="btn btn-sm btn-secondary" onclick="ccCopy(this)" style="padding:8px 14px;display:flex;align-items:center;gap:6px" data-p="'+tplEnc+'">&#128203; Copy to Clipboard</button></div></div></div>';
 }
+function ccDownloadMd(btn){var t=decodeURIComponent(escape(atob(btn.getAttribute('data-p'))));var fn=btn.getAttribute('data-fn')||'CC-Client-Template';var blob=new Blob([t],{type:'text/markdown;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=fn+'.md';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var o=btn.innerHTML;btn.innerHTML='&#10003; Downloaded!';setTimeout(function(){btn.innerHTML=o;},2000);}
 function ccCopy(btn){
   var t=decodeURIComponent(escape(atob(btn.getAttribute('data-p'))));
   navigator.clipboard.writeText(t).then(function(){
