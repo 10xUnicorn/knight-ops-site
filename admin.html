@@ -2662,26 +2662,9 @@ email_logs (id, user_id, template, status, error, created_at)
 }
 
 function ccInlineButtons(projectId){
-  var p=S.projects.find(function(x){return x.id===projectId;});
-  if(!p)return '';
-  var hasCCSub=false;
-  if(p.intake_id && typeof ccSubmissions!=='undefined'){
-    var cs=ccSubmissions.find(function(s){return s.id===p.intake_id;});
-    if(cs)hasCCSub=true;
-  }
-  var sep='<div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>';
-  var btns=sep;
-  btns+='<button class="btn btn-sm" id="promptBtnCCMvp" onclick="showCCPrompt(\'mvp\',\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#127959; CC MVP</button>';
-  btns+='<button class="btn btn-sm" id="promptBtnCCPhase2" onclick="showCCPrompt(\'phase2\',\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#9889; Phase 2</button>';
-  btns+='<button class="btn btn-sm" id="promptBtnCCDash" onclick="showCCPrompt(\'dashboard\',\''+projectId+'\')" style="border:1px solid #3b82f6;color:#3b82f6">&#127760; CC Dashboard</button>';
-  btns+='<button class="btn btn-sm" id="promptBtnCCMobile" onclick="showCCPrompt(\'mobile\',\''+projectId+'\')" style="border:1px solid #a855f7;color:#a855f7">&#128241; CC Mobile</button>';
-  btns+='<button class="btn btn-sm" id="promptBtnCCSpec" onclick="showCCPrompt(\'spec\',\''+projectId+'\')" style="border:1px solid var(--text-muted);color:var(--text-muted)">&#128203; Master Spec</button>';
-  if(hasCCSub){
-    btns+='<button class="btn btn-sm" id="promptBtnCCTpl" onclick="showCCPrompt(\'template\',\''+projectId+'\')" style="border:1px solid var(--accent);color:var(--accent)">&#128196; Client Tpl</button>';
-  }
-  return btns;
+  return '<button class="btn btn-sm" id="promptBtnCC" onclick="showCCPrompt(\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#9889; Command Center</button>';
 }
-function showCCPrompt(type,projectId){
+function showCCPrompt(projectId){
   var p=S.projects.find(function(x){return x.id===projectId;});
   if(!p)return;
   var c=null;
@@ -2702,42 +2685,48 @@ function showCCPrompt(type,projectId){
     if(c.course_platform)tools.course_platform=c.course_platform;
   }
   var iData=p.intake_data||{};
-  var toolList=Object.keys(tools).length?Object.keys(tools).map(function(k){return '- '+k+': '+tools[k];}).join('\n'):'- (no tools specified yet)';
-  var offerList=offers.length?offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n'):'- (offers not provided yet)';
-  var featureList=features.length?features.map(function(f,i){return (i+1)+'. '+f;}).join('\n'):'- (not ranked yet)';
-  var slug=company.toLowerCase().replace(/[^a-z0-9]+/g,'-')||'project';
   var pColor=c?c.primary_color:(iData.brand_color||'#C8A456');
   var sColor=c?c.secondary_color:'#08080F';
   var theme=c?c.dark_or_light:'dark';
-  var coreOutcome=c?(c.core_outcome||''):'';
-  var morningScreen=c?(c.morning_screen||''):'';
-  var automateWish=c?(c.automate_wish||''):'';
+  var coreOutcome=c?(c.core_outcome||'[THEIR ANSWER TO Q1]'):'[THEIR ANSWER TO Q1]';
+  var morningScreen=c?(c.morning_screen||'[THEIR ANSWER TO Q2]'):'[THEIR ANSWER TO Q2]';
+  var automateWish=c?(c.automate_wish||'[THEIR ANSWER TO Q3]'):'[THEIR ANSWER TO Q3]';
   var tier=c?c.tier_selected:'';
-  var TL={cc_brain:'AI Brain',cc_brain_dashboard:'Brain+Dashboard',cc_full_suite:'Full Suite'};
-  var TV={cc_brain:'$10,000',cc_brain_dashboard:'$17,500',cc_full_suite:'$25,000'};
-  var tierLabel=TL[tier]||'TBD';var tierPrice=TV[tier]||'';
-  var prompt='';
-  if(type==='mvp'){
-    prompt='/project-selector\nBuild a Command Center for '+fn+' at '+(company||'[COMPANY]')+'.\n\n## Context\n- Tier: '+tierLabel+' '+tierPrice+'\n- Contract value: '+(p.contract_value?'$'+p.contract_value:'TBD')+'\n- Core outcome: "'+coreOutcome+'"\n- Morning screen: "'+morningScreen+'"\n- Automate: "'+automateWish+'"\n\n## Brand\n- Primary: '+(pColor||'TBD')+'\n- Secondary: '+(sColor||'TBD')+'\n- Mode: '+(theme||'dark')+'\n\n## Integrations\n'+toolList+'\n\nCreate a Cowork artifact: '+slug+'-command-center\nDeploy MVP with KPI Gauges, Calendar, Message Center, Pipeline, Tasks, Command Terminal.';
-  } else if(type==='phase2'){
-    prompt='Continue building '+fn+"'s Command Center.\nMVP is live. Add Phase 2:\n\n## AI Intelligence Layer\n- Revenue Intelligence\n- Predictive Focus\n- Recommendations\n\n## Client Features\n"+featureList+'\n\n## Business Context\n- Offers: '+offerList+'\n- Acquisition: '+(acq.join(', ')||'TBD')+'\n\nUpdate the artifact.';
-  } else if(type==='dashboard'){
-    prompt='/project-selector\nBuild Vercel web dashboard for '+fn+' ('+(company||'[COMPANY]')+').\n\nStack: Next.js 14+, Supabase Auth, Tailwind, Chart.js\nPages: /login, /dashboard, /pipeline, /tasks, /calendar, /settings\nBrand: '+(pColor||'TBD')+' / '+(sColor||'TBD')+' ('+theme+')\n\nBuild and deploy to Vercel.';
-  } else if(type==='mobile'){
-    prompt='Build mobile app for '+fn+"'s Command Center.\n\nStack: React Native (Expo), Supabase, Push Notifications\nScreens: Home, Pipeline, Tasks, Calendar, Notifications, Settings\n\nBuild and prepare store submission.";
-  } else if(type==='spec'){
-    prompt='# Command Center Spec - '+fn+'\n\n| Field | Value |\n|-------|-------|\n| Client | '+fn+' |\n| Company | '+(company||'TBD')+' |\n| Tier | '+tierLabel+' |\n| Price | '+tierPrice+' |\n| Contract | '+(p.contract_value?'$'+p.contract_value:'TBD')+' |\n| Status | '+(p.status||'TBD')+' |\n| Core Outcome | '+coreOutcome+' |\n\n## Tools\n'+toolList+'\n\n## Offers\n'+offerList+'\n\n## Features\n'+featureList;
-  } else if(type==='template' && c){
-    prompt=ccClientTpl(c,TL,TV);
+  var TL={cc_brain:'AI Brain $10K',cc_brain_dashboard:'Brain + Dashboard $17.5K',cc_full_suite:'Full Suite $25K'};
+  var tierLabel=TL[tier]||'[AI Brain $10K / Brain + Dashboard $17.5K / Full Suite $25K]';
+  var slug=company.toLowerCase().replace(/[^a-z0-9]+/g,'-')||'project';
+  var toolList='';
+  if(c){
+    toolList+='- Email: '+(tools.email_provider||'[Gmail / Outlook]')+'\n';
+    toolList+='- Calendar: '+(tools.calendar||'[Google Calendar / Outlook]')+'\n';
+    toolList+='- CRM: '+(tools.crm||'[GHL / HubSpot / none]')+'\n';
+    toolList+='- Payments: '+(tools.payments||'[Stripe / none]');
+    if(tools.project_mgmt)toolList+='\n- Project Mgmt: '+tools.project_mgmt;
+    if(tools.social_tools)toolList+='\n- Social: '+tools.social_tools;
+    if(tools.ads_platforms)toolList+='\n- Ads: '+tools.ads_platforms;
+    if(tools.meeting_recorder)toolList+='\n- Meeting Recorder: '+tools.meeting_recorder;
+    if(tools.course_platform)toolList+='\n- Course Platform: '+tools.course_platform;
+  } else {
+    toolList='- Email: [Gmail / Outlook]\n- Calendar: [Google Calendar / Outlook]\n- CRM: [GHL / HubSpot / none]\n- Payments: [Stripe / none]';
   }
+  var offerList=offers.length?offers.map(function(o,i){return (i+1)+'. '+o.name+' - '+o.price+' ('+o.delivery+')';}).join('\n'):'[List client offers]';
+  var featureList=features.length?features.map(function(f,i){return (i+1)+'. '+f;}).join('\n'):'[Pick from their feature ranking]';
+  var acqList=acq.length?acq.join(', '):'[TBD]';
+  var clientName=fn||'[CLIENT_NAME]';
+  var companyName=company||'[COMPANY]';
+  var brandPrimary=pColor||'[HEX]';
+  var brandSecondary=sColor||'[HEX]';
+  var brandMode=theme||'[dark / light]';
+
+  var prompt='/project-selector\n\nBuild a Command Center for '+clientName+' at '+companyName+'.\n\n## Context\n- Tier: '+tierLabel+'\n- Core outcome: "'+coreOutcome+'"\n- Morning screen: "'+morningScreen+'"\n- Biggest time sink to automate: "'+automateWish+'"\n\n## Brand\n- Primary: '+brandPrimary+'\n- Secondary: '+brandSecondary+'\n- Mode: '+brandMode+'\n- Logo: [uploaded or path]\n- Font: [if specified, else system stack]\n\n## Integrations (Day 1)\n'+toolList+'\n\n## Phase 1: MVP (Deploy within 24 hours)\n\nCreate a Cowork artifact with ID: '+slug+'-command-center\n\n### Required Sections:\n1. **KPI Gauges** (4 animated SVG circular gauges with glow)\n   - Total Leads\n   - Revenue (won deals)\n   - Pipeline Value (active deals)\n   - Active Clients\n\n2. **Smart Calendar** (today\'s meetings from Google Calendar MCP)\n   - Time, title, attendees\n   - Join link buttons\n   - Conflict highlighting\n\n3. **Message Center** (Gmail MCP, unread inbox)\n   - AI-categorized tabs: Need Reply | Revenue | Action | All\n   - Thread preview with sender, subject, snippet\n   - Quick draft button per thread\n\n4. **Active Pipeline** (Supabase deals table)\n   - Deal cards with client name, value, stage\n   - Progress bars\n   - Inactivity alerts (7+ days no activity)\n\n5. **Task Manager** (Supabase tasks table)\n   - Priority sorted: critical > high > medium > low\n   - Checkboxes for completion\n   - Due date indicators\n   - Color-coded priority badges\n\n6. **Neural Command Terminal**\n   - Text input for natural language commands\n   - 6-8 quick command buttons relevant to client\'s business\n   - Commands: [CUSTOMIZE BASED ON CLIENT]\n\n### Supabase Setup:\n- Project: [PROJECT_ID from project-selector]\n- Create tables: leads, deals, tasks, meetings, action_items, automations_log, kpis\n- Set up RLS for client auth\n- Populate with any existing data client provided\n\n### Design:\n- Use the futuristic cyberpunk style (scanlines, glassmorphism, glow effects)\n- Replace Knight Ops gold with client\'s brand colors\n- [CLIENT_LOGO] in header\n\n### Data Fetching Pattern:\n```javascript\n// Use parseRows() for all Supabase responses\nfunction parseRows(res){\n  if(!res)return[];\n  if(Array.isArray(res))return res;\n  if(res.rows&&Array.isArray(res.rows))return res.rows;\n  if(res.result&&Array.isArray(res.result))return res.result;\n  if(res.result&&typeof res.result===\'string\'){\n    var m=res.result.match(/\\[[\\s\\S]*\\]/);\n    if(m){try{var p=JSON.parse(m[0]);if(Array.isArray(p))return p}catch(e){}}\n    try{var j=JSON.parse(res.result);if(Array.isArray(j))return j;if(j&&j.rows)return j.rows}catch(e){}\n  }\n  if(typeof res===\'string\'){\n    var m2=res.match(/\\[[\\s\\S]*\\]/);\n    if(m2){try{return JSON.parse(m2[0])}catch(e){}}\n  }\n  return[];\n}\n```\n\n### Critical Build Rules:\n1. Never use external fonts (Cowork sandbox blocks them)\n2. All data via window.cowork.callMcpTool (never raw fetch)\n3. Single-file HTML architecture\n4. All SVG filters inline\n5. sendPrompt() available globally for command terminal\n6. No localStorage\n7. All MCP calls wrapped in try/catch with fallback UI\n8. Chart.js v4.5.0 from CDN only external dependency allowed\n\nDeploy MVP and confirm all sections loading with real data.\n\n---\n\n## Phase 2 (Days 3-7)\n\nContinue building '+clientName+'\'s Command Center.\nMVP is live. Now add Phase 2 features:\n\n### 2A: AI Intelligence Layer\n- Revenue Intelligence (3 AI insight cards via window.cowork.sample)\n- Predictive Focus (top 3 priorities for today, AI-ranked)\n- Recommendations engine with executable prompts\n\n### 2B: Client-Specific Features\n'+featureList+'\n\n### 2C: Business Context\n- Offers: '+offerList+'\n- Client Acquisition: '+acqList+'\n\n### 2D: Automations\nSet up scheduled tasks:\n- Daily: [BASED ON CLIENT NEEDS]\n- Weekly: [BASED ON CLIENT NEEDS]\n- On trigger: [BASED ON CLIENT NEEDS]\n\nUpdate the artifact with all new sections.\nVerify all data loading correctly.\n\n---\n\n## Dashboard Build (If Brain+Dashboard or Full Suite Tier)\n\n/project-selector\n\nBuild a Vercel-hosted web dashboard for '+clientName+'.\n\n### Stack\n- Next.js 14+ (App Router)\n- Supabase Auth (magic link)\n- Same Supabase project as Command Center: [PROJECT_ID]\n- Tailwind CSS\n- Chart.js for visualizations\n- Deploy to Vercel\n\n### Pages Required:\n1. /login - Magic link auth\n2. /dashboard - Main KPI overview (mirrors Command Center gauges)\n3. /pipeline - Kanban board (drag deals between stages)\n4. /tasks - Task board with filters\n5. /calendar - Week view\n6. /settings - Profile, notification preferences\n\n### Role-Based Access:\n- Admin: Full access\n- Manager: Team tasks + pipeline + calendar\n- Member: Own tasks + shared views\n- Viewer: Read-only dashboard\n\n### Design:\n- Brand colors: '+brandPrimary+', '+brandSecondary+'\n- Mode: '+brandMode+'\n- Responsive (mobile-first)\n- Same data as Command Center artifact\n\n### Real-time:\n- Supabase Realtime subscriptions for:\n  - New tasks assigned\n  - Deal stage changes\n  - KPI updates\n\nBuild and deploy. Provide Vercel URL when complete.\n\n---\n\n## Mobile App (If Full Suite Tier)\n\nBuild a mobile app for '+clientName+'\'s Command Center.\n\n### Stack\n- React Native (Expo)\n- Same Supabase project: [PROJECT_ID]\n- Supabase Auth + biometric unlock\n- Expo Push Notifications\n\n### Screens:\n1. Home - KPI cards + today\'s top 3 priorities\n2. Pipeline - Swipeable deal cards with stage filter\n3. Tasks - Priority list with swipe-to-complete\n4. Calendar - Day/week toggle with meeting details\n5. Notifications - Push alert history\n6. Settings - Profile, notification preferences, logout\n\n### Push Notifications:\n- New deal created\n- Task assigned to you\n- Task overdue\n- Meeting in 15 minutes\n- Revenue milestone hit\n\n### App Store Assets Needed:\n- App icon (1024x1024)\n- Screenshots (iPhone 15 Pro Max + iPhone SE)\n- App name: [CLIENT_APP_NAME]\n- Subtitle: [SHORT DESCRIPTION]\n- Keywords: [COMMA SEPARATED]\n- Privacy policy URL: [URL]\n\n### Deploy:\n- TestFlight for iOS testing\n- Google Play internal track for Android testing\n- Submit to both stores once approved by client\n\nBuild, test locally, then prepare store submission.';
+
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCCMvp','promptBtnCCPhase2','promptBtnCCDash','promptBtnCCMobile','promptBtnCCSpec','promptBtnCCTpl'].forEach(function(bid){
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC'].forEach(function(bid){
     var btn=document.getElementById(bid);
     if(btn)btn.style.background='transparent';
   });
-  var map={mvp:'CCMvp',phase2:'CCPhase2',dashboard:'CCDash',mobile:'CCMobile',spec:'CCSpec',template:'CCTpl'};
-  var ab=document.getElementById('promptBtn'+(map[type]||''));
+  var ab=document.getElementById('promptBtnCC');
   if(ab)ab.style.background='rgba(34,197,94,0.15)';
 }
 function loadProjectPreviews(projectId){
@@ -2806,7 +2795,7 @@ function showBuildPrompt(type,projectId){
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
 
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCCMvp','promptBtnCCPhase2','promptBtnCCDash','promptBtnCCMobile','promptBtnCCSpec','promptBtnCCTpl'].forEach(id=>{
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC'].forEach(id=>{
     const btn=document.getElementById(id);
     if(btn)btn.style.background='transparent';
   });
