@@ -2,1304 +2,1552 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Knight Ops Roundtable — Weekly Call for AI-Driven Entrepreneurs</title>
-<meta name="description" content="Free weekly 60-minute call for entrepreneurs building with AI, systems & strategy. Every Wednesday at 12pm PT. Live teaching, hot seats, real-time problem solving.">
-<meta property="og:title" content="The Knight Ops Roundtable">
-<meta property="og:description" content="A weekly call for entrepreneurs building with AI, systems & strategy. Every Wednesday at 12pm PT.">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Roundtable | Knight Ops — Free Weekly Call</title>
+<meta name="description" content="60 minutes of live teaching, hot seats & real-time problem solving for entrepreneurs building with AI, systems & strategy. Every Wednesday, free forever.">
+<meta property="og:title" content="The Roundtable | Knight Ops">
+<meta property="og:description" content="60 minutes of live teaching, hot seats & real-time problem solving for entrepreneurs building with AI, systems & strategy.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://knightops.biz/roundtable">
+<meta property="og:image" content="https://knightops.biz/ko-og-roundtable.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Roundtable | Knight Ops">
+<meta name="twitter:description" content="Free weekly call — live teaching, hot seats & real-time problem solving.">
+<link rel="icon" href="https://knightops.biz/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --bg: #0a0a0a;
-  --bg2: #111111;
-  --bg3: #181818;
-  --card: #111111;
-  --card-hover: #1a1a1a;
-  --border: #222222;
-  --border-light: #333333;
-  --text: #f5f5f5;
-  --text2: #a1a1a1;
-  --muted: #888888;
-  --gold: #d4a843;
-  --gold-hover: #e0b855;
-  --gold-subtle: rgba(212,168,67,0.08);
-  --gold-border: rgba(212,168,67,0.25);
-  --gold-glow: rgba(212,168,67,0.15);
-  --white: #ffffff;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --radius: 12px;
-  --radius-sm: 8px;
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;
+  --deep:#06061A;
+  --surface:#0A0A0B;
+  --surface2:#111113;
+  --surface3:#18181B;
+  --card:rgba(12,12,22,0.75);
+  --border:rgba(200,164,86,0.06);
+  --border-gold:rgba(200,164,86,0.2);
+  --border-blue:rgba(0,229,255,0.15);
+  --glass-gold:rgba(200,164,86,0.12);
+  --glass-cyan:rgba(0,229,255,0.08);
+  --white:#F4F4F5;
+  --cream:#F0EEFF;
+  --gray:#A1A1AA;
+  --muted:#71717A;
+  --dim:#404050;
+  --gold:#C8A456;
+  --gold-bright:#FFD166;
+  --gold-light:#D4B56A;
+  --gold-glow:rgba(200,164,86,0.4);
+  --violet:#7B61FF;
+  --violet-glow:rgba(123,97,255,0.3);
+  --cyan:#00E5FF;
+  --cyan-glow:rgba(0,229,255,0.25);
+  --neon-blue:#00E5FF;
+  --warm-orange:rgba(255,160,50,0.07);
 }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  min-height: 100vh;
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--deep);
+  color:var(--white);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-
-/* ─── BACKGROUND GRID ─── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
+h1,h2,h3,h4{
+  font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  line-height:1.15;
+}
+canvas#bgCanvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+.grid-ov{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(200,164,86,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,164,86,0.03) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+.amb{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(212,168,67,0.06), transparent 70%),
-    radial-gradient(circle at 20% 80%, rgba(212,168,67,0.03), transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-body > * { position: relative; z-index: 1; }
-
-/* ─── NAV ─── */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(10,10,10,0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 64px;
-}
-
-.nav-logo {
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  color: var(--white);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav-logo .k-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--gold), #b8932e);
-  border-radius: 8px;
-  font-weight: 900;
-  font-size: 0.95rem;
-  color: #0a0a0a;
-  letter-spacing: 0;
-}
-
-.nav-link {
-  color: var(--text2);
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-.nav-link:hover { color: var(--white); }
-
-/* ─── CONTAINER ─── */
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 100px 24px 60px;
-}
-
-/* ─── HERO ─── */
-.hero {
-  text-align: center;
-  padding: 40px 0 48px;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 18px 7px 12px;
-  background: var(--gold-subtle);
-  border: 1px solid var(--gold-border);
-  border-radius: 100px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-}
-
-.hero-badge::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  background: var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(212,168,67,0.6);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(212,168,67,0.6); }
-  50% { opacity: 0.6; box-shadow: 0 0 20px rgba(212,168,67,0.3); }
-}
-
-.hero h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-
-.hero h1 em {
-  font-style: normal;
-  background: linear-gradient(135deg, #d4a843, #f0d78c, #d4a843);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-subtitle {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text2);
-  margin-bottom: 28px;
-  line-height: 1.6;
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 32px;
-}
-
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  font-size: 0.78rem;
-  color: var(--text2);
-  font-weight: 500;
-}
-
-.hero-tag svg {
-  width: 14px;
-  height: 14px;
-  color: var(--gold);
-  flex-shrink: 0;
-}
-
-.hero-topics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 36px;
-}
-
-.topic-chip {
-  padding: 5px 14px;
-  background: var(--gold-subtle);
-  border: 1px solid rgba(212,168,67,0.15);
-  border-radius: 100px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.02em;
-}
-
-.hero-quote {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 20px 28px;
-  background: var(--bg2);
-  border-left: 3px solid var(--gold);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text);
-  font-style: italic;
-  line-height: 1.6;
-}
-
-.hero-quote::before {
-  content: '\201C';
-  display: block;
-  font-size: 2rem;
-  color: var(--gold);
-  line-height: 1;
-  margin-bottom: 4px;
-  font-style: normal;
-}
-
-/* ─── PROGRESS ─── */
-.progress-bar {
-  margin-bottom: 36px;
-}
-
-.progress-track {
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), #f0d78c);
-  border-radius: 2px;
-  transition: width 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
-  width: 33%;
-}
-
-.progress-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.progress-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.progress-steps {
-  display: flex;
-  gap: 6px;
-}
-
-.progress-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  transition: all 0.3s ease;
-}
-
-.progress-dot.active {
-  background: var(--gold);
-  box-shadow: 0 0 8px rgba(212,168,67,0.4);
-}
-
-.progress-dot.done {
-  background: var(--success);
-}
-
-/* ─── FORM CARD ─── */
-.form-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 40px 36px;
-  position: relative;
-  overflow: hidden;
-}
-
-.form-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-border), transparent);
-}
-
-/* ─── STEPS ─── */
-.step {
-  display: none;
-}
-
-.step.active {
-  display: block;
-  animation: stepIn 0.45s ease;
-}
-
-@keyframes stepIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.step-header {
-  margin-bottom: 28px;
-}
-
-.step-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold-border), transparent);
-}
-
-.step-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--white);
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  margin-bottom: 6px;
-}
-
-.step-desc {
-  font-size: 0.875rem;
-  color: var(--text2);
-  line-height: 1.6;
-}
-
-/* ─── INPUTS ─── */
-.field-group {
-  margin-bottom: 20px;
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-@media (max-width: 540px) {
-  .field-row { grid-template-columns: 1fr; }
-}
-
-label {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text2);
-  margin-bottom: 6px;
-  letter-spacing: 0.02em;
-}
-
-label .required {
-  color: var(--gold);
-  margin-left: 2px;
-}
-
-label .optional {
-  color: var(--muted);
-  font-weight: 400;
-  font-size: 0.7rem;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-textarea,
-select {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(24,24,24,0.6);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 0.9rem;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  outline: none;
-  -webkit-appearance: none;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-glow);
-  background: rgba(24,24,24,0.9);
-}
-
-input::placeholder, textarea::placeholder {
-  color: #555;
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-  line-height: 1.6;
-}
-
-select {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 40px;
-}
-
-/* ─── CHECKBOXES (multi-select) ─── */
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 540px) {
-  .checkbox-grid { grid-template-columns: 1fr; }
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(24,24,24,0.6);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.checkbox-item:hover {
-  border-color: var(--border-light);
-  background: rgba(30,30,30,0.8);
-}
-
-.checkbox-item.checked {
-  border-color: var(--gold);
-  background: var(--gold-subtle);
-}
-
-.checkbox-item input[type="checkbox"] {
-  display: none;
-}
-
-.checkbox-box {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border-light);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.checkbox-item.checked .checkbox-box {
-  background: var(--gold);
-  border-color: var(--gold);
-}
-
-.checkbox-box svg {
-  width: 12px;
-  height: 12px;
-  color: #0a0a0a;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.checkbox-item.checked .checkbox-box svg {
-  opacity: 1;
-}
-
-.checkbox-label {
-  font-size: 0.85rem;
-  color: var(--text2);
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.checkbox-item.checked .checkbox-label {
-  color: var(--text);
-}
-
-/* ─── BUTTONS ─── */
-.btn-primary {
-  width: 100%;
-  padding: 16px 32px;
-  background: linear-gradient(135deg, var(--gold), #b8932e);
-  color: #0a0a0a;
-  font-size: 0.95rem;
-  font-weight: 700;
-  font-family: inherit;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, var(--gold-hover), #c9a23a);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(212,168,67,0.25);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-primary .spinner {
-  display: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(10,10,10,0.3);
-  border-top-color: #0a0a0a;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin: 0 auto;
-}
-
-.btn-primary.loading .btn-text { display: none; }
-.btn-primary.loading .spinner { display: inline-block; }
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ─── WELCOME / CONFIRMATION ─── */
-.welcome-icon {
-  width: 64px;
-  height: 64px;
-  background: var(--gold-subtle);
-  border: 1px solid var(--gold-border);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.welcome-icon svg {
-  width: 28px;
-  height: 28px;
-  color: var(--gold);
-}
-
-.welcome-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--white);
-  text-align: center;
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
-}
-
-.welcome-sub {
-  font-size: 0.9rem;
-  color: var(--text2);
-  text-align: center;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-/* ─── CALENDAR BUTTONS ─── */
-.calendar-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-@media (max-width: 540px) {
-  .calendar-grid { grid-template-columns: 1fr; }
-}
-
-.cal-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 20px 16px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.cal-btn:hover {
-  border-color: var(--gold);
-  background: var(--gold-subtle);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(212,168,67,0.15);
-}
-
-.cal-btn svg {
-  width: 24px;
-  height: 24px;
-  color: var(--gold);
-}
-
-.cal-btn span {
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-weight: 400;
-}
-
-/* ─── CONFIRMATION EXTRAS ─── */
-.confirm-details {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-  margin-top: 28px;
-}
-
-.confirm-detail-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  font-size: 0.85rem;
-  color: var(--text2);
-}
-
-.confirm-detail-row:not(:last-child) {
-  border-bottom: 1px solid var(--border);
-}
-
-.confirm-detail-row svg {
-  width: 16px;
-  height: 16px;
-  color: var(--gold);
-  flex-shrink: 0;
-}
-
-/* ─── ERROR ─── */
-.error-msg {
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
-  color: #f87171;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  margin-top: 12px;
-  display: none;
-}
-
-.field-error input,
-.field-error textarea,
-.field-error select {
-  border-color: var(--danger);
-}
-
-/* ─── FOOTER ─── */
-footer {
-  text-align: center;
-  padding: 40px 24px;
-  border-top: 1px solid var(--border);
-  margin-top: 60px;
-}
-
-.footer-text {
-  font-size: 0.75rem;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-}
-
-.footer-text a {
-  color: var(--gold);
-  text-decoration: none;
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 640px) {
-  .container { padding: 90px 16px 40px; }
-  .form-card { padding: 28px 20px; }
-  .hero { padding: 24px 0 36px; }
-  .hero-quote { padding: 16px 20px; }
-  .hero-details { gap: 8px; }
+    radial-gradient(ellipse 60% 40% at 20% 10%,rgba(255,160,50,0.07),transparent),
+    radial-gradient(ellipse 50% 50% at 80% 85%,rgba(0,229,255,0.05),transparent),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(123,97,255,0.04),transparent);
+}
+.wrap{
+  position:relative;
+  z-index:1;
+}
+
+/* ======================== NAV ======================== */
+nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  padding:0 24px;
+  transition:all .4s ease;
+  background:rgba(6,6,26,0.6);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(6,6,26,0.85);
+  border-bottom-color:var(--border-gold);
+  box-shadow:0 4px 30px rgba(0,0,0,0.3);
+}
+.nav-in{
+  max-width:1200px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:64px;
+}
+.nav-logo{text-decoration:none}
+.ko{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.35rem;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nav-cta{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:10px 24px;
+  border-radius:6px;
+  text-decoration:none;
+  transition:all .3s ease;
+}
+.nav-cta:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px var(--gold-glow);
+}
+
+/* ======================== BUTTONS ======================== */
+.btn-gold{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:16px 36px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px var(--gold-glow);
+}
+.btn-outline{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--gold);
+  background:transparent;
+  padding:16px 36px;
+  border:1px solid var(--border-gold);
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+}
+.btn-outline:hover{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  transform:translateY(-2px);
+}
+.btn-neon{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--cyan);
+  background:transparent;
+  padding:16px 36px;
+  border:1px solid var(--border-blue);
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+}
+.btn-neon:hover{
+  border-color:var(--cyan);
+  background:var(--glass-cyan);
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px var(--cyan-glow);
+}
+
+/* ======================== REVEAL ======================== */
+.rv{
+  opacity:0;
+  transform:translateY(45px);
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);
+}
+.rv.vis{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ======================== SECTIONS ======================== */
+section{padding:100px 24px}
+.section-in{max-width:1100px;margin:0 auto}
+
+/* ======================== HERO ======================== */
+.hero{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:120px 24px 80px;
+}
+.hero-in{max-width:820px}
+.hero-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--gold);
+  background:var(--glass-gold);
+  border:1px solid var(--border-gold);
+  padding:8px 20px;
+  border-radius:100px;
+  margin-bottom:32px;
+}
+.hero-tag .pulse{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 var(--gold-glow)}
+  50%{opacity:.7;box-shadow:0 0 0 8px rgba(200,164,86,0)}
+}
+.hero-h{
+  font-size:clamp(3rem,8vw,5.5rem);
+  margin-bottom:28px;
+}
+.hero-h .line{display:block}
+.hero-h .gold-txt{
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright),var(--gold));
+  background-size:200% 200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:goldShift 4s ease-in-out infinite;
+}
+@keyframes goldShift{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.2rem);
+  color:var(--gray);
+  max-width:640px;
+  margin:0 auto 36px;
+  line-height:1.7;
+}
+.hero-details{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:32px;
+}
+.hero-detail{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:500;
+  color:var(--gold-light);
+  background:var(--glass-gold);
+  border:1px solid var(--border-gold);
+  padding:8px 18px;
+  border-radius:6px;
+}
+.topic-chips{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:44px;
+}
+.topic-chip{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:500;
+  letter-spacing:.04em;
+  color:var(--gray);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  padding:6px 16px;
+  border-radius:100px;
+  transition:all .3s ease;
+}
+.topic-chip:hover{
+  border-color:var(--border-gold);
+  color:var(--gold-light);
+  background:var(--glass-gold);
+}
+.hero-ctas{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+/* ======================== WHAT YOU GET ======================== */
+.wyg-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  margin-top:48px;
+}
+.wyg-card{
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.12);
+  border-radius:10px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  padding:36px 28px;
+  transition:all .4s ease;
+  position:relative;
+  overflow:hidden;
+}
+.wyg-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  border-radius:10px 10px 0 0;
+}
+.wyg-card.cyan-accent::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+.wyg-card.violet-accent::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.wyg-card.gold-accent::before{background:linear-gradient(90deg,var(--gold),transparent)}
+.wyg-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(200,164,86,0.25);
+  box-shadow:0 8px 40px rgba(0,0,0,0.3),inset 0 1px 0 rgba(200,164,86,0.1);
+}
+.wyg-icon{
+  width:48px;height:48px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+  font-size:1.3rem;
+}
+.cyan-accent .wyg-icon{background:var(--glass-cyan);color:var(--cyan)}
+.violet-accent .wyg-icon{background:rgba(123,97,255,0.12);color:var(--violet)}
+.gold-accent .wyg-icon{background:var(--glass-gold);color:var(--gold)}
+.wyg-card h3{
+  font-size:1.5rem;
+  margin-bottom:12px;
+  color:var(--white);
+}
+.wyg-card p{
+  color:var(--gray);
+  font-size:.92rem;
+  line-height:1.6;
+}
+.section-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--gold);
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(2rem,4vw,3rem);
+  margin-bottom:16px;
+}
+.section-sub{
+  color:var(--gray);
+  font-size:1rem;
+  max-width:560px;
+}
+
+/* ======================== FORM SECTION ======================== */
+.form-section{padding-top:60px;padding-bottom:120px}
+.form-card{
+  max-width:680px;
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.12);
+  border-radius:14px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(200,164,86,0.06);
+}
+
+/* PROGRESS */
+.form-progress{padding:24px 32px 0}
+.progress-bar-track{
+  width:100%;height:3px;
+  background:rgba(255,255,255,0.06);
+  border-radius:3px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+  border-radius:3px;
+  transition:width .5s cubic-bezier(.16,1,.3,1);
+}
+.progress-dots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+.progress-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:var(--dim);
+  transition:all .3s ease;
+}
+.progress-dot.done{background:var(--gold)}
+.progress-dot.active{
+  background:var(--gold);
+  box-shadow:0 0 12px var(--gold-glow);
+}
+.progress-dot-line{
+  width:40px;height:1px;
+  background:var(--dim);
+  transition:background .3s ease;
+}
+.progress-dot-line.done{background:var(--gold)}
+
+/* FORM INNER */
+.form-inner{padding:32px}
+.step{display:none}
+.step.active{display:block}
+.step-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.step-title{
+  font-size:clamp(1.6rem,3vw,2.2rem);
+  margin-bottom:8px;
+}
+.step-sub{
+  color:var(--gray);
+  font-size:.92rem;
+  margin-bottom:32px;
+  line-height:1.6;
+}
+
+/* FORM FIELDS */
+.field{margin-bottom:20px}
+.field label{
+  display:block;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:500;
+  color:var(--gray);
+  margin-bottom:6px;
+  letter-spacing:.02em;
+}
+.field label .req{color:var(--gold);margin-left:2px}
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field select,
+.field textarea{
+  width:100%;
+  font-family:'Inter',sans-serif;
+  font-size:.9rem;
+  color:var(--white);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:12px 16px;
+  outline:none;
+  transition:all .3s ease;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:var(--border-gold);
+  background:rgba(200,164,86,0.04);
+  box-shadow:0 0 0 3px rgba(200,164,86,0.08);
+}
+.field textarea{resize:vertical;min-height:80px}
+.field select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A1A1AA' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:36px;
+  cursor:pointer;
+}
+.field select option{background:var(--surface2);color:var(--white)}
+.field-error{
+  font-size:.75rem;
+  color:#ff6b6b;
+  margin-top:4px;
+  display:none;
+}
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea{border-color:#ff6b6b}
+.field.has-error .field-error{display:block}
+
+/* DATE PICKER */
+.date-picker{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:8px;
+}
+.date-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:16px;
+  cursor:pointer;
+  text-align:center;
+  transition:all .3s ease;
+  position:relative;
+}
+.date-card:hover{
+  border-color:var(--border-gold);
+  background:rgba(200,164,86,0.04);
+}
+.date-card.selected{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  box-shadow:0 0 20px rgba(200,164,86,0.15);
+}
+.date-card .date-badge{
+  position:absolute;
+  top:-8px;left:50%;
+  transform:translateX(-50%);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.6rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:3px 10px;
+  border-radius:100px;
+  white-space:nowrap;
+}
+.date-card .date-day{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.2rem;
+  font-weight:600;
+  color:var(--white);
+  margin-bottom:4px;
+}
+.date-card .date-time{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;
+  color:var(--muted);
+  letter-spacing:.02em;
+}
+
+/* STEP 2 CONFIRMATION */
+.confirm-icon{
+  width:72px;height:72px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  font-size:2rem;
+  color:var(--deep);
+}
+.step-center{text-align:center}
+.step-center .step-title{margin-bottom:12px}
+
+/* CALENDAR BTNS */
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:28px 0;
+}
+.cal-btn{
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.1);
+  border-radius:10px;
+  padding:20px 14px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+  display:block;
+}
+.cal-btn:hover{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px rgba(200,164,86,0.15);
+}
+.cal-btn .cal-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+.cal-btn .cal-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:600;
+  color:var(--white);
+  display:block;
+  margin-bottom:4px;
+}
+.cal-btn .cal-sub{font-size:.68rem;color:var(--muted)}
+.confirm-details{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:20px;
+  margin:24px 0;
+  text-align:left;
+}
+.confirm-details .cd-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 0;
+  font-size:.88rem;
+  color:var(--gray);
+}
+.confirm-details .cd-row .cd-icon{
+  color:var(--gold);
+  font-size:.9rem;
+  width:20px;
+  text-align:center;
+}
+.step-btns{
+  display:flex;
+  gap:12px;
+  margin-top:24px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+/* CHECKBOX GRID */
+.cb-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:8px;
+  margin-top:6px;
+}
+.cb-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:all .3s ease;
+  font-size:.84rem;
+  color:var(--gray);
+  user-select:none;
+}
+.cb-item:hover{
+  border-color:var(--border-gold);
+  background:rgba(200,164,86,0.04);
+}
+.cb-item.checked{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  color:var(--gold-light);
+}
+.cb-item input{display:none}
+.cb-box{
+  width:16px;height:16px;
+  border:1.5px solid var(--dim);
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all .2s ease;
+  font-size:.65rem;
+  color:transparent;
+}
+.cb-item.checked .cb-box{
+  border-color:var(--gold);
+  background:var(--gold);
+  color:var(--deep);
+}
+.back-link{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;
+  font-weight:500;
+  color:var(--muted);
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:12px 24px;
+  transition:color .3s ease;
+  text-decoration:none;
+}
+.back-link:hover{color:var(--gold)}
+
+/* ======================== FOOTER ======================== */
+footer{
+  text-align:center;
+  padding:40px 24px;
+  border-top:1px solid var(--border);
+  position:relative;
+  z-index:1;
+}
+footer p{font-size:.82rem;color:var(--muted)}
+footer a{color:var(--gold);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ======================== LOADING ======================== */
+.btn-gold.loading{pointer-events:none;opacity:.7}
+.btn-gold.loading::after{
+  content:'';
+  width:16px;height:16px;
+  border:2px solid transparent;
+  border-top-color:var(--deep);
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-left:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ======================== MOBILE ======================== */
+@media(max-width:768px){
+  .wyg-grid{grid-template-columns:1fr}
+  .cal-grid{grid-template-columns:1fr}
+  .date-picker{grid-template-columns:1fr}
+  .hero-ctas{flex-direction:column;width:100%}
+  .hero-ctas a,.hero-ctas button{width:100%;justify-content:center;text-align:center}
+  .form-inner{padding:24px 20px}
+  .form-progress{padding:24px 20px 0}
+  .cb-grid{grid-template-columns:1fr 1fr}
+  section{padding:60px 16px}
+  .step-btns{flex-direction:column}
+  .step-btns .btn-gold,.step-btns .btn-outline{width:100%;justify-content:center;text-align:center}
+}
+@media(max-width:480px){
+  .cb-grid{grid-template-columns:1fr}
+  .hero-details{flex-direction:column;gap:8px}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a href="https://knightops.biz" class="nav-logo">
-      <span class="k-icon">K</span>
-      KNIGHT OPS
-    </a>
-    <a href="https://knightops.biz" class="nav-link">Back to Home</a>
+<!-- BACKGROUND LAYERS -->
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+<div class="amb"></div>
+
+<div class="wrap">
+
+<!-- ======================== NAV ======================== -->
+<nav id="mainNav">
+  <div class="nav-in">
+    <a href="https://knightops.biz" class="nav-logo"><span class="ko">Knight Ops</span></a>
+    <a href="#register" class="nav-cta">Register Now</a>
   </div>
 </nav>
 
-<!-- MAIN -->
-<div class="container">
+<!-- ======================== HERO ======================== -->
+<section class="hero">
+  <div class="hero-in">
+    <div class="hero-tag rv"><span class="pulse"></span>FREE WEEKLY CALL</div>
+    <h1 class="hero-h rv">
+      <span class="line">The</span>
+      <span class="line gold-txt">Roundtable.</span>
+    </h1>
+    <p class="hero-sub rv">60 minutes of live teaching, hot seats &amp; real-time problem solving for entrepreneurs building with AI, systems &amp; strategy.</p>
+    <div class="hero-details rv">
+      <span class="hero-detail">Every Wednesday</span>
+      <span class="hero-detail">12pm PT / 3pm ET</span>
+      <span class="hero-detail">Free Forever</span>
+    </div>
+    <div class="topic-chips rv">
+      <span class="topic-chip">AI Strategy</span>
+      <span class="topic-chip">Lead Gen Systems</span>
+      <span class="topic-chip">App Building</span>
+      <span class="topic-chip">Automation</span>
+      <span class="topic-chip">Revenue Growth</span>
+      <span class="topic-chip">Tech Stack</span>
+    </div>
+    <div class="hero-ctas rv">
+      <a href="#register" class="btn-gold">REGISTER NOW &rarr;</a>
+      <a href="#what-you-get" class="btn-outline">SEE WHAT YOU'LL LEARN</a>
+    </div>
+  </div>
+</section>
 
-  <!-- HERO -->
-  <section class="hero" id="hero">
-    <div class="hero-badge">Live Every Wednesday</div>
-    <h1>The Knight Ops<br><em>Roundtable</em></h1>
-    <p class="hero-subtitle">A Weekly Call for Entrepreneurs Building with AI, Systems &amp; Strategy</p>
-
-    <div class="hero-details">
-      <div class="hero-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Every Wednesday, 12pm PT / 3pm ET
+<!-- ======================== WHAT YOU GET ======================== -->
+<section id="what-you-get">
+  <div class="section-in">
+    <div class="rv">
+      <p class="section-label">What You'll Get</p>
+      <h2 class="section-title">Every Wednesday, We Build.</h2>
+      <p class="section-sub">Not another webinar. This is a working session for entrepreneurs who want results.</p>
+    </div>
+    <div class="wyg-grid">
+      <div class="wyg-card cyan-accent rv">
+        <div class="wyg-icon">&#9889;</div>
+        <h3>Live Teaching</h3>
+        <p>Real strategies deployed in real businesses, taught live every week.</p>
       </div>
-      <div class="hero-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        60 Minutes, Free
+      <div class="wyg-card violet-accent rv">
+        <div class="wyg-icon">&#127908;</div>
+        <h3>Hot Seats</h3>
+        <p>Bring your business. Get coached in real-time with actionable next steps.</p>
       </div>
-      <div class="hero-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Live Teaching &amp; Hot Seats
-      </div>
-    </div>
-
-    <div class="hero-topics">
-      <span class="topic-chip">AI Automation</span>
-      <span class="topic-chip">Lead Generation</span>
-      <span class="topic-chip">Business Systems</span>
-      <span class="topic-chip">Growth Strategy</span>
-    </div>
-
-    <div class="hero-quote">
-      Less talk, more action. We build in real time so it sticks.
-    </div>
-  </section>
-
-  <!-- PROGRESS -->
-  <div class="progress-bar">
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="progress-meta">
-      <span class="progress-label" id="progressLabel">Step 1 of 3 — Quick Application</span>
-      <div class="progress-steps">
-        <div class="progress-dot active" id="dot1"></div>
-        <div class="progress-dot" id="dot2"></div>
-        <div class="progress-dot" id="dot3"></div>
+      <div class="wyg-card gold-accent rv">
+        <div class="wyg-icon">&#129309;</div>
+        <h3>Community</h3>
+        <p>Connect with AI-driven entrepreneurs building the future together.</p>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- FORM CARD -->
-  <div class="form-card">
-
-    <!-- ═══════════ STEP 1: Quick Application ═══════════ -->
-    <div class="step active" id="step1">
-      <div class="step-header">
-        <div class="step-label">Quick Application</div>
-        <div class="step-title">Reserve your seat at the Roundtable</div>
-        <div class="step-desc">No fluff. No pitch decks. Just operators helping operators. Takes 60 seconds.</div>
-      </div>
-
-      <form id="form1" novalidate>
-        <div class="field-row" style="margin-bottom: 20px;">
-          <div class="field-group" style="margin-bottom:0">
-            <label>Full Name <span class="required">*</span></label>
-            <input type="text" id="fullName" placeholder="Your full name" required>
-          </div>
-          <div class="field-group" style="margin-bottom:0">
-            <label>Email <span class="required">*</span></label>
-            <input type="email" id="email" placeholder="you@company.com" required>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label>Phone <span class="optional">(optional)</span></label>
-          <input type="tel" id="phone" placeholder="(555) 123-4567">
-        </div>
-
-        <div class="field-group">
-          <label>Do you currently have a business? <span class="required">*</span></label>
-          <select id="hasBusiness" required>
-            <option value="" disabled selected>Select one...</option>
-            <option value="Yes, actively running">Yes, actively running</option>
-            <option value="Yes, just getting started">Yes, just getting started</option>
-            <option value="Not yet, but planning">Not yet, but planning</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label>What are you looking to accomplish in the next 90 days? <span class="required">*</span></label>
-          <textarea id="goals90" placeholder="e.g., Launch my AI-powered lead gen system, close 10 new clients, automate onboarding..." required></textarea>
-        </div>
-
-        <div class="field-group">
-          <label>What's your biggest challenge right now? <span class="required">*</span></label>
-          <textarea id="biggestChallenge" placeholder="Be specific — the more detail, the better we can help on the call..." required></textarea>
-        </div>
-
-        <div class="error-msg" id="error1"></div>
-
-        <button type="submit" class="btn-primary" id="btn1">
-          <span class="btn-text">Reserve My Seat</span>
-          <span class="spinner"></span>
-        </button>
-      </form>
+<!-- ======================== REGISTRATION FORM ======================== -->
+<section class="form-section" id="register">
+  <div class="section-in">
+    <div class="rv" style="text-align:center;margin-bottom:48px">
+      <p class="section-label">Reserve Your Spot</p>
+      <h2 class="section-title">Join the Roundtable</h2>
     </div>
+    <div class="form-card rv">
 
-    <!-- ═══════════ STEP 2: Complete Profile ═══════════ -->
-    <div class="step" id="step2">
-      <div class="welcome-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <!-- PROGRESS BAR -->
+      <div class="form-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill" style="width:33%"></div>
+        </div>
+        <div class="progress-dots">
+          <div class="progress-dot active" id="dot1"></div>
+          <div class="progress-dot-line" id="line1"></div>
+          <div class="progress-dot" id="dot2"></div>
+          <div class="progress-dot-line" id="line2"></div>
+          <div class="progress-dot" id="dot3"></div>
+        </div>
       </div>
-      <div class="welcome-title" id="welcomeName">Welcome to the Roundtable!</div>
-      <div class="welcome-sub">You're in. Complete your profile so we can make these calls as valuable as possible for you.</div>
 
-      <div class="step-header" style="margin-top: 8px;">
-        <div class="step-label">Your Profile</div>
-      </div>
+      <div class="form-inner">
 
-      <form id="form2" novalidate>
-        <div class="field-row" style="margin-bottom: 20px;">
-          <div class="field-group" style="margin-bottom:0">
-            <label>Business Name <span class="optional">(optional)</span></label>
-            <input type="text" id="businessName" placeholder="Your company name">
+        <!-- ======== STEP 1: REGISTER ======== -->
+        <div class="step active" id="step1">
+          <p class="step-label">STEP 1 OF 3 &mdash; REGISTER</p>
+          <h2 class="step-title">Claim Your Seat</h2>
+          <p class="step-sub">Fill out the quick form below and pick your first session.</p>
+
+          <form id="regForm" novalidate>
+            <div class="field">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" id="fullName" required placeholder="Your full name">
+              <div class="field-error">Please enter your full name.</div>
+            </div>
+
+            <div class="field">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" id="email" required placeholder="you@email.com">
+              <div class="field-error">Please enter a valid email address.</div>
+            </div>
+
+            <div class="field">
+              <label>Phone <span style="font-size:.7rem;color:var(--dim)">(optional)</span></label>
+              <input type="tel" id="phone" placeholder="(555) 123-4567">
+            </div>
+
+            <div class="field">
+              <label>Do you currently have a business? <span class="req">*</span></label>
+              <select id="hasBusiness" required>
+                <option value="">Select one&hellip;</option>
+                <option value="Yes, running">Yes, I have a running business</option>
+                <option value="Yes, starting">Yes, I'm starting one</option>
+                <option value="No, exploring">No, just exploring</option>
+              </select>
+              <div class="field-error">Please select an option.</div>
+            </div>
+
+            <div class="field">
+              <label>What do you want to accomplish in the next 90 days? <span class="req">*</span></label>
+              <textarea id="goals90" required placeholder="Your goals..."></textarea>
+              <div class="field-error">Please share your goals.</div>
+            </div>
+
+            <div class="field">
+              <label>What's your biggest challenge right now? <span class="req">*</span></label>
+              <textarea id="biggestChallenge" required placeholder="Your biggest challenge..."></textarea>
+              <div class="field-error">Please share your biggest challenge.</div>
+            </div>
+
+            <div class="field" id="dateField">
+              <label>Which session would you like to attend? <span class="req">*</span></label>
+              <div class="date-picker" id="datePicker"></div>
+              <input type="hidden" id="selectedDate">
+              <div class="field-error" id="dateError">Please select a session date.</div>
+            </div>
+
+            <button type="submit" class="btn-gold" style="width:100%;justify-content:center" id="submitBtn">
+              REGISTER FOR THE ROUNDTABLE &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- ======== STEP 2: CALENDAR ======== -->
+        <div class="step" id="step2">
+          <div class="step-center">
+            <p class="step-label">STEP 2 OF 3 &mdash; ADD TO CALENDAR</p>
+            <div class="confirm-icon">&#10003;</div>
+            <h2 class="step-title">You're in, <span id="firstName">friend</span>!</h2>
+            <p class="step-sub">Add the Roundtable to your calendar so you never miss a session.</p>
           </div>
-          <div class="field-group" style="margin-bottom:0">
-            <label>Current Business Revenue</label>
-            <select id="currentRevenue">
-              <option value="" disabled selected>Select range...</option>
-              <option value="Under $50K">Under $50K</option>
-              <option value="$50K-$100K">$50K - $100K</option>
-              <option value="$100K-$250K">$100K - $250K</option>
-              <option value="$250K-$500K">$250K - $500K</option>
-              <option value="$500K-$1M">$500K - $1M</option>
-              <option value="$1M+">$1M+</option>
-            </select>
+
+          <div class="cal-grid">
+            <a class="cal-btn" id="gcalLink" href="#" target="_blank" rel="noopener">
+              <span class="cal-icon">&#128197;</span>
+              <span class="cal-label">Google Calendar</span>
+              <span class="cal-sub">Add recurring event</span>
+            </a>
+            <a class="cal-btn" id="appleCalLink" href="#" download="knight-ops-roundtable.ics">
+              <span class="cal-icon">&#127822;</span>
+              <span class="cal-label">Apple Calendar</span>
+              <span class="cal-sub">Download .ics file</span>
+            </a>
+            <a class="cal-btn" id="outlookCalLink" href="#" download="knight-ops-roundtable.ics">
+              <span class="cal-icon">&#128231;</span>
+              <span class="cal-label">Outlook</span>
+              <span class="cal-sub">Download .ics file</span>
+            </a>
           </div>
-        </div>
 
-        <div class="field-group">
-          <label>Revenue Goal for Next 12 Months</label>
-          <input type="text" id="revenueGoal" placeholder="e.g., $500K ARR, double current revenue...">
-        </div>
-
-        <div class="field-group">
-          <label>How are you currently using tech/AI in your business?</label>
-          <textarea id="currentTech" placeholder="e.g., ChatGPT for writing, Zapier automations, CRM..." style="min-height:80px"></textarea>
-        </div>
-
-        <div class="field-group">
-          <label>What do you want tech to do for your business?</label>
-          <textarea id="techWishlist" placeholder="e.g., Automate lead follow-up, build a client portal, AI-powered outreach..." style="min-height:80px"></textarea>
-        </div>
-
-        <div class="field-group">
-          <label>Where could you use the most support?</label>
-          <div class="checkbox-grid" id="supportAreas">
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Lead Generation">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Lead Generation</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Marketing & Sales">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Marketing & Sales</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Automation & Systems">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Automation & Systems</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="AI Strategy">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">AI Strategy</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="App/Platform Building">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">App/Platform Building</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Operations & Scaling">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Operations & Scaling</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Other">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Other</span>
-            </label>
+          <div class="confirm-details">
+            <div class="cd-row"><span class="cd-icon">&#128197;</span> Every Wednesday</div>
+            <div class="cd-row"><span class="cd-icon">&#128336;</span> 12pm PT / 3pm ET (60 minutes)</div>
+            <div class="cd-row"><span class="cd-icon">&#127760;</span> Zoom link sent to your email</div>
           </div>
-        </div>
 
-        <div class="field-group">
-          <label>Social Media Platforms You Use</label>
-          <div class="checkbox-grid" id="socialPlatforms">
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="LinkedIn">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">LinkedIn</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Instagram">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Instagram</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Facebook">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Facebook</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="YouTube">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">YouTube</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="TikTok">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">TikTok</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Twitter/X">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Twitter/X</span>
-            </label>
-            <label class="checkbox-item" onclick="toggleCheck(this)">
-              <input type="checkbox" value="Other">
-              <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-              <span class="checkbox-label">Other</span>
-            </label>
+          <div class="step-btns">
+            <button class="btn-gold" onclick="goStep(3)">COMPLETE YOUR PROFILE &rarr;</button>
+            <button class="btn-outline" onclick="skipToFinal()">SKIP FOR NOW</button>
           </div>
         </div>
 
-        <div class="field-group">
-          <label>Social Handles / Links <span class="optional">(optional)</span></label>
-          <textarea id="socialHandles" placeholder="Drop your profile links or handles here..." style="min-height:70px"></textarea>
+        <!-- ======== STEP 3: PROFILE ======== -->
+        <div class="step" id="step3">
+          <p class="step-label">STEP 3 OF 3 &mdash; YOUR PROFILE</p>
+          <h2 class="step-title">Help Us Help You</h2>
+          <p class="step-sub">The more we know, the more relevant each session will be for you.</p>
+
+          <form id="profileForm" novalidate>
+            <div class="field">
+              <label>Business Name</label>
+              <input type="text" id="bizName" placeholder="Your business name">
+            </div>
+
+            <div class="field">
+              <label>Current Monthly Revenue</label>
+              <select id="currentRevenue">
+                <option value="">Select range&hellip;</option>
+                <option value="Pre-revenue">Pre-revenue</option>
+                <option value="Under $5K">Under $5K</option>
+                <option value="$5K-$25K">$5K - $25K</option>
+                <option value="$25K-$100K">$25K - $100K</option>
+                <option value="$100K+">$100K+</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Revenue Goal</label>
+              <input type="text" id="revenueGoal" placeholder="e.g. $50K/mo in 12 months">
+            </div>
+
+            <div class="field">
+              <label>What tech/tools do you currently use?</label>
+              <textarea id="currentTech" placeholder="e.g. Notion, Zapier, ChatGPT, Shopify..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>What do you want tech to do for your business?</label>
+              <textarea id="techWishlist" placeholder="e.g. Automate lead follow-up, build a client portal..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Where could you use the most support?</label>
+              <div class="cb-grid" id="supportAreas">
+                <label class="cb-item"><input type="checkbox" value="Lead Generation"><span class="cb-box">&#10003;</span>Lead Generation</label>
+                <label class="cb-item"><input type="checkbox" value="Marketing & Sales"><span class="cb-box">&#10003;</span>Marketing &amp; Sales</label>
+                <label class="cb-item"><input type="checkbox" value="Automation & Systems"><span class="cb-box">&#10003;</span>Automation &amp; Systems</label>
+                <label class="cb-item"><input type="checkbox" value="AI Strategy"><span class="cb-box">&#10003;</span>AI Strategy</label>
+                <label class="cb-item"><input type="checkbox" value="App/Platform Building"><span class="cb-box">&#10003;</span>App/Platform Building</label>
+                <label class="cb-item"><input type="checkbox" value="Operations & Scaling"><span class="cb-box">&#10003;</span>Operations &amp; Scaling</label>
+                <label class="cb-item"><input type="checkbox" value="Other"><span class="cb-box">&#10003;</span>Other</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Social Media Platforms You Use</label>
+              <div class="cb-grid" id="socialPlatforms">
+                <label class="cb-item"><input type="checkbox" value="LinkedIn"><span class="cb-box">&#10003;</span>LinkedIn</label>
+                <label class="cb-item"><input type="checkbox" value="Instagram"><span class="cb-box">&#10003;</span>Instagram</label>
+                <label class="cb-item"><input type="checkbox" value="Facebook"><span class="cb-box">&#10003;</span>Facebook</label>
+                <label class="cb-item"><input type="checkbox" value="YouTube"><span class="cb-box">&#10003;</span>YouTube</label>
+                <label class="cb-item"><input type="checkbox" value="TikTok"><span class="cb-box">&#10003;</span>TikTok</label>
+                <label class="cb-item"><input type="checkbox" value="Twitter/X"><span class="cb-box">&#10003;</span>Twitter/X</label>
+                <label class="cb-item"><input type="checkbox" value="Other"><span class="cb-box">&#10003;</span>Other</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Social Handles / Links <span style="font-size:.7rem;color:var(--dim)">(optional)</span></label>
+              <textarea id="socialHandles" placeholder="@yourhandle or https://..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Anything else we should know? <span style="font-size:.7rem;color:var(--dim)">(optional)</span></label>
+              <textarea id="otherDetails" placeholder="Share anything that might help us prepare..."></textarea>
+            </div>
+
+            <div class="step-btns" style="justify-content:space-between">
+              <button type="button" class="back-link" onclick="goStep(2)">&larr; BACK</button>
+              <button type="submit" class="btn-gold" id="profileSubmitBtn">COMPLETE MY PROFILE</button>
+            </div>
+          </form>
         </div>
 
-        <div class="field-group">
-          <label>Anything else we should know? <span class="optional">(optional)</span></label>
-          <textarea id="otherDetails" placeholder="Goals, context, questions — anything that helps us help you." style="min-height:70px"></textarea>
+        <!-- ======== STEP 4: FINAL ======== -->
+        <div class="step" id="step4">
+          <div class="step-center">
+            <div class="confirm-icon" style="font-size:2.2rem">&#9733;</div>
+            <h2 class="step-title">You're officially in the Roundtable.</h2>
+            <p class="step-sub">Keep an eye on your inbox for weekly updates and call details.</p>
+            <div class="confirm-details">
+              <div class="cd-row"><span class="cd-icon">&#128197;</span> Every Wednesday</div>
+              <div class="cd-row"><span class="cd-icon">&#128336;</span> 12pm PT / 3pm ET (60 minutes)</div>
+              <div class="cd-row"><span class="cd-icon">&#127760;</span> Zoom link sent to your email</div>
+              <div class="cd-row"><span class="cd-icon">&#128232;</span> Check your inbox for confirmation</div>
+            </div>
+            <div id="profilePrompt" style="display:none;margin-top:20px">
+              <p style="color:var(--gray);font-size:.88rem;margin-bottom:14px">Want to make your sessions more personalized?</p>
+              <button class="btn-outline" onclick="goStep(3)">COMPLETE YOUR PROFILE</button>
+            </div>
+          </div>
         </div>
 
-        <div class="error-msg" id="error2"></div>
+      </div><!-- /.form-inner -->
+    </div><!-- /.form-card -->
+  </div>
+</section>
 
-        <button type="submit" class="btn-primary" id="btn2">
-          <span class="btn-text">Complete My Profile</span>
-          <span class="spinner"></span>
-        </button>
-      </form>
-    </div>
-
-    <!-- ═══════════ STEP 3: Confirmation ═══════════ -->
-    <div class="step" id="step3">
-      <div class="welcome-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      </div>
-      <div class="welcome-title">You're officially in the Roundtable.</div>
-      <div class="welcome-sub">Keep an eye on your inbox for weekly updates and call details. Here's how to add the call to your calendar:</div>
-
-      <div class="calendar-grid">
-        <a class="cal-btn" id="calGoogle" href="#" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Google Calendar
-          <span>Add recurring event</span>
-        </a>
-        <a class="cal-btn" id="calApple" href="#" download="knight-ops-roundtable.ics">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
-          Apple Calendar
-          <span>Download .ics file</span>
-        </a>
-        <a class="cal-btn" id="calOutlook" href="#" download="knight-ops-roundtable.ics">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 14 11 16 15 12"/></svg>
-          Outlook
-          <span>Download .ics file</span>
-        </a>
-      </div>
-
-      <div class="confirm-details">
-        <div class="confirm-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Every Wednesday at 12:00 PM PT / 3:00 PM ET
-        </div>
-        <div class="confirm-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          60 minutes of live teaching, hot seats &amp; real-time problem solving
-        </div>
-        <div class="confirm-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>
-          Zoom link will be emailed before each call
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /form-card -->
-</div><!-- /container -->
-
-<!-- FOOTER -->
+<!-- ======================== FOOTER ======================== -->
 <footer>
-  <p class="footer-text">Knight Ops &copy; 2026 &nbsp;|&nbsp; <a href="https://knightops.biz">knightops.biz</a></p>
+  <p>Knight Ops &copy; 2026 | <a href="https://knightops.biz">knightops.biz</a></p>
 </footer>
 
+</div><!-- /.wrap -->
+
 <script>
-(function() {
-  'use strict';
-
-  // ─── CONFIG ───
-  const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co/rest/v1/roundtable_registrations';
-  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-
-  let registrationId = null;
-  let registrantName = '';
-
-  // ─── ELEMENTS ───
-  const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
-  const progressFill = document.getElementById('progressFill');
-  const progressLabel = document.getElementById('progressLabel');
-  const dots = [document.getElementById('dot1'), document.getElementById('dot2'), document.getElementById('dot3')];
-  const hero = document.getElementById('hero');
-
-  // ─── STEP NAVIGATION ───
-  function goToStep(n) {
-    steps.forEach(s => s.classList.remove('active'));
-    steps[n - 1].classList.add('active');
-
-    const pcts = ['33%', '66%', '100%'];
-    const labels = ['Step 1 of 3 — Quick Application', 'Step 2 of 3 — Complete Profile', 'Step 3 of 3 — You\'re In!'];
-    progressFill.style.width = pcts[n - 1];
-    progressLabel.textContent = labels[n - 1];
-
-    dots.forEach((d, i) => {
-      d.classList.remove('active', 'done');
-      if (i < n - 1) d.classList.add('done');
-      else if (i === n - 1) d.classList.add('active');
-    });
-
-    if (n >= 2) {
-      hero.style.display = 'none';
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+/* ========================================================
+   STARFIELD CANVAS
+   ======================================================== */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var w,h,stars=[];
+  function resize(){
+    w=c.width=window.innerWidth;
+    h=c.height=window.innerHeight;
+    initStars();
   }
-
-  // ─── CHECKBOX TOGGLE ───
-  window.toggleCheck = function(el) {
-    el.classList.toggle('checked');
-    var cb = el.querySelector('input[type="checkbox"]');
-    cb.checked = !cb.checked;
-  };
-
-  // ─── COLLECT CHECKED VALUES ───
-  function getChecked(containerId) {
-    var boxes = document.querySelectorAll('#' + containerId + ' input[type="checkbox"]:checked');
-    return Array.from(boxes).map(function(b) { return b.value; });
-  }
-
-  // ─── VALIDATION ───
-  function showError(id, msg) {
-    var el = document.getElementById(id);
-    el.textContent = msg;
-    el.style.display = 'block';
-  }
-
-  function hideError(id) {
-    var el = document.getElementById(id);
-    el.style.display = 'none';
-  }
-
-  function setLoading(btnId, loading) {
-    var btn = document.getElementById(btnId);
-    if (loading) {
-      btn.classList.add('loading');
-      btn.disabled = true;
-    } else {
-      btn.classList.remove('loading');
-      btn.disabled = false;
+  function initStars(){
+    stars=[];
+    for(var i=0;i<120;i++){
+      stars.push({
+        x:Math.random()*w,
+        y:Math.random()*h,
+        r:Math.random()*1.5+0.3,
+        a:Math.random()*0.5+0.1,
+        s:Math.random()*0.0003+0.0001,
+        d:Math.random()>0.5?1:-1
+      });
     }
   }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      s.a+=s.s*s.d;
+      if(s.a>0.6||s.a<0.05)s.d*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(200,164,86,'+s.a+')';
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();
+  draw();
+})();
 
-  // ─── STEP 1 SUBMIT ───
-  document.getElementById('form1').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    hideError('error1');
+/* ========================================================
+   NAV SCROLL EFFECT
+   ======================================================== */
+(function(){
+  var nav=document.getElementById('mainNav');
+  var ticking=false;
+  window.addEventListener('scroll',function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        if(window.scrollY>40){
+          nav.classList.add('scrolled');
+        }else{
+          nav.classList.remove('scrolled');
+        }
+        ticking=false;
+      });
+      ticking=true;
+    }
+  });
+})();
 
-    var fullName = document.getElementById('fullName').value.trim();
-    var email = document.getElementById('email').value.trim();
-    var phone = document.getElementById('phone').value.trim();
-    var hasBusiness = document.getElementById('hasBusiness').value;
-    var goals90 = document.getElementById('goals90').value.trim();
-    var biggestChallenge = document.getElementById('biggestChallenge').value.trim();
+/* ========================================================
+   REVEAL ANIMATIONS
+   ======================================================== */
+(function(){
+  var observer=new IntersectionObserver(function(entries){
+    for(var i=0;i<entries.length;i++){
+      if(entries[i].isIntersecting){
+        entries[i].target.classList.add('vis');
+        observer.unobserve(entries[i].target);
+      }
+    }
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  var elements=document.querySelectorAll('.rv');
+  for(var i=0;i<elements.length;i++){
+    observer.observe(elements[i]);
+  }
+})();
 
-    // Validate
-    if (!fullName) { showError('error1', 'Please enter your full name.'); return; }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('error1', 'Please enter a valid email address.'); return; }
-    if (!hasBusiness) { showError('error1', 'Please select your business status.'); return; }
-    if (!goals90) { showError('error1', 'Please share your 90-day goals.'); return; }
-    if (!biggestChallenge) { showError('error1', 'Please share your biggest challenge.'); return; }
+/* ========================================================
+   DATE PICKER — NEXT 4 WEDNESDAYS
+   ======================================================== */
+var selectedDateValue='';
 
-    registrantName = fullName.split(' ')[0];
-    setLoading('btn1', true);
+(function(){
+  function getNextWednesdays(count){
+    var dates=[];
+    var d=new Date();
+    var dayOfWeek=d.getDay();
+    var daysUntilWed=(3-dayOfWeek+7)%7;
+    if(daysUntilWed===0) daysUntilWed=7;
+    d.setDate(d.getDate()+daysUntilWed);
+    for(var i=0;i<count;i++){
+      dates.push(new Date(d));
+      d.setDate(d.getDate()+7);
+    }
+    return dates;
+  }
 
-    try {
-      var payload = {
-        full_name: fullName,
-        email: email,
-        phone: phone || null,
-        has_business: hasBusiness,
-        goals_90_days: goals90,
-        biggest_challenge: biggestChallenge,
-        profile_completed: false
-      };
+  var wednesdays=getNextWednesdays(4);
+  var picker=document.getElementById('datePicker');
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-      var res = await fetch(SUPABASE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(payload)
+  for(var i=0;i<wednesdays.length;i++){
+    (function(date,index){
+      var card=document.createElement('div');
+      card.className='date-card';
+      var y=date.getFullYear();
+      var m=String(date.getMonth()+1).padStart(2,'0');
+      var dd=String(date.getDate()).padStart(2,'0');
+      var val=y+'-'+m+'-'+dd;
+      card.setAttribute('data-date',val);
+
+      var html='';
+      if(index===0) html+='<span class="date-badge">NEXT SESSION</span>';
+      html+='<div class="date-day">Wed, '+months[date.getMonth()]+' '+date.getDate()+'</div>';
+      html+='<div class="date-time">12pm PT / 3pm ET</div>';
+      card.innerHTML=html;
+
+      card.addEventListener('click',function(){
+        var all=document.querySelectorAll('.date-card');
+        for(var j=0;j<all.length;j++) all[j].classList.remove('selected');
+        card.classList.add('selected');
+        selectedDateValue=val;
+        document.getElementById('selectedDate').value=val;
+        document.getElementById('dateField').classList.remove('has-error');
       });
 
-      if (!res.ok) {
-        var errData = await res.json().catch(function() { return {}; });
-        throw new Error(errData.message || 'Registration failed. Please try again.');
-      }
-
-      var data = await res.json();
-      registrationId = data[0] ? data[0].id : null;
-
-      document.getElementById('welcomeName').textContent = 'Welcome to the Roundtable, ' + registrantName + '! You\'re in.';
-      setLoading('btn1', false);
-      goToStep(2);
-
-    } catch (err) {
-      setLoading('btn1', false);
-      showError('error1', err.message || 'Something went wrong. Please try again.');
-    }
-  });
-
-  // ─── STEP 2 SUBMIT ───
-  document.getElementById('form2').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    hideError('error2');
-    setLoading('btn2', true);
-
-    var payload = {
-      business_name: document.getElementById('businessName').value.trim() || null,
-      current_revenue: document.getElementById('currentRevenue').value || null,
-      revenue_goal: document.getElementById('revenueGoal').value.trim() || null,
-      current_tech_usage: document.getElementById('currentTech').value.trim() || null,
-      tech_wishlist: document.getElementById('techWishlist').value.trim() || null,
-      support_areas: getChecked('supportAreas'),
-      social_platforms: getChecked('socialPlatforms'),
-      social_handles: document.getElementById('socialHandles').value.trim() || null,
-      other_details: document.getElementById('otherDetails').value.trim() || null,
-      profile_completed: true
-    };
-
-    try {
-      if (registrationId) {
-        var res = await fetch(SUPABASE_URL + '?id=eq.' + registrationId, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': ANON_KEY,
-            'Authorization': 'Bearer ' + ANON_KEY,
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          var errData = await res.json().catch(function() { return {}; });
-          throw new Error(errData.message || 'Profile update failed.');
-        }
-      }
-
-      setLoading('btn2', false);
-      goToStep(3);
-
-    } catch (err) {
-      setLoading('btn2', false);
-      showError('error2', err.message || 'Something went wrong. Please try again.');
-    }
-  });
-
-  // ─── CALENDAR LINKS ───
-  var gcalUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Knight+Ops+Roundtable&dates=20260520T190000Z/20260520T200000Z&recur=RRULE:FREQ%3DWEEKLY%3BBYDAY%3DWE&details=Weekly+roundtable+for+entrepreneurs+building+with+AI,+systems+%26+strategy.+Join+at+knightops.biz/roundtable-zoom&location=knightops.biz/roundtable-zoom';
-  document.getElementById('calGoogle').href = gcalUrl;
-
-  // Generate .ics content
-  var icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Knight Ops//Roundtable//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    'DTSTART:20260520T190000Z',
-    'DTEND:20260520T200000Z',
-    'RRULE:FREQ=WEEKLY;BYDAY=WE',
-    'SUMMARY:Knight Ops Roundtable',
-    'DESCRIPTION:Weekly roundtable for entrepreneurs building with AI\\, systems & strategy. Join at knightops.biz/roundtable-zoom',
-    'LOCATION:knightops.biz/roundtable-zoom',
-    'STATUS:CONFIRMED',
-    'SEQUENCE:0',
-    'BEGIN:VALARM',
-    'TRIGGER:-PT15M',
-    'ACTION:DISPLAY',
-    'DESCRIPTION:Knight Ops Roundtable starts in 15 minutes',
-    'END:VALARM',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  var icsBlob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  var icsUrl = URL.createObjectURL(icsBlob);
-  document.getElementById('calApple').href = icsUrl;
-  document.getElementById('calOutlook').href = icsUrl;
-
+      picker.appendChild(card);
+    })(wednesdays[i],i);
+  }
 })();
-</script>
 
+/* ========================================================
+   CHECKBOX TOGGLE
+   ======================================================== */
+(function(){
+  var items=document.querySelectorAll('.cb-item');
+  for(var i=0;i<items.length;i++){
+    items[i].addEventListener('click',function(e){
+      e.preventDefault();
+      var cb=this.querySelector('input[type="checkbox"]');
+      cb.checked=!cb.checked;
+      if(cb.checked){
+        this.classList.add('checked');
+      }else{
+        this.classList.remove('checked');
+      }
+    });
+  }
+})();
+
+/* ========================================================
+   SUPABASE CONFIG
+   ======================================================== */
+var SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co/rest/v1/roundtable_registrations';
+var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+var registrationId=null;
+var didSkipProfile=false;
+
+/* ========================================================
+   ICS CALENDAR FILE
+   ======================================================== */
+var icsContent=[
+  'BEGIN:VCALENDAR',
+  'VERSION:2.0',
+  'PRODID:-//Knight Ops//Roundtable//EN',
+  'CALSCALE:GREGORIAN',
+  'METHOD:PUBLISH',
+  'BEGIN:VEVENT',
+  'DTSTART:20260520T190000Z',
+  'DTEND:20260520T200000Z',
+  'RRULE:FREQ=WEEKLY;BYDAY=WE',
+  'SUMMARY:Knight Ops Roundtable',
+  'DESCRIPTION:Weekly roundtable for entrepreneurs building with AI\\, systems & strategy. Join at knightops.biz/roundtable-zoom',
+  'LOCATION:knightops.biz/roundtable-zoom',
+  'STATUS:CONFIRMED',
+  'SEQUENCE:0',
+  'BEGIN:VALARM',
+  'TRIGGER:-PT15M',
+  'ACTION:DISPLAY',
+  'DESCRIPTION:Knight Ops Roundtable starts in 15 minutes',
+  'END:VALARM',
+  'END:VEVENT',
+  'END:VCALENDAR'
+].join('\r\n');
+
+(function setupCalendarLinks(){
+  var gcal='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Knight+Ops+Roundtable&dates=20260520T190000Z/20260520T200000Z&recur=RRULE:FREQ%3DWEEKLY%3BBYDAY%3DWE&details=Weekly+roundtable+for+entrepreneurs+building+with+AI,+systems+%26+strategy.+Join+at+knightops.biz/roundtable-zoom&location=knightops.biz/roundtable-zoom';
+  document.getElementById('gcalLink').href=gcal;
+
+  var blob=new Blob([icsContent],{type:'text/calendar;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  document.getElementById('appleCalLink').href=url;
+  document.getElementById('outlookCalLink').href=url;
+})();
+
+/* ========================================================
+   FORM VALIDATION
+   ======================================================== */
+function validateField(el){
+  var field=el.closest('.field');
+  if(!field) return true;
+  var valid=true;
+
+  if(el.hasAttribute('required')){
+    if(el.tagName==='SELECT'){
+      valid=el.value!=='';
+    }else{
+      valid=el.value.trim()!=='';
+    }
+    if(el.type==='email'&&el.value.trim()){
+      valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+    }
+  }
+
+  if(valid){
+    field.classList.remove('has-error');
+  }else{
+    field.classList.add('has-error');
+  }
+  return valid;
+}
+
+/* Live blur validation on required fields */
+(function(){
+  var fields=document.querySelectorAll('#regForm input[required], #regForm select[required], #regForm textarea[required]');
+  for(var i=0;i<fields.length;i++){
+    fields[i].addEventListener('blur',function(){validateField(this)});
+  }
+})();
+
+/* ========================================================
+   STEP 1 — REGISTRATION SUBMIT
+   ======================================================== */
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+
+  var fields=[
+    document.getElementById('fullName'),
+    document.getElementById('email'),
+    document.getElementById('hasBusiness'),
+    document.getElementById('goals90'),
+    document.getElementById('biggestChallenge')
+  ];
+
+  var allValid=true;
+  for(var i=0;i<fields.length;i++){
+    if(!validateField(fields[i])) allValid=false;
+  }
+
+  /* Date check */
+  if(!selectedDateValue){
+    document.getElementById('dateField').classList.add('has-error');
+    allValid=false;
+  }
+
+  if(!allValid){
+    /* Scroll to first error */
+    var firstErr=document.querySelector('#step1 .has-error');
+    if(firstErr) firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  var btn=document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled=true;
+
+  var name=document.getElementById('fullName').value.trim();
+
+  var payload={
+    full_name:name,
+    email:document.getElementById('email').value.trim(),
+    phone:document.getElementById('phone').value.trim()||null,
+    has_business:document.getElementById('hasBusiness').value,
+    goals_90_days:document.getElementById('goals90').value.trim(),
+    biggest_challenge:document.getElementById('biggestChallenge').value.trim(),
+    selected_date:selectedDateValue,
+    profile_completed:false
+  };
+
+  fetch(SUPABASE_URL,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':ANON_KEY,
+      'Authorization':'Bearer '+ANON_KEY,
+      'Prefer':'return=representation'
+    },
+    body:JSON.stringify(payload)
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    btn.classList.remove('loading');
+    btn.disabled=false;
+
+    if(Array.isArray(data)&&data.length>0&&data[0].id){
+      registrationId=data[0].id;
+    }else if(data&&data.id){
+      registrationId=data.id;
+    }
+
+    document.getElementById('firstName').textContent=name.split(' ')[0];
+    goStep(2);
+  })
+  .catch(function(err){
+    console.error('Registration error:',err);
+    btn.classList.remove('loading');
+    btn.disabled=false;
+    /* Still advance so user is not blocked */
+    document.getElementById('firstName').textContent=name.split(' ')[0];
+    goStep(2);
+  });
+});
+
+/* ========================================================
+   STEP 3 — PROFILE SUBMIT
+   ======================================================== */
+document.getElementById('profileForm').addEventListener('submit',function(e){
+  e.preventDefault();
+
+  var btn=document.getElementById('profileSubmitBtn');
+  btn.classList.add('loading');
+  btn.disabled=true;
+
+  var supportChecked=[];
+  var sCbs=document.querySelectorAll('#supportAreas input:checked');
+  for(var i=0;i<sCbs.length;i++) supportChecked.push(sCbs[i].value);
+
+  var socialChecked=[];
+  var pCbs=document.querySelectorAll('#socialPlatforms input:checked');
+  for(var i=0;i<pCbs.length;i++) socialChecked.push(pCbs[i].value);
+
+  var payload={
+    business_name:document.getElementById('bizName').value.trim()||null,
+    current_revenue:document.getElementById('currentRevenue').value||null,
+    revenue_goal:document.getElementById('revenueGoal').value.trim()||null,
+    current_tech_usage:document.getElementById('currentTech').value.trim()||null,
+    tech_wishlist:document.getElementById('techWishlist').value.trim()||null,
+    support_areas:supportChecked,
+    social_platforms:socialChecked,
+    social_handles:document.getElementById('socialHandles').value.trim()||null,
+    other_details:document.getElementById('otherDetails').value.trim()||null,
+    profile_completed:true
+  };
+
+  if(registrationId){
+    fetch(SUPABASE_URL+'?id=eq.'+registrationId,{
+      method:'PATCH',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':ANON_KEY,
+        'Authorization':'Bearer '+ANON_KEY,
+        'Prefer':'return=representation'
+      },
+      body:JSON.stringify(payload)
+    })
+    .then(function(){
+      btn.classList.remove('loading');
+      btn.disabled=false;
+      didSkipProfile=false;
+      goStep(4);
+    })
+    .catch(function(err){
+      console.error('Profile update error:',err);
+      btn.classList.remove('loading');
+      btn.disabled=false;
+      goStep(4);
+    });
+  }else{
+    btn.classList.remove('loading');
+    btn.disabled=false;
+    goStep(4);
+  }
+});
+
+/* ========================================================
+   SKIP TO FINAL (from step 2)
+   ======================================================== */
+function skipToFinal(){
+  didSkipProfile=true;
+  goStep(4);
+}
+
+/* ========================================================
+   STEP NAVIGATION
+   ======================================================== */
+function goStep(n){
+  /* Hide all steps, show target */
+  var steps=document.querySelectorAll('.step');
+  for(var i=0;i<steps.length;i++) steps[i].classList.remove('active');
+  document.getElementById('step'+n).classList.add('active');
+
+  /* Progress bar width */
+  var pct={1:33,2:66,3:100,4:100};
+  document.getElementById('progressFill').style.width=pct[n]+'%';
+
+  /* Dots */
+  var dots=[
+    document.getElementById('dot1'),
+    document.getElementById('dot2'),
+    document.getElementById('dot3')
+  ];
+  var lines=[
+    document.getElementById('line1'),
+    document.getElementById('line2')
+  ];
+
+  for(var i=0;i<dots.length;i++) dots[i].className='progress-dot';
+  for(var i=0;i<lines.length;i++) lines[i].className='progress-dot-line';
+
+  if(n===1){
+    dots[0].classList.add('active');
+  }else if(n===2){
+    dots[0].classList.add('done');
+    lines[0].classList.add('done');
+    dots[1].classList.add('active');
+  }else if(n===3){
+    dots[0].classList.add('done');
+    lines[0].classList.add('done');
+    dots[1].classList.add('done');
+    lines[1].classList.add('done');
+    dots[2].classList.add('active');
+  }else if(n===4){
+    dots[0].classList.add('done');
+    lines[0].classList.add('done');
+    dots[1].classList.add('done');
+    lines[1].classList.add('done');
+    dots[2].classList.add('done');
+
+    /* Show profile prompt if they skipped */
+    if(didSkipProfile){
+      document.getElementById('profilePrompt').style.display='block';
+    }else{
+      document.getElementById('profilePrompt').style.display='none';
+    }
+  }
+
+  /* Scroll to form section */
+  var el=document.getElementById('register');
+  if(el){
+    setTimeout(function(){
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
+  }
+}
+</script>
 </body>
 </html>
