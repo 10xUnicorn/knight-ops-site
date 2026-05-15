@@ -782,6 +782,7 @@ footer a:hover{text-decoration:underline}
 @media(max-width:480px){
   .cb-grid{grid-template-columns:1fr}
   .hero-details{flex-direction:column;gap:8px}
+  #step4 [style*="grid-template-columns"]{grid-template-columns:1fr!important}
 }
 </style>
 </head>
@@ -1077,6 +1078,24 @@ footer a:hover{text-decoration:underline}
               <div class="cd-row"><span class="cd-icon">&#127760;</span> Zoom link sent to your email</div>
               <div class="cd-row"><span class="cd-icon">&#128232;</span> Check your inbox for confirmation</div>
             </div>
+
+            <!-- NEXT STEPS -->
+            <div style="margin-top:36px">
+              <p class="section-label" style="text-align:center;margin-bottom:20px">YOUR NEXT MOVE</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;margin:0 auto">
+                <a href="https://knightops.biz/book" class="wyg-card cyan-accent" style="text-decoration:none;padding:24px 20px;text-align:center;cursor:pointer">
+                  <div class="wyg-icon" style="margin:0 auto 14px">&#128640;</div>
+                  <h3 style="font-size:1.1rem;margin-bottom:8px">10x Systems Blueprint</h3>
+                  <p style="font-size:.82rem">Book a free 30-min call to map your growth system</p>
+                </a>
+                <a href="https://knightops.biz/assess" class="wyg-card violet-accent" style="text-decoration:none;padding:24px 20px;text-align:center;cursor:pointer">
+                  <div class="wyg-icon" style="margin:0 auto 14px">&#127793;</div>
+                  <h3 style="font-size:1.1rem;margin-bottom:8px">Discover Your Type</h3>
+                  <p style="font-size:.82rem">Take the assessment to unlock your personality profile</p>
+                </a>
+              </div>
+            </div>
+
             <div id="profilePrompt" style="display:none;margin-top:20px">
               <p style="color:var(--gray);font-size:.88rem;margin-bottom:14px">Want to make your sessions more personalized?</p>
               <button class="btn-outline" onclick="goStep(3)">COMPLETE YOUR PROFILE</button>
