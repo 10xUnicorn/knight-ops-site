@@ -159,6 +159,19 @@
         /* Credential add form (client-side) */
         .add-cred-form { background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:1rem; margin-top:1rem; }
 
+        /* Login Form */
+        .login-box { max-width:400px; margin:2rem auto; text-align:center; }
+        .login-box h2 { font-size:1.2rem; color:var(--accent); margin-bottom:0.5rem; }
+        .login-box p { font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.5; }
+        .login-box input[type="email"] { width:100%; padding:12px 14px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.95rem; margin-bottom:1rem; }
+        .login-box input[type="email"]:focus { outline:none; border-color:var(--accent); }
+        .login-box .login-btn { width:100%; padding:12px; background:linear-gradient(135deg,#C8A456,#E8D5A3); color:#0A0A0B; border:none; border-radius:8px; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all .2s; }
+        .login-box .login-btn:hover:not(:disabled) { box-shadow:0 6px 16px rgba(200,164,86,0.3); }
+        .login-box .login-btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .login-sent { padding:1.25rem; background:rgba(200,164,86,0.08); border:1px solid var(--accent); border-radius:8px; }
+        .login-sent h3 { color:var(--accent); margin-bottom:0.5rem; font-size:1rem; }
+        .login-sent p { color:var(--text-muted); font-size:0.85rem; line-height:1.5; }
+
         /* Responsive */
         @media (max-width:768px) {
             .container { padding:1rem; }
@@ -195,6 +208,25 @@
 
         <!-- Auth Status -->
         <div class="auth-status" id="authStatus"></div>
+
+        <!-- Login Form (shown when no session) -->
+        <div id="loginContainer" style="display:none">
+            <div class="login-box">
+                <h2>&#128274; Sign In to Your Portal</h2>
+                <p>Enter the email address associated with your Knight Ops project. We'll send you a secure one-click link to access your portal.</p>
+                <div id="loginFormArea">
+                    <input type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')requestMagicLink()">
+                    <button class="login-btn" id="loginBtn" onclick="requestMagicLink()">Send Magic Link</button>
+                </div>
+                <div id="loginSentArea" style="display:none">
+                    <div class="login-sent">
+                        <h3>&#9989; Check Your Email</h3>
+                        <p>We sent a magic link to <strong id="loginSentEmail"></strong>. Click the link in the email to access your portal. It expires in 24 hours.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('loginSentArea').style.display='none';document.getElementById('loginFormArea').style.display='block'" style="margin-top:1rem">Try a different email</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Tab Bar -->
         <div class="tab-bar" id="tabBar" style="display:none">
@@ -392,6 +424,42 @@
         return '<span class="badge ' + (map[status] || 'badge-gold') + '">' + (status || 'pending').toUpperCase() + '</span>';
     }
 
+    // ═══ MAGIC LINK LOGIN ═══
+    async function requestMagicLink() {
+        const emailInput = document.getElementById('loginEmail');
+        const btn = document.getElementById('loginBtn');
+        const email = emailInput.value.trim();
+        if (!email || !email.includes('@')) { showToast('Please enter a valid email', 'error'); return; }
+        btn.disabled = true; btn.textContent = 'Sending...';
+        try {
+            // Use signInWithOtp — redirects back to current URL (preserving deep link)
+            const redirectUrl = window.location.href.split('#')[0] + (window.location.hash || '');
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email,
+                options: { emailRedirectTo: redirectUrl }
+            });
+            if (error) throw error;
+            document.getElementById('loginFormArea').style.display = 'none';
+            document.getElementById('loginSentArea').style.display = 'block';
+            document.getElementById('loginSentEmail').textContent = email;
+        } catch (err) {
+            console.error('Magic link error:', err);
+            showToast('Error sending magic link: ' + err.message, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Send Magic Link';
+        }
+    }
+
+    function showLoginForm() {
+        hideAuth();
+        document.getElementById('loginContainer').style.display = 'block';
+        document.getElementById('projectName').textContent = 'Sign in to continue';
+        // Pre-fill email from URL if available (future-proofing)
+        const params = new URLSearchParams(window.location.search);
+        const emailHint = params.get('email');
+        if (emailHint) document.getElementById('loginEmail').value = emailHint;
+    }
+
     // ═══ INIT ═══
     async function init() {
         try {
@@ -400,10 +468,11 @@
             if (error) throw new Error(error.message);
             session = s;
             if (!session) {
-                showAuth('No active session. Please use the magic link from your email to access your portal.', 'error');
+                showLoginForm();
                 return;
             }
             hideAuth();
+            document.getElementById('loginContainer').style.display = 'none';
 
             // Show header right
             document.getElementById('headerRight').style.display = 'flex';
@@ -418,6 +487,27 @@
             showAuth('Error: ' + err.message, 'error');
         }
     }
+
+    // ═══ AUTH STATE LISTENER ═══
+    // Catches magic link callback — Supabase puts tokens in URL fragment,
+    // onAuthStateChange fires SIGNED_IN, then we auto-init the portal
+    supabase.auth.onAuthStateChange((event, newSession) => {
+        if (event === 'SIGNED_IN' && newSession && !session) {
+            session = newSession;
+            document.getElementById('loginContainer').style.display = 'none';
+            hideAuth();
+            document.getElementById('headerRight').style.display = 'flex';
+            document.getElementById('userEmail').textContent = session.user.email;
+            loadClientData().then(() => {
+                document.getElementById('tabBar').style.display = 'flex';
+                handleDeepLink();
+                window.addEventListener('hashchange', handleDeepLink);
+            }).catch(err => {
+                console.error('Post-auth load error:', err);
+                showAuth('Error loading your data: ' + err.message, 'error');
+            });
+        }
+    });
 
     // ═══ LOAD CLIENT DATA ═══
     async function loadClientData() {
