@@ -454,6 +454,8 @@
         hideAuth();
         document.getElementById('loginContainer').style.display = 'block';
         document.getElementById('projectName').textContent = 'Sign in to continue';
+        // Hide all tab content while showing login
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
         // Pre-fill email from URL if available (future-proofing)
         const params = new URLSearchParams(window.location.search);
         const emailHint = params.get('email');
@@ -473,6 +475,8 @@
             }
             hideAuth();
             document.getElementById('loginContainer').style.display = 'none';
+            // Restore tab content visibility (in case login form hid them)
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
 
             // Show header right
             document.getElementById('headerRight').style.display = 'flex';
@@ -496,6 +500,8 @@
             session = newSession;
             document.getElementById('loginContainer').style.display = 'none';
             hideAuth();
+            // Restore tab content visibility
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
             document.getElementById('headerRight').style.display = 'flex';
             document.getElementById('userEmail').textContent = session.user.email;
             loadClientData().then(() => {
