@@ -337,7 +337,7 @@
     // ═══ INIT ═══
     const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let session = null;
     let clientId = null;
@@ -355,7 +355,7 @@
     function hideAuth() { document.getElementById('authStatus').style.display = 'none'; }
 
     async function logout() {
-        await supabase.auth.signOut();
+        await sb.auth.signOut();
         location.reload();
     }
 
@@ -434,7 +434,7 @@
         try {
             // Use signInWithOtp — redirects back to current URL (preserving deep link)
             const redirectUrl = window.location.href.split('#')[0] + (window.location.hash || '');
-            const { error } = await supabase.auth.signInWithOtp({
+            const { error } = await sb.auth.signInWithOtp({
                 email: email,
                 options: { emailRedirectTo: redirectUrl }
             });
@@ -464,7 +464,7 @@
     async function init() {
         try {
             showAuth('Verifying access...', 'loading');
-            const { data: { session: s }, error } = await supabase.auth.getSession();
+            const { data: { session: s }, error } = await sb.auth.getSession();
             if (error) throw new Error(error.message);
             session = s;
             if (!session) {
@@ -491,7 +491,7 @@
     // ═══ AUTH STATE LISTENER ═══
     // Catches magic link callback — Supabase puts tokens in URL fragment,
     // onAuthStateChange fires SIGNED_IN, then we auto-init the portal
-    supabase.auth.onAuthStateChange((event, newSession) => {
+    sb.auth.onAuthStateChange((event, newSession) => {
         if (event === 'SIGNED_IN' && newSession && !session) {
             session = newSession;
             document.getElementById('loginContainer').style.display = 'none';
@@ -515,24 +515,24 @@
         const userEmail = session.user.email;
 
         // Find client_id from profiles or clients table
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).single();
         clientId = profile?.client_id;
 
         if (!clientId) {
-            const { data: clientRow } = await supabase.from('clients').select('id').eq('email', userEmail).single();
+            const { data: clientRow } = await sb.from('clients').select('id').eq('email', userEmail).single();
             clientId = clientRow?.id;
         }
         if (!clientId) throw new Error('Could not identify your client account. Contact support.');
 
         // Load projects — check both direct client_id and project_clients junction
-        const { data: directProjects } = await supabase.from('projects').select('*').eq('client_id', clientId);
-        const { data: junctionProjects } = await supabase.from('project_clients').select('project_id').eq('client_id', clientId);
+        const { data: directProjects } = await sb.from('projects').select('*').eq('client_id', clientId);
+        const { data: junctionProjects } = await sb.from('project_clients').select('project_id').eq('client_id', clientId);
 
         let allProjectIds = new Set();
         (directProjects || []).forEach(p => allProjectIds.add(p.id));
         if (junctionProjects && junctionProjects.length) {
             const jIds = junctionProjects.map(j => j.project_id);
-            const { data: jProjects } = await supabase.from('projects').select('*').in('id', jIds);
+            const { data: jProjects } = await sb.from('projects').select('*').in('id', jIds);
             (jProjects || []).forEach(p => allProjectIds.add(p.id));
             // Merge
             projects = [...(directProjects || [])];
@@ -591,7 +591,7 @@
 
     // ═══ PROJECT CREDENTIALS ═══
     async function loadProjectCredentials() {
-        const { data } = await supabase.from('project_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const { data } = await sb.from('project_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
         const el = document.getElementById('clientProjectCredentials');
         if (!data || !data.length) { el.innerHTML = '<div class="empty">No credentials stored yet</div>'; return; }
 
@@ -634,7 +634,7 @@
         const label = document.getElementById('newCredLabel').value.trim();
         const val = document.getElementById('newCredValue').value.trim();
         if (!label || !val) { showToast('Label and Value required', 'error'); return; }
-        const { error } = await supabase.from('project_credentials').insert({
+        const { error } = await sb.from('project_credentials').insert({
             project_id: currentProject.id,
             client_id: clientId,
             credential_type: document.getElementById('newCredType').value,
@@ -651,7 +651,7 @@
 
     // ═══ LOGIN CREDENTIALS ═══
     async function loadLoginCredentials() {
-        const { data } = await supabase.from('login_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const { data } = await sb.from('login_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
         const el = document.getElementById('clientLoginCredentials');
         if (!data || !data.length) { el.innerHTML = '<div class="empty">No login credentials stored yet</div>'; return; }
 
@@ -680,7 +680,7 @@
     }
 
     function editLoginCred(credId) {
-        supabase.from('login_credentials').select('*').eq('id', credId).single().then(({ data: lc }) => {
+        sb.from('login_credentials').select('*').eq('id', credId).single().then(({ data: lc }) => {
             if (!lc) return;
             openModal('<h3>Edit Login Credential</h3>' +
                 '<div class="form-group"><label>Title *</label><input id="elcTitle" value="' + escapeHtml(lc.title || '') + '"></div>' +
@@ -696,7 +696,7 @@
     async function updateLoginCred(credId) {
         const title = document.getElementById('elcTitle').value.trim();
         if (!title) { showToast('Title required', 'error'); return; }
-        const { error } = await supabase.from('login_credentials').update({
+        const { error } = await sb.from('login_credentials').update({
             title, purpose: document.getElementById('elcPurpose').value.trim() || null,
             login_url: document.getElementById('elcUrl').value.trim() || null,
             username: document.getElementById('elcUser').value.trim() || null,
@@ -725,7 +725,7 @@
     async function saveNewLogin() {
         const title = document.getElementById('newLoginTitle').value.trim();
         if (!title) { showToast('Title required', 'error'); return; }
-        const { error } = await supabase.from('login_credentials').insert({
+        const { error } = await sb.from('login_credentials').insert({
             project_id: currentProject.id, title,
             purpose: document.getElementById('newLoginPurpose').value.trim() || null,
             login_url: document.getElementById('newLoginUrl').value.trim() || null,
@@ -740,13 +740,13 @@
 
     // ═══ FILES ═══
     async function loadFiles() {
-        const { data } = await supabase.from('project_files').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const { data } = await sb.from('project_files').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
         const el = document.getElementById('clientFiles');
 
         // Also check storage bucket
         let storageFiles = [];
         try {
-            const { data: sFiles } = await supabase.storage.from('project-files').list(currentProject.id + '/');
+            const { data: sFiles } = await sb.storage.from('project-files').list(currentProject.id + '/');
             storageFiles = sFiles || [];
         } catch (e) { /* storage might not have folder yet */ }
 
@@ -785,7 +785,7 @@
 
         showToast('Uploading...');
         const path = currentProject.id + '/' + Date.now() + '_' + file.name;
-        const { error } = await supabase.storage.from('project-files').upload(path, file, { upsert: true });
+        const { error } = await sb.storage.from('project-files').upload(path, file, { upsert: true });
         if (error) { showToast('Upload failed: ' + error.message, 'error'); return; }
 
         showToast('File uploaded!');
@@ -795,13 +795,13 @@
 
     // ═══ PREVIEWS ═══
     async function loadPreviews() {
-        const { data } = await supabase.from('project_previews').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const { data } = await sb.from('project_previews').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
         const el = document.getElementById('clientPreviews');
         if (!data || !data.length) { el.innerHTML = '<div class="empty">No previews available yet. The team will upload previews here for your review.</div>'; return; }
 
         // Load comments for previews
         const previewIds = data.map(p => p.id);
-        const { data: comments } = await supabase.from('preview_comments').select('*').in('preview_id', previewIds).order('created_at', { ascending: true });
+        const { data: comments } = await sb.from('preview_comments').select('*').in('preview_id', previewIds).order('created_at', { ascending: true });
         const commentMap = {};
         (comments || []).forEach(c => { if (!commentMap[c.preview_id]) commentMap[c.preview_id] = []; commentMap[c.preview_id].push(c); });
 
@@ -826,7 +826,7 @@
         const content = input.value.trim();
         if (!content) return;
 
-        const { error } = await supabase.from('preview_comments').insert({
+        const { error } = await sb.from('preview_comments').insert({
             preview_id: previewId,
             author_id: session.user.id,
             author_name: session.user.email,
@@ -854,7 +854,7 @@
 
         btn.disabled = true; btn.textContent = 'Submitting...';
         try {
-            const { error } = await supabase.from('comments').insert([{
+            const { error } = await sb.from('comments').insert([{
                 comment_type: selectedType, title, content,
                 project_id: currentProject.id, user_id: session.user.id,
                 user_name: session.user.email, is_client_facing: true
@@ -887,7 +887,7 @@
     }
 
     async function loadSubmissions() {
-        const { data } = await supabase.from('comments').select('*')
+        const { data } = await sb.from('comments').select('*')
             .eq('project_id', currentProject.id).eq('user_id', session.user.id).eq('is_client_facing', true)
             .order('created_at', { ascending: false });
         const el = document.getElementById('submissionsList');
