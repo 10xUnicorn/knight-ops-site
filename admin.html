@@ -1616,7 +1616,7 @@ async function showClientDetail(id){
 
   // Credentials Panel
   html+='<div class="cd-panel" id="cdPanel_credentials" style="margin-top:1rem;display:none">';
-  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.95rem">API Keys &amp; Credentials</h3>';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:.95rem">Credentials</h3>';
   html+='<button class="btn btn-sm btn-primary" onclick="addClientCred(\''+id+'\')">+ Add Credential</button></div>';
   if(clientCreds.length){
     html+='<table><thead><tr><th>Key</th><th>Value</th><th>App</th><th>Actions</th></tr></thead><tbody>';
@@ -1704,7 +1704,7 @@ function addClientCred(clientId){
     const sel=document.getElementById('e_cred_app');
     if(sel&&apps){apps.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.app_library?.name||'App';sel.appendChild(o);});}
   });
-  const body='<div class="form-group"><label>Linked App</label><select id="e_cred_app" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:0.9rem"><option value="">General (no app)</option></select></div>'+FG('Key Name *','e_cred_key','text','')+FG('Value *','e_cred_val','text','')+FG('Secret?','e_cred_secret','checkbox',true);
+  const body='<div class="form-group"><label>Linked App</label><select id="e_cred_app" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:0.9rem"><option value="">General (no app)</option></select></div>'+'<div class="form-group"><label>Credential Type</label><select id="e_cred_type" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem" onchange="if(this.value!==\'custom\')document.getElementById(\'e_cred_key\').value=this.options[this.selectedIndex].text"><option value="custom">Custom</option><option value="meta">Meta (Facebook/Instagram)</option><option value="google_analytics">Google Analytics</option><option value="wordpress">WordPress</option><option value="ghl">Go High Level</option><option value="zoho_crm">Zoho CRM</option><option value="hubspot">HubSpot</option><option value="keap">Keap</option><option value="stripe">Stripe</option><option value="mailchimp">Mailchimp</option></select></div>'+FG('Key Name *','e_cred_key','text','')+FG('Value *','e_cred_val','text','')+FG('Notes','e_cred_notes','textarea','')+FG('Secret?','e_cred_secret','checkbox',true);
   openEditModal('Add Credential',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveClientCred(\''+clientId+'\')">Save</button>');
 }
 
@@ -1806,14 +1806,18 @@ async function showProjectDetail(id){
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
     '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'</div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div><div id="projectFiles_'+id+'"></div></div>'+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Previews</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectPreview(\''+id+'\')">+ Upload Preview</button></div><div id="previewList_'+id+'"></div></div>'+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="openEditModal({type:\'addProjectMember\',projectId:\''+id+'\'})">+ Add Member</button></div><div id="projectMembers_'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔑 Project Credentials</h3><button class="btn btn-sm btn-primary" onclick="addProjectCredential(\''+id+'\')">+ Add Credential</button></div><div id="projectCredentials_'+id+'"></div></div>'+
+'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔐 Login Credentials</h3><button class="btn btn-sm btn-primary" onclick="addLoginCredential(\''+id+'\')">+ Add Login</button></div><div id="loginCredentials_'+id+'"></div></div>'+
+'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Previews</h3><button class="btn btn-sm btn-primary" onclick="uploadProjectPreview(\''+id+'\')">+ Upload Preview</button></div><div id="previewList_'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="addProjectMember(\''+id+'\')">+ Add Member</button></div><div id="projectMembers_'+id+'"></div></div>'+
   '<div class="table-card"><div class="table-header"><h2>Tasks</h2><button class="btn btn-primary btn-sm" onclick="editTask(null,\''+id+'\')">+ Add Task</button></div><table><thead><tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(tasks.length?tasks.map(t=>'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No tasks</td></tr>')+'</tbody></table></div>'+
   timeTable+'<div class="comment-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Comments & Requests</h3><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="filterComments(\'all\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--border);color:var(--text-muted)">All</button><button class="btn btn-sm" onclick="filterComments(\'update\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #3b82f6;color:#3b82f6">Updates</button><button class="btn btn-sm" onclick="filterComments(\'feedback\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #22c55e;color:#22c55e">Feedback</button><button class="btn btn-sm" onclick="filterComments(\'bug\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid #ef4444;color:#ef4444">Bugs</button><button class="btn btn-sm" onclick="filterComments(\'feature_request\',\''+id+'\')" style="font-size:.7rem;padding:4px 8px;border:1px solid var(--accent);color:var(--accent)">Features</button></div></div><div id="commentsList_'+id+'">'+(comments?.length?comments.map(c=>renderComment(c)).join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'</div><div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="projCommentTitle" placeholder="Title (optional)" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><select id="projCommentType" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem"><option value="update">Update</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option><option value="feature_request">Feature Request</option><option value="other">Other</option></select></div><textarea id="projComment" placeholder="Add details..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;min-height:80px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea><button class="btn btn-primary" onclick="addComment(\''+id+'\',null)">Post</button></div></div>';
     // CC Build Prompts now inline with Build Prompt Generator
   loadProjectFiles(id);
   loadProjectPreviews(id);
   loadProjectMembers(id);
+  loadProjectCredentials(id);
+  loadLoginCredentials(id);
 }
 
 // ═══ PROMPT GENERATORS ═══
@@ -2736,18 +2740,25 @@ function loadProjectPreviews(projectId){
     var data=res.data||[];
     if(!data.length){el.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">No preview files uploaded yet</p>';return;}
     el.innerHTML=data.map(function(pv){
-      var url='https://knightops.biz/preview/'+pv.slug;
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-weight:600;font-size:.9rem">'+pv.title+'</div><div style="font-size:.75rem;color:var(--text-muted)">v'+pv.version+' &middot; '+fmtDate(pv.created_at)+' &middot; <a href="'+url+'" target="_blank" style="color:var(--accent)">'+url+'</a></div></div><div style="display:flex;gap:6px;align-items:center"><label style="display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" '+(pv.is_visible?'checked':'')+' onchange="togglePreviewVisibility(\''+pv.id+'\',this.checked,\''+projectId+'\')"> Visible</label><button class="btn btn-sm btn-secondary" onclick="copyPreviewUrl(\''+url+'\')">Copy URL</button><button class="btn btn-sm btn-danger" onclick="deletePreview(\''+pv.id+'\',\''+projectId+'\')">&#10005;</button></div></div>';
+      var url=pv.file_url||('https://knightops.biz/preview/'+pv.slug);
+      var ft=pv.file_type||'html';
+      var statusBadge=pv.approval_status==='approved'?'<span style="color:#22c55e;font-weight:600">Approved</span>':(pv.approval_status==='rejected'?'<span style="color:#ef4444;font-weight:600">Rejected</span>':'<span style="color:#f59e0b;font-weight:600">Pending</span>');
+      var typeIcon=ft==='html'?'🌐':(ft==='image'?'🖼️':(ft==='pdf'?'📄':'🎬'));
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:.9rem">'+typeIcon+' '+pv.title+'</div><div style="font-size:.75rem;color:var(--text-muted)">v'+pv.version+' · '+fmtDate(pv.created_at)+' · '+statusBadge+(pv.file_size?' · '+(pv.file_size/1024).toFixed(0)+'KB':'')+'</div></div><div style="display:flex;gap:4px;align-items:center"><a href="'+url+'" target="_blank" class="btn btn-sm btn-secondary">View</a>'+(pv.approval_status!=='approved'?'<button class="btn btn-sm" style="background:#22c55e;color:#fff" onclick="approvePreview(\''+pv.id+'\',\''+projectId+'\')">Approve</button>':'')+(pv.approval_status!=='rejected'?'<button class="btn btn-sm" style="background:#ef4444;color:#fff" onclick="rejectPreview(\''+pv.id+'\',\''+projectId+'\')">Reject</button>':'')+'<button class="btn btn-sm btn-secondary" onclick="openPreviewComments(\''+pv.id+'\',\''+projectId+'\')">💬</button><label style="display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" '+(pv.is_visible?'checked':'')+' onchange="togglePreviewVisibility(\''+pv.id+'\',this.checked,\''+projectId+'\')"> Visible</label><button class="btn btn-sm btn-danger" onclick="deletePreview(\''+pv.id+'\',\''+projectId+'\')">✕</button></div></div></div>';
     }).join('');
   });
 }
+async function approvePreview(id,pid){await sb.from('project_previews').update({approval_status:'approved',approved_at:new Date().toISOString(),approved_by:'Admin'}).eq('id',id);showToast('Preview approved');loadProjectPreviews(pid);}
+async function rejectPreview(id,pid){await sb.from('project_previews').update({approval_status:'rejected'}).eq('id',id);showToast('Preview rejected');loadProjectPreviews(pid);}
+function openPreviewComments(previewId,projectId){sb.from('preview_comments').select('*').eq('preview_id',previewId).order('created_at',{ascending:true}).then(function(res){var comments=res.data||[];var html='<div style="max-height:300px;overflow-y:auto;margin-bottom:1rem">'+(comments.length?comments.map(c=>'<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle)"><div style="font-size:.8rem;font-weight:600">'+(c.author_name||'Unknown')+' <span style="font-weight:400;color:var(--text-muted)">'+fmtDate(c.created_at)+'</span></div><div style="font-size:.85rem;margin-top:2px">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:.85rem">No comments yet</p>')+'</div><textarea id="prevCommentText" placeholder="Add a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-size:.85rem;resize:vertical;margin-bottom:8px"></textarea>';openEditModal('Preview Comments',html,'<button class="btn btn-secondary" onclick="closeEditModal()">Close</button><button class="btn btn-primary" onclick="addPreviewComment(\''+previewId+'\',\''+projectId+'\')">Post Comment</button>');});}
+async function addPreviewComment(previewId,projectId){var text=document.getElementById('prevCommentText').value.trim();if(!text){showToast('Enter a comment','error');return;}await sb.from('preview_comments').insert({preview_id:previewId,author_name:'Admin',content:text});closeEditModal();showToast('Comment added');loadProjectPreviews(projectId);}
 function uploadProjectPreview(projectId){
   var p=S.projects.find(function(x){return x.id===projectId;});
   if(!p)return;
   var ds=(p.name||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-');
   var m=document.createElement('div');
   m.className='modal-backdrop';
-  m.innerHTML='<div class="modal" style="max-width:500px"><h2>Upload Preview HTML</h2><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Title</label><input id="prevTitle" placeholder="e.g. Homepage v2" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">URL Slug</label><div style="display:flex;align-items:center;gap:4px"><span style="font-size:.8rem;color:var(--text-muted)">knightops.biz/preview/</span><input id="prevSlug" value="'+ds+'" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">HTML File</label><input type="file" id="prevFile" accept=".html,.htm" style="width:100%;font-size:.85rem"></div><div style="margin-bottom:1rem"><label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="prevVisible" checked> Make visible to client immediately</label></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary" onclick="this.closest(\'.modal-backdrop\').remove()">Cancel</button><button class="btn btn-primary" onclick="submitPreview(\''+projectId+'\')">Upload Preview</button></div></div>';
+  m.innerHTML='<div class="modal" style="max-width:500px"><h2>Upload Preview</h2><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Title</label><input id="prevTitle" placeholder="e.g. Homepage v2" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">URL Slug</label><div style="display:flex;align-items:center;gap:4px"><span style="font-size:.8rem;color:var(--text-muted)">knightops.biz/preview/</span><input id="prevSlug" value="'+ds+'" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"></div></div><div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">File (HTML, Image, PDF, or Video)</label><input type="file" id="prevFile" accept=".html,.htm,.png,.jpg,.jpeg,.gif,.pdf,.mp4,.mov,.webm" style="width:100%;font-size:.85rem"></div><div style="margin-bottom:1rem"><label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="prevVisible" checked> Make visible to client immediately</label></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary" onclick="this.closest(\'.modal-backdrop\').remove()">Cancel</button><button class="btn btn-primary" onclick="submitPreview(\''+projectId+'\')">Upload Preview</button></div></div>';
   document.body.appendChild(m);
 }
 async function submitPreview(projectId){
@@ -2757,19 +2768,34 @@ async function submitPreview(projectId){
   var fi=document.getElementById('prevFile');
   if(!title){showToast('Enter a title','error');return;}
   if(!slug){showToast('Enter a URL slug','error');return;}
-  if(!fi.files.length){showToast('Select an HTML file','error');return;}
-  var reader=new FileReader();
-  reader.onload=async function(e){
-    var html=e.target.result;
-    var ex=await sb.from('project_previews').select('id,version').eq('slug',slug).order('version',{ascending:false}).limit(1);
-    var ver=1;if(ex.data&&ex.data.length)ver=ex.data[0].version+1;
-    var{error}=await sb.from('project_previews').insert({project_id:projectId,title:title,slug:slug,html_content:html,is_visible:visible,version:ver});
+  if(!fi.files.length){showToast('Select a file','error');return;}
+  var file=fi.files[0];
+  var ext=file.name.split('.').pop().toLowerCase();
+  var isHtml=['html','htm'].includes(ext);
+  var fileType=isHtml?'html':(['png','jpg','jpeg','gif'].includes(ext)?'image':(['pdf'].includes(ext)?'pdf':'video'));
+  var ex=await sb.from('project_previews').select('id,version').eq('slug',slug).order('version',{ascending:false}).limit(1);
+  var ver=1;if(ex.data&&ex.data.length)ver=ex.data[0].version+1;
+  if(isHtml){
+    var reader=new FileReader();
+    reader.onload=async function(e){
+      var{error}=await sb.from('project_previews').insert({project_id:projectId,title:title,slug:slug,html_content:e.target.result,is_visible:visible,version:ver,file_type:fileType,approval_status:'pending'});
+      if(error){showToast('Failed: '+error.message,'error');return;}
+      showToast('Preview uploaded! knightops.biz/preview/'+slug);
+      document.querySelector('.modal-backdrop').remove();
+      loadProjectPreviews(projectId);
+    };
+    reader.readAsText(file);
+  } else {
+    var path='previews/'+projectId+'/'+slug+'-v'+ver+'.'+ext;
+    var{error:upErr}=await sb.storage.from('project-files').upload(path,file,{upsert:true});
+    if(upErr){showToast('Upload failed: '+upErr.message,'error');return;}
+    var{data:urlData}=sb.storage.from('project-files').getPublicUrl(path);
+    var{error}=await sb.from('project_previews').insert({project_id:projectId,title:title,slug:slug,is_visible:visible,version:ver,file_type:fileType,file_url:urlData.publicUrl,file_size:file.size,approval_status:'pending'});
     if(error){showToast('Failed: '+error.message,'error');return;}
-    showToast('Preview uploaded! knightops.biz/preview/'+slug);
+    showToast('Preview uploaded!');
     document.querySelector('.modal-backdrop').remove();
     loadProjectPreviews(projectId);
-  };
-  reader.readAsText(fi.files[0]);
+  }
 }
 async function togglePreviewVisibility(id,vis,pid){
   await sb.from('project_previews').update({is_visible:vis,updated_at:new Date().toISOString()}).eq('id',id);
@@ -5729,25 +5755,96 @@ async function loadProjectMembers(projectId){
   const{data}=await sb.from('project_members').select('*').eq('project_id',projectId);
   S.projectMembers[projectId]=data||[];
 }
-async function addProjectMember(projectId){
-  const members=S.projectMembers[projectId]||[];
-  const email=prompt('Enter team member email:');if(!email)return;
-  const role=prompt('Role: owner/admin/member/viewer','member');if(!role)return;
-  const id=crypto.randomUUID();
-  await sb.from('project_members').insert({id,project_id:projectId,email,role,status:'pending'});
-  await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Team member added','success');
+function addProjectMember(projectId){
+  const body=FG('Email *','pm_email','text','')+FG('Role','pm_role','text','member')+'<div class="form-group"><label style="font-size:.85rem;font-weight:600;margin-bottom:8px;display:block">Permissions</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+['view','edit','manage_files','manage_credentials','manage_members','manage_billing'].map(p=>'<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer"><input type="checkbox" class="pm_perm" value="'+p+'"'+(p==='view'?' checked':'')+'>'+p.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</label>').join('')+'</div></div>';
+  openEditModal('Add Team Member',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveProjectMember(\''+projectId+'\')">Add Member</button>');
+}
+async function saveProjectMember(projectId){
+  var email=document.getElementById('pm_email').value.trim();
+  if(!email){showToast('Email is required','error');return;}
+  var perms={};document.querySelectorAll('.pm_perm').forEach(cb=>{perms[cb.value]=cb.checked;});
+  var{error}=await sb.from('project_members').insert({id:crypto.randomUUID(),project_id:projectId,email:email,role:document.getElementById('pm_role').value||'member',status:'invited',permissions:perms});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Team member added','success');
 }
 async function removeProjectMember(projectId,memberId){
   if(!confirm('Remove this team member?'))return;
   await sb.from('project_members').delete().eq('id',memberId);
   await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Team member removed','success');
 }
+function editProjectMember(projectId,memberId){
+  var m=(S.projectMembers[projectId]||[]).find(x=>x.id===memberId);if(!m)return;
+  var perms=m.permissions||{};
+  var body=FG('Email','epm_email','text',m.email)+FG('Role','epm_role','text',m.role||'member')+'<div class="form-group"><label style="font-size:.85rem;font-weight:600;margin-bottom:8px;display:block">Permissions</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+['view','edit','manage_files','manage_credentials','manage_members','manage_billing'].map(p=>'<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer"><input type="checkbox" class="epm_perm" value="'+p+'"'+(perms[p]?' checked':'')+'>'+p.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</label>').join('')+'</div></div>';
+  openEditModal('Edit Team Member',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="updateProjectMember(\''+projectId+'\',\''+memberId+'\')">Save</button>');
+}
+async function updateProjectMember(projectId,memberId){
+  var perms={};document.querySelectorAll('.epm_perm').forEach(cb=>{perms[cb.value]=cb.checked;});
+  var{error}=await sb.from('project_members').update({email:document.getElementById('epm_email').value.trim(),role:document.getElementById('epm_role').value||'member',permissions:perms,updated_at:new Date().toISOString()}).eq('id',memberId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();await loadProjectMembers(projectId);renderProjectMembers(projectId);showToast('Member updated','success');
+}
 function renderProjectMembers(projectId){
   const members=S.projectMembers[projectId]||[];
-  const html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent);margin:0">👥 Team Members</h3><button class="btn btn-sm btn-primary" onclick="addProjectMember(\''+projectId+'\')">+ Add Member</button></div><table style="width:100%;font-size:0.85rem"><thead style="border-bottom:1px solid var(--border)"><tr><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Email</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Role</th><th style="text-align:left;padding:8px;color:var(--text-muted);font-weight:600">Status</th><th style="text-align:left;padding:8px">Actions</th></tr></thead><tbody>'+(members.length?members.map(m=>'<tr style="border-bottom:1px solid var(--border-subtle)"><td style="padding:8px">'+m.email+'</td><td style="padding:8px">'+B(m.role)+'</td><td style="padding:8px">'+B(m.status)+'</td><td style="padding:8px"><button class="btn btn-sm btn-danger" onclick="removeProjectMember(\''+projectId+'\',\''+m.id+'\')">🗑</button></td></tr>').join(''):'<tr><td colspan="4" style="padding:8px;color:var(--text-muted)">No team members</td></tr>')+'</tbody></table>';
-  document.getElementById('projectMembers_'+projectId).innerHTML=html;
+  const el=document.getElementById('projectMembers_'+projectId);if(!el)return;
+  if(!members.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No team members</p>';return;}
+  el.innerHTML=members.map(m=>{
+    var perms=m.permissions||{};var badges=Object.keys(perms).filter(k=>perms[k]).map(k=>'<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:.65rem;background:var(--surface-2);color:var(--text-muted);margin:1px">'+k.replace(/_/g,' ')+'</span>').join('');
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-subtle)"><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+m.email+'</div><div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">'+B(m.role)+' · '+B(m.status)+'</div>'+(badges?'<div style="margin-top:4px">'+badges+'</div>':'')+'</div><div style="display:flex;gap:4px"><button class="btn btn-sm btn-secondary" onclick="editProjectMember(\''+projectId+'\',\''+m.id+'\')">✏️</button><button class="btn btn-sm btn-danger" onclick="removeProjectMember(\''+projectId+'\',\''+m.id+'\')">🗑</button></div></div>';
+  }).join('');
 }
 
+// ═══ PROJECT CREDENTIALS ═══
+async function loadProjectCredentials(projectId){
+  const{data}=await sb.from('project_credentials').select('*').eq('project_id',projectId).order('created_at',{ascending:false});
+  const el=document.getElementById('projectCredentials_'+projectId);if(!el)return;
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No credentials stored</p>';return;}
+  el.innerHTML=data.map(cr=>{
+    const masked=cr.is_secret?'••••••••'+(cr.credential_value||'').slice(-4):cr.credential_value;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle)"><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+cr.credential_label+'</div><div style="font-size:.75rem;color:var(--text-muted)">'+(cr.credential_type||'custom')+''+(cr.notes?' · '+cr.notes:'')+'</div><div id="credVal_'+cr.id+'" data-shown="0" style="font-family:JetBrains Mono;font-size:.8rem;margin-top:2px;color:var(--text-muted)">'+masked+'</div></div><div style="display:flex;gap:4px">'+(cr.is_secret?'<button class="btn btn-sm btn-secondary" onclick="toggleProjCred(\''+cr.id+'\',\''+cr.credential_value.replace(/'/g,"\\'")+'\')">Show</button>':'')+'<button class="btn btn-sm btn-secondary" onclick="navigator.clipboard.writeText(\''+cr.credential_value.replace(/'/g,"\\'")+'\')" >Copy</button><button class="btn btn-sm btn-danger" onclick="deleteProjCred(\''+cr.id+'\',\''+projectId+'\')">🗑</button></div></div>';
+  }).join('');}
+function toggleProjCred(credId,fullVal){var el=document.getElementById('credVal_'+credId);if(!el)return;if(el.dataset.shown==='1'){el.textContent='••••••••'+fullVal.slice(-4);el.dataset.shown='0';}else{el.textContent=fullVal;el.dataset.shown='1';}}
+async function deleteProjCred(credId,projectId){if(!confirm('Delete this credential?'))return;await sb.from('project_credentials').delete().eq('id',credId);showToast('Credential deleted');loadProjectCredentials(projectId);}
+function addProjectCredential(projectId){
+  const body='<div class="form-group"><label>Credential Type</label><select id="pc_type" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem" onchange="if(this.value!==\'custom\')document.getElementById(\'pc_label\').value=this.options[this.selectedIndex].text"><option value="custom">Custom</option><option value="meta">Meta (Facebook/Instagram)</option><option value="google_analytics">Google Analytics</option><option value="wordpress">WordPress</option><option value="ghl">Go High Level</option><option value="zoho_crm">Zoho CRM</option><option value="hubspot">HubSpot</option><option value="keap">Keap</option><option value="stripe">Stripe</option><option value="mailchimp">Mailchimp</option></select></div>'+
+    FG('Label *','pc_label','text','')+FG('Value *','pc_value','text','')+FG('Notes','pc_notes','textarea','')+FG('Secret?','pc_secret','checkbox',true);
+  openEditModal('Add Project Credential',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveProjCred(\''+projectId+'\')">Save</button>');}
+async function saveProjCred(projectId){
+  var label=document.getElementById('pc_label').value.trim();var val=document.getElementById('pc_value').value.trim();
+  if(!label||!val){showToast('Label and Value required','error');return;}
+  var{error}=await sb.from('project_credentials').insert({project_id:projectId,client_id:(S.projects.find(p=>p.id===projectId)||{}).client_id||'00000000-0000-0000-0000-000000000000',credential_type:document.getElementById('pc_type').value,credential_label:label,credential_value:val,is_secret:document.getElementById('pc_secret').checked,notes:document.getElementById('pc_notes').value.trim()||null});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();loadProjectCredentials(projectId);showToast('Credential saved!');}
+// ═══ LOGIN CREDENTIALS ═══
+async function loadLoginCredentials(projectId){
+  const{data}=await sb.from('login_credentials').select('*').eq('project_id',projectId).order('created_at',{ascending:false});
+  const el=document.getElementById('loginCredentials_'+projectId);if(!el)return;
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No login credentials stored</p>';return;}
+  el.innerHTML=data.map(lc=>{
+    var pw=(lc.password||'').replace(/'/g,"\\'");
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--border-subtle)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:.9rem">'+lc.title+'</div><div style="font-size:.75rem;color:var(--text-muted)">'+(lc.purpose||'')+'</div></div><div style="display:flex;gap:4px"><button class="btn btn-sm btn-secondary" onclick="editLoginCred(\''+projectId+'\',\''+lc.id+'\')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteLoginCred(\''+lc.id+'\',\''+projectId+'\')">🗑</button></div></div><div style="margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:.8rem">'+(lc.login_url?'<div><span style="color:var(--text-muted)">URL:</span> <a href="'+lc.login_url+'" target="_blank" style="color:var(--accent)">'+lc.login_url+'</a></div>':'')+'<div><span style="color:var(--text-muted)">User:</span> '+(lc.username||'—')+'</div><div><span style="color:var(--text-muted)">Pass:</span> <span id="lcPass_'+lc.id+'" data-shown="0" style="font-family:JetBrains Mono">••••••••</span> <button class="btn btn-sm" style="font-size:.65rem;padding:1px 4px" onclick="var e=document.getElementById(\'lcPass_'+lc.id+'\');if(e.dataset.shown===\'1\'){e.textContent=\'••••••••\';e.dataset.shown=\'0\';}else{e.textContent=\''+pw+'\';e.dataset.shown=\'1\';}">Show</button> <button class="btn btn-sm" style="font-size:.65rem;padding:1px 4px" onclick="navigator.clipboard.writeText(\''+pw+'\');showToast(\'Copied!\')">Copy</button></div></div>'+(lc.access_instructions?'<div style="margin-top:4px;font-size:.8rem;color:var(--text-muted);background:var(--surface-2);padding:6px 10px;border-radius:6px">'+lc.access_instructions+'</div>':'')+'</div>';
+  }).join('');}
+function addLoginCredential(projectId){
+  const body=FG('Title *','lc_title','text','')+FG('What is this for?','lc_purpose','text','')+FG('Login URL','lc_url','text','')+FG('Username','lc_user','text','')+FG('Password','lc_pass','text','')+FG('Access Instructions','lc_instructions','textarea','');
+  openEditModal('Add Login Credential',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLoginCred(\''+projectId+'\')">Save</button>');}
+async function saveLoginCred(projectId){
+  var title=document.getElementById('lc_title').value.trim();
+  if(!title){showToast('Title is required','error');return;}
+  var{error}=await sb.from('login_credentials').insert({project_id:projectId,title:title,purpose:document.getElementById('lc_purpose').value.trim()||null,login_url:document.getElementById('lc_url').value.trim()||null,username:document.getElementById('lc_user').value.trim()||null,password:document.getElementById('lc_pass').value.trim()||null,access_instructions:document.getElementById('lc_instructions').value.trim()||null});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();loadLoginCredentials(projectId);showToast('Login credential saved!');}
+function editLoginCred(projectId,credId){
+  sb.from('login_credentials').select('*').eq('id',credId).single().then(({data:lc,error})=>{
+    if(error||!lc)return;
+    const body=FG('Title *','elc_title','text',lc.title)+FG('What is this for?','elc_purpose','text',lc.purpose||'')+FG('Login URL','elc_url','text',lc.login_url||'')+FG('Username','elc_user','text',lc.username||'')+FG('Password','elc_pass','text',lc.password||'')+FG('Access Instructions','elc_instructions','textarea',lc.access_instructions||'');
+    openEditModal('Edit Login Credential',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="updateLoginCred(\''+projectId+'\',\''+credId+'\')">Save</button>');});}
+async function updateLoginCred(projectId,credId){
+  var title=document.getElementById('elc_title').value.trim();
+  if(!title){showToast('Title is required','error');return;}
+  var{error}=await sb.from('login_credentials').update({title:title,purpose:document.getElementById('elc_purpose').value.trim()||null,login_url:document.getElementById('elc_url').value.trim()||null,username:document.getElementById('elc_user').value.trim()||null,password:document.getElementById('elc_pass').value.trim()||null,access_instructions:document.getElementById('elc_instructions').value.trim()||null,updated_at:new Date().toISOString()}).eq('id',credId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();loadLoginCredentials(projectId);showToast('Login credential updated!');}
+async function deleteLoginCred(credId,projectId){if(!confirm('Delete this login credential?'))return;await sb.from('login_credentials').delete().eq('id',credId);showToast('Login credential deleted');loadLoginCredentials(projectId);}
 // ═══════════════════════════════════════
 // PARTNERS MODULE
 // ═══════════════════════════════════════
