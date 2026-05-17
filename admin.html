@@ -5847,7 +5847,7 @@ async function updateLoginCred(projectId,credId){
 async function deleteLoginCred(credId,projectId){if(!confirm('Delete this login credential?'))return;await sb.from('login_credentials').delete().eq('id',credId);showToast('Login credential deleted');loadLoginCredentials(projectId);}
 // ═══ SECTION DEEP LINKS + EMAIL ═══
 function copySectionLink(projectId, section){
-  const url='https://knightops.biz/client-portal?project='+projectId+'#'+section;
+  const url='https://knightops.biz/client-portal?project='+projectId+'&section='+section;
   navigator.clipboard.writeText(url);
   showToast('Link copied to clipboard!');
 }
@@ -5864,7 +5864,7 @@ async function emailSectionLink(projectId, section, sectionLabel){
     clientEmail=prompt('Client email address:');
     if(!clientEmail)return;
   }
-  const portalUrl='https://knightops.biz/client-portal?project='+projectId+'#'+section;
+  const portalUrl='https://knightops.biz/client-portal?project='+projectId+'&section='+section;
   // Send branded email via edge function
   try{
     showToast('Sending email...');

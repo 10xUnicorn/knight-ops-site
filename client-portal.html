@@ -163,8 +163,8 @@
         .login-box { max-width:400px; margin:2rem auto; text-align:center; }
         .login-box h2 { font-size:1.2rem; color:var(--accent); margin-bottom:0.5rem; }
         .login-box p { font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.5; }
-        .login-box input[type="email"] { width:100%; padding:12px 14px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.95rem; margin-bottom:1rem; }
-        .login-box input[type="email"]:focus { outline:none; border-color:var(--accent); }
+        .login-box input[type="email"], .login-box input[type="password"] { width:100%; padding:12px 14px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.95rem; margin-bottom:1rem; }
+        .login-box input[type="email"]:focus, .login-box input[type="password"]:focus { outline:none; border-color:var(--accent); }
         .login-box .login-btn { width:100%; padding:12px; background:linear-gradient(135deg,#C8A456,#E8D5A3); color:#0A0A0B; border:none; border-radius:8px; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all .2s; }
         .login-box .login-btn:hover:not(:disabled) { box-shadow:0 6px 16px rgba(200,164,86,0.3); }
         .login-box .login-btn:disabled { opacity:0.5; cursor:not-allowed; }
@@ -213,10 +213,17 @@
         <div id="loginContainer" style="display:none">
             <div class="login-box">
                 <h2>&#128274; Sign In to Your Portal</h2>
-                <p>Enter the email address associated with your Knight Ops project. We'll send you a secure one-click link to access your portal.</p>
+                <p>Access your Knight Ops project portal using your email and password, or request a magic link.</p>
                 <div id="loginFormArea">
-                    <input type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')requestMagicLink()">
-                    <button class="login-btn" id="loginBtn" onclick="requestMagicLink()">Send Magic Link</button>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" style="margin-bottom:0.5rem">
+                    <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter')loginWithPassword()" style="margin-bottom:0.75rem">
+                    <button class="login-btn" id="passwordLoginBtn" onclick="loginWithPassword()">Sign In</button>
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin:1rem 0;color:var(--text-muted);font-size:0.8rem">
+                        <div style="flex:1;height:1px;background:var(--border)"></div>
+                        <span>or</span>
+                        <div style="flex:1;height:1px;background:var(--border)"></div>
+                    </div>
+                    <button class="login-btn" id="loginBtn" onclick="requestMagicLink()" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text)">Send Magic Link Instead</button>
                 </div>
                 <div id="loginSentArea" style="display:none">
                     <div class="login-sent">
@@ -383,10 +390,13 @@
     }
 
     function handleDeepLink() {
+        // Check both URL hash and ?section= query param (query param survives magic link redirect)
         const hash = location.hash.replace('#', '');
-        if (hash) {
-            // Support: #credentials, #files, #previews, #feedback, #overview
-            // Also support: #project-credentials, #login-credentials
+        const params = new URLSearchParams(location.search);
+        const sectionParam = params.get('section');
+        const target = sectionParam || hash;
+
+        if (target && !target.includes('access_token')) {
             const tabMap = {
                 'credentials': 'credentials',
                 'project-credentials': 'credentials',
@@ -396,13 +406,13 @@
                 'feedback': 'feedback',
                 'overview': 'overview'
             };
-            const tab = tabMap[hash] || 'overview';
+            const tab = tabMap[target] || 'overview';
             switchTab(tab);
 
             // Scroll to specific section if needed
-            if (hash === 'project-credentials' || hash === 'login-credentials') {
+            if (target === 'project-credentials' || target === 'login-credentials') {
                 setTimeout(() => {
-                    const section = document.getElementById('section-' + hash);
+                    const section = document.getElementById('section-' + target);
                     if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 300);
             }
@@ -432,11 +442,11 @@
         if (!email || !email.includes('@')) { showToast('Please enter a valid email', 'error'); return; }
         btn.disabled = true; btn.textContent = 'Sending...';
         try {
-            // Use signInWithOtp — redirects back to current URL (preserving deep link)
-            const redirectUrl = window.location.href.split('#')[0] + (window.location.hash || '');
+            // Build redirect URL — preserve query params (project, section) but strip auth fragments
+            const base = window.location.origin + window.location.pathname + window.location.search;
             const { error } = await sb.auth.signInWithOtp({
                 email: email,
-                options: { emailRedirectTo: redirectUrl }
+                options: { emailRedirectTo: base }
             });
             if (error) throw error;
             document.getElementById('loginFormArea').style.display = 'none';
@@ -447,6 +457,26 @@
             showToast('Error sending magic link: ' + err.message, 'error');
         } finally {
             btn.disabled = false; btn.textContent = 'Send Magic Link';
+        }
+    }
+
+    // ═══ EMAIL + PASSWORD LOGIN ═══
+    async function loginWithPassword() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        if (!email || !email.includes('@')) { showToast('Please enter a valid email', 'error'); return; }
+        if (!password) { showToast('Please enter your password', 'error'); return; }
+        const btn = document.getElementById('passwordLoginBtn');
+        btn.disabled = true; btn.textContent = 'Signing in...';
+        try {
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            // Success — onAuthStateChange will fire and handle the rest
+        } catch (err) {
+            console.error('Password login error:', err);
+            showToast('Login failed: ' + err.message, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Sign In';
         }
     }
 
@@ -463,29 +493,66 @@
     }
 
     // ═══ INIT ═══
+    // Detect if URL contains Supabase auth tokens (magic link callback)
+    function hasAuthFragment() {
+        const h = window.location.hash;
+        return h && (h.includes('access_token=') || h.includes('type=magiclink') || h.includes('type=recovery'));
+    }
+
+    async function bootPortal(s) {
+        session = s;
+        hideAuth();
+        document.getElementById('loginContainer').style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
+        document.getElementById('headerRight').style.display = 'flex';
+        document.getElementById('userEmail').textContent = session.user.email;
+
+        // Strip auth tokens from URL so they don't interfere with deep links
+        if (hasAuthFragment()) {
+            // Preserve query params (project, section) but clear the auth fragment
+            const cleanUrl = window.location.origin + window.location.pathname + window.location.search;
+            const params = new URLSearchParams(window.location.search);
+            const section = params.get('section');
+            history.replaceState(null, '', cleanUrl + (section ? '#' + section : ''));
+        }
+
+        await loadClientData();
+        document.getElementById('tabBar').style.display = 'flex';
+        handleDeepLink();
+        window.addEventListener('hashchange', handleDeepLink);
+    }
+
     async function init() {
         try {
             showAuth('Verifying access...', 'loading');
+
+            // If URL has auth tokens (magic link callback), wait for onAuthStateChange
+            // instead of calling getSession() which may race
+            if (hasAuthFragment()) {
+                showAuth('Signing you in...', 'loading');
+                // onAuthStateChange below will handle it
+                // Set a timeout fallback in case the listener doesn't fire
+                setTimeout(async () => {
+                    if (!session) {
+                        // Fallback: try getSession after Supabase has had time to process tokens
+                        const { data: { session: s } } = await sb.auth.getSession();
+                        if (s) {
+                            await bootPortal(s);
+                        } else {
+                            showLoginForm();
+                        }
+                    }
+                }, 3000);
+                return;
+            }
+
             const { data: { session: s }, error } = await sb.auth.getSession();
             if (error) throw new Error(error.message);
-            session = s;
-            if (!session) {
+            if (!s) {
                 showLoginForm();
                 return;
             }
-            hideAuth();
-            document.getElementById('loginContainer').style.display = 'none';
-            // Restore tab content visibility (in case login form hid them)
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
-
-            // Show header right
-            document.getElementById('headerRight').style.display = 'flex';
-            document.getElementById('userEmail').textContent = session.user.email;
-
-            await loadClientData();
-            document.getElementById('tabBar').style.display = 'flex';
-            handleDeepLink();
-            window.addEventListener('hashchange', handleDeepLink);
+            await bootPortal(s);
         } catch (err) {
             console.error('Init error:', err);
             showAuth('Error: ' + err.message, 'error');
@@ -493,22 +560,11 @@
     }
 
     // ═══ AUTH STATE LISTENER ═══
-    // Catches magic link callback — Supabase puts tokens in URL fragment,
-    // onAuthStateChange fires SIGNED_IN, then we auto-init the portal
+    // Catches magic link callback AND password login — fires SIGNED_IN,
+    // then we auto-init the portal
     sb.auth.onAuthStateChange((event, newSession) => {
-        if (event === 'SIGNED_IN' && newSession && !session) {
-            session = newSession;
-            document.getElementById('loginContainer').style.display = 'none';
-            hideAuth();
-            // Restore tab content visibility
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = '');
-            document.getElementById('headerRight').style.display = 'flex';
-            document.getElementById('userEmail').textContent = session.user.email;
-            loadClientData().then(() => {
-                document.getElementById('tabBar').style.display = 'flex';
-                handleDeepLink();
-                window.addEventListener('hashchange', handleDeepLink);
-            }).catch(err => {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && newSession && !session) {
+            bootPortal(newSession).catch(err => {
                 console.error('Post-auth load error:', err);
                 showAuth('Error loading your data: ' + err.message, 'error');
             });
@@ -518,16 +574,12 @@
     // ═══ LOAD CLIENT DATA ═══
     async function loadClientData() {
         const userId = session.user.id;
-        const userEmail = session.user.email;
 
-        // Find client_id from profiles or clients table
-        const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).single();
-        clientId = profile?.client_id;
+        // clients.profile_id links to auth user UUID (profiles.id = auth.users.id)
+        const { data: clientRow, error: clientErr } = await sb.from('clients').select('id').eq('profile_id', userId).single();
+        if (clientErr) console.warn('Client lookup error:', clientErr.message);
+        clientId = clientRow?.id;
 
-        if (!clientId) {
-            const { data: clientRow } = await sb.from('clients').select('id').eq('email', userEmail).single();
-            clientId = clientRow?.id;
-        }
         if (!clientId) throw new Error('Could not identify your client account. Contact support.');
 
         // Load projects — check both direct client_id and project_clients junction
