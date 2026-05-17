@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knight Ops - Project Portal</title>
+    <title>Knight Ops - Client Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         :root {
@@ -11,362 +11,163 @@
             --surface: #111113;
             --surface-2: #1A1A1D;
             --border: #2A2A2D;
+            --border-subtle: #222225;
             --accent: #C8A456;
+            --accent-dim: rgba(200,164,86,0.15);
             --text: #F5F5F5;
             --text-muted: #999;
             --success: #4CAF50;
             --error: #FF6B6B;
+            --info: #64B5F6;
+            --warning: #FFA726;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+        .container { max-width:1100px; margin:0 auto; padding:2rem 1rem; }
 
         /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border);
-        }
+        .header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+        .header-left { display:flex; align-items:center; gap:1rem; }
+        .logo { font-size:1.75rem; font-weight:bold; color:var(--accent); letter-spacing:-1px; }
+        .header-info h1 { font-size:1.35rem; margin-bottom:0.25rem; }
+        .project-name { color:var(--text-muted); font-size:0.9rem; }
+        .header-right { display:flex; align-items:center; gap:0.75rem; }
+        .user-email { color:var(--text-muted); font-size:0.8rem; }
+        .btn-logout { padding:6px 14px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:6px; cursor:pointer; font-size:0.8rem; transition:all .2s; }
+        .btn-logout:hover { border-color:var(--error); color:var(--error); }
 
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent);
-            letter-spacing: -1px;
-        }
+        /* Project Selector */
+        .project-selector { margin-bottom:1.5rem; display:none; }
+        .project-selector select { width:100%; padding:10px 14px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:8px; font-size:.9rem; }
 
-        .header-info h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
+        /* Auth */
+        .auth-status { padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:6px; margin-bottom:1.5rem; display:none; }
+        .auth-status.error { border-color:var(--error); color:var(--error); }
+        .auth-status.loading { color:var(--text-muted); }
 
-        .project-name {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
+        /* Tabs */
+        .tab-bar { display:flex; gap:4px; margin-bottom:1.5rem; border-bottom:2px solid var(--border); padding-bottom:0; overflow-x:auto; }
+        .tab-btn { padding:10px 20px; background:transparent; border:none; color:var(--text-muted); font-size:0.9rem; font-weight:500; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; }
+        .tab-btn:hover { color:var(--text); }
+        .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
 
-        /* Auth Status */
-        .auth-status {
-            padding: 1rem;
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 2rem;
-            display: none;
-        }
+        /* Cards */
+        .section-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.5rem; margin-bottom:1.25rem; }
+        .section-card h2 { font-size:1.1rem; color:var(--accent); margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+        .section-card h3 { font-size:0.95rem; color:var(--accent); margin-bottom:0.75rem; }
 
-        .auth-status.error {
-            border-color: var(--error);
-            color: var(--error);
-        }
+        /* Credential Items */
+        .cred-item { padding:10px 0; border-bottom:1px solid var(--border-subtle); }
+        .cred-item:last-child { border-bottom:none; }
+        .cred-header { display:flex; align-items:center; justify-content:space-between; }
+        .cred-label { font-weight:600; font-size:0.9rem; }
+        .cred-type { font-size:0.75rem; color:var(--text-muted); margin-top:2px; }
+        .cred-value { font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--text-muted); margin-top:4px; }
+        .cred-actions { display:flex; gap:4px; }
 
-        .auth-status.loading {
-            color: var(--text-muted);
-        }
+        /* Login Credential Items */
+        .login-item { padding:12px 0; border-bottom:1px solid var(--border-subtle); }
+        .login-item:last-child { border-bottom:none; }
+        .login-title { font-weight:600; font-size:0.9rem; }
+        .login-purpose { font-size:0.75rem; color:var(--text-muted); }
+        .login-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; font-size:0.8rem; margin-top:6px; }
+        .login-instructions { margin-top:6px; font-size:0.8rem; color:var(--text-muted); background:var(--surface-2); padding:6px 10px; border-radius:6px; }
 
-        .auth-status.success {
-            border-color: var(--success);
-            color: var(--success);
-            display: none;
-        }
+        /* Buttons */
+        .btn { padding:6px 14px; border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:0.85rem; transition:all .2s; }
+        .btn-sm { padding:4px 10px; font-size:0.75rem; }
+        .btn-xs { padding:2px 6px; font-size:0.65rem; }
+        .btn-primary { background:var(--accent); color:var(--bg); }
+        .btn-primary:hover { box-shadow:0 4px 12px rgba(200,164,86,0.3); }
+        .btn-secondary { background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+        .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+        .btn-success { background:var(--success); color:#fff; }
+        .btn-danger { background:transparent; border:1px solid var(--error); color:var(--error); }
 
-        /* Main Content */
-        .main-content {
-            display: grid;
-            gap: 2rem;
-        }
+        /* Badges */
+        .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-pending { background:rgba(255,167,38,0.15); color:var(--warning); }
+        .badge-approved { background:rgba(76,175,80,0.15); color:var(--success); }
+        .badge-rejected { background:rgba(255,107,107,0.15); color:var(--error); }
+        .badge-gold { background:var(--accent-dim); color:var(--accent); }
+        .badge-info { background:rgba(100,181,246,0.15); color:var(--info); }
 
-        /* Form Section */
-        .form-section {
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2rem;
-        }
+        /* Preview Items */
+        .preview-item { padding:12px; background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:8px; margin-bottom:8px; }
+        .preview-header { display:flex; align-items:center; justify-content:space-between; }
+        .preview-meta { font-size:0.8rem; color:var(--text-muted); margin-top:4px; }
+        .preview-comment { margin-top:8px; padding:8px 10px; background:var(--surface); border-radius:6px; font-size:0.8rem; border-left:3px solid var(--accent); }
 
-        .form-section h2 {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent);
-        }
+        /* Files */
+        .file-item { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-subtle); }
+        .file-item:last-child { border-bottom:none; }
+        .file-icon { font-size:1.2rem; margin-right:8px; }
+        .file-name { font-size:0.85rem; font-weight:500; }
+        .file-meta { font-size:0.75rem; color:var(--text-muted); }
+
+        /* Form */
+        .form-group { margin-bottom:1rem; }
+        .form-group label { display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500; }
+        .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 12px; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.9rem; }
+        .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--accent); }
+        .form-group textarea { resize:vertical; min-height:120px; }
 
         /* Type Selector */
-        .type-selector {
-            margin-bottom: 2rem;
-        }
+        .type-buttons { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:0.5rem; margin-bottom:1rem; }
+        .type-btn { padding:8px 12px; background:var(--surface-2); border:2px solid var(--border); border-radius:6px; color:var(--text); cursor:pointer; font-weight:500; font-size:0.85rem; transition:all .2s; }
+        .type-btn:hover { border-color:var(--accent); color:var(--accent); }
+        .type-btn.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
 
-        .type-selector label {
-            display: block;
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        /* Submit */
+        .submit-btn { padding:10px 24px; background:var(--accent); color:var(--bg); border:none; border-radius:6px; font-weight:600; font-size:0.95rem; cursor:pointer; width:100%; transition:all .2s; }
+        .submit-btn:hover:not(:disabled) { box-shadow:0 6px 16px rgba(200,164,86,0.25); }
+        .submit-btn:disabled { opacity:0.5; cursor:not-allowed; }
 
-        .type-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
-        }
+        /* Table */
+        .sub-table { width:100%; border-collapse:collapse; }
+        .sub-table thead { border-bottom:2px solid var(--border); }
+        .sub-table th { padding:8px 12px; text-align:left; font-weight:600; color:var(--accent); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .sub-table td { padding:8px 12px; border-bottom:1px solid var(--border-subtle); font-size:0.85rem; }
+        .sub-table tbody tr:hover { background:var(--surface-2); }
 
-        .type-btn {
-            padding: 0.75rem 1rem;
-            background-color: var(--surface-2);
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
+        /* Toast */
+        .toast { position:fixed; bottom:24px; right:24px; padding:12px 20px; background:var(--surface); border:1px solid var(--accent); border-radius:8px; color:var(--text); font-size:0.85rem; z-index:10000; transform:translateY(100px); opacity:0; transition:all .3s; }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.error { border-color:var(--error); }
 
-        .type-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
+        /* Modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9000; align-items:center; justify-content:center; }
+        .modal-overlay.show { display:flex; }
+        .modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem; max-width:500px; width:95%; max-height:80vh; overflow-y:auto; }
+        .modal h3 { font-size:1.1rem; color:var(--accent); margin-bottom:1rem; }
+        .modal-footer { display:flex; justify-content:flex-end; gap:8px; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
 
-        .type-btn.active {
-            background-color: var(--accent);
-            color: var(--bg);
-            border-color: var(--accent);
-        }
+        /* Success message */
+        .success-msg { padding:12px; background:rgba(76,175,80,0.1); border:1px solid var(--success); border-radius:6px; color:var(--success); margin-bottom:1rem; display:none; }
+        .success-msg.show { display:block; animation:fadeIn .3s; }
 
-        /* Form Fields */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+        /* Empty state */
+        .empty { color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem; }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+        /* Loading */
+        .loading-dot { display:inline-block; width:4px; height:4px; background:var(--accent); border-radius:50%; animation:pulse 1.5s infinite; margin-left:4px; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            font-family: inherit;
-            transition: border-color 0.2s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(200, 164, 86, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
-
-        /* Submit Button */
-        .submit-btn {
-            padding: 0.85rem 2rem;
-            background-color: var(--accent);
-            color: var(--bg);
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(200, 164, 86, 0.2);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Success Message */
-        .success-message {
-            padding: 1rem;
-            background-color: rgba(76, 175, 80, 0.1);
-            border: 1px solid var(--success);
-            border-radius: 6px;
-            color: var(--success);
-            margin-bottom: 1.5rem;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Previous Submissions */
-        .submissions-section {
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2rem;
-        }
-
-        .submissions-section h2 {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent);
-        }
-
-        .submissions-empty {
-            color: var(--text-muted);
-            text-align: center;
-            padding: 2rem;
-        }
-
-        /* Submissions Table */
-        .submissions-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .submissions-table thead {
-            border-bottom: 2px solid var(--border);
-        }
-
-        .submissions-table th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .submissions-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .submissions-table tbody tr:hover {
-            background-color: var(--surface-2);
-        }
-
-        .submission-type {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .submission-type.feedback {
-            border-color: #64B5F6;
-            color: #64B5F6;
-        }
-
-        .submission-type.bug {
-            border-color: #FF6B6B;
-            color: #FF6B6B;
-        }
-
-        .submission-type.feature {
-            border-color: #81C784;
-            color: #81C784;
-        }
-
-        .submission-type.other {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .submission-date {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Loading State */
-        .loading {
-            display: inline-block;
-            width: 4px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-            margin-left: 4px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        /* Credential add form (client-side) */
+        .add-cred-form { background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:1rem; margin-top:1rem; }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .form-section,
-            .submissions-section {
-                padding: 1.5rem;
-            }
-
-            .type-buttons {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .submissions-table {
-                font-size: 0.9rem;
-            }
-
-            .submissions-table th,
-            .submissions-table td {
-                padding: 0.75rem;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
+        @media (max-width:768px) {
+            .container { padding:1rem; }
+            .header { flex-direction:column; align-items:flex-start; }
+            .header-right { width:100%; justify-content:space-between; }
+            .tab-bar { gap:0; }
+            .tab-btn { padding:8px 12px; font-size:0.8rem; }
+            .login-grid { grid-template-columns:1fr; }
+            .section-card { padding:1rem; }
         }
     </style>
 </head>
@@ -374,382 +175,642 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">⚡ KNIGHT OPS</div>
-            <div class="header-info">
-                <h1>Project Portal</h1>
-                <div class="project-name" id="projectName">Loading project<span class="loading"></span></div>
+            <div class="header-left">
+                <div class="logo">&#9889; KNIGHT OPS</div>
+                <div class="header-info">
+                    <h1>Client Portal</h1>
+                    <div class="project-name" id="projectName">Loading project<span class="loading-dot"></span></div>
+                </div>
+            </div>
+            <div class="header-right" id="headerRight" style="display:none">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn-logout" onclick="logout()">Sign Out</button>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Auth Status -->
-            <div class="auth-status" id="authStatus"></div>
+        <!-- Project Selector (for multiple projects) -->
+        <div class="project-selector" id="projectSelector">
+            <select id="projectSelect" onchange="switchProject()"></select>
+        </div>
 
-            <!-- Success Message -->
-            <div class="success-message" id="successMessage">
-                <strong>Success!</strong> Your submission has been sent to the team.
+        <!-- Auth Status -->
+        <div class="auth-status" id="authStatus"></div>
+
+        <!-- Tab Bar -->
+        <div class="tab-bar" id="tabBar" style="display:none">
+            <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" data-tab="credentials" onclick="switchTab('credentials')">Credentials</button>
+            <button class="tab-btn" data-tab="files" onclick="switchTab('files')">Files</button>
+            <button class="tab-btn" data-tab="previews" onclick="switchTab('previews')">Previews</button>
+            <button class="tab-btn" data-tab="feedback" onclick="switchTab('feedback')">Feedback</button>
+        </div>
+
+        <!-- ═══ OVERVIEW TAB ═══ -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="section-card">
+                <h2>&#128204; Project Details</h2>
+                <div id="projectDetails"><div class="empty">Loading<span class="loading-dot"></span></div></div>
+            </div>
+        </div>
+
+        <!-- ═══ CREDENTIALS TAB ═══ -->
+        <div class="tab-content" id="tab-credentials">
+            <!-- Project Credentials -->
+            <div class="section-card" id="section-project-credentials">
+                <h2>&#128273; Project Credentials</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">API keys, platform access, and service credentials for your project.</p>
+                <div id="clientProjectCredentials"><div class="empty">Loading<span class="loading-dot"></span></div></div>
+                <button class="btn btn-primary btn-sm" onclick="showAddCredentialForm()" style="margin-top:1rem">+ Add Credential</button>
+                <div id="addCredentialForm" style="display:none"></div>
             </div>
 
-            <!-- Form Section -->
-            <div class="form-section">
-                <h2>Submit Feedback</h2>
+            <!-- Login Credentials -->
+            <div class="section-card" id="section-login-credentials">
+                <h2>&#128274; Login Credentials</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">Login details for platforms, dashboards, and services related to your project.</p>
+                <div id="clientLoginCredentials"><div class="empty">Loading<span class="loading-dot"></span></div></div>
+                <button class="btn btn-primary btn-sm" onclick="showAddLoginForm()" style="margin-top:1rem">+ Add Login</button>
+                <div id="addLoginForm" style="display:none"></div>
+            </div>
+        </div>
 
-                <div class="type-selector">
-                    <label>Submission Type</label>
+        <!-- ═══ FILES TAB ═══ -->
+        <div class="tab-content" id="tab-files">
+            <div class="section-card" id="section-files">
+                <h2>&#128193; Project Files</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">Files uploaded to your project.</p>
+                <div id="clientFiles"><div class="empty">Loading<span class="loading-dot"></span></div></div>
+                <div style="margin-top:1rem">
+                    <label class="btn btn-primary btn-sm" style="cursor:pointer">
+                        &#128228; Upload File
+                        <input type="file" id="fileUploadInput" onchange="handleFileUpload()" style="display:none" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.html,.css,.js,.json,.txt,.csv">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PREVIEWS TAB ═══ -->
+        <div class="tab-content" id="tab-previews">
+            <div class="section-card" id="section-previews">
+                <h2>&#128279; Project Previews</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">Preview builds and deliverables. Review and provide feedback on each preview.</p>
+                <div id="clientPreviews"><div class="empty">Loading<span class="loading-dot"></span></div></div>
+            </div>
+        </div>
+
+        <!-- ═══ FEEDBACK TAB ═══ -->
+        <div class="tab-content" id="tab-feedback">
+            <div class="section-card">
+                <h2>&#128172; Submit Feedback</h2>
+                <div class="success-msg" id="successMessage"><strong>Success!</strong> Your submission has been sent to the team.</div>
+                <div style="margin-bottom:1rem">
+                    <label style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Submission Type</label>
                     <div class="type-buttons">
-                        <button class="type-btn active" data-type="feedback">Feedback</button>
-                        <button class="type-btn" data-type="bug">Bug Report</button>
-                        <button class="type-btn" data-type="feature">Feature Request</button>
-                        <button class="type-btn" data-type="other">Other</button>
+                        <button class="type-btn active" data-type="feedback" onclick="selectType(this)">Feedback</button>
+                        <button class="type-btn" data-type="bug" onclick="selectType(this)">Bug Report</button>
+                        <button class="type-btn" data-type="feature" onclick="selectType(this)">Feature Request</button>
+                        <button class="type-btn" data-type="other" onclick="selectType(this)">Other</button>
                     </div>
                 </div>
-
-                <form id="feedbackForm">
+                <form id="feedbackForm" onsubmit="handleSubmit(event)">
                     <div class="form-group">
-                        <label for="title">Title <span style="color: var(--error);">*</span></label>
-                        <input type="text" id="title" name="title" required placeholder="Brief summary of your feedback">
+                        <label>Title <span style="color:var(--error)">*</span></label>
+                        <input type="text" id="fbTitle" required placeholder="Brief summary">
                     </div>
-
                     <div class="form-group">
-                        <label for="content">Description <span style="color: var(--error);">*</span></label>
-                        <textarea id="content" name="content" required placeholder="Provide details about your feedback, bug, or feature request..."></textarea>
+                        <label>Description <span style="color:var(--error)">*</span></label>
+                        <textarea id="fbContent" required placeholder="Provide details..."></textarea>
                     </div>
-
                     <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
                 </form>
             </div>
 
             <!-- Previous Submissions -->
-            <div class="submissions-section">
-                <h2>Your Previous Submissions</h2>
-                <div id="submissionsList">
-                    <div class="submissions-empty">Loading submissions<span class="loading"></span></div>
-                </div>
+            <div class="section-card" style="margin-top:1.25rem">
+                <h2>&#128196; Previous Submissions</h2>
+                <div id="submissionsList"><div class="empty">Loading<span class="loading-dot"></span></div></div>
             </div>
         </div>
     </div>
 
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
     <script>
-        // Initialize Supabase
-        const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ═══ INIT ═══
+    const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // State
-        let session = null;
-        let projectData = null;
-        let selectedType = 'feedback';
+    let session = null;
+    let clientId = null;
+    let projects = [];
+    let currentProject = null;
+    let selectedType = 'feedback';
 
-        // Show auth status
-        function showAuthStatus(message, type = 'loading') {
-            const statusEl = document.getElementById('authStatus');
-            statusEl.textContent = message;
-            statusEl.className = `auth-status ${type}`;
-            statusEl.style.display = 'block';
-        }
+    // ═══ AUTH ═══
+    function showAuth(msg, type='loading') {
+        const el = document.getElementById('authStatus');
+        el.textContent = msg;
+        el.className = 'auth-status ' + type;
+        el.style.display = 'block';
+    }
+    function hideAuth() { document.getElementById('authStatus').style.display = 'none'; }
 
-        // Hide auth status
-        function hideAuthStatus() {
-            const statusEl = document.getElementById('authStatus');
-            statusEl.style.display = 'none';
-        }
+    async function logout() {
+        await supabase.auth.signOut();
+        location.reload();
+    }
 
-        // Initialize
-        async function init() {
-            try {
-                showAuthStatus('Verifying access...', 'loading');
+    // ═══ TOAST ═══
+    function showToast(msg, type='') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
 
-                // Check for existing session
-                const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-                
-                if (sessionError) {
-                    throw new Error('Session error: ' + sessionError.message);
-                }
+    // ═══ MODAL ═══
+    function openModal(html) {
+        document.getElementById('modalContent').innerHTML = html;
+        document.getElementById('modalOverlay').classList.add('show');
+    }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
 
-                session = currentSession;
+    // ═══ TABS & DEEP LINKS ═══
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
+        // Update hash without triggering hashchange
+        history.replaceState(null, '', '#' + tab);
+    }
 
-                if (!session) {
-                    showAuthStatus('No active session. Please use the magic link from your email.', 'error');
-                    document.getElementById('feedbackForm').style.display = 'none';
-                    return;
-                }
+    function handleDeepLink() {
+        const hash = location.hash.replace('#', '');
+        if (hash) {
+            // Support: #credentials, #files, #previews, #feedback, #overview
+            // Also support: #project-credentials, #login-credentials
+            const tabMap = {
+                'credentials': 'credentials',
+                'project-credentials': 'credentials',
+                'login-credentials': 'credentials',
+                'files': 'files',
+                'previews': 'previews',
+                'feedback': 'feedback',
+                'overview': 'overview'
+            };
+            const tab = tabMap[hash] || 'overview';
+            switchTab(tab);
 
-                hideAuthStatus();
-
-                // Load user data and project
-                await loadProjectData();
-                await loadPreviousSubmissions();
-
-                // Form handling
-                setupFormHandlers();
-            } catch (error) {
-                console.error('Init error:', error);
-                showAuthStatus('Error: ' + error.message, 'error');
+            // Scroll to specific section if needed
+            if (hash === 'project-credentials' || hash === 'login-credentials') {
+                setTimeout(() => {
+                    const section = document.getElementById('section-' + hash);
+                    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
             }
         }
+    }
 
-        // Load project data
-        async function loadProjectData() {
-            try {
-                const userId = session.user.id;
-                const userEmail = session.user.email;
+    // ═══ HELPERS ═══
+    function escapeHtml(t) { return t ? t.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]) : ''; }
+    function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—'; }
+    function fmtMoney(v) { return v ? '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits:2 }) : '—'; }
+    function fileIcon(name) {
+        if (!name) return '&#128196;';
+        const ext = name.split('.').pop().toLowerCase();
+        const icons = { pdf:'&#128196;', doc:'&#128196;', docx:'&#128196;', xls:'&#128202;', xlsx:'&#128202;', png:'&#128247;', jpg:'&#128247;', jpeg:'&#128247;', gif:'&#128247;', html:'&#127760;', zip:'&#128230;', mp4:'&#127909;', mov:'&#127909;' };
+        return icons[ext] || '&#128196;';
+    }
+    function statusBadge(status) {
+        const map = { approved:'badge-approved', rejected:'badge-rejected', pending:'badge-pending' };
+        return '<span class="badge ' + (map[status] || 'badge-gold') + '">' + (status || 'pending').toUpperCase() + '</span>';
+    }
 
-                // Look up client_id from user metadata or profile
-                // First, check if user is in a clients table or has profile
-                const { data: userData, error: userError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .single();
-
-                if (userError && userError.code !== 'PGRST116') {
-                    throw userError;
-                }
-
-                let clientId = userData?.client_id;
-
-                // If not found in profiles, try to find by email in clients table
-                if (!clientId) {
-                    const { data: clientData, error: clientError } = await supabase
-                        .from('clients')
-                        .select('id')
-                        .eq('email', userEmail)
-                        .single();
-
-                    if (clientError && clientError.code !== 'PGRST116') {
-                        throw clientError;
-                    }
-
-                    clientId = clientData?.id;
-                }
-
-                if (!clientId) {
-                    throw new Error('Could not identify your client account.');
-                }
-
-                // Get projects for this client
-                const { data: projects, error: projectError } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .eq('client_id', clientId);
-
-                if (projectError) {
-                    throw projectError;
-                }
-
-                if (!projects || projects.length === 0) {
-                    throw new Error('No projects found for your account.');
-                }
-
-                // Use first project (or could implement selector if multiple)
-                projectData = projects[0];
-                document.getElementById('projectName').textContent = projectData.name || 'Your Project';
-
-            } catch (error) {
-                console.error('Load project error:', error);
-                throw error;
-            }
-        }
-
-        // Load previous submissions
-        async function loadPreviousSubmissions() {
-            try {
-                const { data: submissions, error } = await supabase
-                    .from('comments')
-                    .select('*')
-                    .eq('project_id', projectData.id)
-                    .eq('user_id', session.user.id)
-                    .eq('is_client_facing', true)
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    throw error;
-                }
-
-                const submissionsList = document.getElementById('submissionsList');
-
-                if (!submissions || submissions.length === 0) {
-                    submissionsList.innerHTML = '<div class="submissions-empty">No submissions yet. Submit your first feedback above!</div>';
-                    return;
-                }
-
-                // Build table
-                let html = `
-                    <table class="submissions-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Title</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                submissions.forEach(sub => {
-                    const date = new Date(sub.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    const typeClass = getTypeClass(sub.comment_type);
-                    const typeLabel = getTypeLabel(sub.comment_type);
-
-                    html += `
-                        <tr>
-                            <td><span class="submission-type ${typeClass}">${typeLabel}</span></td>
-                            <td>${escapeHtml(sub.title)}</td>
-                            <td class="submission-date">${date}</td>
-                        </tr>
-                    `;
-                });
-
-                html += `
-                        </tbody>
-                    </table>
-                `;
-
-                submissionsList.innerHTML = html;
-
-            } catch (error) {
-                console.error('Load submissions error:', error);
-                document.getElementById('submissionsList').innerHTML = '<div class="submissions-empty">Error loading submissions.</div>';
-            }
-        }
-
-        // Setup form handlers
-        function setupFormHandlers() {
-            // Type selector
-            document.querySelectorAll('.type-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    selectedType = btn.dataset.type;
-                });
-            });
-
-            // Form submission
-            document.getElementById('feedbackForm').addEventListener('submit', handleSubmit);
-        }
-
-        // Handle form submission
-        async function handleSubmit(e) {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('submitBtn');
-            const title = document.getElementById('title').value.trim();
-            const content = document.getElementById('content').value.trim();
-
-            if (!title || !content) {
-                alert('Please fill in all fields.');
+    // ═══ INIT ═══
+    async function init() {
+        try {
+            showAuth('Verifying access...', 'loading');
+            const { data: { session: s }, error } = await supabase.auth.getSession();
+            if (error) throw new Error(error.message);
+            session = s;
+            if (!session) {
+                showAuth('No active session. Please use the magic link from your email to access your portal.', 'error');
                 return;
             }
+            hideAuth();
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
+            // Show header right
+            document.getElementById('headerRight').style.display = 'flex';
+            document.getElementById('userEmail').textContent = session.user.email;
 
+            await loadClientData();
+            document.getElementById('tabBar').style.display = 'flex';
+            handleDeepLink();
+            window.addEventListener('hashchange', handleDeepLink);
+        } catch (err) {
+            console.error('Init error:', err);
+            showAuth('Error: ' + err.message, 'error');
+        }
+    }
+
+    // ═══ LOAD CLIENT DATA ═══
+    async function loadClientData() {
+        const userId = session.user.id;
+        const userEmail = session.user.email;
+
+        // Find client_id from profiles or clients table
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        clientId = profile?.client_id;
+
+        if (!clientId) {
+            const { data: clientRow } = await supabase.from('clients').select('id').eq('email', userEmail).single();
+            clientId = clientRow?.id;
+        }
+        if (!clientId) throw new Error('Could not identify your client account. Contact support.');
+
+        // Load projects — check both direct client_id and project_clients junction
+        const { data: directProjects } = await supabase.from('projects').select('*').eq('client_id', clientId);
+        const { data: junctionProjects } = await supabase.from('project_clients').select('project_id').eq('client_id', clientId);
+
+        let allProjectIds = new Set();
+        (directProjects || []).forEach(p => allProjectIds.add(p.id));
+        if (junctionProjects && junctionProjects.length) {
+            const jIds = junctionProjects.map(j => j.project_id);
+            const { data: jProjects } = await supabase.from('projects').select('*').in('id', jIds);
+            (jProjects || []).forEach(p => allProjectIds.add(p.id));
+            // Merge
+            projects = [...(directProjects || [])];
+            (jProjects || []).forEach(p => { if (!projects.find(x => x.id === p.id)) projects.push(p); });
+        } else {
+            projects = directProjects || [];
+        }
+
+        if (!projects.length) throw new Error('No projects found for your account.');
+
+        // Check URL for project param
+        const urlParams = new URLSearchParams(location.search);
+        const requestedProject = urlParams.get('project');
+
+        if (projects.length > 1) {
+            // Show project selector
+            const sel = document.getElementById('projectSelect');
+            sel.innerHTML = projects.map(p => '<option value="' + p.id + '"' + (p.id === requestedProject ? ' selected' : '') + '>' + escapeHtml(p.name) + '</option>').join('');
+            document.getElementById('projectSelector').style.display = 'block';
+        }
+
+        currentProject = requestedProject ? projects.find(p => p.id === requestedProject) || projects[0] : projects[0];
+        document.getElementById('projectName').textContent = currentProject.name || 'Your Project';
+
+        await loadAllSections();
+    }
+
+    function switchProject() {
+        const id = document.getElementById('projectSelect').value;
+        currentProject = projects.find(p => p.id === id) || projects[0];
+        document.getElementById('projectName').textContent = currentProject.name;
+        loadAllSections();
+    }
+
+    async function loadAllSections() {
+        loadOverview();
+        loadProjectCredentials();
+        loadLoginCredentials();
+        loadFiles();
+        loadPreviews();
+        loadSubmissions();
+    }
+
+    // ═══ OVERVIEW ═══
+    function loadOverview() {
+        const p = currentProject;
+        document.getElementById('projectDetails').innerHTML =
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem">' +
+            '<div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Status</div><div style="font-weight:600;margin-top:4px">' + statusBadge(p.status) + '</div></div>' +
+            '<div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Tier</div><div style="font-weight:600;margin-top:4px">' + (p.tier || '—') + '</div></div>' +
+            '<div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Start Date</div><div style="font-weight:600;margin-top:4px">' + fmtDate(p.start_date) + '</div></div>' +
+            '<div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Due Date</div><div style="font-weight:600;margin-top:4px">' + fmtDate(p.due_date) + '</div></div>' +
+            '</div>' +
+            (p.description ? '<p style="margin-top:1rem;font-size:.9rem;color:var(--text-muted)">' + escapeHtml(p.description) + '</p>' : '');
+    }
+
+    // ═══ PROJECT CREDENTIALS ═══
+    async function loadProjectCredentials() {
+        const { data } = await supabase.from('project_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const el = document.getElementById('clientProjectCredentials');
+        if (!data || !data.length) { el.innerHTML = '<div class="empty">No credentials stored yet</div>'; return; }
+
+        el.innerHTML = data.map(cr => {
+            const masked = cr.is_secret ? '••••••••' + (cr.credential_value || '').slice(-4) : escapeHtml(cr.credential_value);
+            return '<div class="cred-item">' +
+                '<div class="cred-header"><div><div class="cred-label">' + escapeHtml(cr.credential_label) + '</div>' +
+                '<div class="cred-type">' + escapeHtml(cr.credential_type || 'custom') + (cr.notes ? ' &middot; ' + escapeHtml(cr.notes) : '') + '</div></div>' +
+                '<div class="cred-actions">' +
+                (cr.is_secret ? '<button class="btn btn-sm btn-secondary" onclick="toggleCred(\'' + cr.id + '\',\'' + escapeHtml(cr.credential_value).replace(/'/g, "\\'") + '\')">Show</button>' : '') +
+                '<button class="btn btn-sm btn-secondary" onclick="copyCred(\'' + escapeHtml(cr.credential_value).replace(/'/g, "\\'") + '\')">Copy</button>' +
+                '</div></div>' +
+                '<div class="cred-value" id="credVal_' + cr.id + '" data-shown="0">' + masked + '</div></div>';
+        }).join('');
+    }
+
+    function toggleCred(id, fullVal) {
+        const el = document.getElementById('credVal_' + id);
+        if (!el) return;
+        if (el.dataset.shown === '1') { el.textContent = '••••••••' + fullVal.slice(-4); el.dataset.shown = '0'; }
+        else { el.textContent = fullVal; el.dataset.shown = '1'; }
+    }
+    function copyCred(val) { navigator.clipboard.writeText(val); showToast('Copied!'); }
+
+    // Client adds a credential
+    function showAddCredentialForm() {
+        const el = document.getElementById('addCredentialForm');
+        if (el.style.display === 'block') { el.style.display = 'none'; return; }
+        el.style.display = 'block';
+        el.innerHTML = '<div class="add-cred-form">' +
+            '<div class="form-group"><label>Credential Type</label><select id="newCredType"><option value="custom">Custom</option><option value="meta">Meta (Facebook/Instagram)</option><option value="google_analytics">Google Analytics</option><option value="wordpress">WordPress</option><option value="ghl">Go High Level</option><option value="zoho_crm">Zoho CRM</option><option value="hubspot">HubSpot</option><option value="keap">Keap</option><option value="stripe">Stripe</option><option value="mailchimp">Mailchimp</option></select></div>' +
+            '<div class="form-group"><label>Label *</label><input id="newCredLabel" placeholder="e.g. API Key, Access Token"></div>' +
+            '<div class="form-group"><label>Value *</label><input id="newCredValue" placeholder="Paste credential value"></div>' +
+            '<div class="form-group"><label>Notes</label><input id="newCredNotes" placeholder="Optional notes"></div>' +
+            '<div class="form-group"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="newCredSecret" checked> Mark as secret (masked by default)</label></div>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'addCredentialForm\').style.display=\'none\'">Cancel</button><button class="btn btn-primary btn-sm" onclick="saveNewCredential()">Save Credential</button></div></div>';
+    }
+
+    async function saveNewCredential() {
+        const label = document.getElementById('newCredLabel').value.trim();
+        const val = document.getElementById('newCredValue').value.trim();
+        if (!label || !val) { showToast('Label and Value required', 'error'); return; }
+        const { error } = await supabase.from('project_credentials').insert({
+            project_id: currentProject.id,
+            client_id: clientId,
+            credential_type: document.getElementById('newCredType').value,
+            credential_label: label,
+            credential_value: val,
+            is_secret: document.getElementById('newCredSecret').checked,
+            notes: document.getElementById('newCredNotes').value.trim() || null
+        });
+        if (error) { showToast('Error: ' + error.message, 'error'); return; }
+        document.getElementById('addCredentialForm').style.display = 'none';
+        showToast('Credential saved!');
+        loadProjectCredentials();
+    }
+
+    // ═══ LOGIN CREDENTIALS ═══
+    async function loadLoginCredentials() {
+        const { data } = await supabase.from('login_credentials').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const el = document.getElementById('clientLoginCredentials');
+        if (!data || !data.length) { el.innerHTML = '<div class="empty">No login credentials stored yet</div>'; return; }
+
+        el.innerHTML = data.map(lc => {
+            const pw = escapeHtml(lc.password || '').replace(/'/g, "\\'");
+            return '<div class="login-item">' +
+                '<div style="display:flex;align-items:center;justify-content:space-between"><div><div class="login-title">' + escapeHtml(lc.title) + '</div>' +
+                '<div class="login-purpose">' + escapeHtml(lc.purpose || '') + '</div></div>' +
+                '<div class="cred-actions"><button class="btn btn-sm btn-secondary" onclick="editLoginCred(\'' + lc.id + '\')">Edit</button></div></div>' +
+                '<div class="login-grid">' +
+                (lc.login_url ? '<div><span style="color:var(--text-muted)">URL:</span> <a href="' + escapeHtml(lc.login_url) + '" target="_blank" style="color:var(--accent)">' + escapeHtml(lc.login_url) + '</a></div>' : '') +
+                '<div><span style="color:var(--text-muted)">User:</span> ' + escapeHtml(lc.username || '—') + '</div>' +
+                '<div><span style="color:var(--text-muted)">Pass:</span> <span id="lcPass_' + lc.id + '" data-shown="0" style="font-family:JetBrains Mono,monospace">••••••••</span> ' +
+                '<button class="btn btn-xs btn-secondary" onclick="toggleLoginPass(\'' + lc.id + '\',\'' + pw + '\')">Show</button> ' +
+                '<button class="btn btn-xs btn-secondary" onclick="navigator.clipboard.writeText(\'' + pw + '\');showToast(\'Copied!\')">Copy</button></div></div>' +
+                (lc.access_instructions ? '<div class="login-instructions">' + escapeHtml(lc.access_instructions) + '</div>' : '') +
+                '</div>';
+        }).join('');
+    }
+
+    function toggleLoginPass(id, pw) {
+        const el = document.getElementById('lcPass_' + id);
+        if (!el) return;
+        if (el.dataset.shown === '1') { el.textContent = '••••••••'; el.dataset.shown = '0'; }
+        else { el.textContent = pw; el.dataset.shown = '1'; }
+    }
+
+    function editLoginCred(credId) {
+        supabase.from('login_credentials').select('*').eq('id', credId).single().then(({ data: lc }) => {
+            if (!lc) return;
+            openModal('<h3>Edit Login Credential</h3>' +
+                '<div class="form-group"><label>Title *</label><input id="elcTitle" value="' + escapeHtml(lc.title || '') + '"></div>' +
+                '<div class="form-group"><label>Purpose</label><input id="elcPurpose" value="' + escapeHtml(lc.purpose || '') + '"></div>' +
+                '<div class="form-group"><label>Login URL</label><input id="elcUrl" value="' + escapeHtml(lc.login_url || '') + '"></div>' +
+                '<div class="form-group"><label>Username</label><input id="elcUser" value="' + escapeHtml(lc.username || '') + '"></div>' +
+                '<div class="form-group"><label>Password</label><input id="elcPass" value="' + escapeHtml(lc.password || '') + '"></div>' +
+                '<div class="form-group"><label>Access Instructions</label><textarea id="elcInstr">' + escapeHtml(lc.access_instructions || '') + '</textarea></div>' +
+                '<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateLoginCred(\'' + credId + '\')">Save</button></div>');
+        });
+    }
+
+    async function updateLoginCred(credId) {
+        const title = document.getElementById('elcTitle').value.trim();
+        if (!title) { showToast('Title required', 'error'); return; }
+        const { error } = await supabase.from('login_credentials').update({
+            title, purpose: document.getElementById('elcPurpose').value.trim() || null,
+            login_url: document.getElementById('elcUrl').value.trim() || null,
+            username: document.getElementById('elcUser').value.trim() || null,
+            password: document.getElementById('elcPass').value.trim() || null,
+            access_instructions: document.getElementById('elcInstr').value.trim() || null,
+            updated_at: new Date().toISOString()
+        }).eq('id', credId);
+        if (error) { showToast('Error: ' + error.message, 'error'); return; }
+        closeModal(); showToast('Updated!'); loadLoginCredentials();
+    }
+
+    function showAddLoginForm() {
+        const el = document.getElementById('addLoginForm');
+        if (el.style.display === 'block') { el.style.display = 'none'; return; }
+        el.style.display = 'block';
+        el.innerHTML = '<div class="add-cred-form">' +
+            '<div class="form-group"><label>Title *</label><input id="newLoginTitle" placeholder="e.g. WordPress Admin, Stripe Dashboard"></div>' +
+            '<div class="form-group"><label>Purpose</label><input id="newLoginPurpose" placeholder="What is this login for?"></div>' +
+            '<div class="form-group"><label>Login URL</label><input id="newLoginUrl" placeholder="https://..."></div>' +
+            '<div class="form-group"><label>Username</label><input id="newLoginUser" placeholder="Username or email"></div>' +
+            '<div class="form-group"><label>Password</label><input id="newLoginPass" placeholder="Password"></div>' +
+            '<div class="form-group"><label>Access Instructions</label><textarea id="newLoginInstr" placeholder="Optional — any special steps or notes"></textarea></div>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'addLoginForm\').style.display=\'none\'">Cancel</button><button class="btn btn-primary btn-sm" onclick="saveNewLogin()">Save Login</button></div></div>';
+    }
+
+    async function saveNewLogin() {
+        const title = document.getElementById('newLoginTitle').value.trim();
+        if (!title) { showToast('Title required', 'error'); return; }
+        const { error } = await supabase.from('login_credentials').insert({
+            project_id: currentProject.id, title,
+            purpose: document.getElementById('newLoginPurpose').value.trim() || null,
+            login_url: document.getElementById('newLoginUrl').value.trim() || null,
+            username: document.getElementById('newLoginUser').value.trim() || null,
+            password: document.getElementById('newLoginPass').value.trim() || null,
+            access_instructions: document.getElementById('newLoginInstr').value.trim() || null
+        });
+        if (error) { showToast('Error: ' + error.message, 'error'); return; }
+        document.getElementById('addLoginForm').style.display = 'none';
+        showToast('Login saved!'); loadLoginCredentials();
+    }
+
+    // ═══ FILES ═══
+    async function loadFiles() {
+        const { data } = await supabase.from('project_files').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const el = document.getElementById('clientFiles');
+
+        // Also check storage bucket
+        let storageFiles = [];
+        try {
+            const { data: sFiles } = await supabase.storage.from('project-files').list(currentProject.id + '/');
+            storageFiles = sFiles || [];
+        } catch (e) { /* storage might not have folder yet */ }
+
+        const allFiles = [...(data || [])];
+
+        if (!allFiles.length && !storageFiles.length) { el.innerHTML = '<div class="empty">No files uploaded yet</div>'; return; }
+
+        let html = '';
+        allFiles.forEach(f => {
+            html += '<div class="file-item"><div style="display:flex;align-items:center"><span class="file-icon">' + fileIcon(f.file_name) + '</span><div><div class="file-name">' + escapeHtml(f.file_name || f.name || 'File') + '</div><div class="file-meta">' + fmtDate(f.created_at) + (f.file_size ? ' &middot; ' + formatFileSize(f.file_size) : '') + '</div></div></div>' +
+                (f.file_url ? '<a href="' + f.file_url + '" target="_blank" class="btn btn-sm btn-secondary">Download</a>' : '') + '</div>';
+        });
+
+        // Show storage files too
+        storageFiles.forEach(sf => {
+            if (sf.name === '.emptyFolderPlaceholder') return;
+            const url = SUPABASE_URL + '/storage/v1/object/public/project-files/' + currentProject.id + '/' + sf.name;
+            html += '<div class="file-item"><div style="display:flex;align-items:center"><span class="file-icon">' + fileIcon(sf.name) + '</span><div><div class="file-name">' + escapeHtml(sf.name) + '</div><div class="file-meta">' + (sf.metadata?.size ? formatFileSize(sf.metadata.size) : '') + '</div></div></div>' +
+                '<a href="' + url + '" target="_blank" class="btn btn-sm btn-secondary">Download</a></div>';
+        });
+
+        el.innerHTML = html;
+    }
+
+    function formatFileSize(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    async function handleFileUpload() {
+        const input = document.getElementById('fileUploadInput');
+        const file = input.files[0];
+        if (!file) return;
+
+        showToast('Uploading...');
+        const path = currentProject.id + '/' + Date.now() + '_' + file.name;
+        const { error } = await supabase.storage.from('project-files').upload(path, file, { upsert: true });
+        if (error) { showToast('Upload failed: ' + error.message, 'error'); return; }
+
+        showToast('File uploaded!');
+        input.value = '';
+        loadFiles();
+    }
+
+    // ═══ PREVIEWS ═══
+    async function loadPreviews() {
+        const { data } = await supabase.from('project_previews').select('*').eq('project_id', currentProject.id).order('created_at', { ascending: false });
+        const el = document.getElementById('clientPreviews');
+        if (!data || !data.length) { el.innerHTML = '<div class="empty">No previews available yet. The team will upload previews here for your review.</div>'; return; }
+
+        // Load comments for previews
+        const previewIds = data.map(p => p.id);
+        const { data: comments } = await supabase.from('preview_comments').select('*').in('preview_id', previewIds).order('created_at', { ascending: true });
+        const commentMap = {};
+        (comments || []).forEach(c => { if (!commentMap[c.preview_id]) commentMap[c.preview_id] = []; commentMap[c.preview_id].push(c); });
+
+        el.innerHTML = data.map(p => {
+            const typeIcon = { html: '&#127760;', image: '&#128247;', pdf: '&#128196;', video: '&#127909;' }[p.file_type] || '&#128196;';
+            const pComments = commentMap[p.id] || [];
+
+            return '<div class="preview-item">' +
+                '<div class="preview-header"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:1.2rem">' + typeIcon + '</span><div><div style="font-weight:600;font-size:.9rem">' + escapeHtml(p.title || p.preview_url || 'Preview') + '</div>' +
+                '<div class="preview-meta">' + fmtDate(p.created_at) + (p.file_type ? ' &middot; ' + p.file_type.toUpperCase() : '') + '</div></div></div>' +
+                '<div style="display:flex;align-items:center;gap:8px">' + statusBadge(p.approval_status || 'pending') +
+                (p.file_url || p.preview_url ? '<a href="' + (p.file_url || p.preview_url) + '" target="_blank" class="btn btn-sm btn-secondary">View</a>' : '') +
+                '</div></div>' +
+                (pComments.length ? '<div style="margin-top:8px">' + pComments.map(c => '<div class="preview-comment"><strong style="font-size:.75rem;color:var(--accent)">' + escapeHtml(c.author_name || 'Team') + '</strong> <span style="font-size:.7rem;color:var(--text-muted)">' + fmtDate(c.created_at) + '</span><div style="margin-top:4px">' + escapeHtml(c.content) + '</div></div>').join('') + '</div>' : '') +
+                '<div style="margin-top:8px;display:flex;gap:6px"><input id="prevComment_' + p.id + '" placeholder="Add a comment..." style="flex:1;padding:6px 10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.8rem"><button class="btn btn-sm btn-primary" onclick="addPreviewComment(\'' + p.id + '\')">Send</button></div>' +
+                '</div>';
+        }).join('');
+    }
+
+    async function addPreviewComment(previewId) {
+        const input = document.getElementById('prevComment_' + previewId);
+        const content = input.value.trim();
+        if (!content) return;
+
+        const { error } = await supabase.from('preview_comments').insert({
+            preview_id: previewId,
+            author_id: session.user.id,
+            author_name: session.user.email,
+            content: content
+        });
+        if (error) { showToast('Error: ' + error.message, 'error'); return; }
+        input.value = '';
+        showToast('Comment added!');
+        loadPreviews();
+    }
+
+    // ═══ FEEDBACK ═══
+    function selectType(btn) {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = btn.dataset.type;
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const title = document.getElementById('fbTitle').value.trim();
+        const content = document.getElementById('fbContent').value.trim();
+        if (!title || !content) return;
+
+        btn.disabled = true; btn.textContent = 'Submitting...';
+        try {
+            const { error } = await supabase.from('comments').insert([{
+                comment_type: selectedType, title, content,
+                project_id: currentProject.id, user_id: session.user.id,
+                user_name: session.user.email, is_client_facing: true
+            }]);
+            if (error) throw error;
+
+            // Notify
             try {
-                // Insert into comments table
-                const { data: comment, error: insertError } = await supabase
-                    .from('comments')
-                    .insert([
-                        {
-                            comment_type: selectedType,
-                            title: title,
-                            content: content,
-                            project_id: projectData.id,
-                            user_id: session.user.id,
-                            user_name: session.user.email,
-                            is_client_facing: true
-                        }
-                    ])
-                    .select();
+                await fetch(SUPABASE_URL + '/functions/v1/notify-comment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                    body: JSON.stringify({ project_name: currentProject.name, title, content, type: selectedType, submitted_by: session.user.email })
+                });
+            } catch (e) { /* non-fatal */ }
 
-                if (insertError) {
-                    throw insertError;
-                }
+            const msg = document.getElementById('successMessage');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 5000);
 
-                // Call notification edge function
-                try {
-                    const typeLabel = getTypeLabel(selectedType);
-                    await fetch(`${SUPABASE_URL}/functions/v1/notify-comment`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + session.access_token
-                        },
-                        body: JSON.stringify({
-                            project_name: projectData.name,
-                            title: title,
-                            content: content,
-                            type: typeLabel,
-                            submitted_by: session.user.email
-                        })
-                    });
-                } catch (notifyError) {
-                    console.error('Notification error (non-fatal):', notifyError);
-                }
-
-                // Show success message
-                const successMsg = document.getElementById('successMessage');
-                successMsg.classList.add('show');
-                setTimeout(() => {
-                    successMsg.classList.remove('show');
-                }, 5000);
-
-                // Reset form
-                document.getElementById('feedbackForm').reset();
-                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-                document.querySelector('[data-type="feedback"]').classList.add('active');
-                selectedType = 'feedback';
-
-                // Reload submissions
-                await loadPreviousSubmissions();
-
-            } catch (error) {
-                console.error('Submit error:', error);
-                alert('Error submitting feedback: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit';
-            }
+            document.getElementById('feedbackForm').reset();
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-type="feedback"]').classList.add('active');
+            selectedType = 'feedback';
+            loadSubmissions();
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Submit';
         }
+    }
 
-        // Utility functions
-        function getTypeClass(type) {
-            const classes = {
-                'feedback': 'feedback',
-                'bug': 'bug',
-                'feature': 'feature',
-                'other': 'other'
-            };
-            return classes[type] || 'other';
-        }
+    async function loadSubmissions() {
+        const { data } = await supabase.from('comments').select('*')
+            .eq('project_id', currentProject.id).eq('user_id', session.user.id).eq('is_client_facing', true)
+            .order('created_at', { ascending: false });
+        const el = document.getElementById('submissionsList');
+        if (!data || !data.length) { el.innerHTML = '<div class="empty">No submissions yet</div>'; return; }
 
-        function getTypeLabel(type) {
-            const labels = {
-                'feedback': 'Feedback',
-                'bug': 'Bug Report',
-                'feature': 'Feature Request',
-                'other': 'Other'
-            };
-            return labels[type] || type;
-        }
+        const typeColors = { feedback: '#64B5F6', bug: '#FF6B6B', feature: '#81C784', other: 'var(--accent)' };
+        el.innerHTML = '<table class="sub-table"><thead><tr><th>Type</th><th>Title</th><th>Date</th></tr></thead><tbody>' +
+            data.map(s => '<tr><td><span class="badge" style="border:1px solid ' + (typeColors[s.comment_type] || 'var(--accent)') + ';color:' + (typeColors[s.comment_type] || 'var(--accent)') + '">' + (s.comment_type || 'other').toUpperCase() + '</span></td><td>' + escapeHtml(s.title || '') + '</td><td style="color:var(--text-muted);font-size:.85rem">' + fmtDate(s.created_at) + '</td></tr>').join('') +
+            '</tbody></table>';
+    }
 
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Start
-        init();
+    // ═══ START ═══
+    init();
     </script>
 </body>
 </html>
