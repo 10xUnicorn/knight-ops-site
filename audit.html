@@ -792,7 +792,10 @@
     <!-- Navigation -->
     <nav class="nav">
         <a href="https://knightops.biz" class="nav-logo">KNIGHT OPS</a>
-        <a href="https://knightops.biz/#book" class="nav-cta">Book a Call</a>
+        <div style="display:flex;gap:18px;align-items:center">
+          <a href="https://knightops.biz/tools" style="color:#A1A1AA;text-decoration:none;font-size:.85rem;font-weight:500">Free Tools</a>
+          <a href="https://knightops.biz/book" class="nav-cta">Book a Call</a>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -878,7 +881,7 @@
                 <p class="rec-description" id="rec-description"></p>
                 <div class="rec-price" id="rec-price"></div>
                 <div class="cta-group">
-                    <a href="https://knightops.biz/#book" class="cta-primary" id="cta-book">Book Your Free Strategy Call &rarr;</a>
+                    <a href="https://knightops.biz/book" class="cta-primary" id="cta-book">Book Your Free Strategy Call &rarr;</a>
                     <a href="https://knightops.biz" class="cta-secondary">See What We Build &rarr;</a>
                 </div>
             </div>
@@ -891,8 +894,8 @@
             <p class="tagline">Built for coaches, consultants, and course creators who are ready to stop trading time for money.</p>
             <div class="stats-row">
                 <div class="stat-block">
-                    <div class="stat-value gradient-text">Custom</div>
-                    <div class="stat-label">Built For You</div>
+                    <div class="stat-value gradient-text">48hr</div>
+                    <div class="stat-label">Delivery</div>
                 </div>
                 <div class="stat-block">
                     <div class="stat-value gradient-text">$0/mo</div>
@@ -916,7 +919,14 @@
         'use strict';
 
         // ===== CONFIG =====
-        const GHL_WEBHOOK = 'GHL_WEBHOOK_URL_HERE'; // placeholder - Daniel will add his webhook URL
+        // Audit submissions → Supabase assessment_responses table
+        // On insert: fn_sync_assessment_to_lead trigger creates a lead with source='assessment',
+        // populates pain_points, opportunities, score, then enroll_lead_in_drip fires
+        // and auto-enrolls into lead_nurture sequence (step 0, next_send_at = +5min).
+        // auto_profile_personality trigger profiles BANK type from signals.
+        // Notification fires to Daniel automatically.
+        const SB_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
         // ===== QUESTIONS =====
         const questions = [
@@ -1185,29 +1195,67 @@
                 categoryDescription = "You're ahead of 90% of your peers. A few strategic upgrades could unlock fully automated client delivery and hands-free revenue growth.";
             }
 
-            // Fire GHL webhook
-            var payload = {
-                firstName: firstName,
+            // Compute pain_points + opportunities arrays from low-scoring categories
+            // (these get carried into the lead.intent_topics and opportunity_tags by the trigger)
+            var scoreCategories = [
+                {qid:'q4', label:'Client Onboarding', max:50},
+                {qid:'q5', label:'Client Experience', max:45},
+                {qid:'q6', label:'Revenue Optimization', max:45},
+                {qid:'q7', label:'Operational Efficiency', max:50},
+                {qid:'q8', label:'Lead Generation', max:50},
+                {qid:'q10', label:'Scale Readiness', max:50}
+            ];
+            var painPoints = [];
+            var opportunities = [];
+            scoreCategories.forEach(function(c) {
+                var raw = scores[c.qid] || 0;
+                var pct = Math.round((raw / c.max) * 100);
+                if (pct <= 50) painPoints.push(c.label);
+                else opportunities.push(c.label);
+            });
+
+            // tech_type CHECK constraint: architect | vibe_coder | blitz_builder | scholar
+            // Map score tier → tech persona (parallels BANK: architect=B, blitz_builder=A,
+            // vibe_coder=N, scholar=K). Default to blitz_builder for mid-range; nurture mid-low.
+            var techType;
+            if (normalizedScore >= 75) techType = 'architect';      // Scale Mode — methodical, system-thinking
+            else if (normalizedScore >= 50) techType = 'blitz_builder'; // Growth Ready — action-oriented
+            else if (normalizedScore >= 30) techType = 'vibe_coder';     // Patchwork — needs human-led approach
+            else techType = 'scholar';                                    // Foundation Setting — needs to learn first
+
+            // Supabase payload — assessment_responses schema
+            var nameStr = firstName + (businessName ? ' (' + businessName + ')' : '');
+            var supaPayload = {
+                name: nameStr,
                 email: email,
-                businessName: businessName,
-                businessType: answers.q1 || '',
-                revenue: answers.q2 || '',
-                clientCount: answers.q3 || '',
-                systemsScore: normalizedScore,
-                scoreCategory: category,
-                biggestBottleneck: answers.q9 || '',
-                source: 'AI Systems Audit - KnightOps.biz',
-                submittedAt: new Date().toISOString()
+                company: businessName || null,
+                industry: answers.q1 || null,
+                revenue_range: answers.q2 || null,
+                team_size: answers.q3 || null,
+                answers: answers,
+                tech_type: techType,
+                tech_type_scores: {
+                    systems_score: normalizedScore,
+                    category: category,
+                    by_category: scores
+                },
+                pain_points: painPoints,
+                opportunities: opportunities,
+                ai_opportunity_score: normalizedScore
             };
 
-            if (GHL_WEBHOOK !== 'GHL_WEBHOOK_URL_HERE') {
-                fetch(GHL_WEBHOOK, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(payload).toString(),
-                    mode: 'no-cors'
-                }).catch(function() {});
-            }
+            fetch(SB_URL + '/rest/v1/assessment_responses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SB_KEY,
+                    'Authorization': 'Bearer ' + SB_KEY,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(supaPayload)
+            }).then(function(r){
+                if(!r.ok){ r.text().then(function(t){ console.error('Audit submit failed:', r.status, t); }); }
+            }).catch(function(err){ console.error('Audit submit error:', err); });
 
             // Show results
             setTimeout(function() {
@@ -1307,19 +1355,19 @@
                 recTier.style.background = 'rgba(0,212,255,0.15)';
                 recTier.style.color = '#00D4FF';
                 recDesc.textContent = "Start with a conversion-focused website that captures leads while you sleep. Your current systems need a strong front door before building the house.";
-                recPrice.innerHTML = '';
+                recPrice.innerHTML = '<span class="gradient-text">$1,497</span>';
             } else if (score <= 60) {
                 recTier.textContent = 'NIGHT BUILD';
                 recTier.style.background = 'rgba(139,92,246,0.15)';
                 recTier.style.color = '#8B5CF6';
                 recDesc.textContent = "You need a full client system: portal, automation, onboarding, and ascension model. This is where businesses go from surviving to thriving.";
-                recPrice.innerHTML = '';
+                recPrice.innerHTML = '<span class="gradient-text">$7,497</span>';
             } else {
                 recTier.textContent = 'NIGHT BUILD PRO';
                 recTier.style.background = 'rgba(0,255,136,0.15)';
                 recTier.style.color = '#00FF88';
                 recDesc.textContent = "You're ready for the full platform: custom app, App Store deployment, and automated everything. This is how you build a business that runs without you.";
-                recPrice.innerHTML = '';
+                recPrice.innerHTML = '<span class="gradient-text">$14,997</span>';
             }
 
             // Show social proof
