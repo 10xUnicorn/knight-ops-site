@@ -4435,9 +4435,8 @@ async function deleteProposal(proposalId,intakeId){
 const APP_FILES_PUBLIC='https://knightops.biz/app';
 
 function genAppFileSlug(filename){
-  const ext=filename.lastIndexOf('.')>-1?filename.substring(filename.lastIndexOf('.')+1).toLowerCase():'';
   const base=filename.replace(/\.[^.]+$/,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  return base+'-'+Date.now().toString(36)+(ext?'.'+ext:'');
+  return base+'-'+Date.now().toString(36);
 }
 
 async function loadAppFilesSection(a){
