@@ -22,13 +22,15 @@ module.exports = async function handler(req, res) {
       res.setHeader('Content-Type', contentType);
       if (disposition) res.setHeader('Content-Disposition', disposition);
       res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-      res.status(resp.status).send(buf);
+      res.status(resp.status).end(buf);
     } else {
-      // Text/HTML content
+      // Text/HTML content — use res.writeHead + res.end to prevent Vercel from overriding Content-Type
       const html = await resp.text();
-      res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-      res.status(resp.status).send(html);
+      res.writeHead(resp.status, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'public, max-age=0, must-revalidate'
+      });
+      res.end(html);
     }
   } catch (err) {
     res.status(502).send('Upstream error: ' + err.message);
