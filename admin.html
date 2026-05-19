@@ -3417,6 +3417,12 @@ async function showAppDetail(id){
       '<div id="proposalBody-'+a.id+'"></div>'+
     '</div>'+
 
+    // ═══ CLIENT FILES SECTION ═══
+    '<div id="appFilesSection-'+a.id+'" style="margin-bottom:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(33,150,243,0.3);border-radius:14px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:1rem;color:#2196F3">&#128193; Client Files</h3><div id="appFilesActions-'+a.id+'"></div></div>'+
+      '<div id="appFilesBody-'+a.id+'"></div>'+
+    '</div>'+
+
     // ═══ APPLICATION DETAILS — EDITABLE GRID ═══
     '<div style="padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1rem">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--text)">👤 Client & Project Details</h3><button class="btn btn-sm btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All</button></div>'+
@@ -3486,6 +3492,7 @@ async function showAppDetail(id){
   refreshPromptPreview(a.id);
   refreshBlueprintPreview(a.id);
   loadProposalSection(a);
+  loadAppFilesSection(a);
 }
 
 async function refreshPromptPreview(intakeId){
@@ -4422,6 +4429,108 @@ async function deleteProposal(proposalId,intakeId){
   showToast('Proposal deleted.');
   const a=(S.applications||[]).find(x=>x.id===intakeId);
   if(a)loadProposalSection(a);
+}
+
+// ─── CLIENT FILES ───
+const APP_FILES_PUBLIC='https://knightops.biz/app';
+
+function genAppFileSlug(filename){
+  const ext=filename.lastIndexOf('.')>-1?filename.substring(filename.lastIndexOf('.')+1).toLowerCase():'';
+  const base=filename.replace(/\.[^.]+$/,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  return base+'-'+Date.now().toString(36)+(ext?'.'+ext:'');
+}
+
+async function loadAppFilesSection(a){
+  const body=document.getElementById('appFilesBody-'+a.id);
+  const acts=document.getElementById('appFilesActions-'+a.id);
+  if(!body)return;
+  const{data:files,error}=await sb.from('app_files').select('*').eq('intake_id',a.id).order('created_at',{ascending:false});
+  if(error){body.innerHTML='<p style="color:var(--error);font-size:0.85rem">Error loading files: '+error.message+'</p>';return;}
+
+  // Always show upload button
+  acts.innerHTML=
+    '<input type="file" id="appFileUpload-'+a.id+'" style="display:none" accept=".html,.htm,.pdf,.png,.jpg,.jpeg,.gif,.svg,.css,.js,.txt,.docx,.xlsx,.zip" onchange="handleAppFileUpload(\''+a.id+'\')">'+
+    '<button class="btn btn-sm btn-primary" style="background:linear-gradient(135deg,#2196F3,#1565C0);border:none" onclick="document.getElementById(\'appFileUpload-'+a.id+'\').click()">+ Upload File</button>';
+
+  if(!files||!files.length){
+    body.innerHTML='<p style="font-size:0.85rem;color:var(--text-muted)">No files uploaded yet. Upload HTML files to create live client pages, or any file type for downloads.</p>';
+    return;
+  }
+
+  let html='<div style="display:flex;flex-direction:column;gap:8px">';
+  files.forEach(f=>{
+    const url=APP_FILES_PUBLIC+'/'+f.slug;
+    const isHtml=f.content_type&&f.content_type.includes('html');
+    const icon=isHtml?'🌐':f.content_type&&f.content_type.includes('pdf')?'📄':f.content_type&&f.content_type.startsWith('image/')?'🖼️':'📎';
+    const sizeStr=f.file_size?(f.file_size<1024?f.file_size+'B':f.file_size<1048576?Math.round(f.file_size/1024)+'KB':Math.round(f.file_size/1048576*10)/10+'MB'):'';
+    const viewedBadge=f.viewed_at?'<span style="font-size:0.7rem;padding:2px 6px;border-radius:8px;background:rgba(76,175,80,0.15);color:#4CAF50">Viewed '+fmtDateTime(f.viewed_at)+'</span>':'<span style="font-size:0.7rem;padding:2px 6px;border-radius:8px;background:rgba(255,152,0,0.12);color:#FF9800">Not viewed</span>';
+    html+=
+      '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap">'+
+        '<span style="font-size:1.1rem">'+icon+'</span>'+
+        '<div style="flex:1;min-width:200px">'+
+          '<a href="'+url+'" target="_blank" style="font-size:0.85rem;font-weight:600;color:var(--info);text-decoration:none;word-break:break-all">'+url+'</a>'+
+          '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">'+
+            (f.label||f.slug)+' · '+sizeStr+' · '+fmtDateTime(f.created_at)+
+          '</div>'+
+        '</div>'+
+        viewedBadge+
+        '<div style="display:flex;gap:4px;flex-shrink:0">'+
+          '<button class="btn btn-sm btn-secondary" onclick="copyAppFileUrl(\''+f.slug+'\')" title="Copy URL">📋</button>'+
+          '<a href="'+url+'" target="_blank" class="btn btn-sm btn-secondary" style="text-decoration:none" title="Open">↗</a>'+
+          '<button class="btn btn-sm btn-danger" onclick="deleteAppFile(\''+f.id+'\',\''+a.id+'\')" title="Delete">🗑</button>'+
+        '</div>'+
+      '</div>';
+  });
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+async function handleAppFileUpload(intakeId){
+  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  const input=document.getElementById('appFileUpload-'+intakeId);
+  const file=input&&input.files[0];if(!file)return;
+  showToast('Uploading '+file.name+'…');
+
+  const slug=genAppFileSlug(file.name);
+  const storagePath=intakeId+'/'+slug;
+
+  const{error:upErr}=await sb.storage.from('app-files').upload(storagePath,file,{contentType:file.type||'application/octet-stream',upsert:true});
+  if(upErr){showToast('Upload failed: '+upErr.message,'error');input.value='';return;}
+
+  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown';
+  const{error:dbErr}=await sb.from('app_files').insert([{
+    intake_id:intakeId,
+    filename:file.name,
+    slug:slug,
+    file_type:file.name.split('.').pop().toLowerCase(),
+    storage_path:storagePath,
+    content_type:file.type||'application/octet-stream',
+    file_size:file.size,
+    client_name:fullName,
+    company:a.company||null,
+    label:file.name
+  }]);
+  if(dbErr){showToast('DB error: '+dbErr.message,'error');input.value='';return;}
+
+  showToast('File uploaded! Live at knightops.biz/app/'+slug);
+  input.value='';
+  loadAppFilesSection(a);
+}
+
+async function deleteAppFile(fileId,intakeId){
+  if(!confirm('Delete this file? The storage file will remain but the record will be removed.'))return;
+  const{error}=await sb.from('app_files').delete().eq('id',fileId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('File deleted.');
+  const a=(S.applications||[]).find(x=>x.id===intakeId);
+  if(a)loadAppFilesSection(a);
+}
+
+function copyAppFileUrl(slug){
+  const url=APP_FILES_PUBLIC+'/'+slug;
+  navigator.clipboard.writeText(url).then(()=>showToast('Copied: '+url)).catch(()=>{
+    const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);showToast('Copied: '+url);
+  });
 }
 
 // ─── MANUAL APPLICATION ───
