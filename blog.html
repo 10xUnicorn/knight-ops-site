@@ -125,7 +125,21 @@ footer nav{position:static!important;z-index:auto!important;background:none!impo
 .post-content strong{color:var(--white)}
 .post-content a{color:var(--gold);text-decoration:underline}
 .post-content code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.85em}
-.post-content img{max-width:100%;border-radius:10px;margin:24px 0}
+.post-content img{max-width:100%;border-radius:10px;margin:24px 0;border:1px solid var(--border)}
+.post-content table{width:100%;border-collapse:collapse;margin:24px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.post-content thead{background:var(--gold);color:var(--bg)}
+.post-content thead th{padding:12px 16px;text-align:left;font-size:.85rem;font-weight:700;color:var(--bg)}
+.post-content tbody tr{background:var(--card);border-bottom:1px solid var(--border)}
+.post-content tbody tr:nth-child(even){background:var(--bg3)}
+.post-content tbody tr:hover{background:var(--card-h)}
+.post-content td{padding:10px 16px;font-size:.875rem;color:var(--txt2)}
+.post-content td:first-child{color:var(--white);font-weight:600}
+.post-content .key-takeaway,.post-content [class*="takeaway"],.post-content blockquote:first-of-type{border-left:3px solid var(--gold);padding:16px 20px;margin:24px 0;background:var(--gold-s);border-radius:0 8px 8px 0}
+.post-content h3:has(+ ol),.post-content h3[id*="step"]{color:var(--gold)}
+.post-content figure{margin:24px 0}
+.post-content figcaption{font-size:.78rem;color:var(--muted);text-align:center;margin-top:8px}
+.post-content img{max-width:100%;border-radius:10px;margin:24px 0;border:1px solid var(--border)}
+.post-content th{color:var(--bg);background:var(--gold)}
 
 /* CTA BOX */
 .cta-box{background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(200,164,86,.02));border:1px solid var(--gold-b);border-radius:14px;padding:32px;margin:48px 0;text-align:center}
@@ -510,5 +524,6 @@ window.addEventListener('scroll',()=>{
 
 init();
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"77dc31d401354a76bca496fafb5b607a","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
