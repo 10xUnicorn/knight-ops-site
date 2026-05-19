@@ -3263,11 +3263,36 @@ function fmtTimeline2(t){
     '1_3_months':'1-3 Months','3_6_months':'3-6 Months','6_12_months':'6-12 Months'};
   return m[t]||t||'—';
 }
-function showAppDetail(id){
+async function enrichAppWithRelatedData(a){
+  try{
+    // Fetch client by email match
+    if(a.email&&!a._clientData){
+      const{data:clients}=await sb.from('clients').select('*').eq('email',a.email).limit(1);
+      a._clientData=(clients&&clients[0])||null;
+    }
+    // Fetch projects linked to this intake
+    if(!a._projectData){
+      const{data:projects}=await sb.from('projects').select('*').eq('intake_id',a.id);
+      if(projects&&projects.length>0){
+        a._projectData=projects;
+      } else if(a._clientData){
+        // fallback: projects by client_id
+        const{data:cp}=await sb.from('projects').select('*').eq('client_id',a._clientData.id);
+        a._projectData=(cp&&cp.length>0)?cp:null;
+      }
+    }
+  }catch(e){console.warn('enrichAppWithRelatedData error',e);}
+}
+
+async function showAppDetail(id){
   const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
   navTo('applications');
   document.getElementById('appsListView').style.display='none';
   document.getElementById('appDetailView').style.display='block';
+
+  // Fetch linked client + project data for prompt enrichment
+  await enrichAppWithRelatedData(a);
+
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
   const linkedLead=a.lead_id?(S.leads||[]).find(l=>l.id===a.lead_id):null;
   const formLabel=a.form_type==='blueprint'?'Blueprint Session':a.form_type==='mini_blueprint'?'Mini Blueprint':a.form_type==='website_intake'?'Website Intake':'Public Form';
@@ -3463,8 +3488,9 @@ function showAppDetail(id){
   loadProposalSection(a);
 }
 
-function refreshPromptPreview(intakeId){
+async function refreshPromptPreview(intakeId){
   const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  await enrichAppWithRelatedData(a);
   const opts=getPromptOptions(intakeId);
   document.getElementById('promptPreview-'+intakeId).textContent=generateBuildPrompt(a,opts);
 }
@@ -3480,15 +3506,9 @@ function getPromptOptions(intakeId){
 
 function generateBuildPrompt(a,opts){
   opts=opts||{};
-  const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
+  const{block,fullName,platform,coreOutcome}=buildAllFieldsBlock(a);
   const firstName=a.first_name||'Client';
-  const platform=(a.bp_platform||a.q7_platform_type||'not specified').replace(/_/g,' ');
-  const appStore=(a.bp_deployment||a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
-  const budget=fmtBudget(a.budget);
-  const timeline=fmtTimeline2(a.timeline);
   const projectDesc=a.bp_core_outcome||a.q4_core_outcome||'No description provided';
-  const notes=a.q9_non_negotiables||'';
-  const isBlueprint=a.form_type==='blueprint';
 
   // Infer primary outcome
   let primaryOutcome='';
@@ -3528,36 +3548,8 @@ Service Tiers:
 • Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 • Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-APPLICATION SUBMISSION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Name: ${fullName}
-Email: ${a.email}
-Phone: ${a.phone||'Not provided'}
-Company: ${a.company||'Not provided'}
-Platform: ${platform}
-App Store Deployment: ${appStore}
-Budget: ${budget}
-Timeline: ${timeline}
-Submitted: ${fmtDateTime(a.created_at)}
-${a.utm_source?'Source: '+a.utm_source:''}${a.utm_campaign?' / Campaign: '+a.utm_campaign:''}
+${block}
 
-WHAT THEY WANT TO BUILD:
-${projectDesc}
-${notes?'\nMUST-HAVES / ADDITIONAL NOTES:\n'+notes:''}
-${isBlueprint?`
-BLUEPRINT SESSION DEEP DIVE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-System Type: ${(a.bp_system_type||'not specified').replace(/_/g,' ')}
-Target Users: ${a.bp_target_users||'Not specified'}
-Time Sink (where they spend most time): ${a.bp_time_sink||'Not specified'}
-Revenue Driver (where they make most money): ${a.bp_revenue_driver||'Not specified'}
-10x Vision (what would multiply their revenue): ${a.bp_ten_x||'Not specified'}
-Non-Negotiable Features: ${a.bp_non_negotiables||'Not specified'}
-MVP Requirements: ${a.bp_mvp_requirements||'Not specified'}
-Current Tools: ${a.bp_current_tools||'Not specified'}
-Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}
-`:''}
 INFERRED PRIMARY OUTCOME: ${primaryOutcome}
 RECOMMENDED TIER: ${recTier}
 
@@ -3765,8 +3757,9 @@ GLOBAL RULES
 - Name the HTML: knight-ops-proposal-${firstName.toLowerCase()}-${a.last_name.toLowerCase()}.html`;
 }
 
-function copyBuildPrompt(id){
+async function copyBuildPrompt(id){
   const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  await enrichAppWithRelatedData(a);
   const opts=getPromptOptions(id);
   const prompt=generateBuildPrompt(a,opts);
   navigator.clipboard.writeText(prompt).then(()=>showToast('Build prompt copied to clipboard!')).catch(()=>{
@@ -3775,15 +3768,174 @@ function copyBuildPrompt(id){
   });
 }
 
-function generateBlueprintPrompt(a){
+// Helper: build all-fields data block shared by both prompt generators
+function buildAllFieldsBlock(a){
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
-  const firstName=a.first_name||'Client';
   const platform=(a.bp_platform||a.q7_platform_type||'not specified').replace(/_/g,' ');
   const appStore=(a.bp_deployment||a.q8_app_store_deploy||'not specified').replace(/_/g,' ');
   const budget=fmtBudget(a.budget);
   const timeline=fmtTimeline2(a.timeline);
   const coreOutcome=a.bp_core_outcome||a.q4_core_outcome||'Not specified';
   const isBlueprint=a.form_type==='blueprint';
+  const isMiniBlueprint=a.form_type==='mini_blueprint';
+  const isWebsite=a.form_type==='website_intake';
+
+  let block=`
+==============================
+CLIENT PROFILE
+==============================
+Name: ${fullName}
+Email: ${a.email||'Not provided'}
+Phone: ${a.phone||'Not provided'}
+Company: ${a.company||'Not provided'}
+${a.title?'Title/Role: '+a.title:''}
+Platform: ${platform}
+App Store Deployment: ${appStore}
+Budget: ${budget}
+Timeline: ${timeline}
+Form Type: ${a.form_type||'standard'}
+Submitted: ${fmtDateTime(a.created_at)}
+Source: ${a.source||'Not specified'}
+${a.referral_source?'Referral Source: '+a.referral_source:''}
+${a.utm_source?'UTM Source: '+a.utm_source:''}${a.utm_medium?' / Medium: '+a.utm_medium:''}${a.utm_campaign?' / Campaign: '+a.utm_campaign:''}
+Status: ${a.status||'new'}`;
+
+  // Admin notes
+  if(a.admin_notes){
+    block+=`
+
+ADMIN NOTES (internal context from Daniel):
+==============================
+${a.admin_notes}`;
+  }
+
+  // Public form q1-q10 responses
+  if(a.q1_time_spent||a.q2_revenue_source||a.q3_10x_requirement||a.q4_core_outcome||a.q5_target_users||a.q6_internal_or_commercial||a.q9_non_negotiables||a.q10_mvp_requirements){
+    block+=`
+
+APPLICATION FORM RESPONSES:
+==============================
+${a.q1_time_spent?'Where They Spend Most Time (q1): '+a.q1_time_spent:''}
+${a.q2_revenue_source?'Primary Revenue Source (q2): '+a.q2_revenue_source:''}
+${a.q3_10x_requirement?'What Would 10x Their Business (q3): '+a.q3_10x_requirement:''}
+${a.q4_core_outcome?'What They Want to Build (q4): '+a.q4_core_outcome:''}
+${a.q5_target_users?'Target Users (q5): '+a.q5_target_users:''}
+${a.q6_internal_or_commercial?'Internal or Commercial (q6): '+a.q6_internal_or_commercial:''}
+Platform Type (q7): ${a.q7_platform_type||'Not specified'}
+App Store Deploy (q8): ${a.q8_app_store_deploy||'Not specified'}
+${a.q9_non_negotiables?'Non-Negotiable Features (q9): '+a.q9_non_negotiables:''}
+${a.q10_mvp_requirements?'MVP Requirements (q10): '+a.q10_mvp_requirements:''}`;
+  }
+
+  // Blueprint session fields
+  if(isBlueprint||a.bp_time_sink||a.bp_core_outcome){
+    block+=`
+
+BLUEPRINT SESSION DEEP DIVE:
+==============================
+System Type: ${(a.bp_system_type||'not specified').replace(/_/g,' ')}
+Target Users: ${a.bp_target_users||'Not specified'}
+Where They Spend the Most Time: ${a.bp_time_sink||'Not specified'}
+Where They Make the Most Money: ${a.bp_revenue_driver||'Not specified'}
+What Would 10x That: ${a.bp_ten_x||'Not specified'}
+Core Outcome: ${a.bp_core_outcome||'Not specified'}
+Platform: ${(a.bp_platform||'not specified').replace(/_/g,' ')}
+Deployment: ${(a.bp_deployment||'not specified').replace(/_/g,' ')}
+Non-Negotiable Features: ${a.bp_non_negotiables||'Not specified'}
+MVP Requirements: ${a.bp_mvp_requirements||'Not specified'}
+Current Tools & Software: ${a.bp_current_tools||'Not specified'}
+Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}`;
+  }
+
+  // Mini blueprint SWOT fields
+  if(isMiniBlueprint||a.mb_strengths||a.mb_industry){
+    block+=`
+
+MINI BLUEPRINT SWOT ANALYSIS:
+==============================
+Industry: ${a.mb_industry||'Not specified'}
+Strengths: ${a.mb_strengths||'Not specified'}
+Weaknesses: ${a.mb_weaknesses||'Not specified'}
+Opportunities: ${a.mb_opportunities||'Not specified'}
+Threats / Risks: ${a.mb_threats||'Not specified'}
+Current Delivery Method: ${a.mb_current_delivery||'Not specified'}
+Dream System: ${a.mb_dream_system||'Not specified'}
+Systems Needed: ${a.mb_systems_needed||'Not specified'}
+Competitor Tech: ${a.mb_competitor_tech||'Not specified'}
+Cost of Inaction: ${a.mb_cost_of_inaction||'Not specified'}`;
+  }
+
+  // Website intake fields
+  if(isWebsite||a.ws_current_url||a.ws_pages_needed){
+    block+=`
+
+WEBSITE INTAKE DETAILS:
+==============================
+Current URL: ${a.ws_current_url||'None'}
+Has Domain: ${a.ws_has_domain||'Not specified'}
+Domain Name: ${a.ws_domain_name||'Not specified'}
+Has Logo: ${a.ws_has_logo||'Not specified'}
+Has Copy: ${a.ws_has_copy||'Not specified'}
+Brand Colors: ${a.ws_brand_colors||'Not specified'}
+Style Vibe: ${a.ws_style_vibe||'Not specified'}
+Primary CTA: ${a.ws_primary_cta||'Not specified'}
+Current Likes: ${a.ws_current_likes||'Not specified'}
+Current Dislikes: ${a.ws_current_dislikes||'Not specified'}
+Reference Sites: ${a.ws_reference_sites||'Not specified'}
+Imagery Notes: ${a.ws_imagery_notes||'Not specified'}
+Pages Needed: ${a.ws_pages_needed||'Not specified'}
+Features Needed: ${a.ws_features_needed||'Not specified'}
+Ideal Client: ${a.ws_ideal_client||'Not specified'}
+Differentiator: ${a.ws_differentiator||'Not specified'}
+Additional Notes: ${a.ws_additional_notes||'Not specified'}`;
+  }
+
+  // Linked client data
+  const c=a._clientData;
+  if(c){
+    block+=`
+
+LINKED CLIENT RECORD:
+==============================
+Client Name: ${c.name||c.first_name&&c.last_name?((c.first_name||'')+' '+(c.last_name||'')).trim():'Same as above'}
+Client Email: ${c.email||'Same as above'}
+Tier: ${c.tier||'Not set'}
+Status: ${c.status||'Not set'}
+Total Contract Value: ${c.total_contract_value?'$'+Number(c.total_contract_value).toLocaleString():'Not set'}
+Amount Paid: ${c.amount_paid?'$'+Number(c.amount_paid).toLocaleString():'Not set'}
+${c.notes?'Client Notes: '+c.notes:''}
+${c.company?'Company: '+c.company:''}
+${c.phone?'Phone: '+c.phone:''}`;
+  }
+
+  // Linked project data
+  const projects=a._projectData;
+  if(projects&&projects.length>0){
+    block+=`
+
+LINKED PROJECT(S):
+==============================`;
+    projects.forEach((p,i)=>{
+      block+=`
+--- Project ${i+1}: ${p.name||'Unnamed'} ---
+Description: ${p.description||'No description'}
+Tier: ${p.tier||'Not set'}
+Status: ${p.status||'Not set'}
+Start Date: ${p.start_date?fmtDate(p.start_date):'Not set'}
+Due Date: ${p.due_date?fmtDate(p.due_date):'Not set'}
+${p.tech_stack?'Tech Stack: '+p.tech_stack:''}
+${p.notes?'Project Notes: '+p.notes:''}`;
+    });
+  }
+
+  // Clean up blank lines from empty template literals
+  block=block.replace(/\n{3,}/g,'\n\n').trim();
+  return{block,fullName,platform,appStore,budget,timeline,coreOutcome,isBlueprint,isMiniBlueprint,isWebsite};
+}
+
+function generateBlueprintPrompt(a){
+  const{block,fullName,coreOutcome}=buildAllFieldsBlock(a);
+  const firstName=a.first_name||'Client';
 
   return `You are a world-class business systems architect and strategic growth consultant for Knight Ops, a premium overnight development firm founded by Daniel Knight. You specialize in creating 10x Systems Blueprints that transform how entrepreneurs and business owners operate.
 
@@ -3802,38 +3954,8 @@ Service Tiers:
 - Night Build Pro -- $14,997 (split: $7,499 x2) -- Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 - Workshop -- $1,000 -- 2-day, 4-hour hands-on workshop. Build your own app.
 
-==============================
-CLIENT PROFILE
-==============================
-Name: ${fullName}
-Email: ${a.email||'Not provided'}
-Phone: ${a.phone||'Not provided'}
-Company: ${a.company||'Not provided'}
-Platform: ${platform}
-App Store Deployment: ${appStore}
-Budget: ${budget}
-Timeline: ${timeline}
-Form Type: ${a.form_type||'standard'}
-Submitted: ${fmtDateTime(a.created_at)}
-${a.title?'Title/Role: '+a.title:''}
-${a.utm_source?'UTM Source: '+a.utm_source:''}${a.utm_campaign?' / Campaign: '+a.utm_campaign:''}
+${block}
 
-WHAT THEY WANT TO BUILD:
-${coreOutcome}
-${a.q9_non_negotiables?'MUST-HAVES / NON-NEGOTIABLES: '+a.q9_non_negotiables:''}
-${isBlueprint?`
-BLUEPRINT SESSION DEEP DIVE:
-==============================
-System Type: ${(a.bp_system_type||'not specified').replace(/_/g,' ')}
-Target Users: ${a.bp_target_users||'Not specified'}
-Where They Spend the Most Time: ${a.bp_time_sink||'Not specified'}
-Where They Make the Most Money: ${a.bp_revenue_driver||'Not specified'}
-What Would 10x That: ${a.bp_ten_x||'Not specified'}
-Non-Negotiable Features: ${a.bp_non_negotiables||'Not specified'}
-MVP Requirements: ${a.bp_mvp_requirements||'Not specified'}
-Current Tools & Software: ${a.bp_current_tools||'Not specified'}
-Biggest Bottleneck: ${a.bp_biggest_bottleneck||'Not specified'}
-`:''}
 ==============================
 YOUR TASK: GENERATE A 10x SYSTEMS BLUEPRINT
 ==============================
@@ -3903,8 +4025,9 @@ CRITICAL FORMATTING RULES:
 - File name: knight-ops-blueprint-${firstName.toLowerCase()}${a.last_name?'-'+a.last_name.toLowerCase():''}.html`;
 }
 
-function copyBlueprintPrompt(id){
+async function copyBlueprintPrompt(id){
   const a=(S.applications||[]).find(x=>x.id===id);if(!a)return;
+  await enrichAppWithRelatedData(a);
   const prompt=generateBlueprintPrompt(a);
   navigator.clipboard.writeText(prompt).then(()=>showToast('Blueprint prompt copied to clipboard!','success')).catch(()=>{
     const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
@@ -3912,8 +4035,9 @@ function copyBlueprintPrompt(id){
   });
 }
 
-function refreshBlueprintPreview(intakeId){
+async function refreshBlueprintPreview(intakeId){
   const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+  await enrichAppWithRelatedData(a);
   const el=document.getElementById('blueprintPreview-'+intakeId);
   if(el)el.textContent=generateBlueprintPrompt(a);
 }
