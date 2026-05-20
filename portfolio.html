@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio & Case Studies — Knight Ops | 50+ Systems Built, $200M+ Impact</title>
+<meta name="description" content="Explore Knight Ops portfolio: 50+ custom AI systems, 7+ live platforms, and real case studies with measurable ROI. Financial advisory, automotive, government, nonprofit, and more.">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://knightops.biz/portfolio">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/portfolio">
+<meta property="og:title" content="Portfolio & Case Studies — Knight Ops">
+<meta property="og:description" content="50+ systems built. $200M+ impact. Real case studies from financial advisory, automotive, government, and nonprofit sectors.">
+<meta property="og:site_name" content="Knight Ops">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portfolio & Case Studies — Knight Ops">
+<meta name="twitter:description" content="50+ systems built. $200M+ impact. Real case studies from financial advisory, automotive, government, and nonprofit sectors.">
+<meta name="author" content="Daniel Knight">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Knight Ops Portfolio & Case Studies",
+  "url": "https://knightops.biz/portfolio",
+  "description": "Portfolio of 50+ custom AI systems and automations built by Knight Ops, with detailed case studies showing measurable business impact.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Knight Ops",
+    "url": "https://knightops.biz",
+    "founder": { "@type": "Person", "name": "Daniel Knight" }
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      { "@type": "CreativeWork", "name": "Financial Advisory Dashboard", "description": "Custom dashboard reducing client prep time from 30 minutes to under 2 minutes." },
+      { "@type": "CreativeWork", "name": "Automotive KPI Command Center", "description": "Unified dashboard across 12 dealerships, driving region to #1 nationally." },
+      { "@type": "CreativeWork", "name": "CARES Act Digital Application System", "description": "Paper-to-digital system deployed in 24 hours, facilitating $4.5M in applications." },
+      { "@type": "CreativeWork", "name": "Nonprofit Contribution Pipeline", "description": "Automated pledge-to-payment pipeline processing $75M+ in contributions." }
+    ]
+  }
+}
+</script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --deep: #06061A;
+  --surface: #0A0A0B;
+  --surface2: #111113;
+  --surface3: #18181B;
+  --card: rgba(12,12,22,0.75);
+  --border: rgba(200,164,86,0.06);
+  --border-gold: rgba(200,164,86,0.2);
+  --border-blue: rgba(0,229,255,0.15);
+  --glass-gold: rgba(200,164,86,0.12);
+  --glass-cyan: rgba(0,229,255,0.08);
+  --glass-violet: rgba(123,97,255,0.06);
+  --white: #F4F4F5;
+  --cream: #F0EEFF;
+  --gray: #A1A1AA;
+  --muted: #71717A;
+  --dim: #404050;
+  --gold: #C8A456;
+  --gold-bright: #FFD166;
+  --gold-light: #D4B56A;
+  --gold-glow: rgba(200,164,86,0.4);
+  --violet: #7B61FF;
+  --violet-glow: rgba(123,97,255,0.3);
+  --cyan: #00E5FF;
+  --cyan-glow: rgba(0,229,255,0.25);
+  --neon-blue: #00E5FF;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--deep);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#bgCanvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+.grid-ov {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(200,164,86,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,164,86,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  z-index: 0; pointer-events: none;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  background: rgba(6,6,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.3s;
+}
+.nav-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.25rem;
+  color: var(--white); text-decoration: none;
+}
+.nav-brand span { color: var(--gold); }
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  color: var(--gray); text-decoration: none;
+  transition: color 0.3s;
+  letter-spacing: 0.5px;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  color: var(--gold) !important;
+  border: 1px solid var(--border-gold);
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.8rem !important;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.nav-cta:hover { background: var(--glass-gold); color: var(--gold-bright) !important; }
+
+/* ── SECTION UTILITIES ── */
+.section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.section-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 3rem;
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+}
+.section-headline .gold { color: var(--gold); font-style: italic; }
+.section-headline .violet { color: var(--violet); font-style: italic; }
+.section-headline .cyan { color: var(--cyan); font-style: italic; }
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+}
+.hero .section-label { margin-bottom: 1.5rem; }
+.hero-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 4rem;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+}
+.hero-headline .gold { color: var(--gold); font-style: italic; }
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--gray);
+  line-height: 1.8;
+  max-width: 640px;
+  margin-bottom: 2.5rem;
+}
+.hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+/* ── BUTTONS ── */
+.btn-gold {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--deep);
+  border: none; border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-block;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow); }
+.btn-outline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-block;
+}
+.btn-outline:hover { background: var(--glass-gold); border-color: var(--gold); }
+
+/* ── IMPACT STATS BAR ── */
+.impact-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+}
+.impact-bar::before,
+.impact-bar::after {
+  content: '';
+  position: absolute; left: 2rem; right: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+.impact-bar::before { top: 0; }
+.impact-bar::after { bottom: 0; }
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+}
+.impact-stat {
+  text-align: center;
+  padding: 2.5rem 0.75rem;
+}
+.impact-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.impact-num.gold { color: var(--gold); }
+.impact-num.violet { color: var(--violet); }
+.impact-num.cyan { color: var(--cyan); }
+.impact-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── CASE STUDIES ── */
+.case-study {
+  backdrop-filter: blur(12px);
+  background: var(--card);
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 3rem;
+  align-items: start;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.case-study:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.case-study.border-violet { border-color: rgba(123,97,255,0.25); }
+.case-study.border-cyan { border-color: rgba(0,229,255,0.2); }
+.case-study.border-gold { border-color: var(--border-gold); }
+
+.case-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+.case-metric {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+.case-metric.gold { color: var(--gold); }
+.case-metric.violet { color: var(--violet); }
+.case-metric.cyan { color: var(--cyan); }
+.case-industry {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.case-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.case-tag {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+  border: 1px solid var(--border-gold);
+  color: var(--gray);
+  background: var(--glass-gold);
+}
+.case-tag.violet { border-color: rgba(123,97,255,0.2); background: var(--glass-violet); }
+.case-tag.cyan { border-color: rgba(0,229,255,0.15); background: var(--glass-cyan); }
+
+.case-right { padding: 0.5rem 0; }
+.case-block {
+  margin-bottom: 1.75rem;
+}
+.case-block:last-child { margin-bottom: 0; }
+.case-block-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+.case-block-label.problem { color: var(--muted); }
+.case-block-label.solution { color: var(--gold); }
+.case-block-label.result { color: var(--cyan); }
+.case-block p {
+  font-size: 0.95rem;
+  color: var(--gray);
+  line-height: 1.75;
+}
+
+/* ── PLATFORM CARDS ── */
+.platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.platform-card {
+  backdrop-filter: blur(12px);
+  background: var(--card);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.platform-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+/* Browser chrome */
+.browser-chrome {
+  background: var(--surface2);
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.browser-dots {
+  display: flex;
+  gap: 5px;
+}
+.browser-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.browser-dots span:nth-child(1) { background: #FF5F57; }
+.browser-dots span:nth-child(2) { background: #FFBD2E; }
+.browser-dots span:nth-child(3) { background: #28C840; }
+.browser-url {
+  flex: 1;
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-screen {
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+.browser-screen .gradient-fill {
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+}
+.browser-screen .screen-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.06) 0%, transparent 60%);
+}
+/* Gradient variants */
+.grad-gold-dark { background: linear-gradient(135deg, rgba(200,164,86,0.3), var(--surface) 80%); }
+.grad-violet-dark { background: linear-gradient(135deg, rgba(123,97,255,0.3), var(--surface) 80%); }
+.grad-cyan-dark { background: linear-gradient(135deg, rgba(0,229,255,0.25), var(--surface) 80%); }
+.grad-gold-violet { background: linear-gradient(135deg, rgba(255,209,102,0.3), rgba(123,97,255,0.25), var(--surface) 90%); }
+.grad-cyan-gold { background: linear-gradient(135deg, rgba(0,229,255,0.25), rgba(200,164,86,0.2), var(--surface) 90%); }
+.grad-violet-cyan { background: linear-gradient(135deg, rgba(123,97,255,0.3), rgba(0,229,255,0.2), var(--surface) 90%); }
+.grad-gold-cyan { background: linear-gradient(135deg, rgba(200,164,86,0.3), rgba(0,229,255,0.2), var(--surface) 90%); }
+
+.platform-info {
+  padding: 1.25rem 1.5rem;
+}
+.platform-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.status-badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+}
+.status-live {
+  background: rgba(40,200,64,0.15);
+  color: #28C840;
+  border: 1px solid rgba(40,200,64,0.25);
+}
+.status-beta {
+  background: rgba(123,97,255,0.12);
+  color: var(--violet);
+  border: 1px solid rgba(123,97,255,0.25);
+}
+.platform-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+.platform-tiers {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+}
+.platform-link {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+.platform-link:hover { color: var(--gold-bright); }
+
+/* ── INDUSTRIES ── */
+.industries-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+.industry-card {
+  backdrop-filter: blur(12px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.industry-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+}
+.industry-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.industry-icon.gold-bg { background: var(--glass-gold); color: var(--gold); border: 1px solid var(--border-gold); }
+.industry-icon.violet-bg { background: var(--glass-violet); color: var(--violet); border: 1px solid rgba(123,97,255,0.15); }
+.industry-icon.cyan-bg { background: var(--glass-cyan); color: var(--cyan); border: 1px solid var(--border-blue); }
+.industry-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+/* ── BOTTOM CTA ── */
+.bottom-cta {
+  text-align: center;
+  padding: 6rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.bottom-cta .section-headline { margin-bottom: 1.25rem; }
+.bottom-cta .section-sub {
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+.ghost-link {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.ghost-link:hover { color: var(--gold); }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+.footer-brand span { color: var(--gold); }
+.footer-copy {
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.footer-links a {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--gold); }
+.footer-address {
+  width: 100%;
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--dim);
+  margin-top: 0.5rem;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+
+/* ── MOBILE ── */
+@media (max-width: 1024px) {
+  .impact-grid { grid-template-columns: repeat(3, 1fr); }
+  .platforms-grid { grid-template-columns: repeat(2, 1fr); }
+  .industries-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+
+  .hero-headline { font-size: 2.5rem; }
+  .section-headline { font-size: 2.2rem; }
+
+  .impact-grid { grid-template-columns: repeat(2, 1fr); }
+  .platforms-grid { grid-template-columns: 1fr; }
+  .industries-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .case-study {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem;
+  }
+  .case-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    padding: 0;
+  }
+  .case-metric { font-size: 3.5rem; }
+  .case-tags { justify-content: flex-start; }
+
+  .section { padding: 4rem 1.5rem; }
+  .hero-ctas { flex-direction: column; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .hero-headline { font-size: 2rem; }
+  .section-headline { font-size: 1.8rem; }
+  .impact-num { font-size: 1.8rem; }
+  .case-metric { font-size: 2.8rem; }
+  .case-study { padding: 1.5rem; }
+  .industries-grid { grid-template-columns: 1fr; }
+  .impact-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+
+<div class="page-content">
+
+<!-- ════════ NAV ════════ -->
+<nav class="nav">
+  <a href="/" class="nav-brand">Knight <span>Ops</span></a>
+  <div class="nav-links">
+    <a href="/services#tools">Tools</a>
+    <a href="/services#audit">AI Audit</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/fractional-ai-officer">FAO</a>
+    <a href="/#book" class="nav-cta">BOOK A CALL</a>
+  </div>
+</nav>
+
+<!-- ════════ SECTION 1: HERO ════════ -->
+<section class="hero">
+  <div class="section-label reveal">PORTFOLIO &amp; CASE STUDIES</div>
+  <h1 class="hero-headline reveal">50+ Systems Built. <span class="gold">$200M+ Impact.</span> Here's the Proof.</h1>
+  <p class="hero-sub reveal">Every project below started with a single bottleneck. Each one ended with a system that eliminated it — and generated measurable revenue.</p>
+  <div class="hero-ctas reveal">
+    <a href="/#book" class="btn-gold">Book Free Blueprint Call &rarr;</a>
+    <a href="#apps" class="btn-outline">See the Apps &darr;</a>
+  </div>
+</section>
+
+<!-- ════════ SECTION 2: IMPACT STATS BAR ════════ -->
+<div class="impact-bar reveal">
+  <div class="impact-grid">
+    <div class="impact-stat">
+      <div class="impact-num gold">93%</div>
+      <div class="impact-label">Time Saved</div>
+    </div>
+    <div class="impact-stat">
+      <div class="impact-num violet">#1</div>
+      <div class="impact-label">Region Nationally</div>
+    </div>
+    <div class="impact-stat">
+      <div class="impact-num cyan">$4.5M</div>
+      <div class="impact-label">Processed in 30 Days</div>
+    </div>
+    <div class="impact-stat">
+      <div class="impact-num gold">$75M+</div>
+      <div class="impact-label">Automated</div>
+    </div>
+    <div class="impact-stat">
+      <div class="impact-num violet">7+</div>
+      <div class="impact-label">Live Platforms</div>
+    </div>
+    <div class="impact-stat">
+      <div class="impact-num cyan">24hr</div>
+      <div class="impact-label">Fastest Deploy</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SECTION 3: CASE STUDIES ════════ -->
+<section class="section">
+  <div class="section-label reveal">DETAILED CASE STUDIES</div>
+  <h2 class="section-headline reveal">Real Problems. <span class="gold">Real Systems.</span> Real Results.</h2>
+
+  <!-- Case Study 1: Financial Advisory -->
+  <div class="case-study border-gold reveal">
+    <div class="case-left">
+      <div>
+        <div class="case-metric gold">93%</div>
+        <div class="case-industry">Financial Advisory</div>
+        <div class="case-tags">
+          <span class="case-tag">Dashboard</span>
+          <span class="case-tag">Automation</span>
+          <span class="case-tag">Financial Services</span>
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="case-block">
+        <div class="case-block-label problem">THE PROBLEM</div>
+        <p>A financial advisory firm managing a $100M book spent 30 minutes preparing for every single client review. Multiply that across hundreds of clients, and the advisor was drowning in prep work instead of building relationships.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label solution">THE SOLUTION</div>
+        <p>Knight Ops built a custom dashboard that pulls every relevant data point — portfolio performance, life events, meeting history, action items — into a single view.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label result">THE RESULT</div>
+        <p>Prep time dropped from 30 minutes to under 2 minutes. The advisor now walks into every meeting fully prepared and deeply connected.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Study 2: Automotive -->
+  <div class="case-study border-violet reveal">
+    <div class="case-left">
+      <div>
+        <div class="case-metric violet">#1</div>
+        <div class="case-industry">Automotive</div>
+        <div class="case-tags">
+          <span class="case-tag violet">KPI Dashboard</span>
+          <span class="case-tag violet">Data Unification</span>
+          <span class="case-tag violet">Automotive</span>
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="case-block">
+        <div class="case-block-label problem">THE PROBLEM</div>
+        <p>Twelve separate car dealerships. Twelve different reporting systems. Zero visibility into what was actually happening across the group. Leadership was making decisions based on guesswork.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label solution">THE SOLUTION</div>
+        <p>Knight Ops built a unified KPI dashboard that consolidated every dealership's sales, service, and customer data into a single command center.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label result">THE RESULT</div>
+        <p>For the first time, leadership could see performance in real time, spot underperformers instantly, and allocate resources where they mattered. The group went from middle-of-the-pack to the #1 performing region nationally.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Study 3: Government Programs -->
+  <div class="case-study border-cyan reveal">
+    <div class="case-left">
+      <div>
+        <div class="case-metric cyan">$4.5M</div>
+        <div class="case-industry">Government Programs</div>
+        <div class="case-tags">
+          <span class="case-tag cyan">Rapid Deploy</span>
+          <span class="case-tag cyan">Forms &amp; Automation</span>
+          <span class="case-tag cyan">Government</span>
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="case-block">
+        <div class="case-block-label problem">THE PROBLEM</div>
+        <p>When the CARES Act launched, organizations needed to process aid applications immediately. The problem: everything was on paper, and the volume was overwhelming.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label solution">THE SOLUTION</div>
+        <p>Knight Ops built and deployed a complete paper-to-digital application system in 24 hours.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label result">THE RESULT</div>
+        <p>Applicants submitted online, reviewers processed in a dashboard, and approvals triggered automated notifications. $4.5M in applications were facilitated within 30 days.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Study 4: Nonprofit & Charitable -->
+  <div class="case-study border-gold reveal">
+    <div class="case-left">
+      <div>
+        <div class="case-metric gold">$75M+</div>
+        <div class="case-industry">Nonprofit &amp; Charitable</div>
+        <div class="case-tags">
+          <span class="case-tag">Pipeline Automation</span>
+          <span class="case-tag">Reporting</span>
+          <span class="case-tag">Nonprofit</span>
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="case-block">
+        <div class="case-block-label problem">THE PROBLEM</div>
+        <p>Multiple organizations managing charitable contributions through spreadsheets, emails, and manual processes. Tracking was inconsistent, reporting was painful, and donors had zero visibility into their impact.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label solution">THE SOLUTION</div>
+        <p>Knight Ops automated the entire pipeline from pledge to payment to reporting.</p>
+      </div>
+      <div class="case-block">
+        <div class="case-block-label result">THE RESULT</div>
+        <p>Contributions are tracked in real time, donors receive automated updates, and leadership gets instant access to comprehensive reports. Over $75M in contributions have flowed through the system.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ SECTION 4: SOFTWARE PLATFORMS ════════ -->
+<section class="section" id="apps">
+  <div class="section-label reveal">7+ LIVE PLATFORMS</div>
+  <h2 class="section-headline reveal">Software We <span class="cyan">Built &amp; Ship</span></h2>
+  <p class="section-sub reveal" style="margin-bottom: 3rem;">Production platforms serving real users, processing real revenue, and solving real problems — every day.</p>
+
+  <div class="platforms-grid">
+
+    <!-- KnightOps.app -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">knightops.app</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-gold-dark"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">KnightOps.app <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">Internal command center. Client management, pipeline, KPIs, and prospecting in one dashboard.</p>
+        <a href="https://knightops.app" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+    <!-- CopyLaunch -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">copylaunch.app</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-violet-dark"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">CopyLaunch <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">AI-powered launch copy system. Headlines, emails, and sales pages generated from your brand voice.</p>
+        <a href="https://copylaunch.app" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+    <!-- AppDash -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">appdash.app</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-cyan-dark"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">AppDash <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">Multi-app management dashboard. Monitor, manage, and deploy across your entire software portfolio.</p>
+        <a href="https://appdash.app" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+    <!-- AI Brand Cortex -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">aibrandcortex.com</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-gold-violet"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">AI Brand Cortex <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">Brand intelligence engine. Extracts your voice, values, and positioning into an AI-ready brand profile.</p>
+        <div class="platform-tiers">Free / Pro $49 / Team $149</div>
+        <a href="https://aibrandcortex.com" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+    <!-- PropertySwap -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">propertyswap.app</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-cyan-gold"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">PropertySwap.app <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">Exclusive note exchange platform. Connects note holders with qualified buyers.</p>
+        <div class="platform-tiers">$997 — $4,997/mo</div>
+        <a href="https://propertyswap.app" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Job Seeker AI -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">jobseeker.ai</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-violet-cyan"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">Job Seeker AI <span class="status-badge status-beta">Beta</span></div>
+        <p class="platform-desc">AI-powered job search automation. Resume optimization, application tracking, and interview prep.</p>
+        <span class="platform-link" style="color: var(--muted); cursor: default;">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- Vibe Prospecting Score -->
+    <div class="platform-card reveal">
+      <div class="browser-chrome">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">knightops.biz/prospecting-filter-score</div>
+      </div>
+      <div class="browser-screen">
+        <div class="gradient-fill grad-gold-cyan"></div>
+        <div class="screen-overlay"></div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name">Vibe Prospecting Score <span class="status-badge status-live">Live</span></div>
+        <p class="platform-desc">AI lead scoring and prospecting intelligence. Identifies your highest-value prospects.</p>
+        <a href="https://knightops.biz/prospecting-filter-score" target="_blank" rel="noopener" class="platform-link">Visit Platform &rarr;</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ SECTION 5: INDUSTRIES SERVED ════════ -->
+<section class="section">
+  <div class="section-label reveal">INDUSTRIES SERVED</div>
+  <h2 class="section-headline reveal">Built for <span class="violet">Every Sector</span></h2>
+
+  <div class="industries-grid" style="margin-top: 2.5rem;">
+    <div class="industry-card reveal">
+      <div class="industry-icon gold-bg">FS</div>
+      <div class="industry-name">Financial Services</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon violet-bg">AU</div>
+      <div class="industry-name">Automotive</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon cyan-bg">GV</div>
+      <div class="industry-name">Government</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon gold-bg">NP</div>
+      <div class="industry-name">Nonprofit</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon violet-bg">RE</div>
+      <div class="industry-name">Real Estate</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon cyan-bg">ST</div>
+      <div class="industry-name">SaaS &amp; Tech</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon gold-bg">CC</div>
+      <div class="industry-name">Coaching &amp; Consulting</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon violet-bg">EC</div>
+      <div class="industry-name">E-Commerce</div>
+    </div>
+    <div class="industry-card reveal">
+      <div class="industry-icon cyan-bg">HC</div>
+      <div class="industry-name">Healthcare</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ SECTION 6: BOTTOM CTA ════════ -->
+<section class="bottom-cta">
+  <div class="section-label reveal">YOUR TURN</div>
+  <h2 class="section-headline reveal">Your Bottleneck is the <span class="gold">Next Case Study</span></h2>
+  <p class="section-sub reveal">Every system above started with a 30-minute conversation. No pitch, no pressure — just an honest look at what's slowing you down.</p>
+  <a href="/#book" class="btn-gold reveal">Book a Free Discovery Call &rarr;</a>
+  <a href="/services" class="ghost-link reveal">Or explore our services &rarr;</a>
+</section>
+
+<!-- ════════ SECTION 7: FOOTER ════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Knight <span>Ops</span></div>
+      <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/blog">Blog</a>
+      <a href="/case-studies">Case Studies</a>
+      <a href="/vault">App Vault</a>
+      <a href="/partners">Partners</a>
+      <a href="/apply">Apply</a>
+      <a href="/portfolio">Portfolio</a>
+    </div>
+  </div>
+  <address class="footer-address">Knight Ops — Custom AI Systems &amp; Automations | Founded by Daniel Knight</address>
+</footer>
+
+</div><!-- .page-content -->
+
+<!-- ════════ PARTICLE CANVAS ════════ -->
+<script>
+const c=document.getElementById('bgCanvas'),x=c.getContext('2d');
+let W,H,ps=[];
+function rz(){W=c.width=innerWidth;H=c.height=innerHeight}
+addEventListener('resize',rz);rz();
+class P{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.r=Math.random()*2.5+.6;
+    this.vx=(Math.random()-.5)*.18;this.vy=(Math.random()-.5)*.18;
+    const t=Math.random();
+    this.type=t>.65?'gold':t>.4?'cyan':t>.2?'violet':'gold-bright';
+    this.a=Math.random()*.6+.25;
+    this.pulseSpeed=Math.random()*0.02+0.005;
+    this.pulseOffset=Math.random()*Math.PI*2;
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W)this.vx*=-1;
+    if(this.y<0||this.y>H)this.vy*=-1;
+    this.pulse=Math.sin(Date.now()*this.pulseSpeed+this.pulseOffset)*.3+.7;
+  }
+  draw(){
+    const a=this.a*this.pulse;
+    x.beginPath();x.arc(this.x,this.y,this.r,0,Math.PI*2);
+    if(this.type==='gold'){x.fillStyle=`rgba(200,164,86,${a})`;x.shadowColor='rgba(200,164,86,.5)'}
+    else if(this.type==='gold-bright'){x.fillStyle=`rgba(255,209,102,${a*.8})`;x.shadowColor='rgba(255,209,102,.4)'}
+    else if(this.type==='cyan'){x.fillStyle=`rgba(0,229,255,${a*.7})`;x.shadowColor='rgba(0,229,255,.45)'}
+    else{x.fillStyle=`rgba(123,97,255,${a*.6})`;x.shadowColor='rgba(123,97,255,.35)'}
+    x.shadowBlur=this.r*8;x.fill();x.shadowBlur=0;
+  }
+}
+for(let i=0;i<100;i++)ps.push(new P);
+function anim(){
+  x.clearRect(0,0,W,H);
+  ps.forEach(p=>{p.update();p.draw()});
+  for(let i=0;i<ps.length;i++){
+    for(let j=i+1;j<ps.length;j++){
+      const dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<140){
+        const alpha=.06*(1-d/140);
+        x.beginPath();x.moveTo(ps[i].x,ps[i].y);x.lineTo(ps[j].x,ps[j].y);
+        if(ps[i].type==='cyan'||ps[j].type==='cyan'){x.strokeStyle=`rgba(0,229,255,${alpha})`}
+        else if(ps[i].type==='violet'||ps[j].type==='violet'){x.strokeStyle=`rgba(123,97,255,${alpha*.8})`}
+        else{x.strokeStyle=`rgba(200,164,86,${alpha})`}
+        x.lineWidth=.6;x.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(anim);
+}
+anim();
+</script>
+
+<!-- ════════ SCROLL REVEAL ════════ -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
