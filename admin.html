@@ -1535,7 +1535,12 @@ async function showClientDetail(id){
   navTo('clients');
   document.getElementById('clientsListView').style.display='none';
   document.getElementById('clientDetailView').style.display='block';
-  const projs=S.projects.filter(x=>x.client_id===id);
+  const directProjs=S.projects.filter(x=>x.client_id===id);
+  // Also fetch projects linked via project_clients junction
+  const{data:junctionLinks}=await sb.from('project_clients').select('project_id,role').eq('client_id',id);
+  const junctionProjectIds=(junctionLinks||[]).map(j=>j.project_id).filter(pid=>!directProjs.some(dp=>dp.id===pid));
+  const junctionProjs=junctionProjectIds.map(pid=>{const pr=S.projects.find(x=>x.id===pid);if(pr){const jl=junctionLinks.find(j=>j.project_id===pid);pr._junctionRole=jl?.role||'linked';}return pr;}).filter(Boolean);
+  const projs=[...directProjs,...junctionProjs];
   // Fetch client apps, credentials, resources
   const[{data:cApps},{data:cCreds},{data:cRes}]=await Promise.all([
     sb.from('client_apps').select('*,app_library(*)').eq('client_id',id).order('granted_at',{ascending:false}),
@@ -1560,7 +1565,7 @@ async function showClientDetail(id){
   // Projects Panel
   html+='<div class="cd-panel active" id="cdPanel_projects" style="margin-top:1rem">';
   if(projs.length){
-    html+='<table><thead><tr><th>Name</th><th>Status</th><th>Value</th><th>Due</th></tr></thead><tbody>'+projs.map(pr=>'<tr class="clickable" onclick="showProjectDetail(\''+pr.id+'\')"><td>'+pr.name+'</td><td>'+B(pr.status)+'</td><td>'+fmtMoney(pr.contract_value)+'</td><td>'+fmtDate(pr.due_date)+'</td></tr>').join('')+'</tbody></table>';
+    html+='<table><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Value</th><th>Due</th></tr></thead><tbody>'+projs.map(pr=>'<tr class="clickable" onclick="showProjectDetail(\''+pr.id+'\')"><td>'+pr.name+'</td><td>'+(pr._junctionRole?'<span style="font-size:.7rem;padding:2px 6px;background:var(--surface-3);color:var(--text-muted);border-radius:4px">'+pr._junctionRole+'</span>':'<span style="font-size:.7rem;padding:2px 6px;background:var(--accent);color:#000;border-radius:4px;font-weight:600">PRIMARY</span>')+'</td><td>'+B(pr.status)+'</td><td>'+fmtMoney(pr.contract_value)+'</td><td>'+fmtDate(pr.due_date)+'</td></tr>').join('')+'</tbody></table>';
   }else{html+='<p class="table-empty">No projects yet</p>';}
   html+='</div>';
 
@@ -1804,6 +1809,7 @@ async function showProjectDetail(id){
   '<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(p.tier)+'</div></div><div><div class="dg-label">Contract Value</div><div class="dg-value">'+fmtMoney(p.contract_value)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(p.status)+'</div></div><div><div class="dg-label">Start</div><div class="dg-value">'+fmtDate(p.start_date)+'</div></div><div><div class="dg-label">Due</div><div class="dg-value">'+fmtDate(p.due_date)+'</div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Linked Clients</h3><button class="btn btn-sm btn-primary" onclick="linkClientToProject(\''+id+'\')">+ Link Client</button></div><div id="linkedClients_'+id+'"><p style="color:var(--text-muted);font-size:.85rem">Loading...</p></div></div>'+
     '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'</div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'files\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'files\',\'Project Files\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔑 Project Credentials</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'project-credentials\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'project-credentials\',\'Project Credentials\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="addProjectCredential(\''+id+'\')">+ Add Credential</button></div></div><div id="projectCredentials_'+id+'"></div></div>'+
@@ -1818,6 +1824,7 @@ async function showProjectDetail(id){
   loadProjectMembers(id);
   loadProjectCredentials(id);
   loadLoginCredentials(id);
+  loadLinkedClients(id);
 }
 
 // ═══ PROMPT GENERATORS ═══
@@ -6096,6 +6103,77 @@ async function updateLoginCred(projectId,credId){
   if(error){showToast('Error: '+error.message,'error');return;}
   closeEditModal();loadLoginCredentials(projectId);showToast('Login credential updated!');}
 async function deleteLoginCred(credId,projectId){if(!confirm('Delete this login credential?'))return;await sb.from('login_credentials').delete().eq('id',credId);showToast('Login credential deleted');loadLoginCredentials(projectId);}
+// ═══ LINKED CLIENTS (MANY-TO-MANY) ═══
+async function loadLinkedClients(projectId){
+  const el=document.getElementById('linkedClients_'+projectId);if(!el)return;
+  const p=S.projects.find(x=>x.id===projectId);
+  // Get primary client
+  const primaryClient=p?.clients;
+  // Get junction table links
+  const{data:links}=await sb.from('project_clients').select('*').eq('project_id',projectId).order('created_at',{ascending:false});
+  const linkedIds=(links||[]).map(l=>l.client_id);
+  // Resolve client names from S.clients
+  let html='';
+  // Show primary client first
+  if(primaryClient){
+    const pName=primaryClient.profiles?.full_name||primaryClient.profiles?.email||'Unknown';
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface-2);border:1px solid var(--accent);border-radius:8px;margin-bottom:6px"><span style="font-size:.85rem;font-weight:600;color:var(--accent);cursor:pointer" onclick="showClientDetail(\''+primaryClient.id+'\')">'+pName+'</span><span style="font-size:.7rem;padding:2px 6px;background:var(--accent);color:#000;border-radius:4px;font-weight:600">PRIMARY</span></div>';
+  }
+  // Show linked clients
+  if(links&&links.length){
+    links.forEach(lk=>{
+      const cl=S.clients.find(c=>c.id===lk.client_id);
+      const cName=cl?.profiles?.full_name||cl?.profiles?.email||'Unknown';
+      const role=lk.role||'collaborator';
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:.85rem;cursor:pointer;color:var(--text)" onclick="showClientDetail(\''+lk.client_id+'\')">'+cName+'</span><span style="font-size:.7rem;padding:2px 6px;background:var(--surface-3);color:var(--text-muted);border-radius:4px">'+role+'</span></div><div style="display:flex;gap:4px"><button class="btn btn-sm btn-secondary" onclick="editLinkedClientRole(\''+lk.id+'\',\''+projectId+'\',\''+role+'\')" style="font-size:.7rem;padding:2px 6px">Role</button><button class="btn btn-sm btn-danger" onclick="unlinkClientFromProject(\''+lk.id+'\',\''+projectId+'\')" style="font-size:.7rem;padding:2px 6px">Unlink</button></div></div>';
+    });
+  }
+  if(!primaryClient&&(!links||!links.length)){
+    html='<p style="color:var(--text-muted);font-size:.85rem">No clients linked to this project</p>';
+  }
+  el.innerHTML=html;
+}
+function linkClientToProject(projectId){
+  const p=S.projects.find(x=>x.id===projectId);
+  const primaryId=p?.client_id;
+  // Filter out already-linked clients
+  const available=S.clients.filter(c=>c.id!==primaryId);
+  if(!available.length){showToast('No clients available to link','error');return;}
+  let opts=available.map(c=>'<option value="'+c.id+'">'+(c.profiles?.full_name||c.profiles?.email||'Unknown')+'</option>').join('');
+  openEditModal('Link Client to Project',
+    '<div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Client</label><select id="lcp_client" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem">'+opts+'</select></div>'+
+    '<div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Role</label><select id="lcp_role" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"><option value="collaborator">Collaborator</option><option value="stakeholder">Stakeholder</option><option value="decision_maker">Decision Maker</option><option value="billing">Billing Contact</option><option value="technical">Technical Contact</option></select></div>',
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLinkClient(\''+projectId+'\')">Link Client</button>'
+  );
+}
+async function saveLinkClient(projectId){
+  const clientId=document.getElementById('lcp_client').value;
+  const role=document.getElementById('lcp_role').value;
+  if(!clientId){showToast('Select a client','error');return;}
+  // Check for duplicate
+  const{data:existing}=await sb.from('project_clients').select('id').eq('project_id',projectId).eq('client_id',clientId);
+  if(existing&&existing.length){showToast('Client already linked to this project','error');return;}
+  const{error}=await sb.from('project_clients').insert({id:crypto.randomUUID(),project_id:projectId,client_id:clientId,role:role});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();showToast('Client linked!');loadLinkedClients(projectId);
+}
+async function unlinkClientFromProject(linkId,projectId){
+  if(!confirm('Unlink this client from the project?'))return;
+  await sb.from('project_clients').delete().eq('id',linkId);
+  showToast('Client unlinked');loadLinkedClients(projectId);
+}
+function editLinkedClientRole(linkId,projectId,currentRole){
+  openEditModal('Change Client Role',
+    '<div style="margin-bottom:1rem"><label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:4px">Role</label><select id="elcr_role" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.9rem"><option value="collaborator"'+(currentRole==='collaborator'?' selected':'')+'>Collaborator</option><option value="stakeholder"'+(currentRole==='stakeholder'?' selected':'')+'>Stakeholder</option><option value="decision_maker"'+(currentRole==='decision_maker'?' selected':'')+'>Decision Maker</option><option value="billing"'+(currentRole==='billing'?' selected':'')+'>Billing Contact</option><option value="technical"'+(currentRole==='technical'?' selected':'')+'>Technical Contact</option></select></div>',
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLinkedClientRole(\''+linkId+'\',\''+projectId+'\')">Save</button>'
+  );
+}
+async function saveLinkedClientRole(linkId,projectId){
+  const role=document.getElementById('elcr_role').value;
+  const{error}=await sb.from('project_clients').update({role:role}).eq('id',linkId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();showToast('Role updated!');loadLinkedClients(projectId);
+}
 // ═══ SECTION DEEP LINKS + EMAIL ═══
 function copySectionLink(projectId, section){
   const url='https://knightops.biz/client-portal?project='+projectId+'&section='+section;
