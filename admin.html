@@ -1547,7 +1547,7 @@ async function showClientDetail(id){
   const unsharedApps=S.apps.filter(a=>!sharedAppIds.includes(a.id));
 
   let html='<div class="detail-back" onclick="document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'">&#8592; Back to Clients</div>';
-  html+='<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'prev\',showClientDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'next\',showClientDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-secondary" onclick="sendMagicLink(\''+c.id+'\')">Send Magic Link</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients).then(()=>{document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>';
+  html+='<div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'prev\',showClientDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(p.full_name||p.email)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.clients,\''+c.id+'\',\'next\',showClientDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-secondary" onclick="sendMagicLink(\''+c.id+'\')">Send Magic Link</button> <button class="btn btn-sm btn-secondary" onclick="sendReviewRequest(\''+c.id+'\')" style="border-color:var(--accent);color:var(--accent)">⭐ Request Review</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients).then(()=>{document.getElementById(\'clientsListView\').style.display=\'\';document.getElementById(\'clientDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>';
   html+='<div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(p.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(p.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(p.company||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value">'+B(c.tier)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(c.status)+'</div></div></div>';
 
   // Tabs
@@ -3265,10 +3265,13 @@ function fmtTimeline2(t){
 }
 async function enrichAppWithRelatedData(a){
   try{
-    // Fetch client by email match
+    // Fetch client by email match via profiles join
     if(a.email&&!a._clientData){
-      const{data:clients}=await sb.from('clients').select('*').eq('email',a.email).limit(1);
-      a._clientData=(clients&&clients[0])||null;
+      const{data:clients}=await sb.from('clients').select('*,profiles(*)').limit(50);
+      if(clients){
+        const match=clients.find(c=>c.profiles?.email===a.email);
+        if(match) a._clientData=match;
+      }
     }
     // Fetch projects linked to this intake
     if(!a._projectData){
@@ -5943,6 +5946,22 @@ async function saveReviewPrompt(){
   }
   S.reviewSettings=prompt;closeEditModal();showToast('Prompt saved','success');
 }
+// ═══ REVIEW REQUEST TEMPLATES ═══
+function sendReviewRequest(clientId){
+  const c=S.clients.find(x=>x.id===clientId);
+  const cName=c?.profiles?.full_name||'Client';
+  const cEmail=c?.profiles?.email||c?.email||'';
+  const cPhone=c?.profiles?.phone||c?.phone||'';
+  const reviewUrl='https://knightops.biz/review';
+  const emailSubject='Quick favor, '+cName.split(' ')[0]+'?';
+  const emailBody=cName.split(' ')[0]+',\n\nI hope the system is running smoothly and saving you time.\n\nWould you mind taking 2 minutes to share your experience working with Knight Ops? Your feedback helps other founders find the right partner for their AI systems.\n\n'+reviewUrl+'\n\nThanks so much. Means the world.\n\nDaniel Knight\nKnight Ops\nknightops.biz';
+  const textBody='Hey '+cName.split(' ')[0]+'! Quick favor. Would you mind leaving a short review about your Knight Ops experience? Takes 2 min. '+reviewUrl+' Thanks so much!';
+  const body='<div style="margin-bottom:1.5rem"><h4 style="margin-bottom:8px;color:var(--accent)">📧 Email Template</h4><div style="margin-bottom:6px"><label style="font-size:.8rem;font-weight:600;color:var(--text-muted)">To:</label> <span style="font-size:.9rem">'+cEmail+'</span></div><div style="margin-bottom:6px"><label style="font-size:.8rem;font-weight:600;color:var(--text-muted)">Subject:</label> <input id="rr_subject" value="'+emailSubject.replace(/"/g,'&quot;')+'" style="width:80%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.85rem"></div><textarea id="rr_email" style="width:100%;min-height:150px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.85rem;line-height:1.6;resize:vertical">'+emailBody+'</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm btn-primary" onclick="copyReviewEmail()">📋 Copy Email</button><button class="btn btn-sm btn-secondary" onclick="openMailtoReview(\''+cEmail.replace(/'/g,"\\'")+'\')"">📧 Open in Gmail</button></div></div><div><h4 style="margin-bottom:8px;color:var(--accent)">💬 Text Template</h4>'+(cPhone?'<div style="margin-bottom:6px"><label style="font-size:.8rem;font-weight:600;color:var(--text-muted)">Phone:</label> <span style="font-size:.9rem">'+cPhone+'</span></div>':'<div style="margin-bottom:6px;font-size:.85rem;color:var(--text-muted)">No phone on file</div>')+'<textarea id="rr_text" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:.85rem;line-height:1.6;resize:vertical">'+textBody+'</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm btn-primary" onclick="copyReviewText()">📋 Copy Text</button>'+(cPhone?'<button class="btn btn-sm btn-secondary" onclick="window.open(\'sms:'+cPhone+'?body=\'+encodeURIComponent(document.getElementById(\'rr_text\').value))">💬 Open iMessage</button>':'')+'</div></div>';
+  openEditModal('Send Review Request to '+cName,body,'<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');
+}
+function copyReviewEmail(){navigator.clipboard.writeText(document.getElementById('rr_email').value);showToast('Email copied!');}
+function copyReviewText(){navigator.clipboard.writeText(document.getElementById('rr_text').value);showToast('Text copied!');}
+function openMailtoReview(email){const s=encodeURIComponent(document.getElementById('rr_subject')?.value||'Quick favor?');const b=encodeURIComponent(document.getElementById('rr_email').value);window.open('mailto:'+email+'?subject='+s+'&body='+b);}
 
 function addReviewManual(){
   const body=FG('Reviewer Name *','e_reviewer','text','')+FG('Company Name','e_company','text','')+

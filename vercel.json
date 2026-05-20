@@ -6,16 +6,6 @@
       "source": "/:path((?!api/).+)\\.html",
       "destination": "/:path",
       "permanent": true
-    },
-    {
-      "source": "/assessment",
-      "destination": "/assess",
-      "permanent": false
-    },
-    {
-      "source": "/community-survey-results",
-      "destination": "/speaker-survey-results",
-      "permanent": false
     }
   ],
   "rewrites": [
@@ -26,10 +16,6 @@
     {
       "source": "/app/:file",
       "destination": "/api/app?file=:file"
-    },
-    {
-      "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
     },
     {
       "source": "/proposal/:slug/pdf",
