@@ -551,7 +551,6 @@ anim();
   var priceDisplay=document.getElementById('priceDisplay');
   var mainCta=document.getElementById('mainCta');
   var mobileCta=document.getElementById('mobileCta');
-  var checkoutBtn=document.getElementById('checkoutBtn');
   var checkoutBtn2=document.getElementById('checkoutBtn2');
   var labelEl=document.querySelector('.countdown-bar .label');
   var savingsEl=document.querySelector('.price-block .savings');
@@ -569,8 +568,6 @@ anim();
     mainCta.textContent='Get the Speaker Lead Engine — $'+price;
     mainCta.href=link;
     if(mobileCta)mobileCta.textContent='Lock In $'+price+' — Event Only';
-    checkoutBtn.textContent='Buy Now — $'+price;
-    checkoutBtn.href=link;
     if(checkoutBtn2){checkoutBtn2.textContent='Buy Now — $'+price;checkoutBtn2.href=link;}
     labelEl.textContent=label;
     if(savingsEl)savingsEl.textContent=savings;
@@ -604,8 +601,6 @@ anim();
     priceDisplay.textContent='$997';
     mainCta.textContent='Get the Speaker Lead Engine — $997';
     mainCta.href='https://knightops.biz/speaker-offer';
-    checkoutBtn.textContent='Buy Now — $997';
-    checkoutBtn.href='https://knightops.biz/speaker-offer';
     if(checkoutBtn2){checkoutBtn2.textContent='Buy Now — $997';checkoutBtn2.href='https://knightops.biz/speaker-offer';}
     if(savingsEl)savingsEl.textContent='Full price';
   }
