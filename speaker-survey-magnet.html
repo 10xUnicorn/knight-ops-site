@@ -312,6 +312,11 @@ html, body {
       </svg>
       <div class="success-title">You're In!</div>
       <p class="success-sub">Your answer has been recorded. Stay tuned for the results...</p>
+      <div style="margin-top:32px;padding:24px 20px;background:rgba(200,164,86,0.08);border:1px solid rgba(200,164,86,0.25);border-radius:12px;text-align:center;">
+        <p style="font-size:1.1rem;color:#F4F4F5;margin-bottom:16px;line-height:1.5;">Want something like this built for your next speaking engagement?</p>
+        <a id="smsBtn" href="#" onclick="return false;" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#C8A456,#FFD166);color:#06061A;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:8px;text-decoration:none;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 30px rgba(200,164,86,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''">Text "Magnet" to Daniel</a>
+        <p style="font-size:0.8rem;color:#A1A1AA;margin-top:10px;">602-702-0807</p>
+      </div>
     </div>
 
   </div>
@@ -433,8 +438,8 @@ async function handleSubmit(e) {
   try {
     var check = await _sb.from('speaker_survey_responses').select('email').eq('email', email).limit(1);
     if (check.data && check.data.length > 0) {
-      dupEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Submit My Answer'; return;
+      showSuccess();
+      return;
     }
 
     var ins = await _sb.from('speaker_survey_responses').insert([{ name: name, email: email, phone: phone, answer: answer }]);
@@ -484,6 +489,11 @@ function showSuccess() {
   document.getElementById('step2').classList.remove('active');
   var s = document.getElementById('successScreen');
   s.classList.add('active');
+  // Set SMS button href with name from form
+  var nameVal = (document.getElementById('name').value || '').trim();
+  var smsBody = nameVal ? 'Magnet — ' + nameVal : 'Magnet';
+  var smsBtn = document.getElementById('smsBtn');
+  if (smsBtn) smsBtn.href = 'sms:6027020807?&body=' + encodeURIComponent(smsBody);
   launchConfetti();
 }
 
