@@ -439,6 +439,38 @@ async function handleSubmit(e) {
 
     var ins = await _sb.from('speaker_survey_responses').insert([{ name: name, email: email, phone: phone, answer: answer }]);
     if (ins.error) throw ins.error;
+
+    // Also push to GHL webhook for email drip campaign
+    var ghlPayload = {
+      firstName: name,
+      email: email,
+      phone: phone,
+      answer: String(answer),
+      source: 'Speaker Survey Magnet — Event 2026'
+    };
+    fetch('https://services.leadconnectorhq.com/hooks/F2GsBGGCAYHgnQees0pV/webhook-trigger/speaker-lead-engine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(ghlPayload).toString(),
+      mode: 'no-cors'
+    }).catch(function(){});
+
+    // Also insert into leads table for admin dashboard pipeline
+    try {
+      await _sb.from('leads').insert([{
+        name: name,
+        email: email,
+        phone: phone,
+        source: 'event',
+        status: 'new',
+        lead_type: 'inbound',
+        service_interest: 'Speaker Lead Engine',
+        notes: 'Submitted speaker survey at live event. Answer: ' + answer,
+        opportunity_tags: ['speaker-event-2026', 'speaker-lead-engine-drip'],
+        metadata: { answer: answer, captured_at: new Date().toISOString(), form: 'speaker-survey-magnet' }
+      }]);
+    } catch(leadErr) { console.warn('Lead insert skipped:', leadErr); }
+
     showSuccess();
   } catch(err) {
     console.error(err);
