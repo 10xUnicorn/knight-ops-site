@@ -3771,6 +3771,7 @@ let emailCurrentFolder='inbox';
 let emailCurrentFilter='all';
 let emailSelectedId=null;
 let emailSelectedIds=new Set();
+let emailEditingDraftId=null;
 let emailFolderCounts={};
 const emailAvatarGradients=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#a18cd1,#fbc2eb)','linear-gradient(135deg,#fccb90,#d57eeb)','linear-gradient(135deg,#e0c3fc,#8ec5fc)'];
 function getEmailAvatarGradient(name){let h=0;for(let i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+((h<<5)-h);return emailAvatarGradients[Math.abs(h)%emailAvatarGradients.length];}
@@ -3980,6 +3981,10 @@ function renderEmailReadingPane(data){
         <div class="erp-date">${dateStr}</div>
       </div>
       <div class="erp-actions">
+        ${data.is_draft?`
+        <button class="erp-btn-primary" onclick="editDraft('${data.id}')"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Edit Draft</button>
+        <button onclick="deleteEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
+        `:`
         <button class="erp-btn-primary" onclick="replyToEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>Reply</button>
         <button onclick="replyToEmail('${data.id}','all')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>Reply All</button>
         <button onclick="forwardEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 014-4h12"/></svg>Forward</button>
@@ -3987,6 +3992,7 @@ function renderEmailReadingPane(data){
         <button onclick="deleteEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
         <button onclick="toggleEmailStar('${data.id}')"><svg viewBox="0 0 24 24" ${starred?'fill="var(--accent)"':'fill="none"'} stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${starred?'Unstar':'Star'}</button>
         <button onclick="markEmailUnread('${data.id}')"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>Mark Unread</button>
+        `}
       </div>
       ${crmBadge}
     </div>
@@ -4057,6 +4063,7 @@ function toggleEmailCompose(){
   if(modal.classList.contains('visible')){
     modal.classList.remove('visible');
   }else{
+    emailEditingDraftId=null;
     document.getElementById('ecTo').value='';
     document.getElementById('ecSubject').value='';
     document.getElementById('ecBody').innerHTML='';
@@ -4073,13 +4080,19 @@ async function sendEmail(){
   if(!to){showToast('Please enter a recipient','error');return;}
   if(!subject){showToast('Please enter a subject','error');return;}
   try{
-    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,html:body,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    const plainText=(body||'').replace(/<[^>]*>/g,'');
+    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,body:plainText,html:body,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
     if(error)throw error;
-    // Insert into emails table
-    await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject,body_html:body,snippet:(body||'').replace(/<[^>]*>/g,'').slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString()});
+    // If editing a draft, update instead of insert
+    if(emailEditingDraftId){
+      await sb.from('emails').update({to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString()}).eq('id',emailEditingDraftId);
+      emailEditingDraftId=null;
+    }else{
+      await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString()});
+    }
     showToast('Email sent successfully');
     document.getElementById('emailComposeModal').classList.remove('visible');
-    if(emailCurrentFolder==='sent')await loadEmailInbox();
+    await loadEmailInbox();
   }catch(e){showToast('Failed to send: '+e.message,'error');}
 }
 
@@ -4087,12 +4100,30 @@ async function saveEmailDraft(){
   const to=document.getElementById('ecTo').value.trim();
   const subject=document.getElementById('ecSubject').value.trim();
   const body=document.getElementById('ecBody').innerHTML;
+  const plainText=(body||'').replace(/<[^>]*>/g,'');
   try{
-    await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:(body||'').replace(/<[^>]*>/g,'').slice(0,200),status:'draft',is_draft:true,is_read:true});
+    if(emailEditingDraftId){
+      await sb.from('emails').update({to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200)}).eq('id',emailEditingDraftId);
+    }else{
+      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true}).select('id').single();
+      if(data)emailEditingDraftId=data.id;
+    }
     showToast('Draft saved');
     document.getElementById('emailComposeModal').classList.remove('visible');
-    if(emailCurrentFolder==='drafts')await loadEmailInbox();
+    emailEditingDraftId=null;
+    await loadEmailInbox();
   }catch(e){showToast('Failed to save draft: '+e.message,'error');}
+}
+async function editDraft(id){
+  const{data}=await sb.from('emails').select('*').eq('id',id).single();
+  if(!data)return showToast('Draft not found','error');
+  emailEditingDraftId=id;
+  document.getElementById('ecTo').value=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):'';
+  document.getElementById('ecSubject').value=data.subject||'';
+  document.getElementById('ecBody').innerHTML=data.body_html||'';
+  document.getElementById('ecCcRow').style.display='none';
+  document.getElementById('ecBccRow').style.display='none';
+  document.getElementById('emailComposeModal').classList.add('visible');
 }
 
 function discardEmailDraft(){
