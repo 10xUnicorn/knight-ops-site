@@ -255,6 +255,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
       <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
       <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
+      <div class="nav-item" data-view="comms"><span class="icon">&#9993;</span> Communications</div>
             <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
       <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
       <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
@@ -472,6 +473,41 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="table-card">
           <div class="table-header"><h2>Notification Log</h2><div class="table-filters"><select id="notifTypeFilter" onchange="renderNotifLog()"><option value="">All Types</option><option value="new_lead">New Lead</option><option value="task_assigned">Task Assigned</option><option value="task_completed">Task Completed</option><option value="project_update">Project Update</option><option value="comment_added">Comment</option><option value="event_invite">Event Invite</option><option value="broadcast">Broadcast</option></select></div></div>
           <div id="notifLogTable"></div>
+        </div>
+      </div>
+      <!-- ═══ COMMUNICATIONS VIEW ═══ -->
+      <div class="view" id="v-comms">
+        <div class="kpi-grid" id="commsKpis"></div>
+        <!-- Filters -->
+        <div class="table-card" style="margin-bottom:1.5rem">
+          <div class="table-header">
+            <h2>Email Activity</h2>
+            <div class="table-filters">
+              <select id="commsDirection" onchange="loadComms()">
+                <option value="">All</option>
+                <option value="outbound">Sent</option>
+                <option value="inbound">Received</option>
+              </select>
+              <select id="commsPeriod" onchange="loadComms()">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="all">All time</option>
+              </select>
+              <input type="text" id="commsSearch" placeholder="Search emails..." style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.85rem;width:180px" oninput="loadComms()">
+            </div>
+          </div>
+          <div id="commsTable" style="max-height:500px;overflow-y:auto"></div>
+        </div>
+        <!-- Drip Campaigns -->
+        <div class="table-card" style="margin-bottom:1.5rem">
+          <div class="table-header"><h2>Active Drip Campaigns</h2><span class="badge badge-gold" id="dripActiveCount">-</span></div>
+          <div id="dripCampaignTable"></div>
+        </div>
+        <!-- Email Detail Panel -->
+        <div id="emailDetailPanel" style="display:none">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('emailDetailPanel').style.display='none'" style="margin-bottom:1rem">&larr; Back to list</button>
+          <div class="table-card" style="padding:1.5rem" id="emailDetailContent"></div>
         </div>
       </div>
       <!-- ═══ PARTNERS VIEW ═══ -->
@@ -876,6 +912,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},timeEntries:[],partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[],agents:[],agentDecisions:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
@@ -920,7 +957,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     // Also reset applications view
     const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
     const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();
+    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();
     closeSidebar();
   });
 });
@@ -3281,6 +3318,88 @@ async function sendBroadcast(){
     }
   }catch(e){showToast('Error: '+e.message,'error');status.textContent='Error';status.style.color='var(--error)';}
   btn.disabled=false;btn.textContent='Send Broadcast';
+}
+
+// ═══ COMMUNICATIONS ═══
+let commsData=[];let dripData=[];
+async function loadComms(){
+  const dir=document.getElementById('commsDirection').value;
+  const period=document.getElementById('commsPeriod').value;
+  const search=(document.getElementById('commsSearch').value||'').toLowerCase();
+  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,created_at,sent_at,received_at').order('created_at',{ascending:false}).limit(200);
+  if(dir)q=q.eq('direction',dir);
+  if(period!=='all'){const d=new Date();d.setDate(d.getDate()-parseInt(period));q=q.gte('created_at',d.toISOString());}
+  const{data}=await q;
+  commsData=(data||[]).filter(e=>{
+    if(!search)return true;
+    return (e.subject||'').toLowerCase().includes(search)||(e.from_address||'').toLowerCase().includes(search)||(e.snippet||'').toLowerCase().includes(search);
+  });
+  renderCommsKpis();renderCommsTable();loadDripCampaigns();
+}
+function renderCommsKpis(){
+  const total=commsData.length;
+  const sent=commsData.filter(e=>e.direction==='outbound').length;
+  const received=commsData.filter(e=>e.direction==='inbound').length;
+  const delivered=commsData.filter(e=>e.status==='delivered'||e.status==='sent').length;
+  document.getElementById('commsKpis').innerHTML=`
+    <div class="kpi"><div class="label">Total Emails</div><div class="value">${total}</div></div>
+    <div class="kpi"><div class="label">Sent</div><div class="value">${sent}</div></div>
+    <div class="kpi"><div class="label">Received</div><div class="value">${received}</div></div>
+    <div class="kpi"><div class="label">Delivered</div><div class="value">${delivered}</div></div>`;
+}
+function renderCommsTable(){
+  if(!commsData.length){document.getElementById('commsTable').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">No emails found for this period</div>';return;}
+  let h='<table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Direction</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">From / To</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Subject</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Status</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Date</th></tr></thead><tbody>';
+  commsData.forEach(e=>{
+    const dir=e.direction==='inbound'?'<span style="color:#4CAF50">&#9660; In</span>':'<span style="color:var(--accent)">&#9650; Out</span>';
+    const addr=e.direction==='inbound'?(e.from_name||e.from_address||'-'):(Array.isArray(e.to_addresses)&&e.to_addresses.length?e.to_addresses[0]:(e.from_address||'-'));
+    const subj=e.subject||'(no subject)';
+    const snip=e.snippet?(' <span style="color:var(--text-muted);font-size:.8rem">— '+e.snippet.slice(0,60)+(e.snippet.length>60?'...':'')+'</span>'):'';
+    const st=e.status||'-';
+    const stColor=st==='delivered'||st==='sent'?'var(--success)':st==='failed'||st==='bounced'?'var(--error)':'var(--text-muted)';
+    const dt=e.sent_at||e.received_at||e.created_at;
+    const dateStr=dt?new Date(dt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+    const bold=e.direction==='inbound'&&!e.is_read?'font-weight:700':'';
+    h+=`<tr style="border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;${bold}" onclick="viewEmail('${e.id}')"><td style="padding:8px 10px">${dir}</td><td style="padding:8px 10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(typeof addr==='string'?addr:JSON.stringify(addr))}</td><td style="padding:8px 10px">${esc(subj)}${snip}</td><td style="padding:8px 10px;color:${stColor}">${st}</td><td style="padding:8px 10px;white-space:nowrap;color:var(--text-muted);font-size:.8rem">${dateStr}</td></tr>`;
+  });
+  h+='</tbody></table>';
+  document.getElementById('commsTable').innerHTML=h;
+}
+async function viewEmail(id){
+  const{data}=await sb.from('emails').select('*').eq('id',id).single();
+  if(!data)return showToast('Email not found','error');
+  const panel=document.getElementById('emailDetailPanel');
+  const dir=data.direction==='inbound'?'Received':'Sent';
+  const to=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):(data.to_addresses||'-');
+  const body=data.body_html||data.body_text||data.snippet||'(no content)';
+  document.getElementById('emailDetailContent').innerHTML=`
+    <div style="margin-bottom:1rem"><span style="color:var(--text-muted);font-size:.8rem">${dir} — ${data.sent_at||data.received_at||data.created_at?new Date(data.sent_at||data.received_at||data.created_at).toLocaleString():''}</span></div>
+    <h2 style="margin-bottom:.75rem;font-size:1.1rem">${esc(data.subject||'(no subject)')}</h2>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.85rem;margin-bottom:1rem;color:var(--text-muted)">
+      <span>From:</span><span style="color:var(--text)">${esc(data.from_name||'')} &lt;${esc(data.from_address||'')}&gt;</span>
+      <span>To:</span><span style="color:var(--text)">${esc(to)}</span>
+      <span>Status:</span><span style="color:var(--text)">${data.status||'-'}</span>
+    </div>
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.9rem;line-height:1.6;max-height:400px;overflow-y:auto">${body}</div>`;
+  panel.style.display='block';
+  // Mark as read if inbound
+  if(data.direction==='inbound'&&!data.is_read){await sb.from('emails').update({is_read:true}).eq('id',id);}
+}
+async function loadDripCampaigns(){
+  const{data}=await sb.from('drip_queue').select('sequence,status,step,email,name,next_send_at,last_sent_at,opens,clicks').order('next_send_at',{ascending:true}).limit(500);
+  dripData=data||[];
+  // Group by sequence
+  const seqs={};
+  dripData.forEach(d=>{const s=d.sequence||'unknown';if(!seqs[s])seqs[s]={total:0,pending:0,sent:0,failed:0,opens:0,clicks:0};seqs[s].total++;seqs[s][d.status]=(seqs[s][d.status]||0)+1;seqs[s].opens+=(d.opens||0);seqs[s].clicks+=(d.clicks||0);});
+  const active=Object.values(seqs).reduce((a,s)=>a+s.total,0);
+  document.getElementById('dripActiveCount').textContent=active+' items';
+  let h='<table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Sequence</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Total</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Pending</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Sent</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Opens</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Clicks</th></tr></thead><tbody>';
+  Object.entries(seqs).forEach(([name,s])=>{
+    h+=`<tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:8px 10px;font-weight:600">${esc(name)}</td><td style="padding:8px 10px">${s.total}</td><td style="padding:8px 10px;color:var(--warning)">${s.pending||0}</td><td style="padding:8px 10px;color:var(--success)">${s.sent||0}</td><td style="padding:8px 10px">${s.opens}</td><td style="padding:8px 10px">${s.clicks}</td></tr>`;
+  });
+  if(!Object.keys(seqs).length)h+='<tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--text-muted)">No drip campaigns found</td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('dripCampaignTable').innerHTML=h;
 }
 
 // ═══ APPLICATIONS (intake_submissions) ═══
