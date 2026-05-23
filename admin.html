@@ -35,6 +35,9 @@ a{color:var(--accent);text-decoration:none}
 .nav-child{padding:7px 1.25rem 7px 3.2rem;font-size:.82rem;color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none}
 .nav-child:hover{color:var(--text);background:var(--surface-2)}
 .nav-child.active{color:var(--accent)}
+.nav-badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--bg);font-size:.65rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;line-height:1}
+.nav-child .nav-badge{margin-left:auto;font-size:.6rem;min-width:16px;height:16px}
+.nav-label-wrap{display:flex;align-items:center;flex:1;gap:6px}
 .more-divider{margin:6px 1.25rem;border:none;border-top:1px solid var(--border);opacity:.4}
 .more-toggle{display:flex;align-items:center;gap:8px;padding:8px 1.25rem;cursor:pointer;color:var(--text-muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;transition:all .2s;user-select:none}
 .more-toggle:hover{color:var(--accent)}
@@ -52,7 +55,24 @@ a{color:var(--accent);text-decoration:none}
 .sidebar-footer .notif-btn{position:relative;background:none;border:1px solid var(--border);color:var(--text-muted);width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .sidebar-footer .notif-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sidebar-footer .notif-btn:hover{border-color:var(--accent);color:var(--accent)}
-.sidebar-footer .notif-badge{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--error);border-radius:50%}
+.sidebar-footer .notif-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 4px;background:var(--error);border-radius:9px;font-size:.65rem;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;line-height:1}
+.notif-dropdown{position:absolute;bottom:44px;right:0;width:340px;max-height:400px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:999;overflow:hidden}
+.notif-dropdown.open{display:flex}
+.notif-dropdown-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:.85rem;font-weight:700}
+.notif-dropdown-header button{background:none;border:none;color:var(--accent);font-size:.75rem;cursor:pointer;font-weight:600}
+.notif-dropdown-header button:hover{text-decoration:underline}
+.notif-dropdown-body{flex:1;overflow-y:auto;max-height:300px}
+.notif-dropdown-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background .15s;font-size:.8rem;align-items:flex-start}
+.notif-dropdown-item:hover{background:var(--surface-2)}
+.notif-dropdown-item.unread{background:rgba(200,164,86,0.04)}
+.notif-dropdown-item .ndi-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.notif-dropdown-item.read .ndi-dot{background:transparent}
+.notif-dropdown-item .ndi-text{flex:1;min-width:0}
+.notif-dropdown-item .ndi-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-dropdown-item .ndi-msg{color:var(--text-muted);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-dropdown-item .ndi-time{color:var(--text-muted);font-size:.7rem;flex-shrink:0;white-space:nowrap}
+.notif-dropdown-footer{padding:8px 16px;border-top:1px solid var(--border);text-align:center}
+.notif-dropdown-footer a{font-size:.78rem;color:var(--accent);cursor:pointer;font-weight:600}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0}
 .topbar h1{font-size:1.2rem;font-weight:700}
@@ -419,9 +439,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       </div>
 
       <!-- Email -->
-      <div class="nav-item has-children" data-group="email" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></span><span class="nav-label">Email</span><span class="expand-arrow">&#9654;</span></div>
+      <div class="nav-item has-children" data-group="email" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></span><span class="nav-label-wrap"><span class="nav-label">Email</span><span class="nav-badge" id="navEmailBadge" style="display:none"></span></span><span class="expand-arrow">&#9654;</span></div>
       <div class="nav-children" id="nav-email">
-        <div class="nav-child" data-view="emailInbox">Inbox</div>
+        <div class="nav-child" data-view="emailInbox" style="display:flex;align-items:center">Inbox<span class="nav-badge" id="navInboxBadge" style="display:none"></span></div>
         <div class="nav-child" data-view="emailDrafts">Drafts</div>
         <div class="nav-child" data-view="emailSent">Sent</div>
         <div class="nav-child" data-view="emailTemplates">Templates</div>
@@ -462,7 +482,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     <div class="sidebar-footer">
       <button class="settings-btn" onclick="alert('Settings coming soon')" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
       <div class="user-info"><div class="user-name" id="userEmail">Daniel Knight</div><div class="user-role">Admin</div></div>
-      <button class="notif-btn" data-view="notifications" onclick="navTo('notifications')" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+      <div style="position:relative"><button class="notif-btn" onclick="toggleNotifDropdown(event)" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+      <div class="notif-dropdown" id="notifDropdown"><div class="notif-dropdown-header"><span>Notifications</span><button onclick="markAllNotifsRead()">Mark all read</button></div><div class="notif-dropdown-body" id="notifDropdownBody"></div><div class="notif-dropdown-footer"><a onclick="document.getElementById('notifDropdown').classList.remove('open');navTo('notifications')">View all notifications</a></div></div></div>
     </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -780,8 +801,12 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               </div>
             </div>
             <div class="ef-section">
-              <div class="ef-section-title">Labels</div>
+              <div class="ef-section-title" style="display:flex;align-items:center;justify-content:space-between">Labels<button onclick="createEmailLabelPrompt()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:.9rem;padding:0 4px" title="Create label">+</button></div>
               <div id="emailLabelsList"></div>
+            </div>
+            <div class="ef-section">
+              <div class="ef-section-title" style="display:flex;align-items:center;justify-content:space-between">Folders<button onclick="createEmailFolderPrompt()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:.9rem;padding:0 4px" title="Create folder">+</button></div>
+              <div id="emailCustomFolders"></div>
             </div>
           </div>
           <!-- Email List -->
@@ -802,6 +827,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
                 <span class="email-filter-pill" data-filter="unread" onclick="setEmailFilter('unread')">Unread</span>
                 <span class="email-filter-pill" data-filter="attachment" onclick="setEmailFilter('attachment')">Has Attachment</span>
                 <span class="email-filter-pill" data-filter="week" onclick="setEmailFilter('week')">This Week</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:2px 0">
+                <input type="checkbox" id="emailSelectAll" onclick="toggleSelectAllEmails(this.checked)" style="width:auto;accent-color:var(--accent)">
+                <label for="emailSelectAll" style="font-size:.72rem;color:var(--text-muted);cursor:pointer;user-select:none">Select all</label>
+                <span id="emailListCount" style="font-size:.7rem;color:var(--text-muted);margin-left:auto"></span>
               </div>
             </div>
             <div class="email-bulk-bar" id="emailBulkBar">
@@ -1311,7 +1341,10 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
   await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries()]);
-  loadDashboard();
+  // Hash routing — restore view from URL or default to dashboard
+  var initHash=window.location.hash.slice(1);
+  if(initHash)activateView(initHash,true);
+  else loadDashboard();
 })();
 
 // SIDEBAR
@@ -1339,7 +1372,13 @@ function toggleMore(el){
   el.classList.toggle('expanded');
   document.getElementById('moreSection').classList.toggle('open');
 }
-function activateView(v){
+function activateView(v,skipHash){
+  // Update URL hash for navigation persistence
+  if(!skipHash&&v!=='dashboard')window.history.pushState(null,null,'#'+v);
+  else if(!skipHash&&v==='dashboard')window.history.pushState(null,null,window.location.pathname);
+  // Stop email auto-refresh when leaving email views
+  var emailViews={emailInbox:1,emailDrafts:1,emailSent:1,emailTemplates:1,emailSettings:1,comms:1};
+  if(!emailViews[v])stopEmailAutoRefresh();
   // Clear all active states
   document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active');});
   document.querySelectorAll('.nav-child').forEach(function(c){c.classList.remove('active');});
@@ -1394,6 +1433,9 @@ function activateView(v){
   if(v==='bookingSettings'){loadBookingSettings();}
   closeSidebar();
 }
+// Hash routing — restore view on back/forward/refresh
+window.addEventListener('hashchange',function(){var h=window.location.hash.slice(1);if(h)activateView(h,true);else activateView('dashboard',true);});
+window.addEventListener('popstate',function(){var h=window.location.hash.slice(1);if(h)activateView(h,true);else activateView('dashboard',true);});
 // Dashboard top-level click
 document.querySelectorAll('.nav-item[data-view]').forEach(function(item){
   item.addEventListener('click',function(e){activateView(e.currentTarget.dataset.view);});
@@ -3708,10 +3750,56 @@ async function loadNotifLog(){
   renderNotifLog();
   document.getElementById('notifCount').textContent=notifLog.length;
   document.getElementById('emailCount').textContent=notifLog.filter(n=>n.email_sent).length;
-  // Update sidebar notification badge
+  // Update sidebar notification badge with count
   var unread=notifLog.filter(function(n){return !n.read;}).length;
   var badge=document.getElementById('notifBadge');
-  if(badge)badge.style.display=unread>0?'':'none';
+  if(badge){badge.style.display=unread>0?'':'none';badge.textContent=unread>99?'99+':unread;}
+  renderNotifDropdown();
+}
+function toggleNotifDropdown(e){
+  e.stopPropagation();
+  var dd=document.getElementById('notifDropdown');
+  dd.classList.toggle('open');
+  if(dd.classList.contains('open')){document.addEventListener('click',closeNotifDropdownOutside);}
+}
+function closeNotifDropdownOutside(e){
+  var dd=document.getElementById('notifDropdown');
+  if(!dd.contains(e.target)&&!e.target.closest('.notif-btn')){dd.classList.remove('open');document.removeEventListener('click',closeNotifDropdownOutside);}
+}
+function renderNotifDropdown(){
+  var body=document.getElementById('notifDropdownBody');
+  if(!body)return;
+  var recent=notifLog.slice(0,8);
+  if(!recent.length){body.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted);font-size:.8rem">No notifications</div>';return;}
+  body.innerHTML=recent.map(function(n){
+    var isUnread=!n.read;
+    var clickable=n.entity_type&&n.entity_id;
+    var timeStr=emailTimeAgo(n.created_at);
+    return '<div class="notif-dropdown-item'+(isUnread?' unread':' read')+'" onclick="handleNotifClick(\''+n.id+'\',\''+( n.entity_type||'')+'\',\''+(n.entity_id||'')+'\')">'
+      +'<div class="ndi-dot"></div>'
+      +'<div class="ndi-text"><div class="ndi-title">'+esc(n.title||n.type||'Notification')+'</div><div class="ndi-msg">'+esc((n.message||'').slice(0,60))+'</div></div>'
+      +'<div class="ndi-time">'+timeStr+'</div></div>';
+  }).join('');
+}
+async function handleNotifClick(id,entityType,entityId){
+  // Mark as read
+  await sb.from('notifications').update({read:true}).eq('id',id);
+  var n=notifLog.find(function(x){return x.id===id;});if(n)n.read=true;
+  var unread=notifLog.filter(function(x){return !x.read;}).length;
+  var badge=document.getElementById('notifBadge');
+  if(badge){badge.style.display=unread>0?'':'none';badge.textContent=unread>99?'99+':unread;}
+  renderNotifDropdown();renderNotifLog();
+  document.getElementById('notifDropdown').classList.remove('open');
+  if(entityType&&entityId)navigateToNotifEntity(entityType,entityId);
+}
+async function markAllNotifsRead(){
+  var unreadIds=notifLog.filter(function(n){return !n.read;}).map(function(n){return n.id;});
+  if(!unreadIds.length){showToast('All caught up!','info');return;}
+  await sb.from('notifications').update({read:true}).in('id',unreadIds);
+  notifLog.forEach(function(n){n.read=true;});
+  var badge=document.getElementById('notifBadge');if(badge)badge.style.display='none';
+  renderNotifDropdown();renderNotifLog();
+  showToast('All notifications marked as read');
 }
 function renderNotifLog(){
   const filter=document.getElementById('notifTypeFilter')?.value||'';
@@ -3773,6 +3861,18 @@ let emailSelectedId=null;
 let emailSelectedIds=new Set();
 let emailEditingDraftId=null;
 let emailFolderCounts={};
+let emailAutoRefreshTimer=null;
+let emailLastChecked=null;
+function startEmailAutoRefresh(){
+  stopEmailAutoRefresh();
+  emailAutoRefreshTimer=setInterval(async function(){
+    await loadEmailInbox();
+    await loadNotifLog();
+  },30000);
+}
+function stopEmailAutoRefresh(){
+  if(emailAutoRefreshTimer){clearInterval(emailAutoRefreshTimer);emailAutoRefreshTimer=null;}
+}
 const emailAvatarGradients=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#a18cd1,#fbc2eb)','linear-gradient(135deg,#fccb90,#d57eeb)','linear-gradient(135deg,#e0c3fc,#8ec5fc)'];
 function getEmailAvatarGradient(name){let h=0;for(let i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+((h<<5)-h);return emailAvatarGradients[Math.abs(h)%emailAvatarGradients.length];}
 function getInitials(name){if(!name)return'?';const p=name.trim().split(/\s+/);return p.length>1?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
@@ -3794,8 +3894,11 @@ function showEmailSubView(which){
 // Main entry — backward compatible
 async function loadComms(){
   showEmailMainView();
+  emailLastChecked=new Date().toISOString();
   await loadEmailInbox();
+  startEmailAutoRefresh();
   loadEmailLabels();
+  loadEmailCustomFolders();
   loadEmailTemplateOptions();
 }
 
@@ -3810,6 +3913,8 @@ async function loadEmailInbox(){
   else if(folder==='archived')q=q.eq('is_archived',true).eq('is_deleted',false);
   else if(folder==='spam')q=q.eq('is_spam',true).eq('is_deleted',false);
   else if(folder==='trash')q=q.eq('is_deleted',true);
+  // Custom folder filter
+  else if(folder.startsWith('folder:'))q=q.eq('folder',folder.slice(7)).eq('is_deleted',false);
   // 'all' = no folder filter except not deleted
   else q=q.eq('is_deleted',false);
   const{data,error}=await q;
@@ -3837,6 +3942,10 @@ async function loadEmailFolderCounts(){
     names.forEach((n,i)=>{counts[n]=results[i].count||0;});
     emailFolderCounts=counts;
     names.forEach(n=>{const el=document.getElementById('efCount'+n.charAt(0).toUpperCase()+n.slice(1));if(el)el.textContent=counts[n]||0;});
+    // Update sidebar nav badges with unread inbox count
+    var unreadInbox=counts.inbox||0;
+    var ib=document.getElementById('navInboxBadge');if(ib){ib.style.display=unreadInbox>0?'':'none';ib.textContent=unreadInbox;}
+    var eb=document.getElementById('navEmailBadge');if(eb){eb.style.display=unreadInbox>0?'':'none';eb.textContent=unreadInbox;}
   }catch(e){console.error('Folder counts error:',e);}
 }
 
@@ -3870,7 +3979,7 @@ function renderEmailList(){
     const checked=emailSelectedIds.has(e.id);
     const labels=Array.isArray(e.labels)?e.labels:[];
     h+=`<div class="email-list-item${isActive?' active':''}${isUnread?' unread':''}" onclick="selectEmailItem('${e.id}')" data-eid="${e.id}">
-      <div class="eli-checkbox"><input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleEmailCheck('${e.id}',this.checked)"></div>
+      <div class="eli-checkbox"><input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleEmailCheck('${e.id}',this.checked,event)"></div>
       <div class="eli-avatar" style="background:${grad}">${initials}</div>
       <div class="eli-content">
         <div class="eli-top"><span class="eli-sender">${esc(name)}</span><span class="eli-time">${time}</span></div>
@@ -3886,6 +3995,9 @@ function renderEmailList(){
     </div>`;
   });
   container.innerHTML=h;
+  // Update count display and reset select-all
+  var lc=document.getElementById('emailListCount');if(lc)lc.textContent=items.length+' email'+(items.length!==1?'s':'');
+  var sa=document.getElementById('emailSelectAll');if(sa)sa.checked=false;
 }
 
 function filterEmailList(){renderEmailList();}
@@ -3895,11 +4007,47 @@ function setEmailFilter(f){
   renderEmailList();
 }
 
-function toggleEmailCheck(id,checked){
-  if(checked)emailSelectedIds.add(id);else emailSelectedIds.delete(id);
+let emailLastCheckedIndex=-1;
+function toggleEmailCheck(id,checked,event){
+  if(event&&event.shiftKey&&emailLastCheckedIndex>=0){
+    // Shift-click range selection
+    const items=document.querySelectorAll('.email-list-item');
+    const ids=[...items].map(el=>el.dataset.eid);
+    const currentIdx=ids.indexOf(id);
+    if(currentIdx>=0){
+      const start=Math.min(emailLastCheckedIndex,currentIdx);
+      const end=Math.max(emailLastCheckedIndex,currentIdx);
+      for(let i=start;i<=end;i++){
+        emailSelectedIds.add(ids[i]);
+        const cb=items[i].querySelector('input[type="checkbox"]');if(cb)cb.checked=true;
+      }
+    }
+  }else{
+    if(checked)emailSelectedIds.add(id);else emailSelectedIds.delete(id);
+  }
+  // Track last index for shift-click
+  const items=document.querySelectorAll('.email-list-item');
+  const ids=[...items].map(el=>el.dataset.eid);
+  emailLastCheckedIndex=ids.indexOf(id);
+  updateEmailBulkBar();
+}
+function toggleSelectAllEmails(checked){
+  const items=document.querySelectorAll('.email-list-item');
+  items.forEach(el=>{
+    const id=el.dataset.eid;
+    const cb=el.querySelector('input[type="checkbox"]');
+    if(checked){emailSelectedIds.add(id);if(cb)cb.checked=true;}
+    else{emailSelectedIds.delete(id);if(cb)cb.checked=false;}
+  });
+  updateEmailBulkBar();
+}
+function updateEmailBulkBar(){
   const bar=document.getElementById('emailBulkBar');
   if(emailSelectedIds.size>0){bar.classList.add('visible');document.getElementById('emailBulkCount').textContent=emailSelectedIds.size+' selected';}
   else bar.classList.remove('visible');
+  // Sync select-all checkbox
+  const sa=document.getElementById('emailSelectAll');
+  if(sa){const items=document.querySelectorAll('.email-list-item');sa.checked=items.length>0&&emailSelectedIds.size>=items.length;}
 }
 
 async function bulkEmailAction(action){
@@ -3992,12 +4140,15 @@ function renderEmailReadingPane(data){
         <button onclick="deleteEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
         <button onclick="toggleEmailStar('${data.id}')"><svg viewBox="0 0 24 24" ${starred?'fill="var(--accent)"':'fill="none"'} stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${starred?'Unstar':'Star'}</button>
         <button onclick="markEmailUnread('${data.id}')"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>Mark Unread</button>
+        <button onclick="showLabelDropdown('${data.id}',this)"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Label</button>
+        <button onclick="showFolderDropdown('${data.id}',this)"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Move</button>
         `}
       </div>
       ${crmBadge}
+      ${data.direction==='outbound'&&!data.is_draft?`<div style="display:flex;gap:16px;padding:8px 16px;background:rgba(200,164,86,.08);border-radius:8px;margin-top:8px;font-size:.8rem;color:var(--text-muted)"><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.open_count||0}</span> open${(data.open_count||0)===1?'':'s'}</div><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.click_count||0}</span> click${(data.click_count||0)===1?'':'s'}</div></div>`:''}
     </div>
     <div class="erp-body">${body}</div>
-    ${attachments.length?'<div class="erp-attachments">'+attachments.map(a=>'<div class="erp-attach-item"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(typeof a==='string'?a:(a.filename||a.name||'attachment'))+'</div>').join('')+'</div>':''}`;
+    ${attachments.length?'<div class="erp-attachments"><div style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Attachments ('+attachments.length+')</div><div style="display:flex;gap:8px;flex-wrap:wrap">'+attachments.map(a=>{const fn=typeof a==='string'?a:(a.filename||a.name||'attachment');const fu=typeof a==='object'?(a.url||a.download_url||a.path||''):'';const fs=typeof a==='object'&&a.size?(' ('+Math.round(a.size/1024)+'KB)'):'';return fu?'<a href="'+esc(fu)+'" target="_blank" download="'+esc(fn)+'" class="erp-attach-item" style="cursor:pointer;text-decoration:none;color:var(--text)"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(fn)+fs+' <svg viewBox="0 0 24 24" style="width:14px;height:14px;margin-left:4px;flex-shrink:0"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>':'<div class="erp-attach-item"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(fn)+fs+'</div>';}).join('')+'</div></div>':''}`;
 }
 
 async function toggleEmailStar(id){
@@ -4137,6 +4288,7 @@ function discardEmailDraft(){
 async function loadEmailLabels(){
   try{
     const{data}=await sb.from('email_labels').select('*').order('name');
+    emailLabelsCache=data||[];
     const container=document.getElementById('emailLabelsList');
     if(!data||!data.length){container.innerHTML='<div style="padding:8px 16px;font-size:.75rem;color:var(--text-muted)">No labels</div>';return;}
     container.innerHTML=data.map(l=>`<div class="email-folder-item" onclick="filterByLabel('${esc(l.name)}')"><span class="ef-label-dot" style="background:${l.color||'var(--accent)'}"></span><span class="ef-label">${esc(l.name)}</span></div>`).join('');
@@ -4150,6 +4302,94 @@ async function filterByLabel(label){
   const{data}=await sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').contains('labels',[label]).eq('is_deleted',false).order('created_at',{ascending:false}).limit(200);
   emailListData=data||[];
   renderEmailList();
+}
+
+// Label management
+let emailLabelsCache=[];
+async function createEmailLabelPrompt(){
+  const name=prompt('Label name:');
+  if(!name||!name.trim())return;
+  const colors=['#C8A456','#4CAF50','#2196F3','#E53935','#FF9800','#9C27B0','#00BCD4','#795548'];
+  const color=colors[Math.floor(Math.random()*colors.length)];
+  try{
+    await sb.from('email_labels').insert({name:name.trim(),color});
+    showToast('Label "'+name.trim()+'" created');
+    await loadEmailLabels();
+  }catch(e){showToast('Failed to create label: '+e.message,'error');}
+}
+async function toggleEmailLabel(emailId,labelName){
+  const{data}=await sb.from('emails').select('labels').eq('id',emailId).single();
+  if(!data)return;
+  let labels=Array.isArray(data.labels)?[...data.labels]:[];
+  const idx=labels.indexOf(labelName);
+  if(idx>=0)labels.splice(idx,1);else labels.push(labelName);
+  await sb.from('emails').update({labels}).eq('id',emailId);
+  // Refresh
+  const item=emailListData.find(e=>e.id===emailId);if(item)item.labels=labels;
+  renderEmailList();
+  // Re-render reading pane
+  const{data:updated}=await sb.from('emails').select('*').eq('id',emailId).single();
+  if(updated&&emailSelectedId===emailId)renderEmailReadingPane(updated);
+  showToast(idx>=0?'Label removed':'Label applied');
+}
+function showLabelDropdown(emailId,btnEl){
+  // Remove existing dropdown
+  var old=document.getElementById('labelDropdown');if(old)old.remove();
+  var dd=document.createElement('div');dd.id='labelDropdown';
+  dd.style.cssText='position:absolute;top:100%;right:0;width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:999;padding:4px 0;max-height:240px;overflow-y:auto';
+  var currentLabels=[];
+  var item=emailListData.find(e=>e.id===emailId);
+  if(item&&Array.isArray(item.labels))currentLabels=item.labels;
+  if(!emailLabelsCache.length){dd.innerHTML='<div style="padding:12px;font-size:.8rem;color:var(--text-muted)">No labels — create one first</div>';
+  }else{
+    dd.innerHTML=emailLabelsCache.map(function(l){
+      var isActive=currentLabels.includes(l.name);
+      return '<div onclick="event.stopPropagation();toggleEmailLabel(\''+emailId+'\',\''+esc(l.name)+'\');document.getElementById(\'labelDropdown\')?.remove()" style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;transition:background .1s" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'transparent\'"><span style="width:10px;height:10px;border-radius:50%;background:'+(l.color||'var(--accent)')+'"></span><span style="flex:1">'+esc(l.name)+'</span>'+(isActive?'<span style="color:var(--accent)">&#10003;</span>':'')+'</div>';
+    }).join('');
+  }
+  btnEl.parentElement.style.position='relative';
+  btnEl.parentElement.appendChild(dd);
+  setTimeout(function(){document.addEventListener('click',function closeLDD(){dd.remove();document.removeEventListener('click',closeLDD);});},0);
+}
+
+// Custom Folders
+let emailCustomFoldersCache=[];
+async function loadEmailCustomFolders(){
+  try{
+    const{data}=await sb.from('emails').select('folder').not('folder','is',null).not('folder','eq','').order('folder');
+    const unique=[...new Set((data||[]).map(d=>d.folder).filter(Boolean))];
+    emailCustomFoldersCache=unique;
+    const container=document.getElementById('emailCustomFolders');
+    if(!unique.length){container.innerHTML='<div style="padding:8px 16px;font-size:.75rem;color:var(--text-muted)">No folders</div>';return;}
+    container.innerHTML=unique.map(f=>'<div class="email-folder-item" onclick="switchEmailFolder(\'folder:'+esc(f)+'\')"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><span class="ef-label">'+esc(f)+'</span></div>').join('');
+  }catch(e){console.error('Folder load error:',e);}
+}
+function createEmailFolderPrompt(){
+  const name=prompt('Folder name:');
+  if(!name||!name.trim())return;
+  // Folders are created by moving emails to them — just register the name
+  emailCustomFoldersCache.push(name.trim());
+  showToast('Folder "'+name.trim()+'" created. Move emails here using the folder button.');
+  loadEmailCustomFolders();
+}
+async function moveEmailToFolder(emailId,folder){
+  await sb.from('emails').update({folder:folder||null}).eq('id',emailId);
+  showToast('Email moved to '+folder);
+  await loadEmailInbox();
+  loadEmailCustomFolders();
+}
+function showFolderDropdown(emailId,btnEl){
+  var old=document.getElementById('folderDropdown');if(old)old.remove();
+  var dd=document.createElement('div');dd.id='folderDropdown';
+  dd.style.cssText='position:absolute;top:100%;right:0;width:180px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:999;padding:4px 0;max-height:200px;overflow-y:auto';
+  var items=emailCustomFoldersCache.length?emailCustomFoldersCache.map(function(f){
+    return '<div onclick="event.stopPropagation();moveEmailToFolder(\''+emailId+'\',\''+esc(f)+'\');document.getElementById(\'folderDropdown\')?.remove()" style="padding:6px 12px;cursor:pointer;font-size:.8rem;transition:background .1s" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'transparent\'"><svg viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;margin-right:6px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'+esc(f)+'</div>';
+  }).join(''):'<div style="padding:8px 12px;font-size:.75rem;color:var(--text-muted)">No custom folders yet</div>';
+  items+='<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px"><div onclick="event.stopPropagation();var n=prompt(\'New folder name:\');if(n){moveEmailToFolder(\''+emailId+'\',n.trim());document.getElementById(\'folderDropdown\')?.remove();}" style="padding:6px 12px;cursor:pointer;font-size:.8rem;color:var(--accent)" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'transparent\'">+ New folder</div></div>';
+  dd.innerHTML=items;
+  btnEl.parentElement.style.position='relative';
+  btnEl.parentElement.appendChild(dd);
+  setTimeout(function(){document.addEventListener('click',function closeFDD(){dd.remove();document.removeEventListener('click',closeFDD);});},0);
 }
 
 // Templates
