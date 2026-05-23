@@ -21,14 +21,38 @@ a{color:var(--accent);text-decoration:none}
 .sidebar-logo .shield{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#A08636);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
 .sidebar-logo span{font-size:1rem;font-weight:700;letter-spacing:1px}
 .sidebar nav{flex:1;padding:0.5rem 0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;cursor:pointer;color:var(--text-muted);font-size:0.9rem;transition:all 0.2s;border-left:3px solid transparent}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;cursor:pointer;color:var(--text-muted);font-size:0.88rem;transition:all 0.2s;border-left:3px solid transparent;user-select:none}
 .nav-item:hover{background:var(--surface-2);color:var(--text)}
 .nav-item.active{color:var(--accent);background:rgba(200,164,86,0.05);border-left-color:var(--accent)}
-.nav-item .icon{width:20px;text-align:center}
-.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);font-size:0.8rem;color:var(--text-muted)}
-.sidebar-footer .user-email{color:var(--text);font-weight:500;display:block;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sidebar-footer button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-top:6px;transition:all 0.2s}
-.sidebar-footer button:hover{border-color:var(--accent);color:var(--accent)}
+.nav-item .icon{width:20px;text-align:center;display:flex;align-items:center;justify-content:center}
+.nav-item .icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-item .nav-label{flex:1}
+.nav-item .expand-arrow{font-size:.6rem;transition:transform .2s;color:var(--text-muted)}
+.nav-item.active .expand-arrow{color:var(--accent)}
+.nav-item.has-children.expanded .expand-arrow{transform:rotate(90deg)}
+.nav-children{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.nav-children.open{max-height:300px}
+.nav-child{padding:7px 1.25rem 7px 3.2rem;font-size:.82rem;color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none}
+.nav-child:hover{color:var(--text);background:var(--surface-2)}
+.nav-child.active{color:var(--accent)}
+.more-divider{margin:6px 1.25rem;border:none;border-top:1px solid var(--border);opacity:.4}
+.more-toggle{display:flex;align-items:center;gap:8px;padding:8px 1.25rem;cursor:pointer;color:var(--text-muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;transition:all .2s;user-select:none}
+.more-toggle:hover{color:var(--accent)}
+.more-toggle .chevron{font-size:.55rem;transition:transform .2s}
+.more-toggle.expanded .chevron{transform:rotate(90deg)}
+.more-section{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.more-section.open{max-height:500px}
+.sidebar-footer{padding:.75rem 1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar-footer .settings-btn{background:none;border:1px solid var(--border);color:var(--text-muted);width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.sidebar-footer .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer .settings-btn:hover{border-color:var(--accent);color:var(--accent)}
+.sidebar-footer .user-info{flex:1;overflow:hidden}
+.sidebar-footer .user-name{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-footer .user-role{font-size:.7rem;color:var(--text-muted)}
+.sidebar-footer .notif-btn{position:relative;background:none;border:1px solid var(--border);color:var(--text-muted);width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.sidebar-footer .notif-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer .notif-btn:hover{border-color:var(--accent);color:var(--accent)}
+.sidebar-footer .notif-badge{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--error);border-radius:50%}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0}
 .topbar h1{font-size:1.2rem;font-weight:700}
@@ -232,6 +256,132 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .time-stat{background:var(--surface-2);border-radius:10px;padding:0.75rem 1rem;text-align:center}
 .time-stat .ts-val{font-size:1.2rem;font-weight:700;color:var(--accent)}
 .time-stat .ts-label{font-size:0.75rem;color:var(--text-muted);margin-top:2px}
+
+/* ═══ EMAIL INBOX ═══ */
+.email-container{display:flex;height:calc(100vh - 120px);border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.email-folder-sidebar{width:200px;min-width:200px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.email-folder-sidebar .ef-section{padding:12px 0}
+.email-folder-sidebar .ef-section-title{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);padding:0 16px;margin-bottom:4px}
+.email-folder-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;font-size:.85rem;color:var(--text-muted);transition:all .15s}
+.email-folder-item:hover{background:var(--surface-2);color:var(--text)}
+.email-folder-item.active{background:var(--surface-2);color:var(--accent);font-weight:600}
+.email-folder-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.email-folder-item .ef-label{flex:1}
+.email-folder-item .ef-count{font-size:.7rem;background:var(--surface-3);color:var(--text-muted);border-radius:10px;padding:1px 7px;min-width:20px;text-align:center}
+.email-folder-item.active .ef-count{background:rgba(200,164,86,.15);color:var(--accent)}
+.ef-label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.email-list-panel{width:360px;min-width:300px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg)}
+.email-list-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.email-list-header-row{display:flex;align-items:center;justify-content:space-between}
+.email-list-header h3{font-size:1rem;font-weight:700;margin:0;color:var(--text)}
+.email-filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.email-filter-pill{font-size:.7rem;padding:3px 10px;border-radius:12px;cursor:pointer;background:var(--surface-2);color:var(--text-muted);border:1px solid transparent;transition:all .15s}
+.email-filter-pill:hover{border-color:var(--border);color:var(--text)}
+.email-filter-pill.active{background:rgba(200,164,86,.12);color:var(--accent);border-color:rgba(200,164,86,.3)}
+.email-list-search{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px 6px 30px;border-radius:8px;font-size:.8rem;outline:none}
+.email-list-search:focus{border-color:var(--accent)}
+.email-list-search-wrap{position:relative}
+.email-list-search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8}
+.email-list-items{flex:1;overflow-y:auto}
+.email-list-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .12s;align-items:flex-start}
+.email-list-item:hover{background:var(--surface-2)}
+.email-list-item.active{background:var(--surface-2);border-left:3px solid var(--accent)}
+.email-list-item.unread .eli-sender,.email-list-item.unread .eli-subject{font-weight:700;color:var(--text)}
+.eli-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+.eli-content{flex:1;min-width:0}
+.eli-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.eli-sender{font-size:.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.eli-time{font-size:.7rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0}
+.eli-subject{font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.eli-snippet{font-size:.75rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eli-bottom{display:flex;align-items:center;gap:6px;margin-top:4px}
+.eli-star{cursor:pointer;color:var(--text-muted);transition:color .15s;flex-shrink:0}
+.eli-star:hover,.eli-star.starred{color:var(--accent)}
+.eli-star svg{width:14px;height:14px}
+.eli-tag{font-size:.6rem;padding:1px 6px;border-radius:8px;background:rgba(200,164,86,.1);color:var(--accent);white-space:nowrap}
+.eli-attach svg{width:13px;height:13px;stroke:var(--text-muted);fill:none;stroke-width:1.8}
+.eli-tracking{display:flex;gap:3px;align-items:center}
+.eli-tracking-dot{width:6px;height:6px;border-radius:50%}
+.email-list-item .eli-checkbox{flex-shrink:0;margin-top:2px}
+.email-list-item .eli-checkbox input{accent-color:var(--accent)}
+
+.email-bulk-bar{display:none;padding:8px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);align-items:center;gap:8px;font-size:.8rem}
+.email-bulk-bar.visible{display:flex}
+.email-bulk-bar button{font-size:.75rem;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface-3);color:var(--text);cursor:pointer;transition:all .15s}
+.email-bulk-bar button:hover{border-color:var(--accent);color:var(--accent)}
+
+.email-reading-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.erp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);gap:12px}
+.erp-empty svg{width:48px;height:48px;stroke:var(--text-muted);fill:none;stroke-width:1;opacity:.4}
+.erp-header{padding:16px 20px;border-bottom:1px solid var(--border)}
+.erp-subject{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:var(--text)}
+.erp-meta{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.erp-meta-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0}
+.erp-meta-info{flex:1}
+.erp-from{font-size:.85rem;font-weight:600;color:var(--text)}
+.erp-to{font-size:.75rem;color:var(--text-muted)}
+.erp-date{font-size:.75rem;color:var(--text-muted);white-space:nowrap}
+.erp-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.erp-actions button{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);cursor:pointer;transition:all .15s}
+.erp-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.erp-actions button svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.erp-actions .erp-btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.erp-actions .erp-btn-primary:hover{box-shadow:0 0 12px var(--accent-glow)}
+.erp-crm-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;padding:3px 10px;border-radius:10px;background:rgba(200,164,86,.1);color:var(--accent);margin-top:8px;cursor:pointer}
+.erp-crm-badge svg{width:12px;height:12px}
+.erp-body{flex:1;padding:20px;overflow-y:auto;font-size:.9rem;line-height:1.7;color:var(--text)}
+.erp-body img{max-width:100%}
+.erp-attachments{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.erp-attach-item{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.75rem;color:var(--text);cursor:pointer}
+.erp-attach-item:hover{border-color:var(--accent)}
+.erp-attach-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* Compose Modal */
+.email-compose-overlay{display:none;position:fixed;bottom:20px;right:20px;width:580px;max-height:520px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden}
+.email-compose-overlay.visible{display:flex}
+.ec-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);cursor:move}
+.ec-header h4{font-size:.9rem;font-weight:600;margin:0;color:var(--text)}
+.ec-header button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
+.ec-header button:hover{color:var(--text)}
+.ec-header button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+.ec-fields{padding:0 16px}
+.ec-field{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.04);padding:6px 0}
+.ec-field label{font-size:.75rem;color:var(--text-muted);width:40px;flex-shrink:0}
+.ec-field input,.ec-field select{flex:1;background:transparent;border:none;color:var(--text);font-size:.85rem;padding:4px 0;outline:none}
+.ec-toolbar{display:flex;gap:4px;padding:4px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ec-toolbar button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:4px}
+.ec-toolbar button:hover{background:var(--surface-2);color:var(--text)}
+.ec-toolbar button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+.ec-body{flex:1;padding:12px 16px;min-height:160px;max-height:220px;overflow-y:auto;font-size:.85rem;color:var(--text);line-height:1.6;outline:none}
+.ec-body:empty:before{content:attr(data-placeholder);color:var(--text-muted)}
+.ec-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border)}
+.ec-footer-left{display:flex;gap:4px;align-items:center}
+.ec-footer-right{display:flex;gap:4px;align-items:center}
+.ec-footer button.ec-send{background:var(--accent);color:#000;border:none;padding:7px 20px;border-radius:8px;font-weight:600;font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.ec-footer button.ec-send:hover{box-shadow:0 0 16px var(--accent-glow)}
+.ec-footer button.ec-icon-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
+.ec-footer button.ec-icon-btn:hover{color:var(--text)}
+.ec-footer button.ec-icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* Email Settings */
+.email-settings-container{padding:0}
+.email-settings-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;gap:0}
+.email-settings-tab{padding:10px 18px;font-size:.82rem;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.email-settings-tab:hover{color:var(--text)}
+.email-settings-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.email-settings-body{padding:20px}
+.es-section{margin-bottom:20px}
+.es-section h4{font-size:.9rem;font-weight:600;margin-bottom:10px;color:var(--text)}
+.es-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-radius:8px;margin-bottom:6px}
+.es-row label{font-size:.82rem;color:var(--text)}
+.es-row input[type="text"],.es-row textarea,.es-row select{background:var(--surface-3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.82rem}
+.es-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px}
+.es-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.es-card-title{font-size:.85rem;font-weight:600;color:var(--text)}
+.es-card-actions button{font-size:.72rem;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-muted);cursor:pointer}
+.es-card-actions button:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:900px){.email-container{flex-direction:column;height:auto}.email-folder-sidebar{width:100%;min-width:auto;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border)}.email-folder-item{white-space:nowrap}.email-list-panel{width:100%;min-width:auto;border-right:none;border-bottom:1px solid var(--border);max-height:300px}.email-reading-pane{min-height:300px}.email-compose-overlay{width:calc(100vw - 20px);right:10px;left:10px}}
 </style>
 </head>
 <body>
@@ -240,31 +390,79 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
   <aside class="sidebar" id="sidebar">
     <a href="/" class="sidebar-logo" style="text-decoration:none"><div class="shield">K</div><span>KNIGHT OPS</span></a>
     <nav>
-      <div class="nav-item active" data-view="dashboard"><span class="icon">&#9632;</span> Dashboard</div>
-      <div class="nav-item" data-view="applications"><span class="icon">&#9998;</span> Applications</div>
-      <div class="nav-item" data-view="leads"><span class="icon">&#9733;</span> Leads</div>
-      <div class="nav-item" data-view="clients"><span class="icon">&#9673;</span> Clients</div>
-      <div class="nav-item" data-view="projects"><span class="icon">&#9881;</span> Projects</div>
-      <div class="nav-item" data-view="tasks"><span class="icon">&#10003;</span> Tasks</div>
-      <div class="nav-item" data-view="deals"><span class="icon">&#9830;</span> Deals</div>
-      <div class="nav-item" data-view="invoices"><span class="icon">&#9783;</span> Invoices</div>
-      <div class="nav-item" data-view="apps"><span class="icon">&#9878;</span> App Library</div>
-      <div class="nav-item" data-view="events"><span class="icon">&#9788;</span> Events</div>
-      <div class="nav-item" data-view="resources"><span class="icon">&#9776;</span> Resources</div>
-      <div class="nav-item" data-view="careers"><span class="icon">&#9645;</span> Careers</div>
-      <div class="nav-item" data-view="reviews"><span class="icon">&#9733;</span> Reviews</div>
-      <div class="nav-item" data-view="education"><span class="icon">&#9654;</span> Education</div>
-      <div class="nav-item" data-view="notifications"><span class="icon">&#9993;</span> Notifications</div>
-      <div class="nav-item" data-view="comms"><span class="icon">&#9993;</span> Communications</div>
-            <div class="nav-item" data-view="blog"><span class="icon">&#9998;</span> Blog</div>
-      <div class="nav-item" data-view="partners"><span class="icon">&#10070;</span> Partners</div>
-      <div class="nav-item" data-view="agents"><span class="icon">&#9881;</span> Agent Brains</div>
-            <div class="nav-item" data-view="forms"><span class="icon">&#9998;</span> Forms &amp; Surveys</div>
-<div class="nav-item" data-view="kpis" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon" style="display:inline-flex;gap:1px;align-items:flex-end;height:12px;vertical-align:middle"><span style="width:3px;height:5px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:9px;background:currentColor;border-radius:1px"></span><span style="width:3px;height:12px;background:currentColor;border-radius:1px"></span></span> KPIs</div>
+      <!-- Dashboard -->
+      <div class="nav-item active" data-view="dashboard"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="nav-label">Dashboard</span></div>
+
+      <!-- Pipeline: Leads, Deals, Invoices -->
+      <div class="nav-item has-children" data-group="pipeline" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span><span class="nav-label">Pipeline</span><span class="expand-arrow">&#9654;</span></div>
+      <div class="nav-children" id="nav-pipeline">
+        <div class="nav-child" data-view="leads">Leads</div>
+        <div class="nav-child" data-view="deals">Deals</div>
+        <div class="nav-child" data-view="invoices">Invoices</div>
+      </div>
+
+      <!-- Delivery: Projects, Tasks, Clients, Applications -->
+      <div class="nav-item has-children" data-group="delivery" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="nav-label">Delivery</span><span class="expand-arrow">&#9654;</span></div>
+      <div class="nav-children" id="nav-delivery">
+        <div class="nav-child" data-view="projects">Projects</div>
+        <div class="nav-child" data-view="tasks">Tasks</div>
+        <div class="nav-child" data-view="clients">Clients</div>
+        <div class="nav-child" data-view="applications">Applications</div>
+      </div>
+
+      <!-- Calendar & Booking -->
+      <div class="nav-item has-children" data-group="calendar" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-label">Calendar & Booking</span><span class="expand-arrow">&#9654;</span></div>
+      <div class="nav-children" id="nav-calendar">
+        <div class="nav-child" data-view="bookings">Bookings</div>
+        <div class="nav-child" data-view="events">Events</div>
+        <div class="nav-child" data-view="bookingSettings">Settings</div>
+      </div>
+
+      <!-- Email -->
+      <div class="nav-item has-children" data-group="email" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></span><span class="nav-label">Email</span><span class="expand-arrow">&#9654;</span></div>
+      <div class="nav-children" id="nav-email">
+        <div class="nav-child" data-view="emailInbox">Inbox</div>
+        <div class="nav-child" data-view="emailDrafts">Drafts</div>
+        <div class="nav-child" data-view="emailSent">Sent</div>
+        <div class="nav-child" data-view="emailTemplates">Templates</div>
+        <div class="nav-child" data-view="emailSettings">Settings</div>
+      </div>
+
+      <!-- More divider -->
+      <hr class="more-divider">
+      <div class="more-toggle" onclick="toggleMore(this)"><span class="chevron">&#9654;</span> More</div>
+      <div class="more-section" id="moreSection">
+        <!-- Content: Blog, Resources, Education, Reviews, App Library -->
+        <div class="nav-item has-children" data-group="content" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="nav-label">Content</span><span class="expand-arrow">&#9654;</span></div>
+        <div class="nav-children" id="nav-content">
+          <div class="nav-child" data-view="blog">Blog</div>
+          <div class="nav-child" data-view="resources">Resources</div>
+          <div class="nav-child" data-view="education">Education</div>
+          <div class="nav-child" data-view="reviews">Reviews</div>
+          <div class="nav-child" data-view="apps">App Library</div>
+        </div>
+
+        <!-- Growth: KPIs, Partners, Careers -->
+        <div class="nav-item has-children" data-group="growth" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="nav-label">Growth</span><span class="expand-arrow">&#9654;</span></div>
+        <div class="nav-children" id="nav-growth">
+          <div class="nav-child" data-view="kpis">KPIs</div>
+          <div class="nav-child" data-view="partners">Partners</div>
+          <div class="nav-child" data-view="careers">Careers</div>
+        </div>
+
+        <!-- System: Agents, Forms, Notifications -->
+        <div class="nav-item has-children" data-group="system" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span class="nav-label">System</span><span class="expand-arrow">&#9654;</span></div>
+        <div class="nav-children" id="nav-system">
+          <div class="nav-child" data-view="agents">Agent Brains</div>
+          <div class="nav-child" data-view="forms">Forms & Surveys</div>
+          <div class="nav-child" data-view="notifications">Notifications</div>
+        </div>
+      </div>
     </nav>
     <div class="sidebar-footer">
-      <span class="user-email" id="userEmail">admin</span>
-      <button onclick="handleLogout()">Sign Out</button>
+      <button class="settings-btn" onclick="alert('Settings coming soon')" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      <div class="user-info"><div class="user-name" id="userEmail">Daniel Knight</div><div class="user-role">Admin</div></div>
+      <button class="notif-btn" data-view="notifications" onclick="navTo('notifications')" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
     </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -356,6 +554,65 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
+
+      <!-- ═══ BOOKINGS VIEW ═══ -->
+      <div class="view" id="v-bookings">
+        <div id="bookingsListView">
+          <!-- Stats row -->
+          <div id="bookingStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem"></div>
+          <!-- Filters -->
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Bookings</h2>
+              <div class="table-filters" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <select id="bookingStatusFilter" onchange="filterBookings()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px">
+                  <option value="all">All Status</option>
+                  <option value="confirmed" selected>Confirmed</option>
+                  <option value="rescheduled">Rescheduled</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="no_show">No Show</option>
+                </select>
+                <select id="bookingTypeFilter" onchange="filterBookings()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px">
+                  <option value="all">All Types</option>
+                </select>
+                <input type="text" id="bookingSearch" placeholder="Search guest..." oninput="filterBookings()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;width:180px">
+              </div>
+            </div>
+            <div id="bookingsTable" style="overflow-x:auto"></div>
+          </div>
+        </div>
+        <div id="bookingDetailView" style="display:none"></div>
+      </div>
+
+      <!-- ═══ BOOKING SETTINGS VIEW ═══ -->
+      <div class="view" id="v-bookingSettings">
+        <div class="table-card" style="max-width:900px">
+          <div class="table-header"><h2>Booking Settings</h2></div>
+          <div style="padding:1.25rem">
+            <!-- Booking Types -->
+            <div style="margin-bottom:2rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin:0">Booking Types</h3>
+                <button class="btn btn-primary btn-sm" onclick="editBookingType()">+ Add Type</button>
+              </div>
+              <div id="bookingTypesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div>
+            </div>
+            <!-- Weekly Availability -->
+            <div style="margin-bottom:2rem">
+              <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin:0 0 1rem">Weekly Availability</h3>
+              <div id="weeklyAvailGrid" style="display:grid;gap:8px"></div>
+              <button class="btn btn-secondary btn-sm" onclick="saveWeeklyAvail()" style="margin-top:12px">Save Availability</button>
+            </div>
+            <!-- General Settings -->
+            <div>
+              <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin:0 0 1rem">General Settings</h3>
+              <div id="bookingGeneralSettings" style="display:grid;gap:12px;max-width:400px"></div>
+              <button class="btn btn-secondary btn-sm" onclick="saveBookingGeneralSettings()" style="margin-top:12px">Save Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
 
       <!-- ═══ CAREERS VIEW ═══ -->
@@ -475,39 +732,169 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <div id="notifLogTable"></div>
         </div>
       </div>
-      <!-- ═══ COMMUNICATIONS VIEW ═══ -->
+      <!-- ═══ EMAIL INBOX VIEW ═══ -->
       <div class="view" id="v-comms">
-        <div class="kpi-grid" id="commsKpis"></div>
-        <!-- Filters -->
-        <div class="table-card" style="margin-bottom:1.5rem">
-          <div class="table-header">
-            <h2>Email Activity</h2>
-            <div class="table-filters">
-              <select id="commsDirection" onchange="loadComms()">
-                <option value="">All</option>
-                <option value="outbound">Sent</option>
-                <option value="inbound">Received</option>
-              </select>
-              <select id="commsPeriod" onchange="loadComms()">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="all">All time</option>
-              </select>
-              <input type="text" id="commsSearch" placeholder="Search emails..." style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.85rem;width:180px" oninput="loadComms()">
+        <div class="email-container" id="emailMainView">
+          <!-- Folder Sidebar -->
+          <div class="email-folder-sidebar">
+            <div class="ef-section">
+              <div class="email-folder-item active" data-folder="inbox" onclick="switchEmailFolder('inbox')">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+                <span class="ef-label">Inbox</span>
+                <span class="ef-count" id="efCountInbox">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="sent" onclick="switchEmailFolder('sent')">
+                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span class="ef-label">Sent</span>
+                <span class="ef-count" id="efCountSent">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="drafts" onclick="switchEmailFolder('drafts')">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span class="ef-label">Drafts</span>
+                <span class="ef-count" id="efCountDrafts">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="starred" onclick="switchEmailFolder('starred')">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span class="ef-label">Starred</span>
+                <span class="ef-count" id="efCountStarred">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="archived" onclick="switchEmailFolder('archived')">
+                <svg viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                <span class="ef-label">Archived</span>
+                <span class="ef-count" id="efCountArchived">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="spam" onclick="switchEmailFolder('spam')">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                <span class="ef-label">Spam</span>
+                <span class="ef-count" id="efCountSpam">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="trash" onclick="switchEmailFolder('trash')">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                <span class="ef-label">Trash</span>
+                <span class="ef-count" id="efCountTrash">0</span>
+              </div>
+              <div class="email-folder-item" data-folder="all" onclick="switchEmailFolder('all')">
+                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+                <span class="ef-label">All Mail</span>
+                <span class="ef-count" id="efCountAll">0</span>
+              </div>
+            </div>
+            <div class="ef-section">
+              <div class="ef-section-title">Labels</div>
+              <div id="emailLabelsList"></div>
             </div>
           </div>
-          <div id="commsTable" style="max-height:500px;overflow-y:auto"></div>
+          <!-- Email List -->
+          <div class="email-list-panel">
+            <div class="email-list-header">
+              <div class="email-list-header-row">
+                <h3 id="emailListTitle">Inbox</h3>
+                <button class="btn btn-primary btn-sm" onclick="toggleEmailCompose()" style="font-size:.75rem;padding:5px 14px">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;vertical-align:middle;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Compose
+                </button>
+              </div>
+              <div class="email-list-search-wrap">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="email-list-search" id="emailSearchInput" placeholder="Search emails..." oninput="filterEmailList()">
+              </div>
+              <div class="email-filter-pills" id="emailFilterPills">
+                <span class="email-filter-pill active" data-filter="all" onclick="setEmailFilter('all')">All</span>
+                <span class="email-filter-pill" data-filter="unread" onclick="setEmailFilter('unread')">Unread</span>
+                <span class="email-filter-pill" data-filter="attachment" onclick="setEmailFilter('attachment')">Has Attachment</span>
+                <span class="email-filter-pill" data-filter="week" onclick="setEmailFilter('week')">This Week</span>
+              </div>
+            </div>
+            <div class="email-bulk-bar" id="emailBulkBar">
+              <span id="emailBulkCount">0 selected</span>
+              <button onclick="bulkEmailAction('read')">Mark Read</button>
+              <button onclick="bulkEmailAction('archive')">Archive</button>
+              <button onclick="bulkEmailAction('delete')">Delete</button>
+              <button onclick="bulkEmailAction('star')">Star</button>
+            </div>
+            <div class="email-list-items" id="emailListItems">
+              <div class="erp-empty"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg><span>Loading...</span></div>
+            </div>
+          </div>
+          <!-- Reading Pane -->
+          <div class="email-reading-pane" id="emailReadingPane">
+            <div class="erp-empty" id="emailReadingEmpty">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+              <span style="font-size:.9rem">Select an email to read</span>
+            </div>
+            <div id="emailReadingContent" style="display:none;flex-direction:column;flex:1;overflow:hidden"></div>
+          </div>
         </div>
-        <!-- Drip Campaigns -->
-        <div class="table-card" style="margin-bottom:1.5rem">
-          <div class="table-header"><h2>Active Drip Campaigns</h2><span class="badge badge-gold" id="dripActiveCount">-</span></div>
-          <div id="dripCampaignTable"></div>
+        <!-- Email Settings View (hidden by default) -->
+        <div id="emailSettingsView" style="display:none">
+          <div class="table-card email-settings-container">
+            <div class="email-settings-tabs" id="emailSettingsTabs">
+              <div class="email-settings-tab active" data-estab="general" onclick="switchEmailSettingsTab('general')">General</div>
+              <div class="email-settings-tab" data-estab="signatures" onclick="switchEmailSettingsTab('signatures')">Signatures</div>
+              <div class="email-settings-tab" data-estab="templates" onclick="switchEmailSettingsTab('templates')">Templates</div>
+              <div class="email-settings-tab" data-estab="labels" onclick="switchEmailSettingsTab('labels')">Labels</div>
+              <div class="email-settings-tab" data-estab="autoreplies" onclick="switchEmailSettingsTab('autoreplies')">Auto-Reply</div>
+              <div class="email-settings-tab" data-estab="rules" onclick="switchEmailSettingsTab('rules')">Rules</div>
+            </div>
+            <div class="email-settings-body" id="emailSettingsBody"></div>
+          </div>
         </div>
-        <!-- Email Detail Panel -->
-        <div id="emailDetailPanel" style="display:none">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('emailDetailPanel').style.display='none'" style="margin-bottom:1rem">&larr; Back to list</button>
-          <div class="table-card" style="padding:1.5rem" id="emailDetailContent"></div>
+        <!-- Email Templates View (hidden by default) -->
+        <div id="emailTemplatesView" style="display:none">
+          <div class="table-card" style="padding:1.5rem">
+            <div class="table-header" style="margin-bottom:1rem">
+              <h2>Email Templates</h2>
+              <button class="btn btn-primary btn-sm" onclick="editEmailTemplate()">+ New Template</button>
+            </div>
+            <div id="emailTemplatesList"></div>
+          </div>
+        </div>
+        <!-- Compose Modal -->
+        <div class="email-compose-overlay" id="emailComposeModal">
+          <div class="ec-header">
+            <h4>New Message</h4>
+            <div style="display:flex;gap:4px">
+              <button onclick="toggleEmailCompose()" title="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+          </div>
+          <div class="ec-fields">
+            <div class="ec-field"><label>From</label><select id="ecFrom"><option value="daniel@knightops.biz">Daniel Knight &lt;daniel@knightops.biz&gt;</option></select></div>
+            <div class="ec-field"><label>To</label><input type="text" id="ecTo" placeholder="recipient@example.com"></div>
+            <div class="ec-field" id="ecCcRow" style="display:none"><label>CC</label><input type="text" id="ecCc" placeholder="cc@example.com"></div>
+            <div class="ec-field" id="ecBccRow" style="display:none"><label>BCC</label><input type="text" id="ecBcc" placeholder="bcc@example.com"></div>
+            <div class="ec-field">
+              <label>Subj</label><input type="text" id="ecSubject" placeholder="Subject">
+              <div style="display:flex;gap:4px;margin-left:8px">
+                <button class="ec-icon-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.7rem" onclick="document.getElementById('ecCcRow').style.display=document.getElementById('ecCcRow').style.display==='none'?'flex':'none'">CC</button>
+                <button class="ec-icon-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.7rem" onclick="document.getElementById('ecBccRow').style.display=document.getElementById('ecBccRow').style.display==='none'?'flex':'none'">BCC</button>
+              </div>
+            </div>
+          </div>
+          <div class="ec-toolbar">
+            <button title="Bold" onclick="document.execCommand('bold')"><svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z"/><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z"/></svg></button>
+            <button title="Italic" onclick="document.execCommand('italic')"><svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
+            <button title="Underline" onclick="document.execCommand('underline')"><svg viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg></button>
+            <button title="Link" onclick="var u=prompt('URL:');if(u)document.execCommand('createLink',false,u)"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></button>
+            <button title="Bulleted List" onclick="document.execCommand('insertUnorderedList')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
+          </div>
+          <div class="ec-body" id="ecBody" contenteditable="true" data-placeholder="Write your email..."></div>
+          <div class="ec-footer">
+            <div class="ec-footer-left">
+              <button class="ec-send" onclick="sendEmail()">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send
+              </button>
+              <select id="ecTemplateSelect" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);padding:4px 8px;border-radius:6px;font-size:.72rem" onchange="applyEmailTemplate(this.value)">
+                <option value="">Templates...</option>
+              </select>
+            </div>
+            <div class="ec-footer-right">
+              <button class="ec-icon-btn" title="Attach file"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+              <button class="ec-icon-btn" title="Insert signature" onclick="insertEmailSignature()"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+              <button class="ec-icon-btn" title="Schedule send"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+              <button class="ec-icon-btn" title="Save as draft" onclick="saveEmailDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+              <button class="ec-icon-btn" title="Discard" onclick="discardEmailDraft()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+            </div>
+          </div>
         </div>
       </div>
       <!-- ═══ PARTNERS VIEW ═══ -->
@@ -937,31 +1324,85 @@ function closeSidebar(){
   document.getElementById('sidebarOverlay').classList.remove('active');
 }
 
-// NAV
-document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',e=>{
-    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    const v=e.currentTarget.dataset.view;
-    document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-    document.getElementById('v-'+v).classList.add('active');
-    var titleMap={kpis:'KPIs'};document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
-    // Reset to list views
-    ['leads','clients','projects','tasks'].forEach(s=>{
-      const lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
-      const dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
-    });
-    // Also reset blog view
-    const blv=document.getElementById('blogListView');if(blv)blv.style.display='';
-    const bev=document.getElementById('blogEditorView');if(bev)bev.style.display='none';const cclv=document.getElementById('ccListView');if(cclv)cclv.style.display='';const ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
-    // Also reset applications view
-    const alv=document.getElementById('appsListView');if(alv)alv.style.display='';
-    const adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-    if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();
-    closeSidebar();
+// NAV — Grouped sidebar with collapsible sections
+function toggleNavGroup(el){
+  var group=el.dataset.group;
+  var children=document.getElementById('nav-'+group);
+  var wasExpanded=el.classList.contains('expanded');
+  // Collapse all groups first
+  document.querySelectorAll('.nav-item.has-children').forEach(function(ni){ni.classList.remove('expanded');});
+  document.querySelectorAll('.nav-children').forEach(function(nc){nc.classList.remove('open');});
+  // Toggle this group
+  if(!wasExpanded){el.classList.add('expanded');children.classList.add('open');}
+}
+function toggleMore(el){
+  el.classList.toggle('expanded');
+  document.getElementById('moreSection').classList.toggle('open');
+}
+function activateView(v){
+  // Clear all active states
+  document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active');});
+  document.querySelectorAll('.nav-child').forEach(function(c){c.classList.remove('active');});
+  // Set active on the clicked child or dashboard
+  var child=document.querySelector('.nav-child[data-view="'+v+'"]');
+  if(child){
+    child.classList.add('active');
+    // Highlight the parent group
+    var parentChildren=child.closest('.nav-children');
+    if(parentChildren){
+      var groupId=parentChildren.id.replace('nav-','');
+      var parentItem=document.querySelector('.nav-item[data-group="'+groupId+'"]');
+      if(parentItem){parentItem.classList.add('active');parentItem.classList.add('expanded');}
+      parentChildren.classList.add('open');
+      // If in more section, expand more
+      if(parentChildren.closest('.more-section')){
+        document.getElementById('moreSection').classList.add('open');
+        document.querySelector('.more-toggle').classList.add('expanded');
+      }
+    }
+  } else {
+    var navItem=document.querySelector('.nav-item[data-view="'+v+'"]');
+    if(navItem)navItem.classList.add('active');
+  }
+  // Switch view — email sub-views map to v-comms
+  var emailSubViews={emailInbox:1,emailDrafts:1,emailSent:1,emailTemplates:1,emailSettings:1};
+  var resolvedView=emailSubViews[v]?'comms':v;
+  document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
+  var viewEl=document.getElementById('v-'+resolvedView);
+  if(viewEl)viewEl.classList.add('active');
+  var titleMap={kpis:'KPIs',comms:'Email',emailInbox:'Inbox',emailDrafts:'Drafts',emailSent:'Sent',emailTemplates:'Email Templates',emailSettings:'Email Settings',apps:'App Library',agents:'Agent Brains',forms:'Forms & Surveys',bookings:'Bookings',bookingSettings:'Booking Settings'};
+  document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
+  // Reset to list views
+  ['leads','clients','projects','tasks'].forEach(function(s){
+    var lv=document.getElementById(s+'ListView');if(lv)lv.style.display='';
+    var dv=document.getElementById(s.slice(0,-1)+'DetailView');if(dv)dv.style.display='none';
   });
+  var blv=document.getElementById('blogListView');if(blv)blv.style.display='';
+  var bev=document.getElementById('blogEditorView');if(bev)bev.style.display='none';
+  var cclv=document.getElementById('ccListView');if(cclv)cclv.style.display='';
+  var ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
+  var alv=document.getElementById('appsListView');if(alv)alv.style.display='';
+  var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();
+  // Email sub-views
+  if(v==='emailInbox'){switchEmailFolder('inbox');showEmailMainView();}
+  if(v==='emailDrafts'){switchEmailFolder('drafts');showEmailMainView();}
+  if(v==='emailSent'){switchEmailFolder('sent');showEmailMainView();}
+  if(v==='emailTemplates'){showEmailSubView('templates');}
+  if(v==='emailSettings'){showEmailSubView('settings');loadEmailSettings();}
+  if(v==='bookings'){loadBookings();}
+  if(v==='bookingSettings'){loadBookingSettings();}
+  closeSidebar();
+}
+// Dashboard top-level click
+document.querySelectorAll('.nav-item[data-view]').forEach(function(item){
+  item.addEventListener('click',function(e){activateView(e.currentTarget.dataset.view);});
 });
-function navTo(view){document.querySelector('[data-view="'+view+'"]').click();}
+// Child nav clicks
+document.querySelectorAll('.nav-child').forEach(function(child){
+  child.addEventListener('click',function(e){activateView(e.currentTarget.dataset.view);});
+});
+function navTo(view){activateView(view);}
 
 // MODAL
 function openEditModal(title,bodyHTML,footHTML){
@@ -3267,6 +3708,10 @@ async function loadNotifLog(){
   renderNotifLog();
   document.getElementById('notifCount').textContent=notifLog.length;
   document.getElementById('emailCount').textContent=notifLog.filter(n=>n.email_sent).length;
+  // Update sidebar notification badge
+  var unread=notifLog.filter(function(n){return !n.read;}).length;
+  var badge=document.getElementById('notifBadge');
+  if(badge)badge.style.display=unread>0?'':'none';
 }
 function renderNotifLog(){
   const filter=document.getElementById('notifTypeFilter')?.value||'';
@@ -3320,86 +3765,782 @@ async function sendBroadcast(){
   btn.disabled=false;btn.textContent='Send Broadcast';
 }
 
-// ═══ COMMUNICATIONS ═══
-let commsData=[];let dripData=[];
+// ═══ EMAIL INBOX ═══
+let emailListData=[];
+let emailCurrentFolder='inbox';
+let emailCurrentFilter='all';
+let emailSelectedId=null;
+let emailSelectedIds=new Set();
+let emailFolderCounts={};
+const emailAvatarGradients=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#a18cd1,#fbc2eb)','linear-gradient(135deg,#fccb90,#d57eeb)','linear-gradient(135deg,#e0c3fc,#8ec5fc)'];
+function getEmailAvatarGradient(name){let h=0;for(let i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+((h<<5)-h);return emailAvatarGradients[Math.abs(h)%emailAvatarGradients.length];}
+function getInitials(name){if(!name)return'?';const p=name.trim().split(/\s+/);return p.length>1?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
+function emailTimeAgo(dt){if(!dt)return'';const d=new Date(dt);const now=new Date();const diff=now-d;const mins=Math.floor(diff/60000);if(mins<1)return'now';if(mins<60)return mins+'m';const hrs=Math.floor(mins/60);if(hrs<24)return hrs+'h';const days=Math.floor(hrs/24);if(days<7)return d.toLocaleDateString('en-US',{weekday:'short'});return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+// View toggling helpers
+function showEmailMainView(){
+  document.getElementById('emailMainView').style.display='flex';
+  document.getElementById('emailSettingsView').style.display='none';
+  document.getElementById('emailTemplatesView').style.display='none';
+}
+function showEmailSubView(which){
+  document.getElementById('emailMainView').style.display='none';
+  document.getElementById('emailSettingsView').style.display=which==='settings'?'block':'none';
+  document.getElementById('emailTemplatesView').style.display=which==='templates'?'block':'none';
+  if(which==='templates')loadEmailTemplatesList();
+}
+
+// Main entry — backward compatible
 async function loadComms(){
-  const dir=document.getElementById('commsDirection').value;
-  const period=document.getElementById('commsPeriod').value;
-  const search=(document.getElementById('commsSearch').value||'').toLowerCase();
-  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,created_at,sent_at,received_at').order('created_at',{ascending:false}).limit(200);
-  if(dir)q=q.eq('direction',dir);
-  if(period!=='all'){const d=new Date();d.setDate(d.getDate()-parseInt(period));q=q.gte('created_at',d.toISOString());}
-  const{data}=await q;
-  commsData=(data||[]).filter(e=>{
-    if(!search)return true;
-    return (e.subject||'').toLowerCase().includes(search)||(e.from_address||'').toLowerCase().includes(search)||(e.snippet||'').toLowerCase().includes(search);
+  showEmailMainView();
+  await loadEmailInbox();
+  loadEmailLabels();
+  loadEmailTemplateOptions();
+}
+
+async function loadEmailInbox(){
+  const folder=emailCurrentFolder;
+  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').order('created_at',{ascending:false}).limit(200);
+  // Folder filters
+  if(folder==='inbox')q=q.eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false);
+  else if(folder==='sent')q=q.eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false);
+  else if(folder==='drafts')q=q.eq('is_draft',true).eq('is_deleted',false);
+  else if(folder==='starred')q=q.eq('is_starred',true).eq('is_deleted',false);
+  else if(folder==='archived')q=q.eq('is_archived',true).eq('is_deleted',false);
+  else if(folder==='spam')q=q.eq('is_spam',true).eq('is_deleted',false);
+  else if(folder==='trash')q=q.eq('is_deleted',true);
+  // 'all' = no folder filter except not deleted
+  else q=q.eq('is_deleted',false);
+  const{data,error}=await q;
+  if(error)console.error('Email load error:',error);
+  emailListData=data||[];
+  renderEmailList();
+  loadEmailFolderCounts();
+}
+
+async function loadEmailFolderCounts(){
+  try{
+    const counts={};
+    const queries=[
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false).eq('is_read',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_draft',true).eq('is_deleted',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_starred',true).eq('is_deleted',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_archived',true).eq('is_deleted',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_spam',true).eq('is_deleted',false),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_deleted',true),
+      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_deleted',false)
+    ];
+    const results=await Promise.all(queries);
+    const names=['inbox','sent','drafts','starred','archived','spam','trash','all'];
+    names.forEach((n,i)=>{counts[n]=results[i].count||0;});
+    emailFolderCounts=counts;
+    names.forEach(n=>{const el=document.getElementById('efCount'+n.charAt(0).toUpperCase()+n.slice(1));if(el)el.textContent=counts[n]||0;});
+  }catch(e){console.error('Folder counts error:',e);}
+}
+
+function renderEmailList(){
+  const container=document.getElementById('emailListItems');
+  let items=emailListData;
+  const search=(document.getElementById('emailSearchInput')||{}).value||'';
+  if(search){const s=search.toLowerCase();items=items.filter(e=>(e.subject||'').toLowerCase().includes(s)||(e.from_address||'').toLowerCase().includes(s)||(e.from_name||'').toLowerCase().includes(s)||(e.snippet||'').toLowerCase().includes(s));}
+  // Filters
+  if(emailCurrentFilter==='unread')items=items.filter(e=>!e.is_read);
+  if(emailCurrentFilter==='attachment')items=items.filter(e=>e.attachments&&(Array.isArray(e.attachments)?e.attachments.length>0:true));
+  if(emailCurrentFilter==='week'){const wk=new Date();wk.setDate(wk.getDate()-7);items=items.filter(e=>new Date(e.received_at||e.created_at)>=wk);}
+  if(!items.length){
+    container.innerHTML='<div class="erp-empty"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg><span style="font-size:.85rem">No emails in this folder</span></div>';
+    return;
+  }
+  let h='';
+  items.forEach(e=>{
+    const isActive=emailSelectedId===e.id;
+    const isUnread=!e.is_read;
+    const name=e.direction==='inbound'?(e.from_name||e.from_address||'Unknown'):(Array.isArray(e.to_addresses)&&e.to_addresses.length?e.to_addresses[0]:'Unknown');
+    const initials=getInitials(e.from_name||name);
+    const grad=getEmailAvatarGradient(name);
+    const dt=e.received_at||e.sent_at||e.created_at;
+    const time=emailTimeAgo(dt);
+    const subj=esc(e.subject||'(no subject)');
+    const snip=esc((e.snippet||'').slice(0,80));
+    const starred=e.is_starred;
+    const hasAttach=e.attachments&&(Array.isArray(e.attachments)?e.attachments.length>0:true);
+    const hasTracking=e.open_count>0||e.click_count>0;
+    const checked=emailSelectedIds.has(e.id);
+    const labels=Array.isArray(e.labels)?e.labels:[];
+    h+=`<div class="email-list-item${isActive?' active':''}${isUnread?' unread':''}" onclick="selectEmailItem('${e.id}')" data-eid="${e.id}">
+      <div class="eli-checkbox"><input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleEmailCheck('${e.id}',this.checked)"></div>
+      <div class="eli-avatar" style="background:${grad}">${initials}</div>
+      <div class="eli-content">
+        <div class="eli-top"><span class="eli-sender">${esc(name)}</span><span class="eli-time">${time}</span></div>
+        <div class="eli-subject">${subj}</div>
+        <div class="eli-snippet">${snip}</div>
+        <div class="eli-bottom">
+          <span class="eli-star${starred?' starred':''}" onclick="event.stopPropagation();toggleEmailStar('${e.id}')" title="Star"><svg viewBox="0 0 24 24" ${starred?'fill="var(--accent)"':'fill="none"'} stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          ${hasAttach?'<span class="eli-attach"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></span>':''}
+          ${hasTracking?`<span class="eli-tracking">${e.open_count>0?'<span class="eli-tracking-dot" style="background:var(--success)" title="Opened '+e.open_count+' times"></span>':''}${e.click_count>0?'<span class="eli-tracking-dot" style="background:var(--info)" title="Clicked '+e.click_count+' times"></span>':''}</span>`:''}
+          ${labels.map(l=>'<span class="eli-tag">'+esc(l)+'</span>').join('')}
+        </div>
+      </div>
+    </div>`;
   });
-  renderCommsKpis();renderCommsTable();loadDripCampaigns();
+  container.innerHTML=h;
 }
-function renderCommsKpis(){
-  const total=commsData.length;
-  const sent=commsData.filter(e=>e.direction==='outbound').length;
-  const received=commsData.filter(e=>e.direction==='inbound').length;
-  const delivered=commsData.filter(e=>e.status==='delivered'||e.status==='sent').length;
-  document.getElementById('commsKpis').innerHTML=`
-    <div class="kpi"><div class="label">Total Emails</div><div class="value">${total}</div></div>
-    <div class="kpi"><div class="label">Sent</div><div class="value">${sent}</div></div>
-    <div class="kpi"><div class="label">Received</div><div class="value">${received}</div></div>
-    <div class="kpi"><div class="label">Delivered</div><div class="value">${delivered}</div></div>`;
+
+function filterEmailList(){renderEmailList();}
+function setEmailFilter(f){
+  emailCurrentFilter=f;
+  document.querySelectorAll('.email-filter-pill').forEach(p=>p.classList.toggle('active',p.dataset.filter===f));
+  renderEmailList();
 }
-function renderCommsTable(){
-  if(!commsData.length){document.getElementById('commsTable').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">No emails found for this period</div>';return;}
-  let h='<table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Direction</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">From / To</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Subject</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Status</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Date</th></tr></thead><tbody>';
-  commsData.forEach(e=>{
-    const dir=e.direction==='inbound'?'<span style="color:#4CAF50">&#9660; In</span>':'<span style="color:var(--accent)">&#9650; Out</span>';
-    const addr=e.direction==='inbound'?(e.from_name||e.from_address||'-'):(Array.isArray(e.to_addresses)&&e.to_addresses.length?e.to_addresses[0]:(e.from_address||'-'));
-    const subj=e.subject||'(no subject)';
-    const snip=e.snippet?(' <span style="color:var(--text-muted);font-size:.8rem">— '+e.snippet.slice(0,60)+(e.snippet.length>60?'...':'')+'</span>'):'';
-    const st=e.status||'-';
-    const stColor=st==='delivered'||st==='sent'?'var(--success)':st==='failed'||st==='bounced'?'var(--error)':'var(--text-muted)';
-    const dt=e.sent_at||e.received_at||e.created_at;
-    const dateStr=dt?new Date(dt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
-    const bold=e.direction==='inbound'&&!e.is_read?'font-weight:700':'';
-    h+=`<tr style="border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;${bold}" onclick="viewEmail('${e.id}')"><td style="padding:8px 10px">${dir}</td><td style="padding:8px 10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(typeof addr==='string'?addr:JSON.stringify(addr))}</td><td style="padding:8px 10px">${esc(subj)}${snip}</td><td style="padding:8px 10px;color:${stColor}">${st}</td><td style="padding:8px 10px;white-space:nowrap;color:var(--text-muted);font-size:.8rem">${dateStr}</td></tr>`;
-  });
-  h+='</tbody></table>';
-  document.getElementById('commsTable').innerHTML=h;
+
+function toggleEmailCheck(id,checked){
+  if(checked)emailSelectedIds.add(id);else emailSelectedIds.delete(id);
+  const bar=document.getElementById('emailBulkBar');
+  if(emailSelectedIds.size>0){bar.classList.add('visible');document.getElementById('emailBulkCount').textContent=emailSelectedIds.size+' selected';}
+  else bar.classList.remove('visible');
 }
-async function viewEmail(id){
-  const{data}=await sb.from('emails').select('*').eq('id',id).single();
-  if(!data)return showToast('Email not found','error');
-  const panel=document.getElementById('emailDetailPanel');
-  const dir=data.direction==='inbound'?'Received':'Sent';
-  const to=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):(data.to_addresses||'-');
-  const body=data.body_html||data.body_text||data.snippet||'(no content)';
-  document.getElementById('emailDetailContent').innerHTML=`
-    <div style="margin-bottom:1rem"><span style="color:var(--text-muted);font-size:.8rem">${dir} — ${data.sent_at||data.received_at||data.created_at?new Date(data.sent_at||data.received_at||data.created_at).toLocaleString():''}</span></div>
-    <h2 style="margin-bottom:.75rem;font-size:1.1rem">${esc(data.subject||'(no subject)')}</h2>
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.85rem;margin-bottom:1rem;color:var(--text-muted)">
-      <span>From:</span><span style="color:var(--text)">${esc(data.from_name||'')} &lt;${esc(data.from_address||'')}&gt;</span>
-      <span>To:</span><span style="color:var(--text)">${esc(to)}</span>
-      <span>Status:</span><span style="color:var(--text)">${data.status||'-'}</span>
+
+async function bulkEmailAction(action){
+  const ids=[...emailSelectedIds];
+  if(!ids.length)return;
+  try{
+    if(action==='read')await sb.from('emails').update({is_read:true}).in('id',ids);
+    if(action==='archive')await sb.from('emails').update({is_archived:true}).in('id',ids);
+    if(action==='delete')await sb.from('emails').update({is_deleted:true}).in('id',ids);
+    if(action==='star')await sb.from('emails').update({is_starred:true}).in('id',ids);
+    emailSelectedIds.clear();
+    document.getElementById('emailBulkBar').classList.remove('visible');
+    showToast(ids.length+' emails updated');
+    await loadEmailInbox();
+  }catch(e){showToast('Bulk action failed: '+e.message,'error');}
+}
+
+function switchEmailFolder(folder){
+  emailCurrentFolder=folder;
+  emailSelectedId=null;
+  emailCurrentFilter='all';
+  // Update folder sidebar active state
+  document.querySelectorAll('.email-folder-item').forEach(el=>el.classList.toggle('active',el.dataset.folder===folder));
+  // Update list title
+  const titleMap={inbox:'Inbox',sent:'Sent',drafts:'Drafts',starred:'Starred',archived:'Archived',spam:'Spam',trash:'Trash',all:'All Mail'};
+  document.getElementById('emailListTitle').textContent=titleMap[folder]||folder;
+  // Reset filter pills
+  document.querySelectorAll('.email-filter-pill').forEach(p=>p.classList.toggle('active',p.dataset.filter==='all'));
+  // Clear reading pane
+  document.getElementById('emailReadingEmpty').style.display='flex';
+  document.getElementById('emailReadingContent').style.display='none';
+  // Load
+  loadEmailInbox();
+}
+
+async function selectEmailItem(id){
+  emailSelectedId=id;
+  // Highlight in list
+  document.querySelectorAll('.email-list-item').forEach(el=>el.classList.toggle('active',el.dataset.eid===id));
+  // Load full email
+  const{data,error}=await sb.from('emails').select('*').eq('id',id).single();
+  if(error||!data)return showToast('Email not found','error');
+  // Mark as read
+  if(!data.is_read){
+    await sb.from('emails').update({is_read:true}).eq('id',id);
+    data.is_read=true;
+    const item=emailListData.find(e=>e.id===id);if(item)item.is_read=true;
+    const el=document.querySelector(`.email-list-item[data-eid="${id}"]`);if(el)el.classList.remove('unread');
+    loadEmailFolderCounts();
+  }
+  renderEmailReadingPane(data);
+}
+
+function renderEmailReadingPane(data){
+  document.getElementById('emailReadingEmpty').style.display='none';
+  const content=document.getElementById('emailReadingContent');
+  content.style.display='flex';
+  const fromName=data.from_name||data.from_address||'Unknown';
+  const initials=getInitials(fromName);
+  const grad=getEmailAvatarGradient(fromName);
+  const to=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):(data.to_addresses||'');
+  const cc=Array.isArray(data.cc_addresses)&&data.cc_addresses.length?data.cc_addresses.join(', '):'';
+  const dt=data.received_at||data.sent_at||data.created_at;
+  const dateStr=dt?new Date(dt).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}):'';
+  const body=data.body_html||('<pre style="white-space:pre-wrap;font-family:inherit">'+esc(data.body_text||data.snippet||'(no content)')+'</pre>');
+  const attachments=Array.isArray(data.attachments)?data.attachments:[];
+  const starred=data.is_starred;
+  let crmBadge='';
+  if(data.lead_id){crmBadge=`<div class="erp-crm-badge" onclick="activateView('leads');setTimeout(()=>openDetail('leads','${data.lead_id}'),200)"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Linked Lead</div>`;}
+  content.innerHTML=`
+    <div class="erp-header">
+      <div class="erp-subject">${esc(data.subject||'(no subject)')}</div>
+      <div class="erp-meta">
+        <div class="erp-meta-avatar" style="background:${grad}">${initials}</div>
+        <div class="erp-meta-info">
+          <div class="erp-from">${esc(fromName)} &lt;${esc(data.from_address||'')}&gt;</div>
+          <div class="erp-to">To: ${esc(to)}${cc?' | CC: '+esc(cc):''}</div>
+        </div>
+        <div class="erp-date">${dateStr}</div>
+      </div>
+      <div class="erp-actions">
+        <button class="erp-btn-primary" onclick="replyToEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>Reply</button>
+        <button onclick="replyToEmail('${data.id}','all')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>Reply All</button>
+        <button onclick="forwardEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 014-4h12"/></svg>Forward</button>
+        <button onclick="archiveEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg>Archive</button>
+        <button onclick="deleteEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
+        <button onclick="toggleEmailStar('${data.id}')"><svg viewBox="0 0 24 24" ${starred?'fill="var(--accent)"':'fill="none"'} stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${starred?'Unstar':'Star'}</button>
+        <button onclick="markEmailUnread('${data.id}')"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>Mark Unread</button>
+      </div>
+      ${crmBadge}
     </div>
-    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.9rem;line-height:1.6;max-height:400px;overflow-y:auto">${body}</div>`;
-  panel.style.display='block';
-  // Mark as read if inbound
-  if(data.direction==='inbound'&&!data.is_read){await sb.from('emails').update({is_read:true}).eq('id',id);}
+    <div class="erp-body">${body}</div>
+    ${attachments.length?'<div class="erp-attachments">'+attachments.map(a=>'<div class="erp-attach-item"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(typeof a==='string'?a:(a.filename||a.name||'attachment'))+'</div>').join('')+'</div>':''}`;
 }
-async function loadDripCampaigns(){
-  const{data}=await sb.from('drip_queue').select('sequence,status,step,email,name,next_send_at,last_sent_at,opens,clicks').order('next_send_at',{ascending:true}).limit(500);
-  dripData=data||[];
-  // Group by sequence
-  const seqs={};
-  dripData.forEach(d=>{const s=d.sequence||'unknown';if(!seqs[s])seqs[s]={total:0,pending:0,sent:0,failed:0,opens:0,clicks:0};seqs[s].total++;seqs[s][d.status]=(seqs[s][d.status]||0)+1;seqs[s].opens+=(d.opens||0);seqs[s].clicks+=(d.clicks||0);});
-  const active=Object.values(seqs).reduce((a,s)=>a+s.total,0);
-  document.getElementById('dripActiveCount').textContent=active+' items';
-  let h='<table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Sequence</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Total</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Pending</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Sent</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Opens</th><th style="text-align:left;padding:10px;color:var(--text-muted);font-size:.75rem">Clicks</th></tr></thead><tbody>';
-  Object.entries(seqs).forEach(([name,s])=>{
-    h+=`<tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:8px 10px;font-weight:600">${esc(name)}</td><td style="padding:8px 10px">${s.total}</td><td style="padding:8px 10px;color:var(--warning)">${s.pending||0}</td><td style="padding:8px 10px;color:var(--success)">${s.sent||0}</td><td style="padding:8px 10px">${s.opens}</td><td style="padding:8px 10px">${s.clicks}</td></tr>`;
+
+async function toggleEmailStar(id){
+  const item=emailListData.find(e=>e.id===id);
+  const newVal=item?!item.is_starred:true;
+  await sb.from('emails').update({is_starred:newVal}).eq('id',id);
+  if(item)item.is_starred=newVal;
+  renderEmailList();
+  if(emailSelectedId===id){
+    const{data}=await sb.from('emails').select('*').eq('id',id).single();
+    if(data)renderEmailReadingPane(data);
+  }
+  loadEmailFolderCounts();
+}
+
+async function archiveEmail(id){
+  await sb.from('emails').update({is_archived:true}).eq('id',id);
+  showToast('Email archived');
+  emailSelectedId=null;
+  document.getElementById('emailReadingEmpty').style.display='flex';
+  document.getElementById('emailReadingContent').style.display='none';
+  await loadEmailInbox();
+}
+
+async function deleteEmail(id){
+  await sb.from('emails').update({is_deleted:true}).eq('id',id);
+  showToast('Email moved to trash');
+  emailSelectedId=null;
+  document.getElementById('emailReadingEmpty').style.display='flex';
+  document.getElementById('emailReadingContent').style.display='none';
+  await loadEmailInbox();
+}
+
+async function markEmailUnread(id){
+  await sb.from('emails').update({is_read:false}).eq('id',id);
+  const item=emailListData.find(e=>e.id===id);if(item)item.is_read=false;
+  renderEmailList();
+  loadEmailFolderCounts();
+  showToast('Marked as unread');
+}
+
+function replyToEmail(id,mode){
+  const item=emailListData.find(e=>e.id===id);
+  if(!item)return;
+  document.getElementById('ecTo').value=item.from_address||'';
+  document.getElementById('ecSubject').value='Re: '+(item.subject||'');
+  document.getElementById('ecBody').innerHTML='<br><br><div style="border-left:2px solid var(--border);padding-left:12px;color:var(--text-muted);font-size:.85rem">On '+emailTimeAgo(item.received_at||item.created_at)+', '+(item.from_name||item.from_address)+' wrote:<br>'+(item.snippet||'')+'</div>';
+  document.getElementById('emailComposeModal').classList.add('visible');
+}
+
+function forwardEmail(id){
+  const item=emailListData.find(e=>e.id===id);
+  if(!item)return;
+  document.getElementById('ecTo').value='';
+  document.getElementById('ecSubject').value='Fwd: '+(item.subject||'');
+  document.getElementById('ecBody').innerHTML='<br><br><div style="border-left:2px solid var(--border);padding-left:12px;color:var(--text-muted);font-size:.85rem">---------- Forwarded message ----------<br>From: '+(item.from_name||item.from_address)+'<br>Subject: '+(item.subject||'')+'<br><br>'+(item.snippet||'')+'</div>';
+  document.getElementById('emailComposeModal').classList.add('visible');
+}
+
+// Compose
+function toggleEmailCompose(){
+  const modal=document.getElementById('emailComposeModal');
+  if(modal.classList.contains('visible')){
+    modal.classList.remove('visible');
+  }else{
+    document.getElementById('ecTo').value='';
+    document.getElementById('ecSubject').value='';
+    document.getElementById('ecBody').innerHTML='';
+    document.getElementById('ecCcRow').style.display='none';
+    document.getElementById('ecBccRow').style.display='none';
+    modal.classList.add('visible');
+  }
+}
+
+async function sendEmail(){
+  const to=document.getElementById('ecTo').value.trim();
+  const subject=document.getElementById('ecSubject').value.trim();
+  const body=document.getElementById('ecBody').innerHTML;
+  if(!to){showToast('Please enter a recipient','error');return;}
+  if(!subject){showToast('Please enter a subject','error');return;}
+  try{
+    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,html:body,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    if(error)throw error;
+    // Insert into emails table
+    await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject,body_html:body,snippet:(body||'').replace(/<[^>]*>/g,'').slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString()});
+    showToast('Email sent successfully');
+    document.getElementById('emailComposeModal').classList.remove('visible');
+    if(emailCurrentFolder==='sent')await loadEmailInbox();
+  }catch(e){showToast('Failed to send: '+e.message,'error');}
+}
+
+async function saveEmailDraft(){
+  const to=document.getElementById('ecTo').value.trim();
+  const subject=document.getElementById('ecSubject').value.trim();
+  const body=document.getElementById('ecBody').innerHTML;
+  try{
+    await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:(body||'').replace(/<[^>]*>/g,'').slice(0,200),status:'draft',is_draft:true,is_read:true});
+    showToast('Draft saved');
+    document.getElementById('emailComposeModal').classList.remove('visible');
+    if(emailCurrentFolder==='drafts')await loadEmailInbox();
+  }catch(e){showToast('Failed to save draft: '+e.message,'error');}
+}
+
+function discardEmailDraft(){
+  document.getElementById('ecTo').value='';
+  document.getElementById('ecSubject').value='';
+  document.getElementById('ecBody').innerHTML='';
+  document.getElementById('emailComposeModal').classList.remove('visible');
+}
+
+// Labels
+async function loadEmailLabels(){
+  try{
+    const{data}=await sb.from('email_labels').select('*').order('name');
+    const container=document.getElementById('emailLabelsList');
+    if(!data||!data.length){container.innerHTML='<div style="padding:8px 16px;font-size:.75rem;color:var(--text-muted)">No labels</div>';return;}
+    container.innerHTML=data.map(l=>`<div class="email-folder-item" onclick="filterByLabel('${esc(l.name)}')"><span class="ef-label-dot" style="background:${l.color||'var(--accent)'}"></span><span class="ef-label">${esc(l.name)}</span></div>`).join('');
+  }catch(e){console.error('Labels error:',e);}
+}
+
+async function filterByLabel(label){
+  emailCurrentFolder='label:'+label;
+  document.getElementById('emailListTitle').textContent=label;
+  document.querySelectorAll('.email-folder-item').forEach(el=>el.classList.remove('active'));
+  const{data}=await sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').contains('labels',[label]).eq('is_deleted',false).order('created_at',{ascending:false}).limit(200);
+  emailListData=data||[];
+  renderEmailList();
+}
+
+// Templates
+async function loadEmailTemplateOptions(){
+  try{
+    const{data}=await sb.from('email_templates').select('id,name').order('name');
+    const sel=document.getElementById('ecTemplateSelect');
+    sel.innerHTML='<option value="">Templates...</option>';
+    (data||[]).forEach(t=>{sel.innerHTML+=`<option value="${t.id}">${esc(t.name)}</option>`;});
+  }catch(e){console.error('Template load error:',e);}
+}
+
+async function applyEmailTemplate(id){
+  if(!id)return;
+  const{data}=await sb.from('email_templates').select('*').eq('id',id).single();
+  if(!data)return;
+  if(data.subject)document.getElementById('ecSubject').value=data.subject;
+  if(data.body_html)document.getElementById('ecBody').innerHTML=data.body_html;
+  else if(data.body_text)document.getElementById('ecBody').innerText=data.body_text;
+}
+
+async function loadEmailTemplatesList(){
+  const{data}=await sb.from('email_templates').select('*').order('name');
+  const container=document.getElementById('emailTemplatesList');
+  if(!data||!data.length){container.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">No templates yet</div>';return;}
+  container.innerHTML=data.map(t=>`<div class="es-card"><div class="es-card-header"><span class="es-card-title">${esc(t.name)}</span><div class="es-card-actions"><button onclick="editEmailTemplate('${t.id}')">Edit</button></div></div><div style="font-size:.8rem;color:var(--text-muted)">${esc(t.subject||'')}</div></div>`).join('');
+}
+
+function editEmailTemplate(id){
+  const isNew=!id;
+  const title=isNew?'New Template':'Edit Template';
+  const body=`<div style="display:flex;flex-direction:column;gap:12px"><div><label style="font-size:.8rem;color:var(--text-muted)">Name</label><input type="text" id="etName" class="form-control" style="width:100%"></div><div><label style="font-size:.8rem;color:var(--text-muted)">Subject</label><input type="text" id="etSubject" class="form-control" style="width:100%"></div><div><label style="font-size:.8rem;color:var(--text-muted)">Body (HTML)</label><textarea id="etBody" class="form-control" rows="8" style="width:100%"></textarea></div></div>`;
+  const foot=`<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmailTemplate('${id||''}')">Save</button>`;
+  openEditModal(title,body,foot);
+  if(id){sb.from('email_templates').select('*').eq('id',id).single().then(({data})=>{if(data){document.getElementById('etName').value=data.name||'';document.getElementById('etSubject').value=data.subject||'';document.getElementById('etBody').value=data.body_html||data.body_text||'';}});}
+}
+
+async function saveEmailTemplate(id){
+  const name=document.getElementById('etName').value.trim();
+  const subject=document.getElementById('etSubject').value.trim();
+  const bodyHtml=document.getElementById('etBody').value;
+  if(!name){showToast('Name is required','error');return;}
+  try{
+    if(id){await sb.from('email_templates').update({name,subject,body_html:bodyHtml,updated_at:new Date().toISOString()}).eq('id',id);}
+    else{await sb.from('email_templates').insert({name,subject,body_html:bodyHtml});}
+    closeEditModal();showToast('Template saved');loadEmailTemplatesList();loadEmailTemplateOptions();
+  }catch(e){showToast('Save failed: '+e.message,'error');}
+}
+
+// Signatures
+async function insertEmailSignature(){
+  const{data}=await sb.from('email_signatures').select('*').eq('is_default',true).single();
+  if(!data){showToast('No default signature found','warning');return;}
+  const body=document.getElementById('ecBody');
+  body.innerHTML+='<br><div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px;font-size:.85rem;color:var(--text-muted)">'+(data.body_html||esc(data.body_text||''))+'</div>';
+}
+
+// Settings
+async function loadEmailSettings(){
+  switchEmailSettingsTab('general');
+}
+
+function switchEmailSettingsTab(tab){
+  document.querySelectorAll('.email-settings-tab').forEach(t=>t.classList.toggle('active',t.dataset.estab===tab));
+  const body=document.getElementById('emailSettingsBody');
+  if(tab==='general')renderEmailSettingsGeneral(body);
+  else if(tab==='signatures')renderEmailSettingsSignatures(body);
+  else if(tab==='templates')renderEmailSettingsTemplates(body);
+  else if(tab==='labels')renderEmailSettingsLabels(body);
+  else if(tab==='autoreplies')renderEmailSettingsAutoReply(body);
+  else if(tab==='rules')renderEmailSettingsRules(body);
+}
+
+async function renderEmailSettingsGeneral(container){
+  const{data}=await sb.from('email_settings').select('*').limit(1).single();
+  const s=data||{};
+  container.innerHTML=`<div class="es-section"><h4>Account</h4><div class="es-row"><label>Default From</label><input type="text" value="${esc(s.default_from||'daniel@knightops.biz')}" id="esDefaultFrom"></div><div class="es-row"><label>Display Name</label><input type="text" value="${esc(s.display_name||'Daniel Knight')}" id="esDisplayName"></div></div><div class="es-section"><h4>Behavior</h4><div class="es-row"><label>Auto-archive after reply</label><select id="esAutoArchive"><option value="true" ${s.auto_archive!==false?'selected':''}>Yes</option><option value="false" ${s.auto_archive===false?'selected':''}>No</option></select></div></div><div style="margin-top:16px"><button class="btn btn-primary btn-sm" onclick="saveEmailSettingsGeneral()">Save Settings</button></div>`;
+}
+
+async function saveEmailSettingsGeneral(){
+  try{
+    const row={default_from:document.getElementById('esDefaultFrom').value,display_name:document.getElementById('esDisplayName').value,auto_archive:document.getElementById('esAutoArchive').value==='true'};
+    const{data}=await sb.from('email_settings').select('id').limit(1).single();
+    if(data)await sb.from('email_settings').update(row).eq('id',data.id);
+    else await sb.from('email_settings').insert(row);
+    showToast('Settings saved');
+  }catch(e){showToast('Save failed: '+e.message,'error');}
+}
+
+async function renderEmailSettingsSignatures(container){
+  const{data}=await sb.from('email_signatures').select('*').order('name');
+  let h='<div class="es-section"><h4>Signatures</h4><button class="btn btn-primary btn-sm" onclick="editEmailSignature()" style="margin-bottom:12px">+ New Signature</button>';
+  if(!data||!data.length)h+='<div style="color:var(--text-muted);font-size:.85rem">No signatures created yet</div>';
+  else data.forEach(s=>{h+=`<div class="es-card"><div class="es-card-header"><span class="es-card-title">${esc(s.name)}${s.is_default?' <span style="color:var(--accent);font-size:.7rem">(default)</span>':''}</span><div class="es-card-actions"><button onclick="editEmailSignature('${s.id}')">Edit</button></div></div><div style="font-size:.8rem;color:var(--text-muted);max-height:60px;overflow:hidden">${s.body_html||esc(s.body_text||'')}</div></div>`;});
+  h+='</div>';container.innerHTML=h;
+}
+
+function editEmailSignature(id){
+  const title=id?'Edit Signature':'New Signature';
+  const body=`<div style="display:flex;flex-direction:column;gap:12px"><div><label style="font-size:.8rem;color:var(--text-muted)">Name</label><input type="text" id="esigName" class="form-control" style="width:100%"></div><div><label style="font-size:.8rem;color:var(--text-muted)">Content (HTML)</label><textarea id="esigBody" class="form-control" rows="6" style="width:100%"></textarea></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="esigDefault"><label for="esigDefault" style="font-size:.82rem">Set as default</label></div></div>`;
+  const foot=`<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmailSignature('${id||''}')">Save</button>`;
+  openEditModal(title,body,foot);
+  if(id){sb.from('email_signatures').select('*').eq('id',id).single().then(({data})=>{if(data){document.getElementById('esigName').value=data.name||'';document.getElementById('esigBody').value=data.body_html||data.body_text||'';document.getElementById('esigDefault').checked=!!data.is_default;}});}
+}
+
+async function saveEmailSignature(id){
+  const name=document.getElementById('esigName').value.trim();
+  const bodyHtml=document.getElementById('esigBody').value;
+  const isDefault=document.getElementById('esigDefault').checked;
+  if(!name){showToast('Name is required','error');return;}
+  try{
+    if(isDefault)await sb.from('email_signatures').update({is_default:false}).eq('is_default',true);
+    if(id)await sb.from('email_signatures').update({name,body_html:bodyHtml,is_default:isDefault}).eq('id',id);
+    else await sb.from('email_signatures').insert({name,body_html:bodyHtml,is_default:isDefault});
+    closeEditModal();showToast('Signature saved');renderEmailSettingsSignatures(document.getElementById('emailSettingsBody'));
+  }catch(e){showToast('Save failed: '+e.message,'error');}
+}
+
+async function renderEmailSettingsTemplates(container){
+  await loadEmailTemplatesList();
+  container.innerHTML='<div class="es-section"><h4>Email Templates</h4><p style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px">Manage your email templates from the Templates nav item or use the template dropdown in compose.</p><button class="btn btn-secondary btn-sm" onclick="showEmailSubView(\'templates\')">Go to Templates</button></div>';
+}
+
+async function renderEmailSettingsLabels(container){
+  const{data}=await sb.from('email_labels').select('*').order('name');
+  let h='<div class="es-section"><h4>Labels</h4><button class="btn btn-primary btn-sm" onclick="editEmailLabel()" style="margin-bottom:12px">+ New Label</button>';
+  if(!data||!data.length)h+='<div style="color:var(--text-muted);font-size:.85rem">No labels created yet</div>';
+  else data.forEach(l=>{h+=`<div class="es-row"><span style="display:flex;align-items:center;gap:8px"><span class="ef-label-dot" style="background:${l.color||'var(--accent)'}"></span>${esc(l.name)}</span><div class="es-card-actions"><button onclick="editEmailLabel('${l.id}')">Edit</button></div></div>`;});
+  h+='</div>';container.innerHTML=h;
+}
+
+function editEmailLabel(id){
+  const title=id?'Edit Label':'New Label';
+  const body=`<div style="display:flex;flex-direction:column;gap:12px"><div><label style="font-size:.8rem;color:var(--text-muted)">Label Name</label><input type="text" id="elblName" class="form-control" style="width:100%"></div><div><label style="font-size:.8rem;color:var(--text-muted)">Color</label><input type="color" id="elblColor" value="#C8A456"></div></div>`;
+  const foot=`<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmailLabel('${id||''}')">Save</button>`;
+  openEditModal(title,body,foot);
+  if(id){sb.from('email_labels').select('*').eq('id',id).single().then(({data})=>{if(data){document.getElementById('elblName').value=data.name||'';document.getElementById('elblColor').value=data.color||'#C8A456';}});}
+}
+
+async function saveEmailLabel(id){
+  const name=document.getElementById('elblName').value.trim();
+  const color=document.getElementById('elblColor').value;
+  if(!name){showToast('Name is required','error');return;}
+  try{
+    if(id)await sb.from('email_labels').update({name,color}).eq('id',id);
+    else await sb.from('email_labels').insert({name,color});
+    closeEditModal();showToast('Label saved');loadEmailLabels();renderEmailSettingsLabels(document.getElementById('emailSettingsBody'));
+  }catch(e){showToast('Save failed: '+e.message,'error');}
+}
+
+async function renderEmailSettingsAutoReply(container){
+  container.innerHTML='<div class="es-section"><h4>Auto-Reply / Out of Office</h4><div class="es-row"><label>Enable auto-reply</label><select id="esAutoReplyOn"><option value="false">Off</option><option value="true">On</option></select></div><div style="margin-top:12px"><label style="font-size:.8rem;color:var(--text-muted)">Auto-reply message</label><textarea id="esAutoReplyMsg" class="form-control" rows="4" style="width:100%;margin-top:4px" placeholder="I am currently out of the office..."></textarea></div><div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="showToast(\'Auto-reply settings saved\')">Save</button></div></div>';
+}
+
+async function renderEmailSettingsRules(container){
+  const{data}=await sb.from('email_rules').select('*').order('priority');
+  let h='<div class="es-section"><h4>Email Rules</h4><button class="btn btn-primary btn-sm" style="margin-bottom:12px" onclick="showToast(\'Rule editor coming soon\',\'info\')">+ New Rule</button>';
+  if(!data||!data.length)h+='<div style="color:var(--text-muted);font-size:.85rem">No rules configured</div>';
+  else data.forEach(r=>{h+=`<div class="es-card"><div class="es-card-header"><span class="es-card-title">${esc(r.name||'Rule')}</span><span style="font-size:.7rem;color:${r.is_active?'var(--success)':'var(--text-muted)'}">${r.is_active?'Active':'Inactive'}</span></div><div style="font-size:.8rem;color:var(--text-muted)">When: ${esc(JSON.stringify(r.conditions||{}))} -> ${esc(JSON.stringify(r.actions||{}))}</div></div>`;});
+  h+='</div>';container.innerHTML=h;
+}
+
+// ═══ BOOKINGS MANAGEMENT ═══
+let bookingsData=[], bookingTypesData=[];
+
+async function loadBookings(){
+  const [bRes, btRes]=await Promise.all([
+    sb.from('bookings').select('*, booking_types(name, color, duration_minutes, location_type)').order('start_time',{ascending:false}).limit(200),
+    sb.from('booking_types').select('*').order('sort_order')
+  ]);
+  bookingsData=bRes.data||[];
+  bookingTypesData=btRes.data||[];
+  // Populate type filter
+  const tf=document.getElementById('bookingTypeFilter');
+  tf.innerHTML='<option value="all">All Types</option>';
+  bookingTypesData.forEach(t=>{tf.innerHTML+=`<option value="${t.id}">${esc(t.name)}</option>`;});
+  renderBookingStats();
+  filterBookings();
+}
+
+function renderBookingStats(){
+  const now=new Date();
+  const upcoming=bookingsData.filter(b=>['confirmed','rescheduled'].includes(b.status)&&new Date(b.start_time)>now);
+  const today=bookingsData.filter(b=>{const d=new Date(b.start_time);return ['confirmed','rescheduled'].includes(b.status)&&d.toDateString()===now.toDateString();});
+  const thisWeek=bookingsData.filter(b=>{const d=new Date(b.start_time);const diff=(d-now)/(1000*60*60*24);return ['confirmed','rescheduled'].includes(b.status)&&diff>=0&&diff<=7;});
+  const cancelled=bookingsData.filter(b=>b.status==='cancelled').length;
+  const stats=[
+    {label:'Today',value:today.length,color:'var(--accent)'},
+    {label:'This Week',value:thisWeek.length,color:'var(--info)'},
+    {label:'Upcoming',value:upcoming.length,color:'var(--success)'},
+    {label:'Cancelled',value:cancelled,color:'var(--danger)'}
+  ];
+  document.getElementById('bookingStats').innerHTML=stats.map(s=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center"><div style="font-size:1.75rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.8rem;color:var(--text-muted);margin-top:4px">${s.label}</div></div>`).join('');
+}
+
+function filterBookings(){
+  const status=document.getElementById('bookingStatusFilter').value;
+  const type=document.getElementById('bookingTypeFilter').value;
+  const search=(document.getElementById('bookingSearch').value||'').toLowerCase();
+  let filtered=bookingsData;
+  if(status!=='all')filtered=filtered.filter(b=>b.status===status);
+  if(type!=='all')filtered=filtered.filter(b=>b.booking_type_id===type);
+  if(search)filtered=filtered.filter(b=>(b.guest_name||'').toLowerCase().includes(search)||(b.guest_email||'').toLowerCase().includes(search));
+  renderBookingsTable(filtered);
+}
+
+function renderBookingsTable(data){
+  const statusColors={confirmed:'var(--success)',rescheduled:'var(--warning)',completed:'var(--info)',cancelled:'var(--danger)',no_show:'var(--text-muted)'};
+  let h='<table class="data-table"><thead><tr><th>Guest</th><th>Type</th><th>Date & Time</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  if(!data.length)h+='<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem">No bookings found</td></tr>';
+  data.forEach(b=>{
+    const start=new Date(b.start_time);
+    const end=new Date(b.end_time);
+    const btName=b.booking_types?.name||'Unknown';
+    const btColor=b.booking_types?.color||'#C8A456';
+    const dateStr=start.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const timeStr=start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' - '+end.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const isPast=start<new Date();
+    h+=`<tr style="cursor:pointer" onclick="viewBookingDetail('${b.id}')">
+      <td><div style="font-weight:600">${esc(b.guest_name)}</div><div style="font-size:.75rem;color:var(--text-muted)">${esc(b.guest_email)}</div></td>
+      <td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600;background:${btColor}22;color:${btColor};border:1px solid ${btColor}44">${esc(btName)}</span></td>
+      <td><div style="font-weight:500${isPast?' ;color:var(--text-muted)':''}">${dateStr}</div><div style="font-size:.75rem;color:var(--text-muted)">${timeStr}</div></td>
+      <td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600;background:${statusColors[b.status]||'var(--text-muted)'}22;color:${statusColors[b.status]||'var(--text-muted)'}">${b.status}</span></td>
+      <td onclick="event.stopPropagation()">
+        ${['confirmed','rescheduled'].includes(b.status)?`<button class="btn btn-sm btn-secondary" onclick="markBookingStatus('${b.id}','completed')" title="Complete" style="margin-right:4px">&#10003;</button><button class="btn btn-sm" style="background:rgba(255,100,100,0.15);color:#ff6464;border:1px solid rgba(255,100,100,0.3)" onclick="markBookingStatus('${b.id}','cancelled')" title="Cancel">&#10007;</button><button class="btn btn-sm btn-secondary" onclick="markBookingStatus('${b.id}','no_show')" title="No Show" style="margin-left:4px">NS</button>`:''}
+      </td>
+    </tr>`;
   });
-  if(!Object.keys(seqs).length)h+='<tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--text-muted)">No drip campaigns found</td></tr>';
   h+='</tbody></table>';
-  document.getElementById('dripCampaignTable').innerHTML=h;
+  document.getElementById('bookingsTable').innerHTML=h;
+}
+
+function viewBookingDetail(id){
+  const b=bookingsData.find(x=>x.id===id);if(!b)return;
+  const start=new Date(b.start_time);const end=new Date(b.end_time);
+  const btName=b.booking_types?.name||'Unknown';
+  const statusColors={confirmed:'var(--success)',rescheduled:'var(--warning)',completed:'var(--info)',cancelled:'var(--danger)',no_show:'var(--text-muted)'};
+  document.getElementById('bookingsListView').style.display='none';
+  const dv=document.getElementById('bookingDetailView');dv.style.display='';
+  dv.innerHTML=`<div style="margin-bottom:1rem"><button class="btn btn-sm btn-secondary" onclick="document.getElementById('bookingsListView').style.display='';document.getElementById('bookingDetailView').style.display='none'">&larr; Back to Bookings</button></div>
+  <div class="table-card" style="max-width:700px">
+    <div class="table-header"><h2>${esc(btName)}</h2><span style="padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;background:${statusColors[b.status]||'#888'}22;color:${statusColors[b.status]||'#888'}">${b.status}</span></div>
+    <div style="padding:1.25rem;display:grid;grid-template-columns:140px 1fr;gap:12px 16px;font-size:.9rem">
+      <span style="color:var(--text-muted)">Guest Name</span><span style="font-weight:600">${esc(b.guest_name)}</span>
+      <span style="color:var(--text-muted)">Email</span><span>${esc(b.guest_email)}</span>
+      ${b.guest_phone?`<span style="color:var(--text-muted)">Phone</span><span>${esc(b.guest_phone)}</span>`:''}
+      <span style="color:var(--text-muted)">Date</span><span style="font-weight:600">${start.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+      <span style="color:var(--text-muted)">Time</span><span>${start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} - ${end.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</span>
+      <span style="color:var(--text-muted)">Duration</span><span>${b.booking_types?.duration_minutes||'?'} minutes</span>
+      <span style="color:var(--text-muted)">Location</span><span>${b.booking_types?.location_type||'TBD'}</span>
+      <span style="color:var(--text-muted)">Guest Timezone</span><span>${b.guest_timezone||'N/A'}</span>
+      ${b.notes?`<span style="color:var(--text-muted)">Notes</span><span>${esc(b.notes)}</span>`:''}
+      ${b.rescheduled_from?`<span style="color:var(--text-muted)">Rescheduled From</span><span style="color:var(--warning)">${new Date(b.rescheduled_from).toLocaleString()}</span>`:''}
+      ${b.cancelled_at?`<span style="color:var(--text-muted)">Cancelled At</span><span style="color:var(--danger)">${new Date(b.cancelled_at).toLocaleString()}</span>`:''}
+      ${b.cancel_reason?`<span style="color:var(--text-muted)">Cancel Reason</span><span>${esc(b.cancel_reason)}</span>`:''}
+      <span style="color:var(--text-muted)">Created</span><span>${new Date(b.created_at).toLocaleString()}</span>
+    </div>
+    <div style="padding:0 1.25rem 1.25rem;display:flex;gap:8px;flex-wrap:wrap">
+      ${['confirmed','rescheduled'].includes(b.status)?`
+        <button class="btn btn-sm btn-primary" onclick="markBookingStatus('${b.id}','completed');document.getElementById('bookingsListView').style.display='';document.getElementById('bookingDetailView').style.display='none'">Mark Completed</button>
+        <button class="btn btn-sm" style="background:rgba(255,100,100,0.15);color:#ff6464;border:1px solid rgba(255,100,100,0.3)" onclick="markBookingStatus('${b.id}','cancelled');document.getElementById('bookingsListView').style.display='';document.getElementById('bookingDetailView').style.display='none'">Cancel Booking</button>
+        <button class="btn btn-sm btn-secondary" onclick="markBookingStatus('${b.id}','no_show');document.getElementById('bookingsListView').style.display='';document.getElementById('bookingDetailView').style.display='none'">Mark No-Show</button>
+      `:''}
+    </div>
+  </div>`;
+}
+
+async function markBookingStatus(id,status){
+  const updates={status};
+  if(status==='cancelled')updates.cancelled_at=new Date().toISOString();
+  await sb.from('bookings').update(updates).eq('id',id);
+  showToast('Booking '+status);
+  await loadBookings();
+}
+
+// ═══ BOOKING SETTINGS ═══
+async function loadBookingSettings(){
+  const [btRes,avRes,setRes]=await Promise.all([
+    sb.from('booking_types').select('*').order('sort_order'),
+    sb.from('booking_availability').select('*').order('day_of_week'),
+    sb.from('booking_settings').select('*')
+  ]);
+  bookingTypesData=btRes.data||[];
+  renderBookingTypesGrid(bookingTypesData);
+  renderWeeklyAvail(avRes.data||[]);
+  renderBookingGeneralSettings(setRes.data||[]);
+}
+
+function renderBookingTypesGrid(types){
+  const grid=document.getElementById('bookingTypesGrid');
+  if(!types.length){grid.innerHTML='<p style="color:var(--text-muted)">No booking types configured</p>';return;}
+  grid.innerHTML=types.map(t=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${t.color||'var(--accent)'};border-radius:10px 10px 0 0"></div>
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+      <h4 style="font-size:.95rem;font-weight:700;margin:0">${esc(t.name)}</h4>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-secondary" onclick="editBookingType('${t.id}')" style="padding:4px 8px;font-size:.7rem">Edit</button>
+        <button class="btn btn-sm" onclick="toggleBookingType('${t.id}',${!t.is_active})" style="padding:4px 8px;font-size:.7rem;${t.is_active?'color:var(--danger)':'color:var(--success)'}">${t.is_active?'Disable':'Enable'}</button>
+      </div>
+    </div>
+    <div style="font-size:.8rem;color:var(--text-muted);display:grid;gap:4px">
+      <span>${t.duration_minutes} min &bull; ${t.location_type} &bull; ${t.is_active?'Active':'Inactive'}</span>
+      <span>Slug: /${t.slug}</span>
+      ${t.price_cents?`<span>Price: $${(t.price_cents/100).toFixed(2)}</span>`:'<span>Free</span>'}
+      <span>Buffer: ${t.buffer_before_minutes||0}m before, ${t.buffer_after_minutes||0}m after</span>
+      <span>Notice: ${t.min_notice_hours||2}h &bull; Max advance: ${t.max_advance_days||60}d</span>
+    </div>
+  </div>`).join('');
+}
+
+async function toggleBookingType(id,active){
+  await sb.from('booking_types').update({is_active:active}).eq('id',id);
+  showToast(active?'Booking type enabled':'Booking type disabled');
+  loadBookingSettings();
+}
+
+function editBookingType(id){
+  const t=id?bookingTypesData.find(x=>x.id===id):null;
+  const title=t?'Edit Booking Type':'New Booking Type';
+  openEditModal(title,`
+    <div class="form-group"><label>Name</label><input id="btName" value="${esc(t?.name||'')}" class="form-control"></div>
+    <div class="form-group"><label>Slug</label><input id="btSlug" value="${esc(t?.slug||'')}" class="form-control" placeholder="auto-generated"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Duration (min)</label><input id="btDuration" type="number" value="${t?.duration_minutes||30}" class="form-control"></div>
+      <div class="form-group"><label>Price (cents, 0=free)</label><input id="btPrice" type="number" value="${t?.price_cents||0}" class="form-control"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Location Type</label><select id="btLocation" class="form-control"><option value="zoom" ${t?.location_type==='zoom'?'selected':''}>Zoom</option><option value="phone" ${t?.location_type==='phone'?'selected':''}>Phone</option><option value="in_person" ${t?.location_type==='in_person'?'selected':''}>In Person</option><option value="google_meet" ${t?.location_type==='google_meet'?'selected':''}>Google Meet</option></select></div>
+      <div class="form-group"><label>Color</label><input id="btColor" type="color" value="${t?.color||'#C8A456'}" style="height:38px;width:100%"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="form-group"><label>Buffer Before (min)</label><input id="btBufBefore" type="number" value="${t?.buffer_before_minutes||0}" class="form-control"></div>
+      <div class="form-group"><label>Buffer After (min)</label><input id="btBufAfter" type="number" value="${t?.buffer_after_minutes||0}" class="form-control"></div>
+      <div class="form-group"><label>Slot Interval (min)</label><input id="btInterval" type="number" value="${t?.slot_interval_minutes||30}" class="form-control"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="form-group"><label>Min Notice (hours)</label><input id="btNotice" type="number" value="${t?.min_notice_hours||2}" class="form-control"></div>
+      <div class="form-group"><label>Max Advance (days)</label><input id="btMaxAdv" type="number" value="${t?.max_advance_days||60}" class="form-control"></div>
+      <div class="form-group"><label>Max Per Day</label><input id="btMaxDay" type="number" value="${t?.max_per_day||''}" class="form-control" placeholder="No limit"></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="btDesc" class="form-control" rows="3">${esc(t?.description||'')}</textarea></div>
+  `,async()=>{
+    const name=document.getElementById('btName').value.trim();
+    if(!name){showToast('Name required','error');return;}
+    let slug=document.getElementById('btSlug').value.trim();
+    if(!slug)slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    const obj={
+      name,slug,
+      duration_minutes:parseInt(document.getElementById('btDuration').value)||30,
+      price_cents:parseInt(document.getElementById('btPrice').value)||0,
+      location_type:document.getElementById('btLocation').value,
+      color:document.getElementById('btColor').value,
+      buffer_before_minutes:parseInt(document.getElementById('btBufBefore').value)||0,
+      buffer_after_minutes:parseInt(document.getElementById('btBufAfter').value)||0,
+      slot_interval_minutes:parseInt(document.getElementById('btInterval').value)||30,
+      min_notice_hours:parseInt(document.getElementById('btNotice').value)||2,
+      max_advance_days:parseInt(document.getElementById('btMaxAdv').value)||60,
+      max_per_day:parseInt(document.getElementById('btMaxDay').value)||null,
+      description:document.getElementById('btDesc').value.trim()||null
+    };
+    if(id)await sb.from('booking_types').update(obj).eq('id',id);
+    else await sb.from('booking_types').insert(obj);
+    showToast(id?'Booking type updated':'Booking type created');
+    closeEditModal();loadBookingSettings();
+  });
+}
+
+function renderWeeklyAvail(avail){
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const grid=document.getElementById('weeklyAvailGrid');
+  grid.innerHTML=days.map((d,i)=>{
+    const dayAvail=avail.find(a=>a.day_of_week===i);
+    const active=dayAvail?.is_active!==false&&!!dayAvail;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+      <label style="display:flex;align-items:center;gap:8px;width:120px;font-size:.85rem;font-weight:600;cursor:pointer"><input type="checkbox" id="avail_${i}" ${active?'checked':''} style="accent-color:var(--accent)"> ${d}</label>
+      <input type="time" id="availStart_${i}" value="${dayAvail?.start_time||'09:00'}" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.85rem">
+      <span style="color:var(--text-muted)">to</span>
+      <input type="time" id="availEnd_${i}" value="${dayAvail?.end_time||'17:00'}" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.85rem">
+    </div>`;
+  }).join('');
+}
+
+async function saveWeeklyAvail(){
+  // Delete existing and re-insert
+  await sb.from('booking_availability').delete().gte('day_of_week',0);
+  const rows=[];
+  for(let i=0;i<7;i++){
+    const active=document.getElementById('avail_'+i).checked;
+    if(active){
+      rows.push({
+        day_of_week:i,
+        start_time:document.getElementById('availStart_'+i).value+':00',
+        end_time:document.getElementById('availEnd_'+i).value+':00',
+        is_active:true
+      });
+    }
+  }
+  if(rows.length)await sb.from('booking_availability').insert(rows);
+  showToast('Weekly availability saved');
+}
+
+function renderBookingGeneralSettings(settings){
+  const settingsMap={};
+  settings.forEach(s=>{settingsMap[s.key]=s.value;});
+  const container=document.getElementById('bookingGeneralSettings');
+  container.innerHTML=`
+    <div class="form-group"><label style="font-size:.85rem">Host Timezone</label><input id="bsTimezone" class="form-control" value="${esc((settingsMap.timezone||'America/New_York').replace(/"/g,''))}"></div>
+    <div class="form-group"><label style="font-size:.85rem">Booking Page Title</label><input id="bsTitle" class="form-control" value="${esc((settingsMap.booking_page_title||'Book a Call').replace(/"/g,''))}"></div>
+    <div class="form-group"><label style="font-size:.85rem">Booking Page Subtitle</label><input id="bsSubtitle" class="form-control" value="${esc((settingsMap.booking_page_subtitle||'').replace(/"/g,''))}"></div>
+  `;
+}
+
+async function saveBookingGeneralSettings(){
+  const updates=[
+    {key:'timezone',value:JSON.stringify(document.getElementById('bsTimezone').value.trim())},
+    {key:'booking_page_title',value:JSON.stringify(document.getElementById('bsTitle').value.trim())},
+    {key:'booking_page_subtitle',value:JSON.stringify(document.getElementById('bsSubtitle').value.trim())}
+  ];
+  for(const u of updates){
+    await sb.from('booking_settings').upsert(u,{onConflict:'key'});
+  }
+  showToast('Settings saved');
 }
 
 // ═══ APPLICATIONS (intake_submissions) ═══
@@ -7380,10 +8521,10 @@ function exportFs(fmt){
 (function(){
   if(!window.XLSX){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';document.head.appendChild(s);}
   // Hook into the nav click to load forms data when first visiting
-  const origNavHandler=document.querySelector('.nav-item[data-view="forms"]');
-  if(origNavHandler){
+  const formsNav=document.querySelector('.nav-child[data-view="forms"]')||document.querySelector('.nav-item[data-view="forms"]');
+  if(formsNav){
     let fsLoaded=false;
-    origNavHandler.addEventListener('click',()=>{if(!fsLoaded){fsLoaded=true;loadForms();}});
+    formsNav.addEventListener('click',()=>{if(!fsLoaded){fsLoaded=true;loadForms();}});
   }
 })();
 </script>
