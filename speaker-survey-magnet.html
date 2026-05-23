@@ -436,13 +436,23 @@ async function handleSubmit(e) {
   }
 
   try {
-    var check = await _sb.from('speaker_survey_responses').select('email').eq('email', email).limit(1);
+    // Generate cohort_id from current date (YYYY-MM-DD-event)
+    var now = new Date();
+    var cohortId = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + '-event';
+    var surveyName = 'Speaker Survey';
+    var offerPresented = 'Speaker Lead Engine';
+    var submissionDate = now.toISOString();
+
+    var check = await _sb.from('speaker_survey_responses').select('email').eq('email', email).eq('cohort_id', cohortId).limit(1);
     if (check.data && check.data.length > 0) {
       showSuccess();
       return;
     }
 
-    var ins = await _sb.from('speaker_survey_responses').insert([{ name: name, email: email, phone: phone, answer: answer }]);
+    var ins = await _sb.from('speaker_survey_responses').insert([{
+      name: name, email: email, phone: phone, answer: answer,
+      cohort_id: cohortId, survey_name: surveyName, offer_presented: offerPresented
+    }]);
     if (ins.error) throw ins.error;
 
     // Also push to GHL webhook for email drip campaign
@@ -451,7 +461,8 @@ async function handleSubmit(e) {
       email: email,
       phone: phone,
       answer: String(answer),
-      source: 'Speaker Survey Magnet — Event 2026'
+      cohort_id: cohortId,
+      source: 'Speaker Survey Magnet — Event ' + now.getFullYear()
     };
     fetch('https://services.leadconnectorhq.com/hooks/F2GsBGGCAYHgnQees0pV/webhook-trigger/speaker-lead-engine', {
       method: 'POST',
@@ -469,10 +480,11 @@ async function handleSubmit(e) {
         source: 'event',
         status: 'new',
         lead_type: 'inbound',
-        service_interest: 'Speaker Lead Engine',
-        notes: 'Submitted speaker survey at live event. Answer: ' + answer,
-        opportunity_tags: ['speaker-event-2026', 'speaker-lead-engine-drip'],
-        metadata: { answer: answer, captured_at: new Date().toISOString(), form: 'speaker-survey-magnet' }
+        service_interest: offerPresented,
+        notes: 'Survey: ' + surveyName + ' | Submitted: ' + submissionDate.split('T')[0] + ' | Offer: ' + offerPresented + ' | Answer: ' + answer,
+        tags: [cohortId, 'speaker-lead-engine-drip'],
+        opportunity_tags: [cohortId, 'speaker-lead-engine-drip'],
+        metadata: { answer: answer, captured_at: submissionDate, form: 'speaker-survey-magnet', cohort_id: cohortId }
       }]);
     } catch(leadErr) { console.warn('Lead insert skipped:', leadErr); }
 
@@ -490,7 +502,7 @@ function showSuccess() {
   var s = document.getElementById('successScreen');
   s.classList.add('active');
   // Set SMS button href with name from form
-  var nameVal = (document.getElementById('name').value || '').trim();
+  var nameVal = (document.getElementById('firstName').value || '').trim();
   var smsBody = nameVal ? 'Magnet — ' + nameVal : 'Magnet';
   var smsBtn = document.getElementById('smsBtn');
   if (smsBtn) smsBtn.href = 'sms:6027020807?&body=' + encodeURIComponent(smsBody);

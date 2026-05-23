@@ -112,6 +112,14 @@ td{padding:10px 1.25rem;font-size:0.9rem;border-bottom:1px solid var(--border-su
 tr:hover td{background:rgba(200,164,86,0.02)}
 tr.clickable{cursor:pointer}
 .table-empty{padding:3rem;text-align:center;color:var(--text-muted);font-size:0.9rem}
+.inline-edit{cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .2s;position:relative}
+.inline-edit:hover{background:rgba(200,164,86,0.08)}
+.inline-edit::after{content:'✎';position:absolute;right:-2px;top:50%;transform:translateY(-50%);font-size:.6rem;opacity:0;transition:opacity .2s;color:var(--accent)}
+.inline-edit:hover::after{opacity:.6}
+.inline-edit-active{background:transparent !important;padding:0 !important}
+.inline-edit-active::after{display:none}
+.inline-edit-input{width:100%;background:var(--surface-2);border:1.5px solid var(--accent);color:var(--text);padding:6px 8px;border-radius:6px;font-size:.85rem;font-family:inherit;outline:none}
+.inline-edit-select{width:100%;background:var(--surface-2);border:1.5px solid var(--accent);color:var(--text);padding:6px 8px;border-radius:6px;font-size:.85rem;font-family:inherit;outline:none;cursor:pointer}
 .badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.75rem;font-weight:600}
 .badge-success{background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.2)}
 .badge-warning{background:rgba(255,152,0,0.1);color:var(--warning);border:1px solid rgba(255,152,0,0.2)}
@@ -1463,6 +1471,65 @@ async function deleteRecord(table,id,label,reloadFn){
   loadDashboard();
 }
 
+// ═══ INLINE EDITING SYSTEM ═══
+async function inlineEdit(el,table,id,field,type,opts,reloadFn){
+  if(el.classList.contains('inline-edit-active'))return;
+  el.classList.add('inline-edit-active');
+  const currentVal=el.dataset.value||el.textContent.trim();
+  el.dataset.originalHtml=el.innerHTML;
+  if(type==='select'){
+    let html='<select class="inline-edit-select" onchange="inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'select\')" onblur="setTimeout(()=>inlineCancel(this),150)">';
+    opts.forEach(o=>html+='<option value="'+o.v+'"'+(o.v===currentVal?' selected':'')+'>'+o.l+'</option>');
+    html+='</select>';
+    el.innerHTML=html;
+    el.querySelector('select').focus();
+  }else if(type==='date'){
+    el.innerHTML='<input type="date" class="inline-edit-input" value="'+(currentVal==='—'?'':currentVal)+'" onchange="inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'date\')" onblur="inlineCancel(this)">';
+    el.querySelector('input').focus();
+  }else if(type==='number'){
+    el.innerHTML='<input type="number" class="inline-edit-input" value="'+(parseFloat(currentVal.replace(/[^0-9.-]/g,''))||'')+'" onblur="inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'number\')" onkeydown="if(event.key===\'Enter\')inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'number\')">';
+    el.querySelector('input').focus();
+  }else{
+    el.innerHTML='<input type="text" class="inline-edit-input" value="'+currentVal.replace(/"/g,'&quot;')+'" onblur="inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'text\')" onkeydown="if(event.key===\'Enter\')inlineSave(this,\''+table+'\',\''+id+'\',\''+field+'\',\'text\');if(event.key===\'Escape\')inlineCancel(this)">';
+    el.querySelector('input').focus();
+  }
+  el._reloadFn=reloadFn;
+}
+async function inlineSave(input,table,id,field,type){
+  const parent=input.closest('.inline-edit');
+  if(!parent)return;
+  let val=input.value;
+  if(type==='number')val=parseFloat(val)||0;
+  if(type==='date'&&!val)val=null;
+  const updates={[field]:val,updated_at:new Date().toISOString()};
+  // Stage↔Status linking for deals
+  if(table==='deals'&&field==='stage'){
+    if(val==='closed_won'){updates.status='won';updates.won_at=new Date().toISOString();updates.actual_close_date=new Date().toISOString().slice(0,10);updates.probability=100;}
+    else if(val==='closed_lost'){updates.status='lost';updates.lost_at=new Date().toISOString();updates.probability=0;}
+    else if(val==='on_hold'){updates.status='on_hold';}
+  }
+  if(table==='deals'&&field==='status'){
+    if(val==='won'){updates.stage='closed_won';updates.won_at=new Date().toISOString();updates.probability=100;}
+    else if(val==='lost'){updates.stage='closed_lost';updates.lost_at=new Date().toISOString();updates.probability=0;}
+    else if(val==='on_hold'){updates.stage='on_hold';}
+  }
+  const{error}=await sb.from(table).update(updates).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');inlineCancel(input);return;}
+  showToast('Updated!');
+  if(parent._reloadFn)await parent._reloadFn();
+  else{parent.classList.remove('inline-edit-active');parent.innerHTML=val||'—';}
+}
+function inlineCancel(input){
+  const parent=input.closest('.inline-edit');
+  if(!parent)return;
+  parent.classList.remove('inline-edit-active');
+  if(parent.dataset.originalHtml)parent.innerHTML=parent.dataset.originalHtml;
+}
+function IE(table,id,field,value,displayHtml,type,opts,reloadFn){
+  const fnName=reloadFn||'null';
+  return '<span class="inline-edit" data-value="'+(value||'').toString().replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();inlineEdit(this,\''+table+'\',\''+id+'\',\''+field+'\',\''+type+'\','+(opts?JSON.stringify(opts).replace(/'/g,"\\'"):'null')+','+fnName+')">'+(displayHtml||value||'—')+'</span>';
+}
+
 function navigateDetail(array,currentId,direction,showDetailFn){
   const idx=array.findIndex(x=>x.id===currentId);
   if(idx===-1)return;
@@ -1475,7 +1542,7 @@ async function loadLeads(){const{data}=await sb.from('leads').select('*').eq('le
 function renderLeads(){
   const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
   const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
-  document.getElementById('leadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No leads</td></tr>')+'</tbody></table>';
+  document.getElementById('leadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No leads</td></tr>')+'</tbody></table>';
 }
 function showLeadDetail(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
@@ -1528,7 +1595,7 @@ async function loadClients(){const{data}=await sb.from('clients').select('*,prof
 function renderClients(){
   const s=(document.getElementById('clientSearch')?.value||'').toLowerCase(),st=document.getElementById('clientStatusFilter')?.value||'';
   const f=S.clients.filter(c=>(!s||(c.profiles?.full_name||'').toLowerCase().includes(s)||(c.profiles?.email||'').toLowerCase().includes(s))&&(!st||c.status===st));
-  document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td>'+B(c.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No clients</td></tr>')+'</tbody></table>';
+  document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td><span class="inline-edit" data-value="'+(c.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'clients\',\''+c.id+'\',\'status\',\'select\','+JSON.stringify(CLIENT_STATUS_OPTS).replace(/"/g,'&quot;')+',loadClients)">'+B(c.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No clients</td></tr>')+'</tbody></table>';
 }
 async function showClientDetail(id){
   const c=S.clients.find(x=>x.id===id);if(!c)return;const p=c.profiles||{};
@@ -1787,7 +1854,7 @@ async function loadProjects(){const{data}=await sb.from('projects').select('*,cl
 function renderProjects(){
   const st=document.getElementById('projStatusFilter')?.value||'';
   const f=S.projects.filter(p=>!st||p.status===st);
-  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td>'+B(p.status)+'</td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
+  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td><span class="inline-edit" data-value="'+(p.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'projects\',\''+p.id+'\',\'status\',\'select\','+JSON.stringify(PROJ_STATUS_OPTS).replace(/"/g,'&quot;')+',loadProjects)">'+B(p.status)+'</span></td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
 }
 async function showProjectDetail(id){
   const p=S.projects.find(x=>x.id===id);if(!p)return;
@@ -2951,7 +3018,7 @@ function renderTasks(){
   const st=document.getElementById('taskStatusFilter')?.value||'',pj=document.getElementById('taskProjectFilter')?.value||'',ld=document.getElementById('taskLeadFilter')?.value||'';
   const f=S.tasks.filter(t=>(!st||t.status===st)&&(!pj||t.project_id===pj)&&(!ld||t.lead_id===ld));
   const reminderIcon=t=>{if(!t.reminder_at)return'';const d=new Date(t.reminder_at);const now=new Date();if(t.reminder_sent)return'<span title="Reminder sent '+fmtDateTime(t.reminder_at)+'" style="color:#6b7280">🔔✓</span>';return d<=now?'<span title="Reminder overdue" style="color:#ef4444">🔔!</span>':'<span title="Reminder '+fmtDateTime(t.reminder_at)+'" style="color:#C8A456">🔔</span>';};
-  document.getElementById('tasksTable').innerHTML='<table><thead><tr><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(t.leads.name||t.leads.email)+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td>'+B(t.priority)+'</td><td>'+B(t.status)+'</td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="8" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
+  document.getElementById('tasksTable').innerHTML='<table><thead><tr><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(t.leads.name||t.leads.email)+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td><span class="inline-edit" data-value="'+(t.priority||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'priority\',\'select\','+JSON.stringify(PRIORITY_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.priority)+'</span></td><td><span class="inline-edit" data-value="'+(t.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'status\',\'select\','+JSON.stringify(TASK_STATUS_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.status)+'</span></td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="8" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
 }
 async function showTaskDetail(id){
   const t=S.tasks.find(x=>x.id===id);if(!t)return;
@@ -3172,10 +3239,17 @@ function renderNotifLog(){
   let h='<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>Title</th><th>Recipient</th><th>Email</th><th>Date</th></tr></thead><tbody>';
   for(const n of filtered){
     const typeColors={new_lead:'badge-warning',task_assigned:'badge-info',task_completed:'badge-success',project_update:'badge-gold',comment_added:'badge-info',event_invite:'badge-gold',broadcast:'badge-gold',event_reminder:'badge-warning'};
-    h+="<tr><td><span class='badge "+((typeColors[n.type])||'badge-info')+"'>"+((n.type||'').replace(/_/g,' '))+"</span></td><td>"+(n.title||'-')+"</td><td style='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+(n.message||'-')+"</td><td>"+(n.email_sent?"<span style='color:var(--success)'>&#10003; Sent</span>":"<span style='color:var(--text-muted)'>-</span>")+"</td><td style='white-space:nowrap;color:var(--text-muted);font-size:0.8rem'>"+new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+"</td></tr>";
+    const clickable=n.entity_type&&n.entity_id;
+    const onclick=clickable?'onclick="navigateToNotifEntity(\''+n.entity_type+'\',\''+n.entity_id+'\')" style="cursor:pointer" title="Click to view"':'';
+    h+="<tr class='"+(clickable?'clickable':'')+"' "+onclick+"><td><span class='badge "+((typeColors[n.type])||'badge-info')+"'>"+((n.type||'').replace(/_/g,' '))+"</span></td><td>"+(n.title||'-')+(clickable?' <span style="font-size:.7rem;color:var(--accent)">→</span>':'')+"</td><td style='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+(n.message||'-')+"</td><td>"+(n.email_sent?"<span style='color:var(--success)'>&#10003; Sent</span>":"<span style='color:var(--text-muted)'>-</span>")+"</td><td style='white-space:nowrap;color:var(--text-muted);font-size:0.8rem'>"+new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+"</td></tr>";
   }
   h+='</tbody></table></div>';
   c.innerHTML=h;
+}
+function navigateToNotifEntity(entityType,entityId){
+  const routes={leads:()=>{navTo('leads');showLeadDetail(entityId)},clients:()=>{navTo('clients');showClientDetail(entityId)},projects:()=>{navTo('projects');showProjectDetail(entityId)},tasks:()=>{navTo('tasks');showTaskDetail(entityId)},deals:()=>{navTo('deals');showDealDetail(entityId)},events:()=>{navTo('events');showEventDetail(entityId)},applications:()=>{navTo('applications');showAppDetail(entityId)},invoices:()=>{navTo('invoices');showInvoiceDetail(entityId)},reviews:()=>{navTo('reviews')},partners:()=>{navTo('partners');showPartnerDetail(entityId)},blog_posts:()=>{navTo('blog')},assessments:()=>{navTo('assessments')}};
+  const fn=routes[entityType];
+  if(fn){fn();}else{showToast('Navigate to '+entityType+' #'+entityId.slice(0,8),'info');}
 }
 async function sendBroadcast(){
   const subject=document.getElementById('broadcastSubject').value.trim();
@@ -4641,7 +4715,26 @@ async function saveApplication(id){
 const DEAL_STAGE_OPTS=[{v:'discovery',l:'Discovery'},{v:'proposal',l:'Proposal'},{v:'negotiation',l:'Negotiation'},{v:'contract',l:'Contract'},{v:'closed_won',l:'Closed Won'},{v:'closed_lost',l:'Closed Lost'},{v:'on_hold',l:'On Hold'}];
 const DEAL_STATUS_OPTS2=[{v:'open',l:'Open'},{v:'won',l:'Won'},{v:'lost',l:'Lost'},{v:'on_hold',l:'On Hold'},{v:'cancelled',l:'Cancelled'}];
 const DEAL_PRIORITY_OPTS=[{v:'low',l:'Low'},{v:'medium',l:'Medium'},{v:'high',l:'High'},{v:'urgent',l:'Urgent'}];
+const SALES_CHANNEL_OPTS=[{v:'',l:'—'},{v:'Website',l:'Website'},{v:'In-app Sales',l:'In-app Sales'},{v:'Conversation',l:'Conversation'},{v:'Social Media',l:'Social Media'},{v:'Stage (In-person)',l:'Stage (In-person)'},{v:'Podcast/Online Interview',l:'Podcast/Online Interview'}];
 const STAGE_COLORS={discovery:'#2196F3',proposal:'#FF9800',negotiation:'#9C27B0',contract:'#00BCD4',closed_won:'#4CAF50',closed_lost:'#E53935',on_hold:'#607D8B'};
+// Stage↔Status auto-linking
+function linkDealStageStatus(){
+  const stageEl=document.getElementById('e_dstage');const statusEl=document.getElementById('e_dstatus');
+  if(!stageEl||!statusEl)return;
+  stageEl.addEventListener('change',function(){
+    const v=this.value;
+    if(v==='closed_won'){statusEl.value='won';}
+    else if(v==='closed_lost'){statusEl.value='lost';}
+    else if(v==='on_hold'){statusEl.value='on_hold';}
+    else{statusEl.value='open';}
+  });
+  statusEl.addEventListener('change',function(){
+    const v=this.value;
+    if(v==='won'&&stageEl.value!=='closed_won'){stageEl.value='closed_won';}
+    else if(v==='lost'&&stageEl.value!=='closed_lost'){stageEl.value='closed_lost';}
+    else if(v==='on_hold'&&stageEl.value!=='on_hold'){stageEl.value='on_hold';}
+  });
+}
 
 async function loadDeals(){
   const{data}=await sb.from('deals').select('*,clients(*,profiles(*)),leads(name,email)').order('created_at',{ascending:false});
@@ -4688,10 +4781,10 @@ function renderDeals(){
   const st=document.getElementById('dealStageFilter')?.value||'';
   const ss=document.getElementById('dealStatusFilter')?.value||'';
   const f=S.deals.filter(d=>(!q||d.title.toLowerCase().includes(q)||(d.clients?.profiles?.full_name||'').toLowerCase().includes(q))&&(!st||d.stage===st)&&(!ss||d.status===ss));
-  document.getElementById('dealsTable').innerHTML='<table><thead><tr><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
+  document.getElementById('dealsTable').innerHTML='<table><thead><tr><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Channel</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
     const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
-    return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span style="color:'+STAGE_COLORS[d.stage]+'">'+d.stage.replace(/_/g,' ').replace(/\b\\w/g,c=>c.toUpperCase())+'</span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td>'+B(d.status)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals)">🗑</button></td></tr>';
-  }).join(''):'<tr><td colspan="8" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
+    return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\','+JSON.stringify(DEAL_STAGE_OPTS).replace(/"/g,'&quot;')+',loadDeals)"><span style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</span></span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\','+JSON.stringify(DEAL_STATUS_OPTS2).replace(/"/g,'&quot;')+',loadDeals)">'+B(d.status)+'</span></td><td style="font-size:.8rem;color:var(--text-muted)">'+(d.sales_channel||'—')+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals)">🗑</button></td></tr>';
+  }).join(''):'<tr><td colspan="9" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
 }
 function dealClientOptions(sel){return '<option value="">No Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
 function dealLeadOptions(sel){return '<option value="">No Lead</option>'+(S.leads||[]).map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+(l.name||l.email||'Lead')+'</option>').join('');}
@@ -4704,15 +4797,17 @@ function editDeal(id){
     FR(FG('Deal Value ($)','e_dvalue','number',d?.deal_value),FG('Probability (%)','e_dprob','number',d?.probability||50))+
     FR(FG('Stage','e_dstage','select',d?.stage||'discovery',DEAL_STAGE_OPTS),FG('Status','e_dstatus','select',d?.status||'open',DEAL_STATUS_OPTS2))+
     FR(FG('Priority','e_dpriority','select',d?.priority||'medium',DEAL_PRIORITY_OPTS),FG('Expected Close Date','e_dclose','date',d?.expected_close_date))+
-    FG('Source','e_dsource','text',d?.source)+FG('Assigned To','e_dassigned','text',d?.assigned_to)+FG('Notes','e_dnotes','textarea',d?.notes);
+    FR(FG('Sales Channel','e_dchannel','select',d?.sales_channel||'',SALES_CHANNEL_OPTS),FG('Source','e_dsource','text',d?.source))+
+    FG('Assigned To','e_dassigned','text',d?.assigned_to)+FG('Notes','e_dnotes','textarea',d?.notes);
   openEditModal(d?'Edit Deal':'New Deal',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveDeal('+(id?"'"+id+"'":'')+')">Save</button>');
+  linkDealStageStatus();
 }
 async function saveDeal(id){
-  const obj={title:document.getElementById('e_dtitle').value,description:document.getElementById('e_ddesc').value||null,client_id:document.getElementById('e_dclient').value||null,lead_id:document.getElementById('e_dlead').value||null,deal_value:parseFloat(document.getElementById('e_dvalue').value)||0,probability:parseInt(document.getElementById('e_dprob').value)||50,stage:document.getElementById('e_dstage').value,status:document.getElementById('e_dstatus').value,priority:document.getElementById('e_dpriority').value,expected_close_date:document.getElementById('e_dclose').value||null,source:document.getElementById('e_dsource').value||null,assigned_to:document.getElementById('e_dassigned').value||null,notes:document.getElementById('e_dnotes').value||null};
+  const obj={title:document.getElementById('e_dtitle').value,description:document.getElementById('e_ddesc').value||null,client_id:document.getElementById('e_dclient').value||null,lead_id:document.getElementById('e_dlead').value||null,deal_value:parseFloat(document.getElementById('e_dvalue').value)||0,probability:parseInt(document.getElementById('e_dprob').value)||50,stage:document.getElementById('e_dstage').value,status:document.getElementById('e_dstatus').value,priority:document.getElementById('e_dpriority').value,expected_close_date:document.getElementById('e_dclose').value||null,sales_channel:document.getElementById('e_dchannel')?.value||null,source:document.getElementById('e_dsource').value||null,assigned_to:document.getElementById('e_dassigned').value||null,notes:document.getElementById('e_dnotes').value||null};
   if(!obj.title){showToast('Title required','error');return;}
   // Auto-set dates for won/lost
-  if(obj.status==='won'&&!id){obj.won_at=new Date().toISOString();obj.actual_close_date=new Date().toISOString().slice(0,10);}
-  if(obj.status==='lost'&&!id){obj.lost_at=new Date().toISOString();}
+  if(obj.status==='won'){obj.won_at=obj.won_at||new Date().toISOString();obj.actual_close_date=obj.actual_close_date||new Date().toISOString().slice(0,10);obj.probability=100;}
+  if(obj.status==='lost'){obj.lost_at=obj.lost_at||new Date().toISOString();obj.probability=0;}
   let err;
   if(id){
     obj.updated_at=new Date().toISOString();
@@ -4860,7 +4955,7 @@ async function showDealDetail(id){
   if(d.status==='open')html+='<button class="btn btn-sm" style="background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.3)" onclick="markDealWon(\''+d.id+'\')">Mark Won</button><button class="btn btn-sm btn-danger" onclick="markDealLost(\''+d.id+'\')">Mark Lost</button>';
   html+='<button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals).then(()=>{document.getElementById(\'dealsListView\').style.display=\'\';document.getElementById(\'dealDetailView\').style.display=\'none\'})">🗑 Delete</button>';
   html+='</div></div>';
-  html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Value</div><div class="dg-value">'+fmtMoney(d.deal_value)+'</div></div><div><div class="dg-label">Stage</div><div class="dg-value" style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ')+'</div></div><div><div class="dg-label">Probability</div><div class="dg-value">'+d.probability+'%</div></div><div><div class="dg-label">Priority</div><div class="dg-value">'+B(d.priority)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(d.status)+'</div></div><div><div class="dg-label">Expected Close</div><div class="dg-value">'+fmtDate(d.expected_close_date)+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(d.source||'—')+'</div></div></div>';
+  html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Value</div><div class="dg-value">'+fmtMoney(d.deal_value)+'</div></div><div><div class="dg-label">Stage</div><div class="dg-value" style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ')+'</div></div><div><div class="dg-label">Probability</div><div class="dg-value">'+d.probability+'%</div></div><div><div class="dg-label">Priority</div><div class="dg-value">'+B(d.priority)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(d.status)+'</div></div><div><div class="dg-label">Expected Close</div><div class="dg-value">'+fmtDate(d.expected_close_date)+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(d.source||'—')+'</div></div><div><div class="dg-label">Sales Channel</div><div class="dg-value">'+(d.sales_channel||'—')+'</div></div></div>';
   if(d.description)html+='<p style="margin:1rem 0;font-size:.9rem;color:var(--text-muted)">'+d.description+'</p>';
 
   // Linked Projects
@@ -4907,8 +5002,10 @@ async function updateDealStage(dealId,stage){
   const oldDeal=S.deals.find(d=>d.id===dealId);
   const oldStage=oldDeal?.stage;
   const updates={stage:stage,updated_at:new Date().toISOString()};
-  if(stage==='closed_won'){updates.status='won';updates.won_at=new Date().toISOString();updates.actual_close_date=new Date().toISOString().slice(0,10);}
-  if(stage==='closed_lost'){updates.status='lost';updates.lost_at=new Date().toISOString();}
+  if(stage==='closed_won'){updates.status='won';updates.won_at=new Date().toISOString();updates.actual_close_date=new Date().toISOString().slice(0,10);updates.probability=100;}
+  else if(stage==='closed_lost'){updates.status='lost';updates.lost_at=new Date().toISOString();updates.probability=0;}
+  else if(stage==='on_hold'){updates.status='on_hold';}
+  else if(oldDeal?.status!=='open'){updates.status='open';}
   const{error}=await sb.from('deals').update(updates).eq('id',dealId);
   if(error){showToast('Error','error');return;}
   await sb.from('deal_activities').insert([{deal_id:dealId,activity_type:'stage_change',title:'Stage changed: '+oldStage+' → '+stage,created_by:currentUser?.id}]);
