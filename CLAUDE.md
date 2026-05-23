@@ -1,0 +1,407 @@
+# KnightOps.biz — Project Spec & Source of Truth
+
+> **Owner:** Daniel Knight (dknightunicorn@gmail.com)
+> **Domain:** knightops.biz
+> **Repo:** github.com/10xUnicorn/knight-ops-site (public)
+> **Last Updated:** 2026-05-23
+
+---
+
+## Architecture Overview
+
+KnightOps.biz is a static-first multi-page site deployed on **Vercel** with a **Supabase** PostgreSQL backend. All frontend pages are single-file HTML (no build step, no framework). The admin dashboard (`admin.html`) is a ~8,000-line single-page application.
+
+### Infrastructure
+
+| Layer | Service | ID |
+|-------|---------|-----|
+| Hosting | Vercel | Project: `prj_mXMrnTboMFpBt5QsCdFeR2t7aerz`, Team: `team_WHiAYPn3TV95wpQT1hsoDrhm` |
+| Database | Supabase | Project: `trpnlkntvulkjerevngm` |
+| Email | Resend | Sending from `Daniel Knight <daniel@knightops.biz>` |
+| Payments | Stripe | Connected via payment links + webhooks |
+| CRM/Drip | Go High Level | Webhook integration (being replaced) |
+| Git | GitHub | `10xUnicorn/knight-ops-site` |
+
+### Supabase Anon Key
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM
+```
+
+---
+
+## HARD RULES — Never Violate
+
+### Rule 1: Never overwrite vercel.json
+Only make surgical edits to `vercel.json`. Never write the entire file from memory or outputs. Always read the current file first, then edit specific sections. This has caused production outages before.
+
+### Rule 2: Apollo/prospecting leads must NEVER appear in admin dashboard
+The `leads` table uses a `lead_type` column:
+- `'inbound'` → shows in admin dashboard (`/admin`)
+- `'prospect'` → shows in prospecting dashboard (`/prospecting`)
+
+**Any lead sourced from Apollo, Vibe Prospecting, or the overnight scraper must have `lead_type='prospect'`.** Check BOTH `source` column (enum `lead_source`) AND `enrichment_source` column (text). Leads with `enrichment_source ILIKE '%apollo%'` are prospecting leads regardless of what `source` says.
+
+### Rule 3: Always confirm Supabase/Vercel project targets
+Before ANY database write, migration, or deployment, run the `project-selector` skill to confirm you're targeting the correct project. Never assume from a previous conversation.
+
+### Rule 4: Git push requires fresh /tmp clone
+The mounted filesystem has an immutable `.git/index.lock`. To push changes:
+1. Clone to `/tmp/<fresh-unique-dir>` using the GitHub PAT
+2. Copy changed files from the mounted workspace
+3. Commit and push from the /tmp clone
+4. Git config: `git -c user.name="Daniel Knight" -c user.email="dknightunicorn@gmail.com"`
+
+### Rule 5: Verify every change
+After making a change (SQL, deployment, code edit):
+1. **Run a verification query or check** — don't just assert it worked
+2. **For SQL**: Query the affected rows and confirm the expected state
+3. **For deployments**: Check `list_deployments` and confirm state is `READY`
+4. **For code changes**: Read the file back and confirm the edit landed
+5. **NEVER claim a fix is done without verification evidence**
+
+### Rule 6: One app = one Supabase project
+If a task is for a new product or different company, create a new Supabase project. Don't pollute `trpnlkntvulkjerevngm` with unrelated data.
+
+---
+
+## Lead Segmentation System
+
+### Source Enum (`lead_source`)
+Valid values: `intake_form`, `marketplace`, `event`, `manual`, `referral`, `website`, `vibe_prospecting`, `apollo`, `automated`, `mini_blueprint`, `website_intake`, `filter_score`, `assessment`
+
+### Lead Type Rules
+| Source | Default lead_type | Dashboard |
+|--------|------------------|-----------|
+| `apollo` | `prospect` | /prospecting |
+| `vibe_prospecting` | `prospect` | /prospecting |
+| `intake_form` | `inbound` | /admin |
+| `event` | `inbound` | /admin |
+| `website` | `inbound` | /admin |
+| `website_intake` | `inbound` | /admin |
+| `referral` | `inbound` | /admin |
+| `manual` | depends on context | check added_by |
+| `filter_score` | `inbound` | /admin |
+| `assessment` | `inbound` | /admin |
+| `mini_blueprint` | `inbound` | /admin |
+
+### Enrichment Source Check
+If `enrichment_source ILIKE '%apollo%'` AND `added_by IN ('nighthawk_scraper', 'system')`, the lead is a prospecting lead regardless of `source` value.
+
+---
+
+## Database Schema (Key Tables)
+
+### leads
+Primary table. Key columns:
+- `id` (uuid), `name` (text), `email` (text), `phone` (text)
+- `source` (enum `lead_source`), `lead_type` (text: 'inbound'|'prospect')
+- `status` (text), `lead_score` (int), `enrichment_source` (text)
+- `tags` (text[]), `cohort_id` (text — not a column yet, stored in tags)
+- `notes` (text), `added_by` (text), `prospecting_run_id` (uuid)
+- `company`, `job_title`, `company_domain`, `company_industry`
+
+### deals
+- `id`, `title` (NOT `name`), `deal_value` (NOT `value`), `stage`, `status`
+- `sales_channel` (text), `probability`, `expected_close_date`
+- `won_date`, `lost_date`, `lost_reason`
+- Stages: discovery, qualification, proposal, negotiation, closed_won, closed_lost, on_hold
+- Status auto-links with stage (see admin.html `linkDealStageStatus()`)
+
+### tasks
+- `id`, `title`, `description`, `status`, `priority`, `due_date`
+- `assigned_to`, `project_id`, `created_by`
+
+### projects
+- `id`, `name`, `description`, `status`, `client_id`
+- Junction table: `project_clients` (many-to-many with clients)
+
+### clients
+- `id`, `name`, `email`, `company`, `status`, `phone`
+
+### notifications
+- `id`, `title`, `message`, `type`, `read`, `created_at`
+- `entity_type` (text), `entity_id` (uuid) — for clickable navigation
+
+### speaker_survey_responses
+- `id`, `lead_id`, `answer`, `cohort_id`, `survey_name`, `offer_presented`
+- `event_name`, `event_date`
+
+### drip_config / drip_queue
+- Drip system: `drip_config` defines sequences, `drip_queue` holds pending sends
+- `max_per_batch`: currently 150
+
+---
+
+## Edge Functions (42 total)
+
+### Email & Communication
+| Function | Purpose |
+|----------|---------|
+| `process-drip` (v18) | Main drip processor — handles all sequences |
+| `send-notification` | Push notifications |
+| `send-plain-email` | Generic email sender |
+| `send-email` | Branded email sender |
+| `send-intake-confirmation` | Website intake form confirmation |
+| `send-survey-email` | Survey distribution |
+| `send-section-link` | Section link emails |
+| `speaker-campaign` (v3) | Speaker lead drip campaign |
+| `quick-blast` (v1) | Generic email blaster |
+| `speaker-feedback-email` | Post-event feedback |
+| `speaker-outreach` | Speaking opportunity outreach |
+| `speaker-inquiry-email` | Inquiry notifications |
+| `partner-emails` | Partner portal emails |
+| `assessment-drip` | Assessment sequence |
+| `send-sms` | SMS outreach |
+
+### Tracking & Analytics
+| Function | Purpose |
+|----------|---------|
+| `track` | General event tracking |
+| `track-open` | Email open tracking |
+| `track-click` | Email click tracking |
+| `track-visitor` | Site visitor tracking |
+
+### Business Logic
+| Function | Purpose |
+|----------|---------|
+| `analyze-offer` | Prospecting filter score analysis |
+| `capture-lead` | Lead capture from filter score |
+| `receive-email` (v6) | Inbound email processing |
+| `serve-proposal` | Proposal page rendering |
+| `send-proposal` | Proposal delivery |
+| `serve-preview` | Project preview rendering |
+| `serve-app` | Client app file serving |
+| `speed-to-value-intake` | STV intake processing |
+| `speaker-inquiry` | Speaking inquiry processing |
+| `manage-drip` | Drip queue management |
+| `process-drip-queue` | Queue processor |
+| `task-reminders` | Task reminder emails |
+| `notify-comment` | Comment notifications |
+| `send-magic-link` | Auth magic links |
+
+### Lead Generation Product
+| Function | Purpose |
+|----------|---------|
+| `search-leads` | Lead search API |
+| `enrich-leads` | Lead enrichment |
+| `deliver-leads` | Lead delivery to purchasers |
+| `stripe-lead-webhook` | Stripe payment webhook |
+| `send-report-email` | Lead report delivery |
+
+### AI Agents
+| Function | Purpose |
+|----------|---------|
+| `marketing-agent` | Marketing automation |
+| `builder-agent` | Build automation |
+| `orchestrator-briefing` | Daily briefing |
+| `orchestrator-manager` | Agent orchestration |
+
+---
+
+## Frontend Pages
+
+### Admin & Internal
+| Page | Path | Description |
+|------|------|-------------|
+| `admin.html` | /admin | Main CRM dashboard — leads, deals, tasks, projects, clients, KPIs, notifications |
+| `prospecting.html` | /prospecting | Prospecting dashboard — prospect leads, LinkedIn, outreach |
+| `drip-queue-manager.html` | /drip-queue-manager | Email drip queue management |
+| `my-leads.html` | /my-leads | Lead generation customer portal |
+
+### Public Pages
+| Page | Path | Description |
+|------|------|-------------|
+| `index.html` | / | Homepage |
+| `services.html` | /services | Service offerings |
+| `portfolio.html` | /portfolio | Case studies & app showcase |
+| `about.html` | /about | About page |
+| `pricing.html` | /pricing | Pricing |
+| `blog.html` | /blog, /blog/:slug | Blog with dynamic slugs |
+| `tools.html` | /tools | Free tools |
+| `careers.html` | /careers | Job listings |
+| `apply.html` | /apply | Job application |
+| `book.html` | /book | Booking page |
+| `book-tech-call.html` | /book-tech-call | Tech call booking |
+
+### Speaker System
+| Page | Path | Description |
+|------|------|-------------|
+| `speaker.html` | /speaker | Speaker profile |
+| `speaker-survey-magnet.html` | /speaker-survey-magnet | Live event survey capture |
+| `speaker-survey-results.html` | /speaker-survey-results | Survey results page |
+| `speaker-lead-engine.html` | /speaker-lead-engine | $297 product landing page |
+| `speaker-offer.html` | /speaker-offer | Speaker offer page |
+| `speaker-application-answers.html` | /speaker-application-answers | Application Q&A |
+| `speaker-feedback.html` | /speaker-feedback | Feedback form |
+| `speaker-sizzle-reel.mp4` | /speaker-sizzle-reel | Video reel |
+
+### Products & Funnels
+| Page | Path | Description |
+|------|------|-------------|
+| `speed-to-value.html` | /speed-to-value | Speed to Value VIP Day |
+| `command-center.html` | /command-center | Command Center landing |
+| `command-center-build.html` | /command-center-build | CC intake form |
+| `prospecting-filter-score.html` | /prospecting-filter-score | Lead scoring tool |
+| `assess.html` | /assess | Business assessment |
+| `audit.html` | /audit | Tech audit |
+| `blueprint.html` | /blueprint | Blueprint call |
+| `mini-blueprint.html` | /mini-blueprint | Mini blueprint form |
+| `roundtable.html` | /roundtable | Roundtable event |
+
+### Portals
+| Page | Path | Description |
+|------|------|-------------|
+| `portal.html` | /portal | Client portal |
+| `client-portal.html` | /client-portal | Client portal (alternate) |
+| `partner-portal.html` | /partner-portal | Partner portal |
+| `partners.html` | /partners | Partner program |
+
+### Community
+| Page | Path | Description |
+|------|------|-------------|
+| `nightvibecommunity.html` | /nightvibecommunity | Night Vibe community |
+| `community-survey.html` | /community-survey | Community survey |
+| `vision-system.html` | /vision-system | Vision system |
+| `vault.html` | /vault | Knowledge vault |
+
+### Utility
+| Page | Path | Description |
+|------|------|-------------|
+| `auth.html` | /auth | Authentication |
+| `reset-password.html` | /reset-password | Password reset |
+| `review.html` | /review | Client review |
+| `ref-redirect.html` | /ref-redirect | Referral redirect |
+| `privacy-policy.html` | /privacy-policy | Privacy policy |
+| `llms.txt` | /llms.txt | LLM context file |
+| `robots.txt` | /robots.txt | SEO robots |
+
+### Serverless API Routes (`/api/`)
+| File | Route | Purpose |
+|------|-------|---------|
+| `api/app.js` | /app/:file | Client app file serving |
+| `api/preview.js` | /preview/:slug | Project preview proxy |
+| `api/proposal.js` | /proposal/:slug | Proposal rendering |
+| `api/sitemap.js` | /sitemap.xml | Dynamic sitemap |
+
+---
+
+## Admin Dashboard Features (admin.html)
+
+### Navigation Sections
+Dashboard, Leads, Deals, Tasks, Projects, Clients, Notifications, KPIs, Settings
+
+### Inline Editing
+All list views support inline editing via `inlineEdit()` / `inlineSave()` / `inlineCancel()`:
+- **Leads**: Status column
+- **Deals**: Stage, Status, Channel columns
+- **Tasks**: Priority, Status columns
+- **Projects**: Status column
+- **Clients**: Status column
+
+### Deal Stage ↔ Status Auto-Linking
+Function `linkDealStageStatus()` automatically syncs:
+- discovery/qualification → active
+- proposal/negotiation → active
+- closed_won → completed (+ sets won_date, probability=100)
+- closed_lost → lost (+ sets lost_date, probability=0)
+- on_hold → on_hold
+
+### Sales Channel Options
+Website, In-app Sales, Conversation, Social Media, Stage (In-person), Podcast/Online Interview, Referral
+
+### Clickable Notifications
+Notifications with `entity_type` + `entity_id` navigate to the related record via `navigateToNotifEntity()`.
+
+### KPI Dashboard
+Grouped into categories: Revenue & Deals, Pipeline, Leads, Engagement. Includes trend charts for revenue over time and deals created by dollar amount.
+
+---
+
+## Cohort/Segment System
+
+Speaker survey leads are tagged with a `cohort_id` in the format `YYYY-MM-DD-event-name-slug`. This enables:
+- Per-cohort duplicate checking (same person can fill multiple event surveys)
+- Segment-targeted drip campaigns
+- Tags array on leads: `[cohortId, 'speaker-lead-engine-drip']`
+
+---
+
+## Known Issues & Tech Debt
+
+1. **loadCCBuilds() ghost call** — Line ~881 in admin.html calls a function that no longer exists (CC Builds tab was removed). Causes console error but doesn't break anything.
+2. **prospecting.html LinkedIn tab bugs** — `sbGet()` uses wrong helper, `setLiStatus()` has wrong function signature.
+3. **No 404 page** — Missing custom 404.
+4. **Duplicate portal routes** — Both `/portal` and `/client-portal` exist.
+5. **Analytics tracking** — `ko-track.js` accuracy needs review.
+6. **speaker-campaign edge function** — Doesn't filter by cohort_id yet (sends to all speaker leads).
+7. **quick-blast edge function** — No cohort filtering support.
+8. **admin.html .bak files** — Multiple backup files in root that should be cleaned up.
+
+---
+
+## Verification Protocol
+
+**Every change must include verification. Follow this checklist:**
+
+### For SQL Changes
+```
+1. Write the UPDATE/INSERT/DELETE
+2. Run it
+3. Run a SELECT to verify the expected state
+4. Report the verification result with row counts
+```
+
+### For Code Deployments
+```
+1. Make the code changes
+2. Push to GitHub
+3. Check list_deployments — confirm state is READY
+4. If possible, fetch the deployed page and verify the change is present
+```
+
+### For Edge Function Deployments
+```
+1. Deploy the function
+2. Check list_edge_functions — confirm version incremented
+3. If testable, invoke the function and verify response
+```
+
+### Anti-Pattern: False Positive Completion
+**NEVER do this:**
+- Label a task as "Fix 1 done" without actually running the fix
+- Claim SQL was executed when it wasn't
+- Mark a task complete based on intent rather than verified outcome
+- Skip verification because "it should work"
+
+**ALWAYS do this:**
+- Run the actual command
+- Verify the result with a follow-up query or check
+- Include the verification evidence in your response
+- If verification fails, say so and debug
+
+---
+
+## Deployment Checklist
+
+1. Read current `vercel.json` — never overwrite
+2. Make surgical code edits
+3. Push via fresh /tmp clone
+4. Verify deployment state is READY
+5. Check for build errors if state is ERROR
+6. Test critical paths if possible
+
+---
+
+## Business Context
+
+Knight Ops is Daniel Knight's AI/tech consulting & development company. Key offerings:
+
+- **Night Launch** ($1,497) — Overnight website delivery
+- **Night Build** ($7,497) — Full-stack web/mobile app
+- **Night Build Pro** ($14,997) — Full app store deployment
+- **Unicorn Universe Premium** ($99/mo) — Entrepreneur community
+- **10xUnicorn Mastermind** ($10k/yr) — High-performer mastermind
+- **Speaker Lead Engine** ($297) — Event lead capture system
+- **AI Marketing Machine** ($99/mo) — Marketing automation
+
+Daniel is also a public speaker and music artist. Communities: Unicorn Universe, Future Self Universe, 10xUnicorn Mastermind.
