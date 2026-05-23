@@ -6,9 +6,9 @@
 <title>Book a Call — Knight Ops</title>
 <meta name="description" content="Schedule a call with Daniel Knight at Knight Ops. Choose from available meeting types and pick a time that works for you.">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://knightops.biz/book">
+<link rel="canonical" href="https://knightops.biz/booking">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://knightops.biz/book">
+<meta property="og:url" content="https://knightops.biz/booking">
 <meta property="og:title" content="Book a Call — Knight Ops">
 <meta property="og:description" content="Schedule a call with Daniel Knight. Pick a meeting type and time that works for you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -585,7 +585,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
       return { mode: 'flow', slug: params.get('type') };
     }
     // Booking type from path: /book/blueprint
-    if (pathParts.length === 2 && pathParts[0] === 'book') {
+    if (pathParts.length === 2 && (pathParts[0] === 'booking' || pathParts[0] === 'book')) {
       return { mode: 'flow', slug: pathParts[1] };
     }
     // Pre-fill
@@ -593,10 +593,6 @@ select.form-input option{background:var(--deep);color:var(--white)}
     if (params.get('name')) prefill.name = params.get('name');
     if (params.get('email')) prefill.email = params.get('email');
 
-    // On /book, default directly to Blueprint Call (no hub)
-    if (location.pathname === '/book' || location.pathname === '/book/') {
-      return { mode: 'flow', slug: 'blueprint', prefill };
-    }
     return { mode: 'hub', prefill };
   }
 
@@ -675,7 +671,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
     $$('.type-card', app).forEach(card => {
       const slug = card.dataset.slug;
       const handler = () => {
-        history.pushState({}, '', '/book?type=' + slug);
+        history.pushState({}, '', '/booking?type=' + slug);
         initFlow(slug);
       };
       card.addEventListener('click', handler);
