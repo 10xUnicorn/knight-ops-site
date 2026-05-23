@@ -1489,7 +1489,7 @@ function projectOptions(sel){return '<option value="">Select Project</option>'+S
 const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'night_launch',l:'Night Launch — Website ($1,497)'},{v:'night_build',l:'Night Build — Web/Mobile App ($7,497)'},{v:'night_build_pro',l:'Night Build Pro — Full App Store ($14,997)'},{v:'ai_marketing_machine',l:'AI Marketing Machine ($99/mo)'},{v:'workshop',l:'Build Your App Workshop ($1,000)'},{v:'consulting_1on1',l:'1:1 Consulting ($25K)'},{v:'unicorn_universe',l:'Unicorn Universe Membership ($99/mo)'},{v:'10x_mastermind',l:'10xUnicorn Mastermind ($10K/yr)'},{v:'custom',l:'Custom Project'}];
 const BUDGET_OPTS=[{v:'',l:'Select'},{v:'under_1k',l:'Under $1K'},{v:'1k_5k',l:'$1K-$5K'},{v:'5k_15k',l:'$5K-$15K'},{v:'15k_25k',l:'$15K-$25K'},{v:'over_25k',l:'Over $25K'}];
 const TIMELINE_OPTS=[{v:'',l:'Select'},{v:'asap',l:'ASAP'},{v:'1_2_weeks',l:'1-2 Weeks'},{v:'1_month',l:'1 Month'},{v:'2_3_months',l:'2-3 Months'},{v:'just_exploring',l:'Just Exploring'}];
-const LEAD_STATUS_OPTS=[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'proposal_sent',l:'Proposal Sent'},{v:'negotiation',l:'Negotiation'},{v:'won',l:'Won'},{v:'lost',l:'Lost'}];
+const LEAD_STATUS_OPTS=[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'proposal_sent',l:'Proposal Sent'},{v:'negotiation',l:'Negotiation'},{v:'won',l:'Won'},{v:'lost',l:'Lost'},{v:'bad_lead',l:'Bad Lead'},{v:'not_qualified',l:'Not Qualified'}];
 const SOURCE_OPTS=[{v:'manual',l:'Manual'},{v:'intake_form',l:'Intake Form'},{v:'referral',l:'Referral'},{v:'event',l:'Event'},{v:'marketplace',l:'Marketplace'},{v:'website',l:'Website'}];
 const CLIENT_STATUS_OPTS=[{v:'prospect',l:'Prospect'},{v:'active',l:'Active Client'},{v:'paused',l:'Paused'},{v:'completed',l:'Completed'}];
 const TIER_OPTS=[{v:'custom',l:'Custom'},{v:'night_launch',l:'Night Launch'},{v:'night_build',l:'Night Build'},{v:'night_build_pro',l:'Night Build Pro'}];
@@ -2065,12 +2065,63 @@ function navigateDetail(array,currentId,direction,showDetailFn){
   else if(direction==='next'&&idx<array.length-1)showDetailFn(array[idx+1].id);
 }
 
+// ═══ BULK ACTIONS SYSTEM ═══
+const bulkSelected={leads:new Set(),deals:new Set(),clients:new Set(),tasks:new Set()};
+function bulkToggle(module,id,cb){if(cb.checked)bulkSelected[module].add(id);else bulkSelected[module].delete(id);updateBulkBar(module);}
+function bulkToggleAll(module,ids,cb){if(cb.checked)ids.forEach(id=>bulkSelected[module].add(id));else bulkSelected[module].clear();document.querySelectorAll('.bulk-cb-'+module).forEach(c=>{c.checked=cb.checked;});updateBulkBar(module);}
+function updateBulkBar(module){const bar=document.getElementById('bulkBar_'+module);const cnt=bulkSelected[module].size;if(!bar)return;bar.style.display=cnt?'flex':'none';const lbl=bar.querySelector('.bulk-count');if(lbl)lbl.textContent=cnt+' selected';}
+function bulkClear(module){bulkSelected[module].clear();updateBulkBar(module);const allCb=document.querySelector('.bulk-all-'+module);if(allCb)allCb.checked=false;document.querySelectorAll('.bulk-cb-'+module).forEach(c=>{c.checked=false;});}
+async function bulkUpdateField(module,field,reloadFn){
+  const ids=[...bulkSelected[module]];if(!ids.length){showToast('No items selected','error');return;}
+  let optsMap={leads:{status:LEAD_STATUS_OPTS},deals:{stage:DEAL_STAGE_OPTS,status:DEAL_STATUS_OPTS2},clients:{status:CLIENT_STATUS_OPTS,tier:TIER_OPTS},tasks:{status:TASK_STATUS_OPTS,priority:PRIORITY_OPTS}};
+  const opts=optsMap[module]?.[field];if(!opts){showToast('Invalid field','error');return;}
+  const val=document.getElementById('bulkVal_'+module+'_'+field)?.value;
+  if(!val){showToast('Select a value','error');return;}
+  const updateObj={};updateObj[field]=val;
+  // For deals, auto-link stage↔status
+  if(module==='deals'&&field==='stage'){
+    if(val==='closed_won'){updateObj.status='won';updateObj.won_date=new Date().toISOString().slice(0,10);updateObj.probability=100;}
+    else if(val==='closed_lost'){updateObj.status='lost';updateObj.lost_date=new Date().toISOString().slice(0,10);updateObj.probability=0;}
+    else if(val==='on_hold'){updateObj.status='on_hold';}
+    else{updateObj.status='open';}
+  }
+  const{error}=await sb.from(module).update(updateObj).in('id',ids);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(ids.length+' updated');bulkClear(module);if(reloadFn)await reloadFn();loadDashboard();
+}
+async function bulkUpdateDate(module,field,reloadFn){
+  const ids=[...bulkSelected[module]];if(!ids.length)return;
+  const val=document.getElementById('bulkDate_'+module+'_'+field)?.value;
+  if(!val){showToast('Pick a date','error');return;}
+  const obj={};obj[field]=val;
+  const{error}=await sb.from(module).update(obj).in('id',ids);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(ids.length+' updated');bulkClear(module);if(reloadFn)await reloadFn();
+}
+async function bulkDelete(module,label,reloadFn){
+  const ids=[...bulkSelected[module]];if(!ids.length)return;
+  if(!confirm('Permanently delete '+ids.length+' '+label+'(s)? This cannot be undone.'))return;
+  const{error}=await sb.from(module).delete().in('id',ids);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(ids.length+' deleted');bulkClear(module);if(reloadFn)await reloadFn();loadDashboard();
+}
+function bulkBarHtml(module,fields,label,reloadFn){
+  const selects=fields.map(f=>{
+    if(f.type==='date')return '<input type="date" id="bulkDate_'+module+'_'+f.field+'" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:.8rem"><button class="btn btn-sm btn-primary" onclick="bulkUpdateDate(\''+module+'\',\''+f.field+'\','+reloadFn+')" style="font-size:.8rem">Set '+f.label+'</button>';
+    return '<select id="bulkVal_'+module+'_'+f.field+'" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:.8rem"><option value="">'+f.label+'</option>'+f.opts.map(o=>'<option value="'+o.v+'">'+o.l+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="bulkUpdateField(\''+module+'\',\''+f.field+'\','+reloadFn+')" style="font-size:.8rem">Apply</button>';
+  }).join(' ');
+  return '<div id="bulkBar_'+module+'" style="display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--gold);border-radius:8px;margin-bottom:8px;flex-wrap:wrap"><span class="bulk-count" style="font-size:.85rem;font-weight:600;color:var(--gold)">0 selected</span>'+selects+' <button class="btn btn-sm btn-danger" onclick="bulkDelete(\''+module+'\',\''+label+'\','+reloadFn+')" style="font-size:.8rem">Delete</button><button class="btn btn-sm btn-secondary" onclick="bulkClear(\''+module+'\')" style="font-size:.8rem">Clear</button></div>';
+}
+
 // ═══ LEADS ═══
 async function loadLeads(){const{data}=await sb.from('leads').select('*').eq('lead_type','inbound').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
 function renderLeads(){
   const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
   const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
-  document.getElementById('leadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No leads</td></tr>')+'</tbody></table>';
+  const ids=f.map(l=>l.id);
+  const bar=bulkBarHtml('leads',[{field:'status',label:'Status',opts:LEAD_STATUS_OPTS}],'Lead','loadLeads');
+  document.getElementById('leadsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-leads" onchange="bulkToggleAll(\'leads\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-leads" '+(bulkSelected.leads.has(l.id)?'checked ':'')+' onchange="bulkToggle(\'leads\',\''+l.id+'\',this)"></td><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No leads</td></tr>')+'</tbody></table>';
+  updateBulkBar('leads');
 }
 function showLeadDetail(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
@@ -2086,7 +2137,8 @@ function showLeadDetail(id){
     '</tbody></table></div>':
     '<div style="margin-top:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;font-size:0.85rem;color:var(--text-muted)">No linked applications</div>';
 
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(l.name||l.email||'Unnamed')+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(l.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'')+linkedAppsHtml;
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(l.name||l.email||'Unnamed')+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(l.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'')+getOutreachHtml(l)+linkedAppsHtml;
+  setTimeout(updateOutreachPreview,0);
 }
 function editLead(id){
   const l=id?S.leads.find(x=>x.id===id):null;
@@ -2104,6 +2156,60 @@ async function saveLead(id){
   if(err){showToast('Error: '+err.message,'error');return;}
   showToast(id?'Lead updated!':'Lead saved!');closeEditModal();await loadLeads();loadDashboard();
 }
+// ─── Outreach Templates ───
+const OUTREACH_TEMPLATES=[
+  {id:'intro',label:'Intro — Send Business Your Way',msg:'Hey {{name}}, this is Daniel Knight. Let\'s find a time when you can tell me more about what you do, and I\'ll see if I can send some business your way.'},
+  {id:'event',label:'Great Meeting You',msg:'Hey {{name}}, it was great meeting you! I\'d love to reconnect and learn more about what you\'re working on. Would you be open to a quick call next week? I can send you my calendar link.'},
+  {id:'reconnect',label:'Let\'s Reconnect',msg:'Hey {{name}}, it\'s Daniel Knight. It\'s been a minute — would love to catch up and see how things are going. Got time for a quick chat this week?'},
+  {id:'value',label:'I Saw Something Cool',msg:'Hey {{name}}, this is Daniel. I came across something that made me think of you and what you\'re building. Would love to share — got 15 min this week?'},
+  {id:'calendar',label:'Calendar Link Follow-Up',msg:'Hey {{name}}, this is Daniel Knight. Really enjoyed our conversation — here\'s my calendar link to grab time whenever works for you: https://knightops.biz/book'},
+  {id:'collab',label:'Collaboration Opportunity',msg:'Hey {{name}}, Daniel Knight here. I think there could be a great opportunity for us to collaborate. Would you be open to a quick intro call? I\'d love to explore how we can help each other grow.'}
+];
+function getOutreachHtml(lead){
+  const name=lead.name?.split(' ')[0]||'there';
+  const phone=lead.phone||'';
+  const email=lead.email||'';
+  const opts=OUTREACH_TEMPLATES.map((t,i)=>'<option value="'+i+'"'+(i===0?' selected':'')+'>'+t.label+'</option>').join('');
+  return '<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--gold)">Quick Outreach</h3>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
+    '<select id="outreachTpl" onchange="updateOutreachPreview()" style="flex:1;min-width:200px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem">'+opts+'</select>'+
+    (phone?'<button class="btn btn-sm btn-primary" onclick="outreachSendSMS()" title="Open Messages with prefilled text">Send SMS</button>'+
+    '<button class="btn btn-sm btn-secondary" onclick="outreachCopySMS()" title="Copy SMS text">Copy SMS</button>':'')+
+    (email?'<button class="btn btn-sm btn-primary" onclick="outreachSendEmail()" title="Create email draft" style="background:#2563eb">Send Email</button>'+
+    '<button class="btn btn-sm btn-secondary" onclick="outreachCopyEmail()" title="Copy email text">Copy Email</button>':'')+
+    '</div>'+
+    '<div id="outreachPreview" style="margin-top:10px;padding:12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;color:var(--text-muted);white-space:pre-wrap"></div>'+
+    '<input type="hidden" id="outreachPhone" value="'+esc(phone)+'">'+
+    '<input type="hidden" id="outreachEmail" value="'+esc(email)+'">'+
+    '<input type="hidden" id="outreachName" value="'+esc(name)+'">'+
+    '<input type="hidden" id="outreachFullName" value="'+esc(lead.name||'')+'">'+
+    '</div>';
+}
+function getOutreachMsg(){
+  const idx=parseInt(document.getElementById('outreachTpl').value)||0;
+  const name=document.getElementById('outreachName').value||'there';
+  return OUTREACH_TEMPLATES[idx].msg.replace(/\{\{name\}\}/g,name);
+}
+function updateOutreachPreview(){document.getElementById('outreachPreview').textContent=getOutreachMsg();}
+function outreachSendSMS(){
+  const phone=document.getElementById('outreachPhone').value;
+  if(!phone){showToast('No phone number','error');return;}
+  const msg=encodeURIComponent(getOutreachMsg());
+  window.open('sms:'+phone+'?body='+msg,'_blank');
+}
+function outreachCopySMS(){navigator.clipboard.writeText(getOutreachMsg());showToast('SMS copied!');}
+function outreachCopyEmail(){navigator.clipboard.writeText(getOutreachMsg());showToast('Email text copied!');}
+async function outreachSendEmail(){
+  const to=document.getElementById('outreachEmail').value;
+  if(!to){showToast('No email address','error');return;}
+  const body=getOutreachMsg().replace(/\n/g,'<br>');
+  const fullName=document.getElementById('outreachFullName').value||'';
+  const subj='Let\'s connect, '+fullName.split(' ')[0];
+  const{error}=await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject:subj,body_html:body,snippet:getOutreachMsg().slice(0,200),status:'draft',is_draft:true,is_read:true});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Draft created — check Email Inbox → Drafts');
+}
+
 async function convertLead(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
   try{
@@ -2123,7 +2229,10 @@ async function loadClients(){const{data}=await sb.from('clients').select('*,prof
 function renderClients(){
   const s=(document.getElementById('clientSearch')?.value||'').toLowerCase(),st=document.getElementById('clientStatusFilter')?.value||'';
   const f=S.clients.filter(c=>(!s||(c.profiles?.full_name||'').toLowerCase().includes(s)||(c.profiles?.email||'').toLowerCase().includes(s))&&(!st||c.status===st));
-  document.getElementById('clientsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td><span class="inline-edit" data-value="'+(c.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'clients\',\''+c.id+'\',\'status\',\'select\','+JSON.stringify(CLIENT_STATUS_OPTS).replace(/"/g,'&quot;')+',loadClients)">'+B(c.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No clients</td></tr>')+'</tbody></table>';
+  const ids=f.map(c=>c.id);
+  const bar=bulkBarHtml('clients',[{field:'status',label:'Status',opts:CLIENT_STATUS_OPTS},{field:'tier',label:'Tier',opts:TIER_OPTS}],'Client','loadClients');
+  document.getElementById('clientsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-clients" onchange="bulkToggleAll(\'clients\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>'<tr class="clickable" onclick="showClientDetail(\''+c.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-clients" '+(bulkSelected.clients.has(c.id)?'checked ':'')+' onchange="bulkToggle(\'clients\',\''+c.id+'\',this)"></td><td>'+(c.profiles?.full_name||'—')+'</td><td>'+(c.profiles?.email||'—')+'</td><td>'+(c.profiles?.phone||'—')+'</td><td>'+(c.profiles?.company||'—')+'</td><td>'+B(c.tier)+'</td><td><span class="inline-edit" data-value="'+(c.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'clients\',\''+c.id+'\',\'status\',\'select\','+JSON.stringify(CLIENT_STATUS_OPTS).replace(/"/g,'&quot;')+',loadClients)">'+B(c.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editClient(\''+c.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'clients\',\''+c.id+'\',\'Client\',loadClients)">🗑</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No clients</td></tr>')+'</tbody></table>';
+  updateBulkBar('clients');
 }
 async function showClientDetail(id){
   const c=S.clients.find(x=>x.id===id);if(!c)return;const p=c.profiles||{};
@@ -3545,8 +3654,11 @@ async function loadTasks(){const{data}=await sb.from('tasks').select('*,projects
 function renderTasks(){
   const st=document.getElementById('taskStatusFilter')?.value||'',pj=document.getElementById('taskProjectFilter')?.value||'',ld=document.getElementById('taskLeadFilter')?.value||'';
   const f=S.tasks.filter(t=>(!st||t.status===st)&&(!pj||t.project_id===pj)&&(!ld||t.lead_id===ld));
+  const ids=f.map(t=>t.id);
+  const bar=bulkBarHtml('tasks',[{field:'status',label:'Status',opts:TASK_STATUS_OPTS},{field:'priority',label:'Priority',opts:PRIORITY_OPTS},{field:'due_date',label:'Due Date',type:'date'}],'Task','loadTasks');
   const reminderIcon=t=>{if(!t.reminder_at)return'';const d=new Date(t.reminder_at);const now=new Date();if(t.reminder_sent)return'<span title="Reminder sent '+fmtDateTime(t.reminder_at)+'" style="color:#6b7280">🔔✓</span>';return d<=now?'<span title="Reminder overdue" style="color:#ef4444">🔔!</span>':'<span title="Reminder '+fmtDateTime(t.reminder_at)+'" style="color:#C8A456">🔔</span>';};
-  document.getElementById('tasksTable').innerHTML='<table><thead><tr><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(t.leads.name||t.leads.email)+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td><span class="inline-edit" data-value="'+(t.priority||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'priority\',\'select\','+JSON.stringify(PRIORITY_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.priority)+'</span></td><td><span class="inline-edit" data-value="'+(t.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'status\',\'select\','+JSON.stringify(TASK_STATUS_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.status)+'</span></td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="8" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
+  document.getElementById('tasksTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-tasks" onchange="bulkToggleAll(\'tasks\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(t.leads.name||t.leads.email)+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-tasks" '+(bulkSelected.tasks.has(t.id)?'checked ':'')+' onchange="bulkToggle(\'tasks\',\''+t.id+'\',this)"></td><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td><span class="inline-edit" data-value="'+(t.priority||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'priority\',\'select\','+JSON.stringify(PRIORITY_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.priority)+'</span></td><td><span class="inline-edit" data-value="'+(t.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'status\',\'select\','+JSON.stringify(TASK_STATUS_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.status)+'</span></td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="9" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
+  updateBulkBar('tasks');
 }
 async function showTaskDetail(id){
   const t=S.tasks.find(x=>x.id===id);if(!t)return;
@@ -4805,19 +4917,23 @@ async function saveWeeklyAvail(){
 function renderBookingGeneralSettings(settings){
   const settingsMap={};
   settings.forEach(s=>{settingsMap[s.key]=s.value;});
+  // Strip legacy JSON.stringify wrapping quotes from values
+  const cleanVal=(k,def)=>{let v=settingsMap[k]||def;if(typeof v==='string'&&v.startsWith('"')&&v.endsWith('"'))v=v.slice(1,-1);return v;};
+  const tz=cleanVal('timezone','America/New_York');
   const container=document.getElementById('bookingGeneralSettings');
+  const TZ_LIST=['America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Phoenix','America/Anchorage','Pacific/Honolulu','America/Detroit','America/Indiana/Indianapolis','America/Kentucky/Louisville','America/Boise','America/Juneau','America/Toronto','America/Vancouver','Europe/London','Europe/Paris','Europe/Berlin','Asia/Tokyo','Asia/Shanghai','Australia/Sydney','Pacific/Auckland'];
   container.innerHTML=`
-    <div class="form-group"><label style="font-size:.85rem">Host Timezone</label><select id="bsTimezone" class="form-control" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.85rem">${['America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Phoenix','America/Anchorage','Pacific/Honolulu','America/Detroit','America/Indiana/Indianapolis','America/Kentucky/Louisville','America/Boise','America/Juneau','America/Toronto','America/Vancouver','Europe/London','Europe/Paris','Europe/Berlin','Asia/Tokyo','Asia/Shanghai','Australia/Sydney','Pacific/Auckland'].map(tz=>'<option value="'+tz+'"'+(((settingsMap.timezone||'America/New_York').replace(/"/g,''))===tz?' selected':'')+'>'+tz.replace(/_/g,' ')+'</option>').join('')}</select></div>
-    <div class="form-group"><label style="font-size:.85rem">Booking Page Title</label><input id="bsTitle" class="form-control" value="${esc((settingsMap.booking_page_title||'Book a Call').replace(/"/g,''))}"></div>
-    <div class="form-group"><label style="font-size:.85rem">Booking Page Subtitle</label><input id="bsSubtitle" class="form-control" value="${esc((settingsMap.booking_page_subtitle||'').replace(/"/g,''))}"></div>
+    <div class="form-group"><label style="font-size:.85rem">Host Timezone</label><select id="bsTimezone" class="form-control" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.85rem">${TZ_LIST.map(t=>'<option value="'+t+'"'+(tz===t?' selected':'')+'>'+t.replace(/_/g,' ')+'</option>').join('')}${!TZ_LIST.includes(tz)?'<option value="'+tz+'" selected>'+tz.replace(/_/g,' ')+'</option>':''}</select></div>
+    <div class="form-group"><label style="font-size:.85rem">Booking Page Title</label><input id="bsTitle" class="form-control" value="${esc(cleanVal('booking_page_title','Book a Call'))}"></div>
+    <div class="form-group"><label style="font-size:.85rem">Booking Page Subtitle</label><input id="bsSubtitle" class="form-control" value="${esc(cleanVal('booking_page_subtitle',''))}"></div>
   `;
 }
 
 async function saveBookingGeneralSettings(){
   const updates=[
-    {key:'timezone',value:JSON.stringify(document.getElementById('bsTimezone').value.trim())},
-    {key:'booking_page_title',value:JSON.stringify(document.getElementById('bsTitle').value.trim())},
-    {key:'booking_page_subtitle',value:JSON.stringify(document.getElementById('bsSubtitle').value.trim())}
+    {key:'timezone',value:document.getElementById('bsTimezone').value.trim()},
+    {key:'booking_page_title',value:document.getElementById('bsTitle').value.trim()},
+    {key:'booking_page_subtitle',value:document.getElementById('bsSubtitle').value.trim()}
   ];
   for(const u of updates){
     await sb.from('booking_settings').upsert(u,{onConflict:'key'});
@@ -6324,10 +6440,13 @@ function renderDeals(){
   const st=document.getElementById('dealStageFilter')?.value||'';
   const ss=document.getElementById('dealStatusFilter')?.value||'';
   const f=S.deals.filter(d=>(!q||d.title.toLowerCase().includes(q)||(d.clients?.profiles?.full_name||'').toLowerCase().includes(q))&&(!st||d.stage===st)&&(!ss||d.status===ss));
-  document.getElementById('dealsTable').innerHTML='<table><thead><tr><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Channel</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
+  const ids=f.map(d=>d.id);
+  const bar=bulkBarHtml('deals',[{field:'stage',label:'Stage',opts:DEAL_STAGE_OPTS},{field:'status',label:'Status',opts:DEAL_STATUS_OPTS2}],'Deal','loadDeals');
+  document.getElementById('dealsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-deals" onchange="bulkToggleAll(\'deals\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Channel</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
     const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
-    return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\','+JSON.stringify(DEAL_STAGE_OPTS).replace(/"/g,'&quot;')+',loadDeals)"><span style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</span></span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\','+JSON.stringify(DEAL_STATUS_OPTS2).replace(/"/g,'&quot;')+',loadDeals)">'+B(d.status)+'</span></td><td style="font-size:.8rem;color:var(--text-muted)">'+(d.sales_channel||'—')+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals)">🗑</button></td></tr>';
-  }).join(''):'<tr><td colspan="9" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
+    return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-deals" '+(bulkSelected.deals.has(d.id)?'checked ':'')+' onchange="bulkToggle(\'deals\',\''+d.id+'\',this)"></td><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\','+JSON.stringify(DEAL_STAGE_OPTS).replace(/"/g,'&quot;')+',loadDeals)"><span style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</span></span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\','+JSON.stringify(DEAL_STATUS_OPTS2).replace(/"/g,'&quot;')+',loadDeals)">'+B(d.status)+'</span></td><td style="font-size:.8rem;color:var(--text-muted)">'+(d.sales_channel||'—')+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals)">🗑</button></td></tr>';
+  }).join(''):'<tr><td colspan="10" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
+  updateBulkBar('deals');
 }
 function dealClientOptions(sel){return '<option value="">No Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
 function dealLeadOptions(sel){return '<option value="">No Lead</option>'+(S.leads||[]).map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+(l.name||l.email||'Lead')+'</option>').join('');}
