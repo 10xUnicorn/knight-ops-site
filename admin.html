@@ -499,6 +499,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
           <h2 style="font-size:1.1rem;font-weight:700;margin:0">Analytics Overview</h2>
           <div id="analyticsFilters" style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-secondary af-btn" data-range="today" onclick="setAnalyticsRange('today',this)">Today</button>
             <button class="btn btn-sm btn-secondary af-btn active" data-range="7d" onclick="setAnalyticsRange('7d',this)">7 Days</button>
             <button class="btn btn-sm btn-secondary af-btn" data-range="30d" onclick="setAnalyticsRange('30d',this)">30 Days</button>
             <button class="btn btn-sm btn-secondary af-btn" data-range="90d" onclick="setAnalyticsRange('90d',this)">90 Days</button>
@@ -513,7 +514,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="kpi-grid" id="trafficKPIs" style="margin-bottom:1.5rem"></div>
         <!-- Business Pipeline Row -->
         <div style="margin-bottom:.5rem;font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Business Pipeline</div>
-        <div class="kpi-grid" id="pipelineKPIs1" style="margin-bottom:.5rem"></div>
+        <div class="kpi-grid" id="pipelineKPIs1" style="margin-bottom:.5rem;grid-template-columns:repeat(5,1fr)"></div>
         <div class="kpi-grid" id="pipelineKPIs2" style="margin-bottom:1.5rem;grid-template-columns:repeat(4,1fr)"></div>
         <!-- Charts Row -->
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
@@ -527,7 +528,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         </div>
         <div class="table-card"><div class="table-header"><h2>Recent Leads</h2></div><div id="recentLeads"></div></div>
       </div>
-      <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
+      <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option><option value="bad_lead">Bad Lead</option><option value="not_qualified">Not Qualified</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
       <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><select id="taskLeadFilter" onchange="renderTasks()"><option value="">All Leads</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
@@ -1474,7 +1475,7 @@ function fmtMoney(v){return '$'+Number(v||0).toLocaleString();}
 function fmtDuration(mins){if(!mins)return '0m';const h=Math.floor(mins/60),m=mins%60;return h?(m?h+'h '+m+'m':h+'h'):m+'m';}
 function fmtTimerElapsed(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
 
-function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
+function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',bad_lead:'badge-error',not_qualified:'badge-warning',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
 function SL(v){const m={night_launch:'Night Launch',night_build:'Night Build',night_build_pro:'Night Build Pro',ai_marketing_machine:'AI Marketing Machine',workshop:'Workshop',consulting_1on1:'1:1 Consulting',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return m[v]||v||'—';}
 function clientName(cid){const c=S.clients.find(x=>x.id===cid);return c?.profiles?.full_name||c?.profiles?.email||'—';}
 function FG(label,id,type,val,opts){
@@ -1507,6 +1508,7 @@ function getDateRange(range){
   const now=new Date();
   let from;
   switch(range){
+    case 'today':from=new Date(now.getFullYear(),now.getMonth(),now.getDate());break;
     case '7d':from=new Date(now);from.setDate(from.getDate()-7);break;
     case '30d':from=new Date(now);from.setDate(from.getDate()-30);break;
     case '90d':from=new Date(now);from.setDate(from.getDate()-90);break;
@@ -1529,13 +1531,15 @@ function setAnalyticsRange(range,btn){
 async function loadDashboard(){
   const{from,to}=getDateRange(analyticsRange);
 
-  // Parallel fetch: analytics + business data
-  const[analyticsRes,proposalsRes]=await Promise.all([
+  // Parallel fetch: analytics + business data + activities
+  const[analyticsRes,proposalsRes,activitiesRes]=await Promise.all([
     sb.from('site_analytics').select('*').gte('created_at',from).lte('created_at',to).order('created_at',{ascending:true}),
-    sb.from('proposals').select('*').order('created_at',{ascending:false})
+    sb.from('proposals').select('*').order('created_at',{ascending:false}),
+    sb.from('lead_activities').select('*').order('logged_at',{ascending:false})
   ]);
   const analytics=analyticsRes.data||[];
   const proposals=proposalsRes.data||[];
+  S.allActivities=activitiesRes.data||[];
 
   // ── TRAFFIC METRICS ──
   const pageviews=analytics.filter(e=>e.event_type==='pageview');
@@ -1565,11 +1569,16 @@ async function loadDashboard(){
   // Meetings booked = leads from book source or any booking-related source
   const meetingsBooked=S.leads.filter(l=>(l.source==='book'||l.source==='calendly'||l.source==='booking')&&new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to)).length;
 
+  // Outreach count from lead_activities
+  const outreachInRange=(S.allActivities||[]).filter(a=>new Date(a.logged_at)>=new Date(from)&&new Date(a.logged_at)<=new Date(to)).length;
+  const outreachAllTime=(S.allActivities||[]).length;
+
   document.getElementById('pipelineKPIs1').innerHTML=
     kpiCard('Leads Submitted',fmtNum(leadsInRange.length),S.leads.length+' all time','cursor:pointer','navTo(\'leads\')')+
+    kpiCard('Outreach',fmtNum(outreachInRange),outreachAllTime+' all time')+
+    kpiCard('Meetings Booked',fmtNum(meetingsBooked),'via booking links')+
     kpiCard('Applications',fmtNum(appsInRange.length),(S.applications||[]).length+' all time','cursor:pointer','navTo(\'applications\')')+
-    kpiCard('Proposals Sent',fmtNum(proposalsSent.length),proposals.length+' all time')+
-    kpiCard('Meetings Booked',fmtNum(meetingsBooked),'via booking links');
+    kpiCard('Proposals Sent',fmtNum(proposalsSent.length),proposals.length+' all time');
   // Pipeline Revenue — Next 30 Days
   const now30=new Date();now30.setDate(now30.getDate()+30);
   const pipelineDeals=S.deals.filter(d=>d.status==='open'&&d.expected_close_date&&new Date(d.expected_close_date)<=now30&&new Date(d.expected_close_date)>=new Date());
@@ -1589,7 +1598,7 @@ async function loadDashboard(){
   renderSources(pageviews);
 
   // ── PIPELINE FUNNEL ──
-  renderFunnel(totalPageviews,leadsInRange.length+appsInRange.length,proposalsSent.length,dealsWon.length,revenueInRange);
+  renderFunnel(leadsInRange.length,outreachInRange,meetingsBooked,appsInRange.length,proposalsSent.length);
 
   // ── TOP PAGES ──
   renderTopPages(pageviews);
@@ -1957,21 +1966,20 @@ function renderSources(pageviews){
   ).join('');
 }
 
-function renderFunnel(views,leads,proposals,deals,revenue){
+function renderFunnel(leads,outreach,meetings,apps,proposals){
   const steps=[
-    {label:'Page Views',count:views,color:'#C8A456'},
-    {label:'Leads / Apps',count:leads,color:'#D4B56A'},
-    {label:'Proposals Sent',count:proposals,color:'#22C55E'},
-    {label:'Deals Closed',count:deals,color:'#16A34A'},
-    {label:'Revenue',count:revenue,color:'#0EA5E9',isMoney:true}
+    {label:'Leads Submitted',count:leads,color:'#C8A456'},
+    {label:'Outreach',count:outreach,color:'#D4B56A'},
+    {label:'Meetings Booked',count:meetings,color:'#22C55E'},
+    {label:'Applications',count:apps,color:'#16A34A'},
+    {label:'Proposals Sent',count:proposals,color:'#0EA5E9'}
   ];
-  const maxCount=Math.max(...steps.filter(s=>!s.isMoney).map(s=>s.count),1);
+  const maxCount=Math.max(...steps.map(s=>s.count),1);
   const el=document.getElementById('funnelChart');
   if(!el)return;
   el.innerHTML=steps.map(s=>{
-    const w=s.isMoney?60:Math.max(Math.round(s.count/maxCount*100),8);
-    const val=s.isMoney?fmtMoney(s.count):s.count;
-    return'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div><div class="funnel-bar" style="width:'+w+'%;background:'+s.color+'">'+val+'</div></div>';
+    const w=Math.max(Math.round(s.count/maxCount*100),8);
+    return'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div><div class="funnel-bar" style="width:'+w+'%;background:'+s.color+'">'+s.count+'</div></div>';
   }).join('');
 }
 
@@ -2123,7 +2131,7 @@ function renderLeads(){
   document.getElementById('leadsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-leads" onchange="bulkToggleAll(\'leads\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-leads" '+(bulkSelected.leads.has(l.id)?'checked ':'')+' onchange="bulkToggle(\'leads\',\''+l.id+'\',this)"></td><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No leads</td></tr>')+'</tbody></table>';
   updateBulkBar('leads');
 }
-function showLeadDetail(id){
+async function showLeadDetail(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
   navTo('leads');
   document.getElementById('leadsListView').style.display='none';
@@ -2137,7 +2145,14 @@ function showLeadDetail(id){
     '</tbody></table></div>':
     '<div style="margin-top:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;font-size:0.85rem;color:var(--text-muted)">No linked applications</div>';
 
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(l.name||l.email||'Unnamed')+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(l.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Where We Met</div><div class="dg-value">'+(l.where_we_met||'—')+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'')+getOutreachHtml(l)+linkedAppsHtml;
+  // Fetch activities for this lead
+  const{data:leadActs}=await sb.from('lead_activities').select('*').eq('lead_id',l.id).order('logged_at',{ascending:false});
+  const acts=leadActs||[];
+  const actIcons={text_sent:'💬',phone_call:'📞',voicemail:'📱',email_sent:'📧'};
+  const actLabels={text_sent:'Text Sent',phone_call:'Phone Call',voicemail:'Voicemail Left',email_sent:'Email Sent'};
+  const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
+
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(l.name||l.email||'Unnamed')+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm btn-gold" onclick="logLeadActivity(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">Log Activity</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value">'+(l.email||'—')+'</div></div><div><div class="dg-label">Phone</div><div class="dg-value">'+(l.phone||'—')+'</div></div><div><div class="dg-label">Company</div><div class="dg-value">'+(l.company||'—')+'</div></div><div><div class="dg-label">Service</div><div class="dg-value">'+SL(l.service_interest)+'</div></div><div><div class="dg-label">Budget</div><div class="dg-value">'+(l.budget_range||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Timeline</div><div class="dg-value">'+(l.timeline||'—').replace(/_/g,' ')+'</div></div><div><div class="dg-label">Source</div><div class="dg-value">'+(l.source||'—')+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(l.status)+'</div></div><div><div class="dg-label">Where We Met</div><div class="dg-value">'+(l.where_we_met||'—')+'</div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+(l.notes?'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.5rem">Notes</h3><p style="font-size:0.9rem;white-space:pre-wrap">'+l.notes+'</p></div>':'')+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
   setTimeout(updateOutreachPreview,0);
 }
 function editLead(id){
@@ -2211,6 +2226,39 @@ async function outreachSendEmail(){
   const{error}=await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject:subj,body_html:body,snippet:getOutreachMsg().slice(0,200),status:'draft',is_draft:true,is_read:true});
   if(error){showToast('Error: '+error.message,'error');return;}
   showToast('Draft created — check Email Inbox → Drafts');
+}
+
+// ─── Lead Activity Logging ───
+const ACTIVITY_TYPE_OPTS=[{v:'text_sent',l:'Text Sent'},{v:'phone_call',l:'Phone Call'},{v:'voicemail',l:'Voicemail Left'},{v:'email_sent',l:'Email Sent'}];
+
+function logLeadActivity(leadId){
+  const body='<div class="form-group"><label>Activity Type</label><select id="act_type">'+ACTIVITY_TYPE_OPTS.map(o=>'<option value="'+o.v+'">'+o.l+'</option>').join('')+'</select></div><div class="form-group"><label>Notes (optional)</label><textarea id="act_notes" placeholder="Any details..."></textarea></div>';
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLeadActivity(\''+leadId+'\')">Log It</button>';
+  openEditModal('Log Activity',body,foot);
+}
+
+async function saveLeadActivity(leadId,actId){
+  const obj={lead_id:leadId,activity_type:document.getElementById('act_type').value,notes:document.getElementById('act_notes').value||null};
+  let err;
+  if(actId){({error:err}=await sb.from('lead_activities').update({activity_type:obj.activity_type,notes:obj.notes}).eq('id',actId));}
+  else{({error:err}=await sb.from('lead_activities').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(actId?'Activity updated!':'Activity logged!');closeEditModal();showLeadDetail(leadId);
+}
+
+async function editLeadActivity(actId,leadId){
+  const{data}=await sb.from('lead_activities').select('*').eq('id',actId).single();
+  if(!data)return;
+  const body='<div class="form-group"><label>Activity Type</label><select id="act_type">'+ACTIVITY_TYPE_OPTS.map(o=>'<option value="'+o.v+'"'+(o.v===data.activity_type?' selected':'')+'>'+o.l+'</option>').join('')+'</select></div><div class="form-group"><label>Notes</label><textarea id="act_notes">'+(data.notes||'')+'</textarea></div>';
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLeadActivity(\''+leadId+'\',\''+actId+'\')">Save</button>';
+  openEditModal('Edit Activity',body,foot);
+}
+
+async function deleteLeadActivity(actId,leadId){
+  if(!confirm('Delete this activity log?'))return;
+  const{error}=await sb.from('lead_activities').delete().eq('id',actId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Activity deleted');showLeadDetail(leadId);
 }
 
 async function convertLead(id){
