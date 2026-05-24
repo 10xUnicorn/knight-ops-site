@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your AI Systems Build Map — Knight Ops</title>
+<meta name="description" content="A personalized AI Systems Build Map from Knight Ops: your Systems Score, your biggest gaps, and exactly what to build to close them.">
+<meta name="robots" content="noindex, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="My AI Systems Build Map — Knight Ops">
+<meta property="og:description" content="My personalized Systems Score and the custom plan of what to build. Get yours free at knightops.biz/audit.">
+<meta property="og:url" content="https://knightops.biz/audit">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --deep:#06061A;--surface2:#111113;--surface3:#18181B;--card:rgba(12,12,22,0.75);
+  --border:rgba(200,164,86,0.10);--border-gold:rgba(200,164,86,0.28);--glass-gold:rgba(200,164,86,0.12);
+  --white:#F4F4F5;--cream:#F0EEFF;--gray:#A1A1AA;--muted:#71717A;
+  --gold:#C8A456;--gold-bright:#FFD166;--gold-light:#D4B56A;--violet:#7B61FF;
+  --red:#E5484D;--amber:#F5A524;--green:#30A46C;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--deep);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.65;}
+.grid-ov{position:fixed;inset:0;background-image:linear-gradient(rgba(200,164,86,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(200,164,86,0.022) 1px,transparent 1px);background-size:80px 80px;z-index:0;pointer-events:none;}
+.glow{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse at center,rgba(123,97,255,0.10) 0%,transparent 70%);z-index:0;pointer-events:none;}
+.page{position:relative;z-index:1;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;background:rgba(6,6,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;color:var(--white);text-decoration:none;letter-spacing:0.5px;}
+.nav-brand span{color:var(--gold);}
+.nav-cta{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.78rem;color:var(--gold);text-decoration:none;border:1px solid var(--border-gold);padding:0.55rem 1.25rem;border-radius:6px;letter-spacing:1.2px;text-transform:uppercase;transition:all 0.25s;}
+.nav-cta:hover{background:var(--glass-gold);color:var(--gold-bright);}
+.container{max-width:760px;margin:0 auto;padding:0 1.5rem;}
+.wrap{padding:8rem 0 4rem;}
+.eyebrow{font-family:'Space Grotesk',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;text-align:center;}
+h1.headline{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:2.8rem;line-height:1.15;text-align:center;margin-bottom:2.5rem;}
+h1.headline .accent{color:var(--gold);font-style:italic;}
+.score-reveal{text-align:center;margin-bottom:3rem;}
+.score-ring-container{position:relative;width:200px;height:200px;margin:0 auto 1.25rem;}
+.score-ring-bg,.score-ring-fill{position:absolute;inset:0;width:200px;height:200px;transform:rotate(-90deg);}
+.score-ring-bg circle{fill:none;stroke:var(--surface3);stroke-width:8;}
+.score-ring-fill circle{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;stroke-dasharray:565.48;stroke-dashoffset:565.48;transition:stroke-dashoffset 1.6s ease;}
+.score-number{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:3.4rem;}
+.score-label{position:absolute;top:50%;left:50%;transform:translate(-50%,34px);font-family:'Space Grotesk',sans-serif;font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.score-category{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:2.2rem;margin-bottom:0.5rem;}
+.score-description{color:var(--gray);font-size:1rem;max-width:560px;margin:0 auto;}
+.block{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1.5rem;}
+.block h3{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.65rem;margin-bottom:1.25rem;}
+.breakdown-item{margin-bottom:1rem;}
+.breakdown-label{display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:0.4rem;color:var(--gray);}
+.breakdown-bar{height:8px;background:var(--surface3);border-radius:100px;overflow:hidden;}
+.breakdown-bar-fill{height:100%;border-radius:100px;transition:width 1s ease;}
+.gap-card{border:1px solid var(--border);border-left:3px solid var(--amber);background:var(--surface2);border-radius:0 12px 12px 0;padding:1.5rem;margin-bottom:1.25rem;}
+.gap-card:last-child{margin-bottom:0;}
+.gap-cat{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-bottom:0.6rem;}
+.gap-problem{font-size:0.96rem;color:var(--cream);margin-bottom:1rem;}
+.gap-sub{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.74rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;}
+.gap-build{font-size:0.92rem;color:var(--gray);}
+.tool-list{list-style:none;margin-top:0.4rem;}
+.tool-list li{font-size:0.9rem;color:var(--gray);padding:0.3rem 0 0.3rem 1.4rem;position:relative;}
+.tool-list li::before{content:'';position:absolute;left:0;top:0.85rem;width:6px;height:6px;border-radius:50%;background:var(--gold);}
+.revenue-amount{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:2.4rem;margin-bottom:0.5rem;}
+.revenue-text{color:var(--gray);font-size:0.96rem;}
+.next-step{background:linear-gradient(160deg,rgba(123,97,255,0.10),rgba(200,164,86,0.06));border:1px solid var(--border-gold);}
+.next-step p{color:var(--cream);font-size:1rem;margin-bottom:1.5rem;}
+.btn{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.95rem;cursor:pointer;border:none;padding:1rem 2rem;border-radius:8px;transition:all 0.25s;text-decoration:none;display:inline-block;}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0A0A0B;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px var(--glass-gold);}
+.btn-ghost{background:transparent;color:var(--white);border:1px solid var(--border-gold);}
+.btn-ghost:hover{background:var(--glass-gold);color:var(--gold-bright);}
+.cta-row{display:flex;gap:0.85rem;flex-wrap:wrap;}
+.share-row{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.5rem;}
+.share-btn{font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:500;color:var(--gray);background:var(--surface3);border:1px solid var(--border);border-radius:7px;padding:0.6rem 1rem;cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.share-btn:hover{border-color:var(--border-gold);color:var(--gold-bright);}
+.state{text-align:center;padding:9rem 1.5rem;color:var(--gray);}
+.state h2{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--white);margin-bottom:0.75rem;}
+.footer{text-align:center;padding:3rem 1.5rem 2.5rem;color:var(--muted);font-size:0.82rem;border-top:1px solid var(--border);margin-top:3rem;}
+.footer a{color:var(--gold);text-decoration:none;}
+@media(max-width:600px){
+  h1.headline{font-size:2.1rem;}
+  .score-ring-container,.score-ring-bg,.score-ring-fill{width:168px;height:168px;}
+  .score-number{font-size:2.9rem;}
+  .nav{padding:0.85rem 1.25rem;}
+  .block{padding:1.5rem;}
+  .cta-row .btn{width:100%;text-align:center;}
+}
+</style>
+</head>
+<body>
+<div class="grid-ov"></div>
+<div class="glow"></div>
+<div class="page">
+
+  <nav class="nav">
+    <a href="https://knightops.biz" class="nav-brand">KNIGHT<span>OPS</span></a>
+    <a href="https://knightops.biz/#book" class="nav-cta">Book a Call</a>
+  </nav>
+
+  <div id="loading" class="state">
+    <p>Loading your Build Map...</p>
+  </div>
+
+  <div id="notfound" class="state" style="display:none;">
+    <h2>Build Map not found</h2>
+    <p>This Build Map link is not valid. You can generate your own in 2 minutes.</p>
+    <p style="margin-top:1.5rem;"><a href="https://knightops.biz/audit" class="btn btn-primary">Take the free AI Systems Audit</a></p>
+  </div>
+
+  <div id="map" class="wrap container" style="display:none;">
+    <div class="eyebrow" id="eyebrow">AI Systems Build Map</div>
+    <h1 class="headline" id="headline">Your <span class="accent">Build Map</span></h1>
+
+    <div class="score-reveal">
+      <div class="score-ring-container">
+        <svg class="score-ring-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90"></circle></svg>
+        <svg class="score-ring-fill" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" id="ring"></circle></svg>
+        <div class="score-number" id="score-number">0</div>
+        <div class="score-label">Systems Score</div>
+      </div>
+      <div class="score-category" id="score-category"></div>
+      <p class="score-description" id="score-description"></p>
+    </div>
+
+    <div class="block" id="breakdown-block">
+      <h3>The breakdown</h3>
+      <div id="breakdown-bars"></div>
+    </div>
+
+    <div class="block">
+      <h3>The 3 biggest opportunities</h3>
+      <p style="color:var(--gray);font-size:0.9rem;margin-top:-0.6rem;margin-bottom:1.4rem;">The gaps costing the most right now, what to build to close them, and the tools that get you there.</p>
+      <div id="gap-cards"></div>
+    </div>
+
+    <div class="block" id="revenue-block">
+      <h3>What this means for revenue</h3>
+      <div class="revenue-amount" id="revenue-amount"></div>
+      <p class="revenue-text" id="revenue-text"></p>
+    </div>
+
+    <div class="block next-step">
+      <h3>Turn this map into a plan</h3>
+      <p>This map shows what to build. A free 30-minute strategy call turns it into your exact sequence: what to build first, second, third, and the impact of each. No pitch. You keep the plan either way.</p>
+      <div class="cta-row">
+        <a href="https://knightops.biz/#book" class="btn btn-primary">Book Your Free Strategy Call &rarr;</a>
+        <a href="https://knightops.biz/audit" class="btn btn-ghost">Take the Audit Again</a>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>Share your score</h3>
+      <p style="color:var(--gray);font-size:0.92rem;margin-top:-0.6rem;margin-bottom:0.5rem;">Know a founder whose systems could use this? Send them the audit.</p>
+      <div class="share-row">
+        <a class="share-btn" id="share-li" target="_blank" rel="noopener">Share on LinkedIn</a>
+        <button class="share-btn" id="share-copy">Copy my Build Map link</button>
+        <a class="share-btn" href="https://knightops.biz/audit">Send a friend the audit</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; 2026 <a href="https://knightops.biz">Knight Ops</a>. All rights reserved.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+  var categoryContent={
+    'Client Onboarding':{problem:'New clients are brought on manually. Every signup repeats the same hours of work and creates an inconsistent first impression at the moment trust matters most.',build:'An automated onboarding flow. The moment someone signs, the intake form, welcome sequence, resource delivery, and kickoff scheduling all fire on their own.',tools:['Dubsado or HoneyBook for a fast start','Typeform plus a Zapier or Make automation','A custom onboarding portal in your brand with no per-seat fees']},
+    'Client Experience':{problem:'Clients live in scattered emails and Zoom links. There is no single branded home for their journey, which makes the business feel smaller than it actually is.',build:'A branded client portal. Progress tracking, resources, milestones, and communication in one place clients actually log into.',tools:['Circle, Skool, or Kajabi to start fast','A custom client app you own outright, with no monthly per-member fees']},
+    'Revenue Optimization':{problem:'There is no built-in path from one offer to the next. Revenue per client is capped, and ascension depends on you remembering to pitch at the right time.',build:'A structured ascension model where the client experience itself surfaces the next step at the right moment.',tools:['Map your offer ladder first: entry, core, premium','Ascension logic built into the portal so the next step appears automatically','Lifecycle email triggers tied to real client milestones']},
+    'Operational Efficiency':{problem:'Too many hours each week go to admin and support. That is time and margin leaking out of the business, and it gets worse with every client you add.',build:'Automate the repetitive layer: support triage, FAQs, scheduling, follow-ups, and reporting, so the busywork runs without you in it.',tools:['Zapier or Make as the connective tissue','An AI assistant for tier-one support and FAQs','Custom automations and an AI agent for the workflows no off-the-shelf tool covers']},
+    'Lead Generation':{problem:'Lead flow is referral-dependent and inconsistent. Growth is a hope rather than a system you can turn up when you choose to.',build:'A repeatable lead engine: a lead magnet that captures and qualifies, feeding an automated nurture sequence.',tools:['A scored assessment or calculator as the magnet','An email nurture sequence with tracked opens and clicks','Tracked landing pages so you know exactly what is working']},
+    'Scale Readiness':{problem:'If 100 clients signed up tomorrow, the business would strain or break. Delivery still depends on you being in the middle of every step.',build:'Systematize delivery so it runs without you in every step: documented, templated, and automated.',tools:['SOPs and templates for every recurring delivery step','Automation for handoffs and status updates','A custom platform so delivery capacity is not limited by your hours']}
+  };
+  var catOrder=['Client Onboarding','Client Experience','Revenue Optimization','Operational Efficiency','Lead Generation','Scale Readiness'];
+
+  function show(id){document.getElementById(id).style.display=(id==='map'?'block':'block');}
+  function colorFor(score){return score<=25?'#E5484D':score<=50?'#F5A524':score<=75?'#D4B56A':'#30A46C';}
+
+  var slug=(location.pathname.split('/map/')[1]||'').split(/[/?#]/)[0].trim();
+  if(!slug){document.getElementById('loading').style.display='none';document.getElementById('notfound').style.display='block';return;}
+
+  fetch(SB_URL+'/rest/v1/build_maps?slug=eq.'+encodeURIComponent(slug)+'&select=*',{
+    headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}
+  }).then(function(r){return r.json();}).then(function(rows){
+    document.getElementById('loading').style.display='none';
+    if(!rows||!rows.length){document.getElementById('notfound').style.display='block';return;}
+    render(rows[0]);
+  }).catch(function(){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('notfound').style.display='block';
+  });
+
+  function render(bm){
+    document.getElementById('map').style.display='block';
+    var score=bm.systems_score||0;
+    var color=colorFor(score);
+    var name=bm.first_name?bm.first_name+"'s":'Your';
+    document.getElementById('headline').innerHTML=name+' AI Systems <span class="accent">Build Map</span>';
+
+    var ring=document.getElementById('ring');
+    ring.style.stroke=color;
+    var circ=2*Math.PI*90;
+    setTimeout(function(){ring.style.strokeDashoffset=circ-(score/100)*circ;},250);
+    var sn=document.getElementById('score-number');
+    sn.style.color=color;
+    animateCount(sn,0,score,1600);
+    document.getElementById('score-category').textContent=bm.tier||'';
+    document.getElementById('score-category').style.color=color;
+
+    var desc={'Manual Mode':'Nearly everything runs through you. Every new client means more hours. The business depends entirely on you showing up.','Patchwork Systems':'You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together.','Growth Ready':'Your foundation is solid, but a few real gaps are keeping you from 2 to 3x without things breaking.','Scale Mode':'You are ahead of most of your peers. A few strategic upgrades unlock fully automated delivery.'};
+    document.getElementById('score-description').textContent=desc[bm.tier]||'Here is exactly where your business stands and what to build next.';
+
+    var cs=bm.category_scores||{};
+    var present=catOrder.filter(function(c){return cs[c]!=null;});
+    if(!present.length){document.getElementById('breakdown-block').style.display='none';}
+    else{
+      var bars='';
+      present.forEach(function(c){
+        var pct=cs[c];var bc=colorFor(pct);
+        bars+='<div class="breakdown-item"><div class="breakdown-label"><span>'+c+'</span><span>'+pct+'%</span></div><div class="breakdown-bar"><div class="breakdown-bar-fill" data-w="'+pct+'" style="background:'+bc+'"></div></div></div>';
+      });
+      document.getElementById('breakdown-bars').innerHTML=bars;
+      setTimeout(function(){
+        var f=document.querySelectorAll('.breakdown-bar-fill');
+        for(var i=0;i<f.length;i++){f[i].style.width=f[i].getAttribute('data-w')+'%';}
+      },400);
+    }
+
+    var sorted=present.slice().sort(function(a,b){return cs[a]-cs[b];});
+    var gaps=sorted.slice(0,3);
+    if(!gaps.length){gaps=catOrder.slice(0,3);}
+    var gh='';
+    gaps.forEach(function(c){
+      var d=categoryContent[c];if(!d)return;
+      var tools=d.tools.map(function(t){return '<li>'+t+'</li>';}).join('');
+      var pctLabel=cs[c]!=null?' &middot; '+cs[c]+'%':'';
+      gh+='<div class="gap-card"><div class="gap-cat">'+c+pctLabel+'</div><div class="gap-problem">'+d.problem+'</div><div class="gap-sub">What to build</div><div class="gap-build">'+d.build+'</div><div class="gap-sub">Tools that get you there</div><ul class="tool-list">'+tools+'</ul></div>';
+    });
+    document.getElementById('gap-cards').innerHTML=gh;
+
+    if(bm.leak_low!=null&&bm.leak_high!=null){
+      document.getElementById('revenue-amount').textContent='$'+Number(bm.leak_low).toLocaleString()+' - $'+Number(bm.leak_high).toLocaleString()+'/mo';
+      document.getElementById('revenue-amount').style.color=color;
+      document.getElementById('revenue-text').textContent=bm.revenue_text||'This is the estimated monthly cost of the gaps above. It is paid every month until the systems are fixed.';
+    }else{document.getElementById('revenue-block').style.display='none';}
+
+    var mapUrl='https://knightops.biz/map/'+slug;
+    document.getElementById('share-li').href='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent('https://knightops.biz/audit');
+    document.getElementById('share-copy').addEventListener('click',function(){
+      navigator.clipboard.writeText(mapUrl).then(function(){
+        var b=document.getElementById('share-copy');var o=b.textContent;b.textContent='Link copied';setTimeout(function(){b.textContent=o;},2000);
+      });
+    });
+  }
+
+  function animateCount(el,start,end,duration){
+    var st=null;
+    function step(ts){if(!st)st=ts;var p=Math.min((ts-st)/duration,1);var e=1-Math.pow(1-p,3);el.textContent=Math.round(start+(end-start)*e);if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+})();
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>
