@@ -2518,9 +2518,9 @@ function renderScheduledActivities(activities,leadId){
   return html;
 }
 
-// ─── Lead Enrichment (free web search, no Apollo credits) ───
+// ─── Lead Enrichment (free web search first, then Apollo if needed) ───
 async function enrichLeadById(leadId){
-  showToast('Enriching lead…','info');
+  showToast('Enriching lead (free search)…','info');
   try{
     const res=await fetch(SUPABASE_URL+'/functions/v1/enrich-lead-free',{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
@@ -2533,9 +2533,58 @@ async function enrichLeadById(leadId){
       showToast('Lead enriched! Confidence: '+r.enriched.confidence+'%');
       await loadLeads();showLeadDetail(leadId);
     }else{
-      showToast('Enrichment ran but no new data found','warning');
+      // Free search found nothing — offer Apollo
+      showToast('Free search found no data. Checking Apollo…','warning');
+      await loadLeads();
+      const lead=S.leads.find(l=>l.id===leadId);
+      if(!lead)return;
+      const missing=[];
+      if(!lead.job_title)missing.push('job title');
+      if(!lead.linkedin_url)missing.push('LinkedIn');
+      if(!lead.company)missing.push('company');
+      if(!lead.last_name)missing.push('last name');
+      if(!lead.location)missing.push('location');
+      if(missing.length===0){showToast('All key fields already filled','info');showLeadDetail(leadId);return;}
+      offerApolloEnrich(leadId,lead,missing);
     }
   }catch(e){showToast('Enrich error: '+e.message,'error');}
+}
+
+function offerApolloEnrich(leadId,lead,missing){
+  const name=leadName(lead);
+  const modal=document.createElement('div');
+  modal.className='modal-backdrop';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:10000';
+  modal.innerHTML=`<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:440px;width:90%">
+    <h3 style="margin:0 0 .75rem;color:var(--gold)">⚡ Enrich with Apollo?</h3>
+    <p style="margin:0 0 .5rem;font-size:.9rem;color:var(--text)">Free search found no new data for <strong>${name}</strong>.</p>
+    <p style="margin:0 0 1rem;font-size:.85rem;color:var(--text-muted)">Apollo can fill: <strong>${missing.join(', ')}</strong></p>
+    <p style="margin:0 0 1rem;font-size:.8rem;color:var(--text-muted)">Cost: <strong>1 credit</strong> if matched, 0 if not found.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-sm btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+      <button class="btn btn-sm btn-primary" id="apolloEnrichBtn" style="background:var(--gold);color:#000;border:none">⚡ Use 1 Credit</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.getElementById('apolloEnrichBtn').onclick=async function(){
+    this.disabled=true;this.textContent='Enriching…';
+    try{
+      const res=await fetch(SUPABASE_URL+'/functions/v1/enrich-lead-apollo',{
+        method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        body:JSON.stringify({lead_id:leadId})
+      });
+      const data=await res.json();
+      modal.remove();
+      if(!res.ok)throw new Error(data.error||'Apollo enrichment failed');
+      if(data.matched){
+        showToast('Apollo matched! Updated '+data.fields_count+' field'+(data.fields_count!==1?'s':'')+': '+data.fields_updated.join(', '));
+      }else{
+        showToast('No match in Apollo database (0 credits used)','warning');
+      }
+      await loadLeads();showLeadDetail(leadId);
+    }catch(e){modal.remove();showToast('Apollo error: '+e.message,'error');}
+  };
 }
 async function enrichLeadsBulk(ids){
   if(!ids||!ids.length){showToast('No leads selected','error');return;}
