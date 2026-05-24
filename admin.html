@@ -480,7 +480,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       </div>
     </nav>
     <div class="sidebar-footer">
-      <button class="settings-btn" onclick="alert('Settings coming soon')" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      <button class="settings-btn" onclick="navTo('systemSettings')" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
       <div class="user-info"><div class="user-name" id="userEmail">Daniel Knight</div><div class="user-role">Admin</div></div>
       <div style="position:relative"><button class="notif-btn" onclick="toggleNotifDropdown(event)" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
       <div class="notif-dropdown" id="notifDropdown"><div class="notif-dropdown-header"><span>Notifications</span><button onclick="markAllNotifsRead()">Mark all read</button></div><div class="notif-dropdown-body" id="notifDropdownBody"></div><div class="notif-dropdown-footer"><a onclick="document.getElementById('notifDropdown').classList.remove('open');navTo('notifications')">View all notifications</a></div></div></div>
@@ -1284,9 +1284,19 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         </div>
       </div>
 
+      <!-- System Settings View -->
+      <div class="view" id="v-systemSettings">
+        <div class="table-card" style="padding:0">
+          <div class="email-settings-tabs" id="sysSettingsTabs">
+            <div class="email-settings-tab active" data-sstab="templates" onclick="switchSysSettingsTab('templates')">Message Templates</div>
+          </div>
+          <div class="email-settings-body" id="sysSettingsBody"></div>
+        </div>
+      </div>
+
     </div>
 
-      
+
   </div>
 </div>
 <!-- UNIVERSAL EDIT MODAL -->
@@ -1339,6 +1349,9 @@ const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function leadName(l){if(!l)return '';const fn=l.first_name||'';const ln=l.last_name||'';const full=(fn+' '+ln).trim();return full||l.name||l.email||'Unnamed';}
+function leadFirst(l){return l?.first_name||l?.name?.split(' ')[0]||'';}
+function leadLast(l){return l?.last_name||'';}
 let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},timeEntries:[],partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[],agents:[],agentDecisions:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
@@ -1349,7 +1362,7 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
-  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries()]);
+  await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries(),loadMsgTemplates()]);
   // Hash routing — restore view from URL or default to dashboard
   var initHash=window.location.hash.slice(1);
   if(initHash)activateView(initHash,true);
@@ -1418,7 +1431,7 @@ function activateView(v,skipHash){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
   var viewEl=document.getElementById('v-'+resolvedView);
   if(viewEl)viewEl.classList.add('active');
-  var titleMap={kpis:'KPIs',comms:'Email',emailInbox:'Inbox',emailDrafts:'Drafts',emailSent:'Sent',emailTemplates:'Email Templates',emailSettings:'Email Settings',apps:'App Library',agents:'Agent Brains',forms:'Forms & Surveys',bookings:'Bookings',bookingSettings:'Booking Settings'};
+  var titleMap={kpis:'KPIs',comms:'Email',emailInbox:'Inbox',emailDrafts:'Drafts',emailSent:'Sent',emailTemplates:'Email Templates',emailSettings:'Email Settings',apps:'App Library',agents:'Agent Brains',forms:'Forms & Surveys',bookings:'Bookings',bookingSettings:'Booking Settings',systemSettings:'System Settings'};
   document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
   // Reset to list views
   ['leads','clients','projects','tasks'].forEach(function(s){
@@ -1440,6 +1453,7 @@ function activateView(v,skipHash){
   if(v==='emailSettings'){showEmailSubView('settings');loadEmailSettings();}
   if(v==='bookings'){loadBookings();}
   if(v==='bookingSettings'){loadBookingSettings();}
+  if(v==='systemSettings'){loadMessageTemplates();}
   closeSidebar();
 }
 // Hash routing — restore view on back/forward/refresh
@@ -1605,7 +1619,7 @@ async function loadDashboard(){
 
   // ── RECENT LEADS ──
   const recent=S.leads.slice(0,5);
-  document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+l.name+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
+  document.getElementById('recentLeads').innerHTML=recent.length?'<table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>'+recent.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td>'+leadName(l)+'</td><td>'+SL(l.service_interest)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No leads yet</p>';
 }
 
 function kpiCard(label,value,sub,style,onclick){
@@ -2125,10 +2139,10 @@ function bulkBarHtml(module,fields,label,reloadFn){
 async function loadLeads(){const{data}=await sb.from('leads').select('*').eq('lead_type','inbound').order('created_at',{ascending:false});S.leads=data||[];renderLeads();}
 function renderLeads(){
   const s=(document.getElementById('leadSearch')?.value||'').toLowerCase(),st=document.getElementById('leadStatusFilter')?.value||'';
-  const f=S.leads.filter(l=>(!s||l.name?.toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
+  const f=S.leads.filter(l=>(!s||leadName(l).toLowerCase().includes(s)||l.email?.toLowerCase().includes(s)||l.company?.toLowerCase().includes(s))&&(!st||l.status===st));
   const ids=f.map(l=>l.id);
   const bar=bulkBarHtml('leads',[{field:'status',label:'Status',opts:LEAD_STATUS_OPTS}],'Lead','loadLeads');
-  document.getElementById('leadsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-leads" onchange="bulkToggleAll(\'leads\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-leads" '+(bulkSelected.leads.has(l.id)?'checked ':'')+' onchange="bulkToggle(\'leads\',\''+l.id+'\',this)"></td><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No leads</td></tr>')+'</tbody></table>';
+  document.getElementById('leadsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-leads" onchange="bulkToggleAll(\'leads\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>'<tr class="clickable" onclick="showLeadDetail(\''+l.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-leads" '+(bulkSelected.leads.has(l.id)?'checked ':'')+' onchange="bulkToggle(\'leads\',\''+l.id+'\',this)"></td><td>'+leadName(l)+'</td><td>'+l.email+'</td><td>'+(l.phone||'—')+'</td><td>'+(l.company||'—')+'</td><td>'+SL(l.service_interest)+'</td><td><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\','+JSON.stringify(LEAD_STATUS_OPTS).replace(/"/g,'&quot;')+',loadLeads)">'+B(l.status)+'</span></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert</button>':B('converted'))+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads)">🗑</button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No leads</td></tr>')+'</tbody></table>';
   updateBulkBar('leads');
 }
 async function showLeadDetail(id){
@@ -2156,18 +2170,20 @@ async function showLeadDetail(id){
   const actLabels={text_sent:'Text Sent',phone_call:'Phone Call',voicemail:'Voicemail Left',email_sent:'Email Sent'};
   const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
 
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+(l.name||l.email||'Unnamed')+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
   setTimeout(updateOutreachPreview,0);
 }
 function editLead(id){
   const l=id?S.leads.find(x=>x.id===id):null;
   const title=l?'Edit Lead':'Add Lead';
-  const body=FR(FG('Name','e_name','text',l?.name),FG('Email','e_email','email',l?.email))+FR(FG('Phone','e_phone','tel',l?.phone),FG('Company','e_company','text',l?.company))+FR(FG('Service Interest','e_service','select',l?.service_interest,SERVICE_OPTS),FG('Budget Range','e_budget','select',l?.budget_range,BUDGET_OPTS))+FR(FG('Timeline','e_timeline','select',l?.timeline,TIMELINE_OPTS),FG('Source','e_source','select',l?.source||'manual',SOURCE_OPTS))+FR(FG('Status','e_status','select',l?.status||'new',LEAD_STATUS_OPTS),FG('Where We Met','e_where_we_met','text',l?.where_we_met))+FG('Notes','e_notes','textarea',l?.notes);
+  const body=FR(FG('First Name','e_first_name','text',l?.first_name||l?.name?.split(' ')[0]||''),FG('Last Name','e_last_name','text',l?.last_name||l?.name?.split(' ').slice(1).join(' ')||''))+FR(FG('Email','e_email','email',l?.email),FG('Phone','e_phone','tel',l?.phone))+FR(FG('Company','e_company','text',l?.company),FG('Service Interest','e_service','select',l?.service_interest,SERVICE_OPTS))+FR(FG('Budget Range','e_budget','select',l?.budget_range,BUDGET_OPTS),FG('Timeline','e_timeline','select',l?.timeline,TIMELINE_OPTS))+FR(FG('Source','e_source','select',l?.source||'manual',SOURCE_OPTS),FG('Status','e_status','select',l?.status||'new',LEAD_STATUS_OPTS))+FG('Where We Met','e_where_we_met','text',l?.where_we_met)+FG('Notes','e_notes','textarea',l?.notes);
   const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveLead('+(id?"'"+id+"'":'')+')">Save</button>';
   openEditModal(title,body,foot);
 }
 async function saveLead(id){
-  const obj={name:document.getElementById('e_name').value,email:document.getElementById('e_email').value,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null,service_interest:document.getElementById('e_service').value||null,budget_range:document.getElementById('e_budget').value||null,timeline:document.getElementById('e_timeline').value||null,source:document.getElementById('e_source').value||'manual',status:document.getElementById('e_status').value||'new',where_we_met:document.getElementById('e_where_we_met').value||null,notes:document.getElementById('e_notes').value||null};
+  const fn=document.getElementById('e_first_name').value||'';
+  const ln=document.getElementById('e_last_name').value||'';
+  const obj={first_name:fn||null,last_name:ln||null,name:(fn+' '+ln).trim()||null,email:document.getElementById('e_email').value,phone:document.getElementById('e_phone').value||null,company:document.getElementById('e_company').value||null,service_interest:document.getElementById('e_service').value||null,budget_range:document.getElementById('e_budget').value||null,timeline:document.getElementById('e_timeline').value||null,source:document.getElementById('e_source').value||'manual',status:document.getElementById('e_status').value||'new',where_we_met:document.getElementById('e_where_we_met').value||null,notes:document.getElementById('e_notes').value||null};
   if(!obj.name&&!obj.email){showToast('Name or Email required','error');return;}
   let err;
   if(id){({error:err}=await sb.from('leads').update(obj).eq('id',id));}
@@ -2176,20 +2192,26 @@ async function saveLead(id){
   showToast(id?'Lead updated!':'Lead saved!');closeEditModal();await loadLeads();loadDashboard();
 }
 // ─── Outreach Templates ───
-const OUTREACH_TEMPLATES=[
-  {id:'intro',label:'Intro — Send Business Your Way',msg:'Hey {{name}}, this is Daniel Knight. Let\'s find a time when you can tell me more about what you do, and I\'ll see if I can send some business your way.'},
-  {id:'intro_event',label:'Intro — Business Your Way FROM Event',msg:'Hey {{name}}, this is Daniel Knight from {{where_we_met}}. Let\'s find a time when you can tell me more about what you do, and I\'ll see if I can send some business your way.'},
-  {id:'event',label:'Great Meeting You',msg:'Hey {{name}}, it was great meeting you! I\'d love to reconnect and learn more about what you\'re working on. Would you be open to a quick call next week? I can send you my calendar link.'},
-  {id:'reconnect',label:'Let\'s Reconnect',msg:'Hey {{name}}, it\'s Daniel Knight. It\'s been a minute — would love to catch up and see how things are going. Got time for a quick chat this week?'},
-  {id:'value',label:'I Saw Something Cool',msg:'Hey {{name}}, this is Daniel. I came across something that made me think of you and what you\'re building. Would love to share — got 15 min this week?'},
-  {id:'calendar',label:'Calendar Link Follow-Up',msg:'Hey {{name}}, this is Daniel Knight. Really enjoyed our conversation — here\'s my calendar link to grab time whenever works for you: https://knightops.biz/book'},
-  {id:'collab',label:'Collaboration Opportunity',msg:'Hey {{name}}, Daniel Knight here. I think there could be a great opportunity for us to collaborate. Would you be open to a quick intro call? I\'d love to explore how we can help each other grow.'}
-];
-function getOutreachHtml(lead){
-  const name=lead.name?.split(' ')[0]||'there';
-  const phone=lead.phone||'';
-  const email=lead.email||'';
-  const opts=OUTREACH_TEMPLATES.map((t,i)=>'<option value="'+i+'"'+(i===1?' selected':'')+'>'+t.label+'</option>').join('');
+// ─── Message Templates (DB-backed) ───
+let S_MSG_TEMPLATES=[];
+async function loadMsgTemplates(){
+  const{data}=await sb.from('message_templates').select('*').order('sort_order');
+  S_MSG_TEMPLATES=data||[];
+}
+function getMsgTemplatesForModule(mod,channel){
+  return S_MSG_TEMPLATES.filter(t=>t.modules.includes(mod)&&t.channel===(channel||'sms'));
+}
+function getOutreachHtml(entity,module){
+  module=module||'leads';
+  const name=entity.first_name||(entity.name||entity.title||'').split(' ')[0]||'there';
+  const phone=entity.phone||'';
+  const email=entity.email||'';
+  const whereMet=entity.where_we_met||'';
+  const smsTpls=getMsgTemplatesForModule(module,'sms');
+  const defIdx=smsTpls.findIndex(t=>t.is_default);
+  const selIdx=defIdx>=0?defIdx:0;
+  const opts=smsTpls.map((t,i)=>'<option value="'+i+'"'+(i===selIdx?' selected':'')+'>'+esc(t.label)+'</option>').join('');
+  if(!smsTpls.length)return '';
   return '<div class="table-card" style="padding:1.25rem;margin-top:1rem"><h3 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--gold)">Quick Outreach</h3>'+
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
     '<select id="outreachTpl" onchange="updateOutreachPreview()" style="flex:1;min-width:200px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.85rem">'+opts+'</select>'+
@@ -2202,17 +2224,22 @@ function getOutreachHtml(lead){
     '<input type="hidden" id="outreachPhone" value="'+esc(phone)+'">'+
     '<input type="hidden" id="outreachEmail" value="'+esc(email)+'">'+
     '<input type="hidden" id="outreachName" value="'+esc(name)+'">'+
-    '<input type="hidden" id="outreachFullName" value="'+esc(lead.name||'')+'">'+
-    '<input type="hidden" id="outreachWhereMet" value="'+esc(lead.where_we_met||'')+'">'+
+    '<input type="hidden" id="outreachFullName" value="'+esc(entity.name||entity.title||'')+'">'+
+    '<input type="hidden" id="outreachWhereMet" value="'+esc(whereMet)+'">'+
+    '<input type="hidden" id="outreachModule" value="'+module+'">'+
     '</div>';
 }
 function getOutreachMsg(){
+  const mod=document.getElementById('outreachModule')?.value||'leads';
+  const tpls=getMsgTemplatesForModule(mod,'sms');
   const idx=parseInt(document.getElementById('outreachTpl').value)||0;
+  const t=tpls[idx];if(!t)return '';
   const name=document.getElementById('outreachName').value||'there';
   const whereMet=document.getElementById('outreachWhereMet').value||'our event';
-  return OUTREACH_TEMPLATES[idx].msg.replace(/\{\{name\}\}/g,name).replace(/\{\{where_we_met\}\}/g,whereMet);
+  const fullName=document.getElementById('outreachFullName')?.value||name;
+  return t.message.replace(/\{\{name\}\}/g,name).replace(/\{\{first_name\}\}/g,name).replace(/\{\{last_name\}\}/g,fullName.split(' ').slice(1).join(' ')).replace(/\{\{full_name\}\}/g,fullName).replace(/\{\{where_we_met\}\}/g,whereMet);
 }
-function updateOutreachPreview(){document.getElementById('outreachPreview').textContent=getOutreachMsg();}
+function updateOutreachPreview(){const el=document.getElementById('outreachPreview');if(el)el.textContent=getOutreachMsg();}
 function outreachSendSMS(){
   const phone=document.getElementById('outreachPhone').value;
   if(!phone){showToast('No phone number','error');return;}
@@ -2230,6 +2257,71 @@ async function outreachSendEmail(){
   const{error}=await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject:subj,body_html:body,snippet:getOutreachMsg().slice(0,200),status:'draft',is_draft:true,is_read:true});
   if(error){showToast('Error: '+error.message,'error');return;}
   showToast('Draft created — check Email Inbox → Drafts');
+}
+
+// ─── System Settings: Message Templates ───
+const MSG_MODULE_OPTS=[{v:'leads',l:'Leads'},{v:'deals',l:'Deals'},{v:'projects',l:'Projects'},{v:'clients',l:'Clients'},{v:'applications',l:'Applications'},{v:'emails',l:'Emails'}];
+function switchSysSettingsTab(tab){
+  document.querySelectorAll('#sysSettingsTabs .email-settings-tab').forEach(t=>{t.classList.toggle('active',t.dataset.sstab===tab);});
+  if(tab==='templates')loadMessageTemplates();
+}
+async function loadMessageTemplates(){
+  await loadMsgTemplates();
+  const body=document.getElementById('sysSettingsBody');
+  const channelFilter=window._tplChannelFilter||'sms';
+  const tpls=S_MSG_TEMPLATES.filter(t=>t.channel===channelFilter);
+  body.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px">'+
+    '<div style="display:flex;gap:6px"><button class="btn btn-sm '+(channelFilter==='sms'?'btn-primary':'btn-secondary')+'" onclick="window._tplChannelFilter=\'sms\';loadMessageTemplates()">SMS Templates</button><button class="btn btn-sm '+(channelFilter==='email'?'btn-primary':'btn-secondary')+'" onclick="window._tplChannelFilter=\'email\';loadMessageTemplates()">Email Templates</button></div>'+
+    '<button class="btn btn-sm btn-primary" onclick="editMsgTemplate()">+ New Template</button></div>'+
+    (tpls.length?'<div style="display:flex;flex-direction:column;gap:10px">'+tpls.map(t=>{
+      const mods=t.modules.map(m=>{const o=MSG_MODULE_OPTS.find(x=>x.v===m);return o?o.l:m;}).join(', ');
+      return '<div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'+
+        '<div style="flex:1"><div style="font-weight:600;font-size:.9rem;color:var(--text)">'+esc(t.label)+(t.is_default?' <span style="font-size:.7rem;background:var(--accent);color:#000;padding:2px 6px;border-radius:4px;font-weight:700">DEFAULT</span>':'')+'</div>'+
+        '<p style="font-size:.82rem;color:var(--text-muted);margin:6px 0;white-space:pre-wrap">'+esc(t.message)+'</p>'+
+        '<div style="font-size:.75rem;color:var(--text-muted)">Modules: '+esc(mods)+'</div></div>'+
+        '<div style="display:flex;gap:6px;flex-shrink:0">'+
+        '<button class="btn btn-sm btn-secondary" onclick="editMsgTemplate(\''+t.id+'\')">Edit</button>'+
+        (!t.is_default?'<button class="btn btn-sm btn-gold" onclick="setDefaultTemplate(\''+t.id+'\')">Set Default</button>':'')+
+        '<button class="btn btn-sm btn-danger" onclick="deleteMsgTemplate(\''+t.id+'\')">Delete</button></div></div></div>';
+    }).join('')+'</div>':'<p style="color:var(--text-muted)">No '+channelFilter+' templates yet.</p>');
+}
+function editMsgTemplate(id){
+  const t=id?S_MSG_TEMPLATES.find(x=>x.id===id):null;
+  const channelFilter=window._tplChannelFilter||'sms';
+  const modChecks=MSG_MODULE_OPTS.map(m=>'<label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" class="tpl-mod-cb" value="'+m.v+'"'+(t?t.modules.includes(m.v)?' checked':'':' checked')+'>'+m.l+'</label>').join('');
+  const body='<div class="form-group"><label>Label</label><input id="tpl_label" value="'+(t?esc(t.label):'')+'"></div>'+
+    '<div class="form-group"><label>Channel</label><select id="tpl_channel"><option value="sms"'+((!t||t.channel==='sms'||channelFilter==='sms')?' selected':'')+'>SMS</option><option value="email"'+((t&&t.channel==='email')||(channelFilter==='email'&&!t)?' selected':'')+'>Email</option></select></div>'+
+    '<div class="form-group"><label>Message</label><textarea id="tpl_msg" rows="4" placeholder="Use {{name}} and {{where_we_met}} as placeholders">'+(t?esc(t.message):'')+'</textarea></div>'+
+    '<div class="form-group"><label>Show in Modules</label><div style="display:flex;gap:12px;flex-wrap:wrap">'+modChecks+'</div></div>';
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveMsgTemplate('+(id?"'"+id+"'":'')+')">Save</button>';
+  openEditModal(t?'Edit Template':'New Template',body,foot);
+}
+async function saveMsgTemplate(id){
+  const label=document.getElementById('tpl_label').value.trim();
+  const msg=document.getElementById('tpl_msg').value.trim();
+  const channel=document.getElementById('tpl_channel').value;
+  const mods=[...document.querySelectorAll('.tpl-mod-cb:checked')].map(cb=>cb.value);
+  if(!label||!msg){showToast('Label and message are required','error');return;}
+  if(!mods.length){showToast('Select at least one module','error');return;}
+  const obj={label,message:msg,channel,modules:mods,updated_at:new Date().toISOString()};
+  let err;
+  if(id){({error:err}=await sb.from('message_templates').update(obj).eq('id',id));}
+  else{obj.sort_order=S_MSG_TEMPLATES.length+1;({error:err}=await sb.from('message_templates').insert([obj]));}
+  if(err){showToast('Error: '+err.message,'error');return;}
+  showToast(id?'Template updated!':'Template created!');closeEditModal();loadMessageTemplates();
+}
+async function deleteMsgTemplate(id){
+  if(!confirm('Delete this template?'))return;
+  const{error}=await sb.from('message_templates').delete().eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Template deleted');loadMessageTemplates();
+}
+async function setDefaultTemplate(id){
+  const t=S_MSG_TEMPLATES.find(x=>x.id===id);if(!t)return;
+  await sb.from('message_templates').update({is_default:false}).eq('channel',t.channel);
+  await sb.from('message_templates').update({is_default:true}).eq('id',id);
+  showToast('Default set!');loadMessageTemplates();
 }
 
 // ─── Lead Activity Logging ───
@@ -2292,7 +2384,7 @@ async function convertLead(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
   try{
     const pid=crypto.randomUUID();
-    const{error:pe}=await sb.from('profiles').insert([{id:pid,email:l.email,full_name:l.name,phone:l.phone,company:l.company,role:'client'}]);
+    const{error:pe}=await sb.from('profiles').insert([{id:pid,email:l.email,full_name:leadName(l),phone:l.phone,company:l.company,role:'client'}]);
     if(pe)throw pe;
     const tier=['night_launch','night_build','night_build_pro'].includes(l.service_interest)?l.service_interest:'custom';
     const{error:ce}=await sb.from('clients').insert([{profile_id:pid,tier:tier,status:'active'}]);
@@ -2422,7 +2514,9 @@ async function showClientDetail(id){
   }else{html+='<p class="table-empty">No credentials stored for this client</p>';}
   html+='</div>';
 
+  html+=getOutreachHtml({name:p.full_name||'',email:p.email||'',phone:p.phone||''},'clients');
   document.getElementById('clientDetailView').innerHTML=html;
+  updateOutreachPreview();
 }
 
 function switchCDTab(btn,panelId){
@@ -3728,14 +3822,14 @@ async function saveProject(id){
 }
 
 // ═══ TASKS ═══
-async function loadTasks(){const{data}=await sb.from('tasks').select('*,projects(name),leads(name,email,company)').order('created_at',{ascending:false});S.tasks=data||[];renderTasks();const lf=document.getElementById('taskLeadFilter');if(lf){const leads=[...new Map(S.tasks.filter(t=>t.lead_id&&t.leads).map(t=>[t.lead_id,t.leads.name||t.leads.email||'Unknown'])).entries()];lf.innerHTML='<option value="">All Leads</option>'+leads.map(([id,n])=>'<option value="'+id+'">'+n+'</option>').join('');}}
+async function loadTasks(){const{data}=await sb.from('tasks').select('*,projects(name),leads(name,first_name,last_name,email,company)').order('created_at',{ascending:false});S.tasks=data||[];renderTasks();const lf=document.getElementById('taskLeadFilter');if(lf){const leads=[...new Map(S.tasks.filter(t=>t.lead_id&&t.leads).map(t=>[t.lead_id,leadName(t.leads)])).entries()];lf.innerHTML='<option value="">All Leads</option>'+leads.map(([id,n])=>'<option value="'+id+'">'+n+'</option>').join('');}}
 function renderTasks(){
   const st=document.getElementById('taskStatusFilter')?.value||'',pj=document.getElementById('taskProjectFilter')?.value||'',ld=document.getElementById('taskLeadFilter')?.value||'';
   const f=S.tasks.filter(t=>(!st||t.status===st)&&(!pj||t.project_id===pj)&&(!ld||t.lead_id===ld));
   const ids=f.map(t=>t.id);
   const bar=bulkBarHtml('tasks',[{field:'status',label:'Status',opts:TASK_STATUS_OPTS},{field:'priority',label:'Priority',opts:PRIORITY_OPTS},{field:'due_date',label:'Due Date',type:'date'}],'Task','loadTasks');
   const reminderIcon=t=>{if(!t.reminder_at)return'';const d=new Date(t.reminder_at);const now=new Date();if(t.reminder_sent)return'<span title="Reminder sent '+fmtDateTime(t.reminder_at)+'" style="color:#6b7280">🔔✓</span>';return d<=now?'<span title="Reminder overdue" style="color:#ef4444">🔔!</span>':'<span title="Reminder '+fmtDateTime(t.reminder_at)+'" style="color:#C8A456">🔔</span>';};
-  document.getElementById('tasksTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-tasks" onchange="bulkToggleAll(\'tasks\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(t.leads.name||t.leads.email)+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-tasks" '+(bulkSelected.tasks.has(t.id)?'checked ':'')+' onchange="bulkToggle(\'tasks\',\''+t.id+'\',this)"></td><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td><span class="inline-edit" data-value="'+(t.priority||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'priority\',\'select\','+JSON.stringify(PRIORITY_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.priority)+'</span></td><td><span class="inline-edit" data-value="'+(t.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'status\',\'select\','+JSON.stringify(TASK_STATUS_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.status)+'</span></td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="9" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
+  document.getElementById('tasksTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-tasks" onchange="bulkToggleAll(\'tasks\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Title</th><th>Project / Lead</th><th>Type</th><th>Priority</th><th>Status</th><th>Due</th><th style="width:30px">🔔</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(t=>{const ctx=t.projects?.name||(t.leads?(leadName(t.leads))+'<span style="color:#C8A456;font-size:.7rem;margin-left:4px">LEAD</span>':'—');return'<tr class="clickable" onclick="showTaskDetail(\''+t.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-tasks" '+(bulkSelected.tasks.has(t.id)?'checked ':'')+' onchange="bulkToggle(\'tasks\',\''+t.id+'\',this)"></td><td>'+t.title+'</td><td>'+ctx+'</td><td>'+B(t.task_type)+'</td><td><span class="inline-edit" data-value="'+(t.priority||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'priority\',\'select\','+JSON.stringify(PRIORITY_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.priority)+'</span></td><td><span class="inline-edit" data-value="'+(t.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'tasks\',\''+t.id+'\',\'status\',\'select\','+JSON.stringify(TASK_STATUS_OPTS).replace(/"/g,'&quot;')+',loadTasks)">'+B(t.status)+'</span></td><td>'+fmtDate(t.due_date)+'</td><td>'+reminderIcon(t)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">&#10003;</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks)">🗑</button></td></tr>';}).join(''):'<tr><td colspan="9" class="table-empty">No tasks</td></tr>')+'</tbody></table>';
   updateBulkBar('tasks');
 }
 async function showTaskDetail(id){
@@ -3744,12 +3838,12 @@ async function showTaskDetail(id){
   document.getElementById('tasksListView').style.display='none';
   document.getElementById('taskDetailView').style.display='block';
   const{data:comments}=await sb.from('comments').select('*').eq('task_id',id).order('created_at',{ascending:true});
-  const leadHtml=t.leads?'<div><div class="dg-label">Lead</div><div class="dg-value" style="color:#C8A456;cursor:pointer" onclick="showLeadDetail(\''+t.lead_id+'\')">'+(t.leads.name||t.leads.email||'Unknown')+(t.leads.company?' — '+t.leads.company:'')+'</div></div>':'';
+  const leadHtml=t.leads?'<div><div class="dg-label">Lead</div><div class="dg-value" style="color:#C8A456;cursor:pointer" onclick="showLeadDetail(\''+t.lead_id+'\')">'+leadName(t.leads)+(t.leads.company?' — '+t.leads.company:'')+'</div></div>':'';
   const reminderHtml=t.reminder_at?'<div><div class="dg-label">Reminder</div><div class="dg-value">'+(t.reminder_sent?'✓ Sent '+fmtDateTime(t.reminder_at):'🔔 '+fmtDateTime(t.reminder_at))+'</div></div>':'';
   document.getElementById('taskDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'tasksListView\').style.display=\'\';document.getElementById(\'taskDetailView\').style.display=\'none\'">&#8592; Back to Tasks</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.tasks,\''+t.id+'\',\'prev\',showTaskDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+t.title+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.tasks,\''+t.id+'\',\'next\',showTaskDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editTask(\''+t.id+'\')">Edit</button>'+(t.status!=='done'?' <button class="btn btn-sm btn-primary" onclick="completeTask(\''+t.id+'\')">Mark Complete</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'tasks\',\''+t.id+'\',\'Task\',loadTasks).then(()=>{document.getElementById(\'tasksListView\').style.display=\'\';document.getElementById(\'taskDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">Project</div><div class="dg-value">'+(t.projects?.name||'—')+'</div></div><div><div class="dg-label">Type</div><div class="dg-value">'+B(t.task_type)+'</div></div><div><div class="dg-label">Priority</div><div class="dg-value">'+B(t.priority)+'</div></div><div><div class="dg-label">Status</div><div class="dg-value">'+B(t.status)+'</div></div><div><div class="dg-label">Due Date</div><div class="dg-value">'+fmtDate(t.due_date)+'</div></div><div><div class="dg-label">Assigned</div><div class="dg-value">'+(t.assigned_name||'Unassigned')+'</div></div>'+leadHtml+reminderHtml+'</div>'+(t.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+t.description+'</p>':'')+
   '<div class="comment-box"><h3>Comments</h3>'+(comments?.length?comments.map(c=>'<div class="comment-item"><div class="comment-meta"><strong>'+(c.user_name||'Admin')+'</strong> &middot; '+fmtDateTime(c.created_at)+'</div><div class="comment-text">'+c.content+'</div></div>').join(''):'<p style="color:var(--text-muted);font-size:0.85rem">No comments yet</p>')+'<div class="comment-input"><textarea id="taskComment" placeholder="Add a comment..."></textarea><button class="btn btn-primary" onclick="addComment(null,\''+id+'\')">Post</button></div></div>';
 }
-function leadOptions(sel){return '<option value="">No Lead</option>'+S.leads.map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+(l.name||l.email||'Unknown')+(l.company?' — '+l.company:'')+'</option>').join('');}
+function leadOptions(sel){return '<option value="">No Lead</option>'+S.leads.map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+leadName(l)+(l.company?' — '+l.company:'')+'</option>').join('');}
 function editTask(id,projId){
   const t=id?S.tasks.find(x=>x.id===id):null;
   const reminderVal=t?.reminder_at?new Date(new Date(t.reminder_at).getTime()-new Date(t.reminder_at).getTimezoneOffset()*60000).toISOString().slice(0,16):'';
@@ -5269,7 +5363,7 @@ async function showAppDetail(id){
       '<button class="btn btn-sm btn-primary" onclick="convertAppToLead(\''+a.id+'\')">Convert to Lead</button>')+
       '<button class="btn btn-sm btn-danger" onclick="deleteRecord(\'intake_submissions\',\''+a.id+'\',\'Application\',loadApplications).then(()=>{document.getElementById(\'appsListView\').style.display=\'\';document.getElementById(\'appDetailView\').style.display=\'none\'})">🗑</button>'+
     '</div></div>'+
-    (linkedLead?'<div style="margin-bottom:1rem;padding:10px 14px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:10px;font-size:0.85rem"><span style="color:var(--accent);font-weight:600">Linked Lead:</span> '+(linkedLead.name||linkedLead.email||'—')+' <span style="color:var(--text-muted)">('+(linkedLead.status||'—')+')</span> <a href="#" onclick="showLeadDetail(\''+linkedLead.id+'\');return false" style="margin-left:8px">View →</a></div>':'')+
+    (linkedLead?'<div style="margin-bottom:1rem;padding:10px 14px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:10px;font-size:0.85rem"><span style="color:var(--accent);font-weight:600">Linked Lead:</span> '+(leadName(linkedLead)||linkedLead.email||'—')+' <span style="color:var(--text-muted)">('+(linkedLead.status||'—')+')</span> <a href="#" onclick="showLeadDetail(\''+linkedLead.id+'\');return false" style="margin-left:8px">View →</a></div>':'')+
 
     // ═══ PROPOSAL SECTION — NOW AT TOP ═══
     '<div id="proposalSection-'+a.id+'" style="margin-bottom:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(200,164,86,0.3);border-radius:14px">'+
@@ -6438,7 +6532,7 @@ function editApplication(id){
   const a=id?(S.applications||[]).find(x=>x.id===id):null;
   const title=a?'Edit Application':'Add Application';
   // Build lead picker options
-  const leadOpts=[{v:'',l:'No linked lead'},...(S.leads||[]).map(l=>({v:l.id,l:(l.name||l.email||'Unnamed')+' ('+(l.email||'no email')+')'}))];
+  const leadOpts=[{v:'',l:'No linked lead'},...(S.leads||[]).map(l=>({v:l.id,l:leadName(l)+' ('+(l.email||'no email')+')'}))];
   const body=
     FG('Title','ea_apptitle','text',a?.title)+
     FR(FG('First Name','ea_fname','text',a?.first_name),FG('Last Name','ea_lname','text',a?.last_name))+
@@ -6513,7 +6607,7 @@ function linkDealStageStatus(){
 }
 
 async function loadDeals(){
-  const{data}=await sb.from('deals').select('*,clients(*,profiles(*)),leads(name,email)').order('created_at',{ascending:false});
+  const{data}=await sb.from('deals').select('*,clients(*,profiles(*)),leads(name,first_name,last_name,email,phone)').order('created_at',{ascending:false});
   S.deals=data||[];renderDeals();renderDealKpis();renderDealPipeline();
 }
 function renderDealKpis(){
@@ -6560,13 +6654,13 @@ function renderDeals(){
   const ids=f.map(d=>d.id);
   const bar=bulkBarHtml('deals',[{field:'stage',label:'Stage',opts:DEAL_STAGE_OPTS},{field:'status',label:'Status',opts:DEAL_STATUS_OPTS2},{field:'priority',label:'Priority',opts:DEAL_PRIORITY_OPTS},{field:'sales_channel',label:'Channel',opts:SALES_CHANNEL_OPTS},{field:'expected_close_date',label:'Close Date',type:'date'}],'Deal','loadDeals');
   document.getElementById('dealsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-deals" onchange="bulkToggleAll(\'deals\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Channel</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
-    const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
+    const cname=d.clients?.profiles?.full_name||(d.leads?leadName(d.leads):'—');
     return '<tr class="clickable" onclick="showDealDetail(\''+d.id+'\')"><td onclick="event.stopPropagation()"><input type="checkbox" class="bulk-cb-deals" '+(bulkSelected.deals.has(d.id)?'checked ':'')+' onchange="bulkToggle(\'deals\',\''+d.id+'\',this)"></td><td style="font-weight:600">'+d.title+'</td><td>'+cname+'</td><td>'+fmtMoney(d.deal_value)+'</td><td><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\','+JSON.stringify(DEAL_STAGE_OPTS).replace(/"/g,'&quot;')+',loadDeals)"><span style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+'</span></span></td><td>'+d.probability+'%</td><td>'+fmtDate(d.expected_close_date)+'</td><td><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\','+JSON.stringify(DEAL_STATUS_OPTS2).replace(/"/g,'&quot;')+',loadDeals)">'+B(d.status)+'</span></td><td style="font-size:.8rem;color:var(--text-muted)">'+(d.sales_channel||'—')+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editDeal(\''+d.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'deals\',\''+d.id+'\',\'Deal\',loadDeals)">🗑</button></td></tr>';
   }).join(''):'<tr><td colspan="10" class="table-empty">No deals yet</td></tr>')+'</tbody></table>';
   updateBulkBar('deals');
 }
 function dealClientOptions(sel){return '<option value="">No Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
-function dealLeadOptions(sel){return '<option value="">No Lead</option>'+(S.leads||[]).map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+(l.name||l.email||'Lead')+'</option>').join('');}
+function dealLeadOptions(sel){return '<option value="">No Lead</option>'+(S.leads||[]).map(l=>'<option value="'+l.id+'"'+(l.id===sel?' selected':'')+'>'+leadName(l)+'</option>').join('');}
 
 function editDeal(id){
   const d=id?S.deals.find(x=>x.id===id):null;
@@ -6718,7 +6812,7 @@ async function showDealDetail(id){
   navTo('deals');
   document.getElementById('dealsListView').style.display='none';
   document.getElementById('dealDetailView').style.display='block';
-  const cname=d.clients?.profiles?.full_name||d.leads?.name||'—';
+  const cname=d.clients?.profiles?.full_name||(d.leads?leadName(d.leads):'—');
   const[{data:projects},{data:activities},{data:invs},{data:tasks},{data:contacts}]=await Promise.all([
     sb.from('deal_projects').select('*,projects(name,status,contract_value)').eq('deal_id',id),
     sb.from('deal_activities').select('*').eq('deal_id',id).order('created_at',{ascending:false}).limit(20),
@@ -6774,7 +6868,11 @@ async function showDealDetail(id){
   }else{html+='<p style="font-size:.85rem;color:var(--text-muted)">No activity yet</p>';}
   html+='</div>';
 
+  // Outreach — build entity from deal's lead or client
+  const dealEntity={name:d.leads?leadName(d.leads):(d.clients?.profiles?.full_name||d.title||''),first_name:d.leads?.first_name||d.clients?.profiles?.full_name?.split(' ')[0]||'',email:d.leads?.email||d.clients?.profiles?.email||'',phone:d.leads?.phone||d.clients?.profiles?.phone||''};
+  html+=getOutreachHtml(dealEntity,'deals');
   document.getElementById('dealDetailView').innerHTML=html;
+  updateOutreachPreview();
 }
 
 async function updateDealStage(dealId,stage){
@@ -6871,7 +6969,7 @@ async function createInvoiceFromDeal(dealId){
   // Generate invoice number
   const{data:seqData}=await sb.rpc('nextval',{seq_name:'invoice_number_seq'}).catch(()=>({data:null}));
   const invNum='KO-'+(seqData||Date.now().toString().slice(-6));
-  const cname=d.clients?.profiles?.full_name||d.leads?.name||'';
+  const cname=d.clients?.profiles?.full_name||(d.leads?leadName(d.leads):'')||'';
   const cemail=d.clients?.profiles?.email||d.leads?.email||'';
   const dueDate=new Date();dueDate.setDate(dueDate.getDate()+30);
   const obj={
@@ -8144,7 +8242,7 @@ function renderAffiliateLeads(){
   const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
   document.getElementById('affiliateLeadsTable').innerHTML='<table><thead><tr><th>Name</th><th>Email</th><th>Partner</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(l=>{
     const partner=S.partners.find(p=>p.id===l.partner_id);
-    return '<tr><td>'+l.name+'</td><td>'+l.email+'</td><td>'+(partner?partner.name:'Organic')+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editAffLeadStatus(\''+l.id+'\')">Status</button></td></tr>';
+    return '<tr><td>'+(l.first_name?leadName(l):l.name)+'</td><td>'+l.email+'</td><td>'+(partner?partner.name:'Organic')+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td><td><button class="btn btn-sm btn-secondary" onclick="editAffLeadStatus(\''+l.id+'\')">Status</button></td></tr>';
   }).join(''):'<tr><td colspan="8" class="table-empty">No affiliate leads</td></tr>')+'</tbody></table>';
 }
 
@@ -8187,8 +8285,8 @@ function showPartnerDetail(id){
   document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button></div>'+
   '<div class="kpi-grid"><div class="kpi"><div class="label">Total Leads</div><div class="value">'+leads.length+'</div></div><div class="kpi"><div class="label">Conversions</div><div class="value">'+converted+'</div></div><div class="kpi"><div class="label">Commission Rate</div><div class="value">'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</div></div><div class="kpi"><div class="label">Total Earned</div><div class="value">$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</div></div></div>'+
   '<div class="table-card" style="margin-top:1.5rem"><div style="padding:1.25rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+p.email+'</div></div><div class="form-group"><label>Phone</label><div>'+(p.phone||'—')+'</div></div><div class="form-group"><label>Company</label><div>'+(p.company||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Slug</label><div style="font-family:JetBrains Mono;color:var(--accent)">knightops.biz/'+p.slug+'</div></div><div class="form-group"><label>PayPal</label><div>'+(p.paypal_email||'—')+'</div></div><div class="form-group"><label>Website</label><div>'+(p.website||'—')+'</div></div></div>'+(p.bio?'<div class="form-group"><label>Bio</label><div>'+p.bio+'</div></div>':'')+(p.notes?'<div class="form-group"><label>Notes</label><div>'+p.notes+'</div></div>':'')+'</div></div>'+
-  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Leads from '+p.name+'</h3></div><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(leads.length?leads.map(l=>'<tr><td>'+l.name+'</td><td>'+l.email+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No leads yet</td></tr>')+'</tbody></table></div>'+
-  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Commissions</h3></div><table><thead><tr><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(comms.length?comms.map(c=>{const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);return '<tr><td>'+(lead?lead.name:'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString()+'</td><td>'+c.commission_rate+'%</td><td style="color:var(--accent);font-weight:600">$'+parseFloat(c.commission_amount||0).toLocaleString()+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td></tr>';}).join(''):'<tr><td colspan="6" class="table-empty">No commissions</td></tr>')+'</tbody></table></div>';
+  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Leads from '+p.name+'</h3></div><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(leads.length?leads.map(l=>'<tr><td>'+(l.first_name?leadName(l):l.name)+'</td><td>'+l.email+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No leads yet</td></tr>')+'</tbody></table></div>'+
+  '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Commissions</h3></div><table><thead><tr><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(comms.length?comms.map(c=>{const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);return '<tr><td>'+(lead?(lead.first_name?leadName(lead):lead.name):'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString()+'</td><td>'+c.commission_rate+'%</td><td style="color:var(--accent);font-weight:600">$'+parseFloat(c.commission_amount||0).toLocaleString()+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td></tr>';}).join(''):'<tr><td colspan="6" class="table-empty">No commissions</td></tr>')+'</tbody></table></div>';
 }
 
 // EDIT PARTNER
