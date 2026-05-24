@@ -2159,18 +2159,21 @@ async function showLeadDetail(id){
     '</tbody></table></div>':
     '<div style="margin-top:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;font-size:0.85rem;color:var(--text-muted)">No linked applications</div>';
 
-  // Fetch activities and notes for this lead
-  const[{data:leadActs},{data:leadNotes}]=await Promise.all([
+  // Fetch activities, notes, and scheduled activities for this lead
+  const[{data:leadActs},{data:leadNotes},{data:leadSchedActs}]=await Promise.all([
     sb.from('lead_activities').select('*').eq('lead_id',l.id).order('logged_at',{ascending:false}),
-    sb.from('lead_notes').select('*').eq('lead_id',l.id).order('created_at',{ascending:false})
+    sb.from('lead_notes').select('*').eq('lead_id',l.id).order('created_at',{ascending:false}),
+    sb.from('scheduled_activities').select('*').eq('lead_id',l.id).order('scheduled_at',{ascending:true})
   ]);
   const acts=leadActs||[];
   const notes=leadNotes||[];
+  const schedActs=leadSchedActs||[];
+  const scheduledActsHtml=renderScheduledActivities(schedActs,l.id);
   const actIcons={text_sent:'💬',phone_call:'📞',voicemail:'📱',email_sent:'📧'};
   const actLabels={text_sent:'Text Sent',phone_call:'Phone Call',voicemail:'Voicemail Left',email_sent:'Email Sent'};
   const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
 
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
   setTimeout(updateOutreachPreview,0);
 }
 function editLead(id){
@@ -2362,6 +2365,156 @@ async function quickLogActivity(leadId,type){
   const{error}=await sb.from('lead_activities').insert([{lead_id:leadId,activity_type:type}]);
   if(error){showToast('Error: '+error.message,'error');return;}
   showToast(labels[type]||'Activity logged!');showLeadDetail(leadId);
+}
+
+// ─── Scheduled Activities ───
+const SCHED_ACT_TYPES=[{v:'follow_up',l:'Follow-Up',icon:'📋',color:'#C8A456'},{v:'call',l:'Call',icon:'📞',color:'#3b82f6'},{v:'text',l:'Text',icon:'💬',color:'#22c55e'},{v:'email',l:'Email',icon:'✉️',color:'#a855f7'}];
+
+function scheduleActivity(leadId){
+  const l=S.leads.find(x=>x.id===leadId);
+  const now=new Date();
+  now.setMinutes(now.getMinutes()+60);now.setMinutes(0,0,0);
+  const defDate=now.toISOString().slice(0,10);
+  const defTime=now.toTimeString().slice(0,5);
+  const typeOpts=SCHED_ACT_TYPES.map(o=>'<option value="'+o.v+'">'+o.icon+' '+o.l+'</option>').join('');
+  const body='<div class="form-group"><label>Activity Type</label><select id="sa_type">'+typeOpts+'</select></div>'+
+    '<div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label>Date</label><input type="date" id="sa_date" value="'+defDate+'"></div><div class="form-group" style="flex:1"><label>Time</label><input type="time" id="sa_time" value="'+defTime+'"></div></div>'+
+    '<div class="form-group"><label>Title (optional)</label><input type="text" id="sa_title" placeholder="e.g. Follow up on proposal"></div>'+
+    '<div class="form-group"><label>Notes (optional)</label><textarea id="sa_notes" placeholder="Any details..."></textarea></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:8px;margin-top:4px"><input type="checkbox" id="sa_gcal" checked style="accent-color:var(--accent)"><label for="sa_gcal" style="font-size:.85rem;color:var(--text-muted);margin:0;cursor:pointer">Add 5-min reminder block to Google Calendar (free/available)</label></div>';
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveScheduledActivity(\''+leadId+'\')">Schedule</button>';
+  openEditModal('Schedule Activity — '+leadName(l),body,foot);
+}
+
+async function saveScheduledActivity(leadId,editId){
+  const type=document.getElementById('sa_type').value;
+  const date=document.getElementById('sa_date').value;
+  const time=document.getElementById('sa_time').value;
+  if(!date||!time){showToast('Date and time are required','error');return;}
+  const scheduled=new Date(date+'T'+time+':00');
+  const title=document.getElementById('sa_title').value||null;
+  const notes=document.getElementById('sa_notes').value||null;
+  const addGcal=document.getElementById('sa_gcal')?.checked;
+  const l=S.leads.find(x=>x.id===leadId);
+  const typeLabel=SCHED_ACT_TYPES.find(t=>t.v===type)?.l||type;
+  const calTitle=typeLabel+': '+(l?leadName(l):'Lead')+(title?' — '+title:'');
+
+  // Save to DB
+  const obj={lead_id:leadId,activity_type:type,scheduled_at:scheduled.toISOString(),title,notes};
+  let err,savedId=editId;
+  if(editId){
+    ({error:err}=await sb.from('scheduled_activities').update(obj).eq('id',editId));
+  }else{
+    const{data:ins,error:ie}=await sb.from('scheduled_activities').insert([obj]).select('id').single();
+    err=ie;if(ins)savedId=ins.id;
+  }
+  if(err){showToast('Error: '+err.message,'error');return;}
+
+  // Create Google Calendar event via URL (opens in new tab for user to confirm)
+  if(addGcal&&savedId){
+    try{
+      const endTime=new Date(scheduled.getTime()+5*60000);
+      const fmt=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+      const desc='Scheduled activity for '+leadName(l)+'\n'+(l?.phone?'Phone: '+l.phone+'\n':'')+(l?.email?'Email: '+l.email+'\n':'')+(notes?'\nNotes: '+notes:'')+'\n\nManage in KnightOps Admin → Leads';
+      const gcalUrl='https://calendar.google.com/calendar/render?action=TEMPLATE'+
+        '&text='+encodeURIComponent(calTitle)+
+        '&dates='+fmt(scheduled)+'/'+fmt(endTime)+
+        '&details='+encodeURIComponent(desc)+
+        '&trp=false';
+      window.open(gcalUrl,'_blank');
+      await sb.from('scheduled_activities').update({gcal_event_id:'gcal-url-opened'}).eq('id',savedId);
+    }catch(e){console.warn('GCal URL open failed:',e);}
+  }
+
+  showToast(editId?'Activity updated!':'Activity scheduled!');closeEditModal();showLeadDetail(leadId);
+}
+
+async function editScheduledActivity(actId,leadId){
+  const{data}=await sb.from('scheduled_activities').select('*').eq('id',actId).single();
+  if(!data)return;
+  const l=S.leads.find(x=>x.id===leadId);
+  const dt=new Date(data.scheduled_at);
+  const dateVal=dt.toISOString().slice(0,10);
+  const timeVal=dt.toTimeString().slice(0,5);
+  const typeOpts=SCHED_ACT_TYPES.map(o=>'<option value="'+o.v+'"'+(o.v===data.activity_type?' selected':'')+'>'+o.icon+' '+o.l+'</option>').join('');
+  const body='<div class="form-group"><label>Activity Type</label><select id="sa_type">'+typeOpts+'</select></div>'+
+    '<div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label>Date</label><input type="date" id="sa_date" value="'+dateVal+'"></div><div class="form-group" style="flex:1"><label>Time</label><input type="time" id="sa_time" value="'+timeVal+'"></div></div>'+
+    '<div class="form-group"><label>Title (optional)</label><input type="text" id="sa_title" value="'+esc(data.title||'')+'"></div>'+
+    '<div class="form-group"><label>Notes (optional)</label><textarea id="sa_notes">'+(data.notes||'')+'</textarea></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(200,164,86,0.08);border:1px solid var(--border);border-radius:8px;margin-top:4px"><input type="checkbox" id="sa_gcal" '+(data.gcal_event_id?'':'checked')+' style="accent-color:var(--accent)"><label for="sa_gcal" style="font-size:.85rem;color:var(--text-muted);margin:0;cursor:pointer">'+(data.gcal_event_id?'Update calendar event':'Add to Google Calendar')+'</label></div>';
+  const foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveScheduledActivity(\''+leadId+'\',\''+actId+'\')">Save</button>';
+  openEditModal('Edit Scheduled Activity',body,foot);
+}
+
+async function completeScheduledActivity(actId,leadId){
+  const{error}=await sb.from('scheduled_activities').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',actId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Activity completed!');showLeadDetail(leadId);
+}
+
+async function skipScheduledActivity(actId,leadId){
+  const{error}=await sb.from('scheduled_activities').update({status:'skipped'}).eq('id',actId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Activity skipped');showLeadDetail(leadId);
+}
+
+async function deleteScheduledActivity(actId,leadId){
+  if(!confirm('Delete this scheduled activity?'))return;
+  // Get gcal event id first
+  const{data:act}=await sb.from('scheduled_activities').select('gcal_event_id').eq('id',actId).single();
+  const{error}=await sb.from('scheduled_activities').delete().eq('id',actId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Activity deleted');showLeadDetail(leadId);
+}
+
+function renderScheduledActivities(activities,leadId){
+  const now=new Date();
+  const upcoming=activities.filter(a=>a.status==='scheduled'&&new Date(a.scheduled_at)>=now);
+  const overdue=activities.filter(a=>a.status==='scheduled'&&new Date(a.scheduled_at)<now);
+  const completed=activities.filter(a=>a.status==='completed');
+  const skipped=activities.filter(a=>a.status==='skipped');
+  const typeInfo=t=>SCHED_ACT_TYPES.find(x=>x.v===t)||{icon:'📋',l:t,color:'#888'};
+
+  function renderRow(a,showActions){
+    const ti=typeInfo(a.activity_type);
+    const dt=new Date(a.scheduled_at);
+    const isOverdue=a.status==='scheduled'&&dt<now;
+    const statusBadge=a.status==='completed'?'<span style="color:var(--success);font-size:.75rem;font-weight:600">✓ Done</span>':
+      a.status==='skipped'?'<span style="color:var(--text-muted);font-size:.75rem">Skipped</span>':
+      isOverdue?'<span style="color:#ef4444;font-size:.75rem;font-weight:600">⚠ Overdue</span>':
+      '<span style="color:var(--accent);font-size:.75rem">Upcoming</span>';
+    return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid '+(isOverdue?'rgba(239,68,68,0.3)':'var(--border-subtle)')+';border-radius:8px;font-size:.85rem'+(isOverdue?';border-left:3px solid #ef4444':'')+'">'+
+      '<div style="display:flex;gap:10px;align-items:flex-start;flex:1"><span style="font-size:1.1rem">'+ti.icon+'</span><div>'+
+      '<div style="font-weight:600;color:var(--text)">'+ti.l+(a.title?' — '+esc(a.title):'')+'</div>'+
+      '<div style="color:var(--text-muted);font-size:.8rem;margin-top:2px">'+fmtDateTime(a.scheduled_at)+' '+statusBadge+(a.gcal_event_id?' <span style="color:var(--accent);font-size:.7rem">📅 On Calendar</span>':'')+'</div>'+
+      (a.notes?'<div style="color:var(--text-muted);margin-top:4px;font-size:.82rem">'+esc(a.notes)+'</div>':'')+
+      '</div></div>'+
+      (showActions?'<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:8px">'+
+      (a.status==='scheduled'?'<button class="btn btn-sm" onclick="event.stopPropagation();completeScheduledActivity(\''+a.id+'\',\''+leadId+'\')" style="padding:3px 8px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Mark done">✓</button>'+
+      '<button class="btn btn-sm" onclick="event.stopPropagation();skipScheduledActivity(\''+a.id+'\',\''+leadId+'\')" style="padding:3px 8px;font-size:.75rem;background:rgba(107,114,128,.12);color:#6b7280;border:1px solid rgba(107,114,128,.3);border-radius:6px" title="Skip">⏭</button>':'')+
+      '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();editScheduledActivity(\''+a.id+'\',\''+leadId+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button>'+
+      '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteScheduledActivity(\''+a.id+'\',\''+leadId+'\')" style="padding:3px 8px;font-size:.75rem">×</button>'+
+      '</div>':'')+
+      '</div>';
+  }
+
+  let html='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Scheduled Activities ('+activities.length+')</h3><button class="btn btn-sm btn-primary" onclick="scheduleActivity(\''+leadId+'\')">+ Schedule</button></div>';
+
+  if(overdue.length){
+    html+='<div style="margin-bottom:10px"><div style="font-size:.75rem;font-weight:600;color:#ef4444;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Overdue ('+overdue.length+')</div><div style="display:flex;flex-direction:column;gap:6px">'+overdue.map(a=>renderRow(a,true)).join('')+'</div></div>';
+  }
+  if(upcoming.length){
+    html+='<div style="margin-bottom:10px"><div style="font-size:.75rem;font-weight:600;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Upcoming ('+upcoming.length+')</div><div style="display:flex;flex-direction:column;gap:6px">'+upcoming.map(a=>renderRow(a,true)).join('')+'</div></div>';
+  }
+  if(completed.length||skipped.length){
+    const past=[...completed,...skipped].sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at));
+    html+='<details style="margin-top:8px"><summary style="font-size:.75rem;font-weight:600;color:var(--text-muted);cursor:pointer;text-transform:uppercase;letter-spacing:.5px">Past ('+past.length+')</summary><div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">'+past.map(a=>renderRow(a,false)).join('')+'</div></details>';
+  }
+  if(!activities.length){
+    html+='<p style="color:var(--text-muted);font-size:.85rem">No scheduled activities yet. Click "+ Schedule" to plan a follow-up, call, text, or email.</p>';
+  }
+  html+='</div>';
+  return html;
 }
 
 async function addLeadNote(leadId){
