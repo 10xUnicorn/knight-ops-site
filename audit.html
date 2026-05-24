@@ -1,1349 +1,873 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Systems Audit | Knight Ops — Is Your Business Ready to Scale?</title>
-    <meta name="description" content="Take the free 2-minute AI Systems Audit. Get your personalized Systems Score and see exactly where you're leaving money on the table. Built for coaches, consultants, and course creators.">
-    <meta name="keywords" content="AI systems audit, business automation assessment, coaching business systems, consulting automation, scale your business, systems score, business efficiency audit">
-    <meta name="author" content="Daniel Knight | Knight Ops">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://knightops.biz/audit">
-    <meta property="og:title" content="AI Systems Audit | Is Your Business Ready to Scale?">
-    <meta property="og:description" content="Take the free 2-minute AI Systems Audit. Get your personalized Systems Score and see where you're leaving money on the table.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://knightops.biz/audit">
-    <meta property="og:site_name" content="Knight Ops">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="AI Systems Audit | Is Your Business Ready to Scale?">
-    <meta name="twitter:description" content="Free 2-minute assessment for coaches, consultants, and course creators. Get your Systems Score instantly.">
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "WebPage",
-                "name": "AI Systems Audit",
-                "description": "Free 2-minute business systems assessment for coaches, consultants, and course creators.",
-                "url": "https://knightops.biz/audit",
-                "publisher": {
-                    "@type": "Organization",
-                    "name": "Knight Ops",
-                    "url": "https://knightops.biz"
-                }
-            },
-            {
-                "@type": "Quiz",
-                "name": "AI Systems Audit",
-                "description": "Assess your business systems readiness across client onboarding, client experience, revenue optimization, operational efficiency, lead generation, and scale readiness.",
-                "educationalAlignment": {
-                    "@type": "AlignmentObject",
-                    "alignmentType": "assesses",
-                    "targetName": "Business Systems Maturity"
-                },
-                "provider": {
-                    "@type": "Organization",
-                    "name": "Knight Ops",
-                    "url": "https://knightops.biz"
-                }
-            }
-        ]
-    }
-    </script>
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --ko-blue: #00D4FF;
-            --ko-purple: #8B5CF6;
-            --ko-green: #00FF88;
-            --ko-bg: #0A0A0F;
-            --ko-surface: #12121A;
-            --ko-surface-2: #1A1A25;
-            --ko-text: #E8E8ED;
-            --ko-text-muted: #8A8A9A;
-            --ko-border: #2A2A3A;
-            --ko-gradient: linear-gradient(135deg, #00D4FF, #8B5CF6, #00FF88);
-        }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--ko-bg);
-            color: var(--ko-text);
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ===== Particle / Star Background ===== */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            background:
-                radial-gradient(1px 1px at 10% 20%, rgba(0,212,255,0.4), transparent),
-                radial-gradient(1px 1px at 20% 80%, rgba(139,92,246,0.3), transparent),
-                radial-gradient(1.5px 1.5px at 30% 40%, rgba(0,255,136,0.3), transparent),
-                radial-gradient(1px 1px at 40% 10%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 50% 60%, rgba(139,92,246,0.4), transparent),
-                radial-gradient(1.5px 1.5px at 60% 90%, rgba(0,255,136,0.2), transparent),
-                radial-gradient(1px 1px at 70% 30%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 80% 70%, rgba(139,92,246,0.3), transparent),
-                radial-gradient(1.5px 1.5px at 90% 50%, rgba(0,255,136,0.3), transparent),
-                radial-gradient(1px 1px at 15% 55%, rgba(0,212,255,0.2), transparent),
-                radial-gradient(1px 1px at 25% 15%, rgba(139,92,246,0.2), transparent),
-                radial-gradient(1.5px 1.5px at 35% 85%, rgba(0,255,136,0.3), transparent),
-                radial-gradient(1px 1px at 45% 35%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 55% 5%, rgba(139,92,246,0.2), transparent),
-                radial-gradient(1.5px 1.5px at 65% 65%, rgba(0,255,136,0.2), transparent),
-                radial-gradient(1px 1px at 75% 95%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 85% 25%, rgba(139,92,246,0.3), transparent),
-                radial-gradient(1.5px 1.5px at 95% 75%, rgba(0,255,136,0.3), transparent),
-                radial-gradient(1px 1px at 5% 45%, rgba(0,212,255,0.2), transparent),
-                radial-gradient(1px 1px at 12% 72%, rgba(139,92,246,0.2), transparent),
-                radial-gradient(1.5px 1.5px at 22% 32%, rgba(0,255,136,0.2), transparent),
-                radial-gradient(1px 1px at 32% 62%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 42% 92%, rgba(139,92,246,0.2), transparent),
-                radial-gradient(1.5px 1.5px at 52% 22%, rgba(0,255,136,0.3), transparent),
-                radial-gradient(1px 1px at 62% 52%, rgba(0,212,255,0.2), transparent),
-                radial-gradient(1px 1px at 72% 82%, rgba(139,92,246,0.3), transparent),
-                radial-gradient(1.5px 1.5px at 82% 12%, rgba(0,255,136,0.2), transparent),
-                radial-gradient(1px 1px at 92% 42%, rgba(0,212,255,0.3), transparent),
-                radial-gradient(1px 1px at 8% 8%, rgba(139,92,246,0.2), transparent),
-                radial-gradient(1.5px 1.5px at 48% 48%, rgba(0,255,136,0.2), transparent);
-            animation: starTwinkle 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes starTwinkle {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-
-        /* ===== Navigation ===== */
-        .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            padding: 1rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(10,10,15,0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--ko-border);
-            transition: background 0.3s ease;
-        }
-
-        .nav-logo {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: var(--ko-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-        }
-
-        .nav-cta {
-            padding: 0.5rem 1.25rem;
-            background: var(--ko-gradient);
-            color: #0A0A0F;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-
-        .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* ===== Utility ===== */
-        .container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
-        .gradient-text {
-            background: var(--ko-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ===== Hero Section ===== */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 6rem 1.5rem 4rem;
-        }
-
-        .hero-inner { max-width: 720px; }
-
-        .hero-badge {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border: 1px solid var(--ko-border);
-            border-radius: 100px;
-            color: var(--ko-blue);
-            margin-bottom: 1.5rem;
-            background: rgba(0,212,255,0.05);
-        }
-
-        .hero h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 1.25rem;
-            color: var(--ko-text);
-        }
-
-        .hero p.subhead {
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
-            color: var(--ko-text-muted);
-            max-width: 580px;
-            margin: 0 auto 2rem;
-            line-height: 1.7;
-        }
-
-        .hero-cta {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            font-size: 1.1rem;
-            font-weight: 700;
-            background: var(--ko-gradient);
-            color: #0A0A0F;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .hero-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,212,255,0.25);
-        }
-
-        .hero-sub {
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: var(--ko-text-muted);
-        }
-
-        /* ===== Quiz Section ===== */
-        .quiz-section {
-            padding: 4rem 0 6rem;
-            min-height: 80vh;
-            display: none;
-        }
-
-        .quiz-section.active { display: block; }
-
-        .progress-container {
-            margin-bottom: 2.5rem;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--ko-text-muted);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--ko-surface-2);
-            border-radius: 100px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--ko-gradient);
-            border-radius: 100px;
-            transition: width 0.4s ease;
-        }
-
-        /* Question Cards */
-        .question-card {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 16px;
-            padding: 2.5rem 2rem;
-            opacity: 0;
-            transform: translateX(40px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            display: none;
-        }
-
-        .question-card.active {
-            display: block;
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .question-card.exit {
-            opacity: 0;
-            transform: translateX(-40px);
-        }
-
-        .question-number {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--ko-blue);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 0.75rem;
-        }
-
-        .question-text {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 1.75rem;
-            line-height: 1.4;
-        }
-
-        .option-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
-            background: var(--ko-surface-2);
-            border: 1px solid var(--ko-border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
-            font-size: 0.95rem;
-        }
-
-        .option-item:hover {
-            border-color: var(--ko-purple);
-            background: rgba(139,92,246,0.08);
-            transform: translateX(4px);
-        }
-
-        .option-item.selected {
-            border-color: var(--ko-blue);
-            background: rgba(0,212,255,0.1);
-        }
-
-        .option-radio {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--ko-border);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: border-color 0.2s ease;
-        }
-
-        .option-item:hover .option-radio { border-color: var(--ko-purple); }
-
-        .option-item.selected .option-radio {
-            border-color: var(--ko-blue);
-        }
-
-        .option-item.selected .option-radio::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--ko-blue);
-        }
-
-        /* ===== Email Gate ===== */
-        .email-gate {
-            display: none;
-            text-align: center;
-        }
-
-        .email-gate.active { display: block; }
-
-        .gate-card {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 16px;
-            padding: 3rem 2rem;
-            max-width: 520px;
-            margin: 0 auto;
-        }
-
-        .gate-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(0,212,255,0.1);
-            border: 1px solid rgba(0,212,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 1.75rem;
-        }
-
-        .gate-card h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .gate-card p {
-            color: var(--ko-text-muted);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .gate-form { display: flex; flex-direction: column; gap: 0.75rem; }
-
-        .gate-input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: var(--ko-surface-2);
-            border: 1px solid var(--ko-border);
-            border-radius: 8px;
-            color: var(--ko-text);
-            font-size: 0.95rem;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .gate-input:focus { border-color: var(--ko-blue); }
-        .gate-input::placeholder { color: var(--ko-text-muted); }
-
-        .gate-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--ko-gradient);
-            color: #0A0A0F;
-            font-size: 1.05rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            margin-top: 0.5rem;
-            font-family: inherit;
-        }
-
-        .gate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .gate-privacy {
-            font-size: 0.75rem;
-            color: var(--ko-text-muted);
-            margin-top: 0.75rem;
-        }
-
-        /* ===== Results Section ===== */
-        .results-section {
-            display: none;
-            padding: 2rem 0 4rem;
-        }
-
-        .results-section.active { display: block; }
-
-        .score-reveal {
-            text-align: center;
-            padding: 3rem 2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .score-ring-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 1.5rem;
-        }
-
-        .score-ring-bg, .score-ring-fill {
-            position: absolute;
-            top: 0; left: 0;
-            width: 200px;
-            height: 200px;
-        }
-
-        .score-ring-bg circle {
-            fill: none;
-            stroke: var(--ko-surface-2);
-            stroke-width: 8;
-        }
-
-        .score-ring-fill circle {
-            fill: none;
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-dasharray: 565.48;
-            stroke-dashoffset: 565.48;
-            transform: rotate(-90deg);
-            transform-origin: center;
-            transition: stroke-dashoffset 2s ease-out;
-        }
-
-        .score-number {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .score-label {
-            font-size: 0.85rem;
-            color: var(--ko-text-muted);
-            position: absolute;
-            bottom: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-        }
-
-        .score-category {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .score-description {
-            color: var(--ko-text-muted);
-            max-width: 560px;
-            margin: 0 auto;
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-
-        /* Breakdown */
-        .breakdown {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .breakdown h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        .breakdown-item {
-            margin-bottom: 1.25rem;
-        }
-
-        .breakdown-item:last-child { margin-bottom: 0; }
-
-        .breakdown-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-        }
-
-        .breakdown-label span:last-child { font-weight: 600; }
-
-        .breakdown-bar {
-            height: 8px;
-            background: var(--ko-surface-2);
-            border-radius: 100px;
-            overflow: hidden;
-        }
-
-        .breakdown-bar-fill {
-            height: 100%;
-            border-radius: 100px;
-            width: 0%;
-            transition: width 1.5s ease-out;
-        }
-
-        /* Revenue Impact */
-        .revenue-impact {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .revenue-impact h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .revenue-impact p {
-            color: var(--ko-text-muted);
-            line-height: 1.7;
-            max-width: 540px;
-            margin: 0 auto;
-        }
-
-        .revenue-amount {
-            font-size: 1.75rem;
-            font-weight: 800;
-            margin: 1rem 0;
-        }
-
-        /* Recommendation */
-        .recommendation {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .recommendation h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .rec-tier {
-            display: inline-block;
-            padding: 0.3rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .rec-description {
-            color: var(--ko-text-muted);
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-        }
-
-        .rec-price {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .cta-primary {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: var(--ko-gradient);
-            color: #0A0A0F;
-            font-size: 1.05rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            font-family: inherit;
-        }
-
-        .cta-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,212,255,0.25);
-        }
-
-        .cta-secondary {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: transparent;
-            color: var(--ko-text);
-            font-size: 1rem;
-            font-weight: 600;
-            border: 1px solid var(--ko-border);
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: border-color 0.2s ease, background 0.2s ease;
-            font-family: inherit;
-        }
-
-        .cta-secondary:hover {
-            border-color: var(--ko-purple);
-            background: rgba(139,92,246,0.08);
-        }
-
-        /* ===== Social Proof ===== */
-        .social-proof {
-            padding: 4rem 0;
-            text-align: center;
-            display: none;
-        }
-
-        .social-proof.active { display: block; }
-
-        .social-proof p.tagline {
-            color: var(--ko-text-muted);
-            font-size: 1rem;
-            max-width: 480px;
-            margin: 0 auto 2.5rem;
-            line-height: 1.7;
-        }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-
-        .stat-block {
-            background: var(--ko-surface);
-            border: 1px solid var(--ko-border);
-            border-radius: 12px;
-            padding: 1.75rem 1rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--ko-text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* ===== Footer ===== */
-        .footer {
-            border-top: 1px solid var(--ko-border);
-            padding: 2rem 1.5rem;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--ko-text-muted);
-            position: relative;
-            z-index: 1;
-        }
-
-        .footer a {
-            color: var(--ko-blue);
-            text-decoration: none;
-        }
-
-        /* ===== Responsive ===== */
-        @media (max-width: 640px) {
-            .nav { padding: 0.75rem 1rem; }
-            .nav-logo { font-size: 1.05rem; }
-            .nav-cta { padding: 0.45rem 1rem; font-size: 0.8rem; }
-
-            .hero { padding: 5rem 1rem 3rem; }
-            .hero-cta { padding: 0.85rem 2rem; font-size: 1rem; }
-
-            .question-card { padding: 2rem 1.25rem; }
-            .question-text { font-size: 1.15rem; }
-            .option-item { padding: 0.85rem 1rem; font-size: 0.9rem; }
-
-            .gate-card { padding: 2rem 1.25rem; }
-
-            .score-ring-container { width: 160px; height: 160px; }
-            .score-ring-bg, .score-ring-fill { width: 160px; height: 160px; }
-            .score-ring-bg circle, .score-ring-fill circle { stroke-width: 6; }
-            .score-number { font-size: 2.75rem; }
-
-            .stats-row { grid-template-columns: 1fr; gap: 1rem; }
-
-            .breakdown, .revenue-impact, .recommendation { padding: 1.5rem; }
-        }
-
-        /* ===== Animations ===== */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-in {
-            animation: fadeInUp 0.5s ease forwards;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Systems Audit — Knight Ops | Get Your Systems Score</title>
+<meta name="description" content="Take the free 2-minute AI Systems Audit. Get your personalized Systems Score, a gap analysis, and a custom plan of what to build and which tools to use. Built for coaches, consultants, and course creators.">
+<meta name="keywords" content="AI systems audit, business automation assessment, coaching business systems, consulting automation, scale your business, systems score">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://knightops.biz/audit">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/audit">
+<meta property="og:title" content="AI Systems Audit — Knight Ops">
+<meta property="og:description" content="Free 2-minute audit. Get your Systems Score, gap analysis, and a custom build plan. No credit card. No sales call required.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Systems Audit — Knight Ops">
+<meta name="twitter:description" content="Free 2-minute assessment for coaches, consultants, and course creators. Get your Systems Score and custom plan instantly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --deep: #06061A;
+  --surface: #0A0A0B;
+  --surface2: #111113;
+  --surface3: #18181B;
+  --card: rgba(12,12,22,0.75);
+  --border: rgba(200,164,86,0.10);
+  --border-gold: rgba(200,164,86,0.28);
+  --glass-gold: rgba(200,164,86,0.12);
+  --glass-violet: rgba(123,97,255,0.08);
+  --white: #F4F4F5;
+  --cream: #F0EEFF;
+  --gray: #A1A1AA;
+  --muted: #71717A;
+  --gold: #C8A456;
+  --gold-bright: #FFD166;
+  --gold-light: #D4B56A;
+  --violet: #7B61FF;
+  --violet-light: #9B7FFF;
+  --cyan: #00E5FF;
+  --red: #E5484D;
+  --amber: #F5A524;
+  --green: #30A46C;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--deep);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+.grid-ov {
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(200,164,86,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,164,86,0.022) 1px, transparent 1px);
+  background-size: 80px 80px;
+  z-index: 0; pointer-events: none;
+}
+.glow {
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 600px;
+  background: radial-gradient(ellipse at center, rgba(123,97,255,0.10) 0%, transparent 70%);
+  z-index: 0; pointer-events: none;
+}
+.page { position: relative; z-index: 1; }
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  background: rgba(6,6,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.2rem;
+  color: var(--white); text-decoration: none; letter-spacing: 0.5px;
+}
+.nav-brand span { color: var(--gold); }
+.nav-cta {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.78rem;
+  color: var(--gold); text-decoration: none;
+  border: 1px solid var(--border-gold);
+  padding: 0.55rem 1.25rem; border-radius: 6px;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  transition: all 0.25s;
+}
+.nav-cta:hover { background: var(--glass-gold); color: var(--gold-bright); }
+
+/* LAYOUT */
+.container { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
+.section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem;
+}
+
+/* HERO */
+.hero { text-align: center; padding: 9rem 0 4rem; }
+.hero-badge {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--border-gold);
+  background: var(--glass-gold);
+  padding: 0.45rem 1rem; border-radius: 100px;
+  margin-bottom: 1.75rem;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500; font-size: 3.4rem; line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+.hero h1 .accent { color: var(--gold); font-style: italic; }
+.subhead {
+  font-size: 1.08rem; color: var(--gray);
+  max-width: 540px; margin: 0 auto 2rem;
+}
+.btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.95rem;
+  cursor: pointer; border: none;
+  padding: 1rem 2.25rem; border-radius: 8px;
+  transition: all 0.25s; text-decoration: none;
+  display: inline-block;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0A0A0B;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--glass-gold); }
+.btn-ghost {
+  background: transparent; color: var(--white);
+  border: 1px solid var(--border-gold);
+}
+.btn-ghost:hover { background: var(--glass-gold); color: var(--gold-bright); }
+.hero-sub { font-size: 0.82rem; color: var(--muted); margin-top: 1rem; }
+
+/* QUIZ */
+.quiz-section { display: none; padding: 7rem 0 4rem; }
+.quiz-section.active { display: block; }
+.progress-wrap { margin-bottom: 2.5rem; }
+.progress-head {
+  display: flex; justify-content: space-between;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem; color: var(--gray);
+  margin-bottom: 0.6rem; letter-spacing: 0.5px;
+}
+.progress-bar { height: 4px; background: var(--surface3); border-radius: 100px; overflow: hidden; }
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  transition: width 0.45s ease;
+}
+.question-card { display: none; }
+.question-card.active { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.q-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.75rem;
+}
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500; font-size: 2rem; line-height: 1.25;
+  margin-bottom: 1.75rem;
+}
+.option-list { list-style: none; }
+.option-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.05rem 1.25rem; margin-bottom: 0.75rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer;
+  transition: all 0.2s;
+}
+.option-item:hover { border-color: var(--border-gold); background: var(--surface3); }
+.option-item.selected { border-color: var(--gold); background: var(--glass-gold); }
+.option-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--muted); flex-shrink: 0;
+  transition: all 0.2s; position: relative;
+}
+.option-item.selected .option-radio { border-color: var(--gold); }
+.option-item.selected .option-radio::after {
+  content: ''; position: absolute; inset: 3px;
+  background: var(--gold); border-radius: 50%;
+}
+.option-item span { font-size: 0.98rem; }
+
+/* GATE */
+.email-gate { display: none; }
+.email-gate.active { display: block; animation: fadeUp 0.4s ease; }
+.gate-card {
+  background: var(--card); border: 1px solid var(--border-gold);
+  border-radius: 16px; padding: 2.5rem 2rem; text-align: center;
+}
+.gate-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.gate-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500; font-size: 1.9rem; margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--gray); font-size: 0.95rem; margin-bottom: 1.5rem; }
+.gate-form { display: flex; flex-direction: column; gap: 0.75rem; max-width: 380px; margin: 0 auto; }
+.gate-input {
+  font-family: 'Inter', sans-serif; font-size: 0.95rem;
+  padding: 0.9rem 1rem; border-radius: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--white); width: 100%;
+}
+.gate-input:focus { outline: none; border-color: var(--gold); }
+.gate-input::placeholder { color: var(--muted); }
+.gate-consent {
+  display: flex; gap: 0.5rem; align-items: flex-start;
+  font-size: 0.78rem; line-height: 1.45; text-align: left;
+  color: var(--gray); cursor: pointer; margin: 0.25rem 0.15rem;
+}
+.gate-consent input { margin-top: 3px; flex-shrink: 0; accent-color: var(--gold); }
+.gate-btn {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.95rem; cursor: pointer; border: none;
+  padding: 1rem; border-radius: 8px; margin-top: 0.35rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0A0A0B; transition: all 0.25s;
+}
+.gate-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--glass-gold); }
+.gate-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+.gate-privacy { font-size: 0.74rem; color: var(--muted); margin-top: 1rem; }
+
+/* RESULTS */
+.results-section { display: none; padding: 7rem 0 5rem; }
+.results-section.active { display: block; animation: fadeUp 0.5s ease; }
+.score-reveal { text-align: center; margin-bottom: 3rem; }
+.score-ring-container {
+  position: relative; width: 200px; height: 200px; margin: 0 auto 1.25rem;
+}
+.score-ring-bg, .score-ring-fill {
+  position: absolute; inset: 0; width: 200px; height: 200px;
+  transform: rotate(-90deg);
+}
+.score-ring-bg circle { fill: none; stroke: var(--surface3); stroke-width: 8; }
+.score-ring-fill circle {
+  fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round;
+  stroke-dasharray: 565.48; stroke-dashoffset: 565.48;
+  transition: stroke-dashoffset 1.6s ease;
+}
+.score-number {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-58%);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 3.4rem;
+}
+.score-label {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, 34px);
+  font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+}
+.score-category {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-weight: 500; font-size: 2.2rem; margin-bottom: 0.5rem;
+}
+.score-description { color: var(--gray); font-size: 1rem; max-width: 560px; margin: 0 auto; }
+
+.block {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;
+}
+.block h3 {
+  font-family: 'Cormorant Garamond', serif; font-weight: 500;
+  font-size: 1.65rem; margin-bottom: 1.25rem;
+}
+.breakdown-item { margin-bottom: 1rem; }
+.breakdown-label {
+  display: flex; justify-content: space-between;
+  font-size: 0.88rem; margin-bottom: 0.4rem; color: var(--gray);
+}
+.breakdown-bar { height: 8px; background: var(--surface3); border-radius: 100px; overflow: hidden; }
+.breakdown-bar-fill { height: 100%; width: 0%; border-radius: 100px; transition: width 1s ease; }
+
+/* GAP CARDS */
+.gap-card {
+  border: 1px solid var(--border); border-left: 3px solid var(--amber);
+  background: var(--surface2); border-radius: 0 12px 12px 0;
+  padding: 1.5rem; margin-bottom: 1.25rem;
+}
+.gap-card:last-child { margin-bottom: 0; }
+.gap-cat {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 0.6rem;
+}
+.gap-card .gap-problem { font-size: 0.96rem; color: var(--cream); margin-bottom: 1rem; }
+.gap-sub {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.74rem; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); margin: 1rem 0 0.5rem;
+}
+.gap-build { font-size: 0.92rem; color: var(--gray); }
+.tool-list { list-style: none; margin-top: 0.4rem; }
+.tool-list li {
+  font-size: 0.9rem; color: var(--gray);
+  padding: 0.3rem 0 0.3rem 1.4rem; position: relative;
+}
+.tool-list li::before {
+  content: ''; position: absolute; left: 0; top: 0.85rem;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+}
+.strengths { font-size: 0.95rem; color: var(--gray); }
+.strengths strong { color: var(--green); font-weight: 600; }
+
+.revenue-amount {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 2.4rem; margin-bottom: 0.5rem;
+}
+.revenue-text { color: var(--gray); font-size: 0.96rem; }
+
+.next-step {
+  background: linear-gradient(160deg, rgba(123,97,255,0.10), rgba(200,164,86,0.06));
+  border: 1px solid var(--border-gold);
+}
+.rec-tier {
+  display: inline-block; font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.74rem; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid var(--border-gold); background: var(--glass-gold);
+  padding: 0.4rem 0.9rem; border-radius: 100px; margin-bottom: 1rem;
+}
+.next-step p { color: var(--cream); font-size: 1rem; margin-bottom: 1.5rem; }
+.cta-row { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+
+/* SOCIAL PROOF */
+.proof { text-align: center; padding: 3rem 0 1rem; }
+.proof .tagline { color: var(--gray); font-size: 0.95rem; max-width: 520px; margin: 0 auto 2rem; }
+.stats-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+.stat-value {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.6rem;
+  color: var(--gold);
+}
+.stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.5px; }
+
+/* FOOTER */
+.footer {
+  text-align: center; padding: 3rem 1.5rem 2.5rem;
+  color: var(--muted); font-size: 0.82rem;
+  border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--gold); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2.5rem; }
+  .q-text { font-size: 1.6rem; }
+  .score-ring-container, .score-ring-bg, .score-ring-fill { width: 168px; height: 168px; }
+  .score-number { font-size: 2.9rem; }
+  .nav { padding: 0.85rem 1.25rem; }
+  .block { padding: 1.5rem; }
+  .cta-row .btn { width: 100%; text-align: center; }
+}
+</style>
 </head>
 <body>
+<div class="grid-ov"></div>
+<div class="glow"></div>
+<div class="page">
 
-    <!-- Navigation -->
-    <nav class="nav">
-        <a href="https://knightops.biz" class="nav-logo">KNIGHT OPS</a>
-        <a href="https://knightops.biz/#book" class="nav-cta">Book a Call</a>
-    </nav>
+  <nav class="nav">
+    <a href="https://knightops.biz" class="nav-brand">KNIGHT<span>OPS</span></a>
+    <a href="https://knightops.biz/#book" class="nav-cta">Book a Call</a>
+  </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-inner">
-            <div class="hero-badge">FREE ASSESSMENT</div>
-            <h1>Is Your Business Ready to <span class="gradient-text">Scale</span>?</h1>
-            <p class="subhead">Take the 2-minute AI Systems Audit. Get your personalized Systems Score and see exactly where you're leaving money on the table.</p>
-            <button class="hero-cta" onclick="startQuiz()">Start Your Free Audit &rarr;</button>
-            <p class="hero-sub">No credit card. No sales call. Just clarity.</p>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-badge">Free AI Systems Audit</div>
+      <h1>Is your business built to <span class="accent">scale</span>?</h1>
+      <p class="subhead">Take the 2-minute audit. Get your Systems Score, a clear gap analysis, and a custom plan of exactly what to build and which tools to use.</p>
+      <button class="btn btn-primary" onclick="startQuiz()">Start the Audit &rarr;</button>
+      <p class="hero-sub">No credit card. No sales call required. Just a real plan.</p>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="quiz-section" id="quiz-section">
+    <div class="container">
+      <div class="progress-wrap">
+        <div class="progress-head">
+          <span id="progress-text">Question 1 of 10</span>
+          <span id="progress-pct">0%</span>
         </div>
-    </section>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
 
-    <!-- Quiz Section -->
-    <section class="quiz-section" id="quiz-section">
-        <div class="container">
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span id="progress-text">Question 1 of 10</span>
-                    <span id="progress-pct">0%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-            </div>
+      <div id="questions-container"></div>
 
-            <div id="questions-container"></div>
-
-            <!-- Email Gate -->
-            <div class="email-gate" id="email-gate">
-                <div class="gate-card animate-in">
-                    <div class="gate-icon">&#9889;</div>
-                    <h2>Your Systems Score is ready.</h2>
-                    <p>Enter your email to see your personalized results and get a custom breakdown of where you're leaving money on the table.</p>
-                    <form class="gate-form" id="gate-form" onsubmit="return handleGateSubmit(event)">
-                        <input type="text" class="gate-input" id="gate-firstname" placeholder="First Name" required autocomplete="given-name">
-                        <input type="email" class="gate-input" id="gate-email" placeholder="Email Address" required autocomplete="email">
-                        <input type="text" class="gate-input" id="gate-business" placeholder="Business Name (optional)" autocomplete="organization">
-                        <button type="submit" class="gate-btn" id="gate-btn">See My Results &rarr;</button>
-                    </form>
-                    <p class="gate-privacy">We respect your privacy. No spam, ever. Unsubscribe anytime.</p>
-                </div>
-            </div>
+      <div class="email-gate" id="email-gate">
+        <div class="gate-card">
+          <div class="gate-icon">&#9889;</div>
+          <h2>Your Systems Score is ready.</h2>
+          <p>Where should we send your results and custom build plan?</p>
+          <form class="gate-form" id="gate-form" onsubmit="return handleGateSubmit(event)">
+            <input type="text" class="gate-input" id="gate-firstname" placeholder="First Name" required autocomplete="given-name">
+            <input type="email" class="gate-input" id="gate-email" placeholder="Email Address" required autocomplete="email">
+            <input type="tel" class="gate-input" id="gate-phone" placeholder="Phone (to text your results)" autocomplete="tel">
+            <input type="text" class="gate-input" id="gate-business" placeholder="Business Name (optional)" autocomplete="organization">
+            <label class="gate-consent">
+              <input type="checkbox" id="gate-consent" checked>
+              <span>Yes, send my results and text/email me with related insights from Knight Ops.</span>
+            </label>
+            <button type="submit" class="gate-btn" id="gate-btn">See My Results &rarr;</button>
+          </form>
+          <p class="gate-privacy">We respect your privacy. No spam, ever. Unsubscribe anytime.</p>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Results Section -->
-    <section class="results-section" id="results-section">
-        <div class="container">
-            <!-- Score Reveal -->
-            <div class="score-reveal animate-in">
-                <div class="score-ring-container">
-                    <svg class="score-ring-bg" viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="90"></circle>
-                    </svg>
-                    <svg class="score-ring-fill" viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="90" id="score-ring-circle"></circle>
-                    </svg>
-                    <div class="score-number" id="score-number">0</div>
-                    <div class="score-label">SYSTEMS SCORE</div>
-                </div>
-                <div class="score-category" id="score-category"></div>
-                <p class="score-description" id="score-description"></p>
-            </div>
-
-            <!-- Breakdown -->
-            <div class="breakdown animate-in" id="breakdown-section">
-                <h3>Your Breakdown</h3>
-                <div id="breakdown-bars"></div>
-            </div>
-
-            <!-- Revenue Impact -->
-            <div class="revenue-impact animate-in" id="revenue-section">
-                <h3>What This Means For Your Revenue</h3>
-                <div class="revenue-amount" id="revenue-amount"></div>
-                <p id="revenue-text"></p>
-            </div>
-
-            <!-- Recommendation -->
-            <div class="recommendation animate-in" id="rec-section">
-                <h3>Recommended Next Step</h3>
-                <div class="rec-tier" id="rec-tier"></div>
-                <p class="rec-description" id="rec-description"></p>
-                <div class="rec-price" id="rec-price"></div>
-                <div class="cta-group">
-                    <a href="https://knightops.biz/#book" class="cta-primary" id="cta-book">Book Your Free Strategy Call &rarr;</a>
-                    <a href="https://knightops.biz" class="cta-secondary">See What We Build &rarr;</a>
-                </div>
-            </div>
+  <!-- RESULTS -->
+  <section class="results-section" id="results-section">
+    <div class="container">
+      <div class="score-reveal">
+        <div class="score-ring-container">
+          <svg class="score-ring-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90"></circle></svg>
+          <svg class="score-ring-fill" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" id="score-ring-circle"></circle></svg>
+          <div class="score-number" id="score-number">0</div>
+          <div class="score-label">Systems Score</div>
         </div>
-    </section>
+        <div class="score-category" id="score-category"></div>
+        <p class="score-description" id="score-description"></p>
+      </div>
 
-    <!-- Social Proof -->
-    <section class="social-proof" id="social-proof">
-        <div class="container">
-            <p class="tagline">Built for coaches, consultants, and course creators who are ready to stop trading time for money.</p>
-            <div class="stats-row">
-                <div class="stat-block">
-                    <div class="stat-value gradient-text">Custom</div>
-                    <div class="stat-label">Built For You</div>
-                </div>
-                <div class="stat-block">
-                    <div class="stat-value gradient-text">$0/mo</div>
-                    <div class="stat-label">Monthly Fees</div>
-                </div>
-                <div class="stat-block">
-                    <div class="stat-value gradient-text">100%</div>
-                    <div class="stat-label">You Own Everything</div>
-                </div>
-            </div>
+      <div class="block">
+        <h3>Your breakdown</h3>
+        <div id="breakdown-bars"></div>
+      </div>
+
+      <div class="block">
+        <h3>Your 3 biggest opportunities</h3>
+        <p style="color:var(--gray);font-size:0.9rem;margin-top:-0.6rem;margin-bottom:1.4rem;">The gaps costing you the most right now, what to build to close them, and the tools that get you there.</p>
+        <div id="gap-cards"></div>
+      </div>
+
+      <div class="block" id="strengths-block" style="display:none;">
+        <h3>What is already working</h3>
+        <p class="strengths" id="strengths-text"></p>
+      </div>
+
+      <div class="block">
+        <h3>What this means for your revenue</h3>
+        <div class="revenue-amount" id="revenue-amount"></div>
+        <p class="revenue-text" id="revenue-text"></p>
+      </div>
+
+      <div class="block next-step">
+        <div class="rec-tier" id="rec-tier"></div>
+        <h3>Your path forward</h3>
+        <p id="rec-description"></p>
+        <div class="cta-row">
+          <a href="https://knightops.biz/#book" class="btn btn-primary">Book Your Free Strategy Call &rarr;</a>
+          <a href="https://knightops.biz/services" class="btn btn-ghost">See What We Build</a>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        &copy; 2026 <a href="https://knightops.biz">Knight Ops</a>. All rights reserved.
-    </footer>
+  <!-- SOCIAL PROOF -->
+  <section class="proof" id="social-proof" style="display:none;">
+    <div class="container">
+      <p class="tagline">Built for coaches, consultants, and course creators ready to stop trading time for money.</p>
+      <div class="stats-row">
+        <div><div class="stat-value">50+</div><div class="stat-label">Systems Built</div></div>
+        <div><div class="stat-value">$200M+</div><div class="stat-label">Business Impact</div></div>
+        <div><div class="stat-value">24hr</div><div class="stat-label">Fastest Deploy</div></div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-    (function() {
-        'use strict';
+  <footer class="footer">
+    &copy; 2026 <a href="https://knightops.biz">Knight Ops</a>. All rights reserved.
+  </footer>
 
-        // ===== CONFIG =====
-        const GHL_WEBHOOK = 'GHL_WEBHOOK_URL_HERE'; // placeholder - Daniel will add his webhook URL
+</div>
 
-        // ===== QUESTIONS =====
-        const questions = [
-            {
-                id: 'q1',
-                text: 'What type of business do you run?',
-                scored: false,
-                options: [
-                    { label: 'Coaching / Mentoring', value: 'Coaching / Mentoring' },
-                    { label: 'Consulting / Advisory', value: 'Consulting / Advisory' },
-                    { label: 'Mastermind / Group Program', value: 'Mastermind / Group Program' },
-                    { label: 'Course Creator / Online Education', value: 'Course Creator / Online Education' },
-                    { label: 'Agency / Service Provider', value: 'Agency / Service Provider' },
-                    { label: 'Speaker / Author', value: 'Speaker / Author' }
-                ]
-            },
-            {
-                id: 'q2',
-                text: "What's your current annual revenue?",
-                scored: false,
-                options: [
-                    { label: 'Under $100K', value: 'Under $100K' },
-                    { label: '$100K - $250K', value: '$100K - $250K' },
-                    { label: '$250K - $500K', value: '$250K - $500K' },
-                    { label: '$500K - $1M', value: '$500K - $1M' },
-                    { label: '$1M - $5M', value: '$1M - $5M' },
-                    { label: '$5M+', value: '$5M+' }
-                ]
-            },
-            {
-                id: 'q3',
-                text: 'How many active clients do you serve at one time?',
-                scored: false,
-                options: [
-                    { label: '1-5', value: '1-5' },
-                    { label: '6-15', value: '6-15' },
-                    { label: '16-30', value: '16-30' },
-                    { label: '31-50', value: '31-50' },
-                    { label: '50+', value: '50+' }
-                ]
-            },
-            {
-                id: 'q4',
-                text: 'How do new clients currently get onboarded?',
-                scored: true,
-                category: 'Client Onboarding',
-                options: [
-                    { label: 'I do it manually every time', value: 'Manual', score: 5 },
-                    { label: 'I have some templates/docs but still mostly manual', value: 'Templates', score: 15 },
-                    { label: 'I use a tool like Kajabi/Teachable but it\'s limited', value: 'Basic Tool', score: 25 },
-                    { label: 'I have a semi-automated system', value: 'Semi-Automated', score: 35 },
-                    { label: 'Fully automated with custom workflows', value: 'Fully Automated', score: 50 }
-                ]
-            },
-            {
-                id: 'q5',
-                text: 'Do your clients have a dedicated portal or app?',
-                scored: true,
-                category: 'Client Experience',
-                options: [
-                    { label: 'No, we use email and Zoom links', value: 'Email/Zoom', score: 5 },
-                    { label: 'We use a basic platform (Kajabi, Skool, Circle, etc.)', value: 'Basic Platform', score: 20 },
-                    { label: 'We have a custom portal but it\'s basic', value: 'Custom Basic', score: 30 },
-                    { label: 'Yes, fully branded with progress tracking', value: 'Fully Branded', score: 45 }
-                ]
-            },
-            {
-                id: 'q6',
-                text: 'How do clients progress to your next offer?',
-                scored: true,
-                category: 'Revenue Optimization',
-                options: [
-                    { label: 'They don\'t - I only have one offer', value: 'Single Offer', score: 5 },
-                    { label: 'I manually pitch them when the time feels right', value: 'Manual Pitch', score: 15 },
-                    { label: 'I have an upsell but it\'s not systematic', value: 'Ad Hoc Upsell', score: 25 },
-                    { label: 'There\'s a structured ascension path built in', value: 'Structured Ascension', score: 45 }
-                ]
-            },
-            {
-                id: 'q7',
-                text: 'How much time do you spend weekly on client admin and support?',
-                scored: true,
-                category: 'Operational Efficiency',
-                options: [
-                    { label: '15+ hours', value: '15+ hours', score: 5 },
-                    { label: '10-15 hours', value: '10-15 hours', score: 15 },
-                    { label: '5-10 hours', value: '5-10 hours', score: 25 },
-                    { label: '2-5 hours', value: '2-5 hours', score: 35 },
-                    { label: 'Under 2 hours', value: 'Under 2 hours', score: 50 }
-                ]
-            },
-            {
-                id: 'q8',
-                text: 'How do you currently generate leads?',
-                scored: true,
-                category: 'Lead Generation',
-                options: [
-                    { label: 'Mostly referrals and word of mouth', value: 'Referrals', score: 10 },
-                    { label: 'Some social media but inconsistent', value: 'Inconsistent Social', score: 15 },
-                    { label: 'Regular content + some paid ads', value: 'Content + Ads', score: 25 },
-                    { label: 'Multi-channel with landing pages and funnels', value: 'Multi-Channel', score: 35 },
-                    { label: 'Automated lead gen with sequences and nurture', value: 'Fully Automated', score: 50 }
-                ]
-            },
-            {
-                id: 'q9',
-                text: "What's your biggest bottleneck right now?",
-                scored: false,
-                options: [
-                    { label: 'Getting new clients', value: 'Getting new clients' },
-                    { label: 'Onboarding takes too long', value: 'Onboarding takes too long' },
-                    { label: "I can't scale without hiring", value: "Can't scale without hiring" },
-                    { label: 'Client retention / drop-off', value: 'Client retention / drop-off' },
-                    { label: "I'm the bottleneck in everything", value: 'I am the bottleneck' }
-                ]
-            },
-            {
-                id: 'q10',
-                text: 'If 100 new clients signed up tomorrow, could your systems handle it?',
-                scored: true,
-                category: 'Scale Readiness',
-                options: [
-                    { label: "Absolutely not - I'd drown", value: 'Not at all', score: 5 },
-                    { label: 'Maybe 10-20 but not 100', value: 'Partial', score: 15 },
-                    { label: 'I could handle a surge with extra work', value: 'With Effort', score: 30 },
-                    { label: 'My systems could flex to handle most of it', value: 'Mostly Ready', score: 40 },
-                    { label: 'Yes, my delivery is fully automated', value: 'Fully Ready', score: 50 }
-                ]
-            }
-        ];
+<script>
+(function() {
+  'use strict';
 
-        // ===== STATE =====
-        let currentQuestion = 0;
-        const answers = {};
-        const scores = {};
+  // ===== GRAVITY LEAD CAPTURE =====
+  var GRAVITY_CAPTURE_URL = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/gravity-capture';
+  var GRAVITY_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
-        // ===== BUILD QUESTION CARDS =====
-        const container = document.getElementById('questions-container');
-        questions.forEach(function(q, i) {
-            var card = document.createElement('div');
-            card.className = 'question-card' + (i === 0 ? ' active' : '');
-            card.id = 'question-' + i;
+  // ===== QUESTIONS =====
+  var questions = [
+    { id: 'q1', text: 'What type of business do you run?', scored: false, options: [
+      { label: 'Coaching / Mentoring', value: 'Coaching / Mentoring' },
+      { label: 'Consulting / Advisory', value: 'Consulting / Advisory' },
+      { label: 'Mastermind / Group Program', value: 'Mastermind / Group Program' },
+      { label: 'Course Creator / Online Education', value: 'Course Creator / Online Education' },
+      { label: 'Agency / Service Provider', value: 'Agency / Service Provider' },
+      { label: 'Speaker / Author', value: 'Speaker / Author' }
+    ]},
+    { id: 'q2', text: "What's your current annual revenue?", scored: false, options: [
+      { label: 'Under $100K', value: 'Under $100K' },
+      { label: '$100K - $250K', value: '$100K - $250K' },
+      { label: '$250K - $500K', value: '$250K - $500K' },
+      { label: '$500K - $1M', value: '$500K - $1M' },
+      { label: '$1M - $5M', value: '$1M - $5M' },
+      { label: '$5M+', value: '$5M+' }
+    ]},
+    { id: 'q3', text: 'How many active clients do you serve at one time?', scored: false, options: [
+      { label: '1-5', value: '1-5' },
+      { label: '6-15', value: '6-15' },
+      { label: '16-30', value: '16-30' },
+      { label: '31-50', value: '31-50' },
+      { label: '50+', value: '50+' }
+    ]},
+    { id: 'q4', text: 'How do new clients currently get onboarded?', scored: true, category: 'Client Onboarding', options: [
+      { label: 'I do it manually every time', value: 'Manual', score: 5 },
+      { label: 'I have some templates/docs but still mostly manual', value: 'Templates', score: 15 },
+      { label: 'I use a tool like Kajabi/Teachable but it\'s limited', value: 'Basic Tool', score: 25 },
+      { label: 'I have a semi-automated system', value: 'Semi-Automated', score: 35 },
+      { label: 'Fully automated with custom workflows', value: 'Fully Automated', score: 50 }
+    ]},
+    { id: 'q5', text: 'Do your clients have a dedicated portal or app?', scored: true, category: 'Client Experience', options: [
+      { label: 'No, we use email and Zoom links', value: 'Email/Zoom', score: 5 },
+      { label: 'We use a basic platform (Kajabi, Skool, Circle, etc.)', value: 'Basic Platform', score: 20 },
+      { label: 'We have a custom portal but it\'s basic', value: 'Custom Basic', score: 30 },
+      { label: 'Yes, fully branded with progress tracking', value: 'Fully Branded', score: 45 }
+    ]},
+    { id: 'q6', text: 'How do clients progress to your next offer?', scored: true, category: 'Revenue Optimization', options: [
+      { label: 'They don\'t - I only have one offer', value: 'Single Offer', score: 5 },
+      { label: 'I manually pitch them when the time feels right', value: 'Manual Pitch', score: 15 },
+      { label: 'I have an upsell but it\'s not systematic', value: 'Ad Hoc Upsell', score: 25 },
+      { label: 'There\'s a structured ascension path built in', value: 'Structured Ascension', score: 45 }
+    ]},
+    { id: 'q7', text: 'How much time do you spend weekly on client admin and support?', scored: true, category: 'Operational Efficiency', options: [
+      { label: '15+ hours', value: '15+ hours', score: 5 },
+      { label: '10-15 hours', value: '10-15 hours', score: 15 },
+      { label: '5-10 hours', value: '5-10 hours', score: 25 },
+      { label: '2-5 hours', value: '2-5 hours', score: 35 },
+      { label: 'Under 2 hours', value: 'Under 2 hours', score: 50 }
+    ]},
+    { id: 'q8', text: 'How do you currently generate leads?', scored: true, category: 'Lead Generation', options: [
+      { label: 'Mostly referrals and word of mouth', value: 'Referrals', score: 10 },
+      { label: 'Some social media but inconsistent', value: 'Inconsistent Social', score: 15 },
+      { label: 'Regular content + some paid ads', value: 'Content + Ads', score: 25 },
+      { label: 'Multi-channel with landing pages and funnels', value: 'Multi-Channel', score: 35 },
+      { label: 'Automated lead gen with sequences and nurture', value: 'Fully Automated', score: 50 }
+    ]},
+    { id: 'q9', text: "What's your biggest bottleneck right now?", scored: false, options: [
+      { label: 'Getting new clients', value: 'Getting new clients' },
+      { label: 'Onboarding takes too long', value: 'Onboarding takes too long' },
+      { label: "I can't scale without hiring", value: "Can't scale without hiring" },
+      { label: 'Client retention / drop-off', value: 'Client retention / drop-off' },
+      { label: "I'm the bottleneck in everything", value: 'I am the bottleneck' }
+    ]},
+    { id: 'q10', text: 'If 100 new clients signed up tomorrow, could your systems handle it?', scored: true, category: 'Scale Readiness', options: [
+      { label: "Absolutely not - I'd drown", value: 'Not at all', score: 5 },
+      { label: 'Maybe 10-20 but not 100', value: 'Partial', score: 15 },
+      { label: 'I could handle a surge with extra work', value: 'With Effort', score: 30 },
+      { label: 'My systems could flex to handle most of it', value: 'Mostly Ready', score: 40 },
+      { label: 'Yes, my delivery is fully automated', value: 'Fully Ready', score: 50 }
+    ]}
+  ];
 
-            var optionsHTML = q.options.map(function(opt, oi) {
-                return '<li class="option-item" data-question="' + i + '" data-index="' + oi + '" onclick="selectOption(this,' + i + ',' + oi + ')">' +
-                    '<div class="option-radio"></div>' +
-                    '<span>' + opt.label + '</span>' +
-                    '</li>';
-            }).join('');
+  // ===== CATEGORY CONTENT (gap analysis + what to build + tools) =====
+  var categoryContent = {
+    'Client Onboarding': {
+      problem: 'New clients are brought on manually. Every signup repeats the same hours of work and creates an inconsistent first impression at the moment trust matters most.',
+      build: 'An automated onboarding flow. The moment someone signs, the intake form, welcome sequence, resource delivery, and kickoff scheduling all fire on their own.',
+      tools: ['Dubsado or HoneyBook for a fast start', 'Typeform plus a Zapier or Make automation', 'A custom onboarding portal in your brand with no per-seat fees, the version that scales cleanly']
+    },
+    'Client Experience': {
+      problem: 'Clients live in scattered emails and Zoom links. There is no single branded home for their journey, which makes your business feel smaller than it actually is.',
+      build: 'A branded client portal. Progress tracking, resources, milestones, and communication in one place clients actually log into.',
+      tools: ['Circle, Skool, or Kajabi to start fast', 'A custom client app you own outright, with no monthly per-member fees']
+    },
+    'Revenue Optimization': {
+      problem: 'There is no built-in path from one offer to the next. Revenue per client is capped, and ascension depends on you remembering to pitch at the right time.',
+      build: 'A structured ascension model where the client experience itself surfaces the next step at the right moment, so progression is designed, not improvised.',
+      tools: ['Map your offer ladder first: entry, core, premium', 'Ascension logic built into the portal so the next step appears automatically', 'Lifecycle email triggers tied to real client milestones']
+    },
+    'Operational Efficiency': {
+      problem: 'Too many hours each week go to admin and support. That is time and margin leaking out of the business, and it gets worse with every client you add.',
+      build: 'Automate the repetitive layer: support triage, FAQs, scheduling, follow-ups, and reporting, so the busywork runs without you in it.',
+      tools: ['Zapier or Make as the connective tissue', 'An AI assistant for tier-one support and FAQs', 'Custom automations and an AI agent for the workflows no off-the-shelf tool covers']
+    },
+    'Lead Generation': {
+      problem: 'Lead flow is referral-dependent and inconsistent. Growth is a hope rather than a system you can turn up when you choose to.',
+      build: 'A repeatable lead engine: a lead magnet that captures and qualifies, feeding an automated nurture sequence that warms people until they are ready to talk.',
+      tools: ['A scored assessment or calculator as the magnet, you are using one right now', 'An email nurture sequence with tracked opens and clicks', 'Tracked landing pages so you know exactly what is working']
+    },
+    'Scale Readiness': {
+      problem: 'If 100 clients signed up tomorrow, the business would strain or break. Delivery still depends on you being in the middle of every step.',
+      build: 'Systematize delivery so it runs without you in every step: documented, templated, and automated, so capacity is not capped by your calendar.',
+      tools: ['SOPs and templates for every recurring delivery step', 'Automation for handoffs and status updates', 'A custom platform so delivery capacity is not limited by your hours']
+    }
+  };
 
-            card.innerHTML =
-                '<div class="question-number">Question ' + (i + 1) + ' of 10</div>' +
-                '<div class="question-text">' + q.text + '</div>' +
-                '<ul class="option-list">' + optionsHTML + '</ul>';
+  var scoredMeta = [
+    { qid: 'q4', cat: 'Client Onboarding', max: 50 },
+    { qid: 'q5', cat: 'Client Experience', max: 45 },
+    { qid: 'q6', cat: 'Revenue Optimization', max: 45 },
+    { qid: 'q7', cat: 'Operational Efficiency', max: 50 },
+    { qid: 'q8', cat: 'Lead Generation', max: 50 },
+    { qid: 'q10', cat: 'Scale Readiness', max: 50 }
+  ];
 
-            container.appendChild(card);
-        });
+  // ===== STATE =====
+  var currentQuestion = 0;
+  var answers = {};
+  var scores = {};
 
-        // ===== FUNCTIONS =====
-        window.startQuiz = function() {
-            document.getElementById('hero').style.display = 'none';
-            var quizSection = document.getElementById('quiz-section');
-            quizSection.classList.add('active');
-            quizSection.scrollIntoView({ behavior: 'smooth' });
-            updateProgress();
-        };
+  // ===== BUILD QUESTION CARDS =====
+  var container = document.getElementById('questions-container');
+  questions.forEach(function(q, i) {
+    var card = document.createElement('div');
+    card.className = 'question-card' + (i === 0 ? ' active' : '');
+    card.id = 'question-' + i;
+    var optionsHTML = q.options.map(function(opt, oi) {
+      return '<li class="option-item" onclick="selectOption(this,' + i + ',' + oi + ')">' +
+        '<div class="option-radio"></div><span>' + opt.label + '</span></li>';
+    }).join('');
+    card.innerHTML =
+      '<div class="q-number">Question ' + (i + 1) + ' of 10</div>' +
+      '<div class="q-text">' + q.text + '</div>' +
+      '<ul class="option-list">' + optionsHTML + '</ul>';
+    container.appendChild(card);
+  });
 
-        window.selectOption = function(el, qIndex, optIndex) {
-            var q = questions[qIndex];
-            var opt = q.options[optIndex];
+  // ===== QUIZ FLOW =====
+  window.startQuiz = function() {
+    document.getElementById('hero').style.display = 'none';
+    var qs = document.getElementById('quiz-section');
+    qs.classList.add('active');
+    qs.scrollIntoView({ behavior: 'smooth' });
+    updateProgress();
+  };
 
-            // Store answer
-            answers[q.id] = opt.value;
-            if (q.scored) {
-                scores[q.id] = opt.score;
-            }
+  window.selectOption = function(el, qIndex, optIndex) {
+    var q = questions[qIndex];
+    var opt = q.options[optIndex];
+    answers[q.id] = opt.value;
+    if (q.scored) scores[q.id] = opt.score;
+    var siblings = el.parentElement.querySelectorAll('.option-item');
+    siblings.forEach(function(s) { s.classList.remove('selected'); });
+    el.classList.add('selected');
+    setTimeout(function() { advanceQuestion(qIndex); }, 280);
+  };
 
-            // Visual feedback
-            var siblings = el.parentElement.querySelectorAll('.option-item');
-            siblings.forEach(function(s) { s.classList.remove('selected'); });
-            el.classList.add('selected');
+  function advanceQuestion(fromIndex) {
+    var current = document.getElementById('question-' + fromIndex);
+    current.classList.remove('active');
+    if (fromIndex < questions.length - 1) {
+      currentQuestion = fromIndex + 1;
+      document.getElementById('question-' + currentQuestion).classList.add('active');
+      updateProgress();
+      document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      showEmailGate();
+    }
+  }
 
-            // Advance after short delay
-            setTimeout(function() { advanceQuestion(qIndex); }, 300);
-        };
+  function updateProgress() {
+    var pct = Math.round((currentQuestion / questions.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = 'Question ' + (currentQuestion + 1) + ' of 10';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
 
-        function advanceQuestion(fromIndex) {
-            var currentCard = document.getElementById('question-' + fromIndex);
-            currentCard.classList.add('exit');
+  function showEmailGate() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-text').textContent = 'Complete';
+    document.getElementById('progress-pct').textContent = '100%';
+    document.getElementById('email-gate').classList.add('active');
+    document.getElementById('email-gate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
-            setTimeout(function() {
-                currentCard.classList.remove('active', 'exit');
-                currentCard.style.display = 'none';
+  // ===== SUBMIT + CAPTURE =====
+  window.handleGateSubmit = function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('gate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating your plan...';
 
-                if (fromIndex < questions.length - 1) {
-                    // Show next question
-                    currentQuestion = fromIndex + 1;
-                    var nextCard = document.getElementById('question-' + currentQuestion);
-                    nextCard.style.display = 'block';
-                    // Force reflow
-                    void nextCard.offsetWidth;
-                    nextCard.classList.add('active');
-                    updateProgress();
-                } else {
-                    // Show email gate
-                    showEmailGate();
-                }
-            }, 300);
-        }
+    var firstName = document.getElementById('gate-firstname').value.trim();
+    var email = document.getElementById('gate-email').value.trim();
+    var phoneEl = document.getElementById('gate-phone');
+    var phone = phoneEl ? phoneEl.value.trim() : '';
+    var consentEl = document.getElementById('gate-consent');
+    var consent = consentEl ? consentEl.checked : true;
+    var businessName = document.getElementById('gate-business').value.trim();
 
-        function updateProgress() {
-            var pct = Math.round(((currentQuestion) / questions.length) * 100);
-            document.getElementById('progress-fill').style.width = pct + '%';
-            document.getElementById('progress-text').textContent = 'Question ' + (currentQuestion + 1) + ' of 10';
-            document.getElementById('progress-pct').textContent = pct + '%';
-        }
+    // Score
+    var maxRaw = 290;
+    var totalRaw = 0;
+    ['q4','q5','q6','q7','q8','q10'].forEach(function(qid) { totalRaw += (scores[qid] || 0); });
+    var normalizedScore = Math.round((totalRaw / maxRaw) * 100);
+    if (normalizedScore > 100) normalizedScore = 100;
 
-        function showEmailGate() {
-            document.getElementById('progress-fill').style.width = '100%';
-            document.getElementById('progress-text').textContent = 'Complete';
-            document.getElementById('progress-pct').textContent = '100%';
-            document.getElementById('email-gate').classList.add('active');
-            document.getElementById('email-gate').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+    var category, categoryColor, categoryDescription;
+    if (normalizedScore <= 25) {
+      category = 'Manual Mode'; categoryColor = '#E5484D';
+      categoryDescription = "You are doing nearly everything yourself. Every new client means more hours and more stress. The business depends entirely on you showing up.";
+    } else if (normalizedScore <= 50) {
+      category = 'Patchwork Systems'; categoryColor = '#F5A524';
+      categoryDescription = "You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together, and that ceiling is close.";
+    } else if (normalizedScore <= 75) {
+      category = 'Growth Ready'; categoryColor = '#D4B56A';
+      categoryDescription = "Your foundation is solid, but a few real gaps are keeping you from 2 to 3x without things breaking.";
+    } else {
+      category = 'Scale Mode'; categoryColor = '#30A46C';
+      categoryDescription = "You are ahead of most of your peers. A few strategic upgrades could unlock fully automated delivery and hands-free growth.";
+    }
 
-        window.handleGateSubmit = function(e) {
-            e.preventDefault();
-            var btn = document.getElementById('gate-btn');
-            btn.disabled = true;
-            btn.textContent = 'Generating Results...';
+    // Build category scores + leak + recommendation
+    var categoryScores = {};
+    scoredMeta.forEach(function(m) {
+      categoryScores[m.cat] = Math.round(((scores[m.qid] || 0) / m.max) * 100);
+    });
+    var leakLow, leakHigh, revenueText;
+    if (normalizedScore < 50) {
+      leakLow = 3000; leakHigh = 8000;
+      revenueText = "Based on your profile, you are likely losing $3,000 to $8,000 a month to manual work, client drop-off, and missed upsell opportunities.";
+    } else if (normalizedScore <= 75) {
+      leakLow = 5000; leakHigh = 15000;
+      revenueText = "You are close. With the right systems you could add $5,000 to $15,000 a month without adding hours to your week.";
+    } else {
+      leakLow = 10000; leakHigh = 30000;
+      revenueText = "You are positioned for real leverage. Strategic automation could unlock $10,000 to $30,000+ a month in additional capacity.";
+    }
+    var rec = normalizedScore < 30 ? 'Night Launch' : (normalizedScore <= 60 ? 'Night Build' : 'Night Build Pro');
 
-            var firstName = document.getElementById('gate-firstname').value.trim();
-            var email = document.getElementById('gate-email').value.trim();
-            var businessName = document.getElementById('gate-business').value.trim();
+    // Capture into Supabase (leads + consent_log + build_maps)
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      var utm = {
+        utm_source: qs.get('utm_source'), utm_medium: qs.get('utm_medium'),
+        utm_campaign: qs.get('utm_campaign'), utm_content: qs.get('utm_content')
+      };
+      fetch(GRAVITY_CAPTURE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': GRAVITY_ANON, 'Authorization': 'Bearer ' + GRAVITY_ANON },
+        body: JSON.stringify({
+          first_name: firstName, email: email, phone: phone, business_name: businessName,
+          consent: consent,
+          consent_text: 'Yes, send my results and text/email me with related insights from Knight Ops.',
+          capture_tool: 'ai_systems_audit', campaign: '1k-sprint',
+          source_url: window.location.href, utm: utm, source_key: utm.utm_content || null,
+          business_type: answers.q1 || '', revenue: answers.q2 || '', biggest_bottleneck: answers.q9 || '',
+          systems_score: normalizedScore, tier: category,
+          category_scores: categoryScores, leak_low: leakLow, leak_high: leakHigh,
+          recommendation: rec, revenue_text: revenueText, answers: answers
+        })
+      }).catch(function() {});
+    } catch (err) {}
 
-            // Calculate score
-            var totalRaw = 0;
-            var maxRaw = 295; // Max possible: 50+45+45+50+50+50 = 290... let's recalc
-            // Q4 max 50, Q5 max 45, Q6 max 45, Q7 max 50, Q8 max 50, Q10 max 50 = 290
-            maxRaw = 290;
+    setTimeout(function() {
+      showResults(normalizedScore, category, categoryColor, categoryDescription, categoryScores, leakLow, leakHigh, revenueText, rec);
+    }, 650);
+    return false;
+  };
 
-            var scoredQuestions = ['q4','q5','q6','q7','q8','q10'];
-            scoredQuestions.forEach(function(qid) {
-                totalRaw += (scores[qid] || 0);
-            });
+  // ===== RESULTS =====
+  function showResults(score, category, color, description, categoryScores, leakLow, leakHigh, revenueText, rec) {
+    document.getElementById('quiz-section').classList.remove('active');
+    document.getElementById('results-section').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            var normalizedScore = Math.round((totalRaw / maxRaw) * 100);
-            if (normalizedScore > 100) normalizedScore = 100;
+    // Ring
+    var circumference = 2 * Math.PI * 90;
+    var ring = document.getElementById('score-ring-circle');
+    ring.style.stroke = color;
+    setTimeout(function() {
+      ring.style.strokeDashoffset = circumference - (score / 100) * circumference;
+    }, 250);
 
-            var category, categoryColor, categoryDescription;
-            if (normalizedScore <= 25) {
-                category = 'Manual Mode';
-                categoryColor = '#FF4444';
-                categoryDescription = "You're doing everything yourself. Every new client means more hours, more stress, and less time for what matters. You're one illness away from your business stopping.";
-            } else if (normalizedScore <= 50) {
-                category = 'Patchwork Systems';
-                categoryColor = '#FF8C00';
-                categoryDescription = "You've got some tools, but nothing talks to each other. You're paying for 5-10 SaaS subscriptions that still require you to be the glue holding it all together.";
-            } else if (normalizedScore <= 75) {
-                category = 'Growth Ready';
-                categoryColor = '#88CC00';
-                categoryDescription = "Your foundation is solid, but you're hitting a ceiling. The systems you have can't support 2-3x your current client load without breaking.";
-            } else {
-                category = 'Scale Mode';
-                categoryColor = '#00FF88';
-                categoryDescription = "You're ahead of 90% of your peers. A few strategic upgrades could unlock fully automated client delivery and hands-free revenue growth.";
-            }
+    var scoreEl = document.getElementById('score-number');
+    scoreEl.style.color = color;
+    animateCount(scoreEl, 0, score, 1800);
 
-            // Fire GHL webhook
-            var payload = {
-                firstName: firstName,
-                email: email,
-                businessName: businessName,
-                businessType: answers.q1 || '',
-                revenue: answers.q2 || '',
-                clientCount: answers.q3 || '',
-                systemsScore: normalizedScore,
-                scoreCategory: category,
-                biggestBottleneck: answers.q9 || '',
-                source: 'AI Systems Audit - KnightOps.biz',
-                submittedAt: new Date().toISOString()
-            };
+    document.getElementById('score-category').textContent = category;
+    document.getElementById('score-category').style.color = color;
+    document.getElementById('score-description').textContent = description;
 
-            if (GHL_WEBHOOK !== 'GHL_WEBHOOK_URL_HERE') {
-                fetch(GHL_WEBHOOK, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(payload).toString(),
-                    mode: 'no-cors'
-                }).catch(function() {});
-            }
+    // Breakdown bars
+    var barsHTML = '';
+    scoredMeta.forEach(function(m) {
+      var pct = categoryScores[m.cat];
+      var bc = pct <= 25 ? '#E5484D' : pct <= 50 ? '#F5A524' : pct <= 75 ? '#D4B56A' : '#30A46C';
+      barsHTML +=
+        '<div class="breakdown-item">' +
+          '<div class="breakdown-label"><span>' + m.cat + '</span><span>' + pct + '%</span></div>' +
+          '<div class="breakdown-bar"><div class="breakdown-bar-fill" data-w="' + pct + '" style="background:' + bc + '"></div></div>' +
+        '</div>';
+    });
+    document.getElementById('breakdown-bars').innerHTML = barsHTML;
+    setTimeout(function() {
+      document.querySelectorAll('.breakdown-bar-fill').forEach(function(f) {
+        f.style.width = f.getAttribute('data-w') + '%';
+      });
+    }, 450);
 
-            // Show results
-            setTimeout(function() {
-                showResults(normalizedScore, category, categoryColor, categoryDescription);
-            }, 600);
+    // Gap cards: the 3 lowest-scoring categories
+    var sorted = scoredMeta.slice().sort(function(a, b) {
+      return categoryScores[a.cat] - categoryScores[b.cat];
+    });
+    var gaps = sorted.slice(0, 3);
+    var gapsHTML = '';
+    gaps.forEach(function(m) {
+      var c = categoryContent[m.cat];
+      var toolsHTML = c.tools.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+      gapsHTML +=
+        '<div class="gap-card">' +
+          '<div class="gap-cat">' + m.cat + ' &middot; ' + categoryScores[m.cat] + '%</div>' +
+          '<div class="gap-problem">' + c.problem + '</div>' +
+          '<div class="gap-sub">What to build</div>' +
+          '<div class="gap-build">' + c.build + '</div>' +
+          '<div class="gap-sub">Tools that get you there</div>' +
+          '<ul class="tool-list">' + toolsHTML + '</ul>' +
+        '</div>';
+    });
+    document.getElementById('gap-cards').innerHTML = gapsHTML;
 
-            return false;
-        };
+    // Strengths
+    var strong = sorted.slice(3).filter(function(m) { return categoryScores[m.cat] >= 60; });
+    if (strong.length) {
+      var names = strong.map(function(m) { return '<strong>' + m.cat + '</strong>'; }).join(', ');
+      document.getElementById('strengths-text').innerHTML =
+        'You are already ahead on ' + names + '. Protect those, and put your build energy into the opportunities above.';
+      document.getElementById('strengths-block').style.display = 'block';
+    }
 
-        function showResults(score, category, color, description) {
-            document.getElementById('quiz-section').classList.remove('active');
-            document.getElementById('quiz-section').style.display = 'none';
+    // Revenue
+    document.getElementById('revenue-amount').textContent = '$' + leakLow.toLocaleString() + ' - $' + leakHigh.toLocaleString() + '/mo';
+    document.getElementById('revenue-amount').style.color = color;
+    document.getElementById('revenue-text').textContent = revenueText;
 
-            var resultsSection = document.getElementById('results-section');
-            resultsSection.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Next step
+    document.getElementById('rec-tier').textContent = 'Suggested starting point: ' + rec;
+    document.getElementById('rec-description').textContent =
+      'You do not have to build all of this at once, and you should not. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch, just the plan. You keep it either way.';
 
-            // Score ring animation
-            var circumference = 2 * Math.PI * 90; // ~565.48
-            var offset = circumference - (score / 100) * circumference;
-            var ringCircle = document.getElementById('score-ring-circle');
-            ringCircle.style.stroke = color;
+    document.getElementById('social-proof').style.display = 'block';
+  }
 
-            setTimeout(function() {
-                ringCircle.style.strokeDashoffset = offset;
-            }, 200);
+  function animateCount(el, start, end, duration) {
+    var startTime = null;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(start + (end - start) * eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
 
-            // Counting animation
-            var scoreEl = document.getElementById('score-number');
-            scoreEl.style.color = color;
-            animateCount(scoreEl, 0, score, 2000);
-
-            // Category
-            document.getElementById('score-category').textContent = category;
-            document.getElementById('score-category').style.color = color;
-            document.getElementById('score-description').textContent = description;
-
-            // Breakdown bars
-            var breakdownData = [
-                { label: 'Client Onboarding', qid: 'q4', max: 50 },
-                { label: 'Client Experience', qid: 'q5', max: 45 },
-                { label: 'Revenue Optimization', qid: 'q6', max: 45 },
-                { label: 'Operational Efficiency', qid: 'q7', max: 50 },
-                { label: 'Lead Generation', qid: 'q8', max: 50 },
-                { label: 'Scale Readiness', qid: 'q10', max: 50 }
-            ];
-
-            var barsHTML = '';
-            breakdownData.forEach(function(item) {
-                var rawScore = scores[item.qid] || 0;
-                var pct = Math.round((rawScore / item.max) * 100);
-                var barColor;
-                if (pct <= 25) barColor = '#FF4444';
-                else if (pct <= 50) barColor = '#FF8C00';
-                else if (pct <= 75) barColor = '#88CC00';
-                else barColor = '#00FF88';
-
-                barsHTML +=
-                    '<div class="breakdown-item">' +
-                        '<div class="breakdown-label"><span>' + item.label + '</span><span>' + pct + '%</span></div>' +
-                        '<div class="breakdown-bar"><div class="breakdown-bar-fill" data-width="' + pct + '" style="background:' + barColor + '"></div></div>' +
-                    '</div>';
-            });
-            document.getElementById('breakdown-bars').innerHTML = barsHTML;
-
-            // Animate bars after a moment
-            setTimeout(function() {
-                var fills = document.querySelectorAll('.breakdown-bar-fill');
-                fills.forEach(function(fill) {
-                    fill.style.width = fill.getAttribute('data-width') + '%';
-                });
-            }, 500);
-
-            // Revenue Impact
-            var revenueAmountEl = document.getElementById('revenue-amount');
-            var revenueTextEl = document.getElementById('revenue-text');
-
-            if (score < 50) {
-                revenueAmountEl.innerHTML = '<span style="color:#FF4444">$3,000 - $8,000/mo</span>';
-                revenueAmountEl.style.color = '#FF4444';
-                revenueTextEl.textContent = "Based on your profile, you're likely losing $3,000-$8,000/month in revenue due to manual processes, client drop-off, and missed upsell opportunities.";
-            } else if (score <= 75) {
-                revenueAmountEl.innerHTML = '<span style="color:#88CC00">$5,000 - $15,000/mo</span>';
-                revenueTextEl.textContent = "You're close. With the right systems, you could add $5,000-$15,000/month in revenue without adding a single hour of work.";
-            } else {
-                revenueAmountEl.innerHTML = '<span style="color:#00FF88">$10,000 - $30,000+/mo</span>';
-                revenueTextEl.textContent = "You're positioned for explosive growth. Strategic automation could unlock $10,000-$30,000+/month in additional revenue.";
-            }
-
-            // Recommendation
-            var recTier = document.getElementById('rec-tier');
-            var recDesc = document.getElementById('rec-description');
-            var recPrice = document.getElementById('rec-price');
-
-            if (score < 30) {
-                recTier.textContent = 'NIGHT LAUNCH';
-                recTier.style.background = 'rgba(0,212,255,0.15)';
-                recTier.style.color = '#00D4FF';
-                recDesc.textContent = "Start with a conversion-focused website that captures leads while you sleep. Your current systems need a strong front door before building the house.";
-                recPrice.innerHTML = '';
-            } else if (score <= 60) {
-                recTier.textContent = 'NIGHT BUILD';
-                recTier.style.background = 'rgba(139,92,246,0.15)';
-                recTier.style.color = '#8B5CF6';
-                recDesc.textContent = "You need a full client system: portal, automation, onboarding, and ascension model. This is where businesses go from surviving to thriving.";
-                recPrice.innerHTML = '';
-            } else {
-                recTier.textContent = 'NIGHT BUILD PRO';
-                recTier.style.background = 'rgba(0,255,136,0.15)';
-                recTier.style.color = '#00FF88';
-                recDesc.textContent = "You're ready for the full platform: custom app, App Store deployment, and automated everything. This is how you build a business that runs without you.";
-                recPrice.innerHTML = '';
-            }
-
-            // Show social proof
-            document.getElementById('social-proof').classList.add('active');
-        }
-
-        function animateCount(el, start, end, duration) {
-            var startTime = null;
-            function step(timestamp) {
-                if (!startTime) startTime = timestamp;
-                var progress = Math.min((timestamp - startTime) / duration, 1);
-                // Ease out cubic
-                var eased = 1 - Math.pow(1 - progress, 3);
-                var current = Math.round(start + (end - start) * eased);
-                el.textContent = current;
-                if (progress < 1) {
-                    requestAnimationFrame(step);
-                }
-            }
-            requestAnimationFrame(step);
-        }
-
-    })();
-    </script>
+})();
+</script>
 <script src="/ko-track.js" defer></script>
 </body>
 </html>

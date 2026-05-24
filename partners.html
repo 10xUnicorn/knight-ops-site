@@ -90,13 +90,14 @@
         @media(max-width:600px){.path-steps{flex-direction:column;gap:12px}.path-steps::before{display:none}.path-step{text-align:left;display:flex;gap:14px;align-items:center}.path-dot{margin:0;min-width:44px}.path-step div{text-align:left}}
 
         /* ─── GIFTS ─── */
-        .gifts-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:40px}
-        @media(max-width:768px){.gifts-grid{grid-template-columns:1fr}}
+        .gifts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
+        @media(max-width:980px){.gifts-grid{grid-template-columns:1fr}}
         .gift-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 32px;transition:all .3s;position:relative;overflow:hidden}
         .gift-card:hover{border-color:var(--accent-border);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
         .gift-type{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
         .gift-type-assess{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#C084FC}
         .gift-type-call{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ADE80}
+        .gift-type-audit{background:rgba(200,164,86,.12);border:1px solid rgba(200,164,86,.3);color:#D4B56A}
         .gift-card h3{font-size:20px;font-weight:800;margin-bottom:6px}
         .gift-card .gift-tagline{color:var(--accent);font-size:13px;font-weight:600;margin-bottom:14px}
         .gift-card .desc{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:20px}
@@ -265,7 +266,7 @@
     <div class="value-strip">
         <div class="vs-item"><div class="vs-num">10%</div><div class="vs-label">Commission on every deal</div></div>
         <div class="vs-item"><div class="vs-num">$150&ndash;$2,500</div><div class="vs-label">Typical payout per referral</div></div>
-        <div class="vs-item"><div class="vs-num">2</div><div class="vs-label">Free gifts you can give</div></div>
+        <div class="vs-item"><div class="vs-num">3</div><div class="vs-label">Free gifts you can give</div></div>
         <div class="vs-item"><div class="vs-num">&#8734;</div><div class="vs-label">No cap on referrals</div></div>
     </div>
 </div>
@@ -324,9 +325,9 @@
 <!-- ═══════════════ FREE GIFTS ═══════════════ -->
 <section class="section" id="gifts">
     <div class="container">
-        <div class="label">Two Free Gifts You Can Give</div>
+        <div class="label">Three Free Gifts You Can Give</div>
         <h2 class="title">Different tools. <em>Same goal: real value.</em></h2>
-        <p class="subtitle">One is a self-serve assessment your network takes on their own. The other is a live strategy call with Daniel. Gift either or both.</p>
+        <p class="subtitle">Three ways to give your network real value: a quick self-serve personality quiz, a deeper self-serve systems audit, or a live strategy call with Daniel. Gift one, two, or all three.</p>
 
         <div class="gifts-grid">
             <!-- GIFT 1: ASSESSMENT (SELF-SERVE) -->
@@ -348,9 +349,28 @@
                 </div>
             </div>
 
-            <!-- GIFT 2: BLUEPRINT CALL (LIVE SESSION) -->
+            <!-- GIFT 2: AI SYSTEMS AUDIT (SELF-SERVE) -->
+            <div class="gift-card" style="border-color:rgba(200,164,86,.28)">
+                <div class="gift-type gift-type-audit">&#9889; Gift 2 &mdash; Self-Serve Audit</div>
+                <h3>AI Systems Audit</h3>
+                <div class="gift-tagline">A 2-minute audit with a custom build plan</div>
+                <p class="desc">A deeper self-serve tool. Your contact answers 10 quick questions and instantly gets their Systems Score, a gap analysis across 6 areas of their business, and a custom plan of exactly what to build and which tools to use. Genuinely useful on its own, and it surfaces their real pain points and revenue band.</p>
+                <ul class="gift-bullets">
+                    <li>Share the link &mdash; they take it in under 3 minutes</li>
+                    <li>Personalized Systems Score plus a 6-area breakdown</li>
+                    <li>A real plan: what to build, which tools to use, how to close each gap</li>
+                    <li>Shows their revenue leak in dollars &mdash; a strong reason to act</li>
+                    <li>Your highest-quality self-serve lead, qualified automatically</li>
+                </ul>
+                <div class="gift-how">
+                    <h4>How Partners Use This</h4>
+                    <p>Send it to anyone serious about scaling. They get a real plan, you get a qualified lead tracked to your partner dashboard. Pairs perfectly as the step right before a Blueprint Call.</p>
+                </div>
+            </div>
+
+            <!-- GIFT 3: BLUEPRINT CALL (LIVE SESSION) -->
             <div class="gift-card" style="border-color:rgba(34,197,94,.25)">
-                <div class="gift-type gift-type-call">&#9742; Gift 2 &mdash; Live Strategy Session</div>
+                <div class="gift-type gift-type-call">&#9742; Gift 3 &mdash; Live Strategy Session</div>
                 <h3>10x Systems Blueprint Call</h3>
                 <div class="gift-tagline">Free 30-min strategy call with Daniel</div>
                 <p class="desc">A live 1-on-1 strategy session where Daniel maps out the AI-powered operational infrastructure they need to scale &mdash; without the bottlenecks. They walk away with a clear, actionable blueprint whether they hire us or not. Always free. No pitch.</p>
