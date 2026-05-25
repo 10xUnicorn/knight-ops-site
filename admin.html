@@ -767,6 +767,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="email-container" id="emailMainView">
           <!-- Folder Sidebar -->
           <div class="email-folder-sidebar">
+            <div class="ef-section" style="padding-bottom:8px;border-bottom:1px solid var(--border)">
+              <select id="emailAccountSwitcher" onchange="switchEmailAccount(this.value)" style="width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:.8rem;cursor:pointer;outline:none">
+                <option value="all">All Inboxes</option>
+              </select>
+            </div>
             <div class="ef-section">
               <div class="email-folder-item active" data-folder="inbox" onclick="switchEmailFolder('inbox')">
                 <svg viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
@@ -873,6 +878,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               <div class="email-settings-tab" data-estab="labels" onclick="switchEmailSettingsTab('labels')">Labels</div>
               <div class="email-settings-tab" data-estab="autoreplies" onclick="switchEmailSettingsTab('autoreplies')">Auto-Reply</div>
               <div class="email-settings-tab" data-estab="rules" onclick="switchEmailSettingsTab('rules')">Rules</div>
+              <div class="email-settings-tab" data-estab="accounts" onclick="switchEmailSettingsTab('accounts')">Accounts</div>
             </div>
             <div class="email-settings-body" id="emailSettingsBody"></div>
           </div>
@@ -1446,9 +1452,9 @@ function activateView(v,skipHash){
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
   if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();
   // Email sub-views
-  if(v==='emailInbox'){switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
-  if(v==='emailDrafts'){switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
-  if(v==='emailSent'){switchEmailFolder('sent');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
+  if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
+  if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
+  if(v==='emailSent'){loadEmailAccounts();switchEmailFolder('sent');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailTemplates'){showEmailSubView('templates');}
   if(v==='emailSettings'){showEmailSubView('settings');loadEmailSettings();}
   if(v==='bookings'){loadBookings();}
@@ -4406,6 +4412,31 @@ let emailCurrentFilter='all';
 let emailSelectedId=null;
 let emailSelectedIds=new Set();
 let emailEditingDraftId=null;
+let emailActiveAccount='all'; // 'all' or specific email address
+let emailAccounts=[]; // loaded from DB
+
+async function loadEmailAccounts(){
+  const{data}=await sb.from('email_accounts').select('*').eq('is_active',true).order('is_default',{ascending:false});
+  emailAccounts=data||[];
+  // Populate account switcher
+  const sel=document.getElementById('emailAccountSwitcher');
+  if(sel){
+    sel.innerHTML='<option value="all">All Inboxes</option>'+emailAccounts.map(a=>'<option value="'+a.email_address+'">'+esc(a.display_name)+' &lt;'+esc(a.email_address)+'&gt;</option>').join('');
+    sel.value=emailActiveAccount;
+  }
+  // Populate compose From dropdown
+  const ecFrom=document.getElementById('ecFrom');
+  if(ecFrom){
+    ecFrom.innerHTML=emailAccounts.map(a=>'<option value="'+a.email_address+'" data-name="'+esc(a.display_name)+'">'+esc(a.display_name)+' &lt;'+esc(a.email_address)+'&gt;</option>').join('');
+    // Default to active account if not "all"
+    if(emailActiveAccount!=='all')ecFrom.value=emailActiveAccount;
+  }
+}
+
+function switchEmailAccount(val){
+  emailActiveAccount=val;
+  loadEmailInbox();
+}
 let emailFolderCounts={};
 let emailAutoRefreshTimer=null;
 let emailLastChecked=null;
@@ -4441,6 +4472,7 @@ function showEmailSubView(which){
 async function loadComms(){
   showEmailMainView();
   emailLastChecked=new Date().toISOString();
+  await loadEmailAccounts();
   await loadEmailInbox();
   startEmailAutoRefresh();
   loadEmailLabels();
@@ -4450,7 +4482,12 @@ async function loadComms(){
 
 async function loadEmailInbox(){
   const folder=emailCurrentFolder;
-  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').order('created_at',{ascending:false}).limit(200);
+  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder,mailbox').order('created_at',{ascending:false}).limit(200);
+  // Account filter — filter by mailbox when a specific account is selected
+  if(emailActiveAccount!=='all'){
+    // For inbound: mailbox matches the account. For outbound: from_address matches.
+    q=q.or('mailbox.eq.'+emailActiveAccount+',from_address.eq.'+emailActiveAccount);
+  }
   // Folder filters
   if(folder==='inbox')q=q.eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false);
   else if(folder==='sent')q=q.eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false);
@@ -4473,15 +4510,21 @@ async function loadEmailInbox(){
 async function loadEmailFolderCounts(){
   try{
     const counts={};
+    // Build base query helper that applies account filter
+    function acctQ(){
+      let q=sb.from('emails').select('id',{count:'exact',head:true});
+      if(emailActiveAccount!=='all')q=q.or('mailbox.eq.'+emailActiveAccount+',from_address.eq.'+emailActiveAccount);
+      return q;
+    }
     const queries=[
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false).eq('is_read',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_draft',true).eq('is_deleted',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_starred',true).eq('is_deleted',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_archived',true).eq('is_deleted',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_spam',true).eq('is_deleted',false),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_deleted',true),
-      sb.from('emails').select('id',{count:'exact',head:true}).eq('is_deleted',false)
+      acctQ().eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false).eq('is_read',false),
+      acctQ().eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false),
+      acctQ().eq('is_draft',true).eq('is_deleted',false),
+      acctQ().eq('is_starred',true).eq('is_deleted',false),
+      acctQ().eq('is_archived',true).eq('is_deleted',false),
+      acctQ().eq('is_spam',true).eq('is_deleted',false),
+      acctQ().eq('is_deleted',true),
+      acctQ().eq('is_deleted',false)
     ];
     const results=await Promise.all(queries);
     const names=['inbox','sent','drafts','starred','archived','spam','trash','all'];
@@ -4778,14 +4821,18 @@ async function sendEmail(){
   if(!subject){showToast('Please enter a subject','error');return;}
   try{
     const plainText=(body||'').replace(/<[^>]*>/g,'');
-    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,body:plainText,html:body,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    // Get selected From account
+    const ecFromSel=document.getElementById('ecFrom');
+    const fromEmail=ecFromSel?ecFromSel.value:'daniel@knightops.biz';
+    const fromName=ecFromSel?ecFromSel.options[ecFromSel.selectedIndex].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
+    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail}});
     if(error)throw error;
     // If editing a draft, update instead of insert
     if(emailEditingDraftId){
-      await sb.from('emails').update({to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString()}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail}).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
-      await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString()});
+      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail});
     }
     showToast('Email sent successfully');
     document.getElementById('emailComposeModal').classList.remove('visible');
@@ -4799,10 +4846,13 @@ async function saveEmailDraft(){
   const body=document.getElementById('ecBody').innerHTML;
   const plainText=(body||'').replace(/<[^>]*>/g,'');
   try{
+    const ecFromSel2=document.getElementById('ecFrom');
+    const draftFromEmail=ecFromSel2?ecFromSel2.value:'daniel@knightops.biz';
+    const draftFromName=ecFromSel2?ecFromSel2.options[ecFromSel2.selectedIndex].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     if(emailEditingDraftId){
-      await sb.from('emails').update({to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200)}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),mailbox:draftFromEmail}).eq('id',emailEditingDraftId);
     }else{
-      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:'daniel@knightops.biz',from_name:'Daniel Knight',to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true}).select('id').single();
+      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true,mailbox:draftFromEmail}).select('id').single();
       if(data)emailEditingDraftId=data.id;
     }
     showToast('Draft saved');
@@ -5007,6 +5057,13 @@ function switchEmailSettingsTab(tab){
   else if(tab==='labels')renderEmailSettingsLabels(body);
   else if(tab==='autoreplies')renderEmailSettingsAutoReply(body);
   else if(tab==='rules')renderEmailSettingsRules(body);
+  else if(tab==='accounts')renderEmailSettingsAccounts(body);
+}
+
+async function renderEmailSettingsAccounts(container){
+  const{data}=await sb.from('email_accounts').select('*').order('is_default',{ascending:false});
+  const accts=data||[];
+  container.innerHTML='<div class="es-section"><h4>Email Accounts</h4><p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px">Manage email accounts that can send and receive in this inbox.</p>'+accts.map(a=>`<div class="es-card" style="margin-bottom:8px"><div class="es-card-header"><span class="es-card-title">${esc(a.display_name)} &lt;${esc(a.email_address)}&gt;</span><div class="es-card-actions">${a.is_default?'<span style="font-size:.7rem;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:2px 6px">Default</span>':''}<span style="font-size:.7rem;padding:2px 6px;border-radius:4px;background:${a.is_active?'var(--success)':'var(--error)'};color:#fff">${a.is_active?'Active':'Inactive'}</span></div></div></div>`).join('')+'</div>';
 }
 
 async function renderEmailSettingsGeneral(container){
