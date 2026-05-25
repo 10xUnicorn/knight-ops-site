@@ -4819,12 +4819,14 @@ async function sendEmail(){
   const body=document.getElementById('ecBody').innerHTML;
   if(!to){showToast('Please enter a recipient','error');return;}
   if(!subject){showToast('Please enter a subject','error');return;}
+  const plainText=(body||'').replace(/<[^>]*>/g,'').trim();
+  if(!plainText&&!body.replace(/<br\s*\/?>/gi,'').replace(/<div>\s*<\/div>/gi,'').trim()){showToast('Please enter a message body','error');return;}
   try{
-    const plainText=(body||'').replace(/<[^>]*>/g,'');
     // Get selected From account
     const ecFromSel=document.getElementById('ecFrom');
-    const fromEmail=ecFromSel?ecFromSel.value:'daniel@knightops.biz';
-    const fromName=ecFromSel?ecFromSel.options[ecFromSel.selectedIndex].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
+    const fromEmail=ecFromSel&&ecFromSel.value?ecFromSel.value:'daniel@knightops.biz';
+    const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
+    const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail}});
     if(error)throw error;
     // If editing a draft, update instead of insert
