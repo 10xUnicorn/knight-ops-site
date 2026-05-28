@@ -17,7 +17,7 @@
 <meta name="twitter:description" content="Free 2-minute assessment for coaches, consultants, and course creators. Get your Systems Score and custom plan instantly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -31,6 +31,7 @@
   --border-gold: rgba(200,164,86,0.28);
   --glass-gold: rgba(200,164,86,0.12);
   --glass-violet: rgba(123,97,255,0.08);
+  --glass-cyan: rgba(0,229,255,0.06);
   --white: #F4F4F5;
   --cream: #F0EEFF;
   --gray: #A1A1AA;
@@ -38,6 +39,7 @@
   --gold: #C8A456;
   --gold-bright: #FFD166;
   --gold-light: #D4B56A;
+  --gold-glow: rgba(200,164,86,0.4);
   --violet: #7B61FF;
   --violet-light: #9B7FFF;
   --cyan: #00E5FF;
@@ -56,6 +58,8 @@ body {
   line-height: 1.6;
 }
 
+/* CANVAS + AMBIENT */
+#bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .grid-ov {
   position: fixed; inset: 0;
   background-image:
@@ -64,11 +68,12 @@ body {
   background-size: 80px 80px;
   z-index: 0; pointer-events: none;
 }
-.glow {
-  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
-  width: 900px; height: 600px;
-  background: radial-gradient(ellipse at center, rgba(123,97,255,0.10) 0%, transparent 70%);
-  z-index: 0; pointer-events: none;
+.amb {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% 20%, rgba(200,164,86,0.06), transparent 70%),
+    radial-gradient(ellipse 700px 500px at 85% 70%, rgba(0,229,255,0.04), transparent 70%),
+    radial-gradient(ellipse 600px 400px at 50% 50%, rgba(123,97,255,0.03), transparent 70%);
 }
 .page { position: relative; z-index: 1; }
 
@@ -100,15 +105,9 @@ body {
 
 /* LAYOUT */
 .container { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
-.section-label {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem; font-weight: 600;
-  letter-spacing: 3px; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 1rem;
-}
 
 /* HERO */
-.hero { text-align: center; padding: 9rem 0 4rem; }
+.hero { text-align: center; padding: 7rem 0 3rem; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 .hero-badge {
   display: inline-block;
   font-family: 'Space Grotesk', sans-serif;
@@ -122,13 +121,13 @@ body {
 }
 .hero h1 {
   font-family: 'Cormorant Garamond', serif;
-  font-weight: 500; font-size: 3.4rem; line-height: 1.1;
+  font-weight: 600; font-size: 3.6rem; line-height: 1.08;
   margin-bottom: 1.25rem;
 }
 .hero h1 .accent { color: var(--gold); font-style: italic; }
 .subhead {
-  font-size: 1.08rem; color: var(--gray);
-  max-width: 540px; margin: 0 auto 2rem;
+  font-size: 1.1rem; color: var(--gray);
+  max-width: 560px; margin: 0 auto 2.5rem; line-height: 1.7;
 }
 .btn {
   font-family: 'Space Grotesk', sans-serif;
@@ -139,10 +138,11 @@ body {
   display: inline-block;
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
   color: #0A0A0B;
+  box-shadow: 0 4px 24px var(--gold-glow);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--glass-gold); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px var(--gold-glow); }
 .btn-ghost {
   background: transparent; color: var(--white);
   border: 1px solid var(--border-gold);
@@ -150,10 +150,75 @@ body {
 .btn-ghost:hover { background: var(--glass-gold); color: var(--gold-bright); }
 .hero-sub { font-size: 0.82rem; color: var(--muted); margin-top: 1rem; }
 
-/* QUIZ */
-.quiz-section { display: none; padding: 7rem 0 4rem; }
-.quiz-section.active { display: block; }
-.progress-wrap { margin-bottom: 2.5rem; }
+/* VALUE PROPS */
+.value-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+  margin-top: 3rem; text-align: center;
+}
+.value-card {
+  padding: 1.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(12,12,22,0.5);
+  backdrop-filter: blur(8px);
+}
+.value-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+.value-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 0.5px; color: var(--white);
+  margin-bottom: 0.4rem;
+}
+.value-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+/* PREVIEW SECTION */
+.preview-section {
+  margin-top: 3.5rem; text-align: center;
+  padding: 2rem 1.5rem;
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(123,97,255,0.06), rgba(200,164,86,0.04));
+  backdrop-filter: blur(10px);
+}
+.preview-section .label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.75rem;
+}
+.preview-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem; font-weight: 500; margin-bottom: 1.5rem;
+}
+.preview-bars { max-width: 400px; margin: 0 auto; }
+.preview-bar-item { margin-bottom: 0.8rem; text-align: left; }
+.preview-bar-label {
+  font-size: 0.78rem; color: var(--gray); margin-bottom: 0.3rem;
+  display: flex; justify-content: space-between;
+}
+.preview-bar { height: 8px; background: var(--surface3); border-radius: 100px; overflow: hidden; }
+.preview-bar-fill { height: 100%; border-radius: 100px; }
+.preview-note {
+  font-size: 0.78rem; color: var(--muted); margin-top: 1.25rem;
+  font-style: italic;
+}
+
+/* SOCIAL PROOF STRIP */
+.proof-strip {
+  margin-top: 2.5rem;
+  display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap;
+}
+.proof-item { text-align: center; }
+.proof-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.5rem; color: var(--gold);
+}
+.proof-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.5px; }
+
+/* QUIZ SECTION — fixed viewport height */
+.quiz-section { display: none; padding: 0; }
+.quiz-section.active { display: flex; flex-direction: column; min-height: 100vh; justify-content: center; padding: 5rem 0 2rem; }
+.progress-wrap { margin-bottom: 2rem; }
 .progress-head {
   display: flex; justify-content: space-between;
   font-family: 'Space Grotesk', sans-serif;
@@ -236,9 +301,10 @@ body {
   padding: 1rem; border-radius: 8px; margin-top: 0.35rem;
   background: linear-gradient(135deg, var(--gold), var(--gold-light));
   color: #0A0A0B; transition: all 0.25s;
+  box-shadow: 0 4px 24px var(--gold-glow);
 }
-.gate-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--glass-gold); }
-.gate-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+.gate-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--gold-glow); }
+.gate-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
 .gate-privacy { font-size: 0.74rem; color: var(--muted); margin-top: 1rem; }
 
 /* RESULTS */
@@ -276,6 +342,7 @@ body {
 .block {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
 }
 .block h3 {
   font-family: 'Cormorant Garamond', serif; font-weight: 500;
@@ -320,6 +387,35 @@ body {
 .strengths { font-size: 0.95rem; color: var(--gray); }
 .strengths strong { color: var(--green); font-weight: 600; }
 
+/* ROI CARD */
+.roi-block {
+  background: linear-gradient(160deg, rgba(200,164,86,0.08), rgba(123,97,255,0.06));
+  border: 1px solid var(--border-gold);
+  border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+.roi-block h3 {
+  font-family: 'Cormorant Garamond', serif; font-weight: 500;
+  font-size: 1.65rem; margin-bottom: 0.5rem;
+}
+.roi-scenario { color: var(--gray); font-size: 0.92rem; margin-bottom: 1.25rem; line-height: 1.6; }
+.roi-number {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 2.8rem; color: var(--gold); margin-bottom: 0.25rem;
+}
+.roi-sublabel { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
+.roi-annual {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 1.4rem; color: var(--cyan); margin-bottom: 0.5rem;
+}
+.roi-context { color: var(--gray); font-size: 0.88rem; line-height: 1.6; }
+.roi-divider {
+  width: 60px; height: 1px; margin: 1.25rem auto;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+
+/* REVENUE BLOCK */
 .revenue-amount {
   font-family: 'Space Grotesk', sans-serif; font-weight: 700;
   font-size: 2.4rem; margin-bottom: 0.5rem;
@@ -337,7 +433,7 @@ body {
   border: 1px solid var(--border-gold); background: var(--glass-gold);
   padding: 0.4rem 0.9rem; border-radius: 100px; margin-bottom: 1rem;
 }
-.next-step p { color: var(--cream); font-size: 1rem; margin-bottom: 1.5rem; }
+.next-step p { color: var(--cream); font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.6; }
 .cta-row { display: flex; gap: 0.85rem; flex-wrap: wrap; }
 
 /* SOCIAL PROOF */
@@ -360,18 +456,23 @@ body {
 
 @media (max-width: 600px) {
   .hero h1 { font-size: 2.5rem; }
+  .hero { padding: 6rem 0 2rem; }
   .q-text { font-size: 1.6rem; }
   .score-ring-container, .score-ring-bg, .score-ring-fill { width: 168px; height: 168px; }
   .score-number { font-size: 2.9rem; }
   .nav { padding: 0.85rem 1.25rem; }
-  .block { padding: 1.5rem; }
+  .block, .roi-block { padding: 1.5rem; }
   .cta-row .btn { width: 100%; text-align: center; }
+  .value-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .proof-strip { gap: 1.5rem; }
+  .roi-number { font-size: 2.2rem; }
 }
 </style>
 </head>
 <body>
+<canvas id="bgCanvas"></canvas>
 <div class="grid-ov"></div>
-<div class="glow"></div>
+<div class="amb"></div>
 <div class="page">
 
   <nav class="nav">
@@ -382,11 +483,62 @@ body {
   <!-- HERO -->
   <section class="hero" id="hero">
     <div class="container">
-      <div class="hero-badge">Free AI Systems Audit</div>
-      <h1>Is your business built to <span class="accent">scale</span>?</h1>
-      <p class="subhead">Take the 2-minute audit. Get your Systems Score, a clear gap analysis, and a custom plan of exactly what to build and which tools to use.</p>
-      <button class="btn btn-primary" onclick="startQuiz()">Start the Audit &rarr;</button>
-      <p class="hero-sub">No credit card. No sales call required. Just a real plan.</p>
+      <div class="hero-badge">Free AI Systems Audit &mdash; 2 Minutes</div>
+      <h1>Find out what's <span class="accent">costing</span> you the most &mdash; and exactly how to fix it.</h1>
+      <p class="subhead">Answer 10 quick questions. Get a personalized Systems Score, a breakdown of where you're leaking revenue, and a custom build plan with the exact tools and systems to close the gaps.</p>
+      <button class="btn btn-primary" onclick="startQuiz()">Start My Free Audit &rarr;</button>
+      <p class="hero-sub">No credit card. No sales call. Just a real plan you can act on today.</p>
+
+      <!-- Value Props -->
+      <div class="value-grid">
+        <div class="value-card">
+          <div class="value-icon">&#x1F4CA;</div>
+          <h3>Systems Score</h3>
+          <p>See exactly where you stand across 6 critical business areas</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">&#x1F4B0;</div>
+          <h3>Revenue Impact</h3>
+          <p>Discover how much you're leaving on the table every month</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">&#x1F527;</div>
+          <h3>Custom Build Plan</h3>
+          <p>Get the exact tools and systems to close your biggest gaps</p>
+        </div>
+      </div>
+
+      <!-- Results Preview -->
+      <div class="preview-section">
+        <div class="label">What You'll Get</div>
+        <h3>A personalized scorecard like this &mdash; built from your answers</h3>
+        <div class="preview-bars">
+          <div class="preview-bar-item">
+            <div class="preview-bar-label"><span>Client Onboarding</span><span style="color:var(--green)">78%</span></div>
+            <div class="preview-bar"><div class="preview-bar-fill" style="width:78%;background:var(--green)"></div></div>
+          </div>
+          <div class="preview-bar-item">
+            <div class="preview-bar-label"><span>Lead Generation</span><span style="color:var(--amber)">42%</span></div>
+            <div class="preview-bar"><div class="preview-bar-fill" style="width:42%;background:var(--amber)"></div></div>
+          </div>
+          <div class="preview-bar-item">
+            <div class="preview-bar-label"><span>Scale Readiness</span><span style="color:var(--red)">18%</span></div>
+            <div class="preview-bar"><div class="preview-bar-fill" style="width:18%;background:var(--red)"></div></div>
+          </div>
+          <div class="preview-bar-item">
+            <div class="preview-bar-label"><span>Revenue Optimization</span><span style="color:var(--amber)">35%</span></div>
+            <div class="preview-bar"><div class="preview-bar-fill" style="width:35%;background:var(--amber)"></div></div>
+          </div>
+        </div>
+        <p class="preview-note">Plus gap analysis, ROI projections, and a recommended build plan tailored to your business.</p>
+      </div>
+
+      <!-- Social Proof -->
+      <div class="proof-strip">
+        <div class="proof-item"><div class="proof-value">50+</div><div class="proof-label">Systems Built</div></div>
+        <div class="proof-item"><div class="proof-value">$200M+</div><div class="proof-label">Business Impact</div></div>
+        <div class="proof-item"><div class="proof-value">2 min</div><div class="proof-label">To Complete</div></div>
+      </div>
     </div>
   </section>
 
@@ -455,10 +607,16 @@ body {
         <p class="strengths" id="strengths-text"></p>
       </div>
 
-      <div class="block">
-        <h3>What this means for your revenue</h3>
-        <div class="revenue-amount" id="revenue-amount"></div>
-        <p class="revenue-text" id="revenue-text"></p>
+      <!-- ROI PROJECTION — personalized -->
+      <div class="roi-block" id="roi-block">
+        <h3>What solving this could mean for you</h3>
+        <div id="roi-scenario" class="roi-scenario"></div>
+        <div class="roi-number" id="roi-monthly"></div>
+        <div class="roi-sublabel">potential monthly revenue at risk</div>
+        <div class="roi-divider"></div>
+        <div class="roi-annual" id="roi-annual"></div>
+        <div class="roi-sublabel" style="margin-bottom:1.25rem;">annualized opportunity cost</div>
+        <p class="roi-context" id="roi-context"></p>
       </div>
 
       <div class="block next-step">
@@ -490,6 +648,62 @@ body {
   </footer>
 
 </div>
+
+<!-- PARTICLE CANVAS -->
+<script>
+(function(){
+  var c=document.getElementById('bgCanvas'),x=c.getContext('2d');
+  var W,H,ps=[];
+  function rz(){W=c.width=innerWidth;H=c.height=innerHeight}
+  addEventListener('resize',rz);rz();
+  function P(){this.reset()}
+  P.prototype.reset=function(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.r=Math.random()*2.5+.6;
+    this.vx=(Math.random()-.5)*.18;this.vy=(Math.random()-.5)*.18;
+    var t=Math.random();
+    this.type=t>.65?'gold':t>.4?'cyan':t>.2?'violet':'gold-bright';
+    this.a=Math.random()*.6+.25;
+    this.pulseSpeed=Math.random()*0.02+0.005;
+    this.pulseOffset=Math.random()*Math.PI*2;
+  };
+  P.prototype.update=function(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W)this.vx*=-1;
+    if(this.y<0||this.y>H)this.vy*=-1;
+    this.pulse=Math.sin(Date.now()*this.pulseSpeed+this.pulseOffset)*.3+.7;
+  };
+  P.prototype.draw=function(){
+    var a=this.a*this.pulse;
+    x.beginPath();x.arc(this.x,this.y,this.r,0,Math.PI*2);
+    if(this.type==='gold'){x.fillStyle='rgba(200,164,86,'+a+')';x.shadowColor='rgba(200,164,86,.5)'}
+    else if(this.type==='gold-bright'){x.fillStyle='rgba(255,209,102,'+(a*.8)+')';x.shadowColor='rgba(255,209,102,.4)'}
+    else if(this.type==='cyan'){x.fillStyle='rgba(0,229,255,'+(a*.7)+')';x.shadowColor='rgba(0,229,255,.45)'}
+    else{x.fillStyle='rgba(123,97,255,'+(a*.6)+')';x.shadowColor='rgba(123,97,255,.35)'}
+    x.shadowBlur=this.r*8;x.fill();x.shadowBlur=0;
+  };
+  for(var i=0;i<90;i++)ps.push(new P);
+  function anim(){
+    x.clearRect(0,0,W,H);
+    for(var i=0;i<ps.length;i++){ps[i].update();ps[i].draw()}
+    for(var i=0;i<ps.length;i++){
+      for(var j=i+1;j<ps.length;j++){
+        var dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<140){
+          var alpha=.06*(1-d/140);
+          x.beginPath();x.moveTo(ps[i].x,ps[i].y);x.lineTo(ps[j].x,ps[j].y);
+          if(ps[i].type==='cyan'||ps[j].type==='cyan'){x.strokeStyle='rgba(0,229,255,'+alpha+')'}
+          else if(ps[i].type==='violet'||ps[j].type==='violet'){x.strokeStyle='rgba(123,97,255,'+(alpha*.8)+')'}
+          else{x.strokeStyle='rgba(200,164,86,'+alpha+')'}
+          x.lineWidth=.6;x.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(anim);
+  }
+  anim();
+})();
+</script>
 
 <script>
 (function() {
@@ -564,16 +778,16 @@ body {
       { label: 'Client retention / drop-off', value: 'Client retention / drop-off' },
       { label: "I'm the bottleneck in everything", value: 'I am the bottleneck' }
     ]},
-    { id: 'q10', text: 'If 100 new clients signed up tomorrow, could your systems handle it?', scored: true, category: 'Scale Readiness', options: [
-      { label: "Absolutely not - I'd drown", value: 'Not at all', score: 5 },
-      { label: 'Maybe 10-20 but not 100', value: 'Partial', score: 15 },
-      { label: 'I could handle a surge with extra work', value: 'With Effort', score: 30 },
+    { id: 'q10', text: 'If 10 new clients signed up this week, could your systems handle it?', scored: true, category: 'Scale Readiness', options: [
+      { label: "Absolutely not — I'd be underwater", value: 'Not at all', score: 5 },
+      { label: 'Maybe 3-4 but not 10', value: 'Partial', score: 15 },
+      { label: 'I could handle it with serious extra effort', value: 'With Effort', score: 30 },
       { label: 'My systems could flex to handle most of it', value: 'Mostly Ready', score: 40 },
       { label: 'Yes, my delivery is fully automated', value: 'Fully Ready', score: 50 }
     ]}
   ];
 
-  // ===== CATEGORY CONTENT (gap analysis + what to build + tools) =====
+  // ===== CATEGORY CONTENT =====
   var categoryContent = {
     'Client Onboarding': {
       problem: 'New clients are brought on manually. Every signup repeats the same hours of work and creates an inconsistent first impression at the moment trust matters most.',
@@ -601,7 +815,7 @@ body {
       tools: ['A scored assessment or calculator as the magnet, you are using one right now', 'An email nurture sequence with tracked opens and clicks', 'Tracked landing pages so you know exactly what is working']
     },
     'Scale Readiness': {
-      problem: 'If 100 clients signed up tomorrow, the business would strain or break. Delivery still depends on you being in the middle of every step.',
+      problem: 'If 10 new clients signed up this week, the business would strain or break. Delivery still depends on you being in the middle of every step.',
       build: 'Systematize delivery so it runs without you in every step: documented, templated, and automated, so capacity is not capped by your calendar.',
       tools: ['SOPs and templates for every recurring delivery step', 'Automation for handoffs and status updates', 'A custom platform so delivery capacity is not limited by your hours']
     }
@@ -643,7 +857,7 @@ body {
     document.getElementById('hero').style.display = 'none';
     var qs = document.getElementById('quiz-section');
     qs.classList.add('active');
-    qs.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     updateProgress();
   };
 
@@ -665,7 +879,7 @@ body {
       currentQuestion = fromIndex + 1;
       document.getElementById('question-' + currentQuestion).classList.add('active');
       updateProgress();
-      document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       showEmailGate();
     }
@@ -683,7 +897,97 @@ body {
     document.getElementById('progress-text').textContent = 'Complete';
     document.getElementById('progress-pct').textContent = '100%';
     document.getElementById('email-gate').classList.add('active');
-    document.getElementById('email-gate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ===== REVENUE / ROI HELPERS =====
+  function getRevenueRange(revenueAnswer) {
+    var map = {
+      'Under $100K': { low: 50000, high: 100000, mid: 75000 },
+      '$100K - $250K': { low: 100000, high: 250000, mid: 175000 },
+      '$250K - $500K': { low: 250000, high: 500000, mid: 375000 },
+      '$500K - $1M': { low: 500000, high: 1000000, mid: 750000 },
+      '$1M - $5M': { low: 1000000, high: 5000000, mid: 2500000 },
+      '$5M+': { low: 5000000, high: 10000000, mid: 7500000 }
+    };
+    return map[revenueAnswer] || { low: 100000, high: 250000, mid: 175000 };
+  }
+
+  function getClientCapacity(clientAnswer) {
+    var map = {
+      '1-5': { current: 3, potential: 10 },
+      '6-15': { current: 10, potential: 25 },
+      '16-30': { current: 23, potential: 50 },
+      '31-50': { current: 40, potential: 75 },
+      '50+': { current: 60, potential: 100 }
+    };
+    return map[clientAnswer] || { current: 10, potential: 25 };
+  }
+
+  function calculateROI(normalizedScore, revenueAnswer, clientAnswer, bottleneck) {
+    var rev = getRevenueRange(revenueAnswer);
+    var cap = getClientCapacity(clientAnswer);
+
+    // Average revenue per client per month
+    var monthlyRev = rev.mid / 12;
+    var revenuePerClient = monthlyRev / Math.max(cap.current, 1);
+
+    // How many additional clients they could take with proper systems
+    var gapMultiplier = (100 - normalizedScore) / 100;
+    var additionalClients = Math.round((cap.potential - cap.current) * gapMultiplier);
+    if (additionalClients < 3) additionalClients = 3;
+
+    // Monthly revenue at risk = additional clients * revenue per client
+    var monthlyROI = Math.round(additionalClients * revenuePerClient);
+
+    // Floor and ceiling based on their revenue tier
+    var minROI, maxROI;
+    if (rev.mid <= 100000) { minROI = 5000; maxROI = 25000; }
+    else if (rev.mid <= 250000) { minROI = 8000; maxROI = 40000; }
+    else if (rev.mid <= 500000) { minROI = 15000; maxROI = 75000; }
+    else if (rev.mid <= 1000000) { minROI = 25000; maxROI = 120000; }
+    else if (rev.mid <= 5000000) { minROI = 40000; maxROI = 200000; }
+    else { minROI = 75000; maxROI = 350000; }
+
+    if (monthlyROI < minROI) monthlyROI = minROI;
+    if (monthlyROI > maxROI) monthlyROI = maxROI;
+
+    // Round to nearest 500
+    monthlyROI = Math.round(monthlyROI / 500) * 500;
+
+    var annualROI = monthlyROI * 12;
+
+    // Build scenario text
+    var scenario = '';
+    if (normalizedScore <= 30) {
+      scenario = 'Right now, your systems can handle about ' + cap.current + ' clients. With the right infrastructure, you could serve ' + cap.potential + ' without adding hours to your week. At your current revenue per client, that’s ' + additionalClients + ' additional clients your business is leaving on the table every month.';
+    } else if (normalizedScore <= 60) {
+      scenario = 'You’re serving ' + cap.current + ' clients, but your systems could handle ' + cap.potential + '. The gaps in your operations are the bottleneck, not your market. Closing them would unlock capacity for ' + additionalClients + ' more clients at your current pricing.';
+    } else {
+      scenario = 'You’re close to scale-ready. With strategic automation in your weakest areas, you could go from ' + cap.current + ' to ' + cap.potential + ' clients without hiring or burning out. That’s ' + additionalClients + ' clients worth of untapped capacity.';
+    }
+
+    // Build context text
+    var context = '';
+    if (bottleneck === 'Getting new clients') {
+      context = 'Your biggest bottleneck is lead flow. Without a system generating qualified leads consistently, this revenue stays theoretical. The build plan above fixes that first.';
+    } else if (bottleneck === 'Onboarding takes too long') {
+      context = 'Every slow onboarding is a client who could churn before they see value. Automating this single process could recover a significant portion of this revenue.';
+    } else if (bottleneck === "Can't scale without hiring") {
+      context = 'You’re capped by your own calendar. The right systems let you serve more clients without more headcount, which means this revenue flows straight to your bottom line.';
+    } else if (bottleneck === 'Client retention / drop-off') {
+      context = 'Client drop-off is silent revenue loss. A proper client experience system with progress tracking and automated touchpoints can dramatically improve retention and lifetime value.';
+    } else {
+      context = 'When you’re the bottleneck in everything, the ceiling is your time. Removing yourself from the repetitive work is how this revenue becomes real.';
+    }
+
+    return {
+      monthly: monthlyROI,
+      annual: annualROI,
+      additionalClients: additionalClients,
+      scenario: scenario,
+      context: context
+    };
   }
 
   // ===== SUBMIT + CAPTURE =====
@@ -711,10 +1015,10 @@ body {
     var category, categoryColor, categoryDescription;
     if (normalizedScore <= 25) {
       category = 'Manual Mode'; categoryColor = '#E5484D';
-      categoryDescription = "You are doing nearly everything yourself. Every new client means more hours and more stress. The business depends entirely on you showing up.";
+      categoryDescription = "You are doing nearly everything yourself. Every new client means more hours and more stress. The business depends entirely on you showing up, and that ceiling is close.";
     } else if (normalizedScore <= 50) {
       category = 'Patchwork Systems'; categoryColor = '#F5A524';
-      categoryDescription = "You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together, and that ceiling is close.";
+      categoryDescription = "You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together, and growth is limited by your bandwidth.";
     } else if (normalizedScore <= 75) {
       category = 'Growth Ready'; categoryColor = '#D4B56A';
       categoryDescription = "Your foundation is solid, but a few real gaps are keeping you from 2 to 3x without things breaking.";
@@ -723,25 +1027,18 @@ body {
       categoryDescription = "You are ahead of most of your peers. A few strategic upgrades could unlock fully automated delivery and hands-free growth.";
     }
 
-    // Build category scores + leak + recommendation
+    // Build category scores
     var categoryScores = {};
     scoredMeta.forEach(function(m) {
       categoryScores[m.cat] = Math.round(((scores[m.qid] || 0) / m.max) * 100);
     });
-    var leakLow, leakHigh, revenueText;
-    if (normalizedScore < 50) {
-      leakLow = 3000; leakHigh = 8000;
-      revenueText = "Based on your profile, you are likely losing $3,000 to $8,000 a month to manual work, client drop-off, and missed upsell opportunities.";
-    } else if (normalizedScore <= 75) {
-      leakLow = 5000; leakHigh = 15000;
-      revenueText = "You are close. With the right systems you could add $5,000 to $15,000 a month without adding hours to your week.";
-    } else {
-      leakLow = 10000; leakHigh = 30000;
-      revenueText = "You are positioned for real leverage. Strategic automation could unlock $10,000 to $30,000+ a month in additional capacity.";
-    }
+
+    // Calculate personalized ROI
+    var roi = calculateROI(normalizedScore, answers.q2, answers.q3, answers.q9);
+
     var rec = normalizedScore < 30 ? 'Night Launch' : (normalizedScore <= 60 ? 'Night Build' : 'Night Build Pro');
 
-    // Capture into Supabase (leads + consent_log + build_maps)
+    // Capture into Supabase
     try {
       var qs = new URLSearchParams(window.location.search);
       var utm = {
@@ -759,20 +1056,20 @@ body {
           source_url: window.location.href, utm: utm, source_key: utm.utm_content || null,
           business_type: answers.q1 || '', revenue: answers.q2 || '', biggest_bottleneck: answers.q9 || '',
           systems_score: normalizedScore, tier: category,
-          category_scores: categoryScores, leak_low: leakLow, leak_high: leakHigh,
-          recommendation: rec, revenue_text: revenueText, answers: answers
+          category_scores: categoryScores, leak_low: roi.monthly, leak_high: roi.annual,
+          recommendation: rec, revenue_text: roi.scenario, answers: answers
         })
       }).catch(function() {});
     } catch (err) {}
 
     setTimeout(function() {
-      showResults(normalizedScore, category, categoryColor, categoryDescription, categoryScores, leakLow, leakHigh, revenueText, rec);
+      showResults(normalizedScore, category, categoryColor, categoryDescription, categoryScores, roi, rec, firstName);
     }, 650);
     return false;
   };
 
   // ===== RESULTS =====
-  function showResults(score, category, color, description, categoryScores, leakLow, leakHigh, revenueText, rec) {
+  function showResults(score, category, color, description, categoryScores, roi, rec, firstName) {
     document.getElementById('quiz-section').classList.remove('active');
     document.getElementById('results-section').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -811,7 +1108,7 @@ body {
       });
     }, 450);
 
-    // Gap cards: the 3 lowest-scoring categories
+    // Gap cards
     var sorted = scoredMeta.slice().sort(function(a, b) {
       return categoryScores[a.cat] - categoryScores[b.cat];
     });
@@ -841,15 +1138,18 @@ body {
       document.getElementById('strengths-block').style.display = 'block';
     }
 
-    // Revenue
-    document.getElementById('revenue-amount').textContent = '$' + leakLow.toLocaleString() + ' - $' + leakHigh.toLocaleString() + '/mo';
-    document.getElementById('revenue-amount').style.color = color;
-    document.getElementById('revenue-text').textContent = revenueText;
+    // ROI block
+    document.getElementById('roi-scenario').textContent = roi.scenario;
+    document.getElementById('roi-monthly').textContent = '$' + roi.monthly.toLocaleString() + '/mo';
+    document.getElementById('roi-annual').textContent = '$' + roi.annual.toLocaleString() + '/year';
+    document.getElementById('roi-context').textContent = roi.context;
 
     // Next step
     document.getElementById('rec-tier').textContent = 'Suggested starting point: ' + rec;
+
+    var nameStr = firstName ? firstName + ', you' : 'You';
     document.getElementById('rec-description').textContent =
-      'You do not have to build all of this at once, and you should not. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch, just the plan. You keep it either way.';
+      nameStr + ' don’t have to build all of this at once, and you shouldn’t. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch — just the plan. You keep it either way.';
 
     document.getElementById('social-proof').style.display = 'block';
   }
