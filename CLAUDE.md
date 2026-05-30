@@ -44,14 +44,17 @@ The `leads` table uses a `lead_type` column:
 ### Rule 3: Always confirm Supabase/Vercel project targets
 Before ANY database write, migration, or deployment, run the `project-selector` skill to confirm you're targeting the correct project. Never assume from a previous conversation.
 
-### Rule 4: Git push requires fresh /tmp clone
+### Rule 4: NEVER deploy via Vercel CLI — git push ONLY
+Deployments MUST go through git push → GitHub → Vercel auto-deploy. NEVER use `vercel deploy`, `vercel --prod`, or any Vercel CLI deployment. Dirty CLI deploys (`gitDirty: "1"`) have caused pages to go missing in production because they deploy from an incomplete local copy instead of the full git repo. This has happened multiple times and wiped 9+ pages from production.
+
+### Rule 5: Git push requires fresh /tmp clone
 The mounted filesystem has an immutable `.git/index.lock`. To push changes:
 1. Clone to `/tmp/<fresh-unique-dir>` using the GitHub PAT
 2. Copy changed files from the mounted workspace
 3. Commit and push from the /tmp clone
 4. Git config: `git -c user.name="Daniel Knight" -c user.email="dknightunicorn@gmail.com"`
 
-### Rule 5: Verify every change
+### Rule 6: Verify every change
 After making a change (SQL, deployment, code edit):
 1. **Run a verification query or check** — don't just assert it worked
 2. **For SQL**: Query the affected rows and confirm the expected state
@@ -59,7 +62,7 @@ After making a change (SQL, deployment, code edit):
 4. **For code changes**: Read the file back and confirm the edit landed
 5. **NEVER claim a fix is done without verification evidence**
 
-### Rule 6: One app = one Supabase project
+### Rule 7: One app = one Supabase project
 If a task is for a new product or different company, create a new Supabase project. Don't pollute `trpnlkntvulkjerevngm` with unrelated data.
 
 ---
@@ -213,15 +216,21 @@ Primary table. Key columns:
 |------|------|-------------|
 | `index.html` | / | Homepage |
 | `services.html` | /services | Service offerings |
+| `fractional-ai-officer.html` | /fractional-ai-officer | FAO flagship service page |
 | `portfolio.html` | /portfolio | Case studies & app showcase |
+| `case-studies.html` | /case-studies | Case studies alternate |
 | `about.html` | /about | About page |
 | `pricing.html` | /pricing | Pricing |
 | `blog.html` | /blog, /blog/:slug | Blog with dynamic slugs |
 | `tools.html` | /tools | Free tools |
+| `faq.html` | /faq | FAQ page |
 | `careers.html` | /careers | Job listings |
 | `apply.html` | /apply | Job application |
-| `book.html` | /book | Booking page |
+| `book.html` | /book | Booking page (Blueprint Call direct) |
+| `booking.html` | /booking | Booking hub (all types) |
 | `book-tech-call.html` | /book-tech-call | Tech call booking |
+| `challenge.html` | /challenge | 7-Day AI System Challenge ($47) |
+| `apps.html` | /apps | Apps showcase |
 
 ### Speaker System
 | Page | Path | Description |
@@ -235,6 +244,20 @@ Primary table. Key columns:
 | `speaker-feedback.html` | /speaker-feedback | Feedback form |
 | `speaker-sizzle-reel.mp4` | /speaker-sizzle-reel | Video reel |
 
+### ICP Landing Pages
+| Page | Path | Description |
+|------|------|-------------|
+| `for-coaches.html` | /for-coaches | ICP page for coaches |
+| `for-consultants.html` | /for-consultants | ICP page for consultants |
+| `for-course-creators.html` | /for-course-creators | ICP page for course creators |
+| `for-speakers.html` | /for-speakers | ICP page for speakers |
+| `for-agencies.html` | /for-agencies | ICP page for agencies |
+| `apps-for-coaches.html` | /apps-for-coaches | Apps for coaches |
+| `apps-for-consultants.html` | /apps-for-consultants | Apps for consultants |
+| `apps-for-course-creators.html` | /apps-for-course-creators | Apps for course creators |
+| `apps-for-speakers.html` | /apps-for-speakers | Apps for speakers |
+| `apps-for-meal-prep.html` | /apps-for-meal-prep | Apps for meal prep businesses |
+
 ### Products & Funnels
 | Page | Path | Description |
 |------|------|-------------|
@@ -243,10 +266,12 @@ Primary table. Key columns:
 | `command-center-build.html` | /command-center-build | CC intake form |
 | `prospecting-filter-score.html` | /prospecting-filter-score | Lead scoring tool |
 | `assess.html` | /assess | Business assessment |
-| `audit.html` | /audit | Tech audit |
+| `audit.html` | /audit | Tech audit + lead capture |
+| `map.html` | /map/:slug | Shareable audit build map results |
 | `blueprint.html` | /blueprint | Blueprint call |
 | `mini-blueprint.html` | /mini-blueprint | Mini blueprint form |
 | `roundtable.html` | /roundtable | Roundtable event |
+| `website-intake.html` | /website-intake | Website development intake form |
 
 ### Portals
 | Page | Path | Description |
@@ -272,6 +297,9 @@ Primary table. Key columns:
 | `review.html` | /review | Client review |
 | `ref-redirect.html` | /ref-redirect | Referral redirect |
 | `privacy-policy.html` | /privacy-policy | Privacy policy |
+| `404.html` | (auto) | Custom 404 page |
+| `unsubscribe.html` | /unsubscribe | Email unsubscribe |
+| `proposal-viewer.html` | /proposal-viewer | Proposal viewer |
 | `llms.txt` | /llms.txt | LLM context file |
 | `robots.txt` | /robots.txt | SEO robots |
 
@@ -328,14 +356,10 @@ Speaker survey leads are tagged with a `cohort_id` in the format `YYYY-MM-DD-eve
 
 ## Known Issues & Tech Debt
 
-1. **loadCCBuilds() ghost call** — Line ~881 in admin.html calls a function that no longer exists (CC Builds tab was removed). Causes console error but doesn't break anything.
-2. **prospecting.html LinkedIn tab bugs** — `sbGet()` uses wrong helper, `setLiStatus()` has wrong function signature.
-3. **No 404 page** — Missing custom 404.
-4. **Duplicate portal routes** — Both `/portal` and `/client-portal` exist.
-5. **Analytics tracking** — `ko-track.js` accuracy needs review.
-6. **speaker-campaign edge function** — Doesn't filter by cohort_id yet (sends to all speaker leads).
-7. **quick-blast edge function** — No cohort filtering support.
-8. **admin.html .bak files** — Multiple backup files in root that should be cleaned up.
+1. **CRITICAL: Dirty Vercel CLI deploys wipe pages** — The "KnightOps.app" session (`pensive-adoring-edison`) deploys via Vercel CLI with `gitDirty: "1"`. These deploys use whatever files the session has locally, NOT the full git repo. This has wiped 9 pages from production (fractional-ai-officer, challenge, faq, for-agencies, for-coaches, for-consultants, for-course-creators, for-speakers, unsubscribe). **FIX: That session must stop using Vercel CLI and deploy via git push only.** See Rule 4.
+2. **Duplicate portal routes** — Both `/portal` and `/client-portal` exist.
+3. **Analytics tracking** — `ko-track.js` accuracy needs review.
+4. **/assessment links broken** — 6 pages link to `/assessment` but the file is `assess.html` (serves at `/assess`). Need to either rename the file or add a redirect.
 
 ---
 
