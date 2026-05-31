@@ -6,3 +6,14 @@ supabase/.temp/
 .env
 .env.local
 
+GRAVITY-*.md
+*.bak-ccbuilds
+obsidian-vault-notes/
+mockups/
+specs/
+drafts/
+email-campaigns/
+articles/
+PROSPECTING-SPEC.md
+*.docx
+ai-audit-sample-result.png
