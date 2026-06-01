@@ -2994,6 +2994,7 @@ async function showProjectDetail(id){
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Linked Clients</h3><button class="btn btn-sm btn-primary" onclick="linkClientToProject(\''+id+'\')">+ Link Client</button></div><div id="linkedClients_'+id+'"><p style="color:var(--text-muted);font-size:.85rem">Loading...</p></div></div>'+
     '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'</div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'files\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'files\',\'Project Files\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔑 Project Credentials</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'project-credentials\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'project-credentials\',\'Project Credentials\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="addProjectCredential(\''+id+'\')">+ Add Credential</button></div></div><div id="projectCredentials_'+id+'"></div></div>'+
 '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔐 Login Credentials</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'login-credentials\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'login-credentials\',\'Login Credentials\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="addLoginCredential(\''+id+'\')">+ Add Login</button></div></div><div id="loginCredentials_'+id+'"></div></div>'+
@@ -3008,6 +3009,7 @@ async function showProjectDetail(id){
   loadProjectCredentials(id);
   loadLoginCredentials(id);
   loadLinkedClients(id);
+  loadIntakeTokens(id);
 }
 
 // ═══ PROMPT GENERATORS ═══
@@ -8508,45 +8510,88 @@ async function saveLinkedClientRole(linkId,projectId){
   if(error){showToast('Error: '+error.message,'error');return;}
   closeEditModal();showToast('Role updated!');loadLinkedClients(projectId);
 }
-// ═══ SECTION DEEP LINKS + EMAIL ═══
-function copySectionLink(projectId, section){
-  const url='https://knightops.biz/client-portal?project='+projectId+'&section='+section;
-  navigator.clipboard.writeText(url);
-  showToast('Link copied to clipboard!');
+// ═══ INTAKE TOKEN SYSTEM ═══
+// Generates a secure 7-day token and returns the intake URL (no auth required for clients)
+async function generateIntakeToken(projectId, label){
+  const{data,error}=await sb.from('project_intake_tokens').insert({
+    project_id:projectId,
+    label:label||'Intake link',
+    created_by:'admin',
+    expires_at:new Date(Date.now()+7*86400000).toISOString()
+  }).select('token').single();
+  if(error||!data){showToast('Error creating link: '+(error?.message||'unknown'),'error');return null;}
+  return 'https://knightops.biz/project-intake?token='+data.token;
 }
+
+async function copySectionLink(projectId, section){
+  const url=await generateIntakeToken(projectId,'Copy link – '+section);
+  if(!url)return;
+  navigator.clipboard.writeText(url);
+  showToast('Secure intake link copied! Expires in 7 days.');
+  // Refresh token list if visible
+  if(document.getElementById('intakeTokens_'+projectId)) loadIntakeTokens(projectId);
+}
+
 async function emailSectionLink(projectId, section, sectionLabel){
   const p=S.projects.find(x=>x.id===projectId);
   const projectName=p?p.name:'Your Project';
-  // Find client email
   let clientEmail='';
-  if(p&&p.client_id){
-    const c=S.clients.find(x=>x.id===p.client_id);
-    if(c) clientEmail=c.profiles?.email||c.email||'';
-  }
-  if(!clientEmail){
-    clientEmail=prompt('Client email address:');
-    if(!clientEmail)return;
-  }
-  const portalUrl='https://knightops.biz/client-portal?project='+projectId+'&section='+section;
-  // Send branded email via edge function
+  if(p&&p.client_id){const c=S.clients.find(x=>x.id===p.client_id);if(c)clientEmail=c.profiles?.email||c.email||'';}
+  if(!clientEmail){clientEmail=prompt('Client email address:');if(!clientEmail)return;}
+  const intakeUrl=await generateIntakeToken(projectId,'Email – '+sectionLabel);
+  if(!intakeUrl)return;
   try{
     showToast('Sending email...');
     const resp=await fetch(SUPABASE_URL+'/functions/v1/send-section-link',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.session.access_token},
-      body:JSON.stringify({to:clientEmail,project_name:projectName,section_label:sectionLabel,portal_url:portalUrl})
+      body:JSON.stringify({to:clientEmail,project_name:projectName,section_label:sectionLabel,portal_url:intakeUrl})
     });
-    if(!resp.ok){
-      const err=await resp.text();
-      throw new Error(err);
-    }
-    showToast('Email sent to '+clientEmail+'!');
+    if(!resp.ok){const err=await resp.text();throw new Error(err);}
+    showToast('Intake link emailed to '+clientEmail+'!');
   }catch(e){
-    console.error('Email error:',e);
-    // Fallback: copy link + show toast
-    navigator.clipboard.writeText(portalUrl);
-    showToast('Email failed — link copied to clipboard instead. Send manually.','error');
+    navigator.clipboard.writeText(intakeUrl);
+    showToast('Email failed — intake link copied to clipboard instead.','error');
   }
+  if(document.getElementById('intakeTokens_'+projectId)) loadIntakeTokens(projectId);
+}
+
+// Render active intake tokens in the project detail panel
+async function loadIntakeTokens(projectId){
+  const el=document.getElementById('intakeTokens_'+projectId);if(!el)return;
+  const{data}=await sb.from('project_intake_tokens').select('*').eq('project_id',projectId).order('created_at',{ascending:false}).limit(20);
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No intake links created yet. Use the 🔗 Copy Link buttons above to generate one.</p>';return;}
+  el.innerHTML=data.map(t=>{
+    const exp=new Date(t.expires_at);
+    const expired=t.revoked||exp<new Date();
+    const daysLeft=expired?0:Math.ceil((exp-new Date())/86400000);
+    const intakeUrl='https://knightops.biz/project-intake?token='+t.token;
+    const statusColor=expired?'var(--danger)':daysLeft<=1?'var(--warning)':'var(--success)';
+    const statusLabel=t.revoked?'Revoked':expired?'Expired':daysLeft+' day'+(daysLeft===1?'':'s')+' left';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);gap:8px">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(t.label||'Intake link')+'</div>'+
+        '<div style="font-size:.72rem;color:var(--text-muted);margin-top:1px">'+fmtDate(t.created_at)+(t.used_count?' · Used '+t.used_count+'×':'')+'</div>'+
+      '</div>'+
+      '<span style="font-size:.72rem;padding:2px 7px;border-radius:100px;background:'+statusColor+'22;color:'+statusColor+';white-space:nowrap">'+statusLabel+'</span>'+
+      (!expired?'<button class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:2px 8px;white-space:nowrap" onclick="copyIntakeUrl(\''+intakeUrl+'\')">Copy</button>':'')+
+      (!t.revoked?'<button class="btn btn-sm btn-danger" style="font-size:.7rem;padding:2px 6px" onclick="revokeIntakeToken(\''+t.id+'\',\''+projectId+'\')">Revoke</button>':'')+
+    '</div>';
+  }).join('');
+}
+
+function copyIntakeUrl(url){navigator.clipboard.writeText(url);showToast('Link copied!');}
+async function revokeIntakeToken(tokenId,projectId){
+  if(!confirm('Revoke this link? The client will no longer be able to use it.'))return;
+  await sb.from('project_intake_tokens').update({revoked:true}).eq('id',tokenId);
+  showToast('Link revoked');loadIntakeTokens(projectId);
+}
+async function createAndCopyIntakeToken(projectId){
+  const url=await generateIntakeToken(projectId,'Admin – manual');
+  if(!url)return;
+  navigator.clipboard.writeText(url);
+  showToast('New intake link created and copied! Expires in 7 days.');
+  if(document.getElementById('intakeTokens_'+projectId)) loadIntakeTokens(projectId);
 }
 // ═══════════════════════════════════════
 // PARTNERS MODULE
