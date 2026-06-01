@@ -416,24 +416,45 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-
         throw new Error((rpcData && rpcData.error) || 'Submission failed');
       }
 
-      // 2. Upload files to Supabase Storage via the edge function (handles auth)
+      // 2. Show success immediately — files upload in background
+      btn.textContent = 'Submitted ✓';
+      showState('state-success');
+
+      // 3. Fire notification email (non-blocking)
+      fetch(SUPABASE_URL + '/functions/v1/intake-notify-team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+        body: JSON.stringify({
+          token: token,
+          project_id: projectId,
+          project_name: projectName,
+          credentials_count: credentials.length,
+          logins_count: login_credentials.length,
+          files_count: selectedFiles.length,
+          credential_labels: credentials.map(function(c){ return c.credential_label; }),
+          login_titles: login_credentials.map(function(l){ return l.title; }),
+          file_names: selectedFiles.map(function(f){ return f.name; })
+        })
+      }).catch(function(){});
+
+      // 4. Upload files in background after success screen shows
       if (selectedFiles.length > 0) {
-        btn.textContent = 'Uploading files...';
-        for (var i = 0; i < selectedFiles.length; i++) {
-          var f = selectedFiles[i];
-          var formData = new FormData();
-          formData.append('file', f);
-          formData.append('token', token);
-          formData.append('project_id', projectId);
-          await fetch(SUPABASE_URL + '/functions/v1/intake-file-upload', {
-            method: 'POST',
-            headers: { 'apikey': ANON_KEY },
-            body: formData
-          });
-        }
+        (async function() {
+          for (var i = 0; i < selectedFiles.length; i++) {
+            var f = selectedFiles[i];
+            var formData = new FormData();
+            formData.append('file', f);
+            formData.append('token', token);
+            formData.append('project_id', projectId);
+            await fetch(SUPABASE_URL + '/functions/v1/intake-file-upload', {
+              method: 'POST',
+              headers: { 'apikey': ANON_KEY },
+              body: formData
+            });
+          }
+        })();
       }
 
-      showState('state-success');
     } catch(e) {
       console.error(e);
       btn.disabled = false;
