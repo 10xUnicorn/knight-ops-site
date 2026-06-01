@@ -215,7 +215,7 @@ body {
 }
 .proof-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.5px; }
 
-/* QUIZ SECTION — fixed viewport height */
+/* QUIZ SECTION */
 .quiz-section { display: none; padding: 0; }
 .quiz-section.active { display: flex; flex-direction: column; min-height: 100vh; justify-content: center; padding: 5rem 0 2rem; }
 .progress-wrap { margin-bottom: 2rem; }
@@ -267,7 +267,7 @@ body {
 }
 .option-item span { font-size: 0.98rem; }
 
-/* GATE */
+/* EARLY GATE (name + email after Q2) */
 .email-gate { display: none; }
 .email-gate.active { display: block; animation: fadeUp 0.4s ease; }
 .gate-card {
@@ -306,6 +306,51 @@ body {
 .gate-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--gold-glow); }
 .gate-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
 .gate-privacy { font-size: 0.74rem; color: var(--muted); margin-top: 1rem; }
+
+/* FINAL GATE (phone + biz name after Q10) */
+.final-gate { display: none; }
+.final-gate.active { display: block; animation: fadeUp 0.4s ease; }
+.final-gate .gate-card {
+  border-color: var(--violet-light);
+  background: linear-gradient(160deg, rgba(123,97,255,0.07), rgba(200,164,86,0.05));
+}
+
+/* ROI PER GAP */
+.gap-roi {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(200,164,86,0.10), rgba(123,97,255,0.07));
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+}
+.gap-roi-label {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.5rem;
+}
+.gap-roi-numbers {
+  display: flex; gap: 1.5rem; align-items: baseline; flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.gap-roi-primary {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 1.9rem; color: var(--gold);
+}
+.gap-roi-secondary {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 1.1rem; color: var(--cyan);
+}
+.gap-roi-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.5; margin-bottom: 0.9rem; }
+.gap-book-btn {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 0.88rem; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+  color: #0A0A0B; padding: 0.7rem 1.6rem; border-radius: 8px;
+  text-decoration: none; transition: all 0.25s;
+  box-shadow: 0 3px 16px var(--gold-glow);
+}
+.gap-book-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--gold-glow); }
 
 /* RESULTS */
 .results-section { display: none; padding: 7rem 0 5rem; }
@@ -360,7 +405,7 @@ body {
 .gap-card {
   border: 1px solid var(--border); border-left: 3px solid var(--amber);
   background: var(--surface2); border-radius: 0 12px 12px 0;
-  padding: 1.5rem; margin-bottom: 1.25rem;
+  padding: 1.5rem; margin-bottom: 1.75rem;
 }
 .gap-card:last-child { margin-bottom: 0; }
 .gap-cat {
@@ -489,7 +534,6 @@ body {
       <button class="btn btn-primary" onclick="startQuiz()">Start My Free Audit &rarr;</button>
       <p class="hero-sub">No credit card. No sales call. Just a real plan you can act on today.</p>
 
-      <!-- Value Props -->
       <div class="value-grid">
         <div class="value-card">
           <div class="value-icon">&#x1F4CA;</div>
@@ -508,7 +552,6 @@ body {
         </div>
       </div>
 
-      <!-- Results Preview -->
       <div class="preview-section">
         <div class="label">What You'll Get</div>
         <h3>A personalized scorecard like this &mdash; built from your answers</h3>
@@ -533,7 +576,6 @@ body {
         <p class="preview-note">Plus gap analysis, ROI projections, and a recommended build plan tailored to your business.</p>
       </div>
 
-      <!-- Social Proof -->
       <div class="proof-strip">
         <div class="proof-item"><div class="proof-value">50+</div><div class="proof-label">Systems Built</div></div>
         <div class="proof-item"><div class="proof-value">$200M+</div><div class="proof-label">Business Impact</div></div>
@@ -555,25 +597,42 @@ body {
 
       <div id="questions-container"></div>
 
+      <!-- EARLY GATE: shows after Q2 — name + email only -->
       <div class="email-gate" id="email-gate">
         <div class="gate-card">
-          <div class="gate-icon">&#9889;</div>
-          <h2>Your Systems Score is ready.</h2>
-          <p>Where should we send your results and custom build plan?</p>
-          <form class="gate-form" id="gate-form" onsubmit="return handleGateSubmit(event)">
+          <div class="gate-icon">&#128161;</div>
+          <h2>You're already ahead of most.</h2>
+          <p>Based on what you've shared, there's a real gap here worth quantifying. Drop your name and email and we'll calculate it as you go through the rest &mdash; and send your full results when you're done.</p>
+          <form class="gate-form" id="gate-form" onsubmit="return handleEarlyGate(event)">
             <input type="text" class="gate-input" id="gate-firstname" placeholder="First Name" required autocomplete="given-name">
             <input type="email" class="gate-input" id="gate-email" placeholder="Email Address" required autocomplete="email">
-            <input type="tel" class="gate-input" id="gate-phone" placeholder="Phone (to text your results)" autocomplete="tel">
-            <input type="text" class="gate-input" id="gate-business" placeholder="Business Name (optional)" autocomplete="organization">
             <label class="gate-consent">
               <input type="checkbox" id="gate-consent" checked>
-              <span>Yes, send my results and text/email me with related insights from Knight Ops.</span>
+              <span>Yes, send my results and insights from Knight Ops.</span>
             </label>
-            <button type="submit" class="gate-btn" id="gate-btn">See My Results &rarr;</button>
+            <button type="submit" class="gate-btn" id="early-gate-btn">Keep Going &rarr;</button>
           </form>
           <p class="gate-privacy">We respect your privacy. No spam, ever. Unsubscribe anytime.</p>
         </div>
       </div>
+
+      <!-- FINAL GATE: shows after Q10 — phone + biz name (both optional) -->
+      <div class="final-gate" id="final-gate">
+        <div class="gate-card">
+          <div class="gate-icon">&#9889;</div>
+          <h2>Your Systems Score is calculating.</h2>
+          <p>These two fields help us personalize your report &mdash; both are optional. Skip if you'd rather go straight to results.</p>
+          <form class="gate-form" id="final-gate-form" onsubmit="return handleFinalGate(event)">
+            <input type="tel" class="gate-input" id="gate-phone" placeholder="Phone (optional — we'll text your results)" autocomplete="tel">
+            <input type="text" class="gate-input" id="gate-business" placeholder="Business Name (optional)" autocomplete="organization">
+            <button type="submit" class="gate-btn" id="final-gate-btn">See My Full Report &rarr;</button>
+          </form>
+          <p class="gate-privacy" style="margin-top:0.6rem;">
+            <a href="#" onclick="skipFinalGate(event)" style="color:var(--muted);font-size:0.8rem;text-decoration:underline;text-underline-offset:3px;">Skip and go straight to results</a>
+          </p>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -598,7 +657,7 @@ body {
 
       <div class="block">
         <h3>Your 3 biggest opportunities</h3>
-        <p style="color:var(--gray);font-size:0.9rem;margin-top:-0.6rem;margin-bottom:1.4rem;">The gaps costing you the most right now, what to build to close them, and the tools that get you there.</p>
+        <p style="color:var(--gray);font-size:0.9rem;margin-top:-0.6rem;margin-bottom:1.4rem;">The gaps costing you the most right now, what to build, and the ROI potential for each.</p>
         <div id="gap-cards"></div>
       </div>
 
@@ -607,7 +666,7 @@ body {
         <p class="strengths" id="strengths-text"></p>
       </div>
 
-      <!-- ROI PROJECTION — personalized -->
+      <!-- OVERALL ROI -->
       <div class="roi-block" id="roi-block">
         <h3>What solving this could mean for you</h3>
         <div id="roi-scenario" class="roi-scenario"></div>
@@ -631,7 +690,6 @@ body {
     </div>
   </section>
 
-  <!-- SOCIAL PROOF -->
   <section class="proof" id="social-proof" style="display:none;">
     <div class="container">
       <p class="tagline">Built for coaches, consultants, and course creators ready to stop trading time for money.</p>
@@ -709,11 +767,46 @@ body {
 (function() {
   'use strict';
 
-  // ===== GRAVITY LEAD CAPTURE =====
   var GRAVITY_CAPTURE_URL = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/gravity-capture';
+  var SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
   var GRAVITY_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
+  // ===== FUNNEL TRACKING =====
+  var _sessionId = (function() {
+    var id = sessionStorage.getItem('audit_sid');
+    if (!id) { id = 'a_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); sessionStorage.setItem('audit_sid', id); }
+    return id;
+  })();
+  var _qs = new URLSearchParams(window.location.search);
+  var _utm = { utm_source: _qs.get('utm_source'), utm_medium: _qs.get('utm_medium'), utm_campaign: _qs.get('utm_campaign'), utm_content: _qs.get('utm_content') };
+  var _capturedEmail = null;
+
+  function trackStep(step, stepIndex, meta) {
+    try {
+      var payload = { session_id: _sessionId, step: step };
+      if (stepIndex !== undefined && stepIndex !== null) payload.step_index = stepIndex;
+      if (_capturedEmail) payload.email = _capturedEmail;
+      if (_utm.utm_source) payload.utm_source = _utm.utm_source;
+      if (_utm.utm_medium) payload.utm_medium = _utm.utm_medium;
+      if (_utm.utm_campaign) payload.utm_campaign = _utm.utm_campaign;
+      if (_utm.utm_content) payload.utm_content = _utm.utm_content;
+      if (meta) payload.metadata = meta;
+      fetch(SUPABASE_URL + '/rest/v1/audit_funnel_events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': GRAVITY_ANON, 'Authorization': 'Bearer ' + GRAVITY_ANON, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(payload)
+      }).catch(function(){});
+    } catch(e) {}
+  }
+
+  // Fire page_view immediately
+  trackStep('page_view', 0, { referrer: document.referrer || null });
+
   // ===== QUESTIONS =====
+  // Q1-Q2: context (shown first — poke at pain before gate)
+  // Early gate fires AFTER Q2
+  // Q3-Q10: diagnostic questions
+  // Final gate fires AFTER Q10
   var questions = [
     { id: 'q1', text: 'What type of business do you run?', scored: false, options: [
       { label: 'Coaching / Mentoring', value: 'Coaching / Mentoring' },
@@ -723,7 +816,16 @@ body {
       { label: 'Agency / Service Provider', value: 'Agency / Service Provider' },
       { label: 'Speaker / Author', value: 'Speaker / Author' }
     ]},
-    { id: 'q2', text: "What's your current annual revenue?", scored: false, options: [
+    { id: 'q2', text: "What's holding your growth back the most right now?", scored: false, options: [
+      { label: "I can't get enough qualified leads", value: 'Not enough leads' },
+      { label: "I'm drowning in client admin and support", value: 'Drowning in admin' },
+      { label: "I can't scale without hiring more people", value: "Can't scale without hiring" },
+      { label: "Clients don't stick around or upgrade", value: 'Clients drop off or stall' },
+      { label: "I'm the bottleneck in everything I do", value: 'I am the bottleneck' },
+      { label: "I'm leaving money on the table with existing clients", value: 'Leaving money on the table' }
+    ]},
+    // EARLY GATE fires here (after index 1 = Q2)
+    { id: 'q3', text: "What's your current annual revenue?", scored: false, options: [
       { label: 'Under $100K', value: 'Under $100K' },
       { label: '$100K - $250K', value: '$100K - $250K' },
       { label: '$250K - $500K', value: '$250K - $500K' },
@@ -731,52 +833,45 @@ body {
       { label: '$1M - $5M', value: '$1M - $5M' },
       { label: '$5M+', value: '$5M+' }
     ]},
-    { id: 'q3', text: 'How many active clients do you serve at one time?', scored: false, options: [
+    { id: 'q4', text: 'How many active clients do you serve at one time?', scored: false, options: [
       { label: '1-5', value: '1-5' },
       { label: '6-15', value: '6-15' },
       { label: '16-30', value: '16-30' },
       { label: '31-50', value: '31-50' },
       { label: '50+', value: '50+' }
     ]},
-    { id: 'q4', text: 'How do new clients currently get onboarded?', scored: true, category: 'Client Onboarding', options: [
+    { id: 'q5', text: 'How do new clients currently get onboarded?', scored: true, category: 'Client Onboarding', options: [
       { label: 'I do it manually every time', value: 'Manual', score: 5 },
       { label: 'I have some templates/docs but still mostly manual', value: 'Templates', score: 15 },
       { label: 'I use a tool like Kajabi/Teachable but it\'s limited', value: 'Basic Tool', score: 25 },
       { label: 'I have a semi-automated system', value: 'Semi-Automated', score: 35 },
       { label: 'Fully automated with custom workflows', value: 'Fully Automated', score: 50 }
     ]},
-    { id: 'q5', text: 'Do your clients have a dedicated portal or app?', scored: true, category: 'Client Experience', options: [
+    { id: 'q6', text: 'Do your clients have a dedicated portal or app?', scored: true, category: 'Client Experience', options: [
       { label: 'No, we use email and Zoom links', value: 'Email/Zoom', score: 5 },
       { label: 'We use a basic platform (Kajabi, Skool, Circle, etc.)', value: 'Basic Platform', score: 20 },
       { label: 'We have a custom portal but it\'s basic', value: 'Custom Basic', score: 30 },
       { label: 'Yes, fully branded with progress tracking', value: 'Fully Branded', score: 45 }
     ]},
-    { id: 'q6', text: 'How do clients progress to your next offer?', scored: true, category: 'Revenue Optimization', options: [
+    { id: 'q7', text: 'How do clients progress to your next offer?', scored: true, category: 'Revenue Optimization', options: [
       { label: 'They don\'t - I only have one offer', value: 'Single Offer', score: 5 },
       { label: 'I manually pitch them when the time feels right', value: 'Manual Pitch', score: 15 },
       { label: 'I have an upsell but it\'s not systematic', value: 'Ad Hoc Upsell', score: 25 },
       { label: 'There\'s a structured ascension path built in', value: 'Structured Ascension', score: 45 }
     ]},
-    { id: 'q7', text: 'How much time do you spend weekly on client admin and support?', scored: true, category: 'Operational Efficiency', options: [
+    { id: 'q8', text: 'How much time do you spend weekly on client admin and support?', scored: true, category: 'Operational Efficiency', options: [
       { label: '15+ hours', value: '15+ hours', score: 5 },
       { label: '10-15 hours', value: '10-15 hours', score: 15 },
       { label: '5-10 hours', value: '5-10 hours', score: 25 },
       { label: '2-5 hours', value: '2-5 hours', score: 35 },
       { label: 'Under 2 hours', value: 'Under 2 hours', score: 50 }
     ]},
-    { id: 'q8', text: 'How do you currently generate leads?', scored: true, category: 'Lead Generation', options: [
+    { id: 'q9', text: 'How do you currently generate leads?', scored: true, category: 'Lead Generation', options: [
       { label: 'Mostly referrals and word of mouth', value: 'Referrals', score: 10 },
       { label: 'Some social media but inconsistent', value: 'Inconsistent Social', score: 15 },
       { label: 'Regular content + some paid ads', value: 'Content + Ads', score: 25 },
       { label: 'Multi-channel with landing pages and funnels', value: 'Multi-Channel', score: 35 },
       { label: 'Automated lead gen with sequences and nurture', value: 'Fully Automated', score: 50 }
-    ]},
-    { id: 'q9', text: "What's your biggest bottleneck right now?", scored: false, options: [
-      { label: 'Getting new clients', value: 'Getting new clients' },
-      { label: 'Onboarding takes too long', value: 'Onboarding takes too long' },
-      { label: "I can't scale without hiring", value: "Can't scale without hiring" },
-      { label: 'Client retention / drop-off', value: 'Client retention / drop-off' },
-      { label: "I'm the bottleneck in everything", value: 'I am the bottleneck' }
     ]},
     { id: 'q10', text: 'If 20 new clients signed up this week, could your systems handle it?', scored: true, category: 'Scale Readiness', options: [
       { label: "Absolutely not — I'd be underwater", value: 'Not at all', score: 5 },
@@ -792,41 +887,89 @@ body {
     'Client Onboarding': {
       problem: 'New clients are brought on manually. Every signup repeats the same hours of work and creates an inconsistent first impression at the moment trust matters most.',
       build: 'An automated onboarding flow. The moment someone signs, the intake form, welcome sequence, resource delivery, and kickoff scheduling all fire on their own.',
-      tools: ['Dubsado or HoneyBook for a fast start', 'Typeform plus a Zapier or Make automation', 'A custom onboarding portal in your brand with no per-seat fees, the version that scales cleanly']
+      tools: ['Dubsado or HoneyBook for a fast start', 'Typeform plus a Zapier or Make automation', 'A custom onboarding portal in your brand with no per-seat fees, the version that scales cleanly'],
+      roiLabel: 'Time recovered per client onboarded',
+      roiMultiplier: 0.12, // 12% of monthly revenue = onboarding overhead
+      roiServiceRec: 'Night Build',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + ' are manually rebuilding the same experience every time a client signs. At your revenue level, that\'s ' + fmtDollar(Math.round(monthly * 0.12 / 500) * 500) + '/mo in owner time that should be running on autopilot.';
+      },
+      bookCopy: 'Show Me How to Automate This'
     },
     'Client Experience': {
       problem: 'Clients live in scattered emails and Zoom links. There is no single branded home for their journey, which makes your business feel smaller than it actually is.',
       build: 'A branded client portal. Progress tracking, resources, milestones, and communication in one place clients actually log into.',
-      tools: ['Circle, Skool, or Kajabi to start fast', 'A custom client app you own outright, with no monthly per-member fees']
+      tools: ['Circle, Skool, or Kajabi to start fast', 'A custom client app you own outright, with no monthly per-member fees'],
+      roiLabel: 'Retention improvement potential',
+      roiMultiplier: 0.15,
+      roiServiceRec: 'Night Build Pro',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + '\'s clients are experiencing a scattered journey. A branded portal typically improves retention by 20-35%. At your revenue level that\'s an estimated ' + fmtDollar(Math.round(monthly * 0.15 / 500) * 500) + '/mo in saved churn alone.';
+      },
+      bookCopy: 'Build My Client Portal'
     },
     'Revenue Optimization': {
       problem: 'There is no built-in path from one offer to the next. Revenue per client is capped, and ascension depends on you remembering to pitch at the right time.',
       build: 'A structured ascension model where the client experience itself surfaces the next step at the right moment, so progression is designed, not improvised.',
-      tools: ['Map your offer ladder first: entry, core, premium', 'Ascension logic built into the portal so the next step appears automatically', 'Lifecycle email triggers tied to real client milestones']
+      tools: ['Map your offer ladder first: entry, core, premium', 'Ascension logic built into the portal so the next step appears automatically', 'Lifecycle email triggers tied to real client milestones'],
+      roiLabel: 'Untapped LTV per client',
+      roiMultiplier: 0.22,
+      roiServiceRec: 'AI Brain + Command Center',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + ' has no automatic path to the next offer. A built-in ascension model typically lifts revenue per client by 25-40%. At your current volume that\'s ' + fmtDollar(Math.round(monthly * 0.22 / 500) * 500) + '/mo sitting unlocked.';
+      },
+      bookCopy: 'Unlock My Ascension Revenue'
     },
     'Operational Efficiency': {
       problem: 'Too many hours each week go to admin and support. That is time and margin leaking out of the business, and it gets worse with every client you add.',
-      build: 'Automate the repetitive layer: support triage, FAQs, scheduling, follow-ups, and reporting, so the busywork runs without you in it.',
-      tools: ['Zapier or Make as the connective tissue', 'An AI assistant for tier-one support and FAQs', 'Custom automations and an AI agent for the workflows no off-the-shelf tool covers']
+      build: 'Automate the repetitive layer: support triage, FAQs, scheduling, follow-ups, and reporting so the busywork runs without you.',
+      tools: ['Zapier or Make as the connective tissue', 'An AI assistant for tier-one support and FAQs', 'Custom automations and an AI agent for the workflows no off-the-shelf tool covers'],
+      roiLabel: 'Admin hours reclaimed per month',
+      roiMultiplier: 0.18,
+      roiServiceRec: 'Prospecting Automation Dashboard',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + ' is spending hours every week on work that should be automated. Recovering that time at your hourly rate represents ' + fmtDollar(Math.round(monthly * 0.18 / 500) * 500) + '/mo in real margin.';
+      },
+      bookCopy: 'Cut My Admin Time in Half'
     },
     'Lead Generation': {
       problem: 'Lead flow is referral-dependent and inconsistent. Growth is a hope rather than a system you can turn up when you choose to.',
       build: 'A repeatable lead engine: a lead magnet that captures and qualifies, feeding an automated nurture sequence that warms people until they are ready to talk.',
-      tools: ['A scored assessment or calculator as the magnet, you are using one right now', 'An email nurture sequence with tracked opens and clicks', 'Tracked landing pages so you know exactly what is working']
+      tools: ['A scored assessment or calculator as the magnet, you are using one right now', 'An email nurture sequence with tracked opens and clicks', 'Tracked landing pages so you know exactly what is working'],
+      roiLabel: 'Pipeline value with a systematic lead engine',
+      roiMultiplier: 0.25,
+      roiServiceRec: 'Speaker Lead Engine',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + '\'s lead flow depends on luck and referrals. A built system that generates predictable leads at your current close rate would unlock ' + fmtDollar(Math.round(monthly * 0.25 / 500) * 500) + '/mo in pipeline.';
+      },
+      bookCopy: 'Build My Lead Engine'
     },
     'Scale Readiness': {
       problem: 'If 20 new clients signed up this week, the business would strain or break. Delivery still depends on you being in the middle of every step.',
-      build: 'Systematize delivery so it runs without you in every step: documented, templated, and automated, so capacity is not capped by your calendar.',
-      tools: ['SOPs and templates for every recurring delivery step', 'Automation for handoffs and status updates', 'A custom platform so delivery capacity is not limited by your hours']
+      build: 'Systematize delivery so it runs without you: documented, templated, and automated so capacity is not capped by your calendar.',
+      tools: ['SOPs and templates for every recurring delivery step', 'Automation for handoffs and status updates', 'A custom platform so delivery capacity is not limited by your hours'],
+      roiLabel: 'Revenue capacity being left on the table',
+      roiMultiplier: 0.30,
+      roiServiceRec: 'Night Build Pro',
+      roiNlpDesc: function(monthly, firstName) {
+        var name = firstName ? firstName : 'You';
+        return name + '\'s business can\'t handle rapid growth right now. Every new client you could have taken but didn\'t is real revenue lost. Fixing scale readiness unlocks an estimated ' + fmtDollar(Math.round(monthly * 0.30 / 500) * 500) + '/mo in untapped capacity.';
+      },
+      bookCopy: 'Make My Business Scale-Ready'
     }
   };
 
   var scoredMeta = [
-    { qid: 'q4', cat: 'Client Onboarding', max: 50 },
-    { qid: 'q5', cat: 'Client Experience', max: 45 },
-    { qid: 'q6', cat: 'Revenue Optimization', max: 45 },
-    { qid: 'q7', cat: 'Operational Efficiency', max: 50 },
-    { qid: 'q8', cat: 'Lead Generation', max: 50 },
+    { qid: 'q5', cat: 'Client Onboarding', max: 50 },
+    { qid: 'q6', cat: 'Client Experience', max: 45 },
+    { qid: 'q7', cat: 'Revenue Optimization', max: 45 },
+    { qid: 'q8', cat: 'Operational Efficiency', max: 50 },
+    { qid: 'q9', cat: 'Lead Generation', max: 50 },
     { qid: 'q10', cat: 'Scale Readiness', max: 50 }
   ];
 
@@ -834,6 +977,8 @@ body {
   var currentQuestion = 0;
   var answers = {};
   var scores = {};
+  var earlyGateSubmitted = false;
+  var EARLY_GATE_AFTER = 1; // show gate after question at index 1 (Q2)
 
   // ===== BUILD QUESTION CARDS =====
   var container = document.getElementById('questions-container');
@@ -859,6 +1004,7 @@ body {
     qs.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     updateProgress();
+    trackStep('quiz_start', 1);
   };
 
   window.selectOption = function(el, qIndex, optIndex) {
@@ -869,19 +1015,30 @@ body {
     var siblings = el.parentElement.querySelectorAll('.option-item');
     siblings.forEach(function(s) { s.classList.remove('selected'); });
     el.classList.add('selected');
+    trackStep('q' + (qIndex + 1) + '_answered', qIndex + 1, { question_id: q.id, answer: opt.value });
     setTimeout(function() { advanceQuestion(qIndex); }, 280);
   };
 
   function advanceQuestion(fromIndex) {
     var current = document.getElementById('question-' + fromIndex);
     current.classList.remove('active');
+
+    // Show early gate after Q2 (index 1) if not already submitted
+    if (fromIndex === EARLY_GATE_AFTER && !earlyGateSubmitted) {
+      document.getElementById('email-gate').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      trackStep('early_gate_view', fromIndex + 1);
+      return;
+    }
+
     if (fromIndex < questions.length - 1) {
       currentQuestion = fromIndex + 1;
       document.getElementById('question-' + currentQuestion).classList.add('active');
       updateProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      showEmailGate();
+      // After last question, show final gate
+      showFinalGate();
     }
   }
 
@@ -892,15 +1049,95 @@ body {
     document.getElementById('progress-pct').textContent = pct + '%';
   }
 
-  function showEmailGate() {
-    document.getElementById('progress-fill').style.width = '100%';
-    document.getElementById('progress-text').textContent = 'Complete';
-    document.getElementById('progress-pct').textContent = '100%';
-    document.getElementById('email-gate').classList.add('active');
+  function showFinalGate() {
+    document.getElementById('progress-fill').style.width = '95%';
+    document.getElementById('progress-text').textContent = 'Almost done';
+    document.getElementById('progress-pct').textContent = '95%';
+    document.getElementById('final-gate').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    trackStep('final_gate_view', 11);
   }
 
+  window.skipFinalGate = function(e) {
+    e.preventDefault();
+    trackStep('final_gate_skip', 11);
+    document.getElementById('final-gate').classList.remove('active');
+    computeAndShowResults(
+      document.getElementById('gate-firstname').value.trim(),
+      document.getElementById('gate-email').value.trim(),
+      '', ''
+    );
+  };
+
+  // ===== EARLY GATE SUBMIT (name + email) =====
+  window.handleEarlyGate = function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('early-gate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    var firstName = document.getElementById('gate-firstname').value.trim();
+    var email = document.getElementById('gate-email').value.trim();
+    var consent = document.getElementById('gate-consent').checked;
+
+    _capturedEmail = email;
+    trackStep('early_gate_submit', 2, { has_name: !!firstName });
+
+    // Fire partial capture to Supabase
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      fetch(GRAVITY_CAPTURE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': GRAVITY_ANON, 'Authorization': 'Bearer ' + GRAVITY_ANON },
+        body: JSON.stringify({
+          first_name: firstName, email: email, consent: consent,
+          consent_text: 'Yes, send my results and insights from Knight Ops.',
+          capture_tool: 'ai_systems_audit_partial', campaign: '1k-sprint',
+          source_url: window.location.href,
+          utm: { utm_source: qs.get('utm_source'), utm_medium: qs.get('utm_medium'), utm_campaign: qs.get('utm_campaign'), utm_content: qs.get('utm_content') },
+          biggest_bottleneck: answers.q2 || '',
+          business_type: answers.q1 || '',
+          answers: answers
+        })
+      }).catch(function(){});
+    } catch(err) {}
+
+    earlyGateSubmitted = true;
+
+    // Hide gate, continue from Q2 index
+    setTimeout(function() {
+      document.getElementById('email-gate').classList.remove('active');
+      currentQuestion = EARLY_GATE_AFTER + 1;
+      document.getElementById('question-' + currentQuestion).classList.add('active');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
+
+    return false;
+  };
+
+  // ===== FINAL GATE SUBMIT (phone + biz name) =====
+  window.handleFinalGate = function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('final-gate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Building your report...';
+
+    var phone = document.getElementById('gate-phone').value.trim();
+    var businessName = document.getElementById('gate-business').value.trim();
+    var firstName = document.getElementById('gate-firstname').value.trim();
+    var email = document.getElementById('gate-email').value.trim();
+
+    trackStep('final_gate_submit', 12, { has_phone: !!phone, has_business: !!businessName });
+    computeAndShowResults(firstName, email, phone, businessName);
+    return false;
+  };
+
   // ===== REVENUE / ROI HELPERS =====
+  function fmtDollar(n) {
+    return '$' + n.toLocaleString();
+  }
+
   function getRevenueRange(revenueAnswer) {
     var map = {
       'Under $100K': { low: 50000, high: 100000, mid: 75000 },
@@ -927,20 +1164,13 @@ body {
   function calculateROI(normalizedScore, revenueAnswer, clientAnswer, bottleneck) {
     var rev = getRevenueRange(revenueAnswer);
     var cap = getClientCapacity(clientAnswer);
-
-    // Average revenue per client per month
     var monthlyRev = rev.mid / 12;
     var revenuePerClient = monthlyRev / Math.max(cap.current, 1);
-
-    // How many additional clients they could take with proper systems
     var gapMultiplier = (100 - normalizedScore) / 100;
     var additionalClients = Math.round((cap.potential - cap.current) * gapMultiplier);
     if (additionalClients < 3) additionalClients = 3;
-
-    // Monthly revenue at risk = additional clients * revenue per client
     var monthlyROI = Math.round(additionalClients * revenuePerClient);
 
-    // Floor and ceiling based on their revenue tier
     var minROI, maxROI;
     if (rev.mid <= 100000) { minROI = 5000; maxROI = 25000; }
     else if (rev.mid <= 250000) { minROI = 8000; maxROI = 40000; }
@@ -951,94 +1181,77 @@ body {
 
     if (monthlyROI < minROI) monthlyROI = minROI;
     if (monthlyROI > maxROI) monthlyROI = maxROI;
-
-    // Round to nearest 500
     monthlyROI = Math.round(monthlyROI / 500) * 500;
-
     var annualROI = monthlyROI * 12;
 
-    // Build scenario text
     var scenario = '';
     if (normalizedScore <= 30) {
-      scenario = 'Right now, your systems can handle about ' + cap.current + ' clients. With the right infrastructure, you could serve ' + cap.potential + ' without adding hours to your week. At your current revenue per client, that’s ' + additionalClients + ' additional clients your business is leaving on the table every month.';
+      scenario = 'Right now, your systems can handle about ' + cap.current + ' clients. With the right infrastructure, you could serve ' + cap.potential + ' without adding hours to your week. At your current revenue per client, that\'s ' + additionalClients + ' additional clients your business is leaving on the table every month.';
     } else if (normalizedScore <= 60) {
-      scenario = 'You’re serving ' + cap.current + ' clients, but your systems could handle ' + cap.potential + '. The gaps in your operations are the bottleneck, not your market. Closing them would unlock capacity for ' + additionalClients + ' more clients at your current pricing.';
+      scenario = 'You\'re serving ' + cap.current + ' clients, but your systems could handle ' + cap.potential + '. The gaps in your operations are the bottleneck, not your market. Closing them would unlock capacity for ' + additionalClients + ' more clients at your current pricing.';
     } else {
-      scenario = 'You’re close to scale-ready. With strategic automation in your weakest areas, you could go from ' + cap.current + ' to ' + cap.potential + ' clients without hiring or burning out. That’s ' + additionalClients + ' clients worth of untapped capacity.';
+      scenario = 'You\'re close to scale-ready. With strategic automation in your weakest areas, you could go from ' + cap.current + ' to ' + cap.potential + ' clients without hiring or burning out. That\'s ' + additionalClients + ' clients worth of untapped capacity.';
     }
 
-    // Build context text
     var context = '';
-    if (bottleneck === 'Getting new clients') {
+    if (bottleneck === 'Not enough leads' || bottleneck === 'Getting new clients') {
       context = 'Your biggest bottleneck is lead flow. Without a system generating qualified leads consistently, this revenue stays theoretical. The build plan above fixes that first.';
-    } else if (bottleneck === 'Onboarding takes too long') {
+    } else if (bottleneck === 'Drowning in admin' || bottleneck === 'Onboarding takes too long') {
       context = 'Every slow onboarding is a client who could churn before they see value. Automating this single process could recover a significant portion of this revenue.';
     } else if (bottleneck === "Can't scale without hiring") {
-      context = 'You’re capped by your own calendar. The right systems let you serve more clients without more headcount, which means this revenue flows straight to your bottom line.';
-    } else if (bottleneck === 'Client retention / drop-off') {
+      context = 'You\'re capped by your own calendar. The right systems let you serve more clients without more headcount, which means this revenue flows straight to your bottom line.';
+    } else if (bottleneck === 'Clients drop off or stall' || bottleneck === 'Client retention / drop-off') {
       context = 'Client drop-off is silent revenue loss. A proper client experience system with progress tracking and automated touchpoints can dramatically improve retention and lifetime value.';
     } else {
-      context = 'When you’re the bottleneck in everything, the ceiling is your time. Removing yourself from the repetitive work is how this revenue becomes real.';
+      context = 'When you\'re the bottleneck in everything, the ceiling is your time. Removing yourself from the repetitive work is how this revenue becomes real.';
     }
 
+    return { monthly: monthlyROI, annual: annualROI, additionalClients: additionalClients, scenario: scenario, context: context };
+  }
+
+  // ===== ROI PER GAP =====
+  function calcGapROI(catContent, monthlyRevenue) {
+    var raw = Math.round(monthlyRevenue * catContent.roiMultiplier / 500) * 500;
     return {
-      monthly: monthlyROI,
-      annual: annualROI,
-      additionalClients: additionalClients,
-      scenario: scenario,
-      context: context
+      monthly: Math.max(raw, 3000),
+      annual: Math.max(raw, 3000) * 12
     };
   }
 
-  // ===== SUBMIT + CAPTURE =====
-  window.handleGateSubmit = function(e) {
-    e.preventDefault();
-    var btn = document.getElementById('gate-btn');
-    btn.disabled = true;
-    btn.textContent = 'Generating your plan...';
-
-    var firstName = document.getElementById('gate-firstname').value.trim();
-    var email = document.getElementById('gate-email').value.trim();
-    var phoneEl = document.getElementById('gate-phone');
-    var phone = phoneEl ? phoneEl.value.trim() : '';
-    var consentEl = document.getElementById('gate-consent');
-    var consent = consentEl ? consentEl.checked : true;
-    var businessName = document.getElementById('gate-business').value.trim();
-
-    // Score
+  // ===== COMPUTE + SHOW RESULTS =====
+  function computeAndShowResults(firstName, email, phone, businessName) {
     var maxRaw = 290;
     var totalRaw = 0;
-    ['q4','q5','q6','q7','q8','q10'].forEach(function(qid) { totalRaw += (scores[qid] || 0); });
+    ['q5','q6','q7','q8','q9','q10'].forEach(function(qid) { totalRaw += (scores[qid] || 0); });
     var normalizedScore = Math.round((totalRaw / maxRaw) * 100);
     if (normalizedScore > 100) normalizedScore = 100;
 
     var category, categoryColor, categoryDescription;
     if (normalizedScore <= 25) {
       category = 'Manual Mode'; categoryColor = '#E5484D';
-      categoryDescription = "You are doing nearly everything yourself. Every new client means more hours and more stress. The business depends entirely on you showing up, and that ceiling is close.";
+      categoryDescription = 'You are doing nearly everything yourself. Every new client means more hours and more stress. The business depends entirely on you showing up, and that ceiling is close.';
     } else if (normalizedScore <= 50) {
       category = 'Patchwork Systems'; categoryColor = '#F5A524';
-      categoryDescription = "You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together, and growth is limited by your bandwidth.";
+      categoryDescription = 'You have tools, but nothing talks to each other. You are the glue holding a stack of subscriptions together, and growth is limited by your bandwidth.';
     } else if (normalizedScore <= 75) {
       category = 'Growth Ready'; categoryColor = '#D4B56A';
-      categoryDescription = "Your foundation is solid, but a few real gaps are keeping you from 2 to 3x without things breaking.";
+      categoryDescription = 'Your foundation is solid, but a few real gaps are keeping you from 2 to 3x without things breaking.';
     } else {
       category = 'Scale Mode'; categoryColor = '#30A46C';
-      categoryDescription = "You are ahead of most of your peers. A few strategic upgrades could unlock fully automated delivery and hands-free growth.";
+      categoryDescription = 'You are ahead of most of your peers. A few strategic upgrades could unlock fully automated delivery and hands-free growth.';
     }
 
-    // Build category scores
     var categoryScores = {};
     scoredMeta.forEach(function(m) {
       categoryScores[m.cat] = Math.round(((scores[m.qid] || 0) / m.max) * 100);
     });
 
-    // Calculate personalized ROI
-    var roi = calculateROI(normalizedScore, answers.q2, answers.q3, answers.q9);
-
+    var rev = getRevenueRange(answers.q3);
+    var monthlyRevenue = rev.mid / 12;
+    var roi = calculateROI(normalizedScore, answers.q3, answers.q4, answers.q2);
     var rec = normalizedScore < 30 ? 'Night Launch' : (normalizedScore <= 60 ? 'Night Build' : 'Night Build Pro');
 
-    // Capture into Supabase
+    // Fire full capture to Supabase
     try {
       var qs = new URLSearchParams(window.location.search);
       var utm = {
@@ -1050,11 +1263,12 @@ body {
         headers: { 'Content-Type': 'application/json', 'apikey': GRAVITY_ANON, 'Authorization': 'Bearer ' + GRAVITY_ANON },
         body: JSON.stringify({
           first_name: firstName, email: email, phone: phone, business_name: businessName,
-          consent: consent,
-          consent_text: 'Yes, send my results and text/email me with related insights from Knight Ops.',
+          consent: true,
+          consent_text: 'Yes, send my results and insights from Knight Ops.',
           capture_tool: 'ai_systems_audit', campaign: '1k-sprint',
           source_url: window.location.href, utm: utm, source_key: utm.utm_content || null,
-          business_type: answers.q1 || '', revenue: answers.q2 || '', biggest_bottleneck: answers.q9 || '',
+          business_type: answers.q1 || '', revenue: answers.q3 || '',
+          biggest_bottleneck: answers.q2 || '',
           systems_score: normalizedScore, tier: category,
           category_scores: categoryScores, leak_low: roi.monthly, leak_high: roi.annual,
           recommendation: rec, revenue_text: roi.scenario, answers: answers
@@ -1063,18 +1277,18 @@ body {
     } catch (err) {}
 
     setTimeout(function() {
-      showResults(normalizedScore, category, categoryColor, categoryDescription, categoryScores, roi, rec, firstName);
+      showResults(normalizedScore, category, categoryColor, categoryDescription, categoryScores, roi, rec, firstName, monthlyRevenue);
     }, 650);
-    return false;
-  };
+  }
 
   // ===== RESULTS =====
-  function showResults(score, category, color, description, categoryScores, roi, rec, firstName) {
+  function showResults(score, category, color, description, categoryScores, roi, rec, firstName, monthlyRevenue) {
     document.getElementById('quiz-section').classList.remove('active');
     document.getElementById('results-section').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    trackStep('results_view', 13, { score: score, tier: category, rec: rec, roi_monthly: roi.monthly });
 
-    // Ring
+    // Ring animation
     var circumference = 2 * Math.PI * 90;
     var ring = document.getElementById('score-ring-circle');
     ring.style.stroke = color;
@@ -1108,7 +1322,7 @@ body {
       });
     }, 450);
 
-    // Gap cards
+    // Gap cards with per-gap ROI + Book Now
     var sorted = scoredMeta.slice().sort(function(a, b) {
       return categoryScores[a.cat] - categoryScores[b.cat];
     });
@@ -1117,6 +1331,8 @@ body {
     gaps.forEach(function(m) {
       var c = categoryContent[m.cat];
       var toolsHTML = c.tools.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+      var gapRoi = calcGapROI(c, monthlyRevenue);
+      var nlpDesc = c.roiNlpDesc(monthlyRevenue, firstName);
       gapsHTML +=
         '<div class="gap-card">' +
           '<div class="gap-cat">' + m.cat + ' &middot; ' + categoryScores[m.cat] + '%</div>' +
@@ -1125,6 +1341,15 @@ body {
           '<div class="gap-build">' + c.build + '</div>' +
           '<div class="gap-sub">Tools that get you there</div>' +
           '<ul class="tool-list">' + toolsHTML + '</ul>' +
+          '<div class="gap-roi">' +
+            '<div class="gap-roi-label">&#x1F4B0;&nbsp; ROI Potential &mdash; ' + c.roiServiceRec + '</div>' +
+            '<div class="gap-roi-numbers">' +
+              '<span class="gap-roi-primary">' + fmtDollar(gapRoi.monthly) + '/mo</span>' +
+              '<span class="gap-roi-secondary">' + fmtDollar(gapRoi.annual) + '/yr</span>' +
+            '</div>' +
+            '<div class="gap-roi-desc">' + nlpDesc + '</div>' +
+            '<a href="https://knightops.biz/#book" class="gap-book-btn">' + c.bookCopy + ' &rarr;</a>' +
+          '</div>' +
         '</div>';
     });
     document.getElementById('gap-cards').innerHTML = gapsHTML;
@@ -1138,18 +1363,17 @@ body {
       document.getElementById('strengths-block').style.display = 'block';
     }
 
-    // ROI block
+    // Overall ROI block
     document.getElementById('roi-scenario').textContent = roi.scenario;
-    document.getElementById('roi-monthly').textContent = '$' + roi.monthly.toLocaleString() + '/mo';
-    document.getElementById('roi-annual').textContent = '$' + roi.annual.toLocaleString() + '/year';
+    document.getElementById('roi-monthly').textContent = fmtDollar(roi.monthly) + '/mo';
+    document.getElementById('roi-annual').textContent = fmtDollar(roi.annual) + '/year';
     document.getElementById('roi-context').textContent = roi.context;
 
     // Next step
     document.getElementById('rec-tier').textContent = 'Suggested starting point: ' + rec;
-
     var nameStr = firstName ? firstName + ', you' : 'You';
     document.getElementById('rec-description').textContent =
-      nameStr + ' don’t have to build all of this at once, and you shouldn’t. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch — just the plan. You keep it either way.';
+      nameStr + ' don\'t have to build all of this at once, and you shouldn\'t. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch — just the plan. You keep it either way.';
 
     document.getElementById('social-proof').style.display = 'block';
   }
