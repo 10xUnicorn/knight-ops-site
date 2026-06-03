@@ -216,7 +216,9 @@ Primary table. Key columns:
 |------|------|-------------|
 | `index.html` | / | Homepage |
 | `services.html` | /services | Service offerings |
-| `fractional-ai-officer.html` | /fractional-ai-officer | FAO flagship service page |
+| `fractional-ai-officer.html` | /fractional-ai-officer | FAO flagship service page (tiers + pricing) |
+| `fractional-chief-ai-officer-services.html` | /fractional-chief-ai-officer-services | FCAO SEO pillar page (targets "fractional chief AI officer services") |
+| `fractional-ai-officer-services.html` | /fractional-ai-officer-services | FCAO variant page (targets "fractional AI officer services", ROI angle) |
 | `portfolio.html` | /portfolio | Case studies & app showcase |
 | `case-studies.html` | /case-studies | Case studies alternate |
 | `about.html` | /about | About page |
