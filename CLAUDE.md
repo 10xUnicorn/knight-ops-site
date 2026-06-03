@@ -356,6 +356,16 @@ Speaker survey leads are tagged with a `cohort_id` in the format `YYYY-MM-DD-eve
 
 ---
 
+## SEO Schema & Meta Status (June 2026)
+
+All 4 key pages now have: FAQPage JSON-LD schema, og:image + twitter:image (`knight-ops-banner-build-the-machine.jpg`), meta description under 160 chars, and og:title/description matching the page title.
+- `index.html` — Organization + Person + FAQPage (6 Q&A) schema, logo URL in Organization
+- `fractional-chief-ai-officer-services.html` — Organization + Person + Service + FAQPage (8 Q&A) + HowTo + BreadcrumbList
+- `fractional-ai-officer-services.html` — Organization + Person + Service + FAQPage (6 Q&A) + BreadcrumbList
+- `fractional-ai-officer.html` — WebPage + ItemList (2 tiers) + FAQPage (7 Q&A). Design is conversion-critical, do NOT alter visuals.
+
+---
+
 ## Known Issues & Tech Debt
 
 1. **CRITICAL: Dirty Vercel CLI deploys wipe pages** — The "KnightOps.app" session (`pensive-adoring-edison`) deploys via Vercel CLI with `gitDirty: "1"`. These deploys use whatever files the session has locally, NOT the full git repo. This has wiped 9 pages from production (fractional-ai-officer, challenge, faq, for-agencies, for-coaches, for-consultants, for-course-creators, for-speakers, unsubscribe). **FIX: That session must stop using Vercel CLI and deploy via git push only.** See Rule 4.
