@@ -10,6 +10,10 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/blog/i-was-12-years-old-charging-100-an-hour",
       "destination": "/blog/i-was-12-years-old-charging-100-an-hour.html"
     },
