@@ -3,6 +3,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/assessment",
+      "destination": "/assess",
+      "permanent": true
+    },
+    {
       "source": "/:path((?!api/).+)\\.html",
       "destination": "/:path",
       "permanent": true
