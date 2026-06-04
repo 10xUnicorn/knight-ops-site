@@ -2,7 +2,7 @@
 // Served at /sitemap.xml via vercel.json rewrite.
 const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
-const SITE = 'https://knightops.biz';
+const SITE = 'https://www.knightops.biz';
 
 // Static pages with priorities
 const STATIC_PAGES = [
