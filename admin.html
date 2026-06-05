@@ -783,6 +783,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
                 <span class="ef-label">Sent</span>
                 <span class="ef-count" id="efCountSent">0</span>
               </div>
+              <div class="email-folder-item" data-folder="scheduled" onclick="switchEmailFolder('scheduled')">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="ef-label">Scheduled</span>
+                <span class="ef-count" id="efCountScheduled">0</span>
+              </div>
               <div class="email-folder-item" data-folder="drafts" onclick="switchEmailFolder('drafts')">
                 <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 <span class="ef-label">Drafts</span>
@@ -935,7 +940,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="ec-footer-right">
               <button class="ec-icon-btn" title="Attach file"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
               <button class="ec-icon-btn" title="Insert signature" onclick="insertEmailSignature()"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
-              <button class="ec-icon-btn" title="Schedule send"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+              <button class="ec-icon-btn" title="Schedule send" onclick="scheduleEmail()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
               <button class="ec-icon-btn" title="Save as draft" onclick="saveEmailDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
               <button class="ec-icon-btn" title="Discard" onclick="discardEmailDraft()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
             </div>
@@ -4539,7 +4544,8 @@ async function loadEmailInbox(){
   }
   // Folder filters
   if(folder==='inbox')q=q.eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false);
-  else if(folder==='sent')q=q.eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false);
+  else if(folder==='sent')q=q.eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false).eq('status','sent');
+  else if(folder==='scheduled')q=q.eq('status','scheduled').eq('is_deleted',false).order('scheduled_at',{ascending:true});
   else if(folder==='drafts')q=q.eq('is_draft',true).eq('is_deleted',false);
   else if(folder==='starred')q=q.eq('is_starred',true).eq('is_deleted',false);
   else if(folder==='archived')q=q.eq('is_archived',true).eq('is_deleted',false);
@@ -4567,7 +4573,8 @@ async function loadEmailFolderCounts(){
     }
     const queries=[
       acctQ().eq('direction','inbound').eq('is_archived',false).eq('is_spam',false).eq('is_deleted',false).eq('is_read',false),
-      acctQ().eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false),
+      acctQ().eq('direction','outbound').eq('is_draft',false).eq('is_deleted',false).eq('status','sent'),
+      acctQ().eq('status','scheduled').eq('is_deleted',false),
       acctQ().eq('is_draft',true).eq('is_deleted',false),
       acctQ().eq('is_starred',true).eq('is_deleted',false),
       acctQ().eq('is_archived',true).eq('is_deleted',false),
@@ -4576,7 +4583,7 @@ async function loadEmailFolderCounts(){
       acctQ().eq('is_deleted',false)
     ];
     const results=await Promise.all(queries);
-    const names=['inbox','sent','drafts','starred','archived','spam','trash','all'];
+    const names=['inbox','sent','scheduled','drafts','starred','archived','spam','trash','all'];
     names.forEach((n,i)=>{counts[n]=results[i].count||0;});
     emailFolderCounts=counts;
     names.forEach(n=>{const el=document.getElementById('efCount'+n.charAt(0).toUpperCase()+n.slice(1));if(el)el.textContent=counts[n]||0;});
@@ -4710,7 +4717,7 @@ function switchEmailFolder(folder){
   // Update folder sidebar active state
   document.querySelectorAll('.email-folder-item').forEach(el=>el.classList.toggle('active',el.dataset.folder===folder));
   // Update list title
-  const titleMap={inbox:'Inbox',sent:'Sent',drafts:'Drafts',starred:'Starred',archived:'Archived',spam:'Spam',trash:'Trash',all:'All Mail'};
+  const titleMap={inbox:'Inbox',sent:'Sent',scheduled:'Scheduled',drafts:'Drafts',starred:'Starred',archived:'Archived',spam:'Spam',trash:'Trash',all:'All Mail'};
   document.getElementById('emailListTitle').textContent=titleMap[folder]||folder;
   // Reset filter pills
   document.querySelectorAll('.email-filter-pill').forEach(p=>p.classList.toggle('active',p.dataset.filter==='all'));
@@ -4767,7 +4774,11 @@ function renderEmailReadingPane(data){
         <div class="erp-date">${dateStr}</div>
       </div>
       <div class="erp-actions">
-        ${data.is_draft?`
+        ${data.status==='scheduled'?`
+        <button class="erp-btn-primary" onclick="sendScheduledNow('${data.id}')"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send Now</button>
+        <button onclick="cancelScheduledSend('${data.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel Send</button>
+        <button onclick="editDraft('${data.id}')"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Edit</button>
+        `:data.is_draft?`
         <button class="erp-btn-primary" onclick="editDraft('${data.id}')"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Edit Draft</button>
         <button onclick="deleteEmail('${data.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
         `:`
@@ -4911,6 +4922,62 @@ async function saveEmailDraft(){
     emailEditingDraftId=null;
     await loadEmailInbox();
   }catch(e){showToast('Failed to save draft: '+e.message,'error');}
+}
+
+// ── Scheduled send (general-purpose: any email can be scheduled in advance) ──
+async function scheduleEmail(){
+  const to=document.getElementById('ecTo').value.trim();
+  const subject=document.getElementById('ecSubject').value.trim();
+  const body=document.getElementById('ecBody').innerHTML;
+  if(!to){showToast('Please enter a recipient','error');return;}
+  if(!subject){showToast('Please enter a subject','error');return;}
+  // Default to 12 hours out; let the user pick a custom time
+  const def=new Date(Date.now()+12*60*60*1000);
+  const pad=n=>String(n).padStart(2,'0');
+  const defStr=def.getFullYear()+'-'+pad(def.getMonth()+1)+'-'+pad(def.getDate())+'T'+pad(def.getHours())+':'+pad(def.getMinutes());
+  const when=prompt('Send at (YYYY-MM-DDTHH:MM, your local time). Default is 12 hours from now:',defStr);
+  if(!when)return;
+  const sendAt=new Date(when);
+  if(isNaN(sendAt.getTime())){showToast('Invalid date/time','error');return;}
+  if(sendAt.getTime()<=Date.now()){showToast('Pick a time in the future','error');return;}
+  const plainText=(body||'').replace(/<[^>]*>/g,'').trim();
+  try{
+    const ecFromSel=document.getElementById('ecFrom');
+    const fromEmail=ecFromSel&&ecFromSel.value?ecFromSel.value:'daniel@knightops.biz';
+    const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
+    const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
+    const row={direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'scheduled',is_draft:false,is_read:true,mailbox:fromEmail,scheduled_at:sendAt.toISOString()};
+    if(emailEditingDraftId){
+      await sb.from('emails').update(row).eq('id',emailEditingDraftId);
+      emailEditingDraftId=null;
+    }else{
+      await sb.from('emails').insert(row);
+    }
+    showToast('Scheduled for '+sendAt.toLocaleString());
+    document.getElementById('emailComposeModal').classList.remove('visible');
+    await loadEmailInbox();
+  }catch(e){showToast('Failed to schedule: '+e.message,'error');}
+}
+
+async function sendScheduledNow(id){
+  if(!confirm('Send this scheduled email now?'))return;
+  const{data}=await sb.from('emails').select('*').eq('id',id).single();
+  if(!data)return showToast('Email not found','error');
+  const plainText=(data.body_html||'').replace(/<[^>]*>/g,'').trim();
+  try{
+    const{error}=await sb.functions.invoke('send-plain-email',{body:{to:(Array.isArray(data.to_addresses)?data.to_addresses[0]:data.to_addresses),subject:data.subject,body:plainText,html:data.body_html,from_name:data.from_name,from_email:data.from_address,cc:(data.cc_addresses||[])}});
+    if(error)throw error;
+    await sb.from('emails').update({status:'sent',is_draft:false,sent_at:new Date().toISOString()}).eq('id',id);
+    showToast('Sent');
+    await loadEmailInbox();
+  }catch(e){showToast('Failed to send: '+e.message,'error');}
+}
+
+async function cancelScheduledSend(id){
+  if(!confirm('Cancel this scheduled send? It will move back to Drafts.'))return;
+  await sb.from('emails').update({status:'draft',is_draft:true,scheduled_at:null}).eq('id',id);
+  showToast('Moved back to Drafts');
+  await loadEmailInbox();
 }
 async function editDraft(id){
   const{data}=await sb.from('emails').select('*').eq('id',id).single();
