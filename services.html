@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knight Ops Services — AI Systems & Done-For-You Builds</title>
+<meta name="description" content="The full Knight Ops ecosystem: Fractional Chief AI Officer, done-for-you app builds, software platforms, and free AI tools to scale your business.">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://www.knightops.biz/services">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.knightops.biz/services">
+<meta property="og:title" content="Services & Ecosystem — Knight Ops">
+<meta property="og:description" content="Fractional AI Officer, done-for-you builds, software platforms, free tools. The full Knight Ops ecosystem for founder-led businesses ready to scale.">
+<meta property="og:site_name" content="Knight Ops">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Services & Ecosystem — Knight Ops">
+<meta name="twitter:description" content="Fractional AI Officer, done-for-you builds, software platforms, free tools. The full Knight Ops ecosystem for founder-led businesses ready to scale.">
+<meta name="author" content="Daniel Knight">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Knight Ops",
+  "url": "https://knightops.biz",
+  "description": "Custom AI systems, Fractional AI Officer, software platforms, and done-for-you builds for founder-led businesses.",
+  "founder": { "@type": "Person", "name": "Daniel Knight" },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Knight Ops Services",
+    "itemListElement": [
+      { "@type": "Offer", "name": "Fractional AI Officer — Strategist", "price": "4997", "priceCurrency": "USD", "description": "Weekly 1:1 AI strategy + 8hrs/mo build credits. An embedded AI officer for your business." },
+      { "@type": "Offer", "name": "Fractional AI Officer — Architect", "price": "7997", "priceCurrency": "USD", "description": "Full embedded AI leadership: 20hrs/mo builds, dedicated sprints, custom Claude agents, Slack DM access." },
+      { "@type": "Offer", "name": "Night Launch", "price": "1497", "priceCurrency": "USD", "description": "Up to 5 custom pages, overnight delivery, mobile responsive, full code ownership." },
+      { "@type": "Offer", "name": "Night Build", "price": "7497", "priceCurrency": "USD", "description": "Full-stack web or mobile app with auth, payments, API — 48hr turnaround." },
+      { "@type": "Offer", "name": "Night Build Pro", "price": "14997", "priceCurrency": "USD", "description": "Full app build plus iOS and Android App Store deployment." },
+      { "@type": "Offer", "name": "7-Day AI System Challenge", "price": "47", "priceCurrency": "USD", "description": "7 days, 7 AI systems installed in your business." }
+    ]
+  }
+}
+</script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --deep: #06061A;
+  --surface: #0A0A0B;
+  --surface2: #111113;
+  --surface3: #18181B;
+  --card: rgba(12,12,22,0.75);
+  --border: rgba(200,164,86,0.06);
+  --border-gold: rgba(200,164,86,0.2);
+  --border-blue: rgba(0,229,255,0.15);
+  --glass-gold: rgba(200,164,86,0.12);
+  --glass-cyan: rgba(0,229,255,0.08);
+  --glass-violet: rgba(123,97,255,0.06);
+  --white: #F4F4F5;
+  --cream: #F0EEFF;
+  --gray: #A1A1AA;
+  --muted: #71717A;
+  --dim: #404050;
+  --gold: #C8A456;
+  --gold-bright: #FFD166;
+  --gold-light: #D4B56A;
+  --gold-glow: rgba(200,164,86,0.4);
+  --violet: #7B61FF;
+  --violet-glow: rgba(123,97,255,0.3);
+  --cyan: #00E5FF;
+  --cyan-glow: rgba(0,229,255,0.25);
+  --neon-blue: #00E5FF;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--deep);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#bgCanvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+.grid-ov {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(200,164,86,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,164,86,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  z-index: 0; pointer-events: none;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  background: rgba(6,6,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.3s;
+}
+.nav-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.25rem;
+  color: var(--white); text-decoration: none;
+}
+.nav-brand span { color: var(--gold); }
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  color: var(--gray); text-decoration: none;
+  transition: color 0.3s;
+  letter-spacing: 0.5px;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  color: var(--gold) !important;
+  border: 1px solid var(--border-gold);
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.8rem !important;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.nav-cta:hover { background: var(--glass-gold); color: var(--gold-bright) !important; }
+.nav-toggle { display: none; background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; }
+
+/* ── SECTION UTILITIES ── */
+.section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.section-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 3rem;
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+}
+.section-headline .gold { color: var(--gold); font-style: italic; }
+.section-headline .violet { color: var(--violet); font-style: italic; }
+.section-headline .cyan { color: var(--cyan); font-style: italic; }
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+}
+.hero .section-label { margin-bottom: 1.5rem; }
+.hero-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 4rem;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+}
+.hero-headline .gold { color: var(--gold); font-style: italic; }
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--gray);
+  line-height: 1.8;
+  max-width: 640px;
+  margin-bottom: 2.5rem;
+}
+.hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.btn-gold {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--deep);
+  border: none; border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow); }
+.btn-outline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-outline:hover { background: var(--glass-gold); border-color: var(--gold); }
+.btn-violet {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, var(--violet), #9B7FFF);
+  color: var(--white);
+  border: none; border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-violet:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--violet-glow); }
+.btn-cyan-outline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--cyan);
+  border: 1px solid var(--border-blue);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-cyan-outline:hover { background: var(--glass-cyan); }
+.btn-sm { padding: 0.6rem 1.4rem; font-size: 0.8rem; white-space: nowrap; display: inline-block; }
+
+/* ── PROOF BAR ── */
+.proof-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+}
+.proof-bar::before {
+  content: '';
+  position: absolute; top: 0; left: 2rem; right: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+.proof-bar::after {
+  content: '';
+  position: absolute; bottom: 0; left: 2rem; right: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+.proof-stat {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+.proof-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.proof-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 60px rgba(0,0,0,0.3);
+}
+.card-gold { border-color: var(--border-gold); }
+.card-gold:hover { border-color: var(--gold); box-shadow: 0 16px 60px rgba(200,164,86,0.1); }
+.card-violet {
+  border-color: rgba(123,97,255,0.2);
+  background: rgba(123,97,255,0.04);
+}
+.card-violet:hover { border-color: var(--violet); box-shadow: 0 16px 60px rgba(123,97,255,0.1); }
+.card-cyan { border-color: var(--border-blue); }
+.card-cyan:hover { border-color: var(--cyan); box-shadow: 0 16px 60px rgba(0,229,255,0.08); }
+
+.badge {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+.badge-gold { background: var(--glass-gold); color: var(--gold); }
+.badge-violet { background: var(--glass-violet); color: var(--violet); }
+.badge-cyan { background: var(--glass-cyan); color: var(--cyan); }
+.badge-green { background: rgba(34,197,94,0.12); color: #22C55E; }
+.badge-recommended {
+  background: linear-gradient(135deg, var(--violet), #9B7FFF);
+  color: #fff;
+}
+
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+.card-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+.card-price .per { font-size: 1rem; color: var(--muted); font-weight: 400; }
+.card-price .was {
+  font-size: 0.9rem;
+  color: var(--dim);
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+.card-desc {
+  font-size: 0.9rem;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.card-list {
+  list-style: none;
+  margin-bottom: 1.5rem;
+}
+.card-list li {
+  font-size: 0.88rem;
+  color: var(--gray);
+  padding: 0.4rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.5;
+}
+.card-list li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.card-list.violet li::before { color: var(--violet); }
+.card-list.cyan li::before { color: var(--cyan); }
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+
+/* ── FAO FLAGSHIP ── */
+.fao-section {
+  padding: 6rem 2rem;
+  position: relative;
+}
+.fao-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(123,97,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.fao-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  border: 1px solid rgba(123,97,255,0.15);
+  border-radius: 24px;
+  padding: 4rem;
+  background: rgba(123,97,255,0.03);
+  backdrop-filter: blur(12px);
+}
+.fao-inner::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 20%; right: 20%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--violet), transparent);
+  border-radius: 2px;
+}
+.fao-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.fao-tiers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+.fao-ctas {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  align-items: center;
+}
+.fao-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: var(--violet);
+  text-decoration: none;
+  margin-top: 1rem;
+  display: inline-block;
+  transition: color 0.3s;
+}
+.fao-link:hover { color: #9B7FFF; }
+
+/* ── PLATFORM GRID ── */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.platform-grid .card:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.platform-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+}
+.platform-tagline {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.platform-pricing {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── CASE STUDY STRIP ── */
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.case-card {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+.case-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+.case-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+.case-industry {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.75rem;
+}
+
+/* ── BOTTOM CTA ── */
+.bottom-cta {
+  text-align: center;
+  padding: 6rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.bottom-cta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+.footer-brand span { color: var(--gold); }
+.footer-copy {
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.footer-links a {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--gold); }
+
+/* ── DIVIDER ── */
+.divider {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+
+/* ── MOBILE ── */
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .case-grid { grid-template-columns: repeat(2, 1fr); }
+  .platform-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: rgba(6,6,26,0.97);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem 2rem;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-toggle { display: block; }
+
+  .hero-headline { font-size: 2.5rem; }
+  .section-headline { font-size: 2.2rem; }
+
+  .proof-bar { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3, .grid-4,
+  .fao-tiers, .case-grid, .platform-grid,
+  .bottom-cta-grid { grid-template-columns: 1fr; }
+
+  .fao-inner { padding: 2rem 1.5rem; }
+  .section { padding: 4rem 1.5rem; }
+
+  .hero-ctas { flex-direction: column; align-items: center; }
+  .fao-ctas { flex-direction: column; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .hero-headline { font-size: 2rem; }
+  .section-headline { font-size: 1.8rem; }
+  .card { padding: 1.75rem; }
+  .proof-num { font-size: 2rem; }
+  .case-num { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+
+<div class="page-content">
+
+<!-- ════════ NAV ════════ -->
+<nav class="nav">
+  <a href="/" class="nav-brand">Knight <span>Ops</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+  <div class="nav-links">
+    <a href="/tools">Tools</a>
+    <a href="/audit">AI Audit</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/fractional-ai-officer">FAO</a>
+    <a href="/book" class="nav-cta">Book a Call</a>
+  </div>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero reveal">
+  <div class="section-label">THE FULL ECOSYSTEM</div>
+  <h1 class="hero-headline">Everything You Need to <span class="gold">Scale.</span><br>Nothing You Don't.</h1>
+  <p class="hero-sub">From free AI tools to a fractional AI officer embedded in your business — every service, system, and platform Knight Ops offers, built to generate revenue on autopilot.</p>
+  <div class="hero-ctas">
+    <a href="/book" class="btn-gold">Book Free Blueprint Call &rarr;</a>
+    <a href="#ecosystem" class="btn-outline">Explore the Ecosystem &darr;</a>
+  </div>
+</section>
+
+<!-- ════════ PROOF BAR ════════ -->
+<div class="proof-bar reveal" id="ecosystem">
+  <div class="proof-stat">
+    <div class="proof-num">50+</div>
+    <div class="proof-label">Systems Built</div>
+  </div>
+  <div class="proof-stat">
+    <div class="proof-num">$200M+</div>
+    <div class="proof-label">Business Impact</div>
+  </div>
+  <div class="proof-stat">
+    <div class="proof-num">24hr</div>
+    <div class="proof-label">Fastest Deploy</div>
+  </div>
+  <div class="proof-stat">
+    <div class="proof-num">7+</div>
+    <div class="proof-label">Live Platforms</div>
+  </div>
+</div>
+
+<!-- ════════ FAO — FLAGSHIP ════════ -->
+<section class="fao-section reveal" id="fao">
+  <div class="fao-inner">
+    <div class="fao-header">
+      <div class="section-label">EMBEDDED AI LEADERSHIP &middot; BY INVITATION</div>
+      <h2 class="section-headline" style="max-width:700px;margin:0 auto 1.5rem;">An AI Officer. <span class="violet">Embedded</span> in Your Business. <span class="cyan">Building. Daily.</span></h2>
+      <p class="section-sub" style="margin:0 auto;">A senior AI strategist + technical builder on retainer — without the seven-figure salary or the six-month hiring cycle.</p>
+    </div>
+
+    <div class="fao-tiers">
+      <!-- Strategist -->
+      <div class="card card-violet">
+        <div class="badge badge-violet">STRATEGIST</div>
+        <div class="card-title">The Strategist</div>
+        <div class="card-price">$4,997<span class="per">/mo</span></div>
+        <p class="card-desc">Strategic AI leadership with hands-on build capacity.</p>
+        <ul class="card-list violet">
+          <li>Weekly 1:1 strategy sessions (60 min)</li>
+          <li>8 hours/month build credits</li>
+          <li>Same-day response guarantee</li>
+          <li>AI agent tuning &amp; optimization</li>
+          <li>Monthly ROI report</li>
+        </ul>
+        <a href="/book" class="btn-violet btn-sm">Start Strategist &rarr;</a>
+      </div>
+
+      <!-- Architect -->
+      <div class="card card-violet" style="border-color:var(--violet);">
+        <div class="badge badge-recommended">RECOMMENDED</div>
+        <div class="card-title">The Architect</div>
+        <div class="card-price">$7,997<span class="per">/mo</span></div>
+        <p class="card-desc">Full embedded AI leadership — strategy, builds, and orchestration.</p>
+        <ul class="card-list violet">
+          <li>Everything in Strategist</li>
+          <li>20 hours/month build credits</li>
+          <li>Dedicated 2-week sprints quarterly</li>
+          <li>Custom Claude agent development</li>
+          <li>Multi-agent orchestration</li>
+          <li>MCP server design &amp; deployment</li>
+          <li>Quarterly executive briefing</li>
+          <li>Slack DM access</li>
+        </ul>
+        <a href="/book" class="btn-violet btn-sm">Start Architect &rarr;</a>
+      </div>
+    </div>
+
+    <div class="fao-ctas">
+      <a href="/book" class="btn-outline">Book a Call First</a>
+      <a href="/fractional-ai-officer" class="fao-link">See full FAO details &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ DONE-FOR-YOU ════════ -->
+<section class="section reveal" id="builds">
+  <div class="section-label">DONE-FOR-YOU</div>
+  <h2 class="section-headline">We Build It. You Own It. It Generates <span class="gold">Revenue.</span></h2>
+  <p class="section-sub" style="margin-bottom:3rem;">Full-stack products delivered overnight. No templates. No shortcuts. Real revenue-generating apps you own completely.</p>
+
+  <div class="grid-3">
+    <!-- Night Launch -->
+    <div class="card card-gold">
+      <div class="card-title">Night Launch</div>
+      <div class="card-price">$1,497 <span class="was">$1,997</span></div>
+      <p class="card-desc">Your high-converting website, delivered overnight.</p>
+      <ul class="card-list">
+        <li>Up to 5 custom pages</li>
+        <li>Overnight delivery</li>
+        <li>Mobile responsive</li>
+        <li>Full code ownership</li>
+        <li>2 revision rounds</li>
+      </ul>
+      <a href="/book" class="btn-gold btn-sm">Start Night Launch &rarr;</a>
+    </div>
+
+    <!-- Night Build -->
+    <div class="card card-gold" style="border-color:var(--gold);">
+      <div class="badge badge-gold">MOST POPULAR</div>
+      <div class="card-title">Night Build</div>
+      <div class="card-price">$7,497 <span class="was">$8,997</span></div>
+      <p class="card-desc">Full-stack web or mobile app, revenue-ready.</p>
+      <ul class="card-list">
+        <li>Full-stack web or mobile app</li>
+        <li>Auth + payments + API integrations</li>
+        <li>48-hour turnaround</li>
+        <li>5-day post-launch support</li>
+        <li>3 revision rounds</li>
+      </ul>
+      <a href="/book" class="btn-gold btn-sm">Start Night Build &rarr;</a>
+    </div>
+
+    <!-- Night Build Pro -->
+    <div class="card card-gold">
+      <div class="card-title">Night Build Pro</div>
+      <div class="card-price">$14,997 <span class="was">$25,000</span></div>
+      <p class="card-desc">Ship to the App Store. Both stores.</p>
+      <ul class="card-list">
+        <li>Everything in Night Build</li>
+        <li>iOS &amp; Android App Store deployment</li>
+        <li>Compliance review</li>
+        <li>Store listing assets &amp; copy</li>
+        <li>7-day post-launch support</li>
+      </ul>
+      <a href="/book" class="btn-gold btn-sm">Start Night Build Pro &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ SPEED TO VALUE ════════ -->
+<section class="section reveal" id="stv">
+  <div class="section-label">PREMIUM INTENSIVE</div>
+  <h2 class="section-headline">Your Vision, <span class="gold">Extracted.</span> Your Platform, <span class="cyan">Built.</span> One Day.</h2>
+  <p class="section-sub" style="margin-bottom:3rem;">White-glove VIP intensives that compress months of planning and building into a single focused engagement.</p>
+
+  <div class="grid-4">
+    <div class="card">
+      <div class="badge badge-gold">SPRINT</div>
+      <div class="card-title">Vision Clarity Sprint</div>
+      <div class="card-price">$5,000</div>
+      <p class="card-desc">Deep-dive discovery session. Walk away with a complete AI roadmap, tech stack plan, and 90-day action plan.</p>
+    </div>
+    <div class="card card-gold">
+      <div class="badge badge-gold">VIP</div>
+      <div class="card-title">VIP Weekend</div>
+      <div class="card-price">$15,000</div>
+      <p class="card-desc">48 hours of focused build time. Full system design, prototype, and working MVP delivered by Monday.</p>
+    </div>
+    <div class="card" style="border-color:var(--border-gold);">
+      <div class="badge badge-recommended">POPULAR</div>
+      <div class="card-title">Full Transformation</div>
+      <div class="card-price">$25,000</div>
+      <p class="card-desc">Complete AI infrastructure buildout. Multi-agent systems, automations, dashboards, deployed and documented.</p>
+    </div>
+    <div class="card card-gold">
+      <div class="badge badge-gold">ELITE</div>
+      <div class="card-title">Strategic Partnership</div>
+      <div class="card-price">$50,000</div>
+      <p class="card-desc">Full transformation plus 90 days of embedded support, optimization, and quarterly strategy sessions.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2.5rem;">
+    <a href="/speed-to-value" class="btn-outline">Explore Speed to Value &rarr;</a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ WORKSHOP ════════ -->
+<section class="section reveal" id="workshop">
+  <div class="section-label">HANDS-ON LEARNING</div>
+  <h2 class="section-headline">Don't Just Watch Someone Build It. <span class="gold">Build It Yourself.</span></h2>
+  <p class="section-sub" style="margin-bottom:3rem;">A guided, hands-on workshop where you walk in with an idea and leave with a working prototype — built by your own hands, with Daniel alongside you.</p>
+
+  <div style="max-width:640px;">
+    <div class="card card-gold">
+      <div class="badge badge-gold">WORKSHOP</div>
+      <div class="card-title">Build-Your-App Workshop</div>
+      <div class="card-price">$1,000</div>
+      <p class="card-desc">Two sessions, four hours total. You'll build a real, working prototype of your app with Daniel's live guidance — no fluff, no theory, just building.</p>
+      <ul class="card-list">
+        <li>2 live build sessions (2 hrs each)</li>
+        <li>Real working prototype at the end</li>
+        <li>Daniel's live guidance and debugging</li>
+        <li>Recording of both sessions</li>
+        <li>Follow-up action plan</li>
+      </ul>
+      <a href="/book" class="btn-gold btn-sm">Reserve Your Spot &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ SOFTWARE PLATFORMS ════════ -->
+<section class="section reveal" id="platforms">
+  <div class="section-label">BUILT BY KNIGHT OPS</div>
+  <h2 class="section-headline">7 Live Platforms. Built From Scratch. <span class="gold">Generating Revenue.</span></h2>
+  <p class="section-sub" style="margin-bottom:3rem;">Proof we practice what we preach. Every platform below was designed, built, and launched by Knight Ops.</p>
+
+  <div class="platform-grid">
+    <!-- CopyLaunch -->
+    <div class="card">
+      <div class="badge badge-green">LIVE</div>
+      <div class="platform-name">CopyLaunch.app</div>
+      <div class="platform-tagline">AI Campaign Generator. Create full marketing campaigns in minutes, not weeks.</div>
+      <div class="platform-pricing">Creator $29/mo &middot; Business $79/mo &middot; 14-day free trial</div>
+    </div>
+
+    <!-- AppDash -->
+    <div class="card">
+      <div class="badge badge-green">LIVE</div>
+      <div class="platform-name">AppDash.me</div>
+      <div class="platform-tagline">AI Command Center for App Builders. Monitor, manage, and scale your apps from one dashboard.</div>
+      <div class="platform-pricing">Free &middot; Standard $19/mo &middot; Premium $49/mo</div>
+    </div>
+
+    <!-- KnightOps.app -->
+    <div class="card">
+      <div class="badge badge-green">LIVE</div>
+      <div class="platform-name">KnightOps.app</div>
+      <div class="platform-tagline">Voice-First AI Operating System. Run your entire business by talking to it.</div>
+      <div class="platform-pricing">Solo $97/mo &middot; Founder $297/mo &middot; Mastermind $997/mo</div>
+    </div>
+
+    <!-- AI Brand Cortex -->
+    <div class="card">
+      <div class="badge badge-green">LIVE</div>
+      <div class="platform-name">AI Brand Cortex</div>
+      <div class="platform-tagline">Your Brand's AI Second Brain. Centralize brand voice, assets, and intelligence.</div>
+      <div class="platform-pricing">Free &middot; Pro $49/mo &middot; Team $149/mo &middot; aibrandcortex.com</div>
+    </div>
+
+    <!-- PropertySwap -->
+    <div class="card">
+      <div class="badge badge-green">LIVE</div>
+      <div class="platform-name">PropertySwap.app</div>
+      <div class="platform-tagline">Exclusive Note Exchange. AI-powered real estate note marketplace.</div>
+      <div class="platform-pricing">Free &middot; Standard $997/mo &middot; Premium $2,997/mo</div>
+    </div>
+
+    <!-- Job Seeker AI -->
+    <div class="card">
+      <div class="badge badge-cyan">FREE</div>
+      <div class="platform-name">Job Seeker AI</div>
+      <div class="platform-tagline">Find Jobs That Actually Fit You. AI-powered job matching, 100% free.</div>
+      <div class="platform-pricing">100% Free &middot; job-seeker-ai-tool.vercel.app</div>
+    </div>
+
+    <!-- Portfolio Link -->
+    <div class="card card-gold" style="text-align:center;">
+      <a href="/portfolio" style="text-decoration:none;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1rem;">See the full portfolio &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ FREE TOOLS ════════ -->
+<section class="section reveal" id="free">
+  <div class="section-label">START HERE — FREE</div>
+  <h2 class="section-headline">Try Before You Talk. Every Tool Is <span class="cyan">Free.</span></h2>
+  <p class="section-sub" style="margin-bottom:3rem;">No sales pitch required. Use the tools, see the value, then decide if you want to go deeper.</p>
+
+  <div class="grid-4">
+    <div class="card card-cyan">
+      <div class="badge badge-cyan">FREE</div>
+      <div class="card-title">AI Systems Audit</div>
+      <p class="card-desc">3-minute assessment. Get a custom AI readiness score and discover exactly where AI can make the biggest impact in your business.</p>
+      <a href="/audit" class="btn-cyan-outline btn-sm">Take the Audit &rarr;</a>
+    </div>
+
+    <div class="card card-cyan">
+      <div class="badge badge-cyan">FREE</div>
+      <div class="card-title">10x Systems Blueprint Call</div>
+      <p class="card-desc">30-minute strategy call. Walk away with a concrete action plan for implementing AI systems that generate revenue.</p>
+      <a href="/book" class="btn-cyan-outline btn-sm">Book a Call &rarr;</a>
+    </div>
+
+    <div class="card card-cyan">
+      <div class="badge badge-cyan">FREE</div>
+      <div class="card-title">Prospecting Filter Score</div>
+      <p class="card-desc">Instantly score your sales prospecting process and get AI-powered recommendations to close more deals.</p>
+      <a href="/prospecting-filter-score" class="btn-cyan-outline btn-sm">Get Your Score &rarr;</a>
+    </div>
+
+    <div class="card">
+      <div class="badge badge-gold">$47</div>
+      <div class="card-title">7-Day AI Challenge</div>
+      <p class="card-desc">7 days, 7 AI systems installed in your business. Daily live coaching, templates, and implementation support.</p>
+      <a href="/challenge" class="btn-gold btn-sm">Join the Challenge &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ COMMUNITY ════════ -->
+<section class="section reveal" id="community">
+  <div class="section-label">COMMUNITY</div>
+  <h2 class="section-headline">Surround Yourself With People Who Are <span class="gold">Building.</span></h2>
+  <p class="section-sub" style="margin-bottom:3rem;">Two tiers of community designed for founders and operators who are done watching and ready to build.</p>
+
+  <div class="grid-2">
+    <div class="card card-gold">
+      <div class="badge badge-gold">COMMUNITY</div>
+      <div class="card-title">Unicorn Universe Premium</div>
+      <div class="card-price">$99<span class="per">/mo</span></div>
+      <p class="card-desc" style="margin-bottom:0.5rem;">or $997/year (save 2 months)</p>
+      <p class="card-desc">Weekly group calls, template library, AI tool breakdowns, private community of founders building with AI.</p>
+      <a href="/book" class="btn-gold btn-sm">Join Premium &rarr;</a>
+    </div>
+
+    <div class="card" style="border-color:var(--gold);">
+      <div class="badge badge-recommended">ELITE</div>
+      <div class="card-title">10xUnicorn Mastermind</div>
+      <div class="card-price">$997<span class="per">/mo</span></div>
+      <p class="card-desc" style="margin-bottom:0.5rem;">or $10,000/year (founding rate)</p>
+      <p class="card-desc">Small-group mastermind with direct access to Daniel. Monthly hot seats, priority builds, quarterly retreats, and a network of serious operators.</p>
+      <a href="/book" class="btn-gold btn-sm">Apply Now &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ CASE STUDIES ════════ -->
+<section class="section reveal" id="results">
+  <div class="section-label" style="text-align:center;">RESULTS</div>
+  <h2 class="section-headline" style="text-align:center;">Real Systems. Real <span class="gold">Impact.</span></h2>
+
+  <div class="case-grid" style="margin-top:3rem;">
+    <div class="card case-card">
+      <div class="case-num">93%</div>
+      <div class="case-desc">Client Review Prep Time Eliminated</div>
+      <div class="case-industry">Financial Advisory</div>
+    </div>
+    <div class="card case-card">
+      <div class="case-num">#1</div>
+      <div class="case-desc">Region Nationally, 12 Dealerships Unified</div>
+      <div class="case-industry">Automotive</div>
+    </div>
+    <div class="card case-card">
+      <div class="case-num">$4.5M</div>
+      <div class="case-desc">CARES Act Applications in 30 Days</div>
+      <div class="case-industry">Government</div>
+    </div>
+    <div class="card case-card">
+      <div class="case-num">$75M+</div>
+      <div class="case-desc">Charitable Contributions Automated</div>
+      <div class="case-industry">Nonprofit</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2.5rem;">
+    <a href="/portfolio" class="btn-outline">See All Case Studies &rarr;</a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ BOTTOM CTA ════════ -->
+<section class="bottom-cta reveal">
+  <h2 class="section-headline" style="text-align:center;">Not Sure Where to Start?</h2>
+  <p class="section-sub" style="margin:0 auto 2rem;text-align:center;">Two free ways to find out exactly what AI can do for your business.</p>
+
+  <div class="bottom-cta-grid">
+    <div class="card card-cyan" style="text-align:center;">
+      <div class="badge badge-cyan">FREE &middot; 3 MIN</div>
+      <div class="card-title">AI Systems Audit</div>
+      <p class="card-desc">Answer a few questions and get your custom AI readiness score instantly.</p>
+      <a href="/audit" class="btn-cyan-outline btn-sm">Take the Audit &rarr;</a>
+    </div>
+    <div class="card card-gold" style="text-align:center;">
+      <div class="badge badge-gold">FREE &middot; 30 MIN</div>
+      <div class="card-title">10x Systems Blueprint Call</div>
+      <p class="card-desc">A strategy call with a concrete, personalized action plan you can use immediately.</p>
+      <a href="/book" class="btn-gold btn-sm">Book a Call &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Knight <span>Ops</span></div>
+      <div class="footer-copy">&copy; 2026 Knight Ops. All rights reserved.</div>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/tools">Tools</a>
+      <a href="/services">Services</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="/blog">Blog</a>
+      <a href="/fractional-ai-officer">FAO</a>
+      <a href="/book">Book a Call</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- .page-content -->
+
+<!-- ════════ PARTICLE CANVAS ════════ -->
+<script>
+const c=document.getElementById('bgCanvas'),x=c.getContext('2d');
+let W,H,ps=[];
+function rz(){W=c.width=innerWidth;H=c.height=innerHeight}
+addEventListener('resize',rz);rz();
+class P{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.r=Math.random()*2.5+.6;
+    this.vx=(Math.random()-.5)*.18;this.vy=(Math.random()-.5)*.18;
+    const t=Math.random();
+    this.type=t>.65?'gold':t>.4?'cyan':t>.2?'violet':'gold-bright';
+    this.a=Math.random()*.6+.25;
+    this.pulseSpeed=Math.random()*0.02+0.005;
+    this.pulseOffset=Math.random()*Math.PI*2;
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W)this.vx*=-1;
+    if(this.y<0||this.y>H)this.vy*=-1;
+    this.pulse=Math.sin(Date.now()*this.pulseSpeed+this.pulseOffset)*.3+.7;
+  }
+  draw(){
+    const a=this.a*this.pulse;
+    x.beginPath();x.arc(this.x,this.y,this.r,0,Math.PI*2);
+    if(this.type==='gold'){x.fillStyle=`rgba(200,164,86,${a})`;x.shadowColor='rgba(200,164,86,.5)'}
+    else if(this.type==='gold-bright'){x.fillStyle=`rgba(255,209,102,${a*.8})`;x.shadowColor='rgba(255,209,102,.4)'}
+    else if(this.type==='cyan'){x.fillStyle=`rgba(0,229,255,${a*.7})`;x.shadowColor='rgba(0,229,255,.45)'}
+    else{x.fillStyle=`rgba(123,97,255,${a*.6})`;x.shadowColor='rgba(123,97,255,.35)'}
+    x.shadowBlur=this.r*8;x.fill();x.shadowBlur=0;
+  }
+}
+for(let i=0;i<100;i++)ps.push(new P);
+function anim(){
+  x.clearRect(0,0,W,H);
+  ps.forEach(p=>{p.update();p.draw()});
+  for(let i=0;i<ps.length;i++){
+    for(let j=i+1;j<ps.length;j++){
+      const dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<140){
+        const alpha=.06*(1-d/140);
+        x.beginPath();x.moveTo(ps[i].x,ps[i].y);x.lineTo(ps[j].x,ps[j].y);
+        if(ps[i].type==='cyan'||ps[j].type==='cyan'){x.strokeStyle=`rgba(0,229,255,${alpha})`}
+        else if(ps[i].type==='violet'||ps[j].type==='violet'){x.strokeStyle=`rgba(123,97,255,${alpha*.8})`}
+        else{x.strokeStyle=`rgba(200,164,86,${alpha})`}
+        x.lineWidth=.6;x.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(anim);
+}
+anim();
+</script>
+
+<!-- ════════ SCROLL REVEAL ════════ -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+<script src="/ko-track.js" defer></script>
+</body>
+</html>

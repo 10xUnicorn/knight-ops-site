@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Intake — Knight Ops</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06061A;--surface:#0D0D1A;--surface2:#111120;--surface3:#1A1A2E;
+  --border:rgba(200,164,86,0.12);--border-gold:rgba(200,164,86,0.30);
+  --gold:#C8A456;--gold-bright:#FFD166;--gold-glow:rgba(200,164,86,0.35);
+  --white:#F4F4F5;--gray:#A1A1AA;--muted:#71717A;
+  --green:#30A46C;--red:#E5484D;--amber:#F5A524;
+  --input-bg:#0D0D1A;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased}
+.nav{padding:1rem 2rem;background:rgba(6,6,26,0.9);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;backdrop-filter:blur(16px)}
+.nav-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.15rem;color:var(--white);text-decoration:none;letter-spacing:.5px}
+.nav-brand span{color:var(--gold)}
+.page{max-width:680px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+
+/* STATES */
+#state-loading,#state-error,#state-success,#state-expired{display:none}
+#state-loading.active,#state-error.active,#state-success.active,#state-expired.active,#state-form.active{display:block}
+
+.state-center{text-align:center;padding:4rem 1rem}
+.state-icon{font-size:3rem;margin-bottom:1rem}
+.state-title{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:600;margin-bottom:.6rem}
+.state-sub{color:var(--gray);font-size:.95rem;line-height:1.6;max-width:420px;margin:0 auto}
+
+/* HEADER */
+.project-header{margin-bottom:2rem}
+.project-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid var(--border-gold);background:rgba(200,164,86,0.08);padding:.35rem .85rem;border-radius:100px;margin-bottom:1rem}
+.project-name{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:.4rem}
+.project-sub{color:var(--gray);font-size:.9rem;line-height:1.5}
+.expiry-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;color:var(--muted);margin-top:.6rem}
+.expiry-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.tab{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.5px;padding:.75rem 1.25rem;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* FORM ELEMENTS */
+.section-intro{color:var(--gray);font-size:.88rem;line-height:1.6;margin-bottom:1.5rem;padding:.9rem 1rem;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0}
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--gray);margin-bottom:.4rem;letter-spacing:.3px}
+.form-group input,.form-group textarea,.form-group select{width:100%;font-family:'Inter',sans-serif;font-size:.9rem;background:var(--input-bg);border:1px solid var(--border);color:var(--white);padding:.75rem .9rem;border-radius:8px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold)}
+.form-group textarea{resize:vertical;min-height:70px;line-height:1.5}
+.form-group select option{background:var(--surface3)}
+.form-group input[type="checkbox"]{width:auto;accent-color:var(--gold);cursor:pointer}
+.checkbox-row{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--gray)}
+
+/* CREDENTIAL CARD */
+.cred-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem;position:relative}
+.cred-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cred-card-title{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;color:var(--gold);letter-spacing:.5px}
+.remove-btn{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color .2s}
+.remove-btn:hover{color:var(--red)}
+.add-btn{display:flex;align-items:center;gap:.5rem;font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;background:none;border:1px dashed var(--border-gold);color:var(--gold);padding:.65rem 1rem;border-radius:8px;cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:.5rem}
+.add-btn:hover{background:rgba(200,164,86,0.07);border-color:var(--gold)}
+
+/* FILE UPLOAD */
+.file-drop{border:2px dashed var(--border-gold);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.file-drop:hover,.file-drop.dragover{border-color:var(--gold);background:rgba(200,164,86,0.04)}
+.file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-drop-icon{font-size:2rem;margin-bottom:.6rem}
+.file-drop-text{font-size:.88rem;color:var(--gray);line-height:1.5}
+.file-drop-text strong{color:var(--gold)}
+.file-list{margin-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.file-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:.82rem}
+.file-item-name{color:var(--white);font-weight:500}
+.file-item-size{color:var(--muted);font-size:.75rem}
+
+/* SUBMIT */
+.submit-section{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.submit-btn{width:100%;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#0A0A0B;border:none;padding:1rem;border-radius:8px;cursor:pointer;transition:all .25s;box-shadow:0 4px 20px var(--gold-glow)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--gold-glow)}
+.submit-btn:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+.submit-note{text-align:center;font-size:.75rem;color:var(--muted);margin-top:.75rem}
+
+/* PROGRESS */
+.progress-bar-wrap{width:100%;height:4px;background:var(--surface3);border-radius:100px;overflow:hidden;margin-bottom:2rem}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));width:0%;transition:width .4s ease;border-radius:100px}
+
+@media(max-width:600px){
+  .nav{padding:.85rem 1.25rem}
+  .page{padding:1.5rem 1rem 3rem}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;padding:.7rem 1rem;font-size:.76rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="https://knightops.biz" class="nav-brand">KNIGHT<span>OPS</span></a>
+</nav>
+
+<div class="page">
+
+  <!-- LOADING -->
+  <div id="state-loading">
+    <div class="state-center">
+      <div class="state-icon">⚙️</div>
+      <div class="state-title">Loading your intake form...</div>
+      <div class="state-sub">Verifying your secure link.</div>
+    </div>
+  </div>
+
+  <!-- EXPIRED -->
+  <div id="state-expired">
+    <div class="state-center">
+      <div class="state-icon">⏰</div>
+      <div class="state-title">This link has expired</div>
+      <div class="state-sub">Secure intake links expire after 7 days. Click below and we'll send a fresh link to all clients on this project.</div>
+      <div style="margin-top:1.5rem">
+        <button onclick="requestNewLink()" id="renew-btn" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;background:linear-gradient(135deg,#C8A456,#FFD166);color:#0A0A0B;border:none;padding:.85rem 2rem;border-radius:8px;cursor:pointer;transition:all .25s;box-shadow:0 4px 20px rgba(200,164,86,0.35)">Request a New Link &rarr;</button>
+        <div id="renew-status" style="margin-top:.75rem;font-size:.82rem;color:#A1A1AA"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="state-error">
+    <div class="state-center">
+      <div class="state-icon">🔒</div>
+      <div class="state-title">Invalid link</div>
+      <div class="state-sub" id="error-msg">This link is invalid or has already been revoked. Please contact Knight Ops for a new link.</div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="state-success">
+    <div class="state-center">
+      <div class="state-icon">✅</div>
+      <div class="state-title">All done — thank you!</div>
+      <div class="state-sub">Your credentials and files have been securely delivered to the Knight Ops team. We'll reach out if we need anything else.</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div id="state-form">
+
+    <div class="project-header">
+      <div class="project-badge">🔐 Secure Intake Form</div>
+      <div class="project-name" id="project-name">Loading...</div>
+      <div class="project-sub">Please provide the credentials and files requested by your Knight Ops team. Everything you submit is encrypted and stored securely.</div>
+      <div class="expiry-badge"><div class="expiry-dot"></div><span id="expiry-text">Link expires soon</span></div>
+    </div>
+
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('creds')">🔑 Project Credentials</button>
+      <button class="tab" onclick="switchTab('logins')">🔐 Login Credentials</button>
+      <button class="tab" onclick="switchTab('files')">📁 Files</button>
+    </div>
+
+    <!-- PROJECT CREDENTIALS TAB -->
+    <div class="tab-panel active" id="tab-creds">
+      <div class="section-intro">Add API keys, access tokens, platform credentials, and any other key-value pairs your project needs. Mark anything sensitive as "Secret" and we'll store it encrypted.</div>
+      <div id="creds-list"></div>
+      <button class="add-btn" onclick="addCredCard()">+ Add Credential</button>
+    </div>
+
+    <!-- LOGIN CREDENTIALS TAB -->
+    <div class="tab-panel" id="tab-logins">
+      <div class="section-intro">Add login credentials for platforms, tools, or services we need access to — like WordPress, Shopify, GHL, your email host, etc.</div>
+      <div id="logins-list"></div>
+      <button class="add-btn" onclick="addLoginCard()">+ Add Login</button>
+    </div>
+
+    <!-- FILES TAB -->
+    <div class="tab-panel" id="tab-files">
+      <div class="section-intro">Upload any files your team needs — brand assets, logo files, documents, exports, contracts, or anything else. Accepted: images, PDFs, docs, zips, and more.</div>
+      <div class="file-drop" id="file-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <input type="file" multiple id="file-input" onchange="handleFileSelect(event)">
+        <div class="file-drop-icon">📂</div>
+        <div class="file-drop-text"><strong>Click to browse</strong> or drag files here<br>Any file type accepted · Max 50MB per file</div>
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+
+    <div class="submit-section">
+      <button class="submit-btn" id="submit-btn" onclick="submitIntake()">Submit to Knight Ops &rarr;</button>
+      <div class="submit-note">Your information is encrypted and only accessible to the Knight Ops team.</div>
+    </div>
+
+  </div><!-- /state-form -->
+</div>
+
+<script>
+(function(){
+  var SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+  var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+  var token = new URLSearchParams(window.location.search).get('token');
+  var projectId = null;
+  var projectName = '';
+  var credCards = [];
+  var loginCards = [];
+  var selectedFiles = [];
+  var credCounter = 0;
+  var loginCounter = 0;
+
+  function showState(id) {
+    ['state-loading','state-error','state-expired','state-success','state-form'].forEach(function(s){
+      document.getElementById(s).className = s === id ? s + ' active' : s;
+    });
+  }
+
+  function sbFetch(path, opts) {
+    var headers = Object.assign({ 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json' }, opts.headers || {});
+    return fetch(SUPABASE_URL + path, Object.assign({}, opts, { headers: headers }));
+  }
+
+  // ===== INIT =====
+  async function init() {
+    showState('state-loading');
+    if (!token) { showState('state-error'); return; }
+
+    try {
+      var res = await sbFetch('/rest/v1/project_intake_tokens?token=eq.' + encodeURIComponent(token) + '&select=id,project_id,expires_at,revoked,projects(name)', { method: 'GET', headers: { 'Accept': 'application/json' } });
+      var data = await res.json();
+      if (!data || !data.length) { showState('state-error'); return; }
+      var row = data[0];
+      if (row.revoked) { showState('state-error'); document.getElementById('error-msg').textContent = 'This link has been revoked. Please contact Knight Ops for a new one.'; return; }
+      var exp = new Date(row.expires_at);
+      if (exp < new Date()) { showState('state-expired'); return; }
+
+      projectId = row.project_id;
+      projectName = row.projects ? row.projects.name : 'Your Project';
+      document.getElementById('project-name').textContent = projectName;
+
+      var daysLeft = Math.ceil((exp - new Date()) / 86400000);
+      document.getElementById('expiry-text').textContent = 'Link expires in ' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's');
+
+      // Add one empty card each by default
+      addCredCard();
+      addLoginCard();
+      updateProgress();
+      showState('state-form');
+    } catch(e) {
+      console.error(e);
+      showState('state-error');
+    }
+  }
+
+  // ===== TABS =====
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab').forEach(function(t, i) {
+      t.classList.toggle('active', ['creds','logins','files'][i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(p, i) {
+      p.classList.toggle('active', ['tab-creds','tab-logins','tab-files'][i] === 'tab-' + tab);
+    });
+  };
+
+  // ===== CREDENTIAL CARDS =====
+  window.addCredCard = function() {
+    credCounter++;
+    var id = 'cred_' + credCounter;
+    credCards.push(id);
+    var div = document.createElement('div');
+    div.className = 'cred-card';
+    div.id = id;
+    div.innerHTML =
+      '<div class="cred-card-head"><span class="cred-card-title">Credential #' + credCounter + '</span><button class="remove-btn" onclick="removeCard(\'' + id + '\',\'cred\')">✕</button></div>' +
+      '<div class="form-group"><label>Type</label><select id="' + id + '_type"><option value="custom">Custom</option><optgroup label="AI & Dev Infrastructure"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="supabase">Supabase</option><option value="vercel">Vercel</option><option value="github">GitHub</option><option value="cloudflare">Cloudflare</option><option value="aws">AWS</option><option value="google_cloud">Google Cloud</option><option value="resend">Resend</option><option value="twilio">Twilio</option><option value="make">Make (Integromat)</option><option value="zapier">Zapier</option></optgroup><optgroup label="CRM & Marketing"><option value="ghl">Go High Level</option><option value="hubspot">HubSpot</option><option value="zoho_crm">Zoho CRM</option><option value="keap">Keap</option><option value="mailchimp">Mailchimp</option><option value="klaviyo">Klaviyo</option><option value="activecampaign">ActiveCampaign</option></optgroup><optgroup label="Payments & Commerce"><option value="stripe">Stripe</option><option value="paypal">PayPal</option><option value="shopify">Shopify</option><option value="woocommerce">WooCommerce</option></optgroup><optgroup label="Ads & Analytics"><option value="meta">Meta (Facebook/Instagram)</option><option value="google_analytics">Google Analytics</option><option value="google_ads">Google Ads</option><option value="tiktok_ads">TikTok Ads</option></optgroup><optgroup label="Content & CMS"><option value="wordpress">WordPress</option><option value="webflow">Webflow</option><option value="wix">Wix</option><option value="squarespace">Squarespace</option></optgroup><optgroup label="Other"><option value="domain">Domain / DNS</option><option value="hosting">Hosting / cPanel</option><option value="api_key">API Key (Generic)</option><option value="other">Other</option></optgroup></select></div>' +
+      '<div class="form-group"><label>Label / Key Name *</label><input type="text" id="' + id + '_label" placeholder="e.g. Meta Business Manager, Google Analytics ID"></div>' +
+      '<div class="form-group"><label>Value *</label><input type="text" id="' + id + '_value" placeholder="Paste the key, token, or value here"></div>' +
+      '<div class="form-group"><label>Notes (optional)</label><textarea id="' + id + '_notes" placeholder="Any context for the team..."></textarea></div>' +
+      '<div class="checkbox-row"><input type="checkbox" id="' + id + '_secret" checked><label for="' + id + '_secret" style="cursor:pointer">Treat as secret (mask from view)</label></div>';
+    document.getElementById('creds-list').appendChild(div);
+    updateProgress();
+  };
+
+  window.addLoginCard = function() {
+    loginCounter++;
+    var id = 'login_' + loginCounter;
+    loginCards.push(id);
+    var div = document.createElement('div');
+    div.className = 'cred-card';
+    div.id = id;
+    div.innerHTML =
+      '<div class="cred-card-head"><span class="cred-card-title">Login #' + loginCounter + '</span><button class="remove-btn" onclick="removeCard(\'' + id + '\',\'login\')">✕</button></div>' +
+      '<div class="form-group"><label>What platform/tool is this for? *</label><input type="text" id="' + id + '_title" placeholder="e.g. WordPress Admin, GHL, Shopify, cPanel"></div>' +
+      '<div class="form-group"><label>Login URL</label><input type="url" id="' + id + '_url" placeholder="https://..."></div>' +
+      '<div class="form-group"><label>Username / Email</label><input type="text" id="' + id + '_user" placeholder="Username or email address"></div>' +
+      '<div class="form-group"><label>Password</label><input type="text" id="' + id + '_pass" placeholder="Password" autocomplete="off"></div>' +
+      '<div class="form-group"><label>Access Instructions (optional)</label><textarea id="' + id + '_instructions" placeholder="Any notes on 2FA, access levels, or how to use this login..."></textarea></div>';
+    document.getElementById('logins-list').appendChild(div);
+    updateProgress();
+  };
+
+  window.removeCard = function(id, type) {
+    var el = document.getElementById(id);
+    if (el) el.remove();
+    if (type === 'cred') credCards = credCards.filter(function(c){ return c !== id; });
+    else loginCards = loginCards.filter(function(c){ return c !== id; });
+    updateProgress();
+  };
+
+  // ===== FILES =====
+  window.handleDragOver = function(e) { e.preventDefault(); document.getElementById('file-drop').classList.add('dragover'); };
+  window.handleDragLeave = function() { document.getElementById('file-drop').classList.remove('dragover'); };
+  window.handleDrop = function(e) {
+    e.preventDefault(); document.getElementById('file-drop').classList.remove('dragover');
+    addFiles(Array.from(e.dataTransfer.files));
+  };
+  window.handleFileSelect = function(e) { addFiles(Array.from(e.target.files)); };
+
+  function addFiles(files) {
+    files.forEach(function(f) {
+      if (f.size > 52428800) { alert(f.name + ' is over 50MB and was skipped.'); return; }
+      selectedFiles.push(f);
+    });
+    renderFileList();
+    updateProgress();
+  }
+
+  function renderFileList() {
+    var list = document.getElementById('file-list');
+    list.innerHTML = selectedFiles.map(function(f, i) {
+      return '<div class="file-item"><div><div class="file-item-name">' + escHtml(f.name) + '</div><div class="file-item-size">' + fmtSize(f.size) + '</div></div><button class="remove-btn" onclick="removeFile(' + i + ')">✕</button></div>';
+    }).join('');
+  }
+
+  window.removeFile = function(i) { selectedFiles.splice(i, 1); renderFileList(); updateProgress(); };
+
+  function fmtSize(b) { if(b<1024)return b+'B'; if(b<1048576)return (b/1024).toFixed(1)+'KB'; return (b/1048576).toFixed(1)+'MB'; }
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ===== PROGRESS =====
+  function updateProgress() {
+    var total = credCards.length + loginCards.length + selectedFiles.length;
+    var filled = 0;
+    credCards.forEach(function(id) {
+      if ((document.getElementById(id+'_label')||{}).value && (document.getElementById(id+'_value')||{}).value) filled++;
+    });
+    loginCards.forEach(function(id) {
+      if ((document.getElementById(id+'_title')||{}).value) filled++;
+    });
+    filled += selectedFiles.length;
+    var pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  document.addEventListener('input', updateProgress);
+
+  // ===== SUBMIT =====
+  window.submitIntake = async function() {
+    var btn = document.getElementById('submit-btn');
+    var credentials = [];
+    var login_credentials = [];
+    var hasAnything = false;
+
+    // Collect credentials
+    credCards.forEach(function(id) {
+      var label = (document.getElementById(id+'_label')||{}).value || '';
+      var value = (document.getElementById(id+'_value')||{}).value || '';
+      if (label.trim() && value.trim()) {
+        credentials.push({
+          credential_type: (document.getElementById(id+'_type')||{}).value || 'custom',
+          credential_label: label.trim(),
+          credential_value: value.trim(),
+          is_secret: (document.getElementById(id+'_secret')||{}).checked !== false,
+          notes: ((document.getElementById(id+'_notes')||{}).value || '').trim() || null
+        });
+        hasAnything = true;
+      }
+    });
+
+    // Collect logins
+    loginCards.forEach(function(id) {
+      var title = (document.getElementById(id+'_title')||{}).value || '';
+      if (title.trim()) {
+        login_credentials.push({
+          title: title.trim(),
+          login_url: ((document.getElementById(id+'_url')||{}).value || '').trim() || null,
+          username: ((document.getElementById(id+'_user')||{}).value || '').trim() || null,
+          password: ((document.getElementById(id+'_pass')||{}).value || '').trim() || null,
+          access_instructions: ((document.getElementById(id+'_instructions')||{}).value || '').trim() || null
+        });
+        hasAnything = true;
+      }
+    });
+
+    if (selectedFiles.length > 0) hasAnything = true;
+
+    if (!hasAnything) {
+      alert('Please add at least one credential, login, or file before submitting.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      // 1. Submit credentials + logins via RPC
+      var rpcRes = await sbFetch('/rest/v1/rpc/submit_project_intake', {
+        method: 'POST',
+        body: JSON.stringify({ p_token: token, p_credentials: credentials, p_login_credentials: login_credentials })
+      });
+      var rpcData = await rpcRes.json();
+      if (!rpcRes.ok || (rpcData && rpcData.success === false)) {
+        throw new Error((rpcData && rpcData.error) || 'Submission failed');
+      }
+
+      // 2. Show success immediately — files upload in background
+      btn.textContent = 'Submitted ✓';
+      showState('state-success');
+
+      // 3. Fire notification email (non-blocking)
+      fetch(SUPABASE_URL + '/functions/v1/intake-notify-team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+        body: JSON.stringify({
+          token: token,
+          project_id: projectId,
+          project_name: projectName,
+          credentials_count: credentials.length,
+          logins_count: login_credentials.length,
+          files_count: selectedFiles.length,
+          credential_labels: credentials.map(function(c){ return c.credential_label; }),
+          login_titles: login_credentials.map(function(l){ return l.title; }),
+          file_names: selectedFiles.map(function(f){ return f.name; })
+        })
+      }).catch(function(){});
+
+      // 4. Upload files in background after success screen shows
+      if (selectedFiles.length > 0) {
+        (async function() {
+          for (var i = 0; i < selectedFiles.length; i++) {
+            var f = selectedFiles[i];
+            var formData = new FormData();
+            formData.append('file', f);
+            formData.append('token', token);
+            formData.append('project_id', projectId);
+            await fetch(SUPABASE_URL + '/functions/v1/intake-file-upload', {
+              method: 'POST',
+              headers: { 'apikey': ANON_KEY },
+              body: formData
+            });
+          }
+        })();
+      }
+
+    } catch(e) {
+      console.error(e);
+      btn.disabled = false;
+      btn.textContent = 'Submit to Knight Ops →';
+      alert('Something went wrong: ' + e.message + '\n\nPlease try again or contact your Knight Ops team.');
+    }
+  };
+
+  // ===== REQUEST NEW LINK =====
+  window.requestNewLink = async function() {
+    var btn = document.getElementById('renew-btn');
+    var status = document.getElementById('renew-status');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      var res = await fetch(SUPABASE_URL + '/functions/v1/intake-request-new-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+        body: JSON.stringify({ old_token: token })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+      btn.style.display = 'none';
+      status.style.color = '#30A46C';
+      status.textContent = '✓ A new link has been sent to ' + (data.emails_sent || []).join(', ') + '.';
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Request a New Link →';
+      status.style.color = '#E5484D';
+      status.textContent = 'Something went wrong. Please contact your Knight Ops team directly.';
+    }
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Knight Ops</title>
+<style>body{background:#0a0a0f;color:#fff;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+.loader{text-align:center}.spinner{width:40px;height:40px;border:3px solid rgba(200,164,86,0.2);border-top-color:#C8A456;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}p{color:#999;font-size:14px}</style>
+</head><body>
+<div class="loader"><div class="spinner"></div><p>Redirecting...</p></div>
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug');
+  if (!slug) { window.location.href = '/'; return; }
+
+  // Validate slug exists as a partner
+  var SB_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+  fetch(SB_URL + '/rest/v1/partners?slug=eq.' + encodeURIComponent(slug) + '&status=eq.active&select=id', {
+    headers: { 'apikey': SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data && data.length > 0) {
+      // Valid partner — redirect to homepage with ref
+      window.location.href = '/?ref=' + encodeURIComponent(slug);
+    } else {
+      // Not a valid partner slug — just go to homepage (could be a typo or old link)
+      window.location.href = '/';
+    }
+  })
+  .catch(function() {
+    // On error, still redirect to homepage
+    window.location.href = '/';
+  });
+})();
+</script>
+</body></html>

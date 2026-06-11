@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knight Ops — The Impossible Gumball Prophecy | Bloomstack Booth</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Guess the future and win. A live, mind-bending prediction game at the Knight Ops booth. Closest guess wins a $2,500 10x Systems Blueprint. Everyone who plays wins a 3-Day UNICON ticket + a voucher.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0A0A0B; --bg-secondary:#111113; --bg-tertiary:#18181B; --bg-card:#1C1C1F;
+  --bg-card-hover:#222225; --border:#2A2A2E; --border-light:#3A3A3F;
+  --text-primary:#F4F4F5; --text-secondary:#A1A1AA; --text-muted:#71717A;
+  --accent:#C8A456; --accent-hover:#D4B56A; --accent-subtle:rgba(200,164,86,0.1);
+  --accent-border:rgba(200,164,86,0.25); --white:#FFFFFF; --success:#22C55E; --danger:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg-primary); color:var(--text-primary); line-height:1.5;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* The booth lives in a ~1240x560 iframe by default and expands to full screen.
+   Everything is built to fit the short frame, and to breathe when expanded. */
+.stage{
+  position:relative; width:100%; min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:14px 14px 44px; overflow:hidden;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(200,164,86,0.10), transparent 60%),
+    var(--bg-primary);
+}
+.starfield{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.card{
+  position:relative; z-index:2; width:100%; max-width:1180px;
+  background:linear-gradient(180deg, rgba(28,28,31,.92), rgba(17,17,19,.92));
+  border:1px solid var(--border); border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+  padding:22px 26px; backdrop-filter:blur(8px);
+}
+.brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.logo{font-size:1.05rem;font-weight:900;letter-spacing:.12em;color:var(--white)}
+.logo span{color:var(--accent)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+  border:1px solid var(--accent-border);background:var(--accent-subtle);padding:5px 11px;border-radius:100px}
+
+/* layout: jar on the left, action on the right, collapses on small/short frames */
+.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:24px;align-items:center}
+@media (max-width:820px){.grid{grid-template-columns:1fr;gap:16px}}
+
+/* ---------- JAR ---------- */
+.jarwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.jar-svg{width:100%;max-width:230px;filter:drop-shadow(0 12px 30px rgba(200,164,86,.18))}
+.counter{font-family:'JetBrains Mono',monospace;text-align:center}
+.counter .num{font-size:1.9rem;font-weight:700;color:var(--accent);letter-spacing:.02em;line-height:1}
+.counter .lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+.livepill{display:inline-flex;align-items:center;gap:7px;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--success)}
+.livedot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---------- COPY + FORM ---------- */
+h1{font-size:1.85rem;line-height:1.06;font-weight:900;letter-spacing:-.02em;margin-bottom:8px}
+h1 .g{color:var(--accent)}
+.sub{font-size:.92rem;color:var(--text-secondary);margin-bottom:14px;max-width:46ch}
+.qrow{display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.field{flex:1;min-width:150px}
+.field label{display:block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:5px}
+.field input{width:100%;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:10px;
+  color:var(--text-primary);font-size:1rem;font-family:'JetBrains Mono',monospace;padding:11px 12px;transition:border .15s}
+.field input:focus{outline:none;border-color:var(--accent)}
+.id-row{display:flex;gap:12px;margin:10px 0 6px}
+.consent{display:flex;align-items:flex-start;gap:9px;margin:10px 0 14px;font-size:.74rem;color:var(--text-muted)}
+.consent input{margin-top:2px;accent-color:var(--accent);width:15px;height:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:var(--accent);color:var(--bg-primary);border:none;border-radius:11px;
+  font-size:1rem;font-weight:800;letter-spacing:.01em;padding:14px 18px;cursor:pointer;transition:background .15s,transform .1s}
+.btn:hover{background:var(--accent-hover)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent-border);margin-top:10px}
+.btn-ghost:hover{background:var(--accent-subtle)}
+.btn-ghost small{display:block;font-size:.66rem;font-weight:600;letter-spacing:.06em;color:var(--text-secondary);margin-top:2px}
+.prize{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.prize .chip{flex:1;min-width:150px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:11px;padding:10px 12px}
+.prize .chip b{display:block;color:var(--accent);font-size:.78rem;letter-spacing:.04em;margin-bottom:2px}
+.prize .chip span{font-size:.74rem;color:var(--text-secondary)}
+.hint{font-size:.72rem;line-height:1.5;color:var(--text-secondary);background:var(--accent-subtle);border:1px solid var(--accent-border);border-radius:10px;padding:9px 11px;margin:4px 0 12px}
+.hint b{color:var(--accent)}
+.err{color:var(--danger);font-size:.78rem;min-height:1.1em;margin-top:6px}
+.rules{font-size:.66rem;color:var(--text-muted);margin-top:12px;line-height:1.5}
+.rules a{color:var(--accent);cursor:pointer}
+
+/* ---------- SCREENS ---------- */
+.screen{display:none}
+.screen.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* confirm + funnel */
+.confirm-mini{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text-secondary);background:var(--bg-tertiary);
+  border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin:10px 0}
+.confirm-mini b{color:var(--accent)}
+.cal-wrap{width:100%;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.cal-wrap iframe{width:100%;height:560px;border:none;display:block}
+.offer{display:grid;grid-template-columns:1fr;gap:14px}
+.price-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.price-was{font-family:'JetBrains Mono',monospace;color:var(--text-muted);text-decoration:line-through;font-size:1.05rem}
+.price-now{font-family:'JetBrains Mono',monospace;color:var(--accent);font-weight:700;font-size:2rem;line-height:1}
+.price-tag{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--success);border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);padding:4px 9px;border-radius:100px}
+.guarantee{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;color:var(--text-secondary);margin-top:4px}
+ul.benefits{list-style:none;display:grid;gap:7px;margin:6px 0}
+ul.benefits li{display:flex;gap:9px;font-size:.86rem;color:var(--text-secondary)}
+ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
+.backlink{display:inline-block;margin-top:12px;font-size:.78rem;color:var(--text-muted);cursor:pointer}
+.backlink:hover{color:var(--text-secondary)}
+
+/* ---------- EDEN ---------- */
+#edenBubble{position:fixed;right:16px;bottom:16px;z-index:50;width:56px;height:56px;border-radius:50%;
+  background:var(--accent);color:var(--bg-primary);border:none;cursor:pointer;font-size:1.5rem;
+  box-shadow:0 12px 30px rgba(200,164,86,.35);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+#edenBubble:hover{transform:scale(1.06)}
+#edenPanel{position:fixed;right:16px;bottom:82px;z-index:51;width:340px;max-width:calc(100vw - 32px);
+  height:440px;max-height:calc(100vh - 110px);background:var(--bg-card);border:1px solid var(--border);
+  border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6);display:none;flex-direction:column;overflow:hidden}
+#edenPanel.open{display:flex;animation:fade .25s ease}
+.eden-head{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--border);background:var(--bg-tertiary)}
+.eden-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8a6e2f);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--bg-primary)}
+.eden-head b{font-size:.9rem}.eden-head span{font-size:.66rem;color:var(--success);display:flex;align-items:center;gap:5px}
+.eden-x{margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer}
+.eden-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:.84rem;line-height:1.45}
+.msg.bot{background:var(--bg-tertiary);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px}
+.msg.user{background:var(--accent);color:var(--bg-primary);align-self:flex-end;border-bottom-right-radius:3px;font-weight:500}
+.eden-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.eden-quick button{font-size:.7rem;color:var(--accent);background:var(--accent-subtle);border:1px solid var(--accent-border);border-radius:100px;padding:5px 10px;cursor:pointer}
+.eden-foot{display:flex;gap:8px;padding:11px;border-top:1px solid var(--border)}
+.eden-foot input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:10px;color:var(--text-primary);font-size:.84rem;padding:9px 11px}
+.eden-foot input:focus{outline:none;border-color:var(--accent)}
+.eden-foot button{background:var(--accent);color:var(--bg-primary);border:none;border-radius:10px;padding:0 14px;font-weight:800;cursor:pointer}
+.typing{font-size:.78rem;color:var(--text-muted);font-style:italic}
+
+/* keep everything visible inside the short collapsed frame */
+@media (max-height:620px){
+  h1{font-size:1.5rem}.sub{margin-bottom:10px;font-size:.86rem}
+  .jar-svg{max-width:160px}.counter .num{font-size:1.5rem}
+  .card{padding:16px 18px}.cal-wrap iframe{height:480px}
+}
+</style>
+</head>
+<body>
+<canvas class="starfield" id="stars"></canvas>
+<div class="stage">
+  <div class="card">
+
+    <div class="brandbar">
+      <div class="logo">KNIGHT <span>OPS</span></div>
+      <div class="tag">🔮 The Impossible Gumball Prophecy</div>
+    </div>
+
+    <!-- ============ SCREEN 1: THE GAME ============ -->
+    <section class="screen active" id="screenGame">
+      <div class="grid">
+        <!-- JAR -->
+        <div class="jarwrap">
+          <svg class="jar-svg" id="jarSvg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" aria-label="Gumball jar">
+            <defs>
+              <clipPath id="jarClip"><path d="M55 70 Q55 60 65 60 L135 60 Q145 60 145 70 L150 200 Q150 220 130 220 L70 220 Q50 220 50 200 Z"/></clipPath>
+              <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".10"/><stop offset="1" stop-color="#ffffff" stop-opacity=".02"/>
+              </linearGradient>
+            </defs>
+            <!-- gumballs (filled by JS), clipped to jar -->
+            <g clip-path="url(#jarClip)"><g id="gumballs"></g></g>
+            <!-- glass -->
+            <path d="M55 70 Q55 60 65 60 L135 60 Q145 60 145 70 L150 200 Q150 220 130 220 L70 220 Q50 220 50 200 Z" fill="url(#glass)" stroke="#C8A456" stroke-opacity=".5" stroke-width="2.5"/>
+            <!-- lid -->
+            <rect x="62" y="34" width="76" height="20" rx="7" fill="#C8A456"/>
+            <rect x="74" y="22" width="52" height="16" rx="6" fill="#D4B56A"/>
+            <ellipse cx="100" cy="64" rx="46" ry="7" fill="#C8A456" opacity=".25"/>
+          </svg>
+          <div class="counter">
+            <div class="num" id="jarCount">0</div>
+            <div class="lbl">Total gumballs guessed &amp; climbing</div>
+          </div>
+          <div class="livepill"><span class="livedot"></span>Live &amp; growing</div>
+        </div>
+
+        <!-- COPY + FORM -->
+        <div>
+          <h1>Guess the <span class="g">future.</span> Win the prize.</h1>
+          <p class="sub">Two questions. Both about the future. Both being changed <b>right now</b> by everyone else playing. The jar grows as you read this. Guess as many times as you want, the closest wins. 😈</p>
+
+          <form id="guessForm" autocomplete="on" novalidate>
+            <div class="id-row">
+              <div class="field"><label for="fname">First name</label><input id="fname" name="fname" type="text" placeholder="Daniel" required></div>
+              <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" inputmode="email" placeholder="you@company.com" required></div>
+            </div>
+            <div class="qrow">
+              <div class="field"><label for="qAtt">① How many total guesses will be played?</label><input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="e.g. 1200" required></div>
+              <div class="field"><label for="qGum">② What will the AVERAGE gumball guess be?</label><input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="e.g. 5000" required></div>
+            </div>
+            <p class="hint">Heads up: the jar shows the <b>total</b> gumballs guessed so far, climbing live. But you're guessing the <b>average</b>. Example: if everyone's guesses add up to one million across 1,000 plays, the average is 1,000, and whoever's closest to the final average wins. How many people will play? That's the part you have to feel out. 🔮</p>
+            <label class="consent"><input type="checkbox" id="consent" checked><span>Email me my results &amp; my prizes. I'm cool with Knight Ops follow-up. (You can unsubscribe anytime.)</span></label>
+            <button class="btn" type="submit" id="submitBtn">🔮 Lock In My Guess</button>
+            <div class="err" id="formErr"></div>
+          </form>
+
+          <div class="prize">
+            <div class="chip"><b>🏆 Closest guess wins</b><span>A $2,500 90-min 10x Systems Blueprint, a full roadmap + implementation plan for your tech.</span></div>
+            <div class="chip"><b>🎟️ Everyone who plays</b><span>A 3-Day UNICON ticket (September) + a high-value voucher. Revealed after the event.</span></div>
+          </div>
+          <div class="rules">Unlimited guesses, your best one counts. Winner = closest combined guess to the final total number of guesses + the final average gumball guess, locked 6/11 2:22pm PT. Ties go to the earliest guess. <a id="howLink">How is this even possible?</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 2: CONFIRM + BOOK ============ -->
+    <section class="screen" id="screenBook">
+      <h1>🔥 You're in the <span class="g">Prophecy.</span></h1>
+      <p class="sub">Your guess is locked. Come back and guess again anytime, the jar keeps moving. Now, want to actually <b>fix your systems?</b></p>
+      <div class="confirm-mini" id="confirmMini"></div>
+      <h1 style="font-size:1.25rem;margin-top:8px">Book your FREE 10x Systems Blueprint Session</h1>
+      <p class="sub">A 90-minute deep-dive into your tech, a full roadmap, and an implementation plan. Normally a $2,500 engagement, free for Bloomstack attendees. Daniel guarantees at least one idea that could double your revenue.</p>
+      <div class="cal-wrap">
+        <iframe src="https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV" scrolling="yes" title="Book a Blueprint Session"></iframe>
+      </div>
+      <button class="btn btn-ghost" id="toOfferBtn" type="button">Go to Special Event Offer!<small>Maximize Lead Gen at Events 🚀</small></button>
+      <span class="backlink" id="backToGame1">← Back to the game</span>
+    </section>
+
+    <!-- ============ SCREEN 3: SPECIAL OFFER ============ -->
+    <section class="screen" id="screenOffer">
+      <div class="tag" style="margin-bottom:12px">🚀 Event-Only Special</div>
+      <h1>Want this <span class="g">exact</span> experience at <span class="g">your</span> events?</h1>
+      <p class="sub">The game you just played? That's a Lead Magnet Engine. We build them for you, tuned to your audience, so you capture leads in a fun, high-converting way, whether you're speaking, on a panel, hosting, at a virtual booth, or a physical one.</p>
+      <div class="offer">
+        <ul class="benefits">
+          <li>A custom interactive lead-capture experience built for your brand and event</li>
+          <li>Live data, lead capture, and an automated follow-up funnel wired in</li>
+          <li>This mechanic has converted 100% of the leads we've captured with it at events</li>
+          <li>Works for speakers, panelists, hosts, virtual booths, and physical booths</li>
+        </ul>
+        <div class="price-row">
+          <span class="price-was">$1,497</span>
+          <span class="price-now" id="offerPrice">$797</span>
+          <span class="price-tag">Bloomstack event pricing</span>
+        </div>
+        <div class="guarantee">🛡️ Satisfaction guaranteed. We'll hook you up.</div>
+        <button class="btn" id="claimOfferBtn" type="button">See the Event Special →</button>
+        <button class="btn btn-ghost" id="bookInsteadBtn" type="button">Rather talk first? Book a free call<small>10x Systems Blueprint, no cost 🗓️</small></button>
+        <span class="backlink" id="backToGame2">← Back to the game</span>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ============ EDEN ASSISTANT ============ -->
+<button id="edenBubble" aria-label="Ask Eden">🤖</button>
+<div id="edenPanel" role="dialog" aria-label="Eden assistant">
+  <div class="eden-head">
+    <div class="eden-avatar">E</div>
+    <div><b>Eden</b><br><span><span class="livedot"></span>Knight Ops AI</span></div>
+    <button class="eden-x" id="edenClose" aria-label="Close">✕</button>
+  </div>
+  <div class="eden-body" id="edenBody">
+    <div class="msg bot">Hey, I'm Eden, the Knight Ops AI assistant. 👋 Ask me anything about Knight Ops, the prizes, or how this game works, or just play and lock in a guess.</div>
+  </div>
+  <div class="eden-quick" id="edenQuick">
+    <button data-q="What does Knight Ops do?">What is Knight Ops?</button>
+    <button data-q="What can I win?">What can I win?</button>
+    <button data-q="How does the game work?">How does the game work?</button>
+    <button data-q="How do I work with Daniel?">Work with Daniel</button>
+  </div>
+  <div class="eden-foot">
+    <input id="edenInput" type="text" placeholder="Ask Eden..." autocomplete="off">
+    <button id="edenSend">➤</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const SUPA_URL = "https://trpnlkntvulkjerevngm.supabase.co";
+const SUPA_KEY = "sb_publishable_oZuxXtZg07RhUiqpsKLm9Q_XZD8L8XK"; // publishable (anon) — safe for client
+const REST = SUPA_URL + "/rest/v1";
+const EDEN_FN = SUPA_URL + "/functions/v1/bloomstack-eden"; // optional LLM endpoint; falls back to scripted
+const OFFER_BOOK_URL = "https://knightops.biz/book";
+const OFFER_CLAIM_URL = "https://knightops.biz/lead-magnet-engine"; // dedicated event offer page (Text MAGNET to Daniel)
+const headers = { "apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY, "Content-Type": "application/json" };
+
+/* ============================================================
+   STARFIELD (cheap ambient motion)
+   ============================================================ */
+(function(){
+  const c=document.getElementById('stars'),x=c.getContext('2d');let w,h,stars;
+  function size(){w=c.width=innerWidth;h=c.height=innerHeight;stars=Array.from({length:Math.min(90,Math.floor(w/16))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.2,a:Math.random()}))}
+  function draw(){x.clearRect(0,0,w,h);for(const s of stars){s.a+=(Math.random()-.5)*.05;s.a=Math.max(.1,Math.min(1,s.a));x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fillStyle='rgba(200,164,86,'+(s.a*.5)+')';x.fill()}requestAnimationFrame(draw)}
+  size();draw();addEventListener('resize',size);
+})();
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+/* ============================================================
+   LIVE JAR — poll counters, render gumballs
+   ============================================================ */
+const GUM_COLORS=['#C8A456','#D4B56A','#e05d5d','#5db3e0','#6ce06c','#c77dff','#ffd166','#ef476f'];
+let lastGumballs=0;
+function renderJar(total){
+  document.getElementById('jarCount').textContent = Number(total).toLocaleString();
+  const g=document.getElementById('gumballs');
+  const target=Math.min(120, Math.round(Math.log10(Math.max(10,total))*26)); // cap ~120 balls
+  const have=g.childElementCount;
+  if(target>have){
+    for(let i=have;i<target;i++){
+      const cx=58+Math.random()*84, cy=205-Math.random()*((i/target)*135);
+      const r=6+Math.random()*2.2;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',cx);el.setAttribute('cy',cy);el.setAttribute('r',r);
+      el.setAttribute('fill',GUM_COLORS[i%GUM_COLORS.length]);el.setAttribute('opacity','.92');
+      g.appendChild(el);
+    }
+  }
+}
+async function pollState(){
+  try{
+    const r=await fetch(REST+"/bloomstack_event_state?id=eq.1&select=total_gumballs",{headers});
+    if(r.ok){const d=await r.json();if(d&&d[0]){renderJar(d[0].total_gumballs||0);lastGumballs=d[0].total_gumballs||0;}}
+  }catch(e){/* offline-safe */}
+}
+pollState(); setInterval(pollState, 12000);
+
+/* ============================================================
+   GUESS SUBMIT
+   ============================================================ */
+const form=document.getElementById('guessForm'), errBox=document.getElementById('formErr'), btn=document.getElementById('submitBtn');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault(); errBox.textContent='';
+  const fname=document.getElementById('fname').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const qAtt=parseInt(document.getElementById('qAtt').value,10);
+  const qGum=parseInt(document.getElementById('qGum').value,10);
+  const consent=document.getElementById('consent').checked;
+  if(!fname){errBox.textContent='Add your first name so we know who to send the prize to.';return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){errBox.textContent='That email looks off, double-check it.';return;}
+  if(!Number.isFinite(qAtt)||qAtt<0){errBox.textContent='Enter your attendance guess (a whole number).';return;}
+  if(!Number.isFinite(qGum)||qGum<0){errBox.textContent='Enter your total-gumballs guess (a whole number).';return;}
+  btn.disabled=true; btn.textContent='Locking it in...';
+  try{
+    const res=await fetch(REST+"/bloomstack_guesses",{method:"POST",headers:{...headers,"Prefer":"return=minimal"},
+      body:JSON.stringify({first_name:fname,email:email,guess_attendance:qAtt,guess_gumballs:qGum,consent:consent,user_agent:navigator.userAgent.slice(0,180)})});
+    if(!res.ok){throw new Error('save failed '+res.status);}
+    document.getElementById('confirmMini').innerHTML =
+      `Locked in, <b>${escapeHtml(fname)}</b>. You guessed <b>${qAtt.toLocaleString()}</b> total guesses and an average of <b>${qGum.toLocaleString()}</b> gumballs. We'll email your result + prizes after 6/11.`;
+    pollState();
+    show('screenBook');
+  }catch(err){
+    errBox.textContent='Hmm, that didn\'t save. Check your connection and try once more.';
+    btn.disabled=false; btn.textContent='🔮 Lock In My Guess';
+  }
+});
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============================================================
+   FUNNEL NAV
+   ============================================================ */
+document.getElementById('toOfferBtn').onclick=()=>show('screenOffer');
+document.getElementById('bookInsteadBtn').onclick=()=>show('screenBook');
+document.getElementById('backToGame1').onclick=()=>{btn.disabled=false;btn.textContent='🔮 Lock In My Guess';show('screenGame');};
+document.getElementById('backToGame2').onclick=()=>{btn.disabled=false;btn.textContent='🔮 Lock In My Guess';show('screenGame');};
+document.getElementById('claimOfferBtn').onclick=()=>{
+  const nm=encodeURIComponent((document.getElementById('fname').value||'').trim());
+  window.open(OFFER_CLAIM_URL + (nm?('?name='+nm):''),'_blank');
+};
+
+/* ============================================================
+   "How is this possible?" explainer
+   ============================================================ */
+document.getElementById('howLink').onclick=()=>{
+  openEden();
+  pushEden('user','How is this even possible?');
+  setTimeout(()=>pushEden('bot',"It feels impossible because you're guessing the AVERAGE gumball guess, and every new guess (including yours) moves that average. That's the famous 'guess the average' paradox. The jar shows the total climbing, but you don't know how many people played, so you can't just divide. You have to feel out the crowd. At 6/11 2:22pm PT we lock the REAL final numbers (total guesses + final average). Mystery while you play, hard fact when we score. Closest wins. Totally fair."),650);
+};
+
+/* ============================================================
+   EDEN — scripted brain w/ optional LLM endpoint
+   Grounded ONLY in real Knight Ops facts. Never invents clients.
+   ============================================================ */
+const edenPanel=document.getElementById('edenPanel'), edenBody=document.getElementById('edenBody');
+function openEden(){edenPanel.classList.add('open');}
+document.getElementById('edenBubble').onclick=()=>edenPanel.classList.toggle('open');
+document.getElementById('edenClose').onclick=()=>edenPanel.classList.remove('open');
+function pushEden(role,text){const d=document.createElement('div');d.className='msg '+role;d.textContent=text;edenBody.appendChild(d);edenBody.scrollTop=edenBody.scrollHeight;return d;}
+
+const EDEN_FACTS = {
+  what:"Knight Ops builds custom AI systems, dashboards, apps, and automations for founder-led coaching, consulting, agency, and course businesses. Founder: Daniel Knight. The north star, your client's transformation on autopilot, so you can serve more people without being in every step.",
+  proof:"Real numbers: $200M+ business impact, 50+ systems built, 85% average time saved, 48-hour prototypes, 100% code ownership for you, 7+ live platforms. Daniel built the #1 Hertz dealership across all KPIs and a dashboard that made a 12-dealership region #1 in the country.",
+  win:"Closest combined guess (total number of guesses + the final average gumball guess, locked 6/11 2:22pm PT) wins a $2,500 90-min 10x Systems Blueprint. EVERYONE who plays gets a 3-Day UNICON ticket in September plus a high-value voucher. Just lock in a guess with your email.",
+  game:"Two future questions: how many total guesses will be played, and what the AVERAGE gumball guess will be. The jar shows the total climbing live, but the player count is hidden, so you can't just divide to get the average. Unlimited guesses, your best one counts. We score against the real final numbers on 6/11. Mind-bending to play, fair to win.",
+  work:"Easiest path: book a free 10x Systems Blueprint, a 90-minute deep dive into your tech with a full roadmap, at knightops.biz/book. Daniel guarantees at least one idea that could double your revenue. Want me to take you to booking?",
+  offer:"The game you just played is a Lead Magnet Engine. Knight Ops builds them for you so you capture leads at events in a fun, high-converting way, whether you're speaking, on a panel, hosting, or running a booth. Event-only pricing is $797 (normally $1,497), see the offer screen.",
+  pricing:"For current pricing, the best move is knightops.biz/pricing or just book a free Blueprint and Daniel will map it to what you actually need.",
+  fallback:"Great question. The fastest way to get a real answer is a free 10x Systems Blueprint with Daniel, or lock in a guess to win one. Want me to point you to booking?"
+};
+function edenAnswer(q){
+  const t=q.toLowerCase();
+  if(/(price|cost|how much|pricing|\$)/.test(t)) return EDEN_FACTS.pricing;
+  if(/(win|prize|gift|voucher|unicon|ticket|reward)/.test(t)) return EDEN_FACTS.win;
+  if(/(game|gumball|jar|guess|impossible|how.*work|rules)/.test(t)) return EDEN_FACTS.game;
+  if(/(work with|hire|book|call|blueprint|talk|daniel)/.test(t)) return EDEN_FACTS.work;
+  if(/(offer|lead magnet|engine|my event|my booth|build.*me)/.test(t)) return EDEN_FACTS.offer;
+  if(/(what|who|knight ops|do you|about|service)/.test(t)) return EDEN_FACTS.what;
+  if(/(proof|result|case|stat|number|impact|track record)/.test(t)) return EDEN_FACTS.proof;
+  return EDEN_FACTS.fallback;
+}
+async function askEden(q){
+  pushEden('user',q);
+  const typing=pushEden('bot','Eden is thinking...');typing.classList.add('typing');
+  let answer=null;
+  try{
+    const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),4500);
+    const r=await fetch(EDEN_FN,{method:"POST",headers,body:JSON.stringify({q}),signal:ctrl.signal});
+    clearTimeout(to);
+    if(r.ok){const d=await r.json();if(d&&d.answer)answer=d.answer;}
+  }catch(e){/* fall back */}
+  if(!answer)answer=edenAnswer(q);
+  typing.remove();
+  pushEden('bot',answer);
+  if(/(book|blueprint|booking)/i.test(answer)){
+    const b=document.createElement('button');b.className='btn btn-ghost';b.style.marginTop='8px';b.textContent='🗓️ Open booking';
+    b.onclick=()=>window.open(OFFER_BOOK_URL,'_blank');edenBody.appendChild(b);edenBody.scrollTop=edenBody.scrollHeight;
+  }
+}
+document.getElementById('edenSend').onclick=()=>{const v=document.getElementById('edenInput').value.trim();if(v){document.getElementById('edenInput').value='';askEden(v);}};
+document.getElementById('edenInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('edenSend').click();}});
+document.getElementById('edenQuick').addEventListener('click',e=>{if(e.target.dataset.q){askEden(e.target.dataset.q);}});
+</script>
+</body>
+</html>

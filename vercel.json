@@ -1,0 +1,92 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/assessment",
+      "destination": "/assess",
+      "permanent": true
+    },
+    {
+      "source": "/:path((?!api/).+)\\.html",
+      "destination": "/:path",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/blog/i-was-12-years-old-charging-100-an-hour",
+      "destination": "/blog/i-was-12-years-old-charging-100-an-hour.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/map/:slug",
+      "destination": "/map.html"
+    },
+    {
+      "source": "/app/:file",
+      "destination": "/api/app?file=:file"
+    },
+    {
+      "source": "/proposal/:slug/pdf",
+      "destination": "/api/proposal?slug=:slug&dl=pdf"
+    },
+    {
+      "source": "/proposal/:slug",
+      "destination": "/api/proposal?slug=:slug"
+    },
+    {
+      "source": "/preview/:slug",
+      "destination": "/api/preview?slug=:slug"
+    },
+    {
+      "source": "/:path",
+      "destination": "/:path.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/app/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/proposal",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/proposal/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/preview/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    }
+  ]
+}

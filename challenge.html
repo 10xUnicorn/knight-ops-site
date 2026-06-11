@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-Day AI System Challenge — $47 | Knight Ops</title>
+<meta name="description" content="Install one AI system per day for 7 days. $47. Real systems. Real outputs. Day 7 includes a free Blueprint Call invite.">
+<meta name="keywords" content="7 day AI challenge, AI for coaches, build AI system, AI for consultants, automation challenge, $47 AI course">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://www.knightops.biz/challenge">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.knightops.biz/challenge">
+<meta property="og:title" content="7-Day AI System Challenge — Knight Ops">
+<meta property="og:description" content="$47 · 7 days · 7 AI systems installed. Real builds. Real outputs. Day 7 = free Blueprint Call.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Course","name":"7-Day AI System Challenge","description":"7-day email challenge to install one AI-powered system per day in your business.","provider":{"@type":"Organization","name":"Knight Ops","url":"https://knightops.biz"},"hasCourseInstance":{"@type":"CourseInstance","courseMode":"online","courseWorkload":"P7D","instructor":{"@type":"Person","name":"Daniel Knight"}},"offers":{"@type":"Offer","price":"47","priceCurrency":"USD","category":"Paid","url":"https://knightops.biz/challenge","availability":"https://schema.org/InStock"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;
+  --deep:#06061A;
+  --surface:#0A0A0B;
+  --surface2:#111113;
+  --surface3:#18181B;
+  --card:rgba(12,12,22,0.75);
+  --card-h:rgba(18,18,32,0.85);
+  --border:rgba(200,164,86,0.06);
+  --border-gold:rgba(200,164,86,0.22);
+  --border-violet:rgba(123,97,255,0.25);
+  --border-cyan:rgba(0,229,255,0.15);
+  --glass-gold:rgba(200,164,86,0.12);
+  --glass-violet:rgba(123,97,255,0.10);
+  --glass-cyan:rgba(0,229,255,0.08);
+  --white:#F4F4F5;
+  --cream:#F0EEFF;
+  --gray:#A1A1AA;
+  --muted:#71717A;
+  --dim:#404050;
+  --gold:#C8A456;
+  --gold-bright:#FFD166;
+  --gold-light:#D4B56A;
+  --gold-glow:rgba(200,164,86,0.4);
+  --violet:#7B61FF;
+  --violet-bright:#A78BFA;
+  --violet-glow:rgba(123,97,255,0.45);
+  --cyan:#00E5FF;
+  --cyan-glow:rgba(0,229,255,0.25);
+  --green:#22C55E;
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--deep);
+}
+html{scroll-behavior:smooth}
+body{background:var(--deep);color:var(--white);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.grid-ov{position:fixed;inset:0;background-image:linear-gradient(rgba(200,164,86,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(200,164,86,0.022) 1px,transparent 1px);background-size:80px 80px;z-index:0;pointer-events:none}
+.amb{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(100% 70% at 50% 8%, rgba(200,164,86,0.07) 0%, transparent 55%),
+    radial-gradient(60% 50% at 90% 80%, rgba(123,97,255,0.06) 0%, transparent 50%),
+    radial-gradient(50% 40% at 8% 70%, rgba(0,229,255,0.04) 0%, transparent 50%),
+    radial-gradient(80% 80% at 30% 30%, rgba(123,97,255,0.04) 0%, transparent 50%);
+}
+
+h1,h2,h3,h4{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;letter-spacing:-0.01em}
+.hero-h{font-size:clamp(3rem,7vw,6rem);line-height:.98;font-weight:700}
+.sec-h{font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.08;font-weight:600}
+.med-h{font-size:clamp(1.4rem,2.4vw,1.85rem);line-height:1.2;font-weight:600}
+.body-lg{font-size:clamp(1.02rem,1.3vw,1.18rem);color:var(--gray);line-height:1.8}
+.label{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.18em}
+
+.gold{color:var(--gold)}.violet{color:var(--violet-bright)}.cyan{color:var(--cyan)}
+.gold-grad{background:linear-gradient(135deg,#C8A456,#FFD166,#D4B56A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.violet-grad{background:linear-gradient(135deg,#7B61FF,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gold-glow{text-shadow:0 0 14px rgba(200,164,86,0.5),0 0 50px rgba(200,164,86,0.22)}
+.violet-glow-txt{text-shadow:0 0 14px rgba(123,97,255,0.55),0 0 50px rgba(123,97,255,0.25)}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.section{position:relative;z-index:1;padding:110px 0}
+.tc{text-align:center}
+
+.rv{opacity:0;transform:translateY(40px);transition:all .95s cubic-bezier(.16,1,.3,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.18s}.d3{transition-delay:.28s}.d4{transition-delay:.38s}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,6,26,.78);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:18px 0;transition:padding .25s}
+nav.scrolled{padding:12px 0;background:rgba(6,6,26,.92)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--white)}
+.nav-logo .ko{color:var(--gold)}
+.nav-logo .x{color:var(--dim);font-weight:400;margin:0 2px;font-family:'Inter',sans-serif;font-size:.78rem;letter-spacing:.1em}
+.nav-logo .ch{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(135deg,#C8A456,#FFD166);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-right{display:flex;gap:24px;align-items:center}
+.nav-link{color:var(--gray);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.05em;text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--gold)}
+.nav-cta{padding:10px 22px;border:1px solid var(--gold);border-radius:2px;color:var(--gold);font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;background:transparent;transition:all .25s}
+.nav-cta:hover{background:var(--gold);color:var(--deep);box-shadow:0 0 24px var(--gold-glow)}
+
+.hero{position:relative;z-index:1;padding:160px 0 60px;text-align:center}
+.hero-content{max-width:960px;margin:0 auto;padding:0 24px}
+.hero-tag{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border:1px solid var(--border-gold);background:linear-gradient(135deg,var(--glass-gold),rgba(123,97,255,.05));border-radius:2px;color:var(--gold);margin-bottom:30px}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 12px var(--gold-glow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-h{margin-bottom:28px}
+.hero-h .l1{display:block;color:var(--white)}
+.hero-h .l2{display:block}
+.hero-h .l3{display:block;font-style:italic;color:var(--gold);text-shadow:0 0 24px rgba(200,164,86,.4),0 0 60px rgba(200,164,86,.18)}
+.hero-sub{font-size:clamp(1.05rem,1.35vw,1.2rem);color:var(--cream);line-height:1.75;max-width:780px;margin:0 auto 38px;opacity:.85}
+.hero-ctas{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.hero-fine{font-family:'Space Grotesk',sans-serif;font-size:.74rem;color:var(--muted);letter-spacing:.06em;margin-top:6px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:15px 32px;border-radius:2px;font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;transition:all .25s;cursor:pointer;border:none}
+.btn-gold{background:linear-gradient(135deg,#C8A456,#FFD166);color:var(--deep);box-shadow:0 0 32px rgba(200,164,86,.25)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(200,164,86,.45)}
+.btn-violet{background:linear-gradient(135deg,#7B61FF,#A78BFA);color:var(--white);box-shadow:0 0 32px rgba(123,97,255,.35)}
+.btn-violet:hover{transform:translateY(-2px);box-shadow:0 0 48px rgba(123,97,255,.55)}
+.btn-outline{background:transparent;border:1px solid var(--border-gold);color:var(--gold)}
+.btn-outline:hover{border-color:var(--gold);background:var(--glass-gold)}
+.btn-lg{padding:18px 38px;font-size:.84rem}
+
+/* PROOF BAR */
+.proof-bar{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;margin:46px auto 0;max-width:820px}
+.proof-pill{display:inline-flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-size:.74rem;color:var(--gray);letter-spacing:.06em;text-transform:uppercase}
+.proof-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--violet-bright);box-shadow:0 0 8px var(--violet-glow)}
+
+/* DAYS */
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);margin-top:50px;border:1px solid var(--border)}
+.day{background:var(--card);padding:32px 26px;backdrop-filter:blur(10px);transition:background .3s,transform .3s;position:relative;overflow:hidden}
+.day:hover{background:var(--card-h);transform:translateY(-2px)}
+.day-num{display:inline-flex;align-items:baseline;gap:8px;font-family:'Cormorant Garamond',serif;font-size:.8rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px}
+.day-num .n{font-size:2.2rem;font-weight:700;line-height:1;color:var(--gold)}
+.day-num.violet .n{color:var(--violet-bright);text-shadow:0 0 14px var(--violet-glow)}
+.day h3{font-size:1.3rem;color:var(--white);margin-bottom:8px;line-height:1.25}
+.day p{font-size:.9rem;color:var(--gray);line-height:1.65;font-family:'Inter',sans-serif}
+
+/* WHO */
+.who{margin-top:60px;padding:42px 36px;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(20px)}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:24px}
+@media(max-width:680px){.who-grid{grid-template-columns:1fr;gap:24px}}
+.who-col h4{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
+.who-col.yes h4{color:var(--green)}
+.who-col.no h4{color:var(--muted)}
+.who-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.who-col li{display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--cream);line-height:1.55;font-family:'Inter',sans-serif}
+.who-col.yes li::before{content:'';flex-shrink:0;width:12px;height:12px;border-radius:50%;background:rgba(34,197,94,.15);border:1px solid var(--green);margin-top:5px}
+.who-col.no li{color:var(--muted)}
+.who-col.no li::before{content:'×';flex-shrink:0;width:14px;height:14px;color:var(--dim);font-family:'Space Grotesk',sans-serif;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:3px}
+
+/* PROOF */
+.proof{margin-top:60px;padding:50px 40px;background:linear-gradient(135deg,rgba(200,164,86,.06),rgba(123,97,255,.05));border:1px solid var(--border-gold);backdrop-filter:blur(20px);text-align:center}
+.proof h3{font-size:clamp(1.5rem,3vw,2.1rem);margin-bottom:12px;color:var(--white)}
+.proof h3 em{font-style:italic;color:var(--gold)}
+.proof p{color:var(--gray);max-width:620px;margin:0 auto;font-size:.98rem;line-height:1.7}
+
+/* FAQ */
+.faq-list{margin-top:40px;display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border)}
+.faq{background:var(--card);padding:24px 28px;cursor:pointer;transition:background .25s}
+.faq:hover{background:var(--card-h)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;gap:18px;font-family:'Cormorant Garamond',serif;font-size:1.12rem;font-weight:600;color:var(--cream)}
+.faq-toggle{color:var(--gold);font-size:1.4rem;font-weight:300;transition:transform .25s;flex-shrink:0;font-family:'Inter',sans-serif}
+.faq.open .faq-toggle{transform:rotate(45deg);color:var(--violet-bright)}
+.faq-a{color:var(--gray);font-size:.92rem;line-height:1.75;margin-top:0;max-height:0;overflow:hidden;transition:max-height .35s,margin-top .35s;font-family:'Inter',sans-serif}
+.faq.open .faq-a{margin-top:16px;max-height:380px}
+
+/* FINAL */
+.final{margin-top:80px;padding:60px 40px;background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(123,97,255,.06));border:1px solid var(--border-gold);text-align:center;backdrop-filter:blur(20px);position:relative;overflow:hidden}
+.final::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.final::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--violet-bright),transparent)}
+.final .label{color:var(--gold);margin-bottom:14px;display:inline-block}
+.final h3{font-size:clamp(1.7rem,3.5vw,2.6rem);margin-bottom:14px;color:var(--white)}
+.final h3 em{font-style:italic;color:var(--violet-bright)}
+.final-price{font-family:'Space Grotesk',sans-serif;font-size:.84rem;color:var(--gray);letter-spacing:.06em;margin-bottom:24px}
+.final-price strong{color:var(--gold);font-weight:700;font-size:1.1rem;font-family:'Cormorant Garamond',serif}
+
+footer{position:relative;z-index:1;padding:50px 0 60px;border-top:1px solid var(--border);margin-top:80px}
+.footer-in{max-width:1100px;margin:0 auto;padding:0 24px;text-align:center}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--white);margin-bottom:12px}
+.footer-brand span{color:var(--gold)}
+.footer-meta{font-family:'Space Grotesk',sans-serif;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
+.footer-meta a{color:var(--gray);margin:0 8px;text-decoration:none;transition:color .2s}
+.footer-meta a:hover{color:var(--gold)}
+
+@media(max-width:680px){
+  .section{padding:70px 0}
+  .hero{padding:130px 20px 50px}
+  .hero-ctas{flex-direction:column;align-items:stretch}
+  .hero-ctas .btn{justify-content:center}
+  .proof-bar{flex-direction:column;gap:14px}
+  .who{padding:30px 22px}
+  .proof{padding:34px 24px}
+  .final{padding:40px 22px}
+  .nav-right .nav-link{display:none}
+  .nav-in{padding:0 18px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+<div class="amb"></div>
+
+<nav id="nav"><div class="nav-in">
+  <a href="/" class="nav-logo"><span class="ko">Knight Ops</span><span class="x">×</span><span class="ch">Challenge</span></a>
+  <div class="nav-right">
+    <a href="/tools" class="nav-link">Tools</a>
+    <a href="/audit" class="nav-link">AI Audit</a>
+    <a href="#start" class="nav-cta">Start — $47</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+  <div class="hero-content rv">
+    <div class="hero-tag label">$47 · 7 Days · Real Builds</div>
+    <h1 class="hero-h">
+      <span class="l1">One AI system.</span>
+      <span class="l2 gold-grad">Every day for a week.</span>
+      <span class="l3">Shipped.</span>
+    </h1>
+    <p class="hero-sub">By Day 7, your business runs cleaner, you've automated something that used to eat hours every week, and you'll know exactly what to build next. One short email per day. One working system per day. $47 to start.</p>
+    <div class="hero-ctas">
+      <a href="https://buy.stripe.com/9B6eVccq34v04xf0Eu8g00P" class="btn btn-gold btn-lg" id="start">Start the Challenge →</a>
+    </div>
+    <div class="hero-fine">Instant access · 100% guarantee · Day 7 includes free Blueprint Call invite</div>
+
+    <div class="proof-bar rv d2">
+      <div class="proof-pill">50+ Systems Installed for Clients</div>
+      <div class="proof-pill">$200M+ Business Impact</div>
+      <div class="proof-pill">Built by Daniel Knight</div>
+    </div>
+  </div>
+</section>
+
+<!-- DAYS -->
+<section class="section">
+  <div class="wrap">
+    <div class="tc rv">
+      <div class="label violet" style="margin-bottom:14px">The Curriculum</div>
+      <h2 class="sec-h">7 systems. <em style="font-style:italic" class="violet-grad">7 days.</em> Yours forever.</h2>
+      <p class="body-lg" style="max-width:640px;margin:18px auto 0">Each day: one short email, one video walkthrough, one system installed in 30–90 minutes. Nothing theoretical.</p>
+    </div>
+    <div class="days rv d2">
+      <div class="day"><div class="day-num"><span class="n">1</span> Day</div><h3>AI-Powered Intake Form</h3><p>A smart form that auto-tags leads, scores them, and routes hot ones straight to your inbox. Live in 30 minutes.</p></div>
+      <div class="day"><div class="day-num"><span class="n">2</span> Day</div><h3>Personalized Outreach Engine</h3><p>Use AI to write personalized cold emails from a single prospect URL. Cut writing time 90%.</p></div>
+      <div class="day"><div class="day-num"><span class="n">3</span> Day</div><h3>Client Onboarding Automation</h3><p>Auto-fire welcome email, schedule kickoff call, send portal access, trigger first-week check-in. No more dropped balls.</p></div>
+      <div class="day"><div class="day-num violet"><span class="n">4</span> Day</div><h3>Content Multiplication System</h3><p>Turn one podcast or post into blog + social + email + video clips. Your content engine on autopilot.</p></div>
+      <div class="day"><div class="day-num violet"><span class="n">5</span> Day</div><h3>AI Support Agent</h3><p>Trained on your docs and methodology — handles the repeat questions so you only touch the ones that need you.</p></div>
+      <div class="day"><div class="day-num"><span class="n">6</span> Day</div><h3>Operations Dashboard</h3><p>Live view of your 3–5 key metrics in one screen. Better calls, faster, without asking anyone to pull numbers.</p></div>
+      <div class="day"><div class="day-num violet"><span class="n">7</span> Day</div><h3>Your 10× Systems Blueprint</h3><p>Map your custom roadmap for the next 90 days — and get an invite to your free Blueprint Call with Daniel.</p></div>
+    </div>
+
+    <div class="who rv d3">
+      <div class="tc">
+        <div class="label gold" style="margin-bottom:14px">Honest Filter</div>
+        <h3 class="med-h">Is this <em style="font-style:italic" class="gold-grad">for you?</em></h3>
+      </div>
+      <div class="who-grid">
+        <div class="who-col yes">
+          <h4>YES if you...</h4>
+          <ul>
+            <li>Run a coaching, consulting, agency, or course business</li>
+            <li>Are past $100K/yr (and definitely past $500K)</li>
+            <li>Are doing too much manually and feel the ceiling</li>
+            <li>Want AI in your business but don't know where to start</li>
+            <li>Learn by building, not by reading</li>
+          </ul>
+        </div>
+        <div class="who-col no">
+          <h4>NOT YET if you...</h4>
+          <ul>
+            <li>Want a passive course you'll never open</li>
+            <li>Are looking for a "secret AI hack" instead of real systems</li>
+            <li>Have no business or are pre-revenue (start with the free <a href="/audit" style="color:var(--gold)">AI Audit</a>)</li>
+            <li>Expect us to do it for you (that's the Night Build package)</li>
+            <li>Are allergic to actually doing the work</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="proof rv d4">
+      <h3>Built by someone who's <em>installed 50+</em> of these systems.</h3>
+      <p>Daniel Knight runs Knight Ops, Unicorn Universe, and 10×Unicorn Mastermind. $200M+ in business impact across financial services, coaching, agencies, and SaaS. Every system in this challenge has been deployed in real client businesses and produced real ROI.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="wrap">
+    <div class="tc rv">
+      <div class="label violet" style="margin-bottom:14px">Quick Answers</div>
+      <h2 class="sec-h">Common <em style="font-style:italic" class="violet-grad">questions.</em></h2>
+    </div>
+    <div class="faq-list rv d2">
+      <div class="faq" onclick="this.classList.toggle('open')"><div class="faq-q">How does the challenge work?<span class="faq-toggle">+</span></div><div class="faq-a">After you pay, you get instant access to Day 1. Then one email per day for 7 days. Each email has a video walkthrough, the exact tools to use, and step-by-step instructions. Each system takes 30–90 minutes to install.</div></div>
+      <div class="faq" onclick="this.classList.toggle('open')"><div class="faq-q">What tools do I need?<span class="faq-toggle">+</span></div><div class="faq-a">Most days use free or freemium tools you probably already have. A few days touch Stripe, ConvertKit / Mailchimp, Notion, or your existing CRM. We'll never make you buy something new to complete a day.</div></div>
+      <div class="faq" onclick="this.classList.toggle('open')"><div class="faq-q">Do I need to be technical?<span class="faq-toggle">+</span></div><div class="faq-a">No code required. You're using AI tools + drag-and-drop builders. If you can copy and paste, you can do this.</div></div>
+      <div class="faq" onclick="this.classList.toggle('open')"><div class="faq-q">What's the guarantee?<span class="faq-toggle">+</span></div><div class="faq-a">If you complete Days 1–3 and don't feel like you got 10× your $47 in value, email daniel@knightops.biz for a full refund. No questions, no forms.</div></div>
+      <div class="faq" onclick="this.classList.toggle('open')"><div class="faq-q">Will you try to upsell me?<span class="faq-toggle">+</span></div><div class="faq-a">Day 7 includes an invite to a free Blueprint Call where we map your custom AI roadmap. That call is free and pressure-free. If we're a fit to work together long-term, we'll talk about it then — but the challenge stands on its own.</div></div>
+    </div>
+
+    <div class="final rv d3">
+      <div class="label">Ready to ship?</div>
+      <h3>7 systems. <em>7 days.</em> $47.</h3>
+      <div class="final-price"><strong>$47</strong> · Instant access · 100% money-back · Day 7 = free Blueprint Call</div>
+      <div class="hero-ctas">
+        <a href="https://buy.stripe.com/9B6eVccq34v04xf0Eu8g00P" class="btn btn-gold btn-lg">Start the Challenge →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-in">
+    <div class="footer-brand">Knight <span>Ops</span></div>
+    <div class="footer-meta">© 2026 Knight Ops · <a href="/">Home</a> · <a href="/tools">Free Tools</a> · <a href="/audit">AI Audit</a> · <a href="/book">Book a Call</a> · <a href="/fractional-ai-officer">Fractional AI Officer</a> · <a href="/faq">FAQ</a></div>
+  </div>
+</footer>
+
+<script>
+const ro = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); ro.unobserve(e.target); } });
+}, { threshold: .14 });
+document.querySelectorAll('.rv').forEach(el => ro.observe(el));
+
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
+
+const c = document.getElementById('bgCanvas'), ctx = c.getContext('2d');
+let parts = [], w, h;
+function resize() { w = c.width = innerWidth; h = c.height = innerHeight; }
+resize(); window.addEventListener('resize', resize);
+for (let i = 0; i < 45; i++) parts.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-.5)*.22, vy: (Math.random()-.5)*.22, r: Math.random()*1.5+.4, a: Math.random()*.35+.08, hue: Math.random() < .65 ? 'gold' : 'violet' });
+function tick() {
+  ctx.clearRect(0,0,w,h);
+  parts.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x<0||p.x>w) p.vx*=-1;
+    if (p.y<0||p.y>h) p.vy*=-1;
+    const rgb = p.hue === 'gold' ? '200,164,86' : '123,97,255';
+    ctx.fillStyle = `rgba(${rgb},${p.a})`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+  });
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+</body>
+</html>

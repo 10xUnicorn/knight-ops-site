@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Knights at the Round Table | Knight Ops — Free Weekly Call</title>
+<meta name="description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Wednesday, 10am PT / 1pm ET. Free forever.">
+<meta property="og:title" content="Tech Knights at the Round Table | Knight Ops">
+<meta property="og:description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Wednesday, 10am PT / 1pm ET.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/roundtable">
+<meta property="og:image" content="https://knightops.biz/ko-og-roundtable.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tech Knights at the Round Table | Knight Ops">
+<meta name="twitter:description" content="Free weekly call — live teaching, hot seats & real-time problem solving. Every Wednesday, 10am PT / 1pm ET.">
+<link rel="icon" href="https://knightops.biz/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;
+  --deep:#06061A;
+  --surface:#0A0A0B;
+  --surface2:#111113;
+  --surface3:#18181B;
+  --card:rgba(12,12,22,0.75);
+  --border:rgba(200,164,86,0.06);
+  --border-gold:rgba(200,164,86,0.2);
+  --border-blue:rgba(0,229,255,0.15);
+  --glass-gold:rgba(200,164,86,0.12);
+  --glass-cyan:rgba(0,229,255,0.08);
+  --white:#F4F4F5;
+  --cream:#F0EEFF;
+  --gray:#A1A1AA;
+  --muted:#71717A;
+  --dim:#404050;
+  --gold:#C8A456;
+  --gold-bright:#FFD166;
+  --gold-light:#D4B56A;
+  --gold-glow:rgba(200,164,86,0.4);
+  --violet:#7B61FF;
+  --violet-glow:rgba(123,97,255,0.3);
+  --cyan:#00E5FF;
+  --cyan-glow:rgba(0,229,255,0.25);
+  --neon-blue:#00E5FF;
+  --warm-orange:rgba(255,160,50,0.07);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--deep);
+  color:var(--white);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  line-height:1.15;
+}
+canvas#bgCanvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+.grid-ov{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(200,164,86,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,164,86,0.03) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+.amb{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%,rgba(255,160,50,0.07),transparent),
+    radial-gradient(ellipse 50% 50% at 80% 85%,rgba(0,229,255,0.05),transparent),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(123,97,255,0.04),transparent);
+}
+.wrap{
+  position:relative;
+  z-index:1;
+}
+
+/* ======================== NAV ======================== */
+nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  padding:0 24px;
+  transition:all .4s ease;
+  background:rgba(6,6,26,0.6);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(6,6,26,0.85);
+  border-bottom-color:var(--border-gold);
+  box-shadow:0 4px 30px rgba(0,0,0,0.3);
+}
+.nav-in{
+  max-width:1200px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:64px;
+}
+.nav-logo{text-decoration:none}
+.ko{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.35rem;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nav-cta{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:10px 24px;
+  border-radius:6px;
+  text-decoration:none;
+  transition:all .3s ease;
+}
+.nav-cta:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px var(--gold-glow);
+}
+
+/* ======================== BUTTONS ======================== */
+.btn-gold{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:16px 36px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px var(--gold-glow);
+}
+.btn-outline{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--gold);
+  background:transparent;
+  padding:16px 36px;
+  border:1px solid var(--border-gold);
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+}
+.btn-outline:hover{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  transform:translateY(-2px);
+}
+
+/* ======================== REVEAL ======================== */
+.rv{
+  opacity:0;
+  transform:translateY(45px);
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);
+}
+.rv.vis{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ======================== SECTIONS ======================== */
+section{padding:100px 24px}
+.section-in{max-width:1100px;margin:0 auto}
+
+/* ======================== HERO ======================== */
+.hero{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:120px 24px 80px;
+}
+.hero-in{max-width:860px}
+.hero-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:var(--gold);
+  background:var(--glass-gold);
+  border:1px solid var(--border-gold);
+  padding:8px 20px;
+  border-radius:100px;
+  margin-bottom:32px;
+}
+.hero-tag .pulse{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 var(--gold-glow)}
+  50%{opacity:.7;box-shadow:0 0 0 8px rgba(200,164,86,0)}
+}
+.hero-h{
+  font-size:clamp(2.6rem,7vw,5rem);
+  margin-bottom:28px;
+}
+.hero-h .line{display:block}
+.hero-h .gold-txt{
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright),var(--gold));
+  background-size:200% 200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:goldShift 4s ease-in-out infinite;
+}
+@keyframes goldShift{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.2rem);
+  color:var(--gray);
+  max-width:640px;
+  margin:0 auto 36px;
+  line-height:1.7;
+}
+.hero-details{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:32px;
+}
+.hero-detail{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:500;
+  color:var(--gold-light);
+  background:var(--glass-gold);
+  border:1px solid var(--border-gold);
+  padding:8px 18px;
+  border-radius:6px;
+}
+.topic-chips{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:44px;
+}
+.topic-chip{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:500;
+  letter-spacing:.04em;
+  color:var(--gray);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  padding:6px 16px;
+  border-radius:100px;
+  transition:all .3s ease;
+}
+.topic-chip:hover{
+  border-color:var(--border-gold);
+  color:var(--gold-light);
+  background:var(--glass-gold);
+}
+.hero-ctas{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+/* ======================== WHAT YOU GET ======================== */
+.wyg-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  margin-top:48px;
+}
+.wyg-card{
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.12);
+  border-radius:10px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  padding:36px 28px;
+  transition:all .4s ease;
+  position:relative;
+  overflow:hidden;
+}
+.wyg-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  border-radius:10px 10px 0 0;
+}
+.wyg-card.cyan-accent::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+.wyg-card.violet-accent::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.wyg-card.gold-accent::before{background:linear-gradient(90deg,var(--gold),transparent)}
+.wyg-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(200,164,86,0.25);
+  box-shadow:0 8px 40px rgba(0,0,0,0.3),inset 0 1px 0 rgba(200,164,86,0.1);
+}
+.wyg-icon{
+  width:48px;height:48px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+  font-size:1.3rem;
+}
+.cyan-accent .wyg-icon{background:var(--glass-cyan);color:var(--cyan)}
+.violet-accent .wyg-icon{background:rgba(123,97,255,0.12);color:var(--violet)}
+.gold-accent .wyg-icon{background:var(--glass-gold);color:var(--gold)}
+.wyg-card h3{
+  font-size:1.5rem;
+  margin-bottom:12px;
+  color:var(--white);
+}
+.wyg-card p{
+  color:var(--gray);
+  font-size:.92rem;
+  line-height:1.6;
+}
+.section-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--gold);
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(2rem,4vw,3rem);
+  margin-bottom:16px;
+}
+.section-sub{
+  color:var(--gray);
+  font-size:1rem;
+  max-width:560px;
+}
+
+/* ======================== WHAT TO EXPECT ======================== */
+.expect-section{padding-top:40px}
+.expect-list{
+  max-width:760px;
+  margin:40px auto 0;
+  display:grid;
+  gap:14px;
+}
+.expect-item{
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.1);
+  border-radius:10px;
+  padding:20px 24px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  transition:all .3s ease;
+}
+.expect-item:hover{
+  border-color:var(--border-gold);
+  transform:translateX(4px);
+}
+.expect-item .ei-mark{
+  flex-shrink:0;
+  width:28px;height:28px;
+  border-radius:7px;
+  background:var(--glass-gold);
+  border:1px solid var(--border-gold);
+  color:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;
+  margin-top:2px;
+}
+.expect-item p{
+  color:var(--gray);
+  font-size:.96rem;
+  line-height:1.6;
+}
+.expect-item p strong{color:var(--white);font-weight:600}
+.expect-note{
+  max-width:760px;
+  margin:24px auto 0;
+  text-align:center;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-style:italic;
+  font-size:1.25rem;
+  color:var(--gold-light);
+}
+
+/* ======================== FORM SECTION ======================== */
+.form-section{padding-top:60px;padding-bottom:120px}
+.form-card{
+  max-width:680px;
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.12);
+  border-radius:14px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(200,164,86,0.06);
+}
+
+/* PROGRESS */
+.form-progress{padding:24px 32px 0}
+.progress-bar-track{
+  width:100%;height:3px;
+  background:rgba(255,255,255,0.06);
+  border-radius:3px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+  border-radius:3px;
+  transition:width .5s cubic-bezier(.16,1,.3,1);
+}
+.progress-dots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+.progress-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:var(--dim);
+  transition:all .3s ease;
+}
+.progress-dot.done{background:var(--gold)}
+.progress-dot.active{
+  background:var(--gold);
+  box-shadow:0 0 12px var(--gold-glow);
+}
+.progress-dot-line{
+  width:40px;height:1px;
+  background:var(--dim);
+  transition:background .3s ease;
+}
+.progress-dot-line.done{background:var(--gold)}
+
+/* FORM INNER */
+.form-inner{padding:32px}
+.step{display:none}
+.step.active{display:block}
+.step-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.step-title{
+  font-size:clamp(1.6rem,3vw,2.2rem);
+  margin-bottom:8px;
+}
+.step-sub{
+  color:var(--gray);
+  font-size:.92rem;
+  margin-bottom:32px;
+  line-height:1.6;
+}
+
+/* FORM FIELDS */
+.field{margin-bottom:20px}
+.field label{
+  display:block;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:500;
+  color:var(--gray);
+  margin-bottom:6px;
+  letter-spacing:.02em;
+}
+.field label .req{color:var(--gold);margin-left:2px}
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field select,
+.field textarea{
+  width:100%;
+  font-family:'Inter',sans-serif;
+  font-size:.9rem;
+  color:var(--white);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:12px 16px;
+  outline:none;
+  transition:all .3s ease;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:var(--border-gold);
+  background:rgba(200,164,86,0.04);
+  box-shadow:0 0 0 3px rgba(200,164,86,0.08);
+}
+.field textarea{resize:vertical;min-height:100px}
+.field-error{
+  font-size:.75rem;
+  color:#ff6b6b;
+  margin-top:4px;
+  display:none;
+}
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea{border-color:#ff6b6b}
+.field.has-error .field-error{display:block}
+
+/* STEP 2 CONFIRMATION */
+.confirm-icon{
+  width:72px;height:72px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  font-size:2rem;
+  color:var(--deep);
+}
+.step-center{text-align:center}
+.step-center .step-title{margin-bottom:12px}
+
+/* JOIN BUTTON */
+.join-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--deep);
+  background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  padding:20px 36px;
+  border-radius:10px;
+  text-decoration:none;
+  transition:all .3s ease;
+  box-shadow:0 8px 30px var(--gold-glow);
+}
+.join-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px var(--gold-glow);
+}
+
+/* CALENDAR BTNS */
+.cal-heading{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--gold);
+  text-align:center;
+  margin:32px 0 16px;
+}
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:0 0 8px;
+}
+.cal-btn{
+  background:var(--card);
+  border:1px solid rgba(200,164,86,0.1);
+  border-radius:10px;
+  padding:20px 14px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .3s ease;
+  text-decoration:none;
+  display:block;
+}
+.cal-btn:hover{
+  border-color:var(--gold);
+  background:var(--glass-gold);
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px rgba(200,164,86,0.15);
+}
+.cal-btn .cal-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+.cal-btn .cal-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.78rem;
+  font-weight:600;
+  color:var(--white);
+  display:block;
+  margin-bottom:4px;
+}
+.cal-btn .cal-sub{font-size:.68rem;color:var(--muted)}
+.confirm-details{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:20px;
+  margin:24px 0;
+  text-align:left;
+}
+.confirm-details .cd-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 0;
+  font-size:.88rem;
+  color:var(--gray);
+}
+.confirm-details .cd-row .cd-icon{
+  color:var(--gold);
+  font-size:.9rem;
+  width:20px;
+  text-align:center;
+}
+
+/* ======================== FOOTER ======================== */
+footer{
+  text-align:center;
+  padding:40px 24px;
+  border-top:1px solid var(--border);
+  position:relative;
+  z-index:1;
+}
+footer p{font-size:.82rem;color:var(--muted)}
+footer a{color:var(--gold);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ======================== LOADING ======================== */
+.btn-gold.loading{pointer-events:none;opacity:.7}
+.btn-gold.loading::after{
+  content:'';
+  width:16px;height:16px;
+  border:2px solid transparent;
+  border-top-color:var(--deep);
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-left:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ======================== MOBILE ======================== */
+@media(max-width:768px){
+  .wyg-grid{grid-template-columns:1fr}
+  .cal-grid{grid-template-columns:1fr}
+  .hero-ctas{flex-direction:column;width:100%}
+  .hero-ctas a,.hero-ctas button{width:100%;justify-content:center;text-align:center}
+  .form-inner{padding:24px 20px}
+  .form-progress{padding:24px 20px 0}
+  section{padding:60px 16px}
+  .expect-item{padding:16px 18px}
+}
+@media(max-width:480px){
+  .hero-details{flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND LAYERS -->
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+<div class="amb"></div>
+
+<div class="wrap">
+
+<!-- ======================== NAV ======================== -->
+<nav id="mainNav">
+  <div class="nav-in">
+    <a href="https://knightops.biz" class="nav-logo"><span class="ko">Knight Ops</span></a>
+    <a href="#register" class="nav-cta">Register Now</a>
+  </div>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<section class="hero">
+  <div class="hero-in">
+    <div class="hero-tag rv"><span class="pulse"></span>KNIGHT OPS</div>
+    <h1 class="hero-h rv">
+      <span class="line">Tech Knights at the</span>
+      <span class="line gold-txt">Round Table.</span>
+    </h1>
+    <p class="hero-sub rv">A free weekly call for entrepreneurs who want to wield technology like a weapon for growth.</p>
+    <div class="hero-details rv">
+      <span class="hero-detail">Every Wednesday</span>
+      <span class="hero-detail">10am PT / 1pm ET</span>
+      <span class="hero-detail">Free Forever</span>
+    </div>
+    <div class="topic-chips rv">
+      <span class="topic-chip">AI Strategy</span>
+      <span class="topic-chip">Lead Gen Systems</span>
+      <span class="topic-chip">App Building</span>
+      <span class="topic-chip">Automation</span>
+      <span class="topic-chip">Revenue Growth</span>
+      <span class="topic-chip">Tech Stack</span>
+    </div>
+    <div class="hero-ctas rv">
+      <a href="#register" class="btn-gold">REGISTER NOW &rarr;</a>
+      <a href="#what-you-get" class="btn-outline">SEE WHAT YOU'LL LEARN</a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== WHAT YOU GET ======================== -->
+<section id="what-you-get">
+  <div class="section-in">
+    <div class="rv" style="text-align:center;max-width:620px;margin:0 auto">
+      <p class="section-label">What You'll Get</p>
+      <h2 class="section-title">Every Wednesday, We Build.</h2>
+      <p class="section-sub" style="margin:0 auto">Not another webinar. This is a working session for entrepreneurs who want results.</p>
+    </div>
+    <div class="wyg-grid">
+      <div class="wyg-card cyan-accent rv">
+        <div class="wyg-icon">&#9889;</div>
+        <h3>Live Teaching</h3>
+        <p>Real strategies, real tools &mdash; no theory. Learn to leverage tech consciously to elevate your business and give yourself more time and freedom.</p>
+      </div>
+      <div class="wyg-card violet-accent rv">
+        <div class="wyg-icon">&#127908;</div>
+        <h3>Hot Seats</h3>
+        <p>Bring your project, your problem, or your idea. Get direct support in breakout rooms or as a group. The more prepared you are, the better this time works for you.</p>
+      </div>
+      <div class="wyg-card gold-accent rv">
+        <div class="wyg-icon">&#129309;</div>
+        <h3>Community</h3>
+        <p>Connect with other tech-forward entrepreneurs. Share needs, offer support, build real relationships around real challenges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== WHAT TO EXPECT ======================== -->
+<section class="expect-section" id="what-to-expect">
+  <div class="section-in">
+    <div class="rv" style="text-align:center;max-width:620px;margin:0 auto">
+      <p class="section-label">What To Expect</p>
+      <h2 class="section-title">One Hour. All Things Tech.</h2>
+      <p class="section-sub" style="margin:0 auto">Come as you are &mdash; with a problem to solve or just an open mind.</p>
+    </div>
+    <div class="expect-list">
+      <div class="expect-item rv">
+        <div class="ei-mark">&#9670;</div>
+        <p>A <strong>one-hour call</strong> to discuss all things technology.</p>
+      </div>
+      <div class="expect-item rv">
+        <div class="ei-mark">&#9670;</div>
+        <p>Bring your <strong>ideas, problems, challenges, questions</strong> &mdash; or just an open mind.</p>
+      </div>
+      <div class="expect-item rv">
+        <div class="ei-mark">&#9670;</div>
+        <p>An opportunity to <strong>share your needs for support</strong> and offer direct support to others.</p>
+      </div>
+      <div class="expect-item rv">
+        <div class="ei-mark">&#9670;</div>
+        <p><strong>Breakout rooms</strong> for focused 1-on-1 help or group discussions.</p>
+      </div>
+      <div class="expect-item rv">
+        <div class="ei-mark">&#9670;</div>
+        <p>May include <strong>training or coaching</strong> around using technology consciously to elevate humanity, generate revenue, and automate for continued growth.</p>
+      </div>
+    </div>
+    <p class="expect-note rv">It's not necessarily a group coaching call &mdash; but it's not NOT a coaching call.</p>
+  </div>
+</section>
+
+<!-- ======================== REGISTRATION FORM ======================== -->
+<section class="form-section" id="register">
+  <div class="section-in">
+    <div class="rv" style="text-align:center;margin-bottom:48px">
+      <p class="section-label">Reserve Your Spot</p>
+      <h2 class="section-title">Pull Up a Chair</h2>
+    </div>
+    <div class="form-card rv">
+
+      <!-- PROGRESS BAR -->
+      <div class="form-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill" style="width:50%"></div>
+        </div>
+        <div class="progress-dots">
+          <div class="progress-dot active" id="dot1"></div>
+          <div class="progress-dot-line" id="line1"></div>
+          <div class="progress-dot" id="dot2"></div>
+        </div>
+      </div>
+
+      <div class="form-inner">
+
+        <!-- ======== STEP 1: REGISTER ======== -->
+        <div class="step active" id="step1">
+          <p class="step-label">STEP 1 OF 2 &mdash; REGISTER</p>
+          <h2 class="step-title">Claim Your Seat</h2>
+          <p class="step-sub">Tell us a little about you and what you're after. Takes 30 seconds.</p>
+
+          <form id="regForm" novalidate>
+            <div class="field">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" id="fullName" required placeholder="Your full name">
+              <div class="field-error">Please enter your full name.</div>
+            </div>
+
+            <div class="field">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" id="email" required placeholder="you@email.com">
+              <div class="field-error">Please enter a valid email address.</div>
+            </div>
+
+            <div class="field">
+              <label>Phone <span class="req">*</span></label>
+              <input type="tel" id="phone" required placeholder="(555) 123-4567">
+              <div class="field-error">Please enter your phone number.</div>
+            </div>
+
+            <div class="field">
+              <label>What are you looking to get out of the call? <span class="req">*</span></label>
+              <textarea id="goals" required placeholder="What you're hoping to learn, solve, or build..."></textarea>
+              <div class="field-error">Please let us know what you're after.</div>
+            </div>
+
+            <button type="submit" class="btn-gold" style="width:100%;justify-content:center" id="submitBtn">
+              CLAIM MY SEAT &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- ======== STEP 2: YOU'RE IN ======== -->
+        <div class="step" id="step2">
+          <div class="step-center">
+            <div class="confirm-icon">&#10003;</div>
+            <h2 class="step-title">You're In, <span id="firstName">friend</span>!</h2>
+            <p class="step-sub">You're registered! Here's your Zoom link and calendar options.</p>
+          </div>
+
+          <a class="join-btn" href="https://us06web.zoom.us/j/81378636831?jst=2" target="_blank" rel="noopener">
+            &#127909; JOIN THE CALL
+          </a>
+
+          <div class="confirm-details">
+            <div class="cd-row"><span class="cd-icon">&#128197;</span> Every Wednesday</div>
+            <div class="cd-row"><span class="cd-icon">&#128336;</span> 10am PT / 1pm ET (60 minutes)</div>
+            <div class="cd-row"><span class="cd-icon">&#127760;</span> Same Zoom link every week &mdash; save it below</div>
+          </div>
+
+          <p class="cal-heading">Add It To Your Calendar</p>
+          <div class="cal-grid">
+            <a class="cal-btn" id="icsNextLink" href="#" download="tech-knights-round-table.ics">
+              <span class="cal-icon">&#128467;&#65039;</span>
+              <span class="cal-label">Next Call</span>
+              <span class="cal-sub">Download .ics</span>
+            </a>
+            <a class="cal-btn" id="icsRecurLink" href="#" download="tech-knights-round-table-weekly.ics">
+              <span class="cal-icon">&#128260;</span>
+              <span class="cal-label">Weekly Recurring</span>
+              <span class="cal-sub">Download .ics</span>
+            </a>
+            <a class="cal-btn" id="gcalLink" href="#" target="_blank" rel="noopener">
+              <span class="cal-icon">&#128197;</span>
+              <span class="cal-label">Google Calendar</span>
+              <span class="cal-sub">Add weekly event</span>
+            </a>
+          </div>
+
+        </div>
+
+      </div><!-- /.form-inner -->
+    </div><!-- /.form-card -->
+  </div>
+</section>
+
+<!-- ======================== FOOTER ======================== -->
+<footer>
+  <p>Knight Ops &copy; 2026 | <a href="https://knightops.biz">knightops.biz</a></p>
+</footer>
+
+</div><!-- /.wrap -->
+
+<script>
+/* ========================================================
+   STARFIELD CANVAS
+   ======================================================== */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var w,h,stars=[];
+  function resize(){
+    w=c.width=window.innerWidth;
+    h=c.height=window.innerHeight;
+    initStars();
+  }
+  function initStars(){
+    stars=[];
+    for(var i=0;i<120;i++){
+      stars.push({
+        x:Math.random()*w,
+        y:Math.random()*h,
+        r:Math.random()*1.5+0.3,
+        a:Math.random()*0.5+0.1,
+        s:Math.random()*0.0003+0.0001,
+        d:Math.random()>0.5?1:-1
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      s.a+=s.s*s.d;
+      if(s.a>0.6||s.a<0.05)s.d*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(200,164,86,'+s.a+')';
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();
+  draw();
+})();
+
+/* ========================================================
+   NAV SCROLL EFFECT
+   ======================================================== */
+(function(){
+  var nav=document.getElementById('mainNav');
+  var ticking=false;
+  window.addEventListener('scroll',function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        if(window.scrollY>40){
+          nav.classList.add('scrolled');
+        }else{
+          nav.classList.remove('scrolled');
+        }
+        ticking=false;
+      });
+      ticking=true;
+    }
+  });
+})();
+
+/* ========================================================
+   REVEAL ANIMATIONS
+   ======================================================== */
+(function(){
+  var observer=new IntersectionObserver(function(entries){
+    for(var i=0;i<entries.length;i++){
+      if(entries[i].isIntersecting){
+        entries[i].target.classList.add('vis');
+        observer.unobserve(entries[i].target);
+      }
+    }
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  var elements=document.querySelectorAll('.rv');
+  for(var i=0;i<elements.length;i++){
+    observer.observe(elements[i]);
+  }
+})();
+
+/* ========================================================
+   CONFIG
+   ======================================================== */
+var ZOOM_LINK='https://us06web.zoom.us/j/81378636831?jst=2';
+
+/* GHL webhook (per spec). Leads are ALSO written to Supabase below so
+   the CRM captures every registration even if GHL is not wired up. */
+var GHL_WEBHOOK='https://services.leadconnectorhq.com/hooks/formSubmit';
+
+/* Supabase backup capture (existing roundtable_registrations table) */
+var SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co/rest/v1/roundtable_registrations';
+var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+/* ========================================================
+   CALENDAR — next Wednesday @ 10am PT, 60 min
+   ======================================================== */
+function nextWednesday(){
+  var d=new Date();
+  var day=d.getDay();              /* 0 Sun .. 6 Sat, Wed = 3 */
+  var diff=(3-day+7)%7;            /* 0 if today is Wednesday */
+  d.setDate(d.getDate()+diff);
+  return d;
+}
+function pad(n){return String(n).padStart(2,'0');}
+function ymd(date){return date.getFullYear()+pad(date.getMonth()+1)+pad(date.getDate());}
+function dtStamp(){
+  var d=new Date();
+  return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+
+         pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';
+}
+
+var VTIMEZONE=[
+  'BEGIN:VTIMEZONE',
+  'TZID:America/Los_Angeles',
+  'BEGIN:DAYLIGHT',
+  'TZOFFSETFROM:-0800',
+  'TZOFFSETTO:-0700',
+  'TZNAME:PDT',
+  'DTSTART:19700308T020000',
+  'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+  'END:DAYLIGHT',
+  'BEGIN:STANDARD',
+  'TZOFFSETFROM:-0700',
+  'TZOFFSETTO:-0800',
+  'TZNAME:PST',
+  'DTSTART:19701101T020000',
+  'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+  'END:STANDARD',
+  'END:VTIMEZONE'
+];
+
+function buildICS(recurring){
+  var wed=ymd(nextWednesday());
+  var lines=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Knight Ops//Tech Knights at the Round Table//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH'
+  ];
+  lines=lines.concat(VTIMEZONE);
+  lines.push('BEGIN:VEVENT');
+  lines.push('UID:'+wed+(recurring?'-weekly':'-single')+'@knightops.biz');
+  lines.push('DTSTAMP:'+dtStamp());
+  lines.push('DTSTART;TZID=America/Los_Angeles:'+wed+'T100000');
+  lines.push('DTEND;TZID=America/Los_Angeles:'+wed+'T110000');
+  if(recurring) lines.push('RRULE:FREQ=WEEKLY;BYDAY=WE');
+  lines.push('SUMMARY:Tech Knights at the Round Table');
+  lines.push('DESCRIPTION:A free weekly call for entrepreneurs who want to wield technology like a weapon for growth.\\n\\nJoin on Zoom: '+ZOOM_LINK);
+  lines.push('LOCATION:'+ZOOM_LINK);
+  lines.push('STATUS:CONFIRMED');
+  lines.push('SEQUENCE:0');
+  lines.push('BEGIN:VALARM');
+  lines.push('TRIGGER:-PT15M');
+  lines.push('ACTION:DISPLAY');
+  lines.push('DESCRIPTION:Tech Knights at the Round Table starts in 15 minutes');
+  lines.push('END:VALARM');
+  lines.push('END:VEVENT');
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+(function setupCalendarLinks(){
+  /* .ics — next single call */
+  var blobNext=new Blob([buildICS(false)],{type:'text/calendar;charset=utf-8'});
+  document.getElementById('icsNextLink').href=URL.createObjectURL(blobNext);
+
+  /* .ics — weekly recurring */
+  var blobRecur=new Blob([buildICS(true)],{type:'text/calendar;charset=utf-8'});
+  document.getElementById('icsRecurLink').href=URL.createObjectURL(blobRecur);
+
+  /* Google Calendar — weekly recurring, PT timezone */
+  var wed=ymd(nextWednesday());
+  var details='A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Join on Zoom: '+ZOOM_LINK;
+  var gcal='https://calendar.google.com/calendar/render?action=TEMPLATE'
+    +'&text='+encodeURIComponent('Tech Knights at the Round Table')
+    +'&dates='+wed+'T100000/'+wed+'T110000'
+    +'&ctz=America/Los_Angeles'
+    +'&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=WE')
+    +'&details='+encodeURIComponent(details)
+    +'&location='+encodeURIComponent(ZOOM_LINK);
+  document.getElementById('gcalLink').href=gcal;
+})();
+
+/* ========================================================
+   FORM VALIDATION
+   ======================================================== */
+function validateField(el){
+  var field=el.closest('.field');
+  if(!field) return true;
+  var valid=true;
+  if(el.hasAttribute('required')){
+    valid=el.value.trim()!=='';
+    if(el.type==='email'&&el.value.trim()){
+      valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+    }
+  }
+  if(valid){field.classList.remove('has-error');}
+  else{field.classList.add('has-error');}
+  return valid;
+}
+
+(function(){
+  var fields=document.querySelectorAll('#regForm input[required], #regForm textarea[required]');
+  for(var i=0;i<fields.length;i++){
+    fields[i].addEventListener('blur',function(){validateField(this)});
+  }
+})();
+
+/* ========================================================
+   STEP 1 — REGISTRATION SUBMIT
+   ======================================================== */
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+
+  var fields=[
+    document.getElementById('fullName'),
+    document.getElementById('email'),
+    document.getElementById('phone'),
+    document.getElementById('goals')
+  ];
+
+  var allValid=true;
+  for(var i=0;i<fields.length;i++){
+    if(!validateField(fields[i])) allValid=false;
+  }
+  if(!allValid){
+    var firstErr=document.querySelector('#step1 .has-error');
+    if(firstErr) firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  var btn=document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled=true;
+
+  var name=document.getElementById('fullName').value.trim();
+  var emailVal=document.getElementById('email').value.trim();
+  var phoneVal=document.getElementById('phone').value.trim();
+  var goalsVal=document.getElementById('goals').value.trim();
+
+  var lead={
+    full_name:name,
+    email:emailVal,
+    phone:phoneVal,
+    goals:goalsVal,
+    source:'roundtable',
+    event:'Tech Knights at the Round Table',
+    submitted_at:new Date().toISOString()
+  };
+
+  /* localStorage backup */
+  try{
+    var stored=JSON.parse(localStorage.getItem('roundtable_registrations')||'[]');
+    stored.push(lead);
+    localStorage.setItem('roundtable_registrations',JSON.stringify(stored));
+  }catch(err){/* ignore storage errors */}
+
+  /* 1) POST to GHL webhook (fire & forget) */
+  fetch(GHL_WEBHOOK,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(lead)
+  }).catch(function(err){console.error('GHL webhook error:',err);});
+
+  /* 2) POST to Supabase so the CRM always captures the lead.
+        Maps the single "what do you want from the call" answer to goals_90_days. */
+  fetch(SUPABASE_URL,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':ANON_KEY,
+      'Authorization':'Bearer '+ANON_KEY,
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify({
+      full_name:name,
+      email:emailVal,
+      phone:phoneVal||null,
+      goals_90_days:goalsVal,
+      profile_completed:true
+    })
+  }).catch(function(err){console.error('Supabase capture error:',err);});
+
+  /* Always advance to confirmation — never block the user */
+  function finish(){
+    btn.classList.remove('loading');
+    btn.disabled=false;
+    document.getElementById('firstName').textContent=name.split(' ')[0];
+    showConfirmation();
+  }
+  setTimeout(finish,400);
+});
+
+/* ========================================================
+   SHOW STEP 2 CONFIRMATION
+   ======================================================== */
+function showConfirmation(){
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('dot1').className='progress-dot done';
+  document.getElementById('line1').className='progress-dot-line done';
+  document.getElementById('dot2').className='progress-dot active';
+
+  var el=document.getElementById('register');
+  if(el){
+    setTimeout(function(){
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
+  }
+}
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>

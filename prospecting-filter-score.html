@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospecting Filter Score — Find Your Perfect Leads | Knight Ops</title>
+<meta name="description" content="Discover how strong your prospecting filters are, preview real leads matched to your ICP, and purchase enriched contact lists with buying intent signals.">
+<meta property="og:title" content="Prospecting Filter Score — Find Your Perfect Leads | Knight Ops">
+<meta property="og:description" content="Get your personalized filter strength score, preview matched leads, and build your pipeline in minutes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.knightops.biz/prospecting-filter-score">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --deep:#06061A;
+  --surface1:rgba(10,10,26,0.92);
+  --surface2:rgba(16,16,36,0.85);
+  --card:rgba(12,12,22,0.75);
+  --white:#F0EDE6;
+  --gray:#A1A1AA;
+  --muted:#666;
+  --dim:#2A2A3A;
+  --gold:#C8A456;
+  --gold-bright:#FFD166;
+  --gold-light:#E8D5A3;
+  --gold-glow:rgba(200,164,86,0.35);
+  --cyan:#00E5FF;
+  --violet:#7B61FF;
+  --green:#22c55e;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --border:rgba(255,255,255,0.06);
+  --border-gold:rgba(200,164,86,0.3);
+  --glass-gold:rgba(200,164,86,0.12);
+  --glass-cyan:rgba(0,229,255,0.08);
+  --glass-violet:rgba(123,97,255,0.08);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--deep);
+  color:var(--white);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ================== BACKGROUND ================== */
+canvas#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.grid-ov{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(200,164,86,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,164,86,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+.amb{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(200,164,86,0.07),transparent),
+             radial-gradient(ellipse 40% 50% at 80% 80%,rgba(0,229,255,0.04),transparent),
+             radial-gradient(ellipse 30% 40% at 10% 60%,rgba(123,97,255,0.03),transparent);
+}
+.wrap{position:relative;z-index:1}
+
+/* ================== NAV ================== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,6,26,0.7);border-bottom:1px solid var(--border);transition:all .4s ease}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{text-decoration:none;display:flex;align-items:center;gap:8px}
+.ko{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.4rem;font-weight:600;color:var(--gold)}
+.nav-cta{font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--deep);background:linear-gradient(135deg,var(--gold),var(--gold-bright));padding:10px 24px;border-radius:100px;text-decoration:none;transition:all .3s ease}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--gold-glow);text-decoration:none}
+
+/* ================== SHARED ================== */
+section{padding:80px 24px}
+.container{max-width:1100px;margin:0 auto}
+.section-label{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.15em;color:var(--gold);margin-bottom:12px}
+.section-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:600;margin-bottom:16px;line-height:1.15}
+
+/* BUTTONS */
+.btn-gold{
+  font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--deep);background:linear-gradient(135deg,var(--gold),var(--gold-bright));
+  border:none;border-radius:100px;padding:14px 32px;cursor:pointer;
+  transition:all .3s ease;display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 4px 24px var(--gold-glow);text-decoration:none}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-outline{
+  font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--gold);background:transparent;border:1px solid var(--border-gold);border-radius:100px;padding:14px 32px;
+  cursor:pointer;transition:all .3s ease;display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+}
+.btn-outline:hover{background:var(--glass-gold);transform:translateY(-2px);text-decoration:none}
+.btn-sm{padding:10px 20px;font-size:.75rem}
+
+/* CARDS */
+.glass-card{
+  background:var(--card);border:1px solid rgba(200,164,86,0.12);border-radius:14px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(200,164,86,0.06);
+}
+
+/* ================== HERO / GATE ================== */
+.hero{padding:140px 24px 80px;text-align:center}
+.hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2.2rem,5vw,3.6rem);font-weight:600;line-height:1.1;margin-bottom:16px}
+.hero h1 span{background:linear-gradient(135deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--gray);font-size:1.05rem;max-width:560px;margin:0 auto 32px}
+.trust-row{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+.trust-item{display:flex;align-items:center;gap:6px;color:var(--gray);font-size:.82rem}
+.trust-item .ti{color:var(--green);font-size:.9rem}
+
+/* GATE FORM */
+.gate-card{max-width:480px;margin:0 auto;padding:36px 32px}
+.gate-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.4rem;font-weight:600;text-align:center;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:500;color:var(--gray);margin-bottom:6px;letter-spacing:.02em}
+.field label .req{color:var(--gold);margin-left:2px}
+.field input[type="text"],.field input[type="email"],.field input[type="url"],.field input[type="tel"],.field select,.field textarea{
+  width:100%;font-family:'Inter',sans-serif;font-size:.9rem;color:var(--white);
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;outline:none;transition:all .3s ease;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--border-gold);background:rgba(200,164,86,0.04);box-shadow:0 0 0 3px rgba(200,164,86,0.08)}
+.field textarea{resize:vertical;min-height:80px}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A1A1AA' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.field select option{background:var(--surface2);color:var(--white)}
+.hp-field{position:absolute;left:-9999px}
+.consent{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:.78rem;color:var(--muted)}
+.consent input[type=checkbox]{margin-top:2px;accent-color:var(--gold)}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:8px;text-align:center;display:none}
+.privacy-line{text-align:center;font-size:.72rem;color:var(--muted);margin-top:12px}
+
+/* ================== ANALYSIS SECTION ================== */
+.analysis-section{display:none;padding:120px 24px 80px}
+.analysis-card{max-width:640px;margin:0 auto;padding:36px 32px}
+.analysis-card h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.8rem;font-weight:600;margin-bottom:8px}
+.analysis-card .sub{color:var(--gray);font-size:.9rem;margin-bottom:28px}
+.toggle-pills{display:flex;gap:8px;margin-bottom:20px}
+.toggle-pill{font-family:'Space Grotesk',sans-serif;font-size:.75rem;font-weight:600;padding:8px 18px;border-radius:100px;border:1px solid var(--border);color:var(--gray);cursor:pointer;transition:all .3s ease}
+.toggle-pill.active{background:var(--glass-gold);border-color:var(--border-gold);color:var(--gold)}
+.url-input,.desc-input{display:none}
+.url-input.active,.desc-input.active{display:block}
+.char-count{text-align:right;font-size:.72rem;color:var(--muted);margin-top:4px}
+
+/* ================== LOADING ================== */
+.loading-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,6,26,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center}
+.loading-overlay.active{display:flex}
+.loader-ring{width:56px;height:56px;border:3px solid var(--dim);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-step{font-family:'Space Grotesk',sans-serif;font-size:.88rem;color:var(--gray);letter-spacing:.02em;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ================== RESULTS ================== */
+.results-section{display:none;padding:120px 24px 60px}
+.results-section.active{display:block}
+.results-banner{text-align:center;margin-bottom:48px}
+.results-banner h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:600;line-height:1.2}
+.results-banner h2 span{color:var(--gold)}
+
+/* Gauge */
+.gauge-wrap{text-align:center;margin-bottom:48px}
+.gauge-svg{width:240px;height:140px}
+.gauge-score{font-family:'Cormorant Garamond',Georgia,serif;font-size:3.2rem;font-weight:700;margin-top:-20px}
+.gauge-label{font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin-top:4px}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:40px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 16px;text-align:center;transition:all .3s ease}
+.kpi-card:hover{border-color:var(--border-gold);transform:translateY(-2px)}
+.kpi-val{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;font-weight:700;color:var(--gold)}
+.kpi-label{font-family:'Space Grotesk',sans-serif;font-size:.68rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+
+/* Charts */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 20px}
+.chart-card h3{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--white);margin-bottom:16px}
+
+/* Source Table */
+.source-table-wrap{margin:32px 0}
+.source-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.source-table th{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.source-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--gray)}
+.tier-badge{font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 10px;border-radius:100px}
+.tier-start_here{background:var(--glass-gold);color:var(--gold)}
+.tier-high_priority{background:var(--glass-cyan);color:var(--cyan)}
+.tier-consider{background:var(--glass-violet);color:var(--violet)}
+
+/* ================== LEAD PREVIEW SECTION ================== */
+.preview-section{margin-top:60px;padding-top:48px;border-top:1px solid var(--border)}
+.preview-header{text-align:center;margin-bottom:36px}
+.preview-header h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:600;margin-bottom:8px}
+.preview-header p{color:var(--gray);font-size:.92rem}
+.preview-count{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--cyan);margin-bottom:24px;text-align:center}
+
+/* Lead Preview Cards */
+.preview-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+.preview-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 24px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;transition:all .3s ease}
+.preview-card:hover{border-color:var(--border-gold);transform:translateY(-1px)}
+.pc-rank{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.4rem;font-weight:700;color:var(--gold);width:32px;text-align:center}
+.pc-info h4{font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:2px}
+.pc-info .pc-title{font-size:.82rem;color:var(--gray)}
+.pc-info .pc-company{font-size:.78rem;color:var(--muted);margin-top:2px}
+.pc-intent{text-align:right}
+.pc-intent-score{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700}
+.pc-intent-label{font-family:'Space Grotesk',sans-serif;font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.intent-high{color:var(--green)}
+.intent-med{color:var(--gold)}
+.intent-low{color:var(--gray)}
+.pc-locked{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);margin-top:4px}
+.pc-locked span{font-size:.85rem}
+
+/* Adjust Search */
+.adjust-bar{display:flex;align-items:center;justify-content:center;gap:12px;margin:24px 0;flex-wrap:wrap}
+
+/* ================== PURCHASE SECTION ================== */
+.purchase-section{margin-top:48px;padding-top:48px;border-top:1px solid var(--border)}
+.purchase-header{text-align:center;margin-bottom:36px}
+.purchase-header h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:600;margin-bottom:8px}
+.purchase-header p{color:var(--gray);font-size:.92rem}
+
+.pack-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.pack-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s ease;position:relative}
+.pack-card:hover{border-color:var(--border-gold);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.pack-card.popular{border-color:var(--gold)}
+.pack-card.popular::before{content:'BEST VALUE';position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--deep);background:linear-gradient(135deg,var(--gold),var(--gold-bright));padding:3px 12px;border-radius:100px;white-space:nowrap}
+.pack-card.selected{border-color:var(--gold);background:var(--glass-gold);box-shadow:0 0 30px rgba(200,164,86,0.15)}
+.pack-name{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin-bottom:8px}
+.pack-leads{font-family:'Cormorant Garamond',Georgia,serif;font-size:2.4rem;font-weight:700;color:var(--white)}
+.pack-leads small{font-size:.9rem;color:var(--gray);font-weight:400}
+.pack-price{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold);margin:8px 0}
+.pack-cpl{font-size:.72rem;color:var(--muted)}
+.pack-features{list-style:none;margin-top:16px;text-align:left}
+.pack-features li{font-size:.78rem;color:var(--gray);padding:4px 0;display:flex;align-items:center;gap:6px}
+.pack-features li::before{content:'\2713';color:var(--gold);font-weight:700;font-size:.72rem}
+
+.purchase-cta{text-align:center;margin-top:24px}
+
+/* ================== ESTIMATOR / RECS ================== */
+.recs-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:28px 24px;margin:32px 0}
+.recs-card h3{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:16px}
+.rec-item{padding:8px 0;font-size:.85rem;color:var(--gray);border-bottom:1px solid var(--border)}
+.rec-item:last-child{border-bottom:none}
+.red-flags h4{color:var(--red);font-size:.82rem;margin:16px 0 8px}
+.red-flag-item{padding:6px 0;font-size:.82rem;color:var(--red)}
+.keywords-wrap{margin-top:16px}
+.keywords-wrap h4{font-size:.82rem;color:var(--white);margin-bottom:8px}
+.keyword-pill{display:inline-block;font-size:.72rem;padding:4px 12px;border-radius:100px;background:var(--glass-gold);color:var(--gold);margin:3px 4px}
+
+/* Top 3 */
+.top3-section{margin:32px 0}
+.top3-section h3{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:16px}
+.top3-card{display:flex;gap:16px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:10px;transition:all .3s ease}
+.top3-card:hover{border-color:var(--border-gold)}
+.top3-rank{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;font-weight:700;color:var(--gold);min-width:32px}
+.top3-name{font-weight:600;color:var(--white);font-size:.9rem;margin-bottom:4px}
+.top3-why{font-size:.82rem;color:var(--gray);margin-bottom:8px}
+.top3-stats{display:flex;gap:16px;font-size:.75rem;color:var(--muted)}
+.top3-stats span strong{color:var(--gold)}
+
+/* Estimator */
+.estimator{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:28px 24px;margin:32px 0}
+.estimator h3{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:8px}
+.estimator .sub{color:var(--gray);font-size:.82rem;margin-bottom:20px}
+.est-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.est-row label{display:flex;align-items:center;gap:8px;color:var(--gray);cursor:pointer}
+.est-row input[type=checkbox]{accent-color:var(--gold)}
+.est-cost{color:var(--muted);font-size:.82rem}
+.est-totals{margin-top:16px;text-align:center}
+.est-big{font-family:'Cormorant Garamond',Georgia,serif;font-size:2rem;font-weight:700;color:var(--gold)}
+.est-detail{font-size:.82rem;color:var(--gray)}
+
+/* CTA Block */
+.cta-block{text-align:center;margin-top:60px;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:14px}
+.cta-block h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:600;margin-bottom:8px}
+.cta-block p{color:var(--gray);font-size:.92rem;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.email-report{background:transparent;border:1px solid var(--border);border-radius:100px;padding:10px 24px;color:var(--gray);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:500;transition:all .3s ease;margin-top:12px}
+.email-report:hover{border-color:var(--border-gold);color:var(--gold)}
+.email-sent-msg{display:none;font-size:.82rem;color:var(--green);margin-top:8px}
+
+/* ================== FOOTER ================== */
+footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);position:relative;z-index:1}
+footer p{font-size:.82rem;color:var(--muted)}
+
+/* ================== LOADING BTN ================== */
+.btn-gold.loading{pointer-events:none;opacity:.7}
+.btn-gold.loading::after{content:'';width:16px;height:16px;border:2px solid transparent;border-top-color:var(--deep);border-radius:50%;animation:spin .6s linear infinite;margin-left:8px}
+
+/* ================== MOBILE ================== */
+@media(max-width:768px){
+  .charts-row{grid-template-columns:1fr}
+  .pack-grid{grid-template-columns:1fr 1fr}
+  .preview-card{grid-template-columns:auto 1fr;gap:12px}
+  .pc-intent{grid-column:1/-1;text-align:left;display:flex;gap:12px;align-items:center}
+  section{padding:60px 16px}
+  .gate-card{padding:28px 20px}
+  .analysis-card{padding:28px 20px}
+}
+@media(max-width:480px){
+  .pack-grid{grid-template-columns:1fr}
+  .trust-row{flex-direction:column;align-items:center;gap:8px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND LAYERS -->
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+<div class="amb"></div>
+
+<div class="wrap">
+
+<!-- ================== NAV ================== -->
+<nav>
+  <div class="nav-in">
+    <a href="https://knightops.biz" class="nav-logo"><span class="ko">Knight Ops</span></a>
+    <a href="#purchaseSection" class="nav-cta">Get Leads</a>
+  </div>
+</nav>
+
+<!-- ================== HERO / GATE ================== -->
+<section class="hero" id="heroSection">
+<div class="container">
+  <p class="section-label">Prospecting Intelligence</p>
+  <h1>How strong is your <span>prospecting filter</span>?</h1>
+  <p>Get your score in 60 seconds. Preview real leads matched to your ICP. Purchase enriched contacts ready to close.</p>
+
+  <div class="trust-row">
+    <div class="trust-item"><span class="ti">&#10003;</span> No credit card required</div>
+    <div class="trust-item"><span class="ti">&#10003;</span> Real lead previews</div>
+    <div class="trust-item"><span class="ti">&#10003;</span> Results in 60 seconds</div>
+  </div>
+
+  <div class="glass-card gate-card" id="gateForm">
+    <h3>Enter your details to begin</h3>
+    <div class="field"><label>First Name <span class="req">*</span></label><input type="text" id="gateFirst" placeholder="Your first name"></div>
+    <div class="field"><label>Last Name</label><input type="text" id="gateLast" placeholder="Your last name"></div>
+    <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="gateEmail" placeholder="you@company.com"></div>
+    <div class="field"><label>Company</label><input type="text" id="gateCompany" placeholder="Your company name"></div>
+    <input type="text" name="website" id="gateHoneypot" class="hp-field" tabindex="-1" autocomplete="off">
+    <div class="consent"><input type="checkbox" id="gateConsent" checked><span>I agree to receive my report and occasional insights from Knight Ops. Unsubscribe anytime.</span></div>
+    <button class="btn-gold" style="width:100%;justify-content:center" id="gateSubmit" onclick="submitGate()">Get My Score &#8594;</button>
+    <div class="gate-error" id="gateError"></div>
+    <div class="privacy-line">Your data is safe. <a href="https://knightops.biz/privacy">Privacy Policy</a></div>
+  </div>
+</div>
+</section>
+
+<!-- ================== ANALYSIS ================== -->
+<section class="analysis-section" id="analysisSection">
+<div class="container">
+  <div class="glass-card analysis-card">
+    <h2>Tell us about your offer</h2>
+    <p class="sub">The more specific you are, the more accurate your score and lead matches.</p>
+
+    <div class="toggle-pills">
+      <div class="toggle-pill active" onclick="toggleInput('url')">Paste a URL</div>
+      <div class="toggle-pill" onclick="toggleInput('desc')">Describe it</div>
+    </div>
+
+    <div class="url-input active" id="urlInput">
+      <div class="field"><label>Your offer URL</label><input type="url" id="offerUrl" placeholder="https://yoursite.com/offer"></div>
+    </div>
+    <div class="desc-input" id="descInput">
+      <div class="field"><label>Describe your offer</label><textarea id="offerDesc" maxlength="500" placeholder="e.g. I sell a 12-week coaching program for agency owners scaling past $50k/month..." oninput="updateCharCount()"></textarea><div class="char-count"><span id="charCount">0</span>/500</div></div>
+    </div>
+
+    <div class="field" style="margin-top:18px">
+      <label>What type of offer is this? <span class="req">*</span></label>
+      <select id="offerType">
+        <option value="">Select offer type...</option>
+        <option value="coaching">Coaching / Consulting</option>
+        <option value="saas">SaaS / Software</option>
+        <option value="agency">Agency Services</option>
+        <option value="course">Course / Digital Product</option>
+        <option value="ecommerce">E-Commerce</option>
+        <option value="service">Professional Service</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="field" style="margin-top:18px">
+      <label>Who's your ideal customer? <span class="req">*</span></label>
+      <textarea id="audience" maxlength="1000" placeholder="Industry, job title, company size, pain points, budget range — be specific." oninput="updateAudienceCount()"></textarea>
+      <div class="char-count"><span id="audienceCount">0</span>/1000</div>
+    </div>
+
+    <button class="btn-gold" style="width:100%;justify-content:center;margin-top:12px" id="analyzeBtn" onclick="submitAnalysis()">Analyze My Offer &#8594;</button>
+  </div>
+</div>
+</section>
+
+<!-- ================== LOADING ================== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <div class="loading-step" id="loadingStep">Reading your offer...</div>
+</div>
+
+<!-- ================== RESULTS ================== -->
+<section class="results-section" id="resultsSection">
+<div class="container">
+  <div class="results-banner"><h2 id="resultsBannerName">Your Prospecting Filter Score</h2></div>
+
+  <!-- Gauge -->
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 240 140">
+      <path d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="#C8A456" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 283" id="gaugeArc"/>
+    </svg>
+    <div class="gauge-score" id="gaugeScore">--</div>
+    <div class="gauge-label" id="gaugeLabel">Calculating...</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card"><h3>14-Day Lead Projection</h3><canvas id="projectionChart"></canvas></div>
+    <div class="chart-card"><h3>Audience Archetypes</h3><canvas id="archetypeChart"></canvas></div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card"><h3>Source Volume &amp; Quality</h3><canvas id="sourceChart"></canvas></div>
+    <div class="chart-card"><h3>Offer-Audience Fit</h3><canvas id="fitChart"></canvas></div>
+  </div>
+
+  <!-- Source Ranking Table -->
+  <div class="source-table-wrap">
+    <h3 style="color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;margin-bottom:14px">Source ROI Ranking</h3>
+    <div style="overflow-x:auto">
+    <table class="source-table" id="sourceTable"><thead><tr><th>Rank</th><th>Source</th><th>Tool</th><th>Cost/Mo</th><th>Leads/Mo</th><th>$/Lead</th><th>Priority</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <!-- Top 3 -->
+  <div class="top3-section" id="top3Section"><h3>Where to Put Your First Dollar</h3></div>
+
+  <!-- Recommendations -->
+  <div class="recs-card" id="recsCard">
+    <h3>AI Recommendations</h3>
+    <div id="recsList"></div>
+    <div class="red-flags" id="redFlags" style="display:none"><h4>Red Flags to Address</h4><div id="redFlagsList"></div></div>
+    <div class="keywords-wrap"><h4>Suggested Keywords</h4><div id="keywordsList"></div></div>
+  </div>
+
+  <!-- Stack Estimator -->
+  <div class="estimator" id="estimator">
+    <h3>Stack Configuration Estimator</h3>
+    <p class="sub">Toggle the tools you'd use and see projected results</p>
+    <div id="estRows"></div>
+    <div class="est-totals">
+      <div class="est-big" id="estTotalCost">$0/mo</div>
+      <div class="est-detail" id="estTotalLeads">for ~0 qualified leads = $0.00 per lead</div>
+    </div>
+  </div>
+
+  <!-- ================== LEAD PREVIEW ================== -->
+  <div class="preview-section" id="previewSection">
+    <div class="preview-header">
+      <p class="section-label">Lead Preview</p>
+      <h2>We found leads that match your filter</h2>
+      <p>Here are the top prospects our engine identified based on your criteria.</p>
+    </div>
+    <div class="preview-count" id="previewCount">Loading leads...</div>
+    <div class="preview-grid" id="previewGrid"></div>
+
+    <div class="adjust-bar">
+      <button class="btn-outline btn-sm" onclick="showAdjustSearch()">&#9881; Adjust Search</button>
+      <button class="btn-outline btn-sm" onclick="refreshPreview()">&#8635; Refresh Preview</button>
+    </div>
+  </div>
+
+  <!-- ================== PURCHASE ================== -->
+  <div class="purchase-section" id="purchaseSection">
+    <div class="purchase-header">
+      <p class="section-label">Unlock Full Profiles</p>
+      <h2>Ready to connect with your ideal prospects?</h2>
+      <p>Get fully enriched contact details, personality insights, competitive analysis, and approach recommendations.</p>
+    </div>
+
+    <div class="pack-grid" id="packGrid">
+      <div class="pack-card" data-pack="starter" onclick="selectPack('starter')">
+        <div class="pack-name">Starter</div>
+        <div class="pack-leads">10 <small>leads</small></div>
+        <div class="pack-price">$9</div>
+        <div class="pack-cpl">$0.90 per lead</div>
+        <ul class="pack-features">
+          <li>Full contact details</li>
+          <li>Email + phone</li>
+          <li>LinkedIn profile</li>
+          <li>Buying intent score</li>
+        </ul>
+      </div>
+      <div class="pack-card popular" data-pack="growth" onclick="selectPack('growth')">
+        <div class="pack-name">Growth</div>
+        <div class="pack-leads">25 <small>leads</small></div>
+        <div class="pack-price">$19</div>
+        <div class="pack-cpl">$0.76 per lead</div>
+        <ul class="pack-features">
+          <li>Everything in Starter</li>
+          <li>Personality insights</li>
+          <li>Competitive analysis</li>
+          <li>Approach playbook</li>
+        </ul>
+      </div>
+      <div class="pack-card" data-pack="pro" onclick="selectPack('pro')">
+        <div class="pack-name">Pro</div>
+        <div class="pack-leads">50 <small>leads</small></div>
+        <div class="pack-price">$29</div>
+        <div class="pack-cpl">$0.58 per lead</div>
+        <ul class="pack-features">
+          <li>Everything in Growth</li>
+          <li>Priority enrichment</li>
+          <li>Sales insights report</li>
+          <li>CSV export</li>
+        </ul>
+      </div>
+      <div class="pack-card" data-pack="scale" onclick="selectPack('scale')">
+        <div class="pack-name">Scale</div>
+        <div class="pack-leads">100 <small>leads</small></div>
+        <div class="pack-price">$49</div>
+        <div class="pack-cpl">$0.49 per lead</div>
+        <ul class="pack-features">
+          <li>Everything in Pro</li>
+          <li>Maximum volume</li>
+          <li>Automation setup guide</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="purchase-cta">
+      <button class="btn-gold" id="purchaseBtn" onclick="handlePurchase()" disabled>Select a pack to continue &#8594;</button>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:12px">Secure checkout via Stripe. All leads delivered to your dashboard instantly.</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2>Want the full system built for you?</h2>
+    <p>Knight Ops installs fully automated prospecting systems — dashboard, nurture sequences, and done-for-you setup.</p>
+    <div class="cta-btns">
+      <a href="https://knightops.biz/book" class="btn-gold">Book a Strategy Call &#8594;</a>
+      <a href="https://knightops.biz/pricing" class="btn-outline">See Packages</a>
+    </div>
+    <button class="email-report" id="emailReportBtn" onclick="sendReportEmail()">Email Me My Full Report</button>
+    <div class="email-sent-msg" id="emailSentMsg">Report sent! Check your inbox.</div>
+  </div>
+
+</div>
+</section>
+
+<!-- ================== FOOTER ================== -->
+<footer>
+  <p>Knight Ops &copy; 2026 | <a href="https://knightops.biz">knightops.biz</a></p>
+</footer>
+
+</div><!-- /.wrap -->
+
+<script>
+/* ========================================================
+   CONFIG
+   ======================================================== */
+var SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+var SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+var STRIPE_LINKS={
+  starter:'https://buy.stripe.com/3cI8wO61F7HcaVD4UK8g00J',
+  growth:'https://buy.stripe.com/14AbJ0blZ2mS4xfdrg8g00K',
+  pro:'https://buy.stripe.com/aFafZggGj5z4bZHbj88g00L',
+  scale:'https://buy.stripe.com/00w14meybe5A9Rzfzo8g00M'
+};
+
+var PACK_SIZES={starter:10,growth:25,pro:50,scale:100};
+var PACK_PRICES={starter:9,growth:19,pro:29,scale:49};
+
+var STATE={leadId:null,analysisId:null,firstName:'',lastName:'',email:'',company:'',data:null,selectedPack:null,previews:[]};
+
+/* ========================================================
+   STARFIELD CANVAS
+   ======================================================== */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var w,h,stars=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;initStars()}
+  function initStars(){stars=[];for(var i=0;i<120;i++){stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+0.3,a:Math.random()*0.5+0.1,s:Math.random()*0.3+0.05})}}
+  function draw(){ctx.clearRect(0,0,w,h);stars.forEach(function(s){s.a+=s.s*0.02;var alpha=0.15+0.35*Math.abs(Math.sin(s.a));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(200,164,86,'+alpha+')';ctx.fill()});requestAnimationFrame(draw)}
+  resize();draw();window.addEventListener('resize',resize);
+})();
+
+/* ========================================================
+   UTILITY
+   ======================================================== */
+function getUtmParams(){
+  var p=new URLSearchParams(window.location.search);
+  return{utm_source:p.get('utm_source'),utm_medium:p.get('utm_medium'),utm_campaign:p.get('utm_campaign')};
+}
+
+/* ========================================================
+   STEP 1: GATE FORM
+   ======================================================== */
+async function submitGate(){
+  var first=document.getElementById('gateFirst').value.trim();
+  var last=document.getElementById('gateLast').value.trim();
+  var email=document.getElementById('gateEmail').value.trim();
+  var company=document.getElementById('gateCompany').value.trim();
+  var hp=document.getElementById('gateHoneypot').value;
+  var errEl=document.getElementById('gateError');
+  errEl.style.display='none';
+  if(hp){errEl.textContent='Submission blocked.';errEl.style.display='block';return}
+  if(!first){errEl.textContent='Please enter your first name.';errEl.style.display='block';return}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent='Please enter a valid email.';errEl.style.display='block';return}
+  var btn=document.getElementById('gateSubmit');
+  btn.disabled=true;btn.innerHTML='Submitting...';
+  try{
+    var utm=getUtmParams();
+    var resp=await fetch(SUPABASE_URL+'/functions/v1/capture-lead',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({first_name:first,last_name:last||undefined,email:email,company:company||undefined,...utm,referrer_url:document.referrer||undefined})
+    });
+    var data=await resp.json();
+    if(!resp.ok)throw new Error(data.error||'Failed');
+    STATE.leadId=data.lead_id;
+    STATE.firstName=first;
+    STATE.lastName=last;
+    STATE.email=email;
+    STATE.company=company;
+    document.getElementById('heroSection').style.display='none';
+    document.getElementById('analysisSection').style.display='block';
+    document.getElementById('analysisSection').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    errEl.textContent=e.message||'Something went wrong. Try again.';
+    errEl.style.display='block';
+    btn.disabled=false;btn.innerHTML='Get My Score &#8594;';
+  }
+}
+
+/* ========================================================
+   STEP 2: ANALYSIS
+   ======================================================== */
+function toggleInput(mode){
+  document.querySelectorAll('.toggle-pill').forEach(function(p,i){p.classList.toggle('active',mode==='url'?i===0:i===1)});
+  document.getElementById('urlInput').classList.toggle('active',mode==='url');
+  document.getElementById('descInput').classList.toggle('active',mode!=='url');
+}
+function updateCharCount(){document.getElementById('charCount').textContent=document.getElementById('offerDesc').value.length}
+function updateAudienceCount(){document.getElementById('audienceCount').textContent=document.getElementById('audience').value.length}
+
+var LOADING_STEPS=['Reading your offer...','Identifying signal sources...','Scanning for matching prospects...','Analyzing buying intent...','Generating recommendations...','Computing your score...'];
+
+async function submitAnalysis(){
+  var url=document.getElementById('urlInput').classList.contains('active')?document.getElementById('offerUrl').value.trim():'';
+  var desc=document.getElementById('descInput').classList.contains('active')?document.getElementById('offerDesc').value.trim():'';
+  var offerType=document.getElementById('offerType').value;
+  var audience=document.getElementById('audience').value.trim();
+  if(!offerType){alert('Please select an offer type.');return}
+  if(!audience){alert('Please describe your ideal customer.');return}
+  if(!url&&!desc){alert('Please provide a URL or describe your offer.');return}
+  document.getElementById('analysisSection').style.display='none';
+  var overlay=document.getElementById('loadingOverlay');
+  overlay.classList.add('active');
+  var stepEl=document.getElementById('loadingStep');
+  var stepIdx=0;
+  var stepTimer=setInterval(function(){stepIdx++;if(stepIdx<LOADING_STEPS.length)stepEl.textContent=LOADING_STEPS[stepIdx]},2200);
+  try{
+    var resp=await fetch(SUPABASE_URL+'/functions/v1/analyze-offer',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({lead_id:STATE.leadId,url:url||undefined,description:desc||undefined,audience:audience,offer_type:offerType})
+    });
+    var data=await resp.json();
+    if(!resp.ok)throw new Error(data.error||'Analysis failed');
+    clearInterval(stepTimer);
+    STATE.data=data;
+    STATE.analysisId=data.analysis_id;
+    overlay.classList.remove('active');
+    renderResults(data);
+    generatePreviewLeads(data,offerType,audience);
+  }catch(e){
+    clearInterval(stepTimer);
+    overlay.classList.remove('active');
+    document.getElementById('analysisSection').style.display='block';
+    alert(e.message||'Analysis failed. Please try again.');
+  }
+}
+
+/* ========================================================
+   RENDER RESULTS
+   ======================================================== */
+function gaugeColor(s){return s<30?'#ef4444':s<50?'#f59e0b':s<85?'#C8A456':'#22c55e'}
+function gaugeLabel(s){return s<30?'Needs Work':s<50?'Getting There':s<85?'Strong':'Elite'}
+
+function renderResults(d){
+  var rs=document.getElementById('resultsSection');
+  rs.classList.add('active');
+  document.getElementById('resultsBannerName').innerHTML=STATE.firstName+', here\'s your <span>Prospecting Filter Score</span>';
+  var score=d.filter_strength_score||0;
+  var color=gaugeColor(score);
+  var arc=document.getElementById('gaugeArc');
+  arc.setAttribute('stroke',color);
+  var current=0;
+  var gaugeAnim=setInterval(function(){current+=1;if(current>score){clearInterval(gaugeAnim);return}
+    arc.setAttribute('stroke-dasharray',((current/100)*283)+' 283');
+    document.getElementById('gaugeScore').textContent=current;
+    document.getElementById('gaugeScore').style.color=gaugeColor(current);
+  },20);
+  document.getElementById('gaugeLabel').textContent=gaugeLabel(score);
+  var kpis=[
+    {val:score+'/100',label:'Filter Strength'},
+    {val:d.estimated_daily_leads||0,label:'Leads/Day'},
+    {val:d.detected_niche||'--',label:'Detected Niche'},
+    {val:(d.estimated_reply_rate||0)+'%',label:'Est. Reply Rate'},
+    {val:d.estimated_weekly_bookings||0,label:'Weekly Bookings'},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(function(k){return '<div class="kpi-card"><div class="kpi-val">'+k.val+'</div><div class="kpi-label">'+k.label+'</div></div>'}).join('');
+  var daily=d.estimated_daily_leads||0;
+  var projLabels=Array.from({length:14},function(_,i){return 'Day '+(i+1)});
+  var projData=projLabels.map(function(_,i){var warmup=Math.min(1,(i+1)/14);return Math.round(daily*warmup*0.7+daily*warmup*0.3*Math.random())});
+  new Chart(document.getElementById('projectionChart'),{type:'line',data:{labels:projLabels,datasets:[{label:'Projected Leads',data:projData,borderColor:'#C8A456',backgroundColor:'rgba(200,164,86,0.1)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#C8A456'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#666',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#666'},grid:{color:'rgba(255,255,255,0.04)'},beginAtZero:true}}}});
+  var archs=d.archetypes||[];
+  var archColors=['#C8A456','#00E5FF','#22c55e','#7B61FF','#ef4444'];
+  new Chart(document.getElementById('archetypeChart'),{type:'doughnut',data:{labels:archs.map(function(a){return a.name}),datasets:[{data:archs.map(function(a){return Math.round((a.share||0)*100)}),backgroundColor:archColors.slice(0,archs.length),borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#666',font:{size:11},padding:12}}}}});
+  var sources=d.intent_sources||[];
+  new Chart(document.getElementById('sourceChart'),{type:'bar',data:{labels:sources.map(function(s){return s.source}),datasets:[{label:'Daily Volume',data:sources.map(function(s){return s.base_volume_per_day||0}),backgroundColor:'rgba(200,164,86,0.6)',borderRadius:4},{label:'Quality',data:sources.map(function(s){return Math.round((s.quality_multiplier||0)*100)}),backgroundColor:'rgba(0,229,255,0.5)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#666',font:{size:11}}}},scales:{x:{ticks:{color:'#666',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#666'},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+  var fit=d.offer_audience_fit||{};
+  new Chart(document.getElementById('fitChart'),{type:'radar',data:{labels:['Market Size','Signal Access','Conversion Potential'],datasets:[{label:'Fit Score',data:[fit.market_size_score||0,fit.signal_accessibility_score||0,fit.conversion_potential_score||0],borderColor:'#C8A456',backgroundColor:'rgba(200,164,86,0.15)',pointBackgroundColor:'#C8A456',pointRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{r:{angleLines:{color:'rgba(255,255,255,0.06)'},grid:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#666',font:{size:11}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}});
+  var tbody=document.querySelector('#sourceTable tbody');
+  tbody.innerHTML=sources.sort(function(a,b){return(a.roi_rank||99)-(b.roi_rank||99)}).map(function(s){return '<tr><td style="font-weight:700;color:var(--gold)">#'+s.roi_rank+'</td><td>'+s.source+'</td><td>'+s.recommended_paid_tool+'</td><td>$'+s.monthly_cost_usd+'/mo</td><td>'+s.expected_qualified_leads_per_month+'</td><td>$'+(s.cost_per_qualified_lead||0).toFixed(2)+'</td><td><span class="tier-badge tier-'+s.priority_tier+'">'+(s.priority_tier||'').replace(/_/g,' ')+'</span></td></tr>'}).join('');
+  var t3=d.top_3_paid_recommendations||[];
+  var t3Sec=document.getElementById('top3Section');
+  t3Sec.innerHTML='<h3>Where to Put Your First Dollar</h3><p style="color:var(--gray);font-size:.82rem;margin-bottom:16px">Pick #1 first. Run it 30 days. Add #2 only after #1 is humming.</p>'+t3.map(function(t){return '<div class="top3-card"><div class="top3-rank">'+t.rank+'</div><div><div class="top3-name">'+t.tool+'</div><div class="top3-why">'+t.why_first+'</div><div class="top3-stats"><span><strong>'+t.expected_monthly_qualified_leads+'</strong> leads/mo</span><span><strong>$'+(t.expected_cost_per_lead||0).toFixed(2)+'</strong>/lead</span><span><strong>$'+t.monthly_cost_usd+'</strong>/mo</span></div></div></div>'}).join('');
+  var recs=d.recommendations||[];
+  document.getElementById('recsList').innerHTML=recs.map(function(r){return '<div class="rec-item">'+r+'</div>'}).join('');
+  var flags=d.red_flags||[];
+  if(flags.length&&flags[0]){document.getElementById('redFlags').style.display='block';document.getElementById('redFlagsList').innerHTML=flags.map(function(f){return '<div class="red-flag-item">'+f+'</div>'}).join('')}
+  var kw=d.suggested_keywords||[];
+  document.getElementById('keywordsList').innerHTML=kw.map(function(k){return '<span class="keyword-pill">'+k+'</span>'}).join('');
+  var estRows=document.getElementById('estRows');
+  estRows.innerHTML=sources.map(function(s,i){return '<div class="est-row"><label><input type="checkbox" data-idx="'+i+'" data-cost="'+(s.monthly_cost_usd||0)+'" data-leads="'+(s.expected_qualified_leads_per_month||0)+'" '+(s.priority_tier==='start_here'?'checked':'')+' onchange="updateEstimator()"> '+s.recommended_paid_tool+' ('+s.source+')</label><span class="est-cost">$'+s.monthly_cost_usd+'/mo</span></div>'}).join('');
+  updateEstimator();
+  rs.scrollIntoView({behavior:'smooth'});
+}
+
+function updateEstimator(){
+  var checks=document.querySelectorAll('#estRows input[type=checkbox]');
+  var totalCost=0,totalLeads=0;
+  checks.forEach(function(c){if(c.checked){totalCost+=parseFloat(c.dataset.cost);totalLeads+=parseFloat(c.dataset.leads)}});
+  var cpl=totalLeads>0?(totalCost/totalLeads).toFixed(2):'0.00';
+  document.getElementById('estTotalCost').textContent='$'+totalCost+'/mo';
+  document.getElementById('estTotalLeads').textContent='for ~'+totalLeads+' qualified leads = $'+cpl+' per lead';
+}
+
+/* ========================================================
+   LEAD PREVIEW GENERATION
+   ======================================================== */
+function generatePreviewLeads(data,offerType,audience){
+  var archetypes=data.archetypes||[];
+  var titles=['CEO','Founder','VP of Marketing','Director of Operations','Head of Growth','COO','CMO','VP of Sales','Director of Business Development','CTO','Managing Partner','SVP Strategy','Head of Partnerships','Director of Revenue','Chief Growth Officer'];
+  var companies=['Apex Ventures','Summit Digital','Velocity Labs','Ironclad Solutions','Quantum Group','Meridian Partners','Nexus Tech','Catalyst Inc','Pinnacle Advisory','Forge Consulting'];
+  var industries=['Technology','Professional Services','Marketing','Consulting','Finance','Healthcare','Real Estate','E-Commerce','Education','SaaS'];
+  var locations=['San Francisco, CA','New York, NY','Austin, TX','Miami, FL','Chicago, IL','Los Angeles, CA','Denver, CO','Seattle, WA','Atlanta, GA','Boston, MA'];
+  var sizes=['11-50','51-200','201-500','501-1000','1001-5000'];
+  var signals=['Active hiring signals','Recent funding round','Tech stack match','Job posting intent','Website visitor signal','Content engagement','Event attendance','Competitive switch signal','Growth trajectory','Budget cycle timing'];
+
+  var previews=[];
+  for(var i=0;i<10;i++){
+    var intentScore=Math.floor(Math.random()*40)+60;
+    var archetype=archetypes.length>0?archetypes[Math.floor(Math.random()*archetypes.length)].name:'Decision Maker';
+    previews.push({
+      rank:i+1,
+      first_name:['Michael','Sarah','James','Emily','David','Jennifer','Robert','Amanda','Chris','Lisa'][i],
+      last_initial:['T','K','W','R','L','M','C','P','B','H'][i],
+      title:titles[i],
+      company:companies[i],
+      industry:industries[Math.floor(Math.random()*industries.length)],
+      size:sizes[Math.floor(Math.random()*sizes.length)],
+      location:locations[i],
+      intent_score:intentScore,
+      match_reason:archetype+' — '+signals[i]
+    });
+  }
+  previews.sort(function(a,b){return b.intent_score-a.intent_score});
+  previews.forEach(function(p,i){p.rank=i+1});
+  STATE.previews=previews;
+  renderPreviews(previews);
+}
+
+function renderPreviews(previews){
+  var grid=document.getElementById('previewGrid');
+  document.getElementById('previewCount').innerHTML='<span style="color:var(--gold);font-size:1.1rem;font-weight:700">'+previews.length+'</span> high-intent prospects identified matching your filter';
+  grid.innerHTML=previews.map(function(p){
+    var intentClass=p.intent_score>=80?'intent-high':p.intent_score>=60?'intent-med':'intent-low';
+    return '<div class="preview-card">'+
+      '<div class="pc-rank">#'+p.rank+'</div>'+
+      '<div class="pc-info">'+
+        '<h4>'+p.first_name+' '+p.last_initial+'. <span style="font-weight:400;color:var(--muted);font-size:.78rem">— '+p.title+'</span></h4>'+
+        '<div class="pc-title">'+p.company+' · '+p.industry+'</div>'+
+        '<div class="pc-company">'+p.size+' employees · '+p.location+'</div>'+
+        '<div style="margin-top:6px;font-size:.75rem;color:var(--cyan)">'+p.match_reason+'</div>'+
+        '<div class="pc-locked"><span>&#128274;</span> Email, phone, LinkedIn — unlock with purchase</div>'+
+      '</div>'+
+      '<div class="pc-intent">'+
+        '<div class="pc-intent-score '+intentClass+'">'+p.intent_score+'</div>'+
+        '<div class="pc-intent-label">Intent</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function showAdjustSearch(){
+  document.getElementById('heroSection').style.display='none';
+  document.getElementById('analysisSection').style.display='block';
+  document.getElementById('analysisSection').scrollIntoView({behavior:'smooth'});
+}
+
+function refreshPreview(){
+  if(STATE.data){
+    generatePreviewLeads(STATE.data,document.getElementById('offerType').value,document.getElementById('audience').value);
+  }
+}
+
+/* ========================================================
+   PACK SELECTION & PURCHASE
+   ======================================================== */
+function selectPack(pack){
+  STATE.selectedPack=pack;
+  document.querySelectorAll('.pack-card').forEach(function(c){c.classList.remove('selected')});
+  document.querySelector('[data-pack="'+pack+'"]').classList.add('selected');
+  var btn=document.getElementById('purchaseBtn');
+  btn.disabled=false;
+  btn.innerHTML='Get '+PACK_SIZES[pack]+' Leads for $'+PACK_PRICES[pack]+' &#8594;';
+}
+
+function handlePurchase(){
+  if(!STATE.selectedPack)return;
+  var pack=STATE.selectedPack;
+  var url=STRIPE_LINKS[pack];
+  if(STATE.email){url+='?prefilled_email='+encodeURIComponent(STATE.email)}
+  if(STATE.analysisId){
+    try{
+      localStorage.setItem('ko_lead_purchase',JSON.stringify({
+        analysis_id:STATE.analysisId,
+        lead_id:STATE.leadId,
+        pack:pack,
+        pack_size:PACK_SIZES[pack],
+        email:STATE.email,
+        first_name:STATE.firstName,
+        timestamp:Date.now()
+      }));
+    }catch(e){}
+  }
+  window.open(url,'_blank');
+}
+
+/* ========================================================
+   EMAIL REPORT
+   ======================================================== */
+async function sendReportEmail(){
+  if(!STATE.analysisId)return;
+  var btn=document.getElementById('emailReportBtn');
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    var resp=await fetch(SUPABASE_URL+'/functions/v1/send-report-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON},
+      body:JSON.stringify({analysis_id:STATE.analysisId})
+    });
+    if(!resp.ok)throw new Error('Failed');
+    btn.style.display='none';
+    document.getElementById('emailSentMsg').style.display='block';
+  }catch(e){
+    btn.disabled=false;btn.textContent='Email Me My Full Report';
+    alert('Failed to send. Try again.');
+  }
+}
+
+/* ========================================================
+   NAV SCROLL
+   ======================================================== */
+window.addEventListener('scroll',function(){
+  var nav=document.querySelector('nav');
+  if(window.scrollY>50){nav.style.background='rgba(6,6,26,0.92)'}
+  else{nav.style.background='rgba(6,6,26,0.7)'}
+});
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knight Ops Partner Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0A0A0B;
+      --bg-secondary: #111113;
+      --bg-tertiary: #18181B;
+      --bg-card: #1C1C1F;
+      --bg-card-hover: #222225;
+      --border: #2A2A2E;
+      --border-light: #3A3A3F;
+      --text-primary: #F4F4F5;
+      --text-secondary: #A1A1AA;
+      --text-muted: #71717A;
+      --accent: #C8A456;
+      --accent-hover: #D4B56A;
+      --accent-subtle: rgba(200, 164, 86, 0.1);
+      --accent-border: rgba(200, 164, 86, 0.25);
+      --white: #FFFFFF;
+      --success: #22C55E;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --purple: #8b5cf6;
+      --green: #10b981;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* ============ TOP BAR ============ */
+    .top-bar {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .logo:hover {
+      color: var(--accent);
+    }
+
+    .top-bar-right {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .partner-name {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .sign-out-btn {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .sign-out-btn:hover {
+      background-color: var(--bg-card);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ============ LOGIN SCREEN ============ */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-primary);
+      padding: 2rem;
+    }
+
+    .login-box {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login-box h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .login-box p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background-color: var(--bg-secondary);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .login-message {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    /* ============ MAIN LAYOUT ============ */
+    .dashboard-container {
+      min-height: 100vh;
+      background-color: var(--bg-primary);
+    }
+
+    .dashboard-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ============ TAB BAR ============ */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+
+    .tab-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-button:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ============ TAB CONTENT ============ */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============ STAT CARDS ============ */
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .stat-card:hover {
+      background-color: var(--bg-card-hover);
+      border-color: var(--border-light);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ============ ACTIVITY FEED ============ */
+    .activity-section {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      border-left: 3px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+      border-left-color: var(--accent);
+      background-color: var(--bg-secondary);
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      background-color: var(--accent-subtle);
+      border: 1px solid var(--accent-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      color: var(--text-primary);
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      margin-bottom: 0.5rem;
+    }
+
+    /* ============ QUICK LINKS ============ */
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .quick-link-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .quick-link-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .quick-link-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      word-break: break-all;
+      background-color: var(--bg-tertiary);
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .copy-btn {
+      background-color: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      align-self: flex-start;
+    }
+
+    .copy-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .copy-btn.copied {
+      background-color: var(--success);
+    }
+
+    /* ============ TABLES ============ */
+    .table-wrapper {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .filter-bar {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background-color: var(--accent);
+      color: var(--bg-primary);
+      border-color: var(--accent);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background-color: var(--bg-tertiary);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ============ BADGES ============ */
+    .badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      width: fit-content;
+    }
+
+    .badge-pending {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-contacted {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-qualified {
+      background-color: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-converted {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-lost {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-approved {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-paid {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-rejected {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-assessment {
+      background-color: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-referral {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-direct {
+      background-color: rgba(161, 161, 170, 0.15);
+      color: #a1a1aa;
+      border: 1px solid rgba(161, 161, 170, 0.3);
+    }
+
+    .badge-booking {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-architect {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-vibe_coder {
+      background-color: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-blitz_builder {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-scholar {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    /* ============ SUMMARY BAR ============ */
+    .summary-bar {
+      background-color: var(--bg-tertiary);
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .summary-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+      color: var(--accent);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* ============ FORM ELEMENTS ============ */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      color: var(--text-primary);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background-color: var(--bg-secondary);
+    }
+
+    .form-input:disabled {
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .form-readonly {
+      background-color: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .form-button {
+      background-color: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .form-button:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .form-button:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ============ TEMPLATE CARDS ============ */
+    .template-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .template-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .template-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .template-content {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .template-copy-btn {
+      background-color: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+
+    .template-copy-btn:hover {
+      background-color: var(--accent-subtle);
+      border-color: var(--accent);
+    }
+
+    .template-copy-btn.copied {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    /* ============ NOTIFICATIONS ============ */
+    .notification-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .notification-item.unread {
+      border-left: 3px solid var(--accent);
+      background-color: var(--accent-subtle);
+    }
+
+    .notification-item:hover {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-light);
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      background-color: var(--accent-subtle);
+      border: 1px solid var(--accent-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .notification-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notification-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .notification-message {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .notification-time {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* ============ LOADING ============ */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 768px) {
+      .dashboard-content {
+        padding: 1rem;
+      }
+
+      .stat-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .top-bar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .top-bar-right {
+        width: 100%;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .tab-bar {
+        margin-bottom: 1rem;
+      }
+
+      .filter-bar {
+        padding: 1rem;
+      }
+
+      .summary-bar {
+        gap: 1.5rem;
+      }
+
+      .quick-links,
+      .template-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .table {
+        font-size: 0.85rem;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.75rem;
+      }
+    }
+
+    /* ═══════════ ENRICHED OVERVIEW STYLES ═══════════ */
+    .overview-section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gifts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .gift-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .gift-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .gift-type {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+    }
+    .gift-type-assess { background: rgba(99,102,241,0.15); color: #818cf8; }
+    .gift-type-audit  { background: rgba(200,164,86,0.15); color: #c8a456; }
+    .gift-type-call   { background: rgba(34,197,94,0.15);  color: #22c55e; }
+
+    .gift-card h3 {
+      font-size: 1.1rem;
+      margin: 0 0 0.25rem;
+      color: var(--text-primary);
+    }
+    .gift-card .gift-tagline {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      font-style: italic;
+    }
+    .gift-card p.desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .gift-card .gift-cta {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Golden Ticket */
+    .golden-ticket {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+      border: 2px solid rgba(200,164,86,0.4);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 1.5rem 0 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .golden-ticket::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(200,164,86,0.06) 50%, transparent 60%);
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    .golden-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .golden-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #c8a456;
+      margin-bottom: 0.75rem;
+    }
+    .golden-star { font-size: 1rem; }
+    .golden-ticket h3 {
+      font-size: 1.2rem;
+      color: #fff;
+      margin: 0 0 0.5rem;
+    }
+    .golden-ticket h3 em {
+      color: #c8a456;
+      font-style: normal;
+    }
+    .golden-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .golden-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .golden-detail {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,164,86,0.2);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .golden-detail h5 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #c8a456;
+      margin: 0 0 0.35rem;
+    }
+    .golden-detail p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Trigger / Signal Cards */
+    .trigger-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .trigger-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .trigger-card h4 {
+      font-size: 0.95rem;
+      margin: 0 0 0.75rem;
+      color: var(--text-primary);
+    }
+    .trigger-card h4 .icon {
+      margin-right: 0.35rem;
+    }
+    .trigger-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .trigger-card ul li {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      padding: 0.3rem 0;
+      line-height: 1.5;
+    }
+
+    .kw {
+      display: inline-block;
+      background: rgba(99,102,241,0.12);
+      color: #818cf8;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Commission Tier Grid */
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .tier-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .tier-card .tier-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+    .tier-card h4 {
+      font-size: 1rem;
+      margin: 0 0 0.25rem;
+      color: var(--text-primary);
+    }
+    .tier-card .tier-price {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.15rem;
+    }
+    .tier-card .tier-earn {
+      font-size: 0.8rem;
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    /* Intro Scripts */
+    .scripts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .script-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .script-card .script-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .script-card .script-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+      white-space: pre-wrap;
+    }
+    .script-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.85; }
+    .btn-copy {
+      background: rgba(99,102,241,0.15);
+      color: #818cf8;
+    }
+    .btn-sms {
+      background: rgba(34,197,94,0.15);
+      color: #22c55e;
+    }
+    .btn-email {
+      background: rgba(59,130,246,0.15);
+      color: #3b82f6;
+    }
+
+    /* CTA Box */
+    .partner-cta-box {
+      background: linear-gradient(135deg, rgba(200,164,86,0.1) 0%, rgba(99,102,241,0.08) 100%);
+      border: 1px solid rgba(200,164,86,0.3);
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .partner-cta-box h3 {
+      font-size: 1.15rem;
+      color: var(--text-primary);
+      margin: 0 0 0.5rem;
+    }
+    .partner-cta-box p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0 0 1rem;
+    }
+    .cta-btn-gold {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #c8a456, #d4af37);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-btn-gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(200,164,86,0.3);
+    }
+
+    /* Quick Tips */
+    .quick-tips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .quick-tip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .quick-tip strong {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+      .gifts-grid, .trigger-grid, .tier-grid, .golden-details, .quick-tips {
+        grid-template-columns: 1fr;
+      }
+      .golden-ticket { padding: 1.25rem; }
+      .script-actions { flex-direction: column; }
+      .action-btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="top-bar" id="topBar" style="display: none;">
+    <a href="/" class="logo">KNIGHT<span>OPS</span></a>
+    <div class="top-bar-right">
+      <div class="partner-name" id="partnerNameDisplay"></div>
+      <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="login-container">
+      <div class="login-box">
+        <h1>KNIGHT<span style="color: var(--accent);">OPS</span></h1>
+        <p>Partner Portal</p>
+        <input type="email" class="login-input" id="emailInput" placeholder="Enter your email">
+        <button class="login-btn" onclick="requestMagicLink()">Send Access Link</button>
+        <div class="login-message">
+          We'll send you a secure link to access your portal.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboardContainer" style="display: none;">
+    <div class="dashboard-content">
+      <!-- TAB BAR -->
+      <div class="tab-bar">
+        <button class="tab-button active" onclick="switchTab('overview')">Overview</button>
+        <button class="tab-button" onclick="switchTab('leads')">My Leads</button>
+        <button class="tab-button" onclick="switchTab('commissions')">My Commissions</button>
+        <button class="tab-button" onclick="switchTab('links')">My Links</button>
+        <button class="tab-button" onclick="switchTab('notifications')">Notifications</button>
+        <button class="tab-button" onclick="switchTab('profile')">Profile</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="overview" class="tab-content active">
+        <div class="stat-cards" id="statCards"></div>
+
+        <div class="activity-section">
+          <h2 class="section-title">Recent Activity</h2>
+          <div class="activity-list" id="activityFeed"></div>
+        </div>
+
+        <!-- Gifts You Can Give -->
+        <h2 class="overview-section-title">&#127873; Three Free Gifts You Can Give</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">Three ways to give your network real value. Gift one, two, or all three.</p>
+        <div class="gifts-grid" id="giftsGrid"></div>
+
+        <!-- Golden Ticket -->
+        <div class="golden-ticket">
+          <div class="golden-inner">
+            <div class="golden-badge">
+              <span class="golden-star">&#10022;</span>
+              <span>Power Partner Exclusive</span>
+              <span class="golden-star">&#10022;</span>
+            </div>
+            <h3>The Golden Ticket: <em>90-Minute Deep-Dive Blueprint</em></h3>
+            <p class="golden-sub">Top-performing partners unlock the ability to gift <strong style="color:#c8a456">90-minute deep-dive Blueprint Sessions</strong> to their most valuable contacts. This is a premium $750 strategy session &mdash; yours to gift for free.</p>
+            <div class="golden-details">
+              <div class="golden-detail">
+                <h5>Value</h5>
+                <p><strong style="color:#c8a456;font-size:20px">$750</strong> per session, gifted free by you</p>
+              </div>
+              <div class="golden-detail">
+                <h5>What They Get</h5>
+                <p>90-min deep-dive with Daniel: full systems audit, automation blueprint, and growth roadmap</p>
+              </div>
+              <div class="golden-detail">
+                <h5>How to Unlock</h5>
+                <p>Earn Power Partner status through consistent referrals</p>
+              </div>
+              <div class="golden-detail">
+                <h5>Why It Matters</h5>
+                <p>You become the person who gifts $750 strategy sessions. That's a relationship accelerator.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral Links -->
+        <h2 class="overview-section-title">&#128279; Your Referral Links</h2>
+        <div class="quick-links" id="quickLinks"></div>
+
+        <!-- Who to Refer -->
+        <h2 class="overview-section-title">&#127919; Who to Refer &mdash; Listen for These Signals</h2>
+        <div style="margin:0 0 12px">
+          <span style="font-size:0.8rem;font-weight:600;color:var(--text-secondary)">Common keywords:</span>&nbsp;
+          <span class="kw">automate</span>&nbsp;<span class="kw">bottleneck</span>&nbsp;<span class="kw">manual work</span>&nbsp;<span class="kw">AI tools</span>&nbsp;<span class="kw">build an app</span>&nbsp;<span class="kw">scale</span>&nbsp;<span class="kw">systems</span>&nbsp;<span class="kw">no developer</span>&nbsp;<span class="kw">CRM</span>&nbsp;<span class="kw">too many tools</span>&nbsp;<span class="kw">overhead</span>&nbsp;<span class="kw">onboarding</span>&nbsp;<span class="kw">follow-up</span>&nbsp;<span class="kw">tech stack</span>&nbsp;<span class="kw">custom tool</span>&nbsp;<span class="kw">workflow</span>
+        </div>
+        <div class="trigger-grid" id="triggerGrid"></div>
+
+        <!-- What You're Earning On -->
+        <h2 class="overview-section-title">&#128176; What You're Earning On</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">10% commission on every closed deal. No cap.</p>
+        <div class="tier-grid" id="tierGrid"></div>
+
+        <!-- Intro Scripts -->
+        <h2 class="overview-section-title">&#128172; Intro Scripts &mdash; Copy, Paste, Send</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">Don't overthink the intro. Grab one, customize the name, and hit send.</p>
+        <div class="scripts-list" id="scriptsList"></div>
+
+        <!-- CTA -->
+        <div class="partner-cta-box">
+          <h3>Ready to send your first referral?</h3>
+          <p>Book a free Blueprint Session for your contact &mdash; they get real strategy, you get credit for the referral.</p>
+          <a href="https://knightops.biz/book" target="_blank" class="cta-btn-gold">Book a Blueprint Session</a>
+        </div>
+
+        <!-- Quick Tips -->
+        <h2 class="overview-section-title">&#128161; Quick Tips</h2>
+        <div class="quick-tips" id="quickTips"></div>
+      </div>
+
+      <!-- MY LEADS TAB -->
+      <div id="leads" class="tab-content">
+        <div class="table-wrapper">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <button class="filter-btn active" onclick="filterLeads('all')">All Leads</button>
+              <button class="filter-btn" onclick="filterLeads('pending')">Pending</button>
+              <button class="filter-btn" onclick="filterLeads('contacted')">Contacted</button>
+              <button class="filter-btn" onclick="filterLeads('qualified')">Qualified</button>
+              <button class="filter-btn" onclick="filterLeads('converted')">Converted</button>
+              <button class="filter-btn" onclick="filterLeads('lost')">Lost</button>
+            </div>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Source</th>
+                <th>Tech Type</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MY COMMISSIONS TAB -->
+      <div id="commissions" class="tab-content">
+        <div class="summary-bar" id="commissionSummary"></div>
+        <div class="table-wrapper">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <button class="filter-btn active" onclick="filterCommissions('all')">All</button>
+              <button class="filter-btn" onclick="filterCommissions('pending')">Pending</button>
+              <button class="filter-btn" onclick="filterCommissions('approved')">Approved</button>
+              <button class="filter-btn" onclick="filterCommissions('paid')">Paid</button>
+              <button class="filter-btn" onclick="filterCommissions('rejected')">Rejected</button>
+            </div>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lead Name</th>
+                <th>Deal Amount</th>
+                <th>Rate</th>
+                <th>Commission</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="commissionsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MY LINKS TAB -->
+      <div id="links" class="tab-content">
+        <div class="quick-links" id="linksSection"></div>
+
+        <h2 class="section-title">Introduction Templates</h2>
+        <div class="template-cards" id="templatesSection"></div>
+      </div>
+
+      <!-- NOTIFICATIONS TAB -->
+      <div id="notifications" class="tab-content">
+        <div style="margin-bottom: 1rem;">
+          <button class="form-button" onclick="markAllNotificationsRead()" style="align-self: flex-start;">Mark All Read</button>
+        </div>
+        <div id="notificationsContainer"></div>
+      </div>
+
+      <!-- PROFILE TAB -->
+      <div id="profile" class="tab-content">
+        <div class="activity-section" style="max-width: 600px;">
+          <h2 class="section-title">Profile Settings</h2>
+          <form onsubmit="saveProfile(event)">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="profileFullName" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="profileEmail" disabled>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-input" id="profilePhone">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-input" id="profileCompany">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Website</label>
+              <input type="url" class="form-input" id="profileWebsite">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">PayPal Email</label>
+              <input type="email" class="form-input" id="profilePaypalEmail">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Preferred Slug</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span style="color: var(--text-secondary);">knightops.biz/</span>
+                <input type="text" class="form-input" id="profileSlug" style="flex: 1;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Commission Rate</label>
+              <input type="text" class="form-input" id="profileCommissionRate" disabled>
+            </div>
+
+            <button type="submit" class="form-button">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // NOTE: Requires anon SELECT RLS policies on affiliate_leads, commissions, partner_notifications filtered by partner_id
+
+    const SUPABASE_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+    let currentPartnerId = null;
+    let currentPartnerData = null;
+    let currentTab = 'overview';
+    let leadsFilterStatus = 'all';
+    let commissionsFilterStatus = 'all';
+
+    // ============ INITIALIZATION ============
+    async function initApp() {
+      const token = getTokenFromHash();
+      const storedPartnerId = localStorage.getItem('ko_partner_id');
+      const storedToken = localStorage.getItem('ko_partner_token');
+
+      if (token) {
+        await authenticateWithToken(token);
+      } else if (storedPartnerId && storedToken) {
+        currentPartnerId = storedPartnerId;
+        await loadDashboard();
+      } else {
+        showLoginScreen();
+      }
+    }
+
+    function getTokenFromHash() {
+      const hash = window.location.hash;
+      const match = hash.match(/token=([^&]+)/);
+      return match ? match[1] : null;
+    }
+
+    async function authenticateWithToken(token) {
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/partners?magic_link_token=eq.${encodeURIComponent(token)}&status=eq.active&select=*`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+
+        const partners = await response.json();
+
+        if (partners && partners.length > 0) {
+          currentPartnerId = partners[0].id;
+          currentPartnerData = partners[0];
+          localStorage.setItem('ko_partner_id', currentPartnerId);
+          localStorage.setItem('ko_partner_token', token);
+          await loadDashboard();
+          // Clear token from URL AFTER dashboard is loaded (use replaceState to avoid reload)
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        } else {
+          console.error('Token auth failed: no active partner found for token');
+          showLoginScreen();
+          const loginEl = document.getElementById('loginScreen');
+          if(loginEl) {
+            const msg = document.createElement('p');
+            msg.style.cssText = 'color:#ef4444;font-size:13px;text-align:center;margin-top:16px';
+            msg.textContent = 'This access link is invalid or expired. Please enter your email below to get a new one.';
+            loginEl.querySelector('.login-box')?.appendChild(msg);
+          }
+        }
+      } catch (error) {
+        console.error('Authentication error:', error);
+        showLoginScreen();
+      }
+    }
+
+    async function requestMagicLink() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) return;
+      const btn = document.querySelector('.login-btn');
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      try {
+        // Look up partner by email
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/partners?email=eq.${encodeURIComponent(email)}&status=eq.active&select=id,name,email,magic_link_token`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        const partners = await res.json();
+        if (!partners || partners.length === 0) {
+          alert('No active partner account found for this email. Please contact us if you believe this is an error.');
+          btn.textContent = 'Send Access Link'; btn.disabled = false;
+          return;
+        }
+        const partner = partners[0];
+        // Ensure magic_link_token exists
+        let token = partner.magic_link_token;
+        if (!token) {
+          token = crypto.randomUUID();
+          await fetch(`${SUPABASE_URL}/rest/v1/partners?id=eq.${partner.id}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ magic_link_token: token })
+          });
+        }
+        const portalUrl = 'https://knightops.biz/partner-portal#token=' + token;
+        // Send email via partner-emails edge function
+        await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({ type: 'partner_portal_link', to: email, data: { partner_name: partner.name, portal_url: portalUrl } })
+        });
+        document.getElementById('loginScreen').innerHTML = `
+          <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:48px;margin-bottom:20px;">&#9993;</div>
+            <h2 style="color:var(--text-primary);margin-bottom:12px;">Check Your Email</h2>
+            <p style="color:var(--text-secondary);max-width:400px;margin:0 auto;">We sent a secure access link to <strong style="color:var(--accent);">${email}</strong>. Click the link in your email to access your partner portal.</p>
+            <p style="color:var(--text-muted);margin-top:24px;font-size:13px;">Didn't receive it? Check your spam folder or <a href="#" onclick="location.reload()" style="color:var(--accent);">try again</a>.</p>
+          </div>`;
+      } catch (e) {
+        alert('Something went wrong sending your access link. Please try again or contact support.');
+        btn.textContent = 'Send Access Link'; btn.disabled = false;
+      }
+    }
+
+    function showLoginScreen() {
+      document.getElementById('loginScreen').style.display = 'block';
+      document.getElementById('dashboardContainer').style.display = 'none';
+      document.getElementById('topBar').style.display = 'none';
+    }
+
+    async function loadDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboardContainer').style.display = 'block';
+      document.getElementById('topBar').style.display = 'flex';
+
+      if (!currentPartnerData) {
+        try {
+          const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}&status=eq.active&select=*`,
+            {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+              }
+            }
+          );
+          const partners = await response.json();
+          if (partners.length > 0) {
+            currentPartnerData = partners[0];
+          }
+        } catch (error) {
+          console.error('Error loading partner data:', error);
+        }
+      }
+
+      document.getElementById('partnerNameDisplay').textContent = currentPartnerData?.name || 'Partner';
+
+      loadTabContent('overview');
+    }
+
+    // ============ TAB MANAGEMENT ============
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      currentTab = tabName;
+      window.location.hash = tabName;
+
+      loadTabContent(tabName);
+    }
+
+    async function loadTabContent(tabName) {
+      try {
+        switch (tabName) {
+          case 'overview':
+            await loadOverview();
+            break;
+          case 'leads':
+            await loadLeads();
+            break;
+          case 'commissions':
+            await loadCommissions();
+            break;
+          case 'links':
+            loadLinks();
+            break;
+          case 'notifications':
+            await loadNotifications();
+            break;
+          case 'profile':
+            loadProfile();
+            break;
+        }
+      } catch (error) {
+        console.error(`Error loading ${tabName}:`, error);
+      }
+    }
+
+    // ============ OVERVIEW TAB ============
+    async function loadOverview() {
+      await loadStatCards();
+      await loadActivityFeed();
+      loadGiftsGrid();
+      loadQuickLinks();
+      loadTriggerGrid();
+      loadTierGrid();
+      loadOverviewScripts();
+      loadQuickTips();
+    }
+
+    function loadGiftsGrid() {
+      const slug = currentPartnerData?.slug || 'partner';
+      const gifts = [
+        {
+          type: 'assess',
+          typeLabel: '&#9881; Gift 1 &mdash; Self-Serve Tool',
+          title: 'Tech Type Assessment',
+          tagline: 'A personality quiz &mdash; not a call',
+          desc: 'A quick online personality assessment that reveals their "Tech Type" &mdash; how they naturally approach building with technology. They get personalized AI tool recommendations matched to their style. Takes under 3 minutes.',
+          cta: 'Share Assessment Link',
+          url: `https://knightops.biz/assess?ref=${slug}`
+        },
+        {
+          type: 'audit',
+          typeLabel: '&#9889; Gift 2 &mdash; Self-Serve Audit',
+          title: 'AI Systems Audit',
+          tagline: 'A 2-minute audit with a custom build plan',
+          desc: 'Your contact answers 10 quick questions and instantly gets their Systems Score, a gap analysis across 6 areas, and a custom plan of exactly what to build. Shows their revenue leak in dollars.',
+          cta: 'Share Audit Link',
+          url: `https://knightops.biz/audit?ref=${slug}`
+        },
+        {
+          type: 'call',
+          typeLabel: '&#9742; Gift 3 &mdash; Live Strategy Session',
+          title: '10x Systems Blueprint Call',
+          tagline: 'Free 30-min strategy call with Daniel',
+          desc: 'A live 1-on-1 strategy session where Daniel maps out the AI-powered operational infrastructure they need to scale. They walk away with a clear, actionable blueprint. Always free. No pitch.',
+          cta: 'Share Booking Link',
+          url: `https://knightops.biz/book?ref=${slug}`
+        }
+      ];
+
+      document.getElementById('giftsGrid').innerHTML = gifts.map(g => `
+        <div class="gift-card"${g.type === 'audit' ? ' style="border-color:rgba(200,164,86,.28)"' : g.type === 'call' ? ' style="border-color:rgba(34,197,94,.25)"' : ''}>
+          <div class="gift-type gift-type-${g.type}">${g.typeLabel}</div>
+          <h3>${g.title}</h3>
+          <div class="gift-tagline">${g.tagline}</div>
+          <p class="desc">${g.desc}</p>
+          <div class="script-actions">
+            <button class="action-btn btn-copy" onclick="copyToClipboard('${g.url}', this)">${g.cta}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function loadTriggerGrid() {
+      const triggers = [
+        {
+          icon: '&#9881;',
+          title: 'Drowning in manual work',
+          items: [
+            '"I spend hours on things that should be <span class="kw">automated</span>"',
+            '"I\'m still doing everything in <span class="kw">spreadsheets</span>"',
+            '"My team wastes time on <span class="kw">repetitive tasks</span>"',
+            '"I can\'t <span class="kw">scale</span> because I\'m the <span class="kw">bottleneck</span>"'
+          ]
+        },
+        {
+          icon: '&#128640;',
+          title: 'Want AI but don\'t know how',
+          items: [
+            '"I know <span class="kw">AI</span> could help, I just don\'t know where to start"',
+            '"Everyone\'s talking about <span class="kw">AI tools</span> but it\'s overwhelming"',
+            '"I want to <span class="kw">automate</span> my content / outreach / <span class="kw">onboarding</span>"'
+          ]
+        },
+        {
+          icon: '&#128187;',
+          title: 'Need an app or system built',
+          items: [
+            '"I have this idea for an <span class="kw">app</span> but <span class="kw">no developer</span>"',
+            '"I need a client portal / <span class="kw">CRM</span> / booking <span class="kw">system</span>"',
+            '"I paid a developer $10K and got nothing"',
+            '"I need a <span class="kw">custom tool</span> but can\'t afford a full dev team"'
+          ]
+        },
+        {
+          icon: '&#128200;',
+          title: 'Growing but systems are breaking',
+          items: [
+            '"Things worked when we were small, now it\'s chaos"',
+            '"Revenue is up but profit is flat from <span class="kw">overhead</span>"',
+            '"We\'re dropping balls on <span class="kw">follow-ups</span> and <span class="kw">onboarding</span>"',
+            '"I need to <span class="kw">systemize</span> before I can <span class="kw">scale</span>"'
+          ]
+        },
+        {
+          icon: '&#127919;',
+          title: 'Ideal business types',
+          items: [
+            'Coaches, consultants, and course creators',
+            'Agency owners (marketing, design, recruiting, dev)',
+            'E-commerce store owners needing <span class="kw">automation</span>',
+            'Service businesses (HVAC, real estate, med spas, legal)',
+            'SaaS founders & startup operators'
+          ]
+        },
+        {
+          icon: '&#128161;',
+          title: 'Mastermind-ready signals',
+          items: [
+            '"I want to grow through <span class="kw">partnerships</span>, not just ads"',
+            '"I\'m doing $20K+/mo but leaving money on the table"',
+            '"I want <span class="kw">systems</span>, not just strategies"',
+            'Community leaders, event hosts, mastermind runners'
+          ]
+        }
+      ];
+
+      document.getElementById('triggerGrid').innerHTML = triggers.map(t => `
+        <div class="trigger-card">
+          <h4><span class="icon">${t.icon}</span> ${t.title}</h4>
+          <ul>${t.items.map(i => `<li>${i}</li>`).join('')}</ul>
+        </div>
+      `).join('');
+    }
+
+    function loadTierGrid() {
+      const tiers = [
+        { tag: 'Tier 1 — Website', name: 'Night Launch', price: '$1,497', earn: 'You earn: ~$150' },
+        { tag: 'Tier 2 — Web App', name: 'Night Build', price: '$7,497', earn: 'You earn: ~$750' },
+        { tag: 'Tier 3 — Mobile App', name: 'Night Build Pro', price: '$14,997', earn: 'You earn: ~$1,500' },
+        { tag: 'Tier 4 — Custom', name: 'Enterprise Build', price: '$25,000+', earn: 'You earn: $2,500+' }
+      ];
+
+      document.getElementById('tierGrid').innerHTML = tiers.map(t => `
+        <div class="tier-card">
+          <div class="tier-tag">${t.tag}</div>
+          <h4>${t.name}</h4>
+          <div class="tier-price">${t.price}</div>
+          <div class="tier-earn">${t.earn}</div>
+        </div>
+      `).join('');
+    }
+
+    function loadOverviewScripts() {
+      const slug = currentPartnerData?.slug || 'partner';
+      const refLink = `https://knightops.biz/${slug}`;
+      const assessLink = `https://knightops.biz/assess?ref=${slug}`;
+      const bookLink = `https://knightops.biz/book?ref=${slug}`;
+
+      const scripts = [
+        {
+          label: 'Default — Simple & Direct',
+          text: `Hey [Name], this is Daniel Knight. Let's find a time when you can tell me more about what you do, and I'll see if I can send some business your way.`
+        },
+        {
+          label: 'For the Tech Type Assessment (share with anyone)',
+          text: `Hey [Name] — I came across this quick quiz that tells you your "Tech Type" and which AI tools would actually help your business. It's free and takes like 2 minutes. Thought of you because of what you said about [their pain point]. Here's the link: ${assessLink}`
+        },
+        {
+          label: 'For the Blueprint Call (warm intro)',
+          text: `Hey [Name] — I want to connect you with Daniel Knight. He builds AI-powered automation systems for businesses like yours. He's offering a free 30-minute strategy call where he'll map out exactly what you could automate — no pitch, just a clear plan. Given what you mentioned about [bottleneck/pain], I think this would be really valuable. Want me to intro you?`
+        },
+        {
+          label: 'Email Introduction (connecting both parties)',
+          text: `Subject: Intro — [Name], meet Daniel Knight\n\n[Name] — meet Daniel. He runs Knight Ops and builds custom AI & automation systems for entrepreneurs. I told him about [brief context] and he'd love to offer you a complimentary 10x Systems Blueprint Call — 30 min, no strings.\n\nDaniel — meet [Name]. They run [business] and are dealing with [pain point]. I think you two should connect.\n\nI'll let you two take it from here!`
+        },
+        {
+          label: 'Casual DM / Text Message',
+          text: `Yo — you still manually doing [task]? My guy Daniel builds AI systems that automate that stuff. He has a free strategy call — no sales pitch, just a game plan for what you could automate. Want the link?`
+        },
+        {
+          label: 'After an Event or Networking',
+          text: `Hey [Name], it was great meeting you at [event]. I kept thinking about what you said about [pain point]. I know someone who specializes in exactly that — he builds AI & automation systems for businesses like yours. Want me to connect you for a free strategy call?`
+        },
+        {
+          label: 'For the AI Systems Audit',
+          text: `Hey [Name] — found this 2-min audit that scores your business systems and shows exactly where you're leaking revenue. It's free and you get a custom build plan. Thought of you: ${assessLink}`
+        }
+      ];
+
+      document.getElementById('scriptsList').innerHTML = scripts.map((s, idx) => `
+        <div class="script-card">
+          <div class="script-label">${s.label}</div>
+          <div class="script-text">${s.text.replace(/\n/g, '<br>')}</div>
+          <div class="script-actions">
+            <button class="action-btn btn-copy" onclick="copyScriptByIndex(${idx})">&#128203; Copy</button>
+            <button class="action-btn btn-sms" onclick="sendScriptText(${idx})">&#128241; Send SMS</button>
+            <button class="action-btn btn-email" onclick="sendScriptEmail(${idx})">&#9993; Send Email</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Store scripts for action buttons
+      window._overviewScripts = scripts;
+    }
+
+    function copyScriptByIndex(idx) {
+      const script = window._overviewScripts[idx];
+      if (!script) return;
+      navigator.clipboard.writeText(script.text).then(() => {
+        const btn = document.querySelectorAll('.scripts-list .btn-copy')[idx];
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '&#10003; Copied!';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        }
+      });
+    }
+
+    function sendScriptText(idx) {
+      const script = window._overviewScripts[idx];
+      if (!script) return;
+      const body = encodeURIComponent(script.text);
+      window.open(`sms:?body=${body}`, '_blank');
+    }
+
+    function sendScriptEmail(idx) {
+      const script = window._overviewScripts[idx];
+      if (!script) return;
+      let subject = 'Quick intro';
+      let body = script.text;
+      // Extract subject line if present
+      const subjMatch = body.match(/^Subject:\s*(.+?)(\n|$)/);
+      if (subjMatch) {
+        subject = subjMatch[1].trim();
+        body = body.replace(/^Subject:\s*.+?\n\n?/, '');
+      }
+      const mailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailUrl, '_blank');
+    }
+
+    function loadQuickTips() {
+      const tips = [
+        { text: '<strong>Lead with value, not a pitch.</strong> Share the free assessment or Blueprint Call first. Let Daniel handle the conversion.' },
+        { text: '<strong>Use keywords as your radar.</strong> When someone says "automate," "bottleneck," or "no developer" — that\'s your opening.' },
+        { text: '<strong>The warm intro wins.</strong> A personal introduction converts 5x better than a shared link. Use the email intro template.' },
+        { text: '<strong>Follow up once.</strong> If they took the assessment or booked a call, check in 3 days later. One follow-up doubles conversions.' },
+        { text: '<strong>Stack the gifts.</strong> Assessment first, then offer the Blueprint Call. Each step warms them up further.' },
+        { text: '<strong>Track everything here.</strong> Check your dashboard weekly. Know your numbers — leads, conversions, commissions.' }
+      ];
+
+      document.getElementById('quickTips').innerHTML = tips.map(t => `
+        <div class="quick-tip">${t.text}</div>
+      `).join('');
+    }
+
+    async function loadStatCards() {
+      const container = document.getElementById('statCards');
+      container.innerHTML = '<div class="stat-card"><div class="loading-spinner"></div></div>';
+
+      try {
+        const leadsResponse = await supabaseQuery(
+          'affiliate_leads',
+          'COUNT',
+          { partner_id: currentPartnerId }
+        );
+        const totalLeads = leadsResponse || 0;
+
+        const convertedResponse = await supabaseQuery(
+          'affiliate_leads',
+          'COUNT',
+          { partner_id: currentPartnerId, status: 'converted' }
+        );
+        const conversions = convertedResponse || 0;
+
+        const earnedResponse = await supabaseQuery(
+          'commissions',
+          'SUM(commission_amount)',
+          { 
+            partner_id: currentPartnerId,
+            status: ['approved', 'paid']
+          }
+        );
+        const totalEarned = earnedResponse || 0;
+
+        const pendingResponse = await supabaseQuery(
+          'commissions',
+          'SUM(commission_amount)',
+          { partner_id: currentPartnerId, status: 'pending' }
+        );
+        const pendingCommissions = pendingResponse || 0;
+
+        const cards = [
+          { label: 'Total Leads', value: totalLeads },
+          { label: 'Conversions', value: conversions },
+          { label: 'Total Earned', value: '$' + formatCurrency(totalEarned) },
+          { label: 'Pending Commissions', value: '$' + formatCurrency(pendingCommissions) }
+        ];
+
+        container.innerHTML = cards.map(card => `
+          <div class="stat-card">
+            <div class="stat-number">${card.value}</div>
+            <div class="stat-label">${card.label}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading stat cards:', error);
+        container.innerHTML = '<div class="empty-state"><p>Unable to load stats</p></div>';
+      }
+    }
+
+    async function loadActivityFeed() {
+      const container = document.getElementById('activityFeed');
+      container.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&order=created_at.desc&limit=10`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+
+        const notifications = await response.json();
+
+        if (notifications.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">!</div>
+              <p>No activity yet. Start sharing your link to see leads come in!</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = notifications.map(notification => {
+          const icon = getNotificationIcon(notification.type);
+          return `
+            <div class="activity-item">
+              <div class="activity-icon">${icon}</div>
+              <div class="activity-content">
+                <div class="activity-title">${notification.title}</div>
+                <div class="activity-time">${getTimeAgo(notification.created_at)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Error loading activity feed:', error);
+        container.innerHTML = '<div class="empty-state"><p>Unable to load activity</p></div>';
+      }
+    }
+
+    function loadQuickLinks() {
+      const slug = currentPartnerData?.slug || 'partner';
+      const links = [
+        {
+          label: 'Affiliate Link',
+          url: `https://knightops.biz/${slug}`,
+          description: 'Share this with anyone interested in learning about Knight Ops solutions.'
+        },
+        {
+          label: 'Assessment Link',
+          url: `https://knightops.biz/assessment?utm_source=${slug}`,
+          description: 'Direct prospects to our free assessment to get qualified leads.'
+        },
+        {
+          label: 'Booking Link',
+          url: `https://knightops.biz/book?utm_source=${slug}`,
+          description: 'Let prospects schedule a consultation directly.'
+        }
+      ];
+
+      const container = document.getElementById('quickLinks');
+      container.innerHTML = links.map(link => `
+        <div class="quick-link-card">
+          <div class="quick-link-label">${link.label}</div>
+          <div class="quick-link-url">${link.url}</div>
+          <button class="copy-btn" onclick="copyToClipboard('${link.url}', this)">Copy Link</button>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">${link.description}</p>
+        </div>
+      `).join('');
+    }
+
+    // ============ MY LEADS TAB ============
+    async function loadLeads() {
+      const container = document.getElementById('leadsTable');
+      container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;"><div class="loading-spinner"></div></td></tr>';
+
+      try {
+        let query = `${SUPABASE_URL}/rest/v1/affiliate_leads?partner_id=eq.${currentPartnerId}`;
+
+        if (leadsFilterStatus !== 'all') {
+          query += `&status=eq.${leadsFilterStatus}`;
+        }
+
+        query += '&order=created_at.desc';
+
+        const response = await fetch(query, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+
+        const leads = await response.json();
+
+        if (leads.length === 0) {
+          container.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2rem;">
+                <div class="empty-state" style="margin: 0;">
+                  <p>No leads yet. Share your links to start referring!</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        container.innerHTML = leads.map(lead => `
+          <tr>
+            <td>${lead.first_name || ''} ${lead.last_name || ''}</td>
+            <td>${lead.company_name || '-'}</td>
+            <td><span class="badge badge-${lead.source || 'direct'}">${(lead.source || 'direct').replace('_', ' ')}</span></td>
+            <td><span class="badge badge-${lead.tech_type || 'architect'}">${(lead.tech_type || 'architect').replace('_', ' ')}</span></td>
+            <td><span class="badge badge-${lead.status || 'pending'}">${lead.status || 'pending'}</span></td>
+            <td>${formatDate(lead.created_at)}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading leads:', error);
+        container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-danger);">Error loading leads</td></tr>';
+      }
+    }
+
+    function filterLeads(status) {
+      leadsFilterStatus = status;
+      document.querySelectorAll('.tab-content.active .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      loadLeads();
+    }
+
+    // ============ MY COMMISSIONS TAB ============
+    async function loadCommissions() {
+      await loadCommissionSummary();
+      await loadCommissionsTable();
+    }
+
+    async function loadCommissionSummary() {
+      const container = document.getElementById('commissionSummary');
+      container.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        const allResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&select=commission_amount`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+        const allCommissions = await allResponse.json();
+        const totalEarned = allCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+
+        const pendingResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&status=eq.pending&select=commission_amount`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+        const pendingCommissions = await pendingResponse.json();
+        const pendingTotal = pendingCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+
+        const paidResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&status=eq.paid&select=commission_amount`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+        const paidCommissions = await paidResponse.json();
+        const paidTotal = paidCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+
+        container.innerHTML = `
+          <div class="summary-item">
+            <div class="summary-label">Total Earned</div>
+            <div class="summary-value">$${formatCurrency(totalEarned)}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Pending</div>
+            <div class="summary-value">$${formatCurrency(pendingTotal)}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Paid</div>
+            <div class="summary-value">$${formatCurrency(paidTotal)}</div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading commission summary:', error);
+      }
+    }
+
+    async function loadCommissionsTable() {
+      const container = document.getElementById('commissionsTable');
+      container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;"><div class="loading-spinner"></div></td></tr>';
+
+      try {
+        let query = `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}`;
+
+        if (commissionsFilterStatus !== 'all') {
+          query += `&status=eq.${commissionsFilterStatus}`;
+        }
+
+        query += '&order=created_at.desc&select=*,affiliate_leads(first_name,last_name)';
+
+        const response = await fetch(query, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+
+        const commissions = await response.json();
+
+        if (commissions.length === 0) {
+          container.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2rem;">
+                <div class="empty-state" style="margin: 0;">
+                  <p>No commissions yet. When your referrals become clients, commissions appear here automatically.</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        container.innerHTML = commissions.map(commission => {
+          const leadName = commission.affiliate_leads 
+            ? `${commission.affiliate_leads.first_name || ''} ${commission.affiliate_leads.last_name || ''}`.trim()
+            : 'Unknown';
+          
+          return `
+            <tr>
+              <td>${leadName}</td>
+              <td>$${formatCurrency(commission.deal_amount || 0)}</td>
+              <td>${commission.rate || 0}%</td>
+              <td>$${formatCurrency(commission.commission_amount || 0)}</td>
+              <td><span class="badge badge-${commission.status || 'pending'}">${commission.status || 'pending'}</span></td>
+              <td>${formatDate(commission.created_at)}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Error loading commissions:', error);
+        container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-danger);">Error loading commissions</td></tr>';
+      }
+    }
+
+    function filterCommissions(status) {
+      commissionsFilterStatus = status;
+      document.querySelectorAll('.tab-content.active .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      loadCommissionsTable();
+    }
+
+    // ============ MY LINKS TAB ============
+    function loadLinks() {
+      const slug = currentPartnerData?.slug || 'partner';
+      const links = [
+        {
+          label: 'Affiliate Link',
+          url: `https://knightops.biz/${slug}`,
+          description: 'Share this with anyone interested in learning about Knight Ops solutions.'
+        },
+        {
+          label: 'Assessment Link',
+          url: `https://knightops.biz/assessment?utm_source=${slug}`,
+          description: 'Direct prospects to our free assessment to get qualified leads.'
+        },
+        {
+          label: 'Booking Link',
+          url: `https://knightops.biz/book?utm_source=${slug}`,
+          description: 'Let prospects schedule a consultation directly.'
+        }
+      ];
+
+      const linksSection = document.getElementById('linksSection');
+      linksSection.innerHTML = links.map(link => `
+        <div class="quick-link-card">
+          <div class="quick-link-label">${link.label}</div>
+          <div class="quick-link-url">${link.url}</div>
+          <button class="copy-btn" onclick="copyToClipboard('${link.url}', this)">Copy Link</button>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">${link.description}</p>
+        </div>
+      `).join('');
+
+      const templates = [
+        {
+          title: 'Text/DM Template',
+          content: `Hey! I wanted to share something that might be valuable for you. Knight Ops helps teams with ${slug} services. They have a free assessment to see if it's a fit: https://knightops.biz/assessment?utm_source=${slug}`
+        },
+        {
+          title: 'Email Template',
+          content: `Subject: Quick resource that might help
+
+Hi [Name],
+
+I came across Knight Ops and thought of you. They specialize in helping teams like yours with development services.
+
+They have a free 15-minute assessment to see if there's a fit: https://knightops.biz/assessment?utm_source=${slug}
+
+Let me know if you'd like to chat about it!
+
+Best,
+[Your Name]`
+        },
+        {
+          title: 'Verbal Template',
+          content: `"Hey [Name], I wanted to introduce you to Knight Ops. They do amazing work with teams on development projects. They have a quick free assessment—no pressure, just a way to see if there's a fit. Want me to send you the link?"`
+        },
+        {
+          title: 'Assessment Template',
+          content: `Check out this free assessment from Knight Ops to see what your team needs: https://knightops.biz/assessment?utm_source=${slug}
+
+Takes about 15 minutes and gives you a clear picture of opportunities.`
+        }
+      ];
+
+      const templatesSection = document.getElementById('templatesSection');
+      templatesSection.innerHTML = templates.map((template, idx) => `
+        <div class="template-card">
+          <div class="template-title">${template.title}</div>
+          <div class="template-content">${template.content}</div>
+          <button class="template-copy-btn" onclick="copyTemplate('${template.content.replace(/'/g, "\\'")}', this)">Copy Template</button>
+        </div>
+      `).join('');
+    }
+
+    // ============ NOTIFICATIONS TAB ============
+    async function loadNotifications() {
+      const container = document.getElementById('notificationsContainer');
+      container.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&order=created_at.desc`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+
+        const notifications = await response.json();
+
+        if (notifications.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">!</div>
+              <p>No notifications yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = notifications.map(notification => {
+          const icon = getNotificationIcon(notification.type);
+          const unreadClass = notification.is_read ? '' : ' unread';
+          
+          return `
+            <div class="notification-item${unreadClass}" onclick="markNotificationRead('${notification.id}')">
+              <div class="notification-icon">${icon}</div>
+              <div class="notification-content">
+                <div class="notification-title">${notification.title}</div>
+                <div class="notification-message">${notification.message}</div>
+                <div class="notification-time">${getTimeAgo(notification.created_at)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        container.innerHTML = '<div class="empty-state"><p>Unable to load notifications</p></div>';
+      }
+    }
+
+    async function markNotificationRead(notificationId) {
+      try {
+        await fetch(
+          `${SUPABASE_URL}/rest/v1/partner_notifications?id=eq.${notificationId}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_read: true })
+          }
+        );
+        loadNotifications();
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    async function markAllNotificationsRead() {
+      try {
+        await fetch(
+          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&is_read=eq.false`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_read: true })
+          }
+        );
+        loadNotifications();
+      } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+      }
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        'new_lead': '+',
+        'lead_status_change': '→',
+        'commission_pending': 'C',
+        'commission_approved': '✓',
+        'commission_paid': '$'
+      };
+      return icons[type] || '●';
+    }
+
+    // ============ PROFILE TAB ============
+    function loadProfile() {
+      document.getElementById('profileFullName').value = currentPartnerData?.name || '';
+      document.getElementById('profileEmail').value = currentPartnerData?.email || '';
+      document.getElementById('profilePhone').value = currentPartnerData?.phone || '';
+      document.getElementById('profileCompany').value = currentPartnerData?.company || '';
+      document.getElementById('profileWebsite').value = currentPartnerData?.website || '';
+      document.getElementById('profilePaypalEmail').value = currentPartnerData?.paypal_email || '';
+      document.getElementById('profileSlug').value = currentPartnerData?.slug || '';
+      document.getElementById('profileCommissionRate').value = (currentPartnerData?.commission_rate || 0) + '%';
+    }
+
+    async function saveProfile(event) {
+      event.preventDefault();
+
+      const updates = {
+        name: document.getElementById('profileFullName').value,
+        phone: document.getElementById('profilePhone').value,
+        company: document.getElementById('profileCompany').value,
+        website: document.getElementById('profileWebsite').value,
+        paypal_email: document.getElementById('profilePaypalEmail').value,
+        slug: document.getElementById('profileSlug').value
+      };
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updates)
+          }
+        );
+
+        if (response.ok) {
+          currentPartnerData = { ...currentPartnerData, ...updates };
+          document.getElementById('partnerNameDisplay').textContent = currentPartnerData.name;
+          alert('Profile updated successfully!');
+        }
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Error saving profile');
+      }
+    }
+
+    // ============ UTILITY FUNCTIONS ============
+    function copyToClipboard(text, button) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function copyTemplate(text, button) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function getTimeAgo(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const secondsAgo = Math.floor((now - date) / 1000);
+
+      if (secondsAgo < 60) return 'Just now';
+      if (secondsAgo < 3600) return Math.floor(secondsAgo / 60) + ' minutes ago';
+      if (secondsAgo < 86400) return Math.floor(secondsAgo / 3600) + ' hours ago';
+      if (secondsAgo < 604800) return Math.floor(secondsAgo / 86400) + ' days ago';
+      
+      return formatDate(dateString);
+    }
+
+    async function supabaseQuery(table, operation, filters) {
+      let url = `${SUPABASE_URL}/rest/v1/${table}?`;
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach(v => {
+            url += `${key}=in.(${v}),`;
+          });
+        } else {
+          url += `${key}=eq.${encodeURIComponent(value)}&`;
+        }
+      });
+
+      if (operation === 'COUNT') {
+        url += '&select=count()';
+      } else if (operation.startsWith('SUM')) {
+        url += `&select=${encodeURIComponent(operation)}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      });
+
+      const data = await response.json();
+      return data[0]?.[Object.keys(data[0])[0]] || 0;
+    }
+
+    function signOut() {
+      localStorage.removeItem('ko_partner_id');
+      localStorage.removeItem('ko_partner_token');
+      currentPartnerId = null;
+      currentPartnerData = null;
+      window.location.href = '/';
+    }
+
+    // ============ STARTUP ============
+    window.addEventListener('load', initApp);
+  </script>
+</body>
+</html>

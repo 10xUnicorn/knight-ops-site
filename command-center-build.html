@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center Intake | Knight Ops</title>
+<meta name="description" content="Tell us about your business so we can build your custom AI Command Center. Complete the intake form to get started.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.knightops.biz/command-center-build">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08080F;--card:#0D0D18;--card2:#111122;--border:#1A1A2E;
+  --gold:#D4A853;--gold-dark:#B8912E;--gold-light:#E8C97A;
+  --cyan:#00D4FF;--green:#00FF88;--red:#FF3366;
+  --text:#E4E4F0;--muted:#8888A0;--white:#fff;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Inter',-apple-system,sans-serif;
+  --mono:'Space Grotesk',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+
+/* Canvas */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.grid-ov{position:fixed;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(rgba(212,168,83,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(212,168,83,.02) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;
+  background:rgba(8,8,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,168,83,.1)}
+.nav-in{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{text-decoration:none;font-family:var(--serif);color:var(--gold);font-size:1.1rem;font-weight:600}
+.nav-save{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-save .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* Container */
+.container{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:100px 24px 60px}
+
+/* Header */
+.form-header{text-align:center;margin-bottom:48px}
+.form-header h1{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.5rem);font-weight:600;margin-bottom:8px}
+.gold-grad{background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.form-header p{color:var(--muted);font-size:.95rem}
+
+/* Progress */
+.progress{display:flex;gap:4px;margin-bottom:40px}
+.progress-step{flex:1;height:4px;border-radius:2px;background:var(--border);transition:all .4s}
+.progress-step.active{background:var(--gold)}
+.progress-step.done{background:var(--green)}
+.progress-labels{display:flex;justify-content:space-between;margin-top:8px;margin-bottom:32px}
+.progress-labels span{font-size:.7rem;color:var(--muted);font-family:var(--mono);letter-spacing:.5px}
+.progress-labels span.active{color:var(--gold)}
+
+/* Pages */
+.page{display:none;animation:fadeUp .4s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+.page-title{font-family:var(--serif);font-size:1.5rem;font-weight:600;margin-bottom:6px;color:var(--white)}
+.page-sub{color:var(--muted);font-size:.88rem;margin-bottom:28px}
+
+/* Form Elements */
+.fg{margin-bottom:20px}
+.fg label{display:block;font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.fg .hint{font-size:.75rem;color:var(--muted);margin-bottom:6px;font-style:italic}
+input[type="text"],input[type="email"],input[type="tel"],input[type="url"],input[type="number"],
+select,textarea{width:100%;padding:12px 16px;background:var(--card2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:var(--sans);font-size:.9rem;outline:none;transition:border .3s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+textarea{min-height:100px;resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238888A0'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+select option{background:var(--card);color:var(--text)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Checkbox/Radio Groups */
+.check-group{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check-group.single{grid-template-columns:1fr}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card2);
+  border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:.85rem}
+.check-item:hover{border-color:rgba(212,168,83,.3)}
+.check-item.selected{border-color:var(--gold);background:rgba(212,168,83,.06)}
+.check-item input{display:none}
+.check-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.check-item.selected .check-box{border-color:var(--gold);background:var(--gold)}
+.check-item.selected .check-box::after{content:'✓';color:var(--bg);font-size:.7rem;font-weight:700}
+.radio-dot{width:18px;height:18px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.check-item.selected .radio-dot{border-color:var(--gold)}
+.check-item.selected .radio-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold)}
+
+/* Rank items */
+.rank-list{display:flex;flex-direction:column;gap:6px}
+.rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card2);
+  border:1px solid var(--border);border-radius:8px;cursor:grab;transition:all .2s;font-size:.85rem}
+.rank-item:hover{border-color:rgba(212,168,83,.2)}
+.rank-item .rank-num{font-family:var(--mono);font-weight:700;color:var(--gold);min-width:20px;text-align:center}
+.rank-item .rank-arrows{display:flex;flex-direction:column;gap:2px;margin-left:auto}
+.rank-item .rank-arrows button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;
+  padding:2px 6px;border-radius:3px;transition:all .2s}
+.rank-item .rank-arrows button:hover{color:var(--gold);background:rgba(212,168,83,.1)}
+
+/* Offer rows */
+.offer-rows{display:flex;flex-direction:column;gap:8px}
+.offer-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end}
+.offer-row input{padding:10px 12px;font-size:.85rem}
+.offer-row .remove-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:1.1rem;
+  padding:10px 8px;opacity:.5;transition:opacity .2s}
+.offer-row .remove-btn:hover{opacity:1}
+.add-offer{background:none;border:1px dashed var(--border);color:var(--muted);padding:10px;
+  border-radius:8px;width:100%;cursor:pointer;font-size:.82rem;transition:all .2s;margin-top:4px}
+.add-offer:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Color picker */
+.color-row{display:flex;align-items:center;gap:12px}
+.color-row input[type="text"]{flex:1}
+.color-preview{width:40px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer}
+.color-input-hidden{position:absolute;opacity:0;width:0;height:0}
+
+/* Tier cards */
+.tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tier-card{background:var(--card2);border:2px solid var(--border);border-radius:12px;padding:20px;
+  text-align:center;cursor:pointer;transition:all .3s}
+.tier-card:hover{border-color:rgba(212,168,83,.3)}
+.tier-card.selected{border-color:var(--gold);background:rgba(212,168,83,.06)}
+.tier-card .tc-name{font-family:var(--serif);font-size:1rem;font-weight:600;color:var(--white);margin-bottom:4px}
+.tier-card .tc-price{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tier-card .tc-desc{font-size:.75rem;color:var(--muted);line-height:1.4}
+
+/* Buttons */
+.form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:24px;border-top:1px solid var(--border)}
+.btn-back{background:none;border:1px solid var(--border);color:var(--muted);padding:12px 28px;
+  border-radius:8px;cursor:pointer;font-size:.9rem;transition:all .3s}
+.btn-back:hover{border-color:var(--gold);color:var(--gold)}
+.btn-next{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);
+  padding:14px 36px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:.9rem;
+  letter-spacing:.5px;transition:all .3s}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,168,83,.3)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* Success */
+.success-screen{display:none;text-align:center;padding:80px 0}
+.success-screen .chk{width:80px;height:80px;border-radius:50%;background:rgba(0,255,136,.1);
+  border:2px solid var(--green);display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:var(--green);margin:0 auto 24px}
+.success-screen h2{font-family:var(--serif);font-size:2rem;font-weight:600;margin-bottom:12px}
+.success-screen p{color:var(--muted);max-width:500px;margin:0 auto;font-size:.95rem;line-height:1.6}
+.success-screen .next-steps{margin-top:32px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.success-screen .next-steps h3{font-size:.9rem;font-weight:600;margin-bottom:12px;color:var(--gold)}
+.success-screen .next-steps li{font-size:.85rem;color:var(--muted);padding:6px 0;list-style:none;display:flex;gap:8px}
+.success-screen .next-steps li::before{content:'→';color:var(--gold)}
+
+/* Footer */
+footer{position:relative;z-index:1;padding:32px 24px;text-align:center;color:var(--muted);font-size:.75rem;
+  border-top:1px solid rgba(212,168,83,.1)}
+footer a{color:var(--gold);text-decoration:none}
+
+@media(max-width:600px){
+  .fr{grid-template-columns:1fr}
+  .check-group{grid-template-columns:1fr}
+  .tier-cards{grid-template-columns:1fr}
+  .offer-row{grid-template-columns:1fr;gap:6px}
+  .container{padding:90px 16px 40px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-ov"></div>
+
+<nav>
+<div class="nav-in">
+  <a href="https://knightops.biz/command-center" class="nav-logo">Knight Ops — Command Center</a>
+  <div class="nav-save" id="saveStatus"><span class="dot"></span> Auto-saved</div>
+</div>
+</nav>
+
+<div class="container">
+  <div class="form-header">
+    <h1>Build Your <span class="gold-grad">Command Center</span></h1>
+    <p>Tell us about your business. Every answer shapes exactly what gets built.</p>
+  </div>
+
+  <div class="progress" id="progressBar"></div>
+  <div class="progress-labels" id="progressLabels"></div>
+
+  <form id="ccForm" autocomplete="off">
+
+  <!-- PAGE 1: THE BIG PICTURE -->
+  <div class="page active" data-page="1">
+    <div class="page-title">The Big Picture</div>
+    <div class="page-sub">Let's understand your vision and what matters most to you.</div>
+
+    <div class="fr">
+      <div class="fg"><label>First Name *</label><input type="text" name="first_name" placeholder="Your first name"></div>
+      <div class="fg"><label>Last Name *</label><input type="text" name="last_name" placeholder="Your last name"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Email *</label><input type="email" name="email" placeholder="you@company.com"></div>
+      <div class="fg"><label>Phone</label><input type="tel" name="phone" placeholder="(555) 123-4567"></div>
+    </div>
+    <div class="fg"><label>Company *</label><input type="text" name="company" placeholder="Your company name"></div>
+
+    <div class="fg">
+      <label>What is the ONE core outcome you want your Command Center to achieve? *</label>
+      <div class="hint">e.g., "Never miss a follow-up," "See my whole business in one place," "Automate client onboarding"</div>
+      <textarea name="core_outcome" placeholder="Describe the single most important thing your Command Center should do for you..."></textarea>
+    </div>
+
+    <div class="fg">
+      <label>If you could check ONE screen each morning and know exactly what to do, what would it show? *</label>
+      <textarea name="morning_screen" placeholder="Describe your ideal morning dashboard view..."></textarea>
+    </div>
+
+    <div class="fg">
+      <label>What are you spending the MOST time on that you wish was automated? *</label>
+      <textarea name="automate_wish" placeholder="What tasks eat up your time that a system could handle..."></textarea>
+    </div>
+  </div>
+
+  <!-- PAGE 2: CURRENT TOOLS -->
+  <div class="page" data-page="2">
+    <div class="page-title">Your Current Tools</div>
+    <div class="page-sub">We'll integrate with what you already use — no ripping anything out.</div>
+
+    <div class="fr">
+      <div class="fg"><label>CRM / Contact Management *</label>
+        <select name="crm" >
+          <option value="" disabled selected>Select your CRM</option>
+          <option value="ghl">Go High Level</option>
+          <option value="hubspot">HubSpot</option>
+          <option value="salesforce">Salesforce</option>
+          <option value="keap">Keap</option>
+          <option value="spreadsheet">Spreadsheet</option>
+          <option value="none">None</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Email Provider *</label>
+        <select name="email_provider" >
+          <option value="" disabled selected>Select email</option>
+          <option value="gmail">Gmail</option>
+          <option value="google_workspace">Google Workspace</option>
+          <option value="outlook">Outlook / Microsoft 365</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label>Calendar / Scheduling</label>
+        <select name="calendar">
+          <option value="" selected>Select calendar</option>
+          <option value="google_calendar">Google Calendar</option>
+          <option value="calendly">Calendly</option>
+          <option value="acuity">Acuity</option>
+          <option value="ghl_calendar">GHL Calendar</option>
+          <option value="outlook_calendar">Outlook Calendar</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Project Management</label>
+        <select name="project_mgmt">
+          <option value="" selected>Select tool</option>
+          <option value="asana">Asana</option>
+          <option value="monday">Monday.com</option>
+          <option value="notion">Notion</option>
+          <option value="clickup">ClickUp</option>
+          <option value="trello">Trello</option>
+          <option value="none">None</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label>Social Media Tools</label>
+        <select name="social_tools">
+          <option value="" selected>Select tool</option>
+          <option value="manual">Manual posting</option>
+          <option value="buffer">Buffer</option>
+          <option value="later">Later</option>
+          <option value="hootsuite">Hootsuite</option>
+          <option value="ghl_social">GHL Social</option>
+          <option value="metricool">Metricool</option>
+          <option value="none">None</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Payments</label>
+        <select name="payments">
+          <option value="" selected>Select</option>
+          <option value="stripe">Stripe</option>
+          <option value="paypal">PayPal</option>
+          <option value="square">Square</option>
+          <option value="ghl_payments">GHL Payments</option>
+          <option value="other">Other</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label>Ads Platforms</label>
+        <select name="ads_platforms">
+          <option value="" selected>Select</option>
+          <option value="meta">Meta (Facebook/Instagram)</option>
+          <option value="google_ads">Google Ads</option>
+          <option value="tiktok">TikTok Ads</option>
+          <option value="linkedin">LinkedIn Ads</option>
+          <option value="youtube">YouTube Ads</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+      <div class="fg"><label>Meeting Recording</label>
+        <select name="meeting_recorder">
+          <option value="" selected>Select</option>
+          <option value="fathom">Fathom</option>
+          <option value="fireflies">Fireflies</option>
+          <option value="otter">Otter.ai</option>
+          <option value="zoom_only">Zoom recordings only</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg"><label>Course / Community Platform</label>
+      <select name="course_platform">
+        <option value="" selected>Select</option>
+        <option value="skool">Skool</option>
+        <option value="kajabi">Kajabi</option>
+        <option value="teachable">Teachable</option>
+        <option value="circle">Circle</option>
+        <option value="mighty_networks">Mighty Networks</option>
+        <option value="none">None</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label>Any other tools you use daily?</label>
+      <input type="text" name="other_tools" placeholder="e.g., Slack, WhatsApp, Notion, custom tools...">
+    </div>
+  </div>
+
+  <!-- PAGE 3: YOUR BUSINESS -->
+  <div class="page" data-page="3">
+    <div class="page-title">Your Business</div>
+    <div class="page-sub">Help us understand your offers, revenue, and growth model.</div>
+
+    <div class="fg">
+      <label>Your Current Offers *</label>
+      <div class="hint">List each offer with name, price, and delivery method</div>
+      <div class="offer-rows" id="offerRows">
+        <div class="offer-row">
+          <input type="text" placeholder="Offer name" class="offer-name">
+          <input type="text" placeholder="Price" class="offer-price">
+          <input type="text" placeholder="Delivery" class="offer-delivery">
+          <button type="button" class="remove-btn" onclick="removeOffer(this)">×</button>
+        </div>
+      </div>
+      <button type="button" class="add-offer" onclick="addOffer()">+ Add Another Offer</button>
+    </div>
+
+    <div class="fg">
+      <label>How does a client progress through your offers?</label>
+      <div class="hint">Your ascension model — how clients naturally upgrade</div>
+      <textarea name="ascension_model" placeholder="e.g., They start with the course, upgrade to group coaching, then 1:1..."></textarea>
+    </div>
+
+    <div class="fg">
+      <label>How are you currently getting clients? *</label>
+      <div class="check-group" id="acquisitionGroup">
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="referrals"><span class="check-box"></span>Referrals</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="social_organic"><span class="check-box"></span>Social Media (Organic)</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="paid_ads"><span class="check-box"></span>Paid Ads</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="speaking_events"><span class="check-box"></span>Speaking / Events</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cold_outreach"><span class="check-box"></span>Cold Outreach</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="seo_content"><span class="check-box"></span>SEO / Content</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="partnerships"><span class="check-box"></span>Partnerships</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="community"><span class="check-box"></span>Community</label>
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg"><label>Active Clients *</label>
+        <input type="number" name="active_clients" placeholder="How many?" min="0">
+      </div>
+      <div class="fg"><label>Monthly Revenue *</label>
+        <select name="monthly_revenue" >
+          <option value="" disabled selected>Select range</option>
+          <option value="under_10k">Under $10K</option>
+          <option value="10k_50k">$10K - $50K</option>
+          <option value="50k_100k">$50K - $100K</option>
+          <option value="100k_250k">$100K - $250K</option>
+          <option value="250k_500k">$250K - $500K</option>
+          <option value="500k_1m">$500K - $1M</option>
+          <option value="1m_plus">$1M+</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: TEAM & ACCESS -->
+  <div class="page" data-page="4">
+    <div class="page-title">Team & Access</div>
+    <div class="page-sub">Who needs to use your Command Center?</div>
+
+    <div class="fg">
+      <label>How many people need access? *</label>
+      <div class="check-group" id="teamSizeGroup">
+        <label class="check-item" onclick="selectRadio(this,'teamSize')"><input type="radio" name="team_size_r" value="just_me"><span class="radio-dot"></span>Just me</label>
+        <label class="check-item" onclick="selectRadio(this,'teamSize')"><input type="radio" name="team_size_r" value="2_3"><span class="radio-dot"></span>2-3 people</label>
+        <label class="check-item" onclick="selectRadio(this,'teamSize')"><input type="radio" name="team_size_r" value="4_10"><span class="radio-dot"></span>4-10 people</label>
+        <label class="check-item" onclick="selectRadio(this,'teamSize')"><input type="radio" name="team_size_r" value="10_plus"><span class="radio-dot"></span>10+ people</label>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>What roles need access?</label>
+      <div class="check-group" id="rolesGroup">
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="owner_ceo"><span class="check-box"></span>Owner / CEO</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="ops_manager"><span class="check-box"></span>Operations Manager</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sales_bdr"><span class="check-box"></span>Sales / BDR</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="marketing"><span class="check-box"></span>Marketing</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="client_success"><span class="check-box"></span>Client Success</label>
+        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="va_admin"><span class="check-box"></span>VA / Admin</label>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Do you want clients to have their own portal?</label>
+      <div class="check-group" id="portalGroup">
+        <label class="check-item" onclick="selectRadio(this,'portal')"><input type="radio" name="portal_r" value="yes"><span class="radio-dot"></span>Yes — clients should see their progress</label>
+        <label class="check-item" onclick="selectRadio(this,'portal')"><input type="radio" name="portal_r" value="no"><span class="radio-dot"></span>No — internal team only</label>
+        <label class="check-item" onclick="selectRadio(this,'portal')"><input type="radio" name="portal_r" value="maybe_later"><span class="radio-dot"></span>Maybe later</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: FEATURES & TIER -->
+  <div class="page" data-page="5">
+    <div class="page-title">Features & Tier</div>
+    <div class="page-sub">Rank what matters most and choose your Command Center level.</div>
+
+    <div class="fg">
+      <label>Rank these features (drag or use arrows — 1 = must have Day 1)</label>
+      <div class="rank-list" id="rankList">
+        <div class="rank-item" data-feature="kpi_dashboard"><span class="rank-num">1</span>KPI Dashboard (revenue, leads, clients)<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="calendar"><span class="rank-num">2</span>Calendar + Meeting Management<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="email_triage"><span class="rank-num">3</span>Email Triage + AI Responses<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="pipeline"><span class="rank-num">4</span>Deal / Pipeline Tracking<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="task_mgmt"><span class="rank-num">5</span>Task Management + Assignments<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="ai_recs"><span class="rank-num">6</span>AI-Powered Recommendations<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="social_media"><span class="rank-num">7</span>Social Media Scheduling<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="client_portal"><span class="rank-num">8</span>Client Progress Portal<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="ad_tracking"><span class="rank-num">9</span>Ad Performance Tracking<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="outreach"><span class="rank-num">10</span>Automated Outreach Sequences<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="transcription"><span class="rank-num">11</span>Meeting Transcription + Action Items<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="financial"><span class="rank-num">12</span>Financial Reporting<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+        <div class="rank-item" data-feature="mobile_app"><span class="rank-num">13</span>Mobile App Access<span class="rank-arrows"><button type="button" onclick="moveRank(this,-1)">▲</button><button type="button" onclick="moveRank(this,1)">▼</button></span></div>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-top:32px">
+      <label>Choose Your Command Center Tier *</label>
+      <div class="tier-cards" id="tierCards">
+        <div class="tier-card" onclick="selectTier(this,'cc_brain')">
+          <div class="tc-name">AI Brain</div>
+          <div class="tc-price">$10,000</div>
+          <div class="tc-desc">Cowork artifact + Supabase backend + integrations + AI</div>
+        </div>
+        <div class="tier-card" onclick="selectTier(this,'cc_brain_dashboard')">
+          <div class="tc-name">Brain + Dashboard</div>
+          <div class="tc-price">$17,500</div>
+          <div class="tc-desc">+ Custom web dashboard with team access</div>
+        </div>
+        <div class="tier-card" onclick="selectTier(this,'cc_full_suite')">
+          <div class="tc-name">Full Suite</div>
+          <div class="tc-price">$25,000</div>
+          <div class="tc-desc">+ iOS & Android App Store deployment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 6: BRAND -->
+  <div class="page" data-page="6">
+    <div class="page-title">Brand & Preferences</div>
+    <div class="page-sub">Tell us about your brand so we can make your Command Center feel like yours.</div>
+
+    <div class="fr">
+      <div class="fg">
+        <label>Primary Brand Color</label>
+        <div class="color-row">
+          <input type="text" name="primary_color" placeholder="#2B6B5F or 'deep teal'" id="pColorText">
+          <div class="color-preview" id="pColorPrev" style="background:#D4A853" onclick="document.getElementById('pColorPick').click()"></div>
+          <input type="color" id="pColorPick" class="color-input-hidden" value="#D4A853" onchange="document.getElementById('pColorText').value=this.value;this.previousElementSibling.style.background=this.value">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Secondary / Accent Color</label>
+        <div class="color-row">
+          <input type="text" name="secondary_color" placeholder="#00D4FF or 'cyan'" id="sColorText">
+          <div class="color-preview" id="sColorPrev" style="background:#00D4FF" onclick="document.getElementById('sColorPick').click()"></div>
+          <input type="color" id="sColorPick" class="color-input-hidden" value="#00D4FF" onchange="document.getElementById('sColorText').value=this.value;this.previousElementSibling.style.background=this.value">
+        </div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Dark mode or Light mode?</label>
+      <div class="check-group" id="modeGroup">
+        <label class="check-item" onclick="selectRadio(this,'mode')"><input type="radio" name="mode_r" value="dark"><span class="radio-dot"></span>Dark Mode</label>
+        <label class="check-item" onclick="selectRadio(this,'mode')"><input type="radio" name="mode_r" value="light"><span class="radio-dot"></span>Light Mode</label>
+        <label class="check-item" onclick="selectRadio(this,'mode')"><input type="radio" name="mode_r" value="both"><span class="radio-dot"></span>Both (Toggle)</label>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Font Preference</label>
+      <input type="text" name="font_preference" placeholder="e.g., Inter, Poppins, system default...">
+    </div>
+
+    <div class="fg">
+      <label>Anything else we should know?</label>
+      <textarea name="additional_notes" placeholder="Special requirements, integrations, design preferences, timeline urgency..."></textarea>
+    </div>
+  </div>
+
+  </form>
+
+  <div class="form-nav" id="formNav">
+    <button type="button" class="btn-back" id="backBtn" onclick="goPage(-1)" style="visibility:hidden">← Back</button>
+    <div style="font-size:.8rem;color:var(--muted)" id="pageIndicator">Page 1 of 6</div>
+    <button type="button" class="btn-next" id="nextBtn" onclick="goPage(1)">Next →</button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="chk">✓</div>
+    <h2>Your Command Center Is <span class="gold-grad">Queued for Build</span></h2>
+    <p>We've received your intake and Daniel will review it within 24 hours. You'll receive an email confirmation shortly with next steps.</p>
+    <div class="next-steps">
+      <h3>What Happens Next</h3>
+      <ul>
+        <li>Daniel reviews your intake and confirms scope</li>
+        <li>You'll receive your build timeline and Supabase project details</li>
+        <li>MVP Command Center deployed within 24-48 hours</li>
+        <li>Phase 2 features built based on your priority ranking</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://knightops.biz/">Knight Ops</a> — AI-Powered Business Operations &nbsp;|&nbsp;
+  <a href="https://knightops.biz/command-center">Command Center</a> &nbsp;|&nbsp;
+  <a href="https://knightops.biz/book">Book a Call</a>
+</footer>
+
+<script>
+const SB_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1MTk2NDksImV4cCI6MjA1NjA5NTY0OX0.vRCxMM3aEiFa8DXJpVMUbgSYJBCo-ajRkhHCHXJkm2Q';
+
+const PAGES=6;
+let currentPage=1;
+let draftToken=null;
+let formData={};
+let selectedTier='';
+let saveTimeout=null;
+
+// Init
+(function init(){
+  const params=new URLSearchParams(location.search);
+  draftToken=params.get('draft');
+  if(!draftToken){
+    draftToken=crypto.randomUUID();
+    history.replaceState(null,'',`?draft=${draftToken}`);
+  }
+  renderProgress();
+  loadDraft();
+})();
+
+// Progress bar
+function renderProgress(){
+  const bar=document.getElementById('progressBar');
+  const labels=document.getElementById('progressLabels');
+  const names=['Vision','Tools','Business','Team','Features','Brand'];
+  bar.innerHTML='';labels.innerHTML='';
+  for(let i=1;i<=PAGES;i++){
+    const s=document.createElement('div');
+    s.className='progress-step'+(i<currentPage?' done':'')+(i===currentPage?' active':'');
+    bar.appendChild(s);
+    const l=document.createElement('span');
+    l.textContent=names[i-1];
+    if(i===currentPage)l.className='active';
+    labels.appendChild(l);
+  }
+  document.getElementById('pageIndicator').textContent=`Page ${currentPage} of ${PAGES}`;
+  document.getElementById('backBtn').style.visibility=currentPage===1?'hidden':'visible';
+  document.getElementById('nextBtn').textContent=currentPage===PAGES?'Submit Intake →':'Next →';
+}
+
+// Page nav
+function goPage(dir){
+  if(dir===1&&currentPage===PAGES){submitForm();return}
+  if(dir===1){
+    // Validate fields on current page
+    const page=document.querySelector(`.page[data-page="${currentPage}"]`);
+// Validation removed — users can skip fields
+// let valid=true;
+// validation disabled
+// if(!valid)return;
+  }
+  document.querySelector('.page.active').classList.remove('active');
+  currentPage+=dir;
+  document.querySelector(`.page[data-page="${currentPage}"]`).classList.add('active');
+  renderProgress();
+  saveDraft();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Check/Radio toggles
+function toggleCheck(el){
+  el.classList.toggle('selected');
+  el.querySelector('input').checked=el.classList.contains('selected');
+  scheduleSave();
+}
+function selectRadio(el,group){
+  el.closest('.check-group').querySelectorAll('.check-item').forEach(i=>i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked=true;
+  scheduleSave();
+}
+
+// Tier selection
+function selectTier(el,tier){
+  document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTier=tier;
+  scheduleSave();
+}
+
+// Rank movement
+function moveRank(btn,dir){
+  const item=btn.closest('.rank-item');
+  const list=item.parentElement;
+  const items=[...list.children];
+  const idx=items.indexOf(item);
+  if(idx+dir<0||idx+dir>=items.length)return;
+  if(dir===-1)list.insertBefore(item,items[idx-1]);
+  else list.insertBefore(items[idx+1],item);
+  list.querySelectorAll('.rank-num').forEach((n,i)=>n.textContent=i+1);
+  scheduleSave();
+}
+
+// Offers
+function addOffer(){
+  const row=document.createElement('div');
+  row.className='offer-row';
+  row.innerHTML='<input type="text" placeholder="Offer name" class="offer-name"><input type="text" placeholder="Price" class="offer-price"><input type="text" placeholder="Delivery" class="offer-delivery"><button type="button" class="remove-btn" onclick="removeOffer(this)">×</button>';
+  document.getElementById('offerRows').appendChild(row);
+}
+function removeOffer(btn){
+  const rows=document.querySelectorAll('.offer-row');
+  if(rows.length>1)btn.closest('.offer-row').remove();
+}
+
+// Collect form data
+function collectData(){
+  const d={};
+  // Simple fields
+  document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="url"],input[type="number"],select,textarea').forEach(f=>{
+    if(f.name)d[f.name]=f.value;
+  });
+  // Offers
+  const offers=[];
+  document.querySelectorAll('.offer-row').forEach(r=>{
+    const n=r.querySelector('.offer-name').value;
+    const p=r.querySelector('.offer-price').value;
+    const del=r.querySelector('.offer-delivery').value;
+    if(n)offers.push({name:n,price:p,delivery:del});
+  });
+  d.offers_json=offers;
+  // Client acquisition
+  const acq=[];
+  document.querySelectorAll('#acquisitionGroup .check-item.selected input').forEach(i=>acq.push(i.value));
+  d.client_acquisition=acq;
+  // Team roles
+  const roles=[];
+  document.querySelectorAll('#rolesGroup .check-item.selected input').forEach(i=>roles.push(i.value));
+  d.team_roles=roles;
+  // Team size
+  const ts=document.querySelector('#teamSizeGroup .check-item.selected input');
+  d.team_size=ts?ts.value:'';
+  // Portal
+  const pt=document.querySelector('#portalGroup .check-item.selected input');
+  d.wants_client_portal=pt?pt.value:'maybe_later';
+  // Mode
+  const md=document.querySelector('#modeGroup .check-item.selected input');
+  d.dark_or_light=md?md.value:'dark';
+  // Feature priorities
+  const fp={};
+  document.querySelectorAll('#rankList .rank-item').forEach((r,i)=>{fp[r.dataset.feature]=i+1});
+  d.feature_priorities_json=fp;
+  // Tier
+  d.tier_selected=selectedTier||'cc_brain';
+  d.draft_token=draftToken;
+  d.current_page=currentPage;
+  return d;
+}
+
+// Auto-save
+function scheduleSave(){
+  clearTimeout(saveTimeout);
+  saveTimeout=setTimeout(saveDraft,2000);
+}
+document.querySelectorAll('input,select,textarea').forEach(f=>{
+  f.addEventListener('input',scheduleSave);
+  f.addEventListener('change',scheduleSave);
+});
+
+async function saveDraft(){
+  const d=collectData();
+  const status=document.getElementById('saveStatus');
+  status.innerHTML='<span class="dot" style="background:var(--gold)"></span> Saving...';
+  try{
+    // Upsert by draft_token
+    const resp=await fetch(`${SB_URL}/rest/v1/cc_intake_submissions?draft_token=eq.${draftToken}`,{
+      method:'GET',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}
+    });
+    const existing=await resp.json();
+    const body={
+      draft_token:draftToken,current_page:currentPage,status:'draft',
+      first_name:d.first_name,last_name:d.last_name,email:d.email,phone:d.phone,company:d.company,
+      core_outcome:d.core_outcome,morning_screen:d.morning_screen,automate_wish:d.automate_wish,
+      crm:d.crm,email_provider:d.email_provider,calendar:d.calendar,project_mgmt:d.project_mgmt,
+      social_tools:d.social_tools,payments:d.payments,ads_platforms:d.ads_platforms,
+      meeting_recorder:d.meeting_recorder,course_platform:d.course_platform,other_tools:d.other_tools,
+      offers_json:d.offers_json,ascension_model:d.ascension_model,
+      client_acquisition:d.client_acquisition,active_clients:d.active_clients?parseInt(d.active_clients):null,
+      monthly_revenue:d.monthly_revenue,team_size:d.team_size,team_roles:d.team_roles,
+      wants_client_portal:d.wants_client_portal,feature_priorities_json:d.feature_priorities_json,
+      tier_selected:d.tier_selected,primary_color:d.primary_color,secondary_color:d.secondary_color,
+      dark_or_light:d.dark_or_light,font_preference:d.font_preference,additional_notes:d.additional_notes,
+      updated_at:new Date().toISOString()
+    };
+    if(existing&&existing.length>0){
+      await fetch(`${SB_URL}/rest/v1/cc_intake_submissions?draft_token=eq.${draftToken}`,{
+        method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(body)
+      });
+    }else{
+      await fetch(`${SB_URL}/rest/v1/cc_intake_submissions`,{
+        method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(body)
+      });
+    }
+    status.innerHTML='<span class="dot"></span> Auto-saved';
+  }catch(e){
+    status.innerHTML='<span class="dot" style="background:var(--red)"></span> Save failed';
+  }
+}
+
+async function loadDraft(){
+  try{
+    const resp=await fetch(`${SB_URL}/rest/v1/cc_intake_submissions?draft_token=eq.${draftToken}&select=*`,{
+      headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}
+    });
+    const rows=await resp.json();
+    if(!rows||!rows.length)return;
+    const d=rows[0];
+    if(d.status!=='draft')return; // Don't load submitted forms
+
+    // Restore simple fields
+    const fields=['first_name','last_name','email','phone','company','core_outcome','morning_screen','automate_wish',
+      'crm','email_provider','calendar','project_mgmt','social_tools','payments','ads_platforms','meeting_recorder',
+      'course_platform','other_tools','ascension_model','monthly_revenue','primary_color','secondary_color',
+      'font_preference','additional_notes'];
+    fields.forEach(f=>{const el=document.querySelector(`[name="${f}"]`);if(el&&d[f])el.value=d[f]});
+
+    if(d.active_clients!=null){const el=document.querySelector('[name="active_clients"]');if(el)el.value=d.active_clients}
+
+    // Offers
+    if(d.offers_json&&d.offers_json.length){
+      const container=document.getElementById('offerRows');
+      container.innerHTML='';
+      d.offers_json.forEach(o=>{
+        const row=document.createElement('div');row.className='offer-row';
+        row.innerHTML=`<input type="text" placeholder="Offer name" class="offer-name" value="${o.name||''}"><input type="text" placeholder="Price" class="offer-price" value="${o.price||''}"><input type="text" placeholder="Delivery" class="offer-delivery" value="${o.delivery||''}"><button type="button" class="remove-btn" onclick="removeOffer(this)">×</button>`;
+        container.appendChild(row);
+      });
+    }
+
+    // Checkboxes
+    if(d.client_acquisition)d.client_acquisition.forEach(v=>{
+      const el=document.querySelector(`#acquisitionGroup input[value="${v}"]`);
+      if(el){el.checked=true;el.closest('.check-item').classList.add('selected')}
+    });
+    if(d.team_roles)d.team_roles.forEach(v=>{
+      const el=document.querySelector(`#rolesGroup input[value="${v}"]`);
+      if(el){el.checked=true;el.closest('.check-item').classList.add('selected')}
+    });
+
+    // Radios
+    if(d.team_size){const el=document.querySelector(`#teamSizeGroup input[value="${d.team_size}"]`);if(el){el.checked=true;el.closest('.check-item').classList.add('selected')}}
+    if(d.wants_client_portal){const el=document.querySelector(`#portalGroup input[value="${d.wants_client_portal}"]`);if(el){el.checked=true;el.closest('.check-item').classList.add('selected')}}
+    if(d.dark_or_light){const el=document.querySelector(`#modeGroup input[value="${d.dark_or_light}"]`);if(el){el.checked=true;el.closest('.check-item').classList.add('selected')}}
+
+    // Tier
+    if(d.tier_selected){selectedTier=d.tier_selected;
+      document.querySelectorAll('.tier-card').forEach(c=>{
+        if(c.onclick.toString().includes(d.tier_selected))c.classList.add('selected');
+      });
+    }
+
+    // Feature priorities — reorder
+    if(d.feature_priorities_json&&Object.keys(d.feature_priorities_json).length){
+      const list=document.getElementById('rankList');
+      const items=[...list.children];
+      items.sort((a,b)=>(d.feature_priorities_json[a.dataset.feature]||99)-(d.feature_priorities_json[b.dataset.feature]||99));
+      items.forEach((item,i)=>{list.appendChild(item);item.querySelector('.rank-num').textContent=i+1});
+    }
+
+    // Navigate to saved page
+    if(d.current_page&&d.current_page>1){
+      document.querySelector('.page.active').classList.remove('active');
+      currentPage=d.current_page;
+      document.querySelector(`.page[data-page="${currentPage}"]`).classList.add('active');
+      renderProgress();
+    }
+  }catch(e){console.log('No draft to load')}
+}
+
+async function submitForm(){
+  const d=collectData();
+  const btn=document.getElementById('nextBtn');
+  btn.disabled=true;btn.textContent='Submitting...';
+
+  try{
+    await fetch(`${SB_URL}/rest/v1/cc_intake_submissions?draft_token=eq.${draftToken}`,{
+      method:'PATCH',
+      headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        status:'submitted',submitted_at:new Date().toISOString(),
+        first_name:d.first_name,last_name:d.last_name,email:d.email,phone:d.phone,company:d.company,
+        core_outcome:d.core_outcome,morning_screen:d.morning_screen,automate_wish:d.automate_wish,
+        crm:d.crm,email_provider:d.email_provider,calendar:d.calendar,project_mgmt:d.project_mgmt,
+        social_tools:d.social_tools,payments:d.payments,ads_platforms:d.ads_platforms,
+        meeting_recorder:d.meeting_recorder,course_platform:d.course_platform,other_tools:d.other_tools,
+        offers_json:d.offers_json,ascension_model:d.ascension_model,
+        client_acquisition:d.client_acquisition,active_clients:d.active_clients?parseInt(d.active_clients):null,
+        monthly_revenue:d.monthly_revenue,team_size:d.team_size,team_roles:d.team_roles,
+        wants_client_portal:d.wants_client_portal,feature_priorities_json:d.feature_priorities_json,
+        tier_selected:d.tier_selected||'cc_brain',primary_color:d.primary_color,secondary_color:d.secondary_color,
+        dark_or_light:d.dark_or_light||'dark',font_preference:d.font_preference,additional_notes:d.additional_notes,
+        updated_at:new Date().toISOString()
+      })
+    });
+
+    // Show success
+    document.getElementById('ccForm').style.display='none';
+    document.getElementById('formNav').style.display='none';
+    document.querySelector('.progress').style.display='none';
+    document.getElementById('progressLabels').style.display='none';
+    document.getElementById('successScreen').style.display='block';
+  }catch(e){
+    btn.disabled=false;btn.textContent='Submit Intake →';
+    alert('Submission failed. Please try again.');
+  }
+}
+
+// Starfield
+(function(){
+  const c=document.getElementById('bgCanvas'),x=c.getContext('2d');
+  let w,h,stars=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;init()}
+  function init(){stars=[];for(let i=0;i<80;i++)stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.3,a:Math.random(),d:Math.random()*.002+.001})}
+  function draw(){x.clearRect(0,0,w,h);stars.forEach(s=>{s.a+=s.d;if(s.a>1)s.d=-Math.abs(s.d);if(s.a<0)s.d=Math.abs(s.d);x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);x.fillStyle=`rgba(212,168,83,${s.a*.25})`;x.fill()});requestAnimationFrame(draw)}
+  resize();window.addEventListener('resize',resize);draw()
+})();
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>

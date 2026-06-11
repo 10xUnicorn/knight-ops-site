@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal | Knight Ops</title>
+<style>
+:root{--accent:#C8A456;--accent-glow:rgba(200,164,86,0.3);--bg:#0A0A0B;--surface:#111113;--surface-2:#1A1A1F;--surface-3:#222228;--text:#F5F5F5;--text-muted:#999;--border:rgba(200,164,86,0.15);--border-subtle:rgba(255,255,255,0.06);--error:#E53935;--success:#4CAF50;--warning:#FF9800;--info:#2196F3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between}
+.topnav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.topnav-logo .shield{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),#A08636);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--bg);font-weight:800}
+.topnav-logo span{font-size:1rem;font-weight:700;color:var(--text);letter-spacing:1px}
+.topnav-links{display:flex;gap:0;align-items:center}
+.topnav-link{padding:8px 16px;color:var(--text-muted);font-size:0.85rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;text-decoration:none}
+.topnav-link:hover{color:var(--text)}
+.topnav-link.active{color:var(--accent);border-bottom-color:var(--accent)}
+.topnav-right{display:flex;align-items:center;gap:12px}
+.topnav-right .user-name{font-size:0.85rem;color:var(--text-muted)}
+.topnav-right button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem}
+.topnav-right button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LAYOUT ── */
+.page{padding:80px 2rem 3rem;max-width:1100px;margin:0 auto}
+.page-title{font-size:1.6rem;font-weight:800;margin-bottom:0.5rem}
+.page-sub{color:var(--text-muted);font-size:0.95rem;margin-bottom:2rem}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-size:1rem;font-weight:600}
+.card-body{padding:1.25rem}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem;margin-bottom:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center}
+.kpi .val{font-size:1.6rem;font-weight:800;color:var(--accent)}
+.kpi .lbl{font-size:0.8rem;color:var(--text-muted);margin-top:4px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.badge-success{background:rgba(76,175,80,0.1);color:var(--success);border:1px solid rgba(76,175,80,0.2)}
+.badge-warning{background:rgba(255,152,0,0.1);color:var(--warning);border:1px solid rgba(255,152,0,0.2)}
+.badge-error{background:rgba(229,57,53,0.1);color:var(--error);border:1px solid rgba(229,57,53,0.2)}
+.badge-info{background:rgba(33,150,243,0.1);color:var(--info);border:1px solid rgba(33,150,243,0.2)}
+.badge-gold{background:rgba(200,164,86,0.1);color:var(--accent);border:1px solid rgba(200,164,86,0.2)}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg)}
+.btn-primary:hover{box-shadow:0 0 20px var(--accent-glow)}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:0.8rem}
+.btn-success{background:rgba(76,175,80,0.15);color:var(--success);border:1px solid rgba(76,175,80,0.3)}
+.btn-success:hover{background:rgba(76,175,80,0.25)}
+
+/* ── TOGGLE ── */
+.toggle-group{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem;width:fit-content}
+.toggle-btn{padding:7px 16px;font-size:0.8rem;cursor:pointer;background:transparent;color:var(--text-muted);border:none;transition:all 0.2s}
+.toggle-btn.active{background:var(--accent);color:var(--bg);font-weight:600}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+td{padding:10px 1rem;font-size:0.9rem;border-bottom:1px solid var(--border-subtle)}
+tr.clickable{cursor:pointer;transition:background 0.2s}
+tr.clickable:hover{background:var(--surface-2)}
+
+/* ── PROGRESS ── */
+.progress-bar{background:var(--surface-3);border-radius:4px;height:8px;overflow:hidden;width:100%}
+.progress-fill{background:var(--accent);height:100%;border-radius:4px;transition:width 0.3s}
+
+/* ── PROJECT CARD ── */
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;cursor:pointer;transition:all 0.3s}
+.proj-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.proj-card h4{font-size:1rem;margin-bottom:6px}
+.proj-meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+
+/* ── APP CARD ── */
+.app-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;transition:all 0.3s}
+.app-card:hover{border-color:var(--accent)}
+.app-card h4{margin-bottom:4px}
+.app-card p{font-size:0.85rem;color:var(--text-muted);line-height:1.4;margin-bottom:0.75rem}
+
+/* ── RESOURCE CARD ── */
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;cursor:pointer;transition:all 0.3s}
+.res-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.res-card h4{margin-bottom:4px}
+.res-card .res-type{font-size:0.8rem;color:var(--text-muted);margin-bottom:8px}
+.res-card .res-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── DETAIL ── */
+.detail-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);cursor:pointer;font-size:0.9rem;margin-bottom:1rem}
+.detail-back:hover{color:var(--accent)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.info-item .info-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.info-item .info-value{font-size:0.95rem}
+.detail-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.detail-tab{padding:10px 20px;font-size:0.85rem;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.detail-tab:hover{color:var(--text)}
+.detail-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.detail-pane{display:none}
+.detail-pane.active{display:block}
+
+/* ── RICH TEXT DESC ── */
+.rich-desc{background:var(--surface-2);border-radius:10px;padding:1.25rem;font-size:0.9rem;line-height:1.6;color:var(--text-muted)}
+.rich-desc h1,.rich-desc h2,.rich-desc h3{color:var(--text);margin:0.75rem 0 0.5rem}
+.rich-desc ul,.rich-desc ol{margin:0.5rem 0 0.5rem 1.5rem}
+.rich-desc li{margin-bottom:4px}
+.rich-desc a{color:var(--accent)}
+.rich-desc img{max-width:100%;border-radius:8px;margin:0.5rem 0}
+.rich-desc p{margin-bottom:0.5rem}
+
+/* ── COMMENT ── */
+.comment-box{background:var(--surface-2);border-radius:10px;padding:1rem;margin-bottom:0.75rem}
+.comment-meta{display:flex;justify-content:space-between;margin-bottom:4px}
+.comment-meta strong{font-size:0.9rem}
+.comment-meta span{color:var(--text-muted);font-size:0.8rem}
+.comment-body{font-size:0.9rem;color:var(--text-muted)}
+
+/* ── EMPTY ── */
+.empty{padding:3rem;text-align:center;color:var(--text-muted);font-size:0.9rem}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ── ONBOARDING ── */
+.onb-banner{background:linear-gradient(135deg,rgba(200,164,86,.08),rgba(200,164,86,.02));border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:2rem}
+.onb-banner h3{font-size:1rem;font-weight:700;margin-bottom:.25rem}
+.onb-banner p{color:var(--text-muted);font-size:.85rem;margin-bottom:1rem}
+.onb-progress{display:flex;gap:6px;align-items:center;margin-bottom:.75rem}
+.onb-progress .bar{flex:1;height:6px;border-radius:3px;background:var(--surface-2)}
+.onb-progress .bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
+.onb-progress .pct{font-size:.75rem;font-weight:700;color:var(--accent);min-width:36px;text-align:right}
+.onb-steps{display:grid;gap:.5rem}
+.onb-step{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;transition:border-color .2s}
+.onb-step:hover{border-color:var(--border)}
+.onb-step .check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;transition:all .2s}
+.onb-step.done .check{background:var(--success);border-color:var(--success);color:#fff}
+.onb-step .step-info{flex:1}
+.onb-step .step-label{font-size:.85rem;font-weight:600}
+.onb-step .step-desc{font-size:.72rem;color:var(--text-muted)}
+.onb-step .step-action{font-size:.72rem;color:var(--bg);font-weight:700;background:var(--accent);padding:6px 16px;border-radius:6px;white-space:nowrap;transition:all .2s}
+.onb-step.done .step-action{background:var(--success);color:#fff;pointer-events:none}
+.onb-step:hover .step-action{filter:brightness(1.1)}
+
+/* ── WALKTHROUGH MODAL ── */
+.wt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.wt-overlay.show{opacity:1;pointer-events:all}
+.wt-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:560px;width:90%;max-height:80vh;overflow-y:auto;padding:2rem}
+.wt-modal h2{font-size:1.3rem;font-weight:800;margin-bottom:.5rem}
+.wt-modal p{color:var(--text-muted);font-size:.875rem;margin-bottom:1.25rem;line-height:1.7}
+.wt-modal .wt-step{display:flex;gap:1rem;margin-bottom:1.25rem;align-items:flex-start}
+.wt-modal .wt-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wt-modal .wt-text h4{font-size:.9rem;font-weight:700;margin-bottom:.15rem}
+.wt-modal .wt-text p{font-size:.8rem;margin-bottom:.5rem}
+.wt-modal .wt-go{display:inline-block;padding:5px 14px;background:rgba(200,164,86,.12);border:1px solid rgba(200,164,86,.3);color:var(--accent);border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none}
+.wt-modal .wt-go:hover{background:var(--accent);color:var(--bg)}
+.wt-modal .wt-close{width:100%;padding:12px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;margin-top:1rem}
+
+/* ── FILE UPLOAD ── */
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.folder-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:border-color .2s}
+.folder-card:hover{border-color:var(--accent)}
+.folder-card .folder-icon{font-size:1.5rem;margin-bottom:.5rem}
+.folder-card .folder-name{font-size:.9rem;font-weight:600;margin-bottom:.2rem}
+.folder-card .folder-count{font-size:.75rem;color:var(--text-muted)}
+.file-list-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--border-subtle)}
+.file-list-item:last-child{border-bottom:none}
+.file-list-item .file-icon{font-size:1.1rem}
+.file-list-item .file-info{flex:1}
+.file-list-item .file-name{font-size:.85rem;font-weight:500}
+.file-list-item .file-meta{font-size:.72rem;color:var(--text-muted)}
+.file-list-item .file-actions button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:.72rem}
+.file-list-item .file-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1rem}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:rgba(200,164,86,.03)}
+.upload-zone .uz-icon{font-size:2rem;margin-bottom:.5rem}
+.upload-zone .uz-text{font-size:.85rem;color:var(--text-muted)}
+.upload-zone .uz-hint{font-size:.72rem;color:var(--text-muted);margin-top:.25rem}
+
+/* ── NEW PROJECT MODAL ── */
+.bp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.bp-overlay.show{opacity:1;pointer-events:all}
+.bp-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:680px;width:95%;max-height:85vh;overflow-y:auto;padding:2rem}
+.bp-modal h2{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem}
+.bp-modal label{display:block;font-size:.8rem;font-weight:600;color:var(--text-muted);margin-bottom:4px;margin-top:1rem}
+.bp-modal input,.bp-modal textarea,.bp-modal select{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:inherit;font-size:.85rem}
+.bp-modal textarea{min-height:60px;resize:vertical}
+.bp-modal .bp-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.bp-modal .bp-actions{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end}
+.bp-modal .bp-actions button{padding:10px 24px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;border:none}
+.bp-modal .bp-save{background:var(--accent);color:var(--bg)}
+.bp-modal .bp-draft{background:var(--surface-2);color:var(--text);border:1px solid var(--border) !important}
+.bp-modal .bp-cancel{background:none;color:var(--text-muted);border:1px solid var(--border) !important}
+
+/* ── CREDENTIALS ── */
+.cred-row{display:flex;align-items:center;gap:.5rem;padding:.6rem 0;border-bottom:1px solid var(--border-subtle)}
+.cred-row:last-child{border-bottom:none}
+.cred-label{font-size:.8rem;font-weight:600;min-width:140px}
+.cred-value{flex:1;font-family:'Courier New',monospace;font-size:.8rem;background:var(--surface-2);padding:6px 10px;border-radius:6px;position:relative;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cred-value.masked{color:transparent;text-shadow:0 0 6px rgba(255,255,255,.4)}
+.cred-actions{display:flex;gap:4px}
+.cred-actions button{background:none;border:1px solid var(--border);color:var(--text-muted);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:.7rem}
+.cred-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.cred-type-badge{font-size:.65rem;padding:2px 6px;border-radius:4px;background:rgba(200,164,86,.1);color:var(--accent);border:1px solid rgba(200,164,86,.2);font-weight:600;margin-left:4px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.9rem;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── CALENDAR PICKER FIX ── */
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .topnav{padding:0 1rem}
+  .topnav-links{display:none}
+  .page{padding:75px 1rem 2rem}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .info-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="topnav">
+  <a href="/" class="topnav-logo">
+    <div class="shield">K</div>
+    <span>KNIGHT OPS</span>
+  </a>
+  <div class="topnav-links">
+    <div class="topnav-link active" data-view="overview">Overview</div>
+    <div class="topnav-link" data-view="onboarding">Onboarding</div>
+    <div class="topnav-link" data-view="projects">Projects</div>
+    <div class="topnav-link" data-view="tasks">My Tasks</div>
+    <div class="topnav-link" data-view="files">Files</div>
+    <div class="topnav-link" data-view="apps">My Apps</div>
+    <div class="topnav-link" data-view="events">Events</div>
+    <div class="topnav-link" data-view="resources">Resources</div>
+    <div class="topnav-link" data-view="account">Account</div>
+  </div>
+  <div class="topnav-right">
+    <span class="user-name" id="userName"></span>
+    <button onclick="handleLogout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="page">
+  <!-- OVERVIEW -->
+  <div class="view active" id="v-overview">
+    <h1 class="page-title" id="welcomeTitle">Welcome back</h1>
+    <p class="page-sub">Here's what's happening with your projects and apps.</p>
+    <div class="kpi-row" id="overviewKPIs"></div>
+    <div id="overviewOnboarding"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Active Projects</h3></div>
+        <div class="card-body" id="overviewProjects"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>My Tasks</h3></div>
+        <div class="card-body" id="overviewTasks"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>My Apps</h3></div>
+        <div class="card-body" id="overviewApps"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Upcoming Events</h3></div>
+        <div class="card-body" id="overviewEvents"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="view" id="v-onboarding">
+    <h1 class="page-title">Getting Started</h1>
+    <p class="page-sub">Complete each step below to get your project set up and moving. We'll guide you through everything.</p>
+    <div class="onb-banner" id="onbBanner">
+      <h3>Your Onboarding Progress</h3>
+      <p id="onbStatus">Loading...</p>
+      <div class="onb-progress"><div class="bar"><div class="bar-fill" id="onbBarFill" style="width:0%"></div></div><span class="pct" id="onbPct">0%</span></div>
+      <div class="onb-steps" id="onbSteps"></div>
+    </div>
+    <div class="card" style="margin-top:1.5rem">
+      <div class="card-head"><h3>Need Help?</h3><button class="btn btn-sm btn-primary" onclick="showWalkthrough()">View Walkthrough</button></div>
+      <div class="card-body"><p style="color:var(--text-muted);font-size:.85rem">Not sure what to do next? Click the walkthrough button above for a step-by-step guide through your portal and onboarding process.</p></div>
+    </div>
+  </div>
+
+  <!-- FILES -->
+  <div class="view" id="v-files">
+    <h1 class="page-title">Files &amp; Uploads</h1>
+    <p class="page-sub">Upload files for your projects — logos, content, wireframes, assets, and anything we need to build your app.</p>
+    <div id="folderView">
+      <div class="folder-grid" id="folderGrid"></div>
+    </div>
+    <div id="folderDetail" style="display:none">
+      <div class="detail-back" onclick="backToFolders()">&#8592; Back to Folders</div>
+      <h2 id="folderTitle" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></h2>
+      <p id="folderDesc" style="color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem"></p>
+      <div class="upload-zone" id="uploadZone">
+        <div class="uz-icon">&#128194;</div>
+        <div class="uz-text">Drag files here or <strong style="color:var(--accent)">click to upload</strong></div>
+        <div class="uz-hint">Max 50MB per file</div>
+        <input type="file" id="fileInput" multiple style="display:none">
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Files</h3><span id="fileCount" style="font-size:.8rem;color:var(--text-muted)"></span></div>
+        <div class="card-body" id="fileList"><div class="empty">No files uploaded yet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="view" id="v-projects">
+    <div id="projectsList">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:.5rem">
+        <div><h1 class="page-title" style="margin-bottom:0">My Projects</h1><p class="page-sub" style="margin-bottom:0">Track progress, milestones, and deliverables for all your builds.</p></div>
+        <button class="btn btn-primary" onclick="openBPModal()" style="background:var(--accent);color:var(--bg);border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem">+ New Project</button>
+      </div>
+      <div class="grid-2" id="projCards"></div>
+    </div>
+    <div id="projectDetail" style="display:none"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="view" id="v-tasks">
+    <div id="tasksList">
+      <h1 class="page-title">My Tasks</h1>
+      <p class="page-sub">Track and complete tasks across all your projects.</p>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem">
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setTaskFilter('mine',this)">Assigned to Me</button>
+          <button class="toggle-btn" onclick="setTaskFilter('all',this)">All Tasks</button>
+        </div>
+        <select id="taskProjectFilter" onchange="renderTasksList()" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:0.8rem">
+          <option value="">All Projects</option>
+        </select>
+      </div>
+      <div id="tasksTableWrap"></div>
+    </div>
+    <div id="taskDetail" style="display:none"></div>
+  </div>
+
+  <!-- APPS -->
+  <div class="view" id="v-apps">
+    <h1 class="page-title">My Apps</h1>
+    <p class="page-sub">Apps provisioned to your account.</p>
+    <div class="grid-3" id="myAppsGrid"></div>
+    <h2 style="font-size:1.2rem;margin:2rem 0 1rem">App Marketplace</h2>
+    <div class="grid-3" id="marketplaceGrid"></div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="view" id="v-events">
+    <h1 class="page-title">Events</h1>
+    <p class="page-sub">Workshops, masterminds, and networking opportunities.</p>
+    <div id="eventsGrid" class="grid-3"></div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="view" id="v-resources">
+    <div id="resourcesListView">
+      <h1 class="page-title">Resources</h1>
+      <p class="page-sub">Guides, templates, and tools to accelerate your growth.</p>
+      <div id="resourcesGrid" class="grid-3"></div>
+    </div>
+    <div id="resourceDetail" style="display:none"></div>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div class="view" id="v-account">
+    <h1 class="page-title">Account Settings</h1>
+    <p class="page-sub">Manage your profile and preferences.</p>
+    <div class="card" style="max-width:600px">
+      <div class="card-body" id="accountInfo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WALKTHROUGH MODAL -->
+<div class="wt-overlay" id="wtOverlay" onclick="if(event.target===this)closeWalkthrough()">
+  <div class="wt-modal">
+    <h2>Welcome to Your Portal</h2>
+    <p>Here's a quick walkthrough of how to get started and make the most of your Knight Ops client dashboard.</p>
+    <div class="wt-step"><div class="wt-num">1</div><div class="wt-text"><h4>Complete Onboarding</h4><p style="color:var(--text-muted)">Head to the Onboarding tab and complete each step. Start with the Blueprint Intake form — this gives us everything we need to architect your system.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('onboarding')">Go to Onboarding &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">2</div><div class="wt-text"><h4>Upload Your Files</h4><p style="color:var(--text-muted)">Go to the Files tab to upload logos, branding assets, wireframes, content, and any other files we need. Each folder has instructions on what to put in it.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('files')">Go to Files &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">3</div><div class="wt-text"><h4>Track Your Project</h4><p style="color:var(--text-muted)">Once we kick off your build, your Projects tab will show real-time progress, milestones, deliverables, and tasks. You can leave comments directly on any project.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('projects')">Go to Projects &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">4</div><div class="wt-text"><h4>Stay in the Loop</h4><p style="color:var(--text-muted)">Check My Tasks for action items assigned to you, Resources for guides and templates, and Events for upcoming workshops and calls.</p><a class="wt-go" onclick="closeWalkthrough();goToNav('tasks')">My Tasks &rarr;</a></div></div>
+    <div class="wt-step"><div class="wt-num">5</div><div class="wt-text"><h4>Need Help?</h4><p style="color:var(--text-muted)">You can always book a strategy call from your Account page, leave a comment on your project, or reach out to team@knightops.biz.</p><a class="wt-go" onclick="closeWalkthrough();window.open('/book','_blank')">Book a Call &rarr;</a></div></div>
+    <button class="wt-close" onclick="closeWalkthrough()">Got It — Let's Go</button>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="bp-overlay" id="bpOverlay" onclick="if(event.target===this)closeBPModal()">
+  <div class="bp-modal">
+    <h2 id="bpModalTitle">New Project — Blueprint</h2>
+    <input type="hidden" id="bpEditId" value="">
+    <div class="bp-row">
+      <div><label>What wastes the most time in your business?</label><textarea id="m_time_sink" placeholder="Manual processes, repetitive tasks..."></textarea></div>
+      <div><label>What drives the most revenue?</label><textarea id="m_revenue_driver" placeholder="Your highest-value offer or system..."></textarea></div>
+    </div>
+    <label>If you could 10x one thing, what would it be?</label>
+    <textarea id="m_ten_x" placeholder="Dream big..."></textarea>
+    <div class="bp-row">
+      <div><label>Core outcome for this build</label><textarea id="m_core_outcome" placeholder="What should this system achieve?"></textarea></div>
+      <div><label>Target users</label><input id="m_target_users" placeholder="Who will use this?"></div>
+    </div>
+    <div class="bp-row">
+      <div><label>System Type</label><select id="m_system_type"><option value="internal">Internal Tool</option><option value="commercial">Commercial Product</option><option value="both">Both</option></select></div>
+      <div><label>Platform</label><select id="m_platform"><option value="web">Web App</option><option value="mobile">Mobile App</option><option value="both">Both</option></select></div>
+    </div>
+    <div class="bp-row">
+      <div><label>Deployment</label><select id="m_deployment"><option value="web_only">Web Only</option><option value="app_stores">App Stores</option><option value="both">Both</option><option value="unsure">Unsure</option></select></div>
+      <div><label>Budget Range</label><select id="m_budget"><option value="">Select...</option><option value="under_5k">Under $5K</option><option value="5k_10k">$5K–$10K</option><option value="10k_25k">$10K–$25K</option><option value="25k_50k">$25K–$50K</option><option value="50k_100k">$50K–$100K</option><option value="100k_plus">$100K+</option></select></div>
+    </div>
+    <label>Non-negotiable features</label>
+    <textarea id="m_non_negotiables" placeholder="What absolutely must be in V1?"></textarea>
+    <label>MVP requirements</label>
+    <textarea id="m_mvp" placeholder="Minimum to launch and validate..."></textarea>
+    <div class="bp-row">
+      <div><label>Timeline</label><select id="m_timeline"><option value="">Select...</option><option value="1_3_months">1–3 months</option><option value="3_6_months">3–6 months</option><option value="6_12_months">6–12 months</option></select></div>
+      <div><label>Current tools / tech stack</label><input id="m_current_tools" placeholder="Stripe, Notion, etc."></div>
+    </div>
+    <label>Additional notes</label>
+    <textarea id="m_notes" placeholder="Anything else..."></textarea>
+    <div class="bp-actions">
+      <button class="bp-cancel" onclick="closeBPModal()">Cancel</button>
+      <button class="bp-draft" onclick="saveBPDraft()">Save Draft</button>
+      <button class="bp-save" onclick="submitBPModal()">Create Project &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+let currentUser=null;
+let clientRecord=null;
+let clientId=null;
+let profileName='';
+// Task page state
+let allTasks=[];
+let allProjects=[];
+let taskFilterMode='mine'; // 'mine' or 'all'
+
+// ── Auth Gate ──
+(async function(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='/auth';return}
+  currentUser=session.user;
+
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  let{data:client}=await sb.from('clients').select('*').eq('profile_id',currentUser.id).single();
+
+  // Auto-create client record if none exists (first portal visit)
+  if(!client){
+    const name=profile?.full_name||currentUser.email.split('@')[0];
+    const{data:newClient}=await sb.from('clients').insert({
+      profile_id:currentUser.id,
+      name:name,
+      email:currentUser.email,
+      status:'onboarding'
+    }).select().single();
+    client=newClient;
+  }
+
+  clientRecord=client;
+  clientId=client?.id;
+
+  profileName=profile?.full_name||currentUser.email.split('@')[0];
+  document.getElementById('userName').textContent=profileName;
+  document.getElementById('welcomeTitle').textContent=`Welcome back, ${profileName.split(' ')[0]}`;
+
+  setupNav();
+  loadOverview();
+})();
+
+async function handleLogout(){
+  await sb.auth.signOut();
+  window.location.href='/auth';
+}
+
+// ── Navigation ──
+function setupNav(){
+  document.querySelectorAll('.topnav-link').forEach(link=>{
+    link.addEventListener('click',()=>{
+      document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
+      link.classList.add('active');
+      const v=link.dataset.view;
+      document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+      document.getElementById('v-'+v).classList.add('active');
+      // Reset sub-views
+      if(document.getElementById('projectsList'))document.getElementById('projectsList').style.display='';
+      if(document.getElementById('projectDetail'))document.getElementById('projectDetail').style.display='none';
+      if(document.getElementById('tasksList'))document.getElementById('tasksList').style.display='';
+      if(document.getElementById('taskDetail'))document.getElementById('taskDetail').style.display='none';
+      if(document.getElementById('resourcesListView'))document.getElementById('resourcesListView').style.display='';
+      if(document.getElementById('resourceDetail'))document.getElementById('resourceDetail').style.display='none';
+      const loaders={overview:loadOverview,onboarding:loadOnboarding,projects:loadProjects,tasks:loadTasks,files:loadFiles,apps:loadApps,events:loadEvents,resources:loadResources,account:loadAccount};
+      if(loaders[v])loaders[v]();
+    });
+  });
+}
+
+// ── Utilities ──
+function fmt$(n){return n?'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:0}):'$0'}
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function statusBadge(s){
+  const map={active:'success',inactive:'error',onboarding:'info',paused:'warning',
+    discovery:'info',scoping:'info',in_progress:'warning',review:'info',revision:'warning',deployed:'success',completed:'success',cancelled:'error',
+    pending:'warning',partial:'info',paid:'success',overdue:'error',done:'success',
+    upcoming:'info',granted:'success',revoked:'error',trial:'warning',expired:'error',
+    invited:'info',attending:'success',declined:'error',maybe:'warning',todo:'info'};
+  return`<span class="badge badge-${map[s]||'gold'}">${s?s.replace(/_/g,' '):'—'}</span>`;
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),3000)}
+function stripHTML(html){const d=document.createElement('div');d.innerHTML=html;return d.textContent||d.innerText||''}
+
+async function calcProjectProgress(projectId){
+  const{count:total}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId);
+  const{count:done}=await sb.from('tasks').select('*',{count:'exact',head:true}).eq('project_id',projectId).eq('status','done');
+  return total?Math.round((done||0)/total*100):0;
+}
+
+// ── Overview ──
+async function loadOverview(){
+  if(!clientId){
+    document.getElementById('overviewKPIs').innerHTML='';
+    document.getElementById('overviewProjects').innerHTML='<div class="empty">No client account linked yet. Contact support.</div>';
+    document.getElementById('overviewTasks').innerHTML='<div class="empty">No tasks yet.</div>';
+    document.getElementById('overviewApps').innerHTML='<div class="empty">No apps yet.</div>';
+    document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events.</div>';
+    return;
+  }
+
+  const[{data:projects},{data:apps},{data:events},{data:myTasks}]=await Promise.all([
+    sb.from('projects').select('id,name,status,tier,start_date,due_date').eq('client_id',clientId).order('created_at',{ascending:false}),
+    sb.from('client_apps').select('*,app_library(name,tagline,primary_button_url,primary_button_text)').eq('client_id',clientId),
+    sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId),
+    sb.from('tasks').select('id,title,status,due_date,project_id').eq('assigned_to',currentUser.id).neq('status','done').order('due_date').limit(5)
+  ]);
+
+  const activeProjs=(projects||[]).filter(p=>!['deployed','completed','cancelled','paused'].includes(p.status));
+  let progressMap={};
+  for(const p of (projects||[])){progressMap[p.id]=await calcProjectProgress(p.id)}
+
+  const myTaskCount=(myTasks||[]).length;
+  document.getElementById('overviewKPIs').innerHTML=`
+    <div class="kpi"><div class="val">${(projects||[]).length}</div><div class="lbl">Total Projects</div></div>
+    <div class="kpi"><div class="val">${activeProjs.length}</div><div class="lbl">Active Builds</div></div>
+    <div class="kpi"><div class="val">${myTaskCount}</div><div class="lbl">Open Tasks</div></div>
+    <div class="kpi"><div class="val">${(apps||[]).length}</div><div class="lbl">Apps</div></div>
+  `;
+
+  // Onboarding mini-banner on overview
+  renderOverviewOnboarding();
+
+  // Projects
+  if(activeProjs.length){
+    let h='';
+    activeProjs.slice(0,3).forEach(p=>{
+      const pct=progressMap[p.id]||0;
+      h+=`<div style="padding:10px 0;border-bottom:1px solid var(--border-subtle);cursor:pointer" onclick="switchToProjectDetail('${p.id}')">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${p.name}</strong>${statusBadge(p.status)}</div>
+        <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:0.8rem;color:var(--text-muted)"><span>${pct}% complete</span><span>Due ${fmtDate(p.due_date)}</span></div>
+      </div>`;
+    });
+    document.getElementById('overviewProjects').innerHTML=h;
+  } else {
+    document.getElementById('overviewProjects').innerHTML='<div class="empty">No active projects</div>';
+  }
+
+  // My Tasks
+  if(myTasks&&myTasks.length){
+    let h='';
+    myTasks.forEach(t=>{
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="switchToTaskDetail('${t.id}')">
+        <span>${t.title}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${statusBadge(t.status)}
+          <span style="font-size:0.8rem;color:var(--text-muted)">${fmtDate(t.due_date)}</span>
+        </div>
+      </div>`;
+    });
+    document.getElementById('overviewTasks').innerHTML=h;
+  } else {
+    document.getElementById('overviewTasks').innerHTML='<div class="empty">All caught up!</div>';
+  }
+
+  // Apps
+  if((apps||[]).length){
+    let h='';
+    apps.forEach(a=>{
+      const app=a.app_library||{};
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
+        <span>${app.name||'—'}</span>${statusBadge(a.status)}
+      </div>`;
+    });
+    document.getElementById('overviewApps').innerHTML=h;
+  } else {
+    document.getElementById('overviewApps').innerHTML='<div class="empty">No apps provisioned</div>';
+  }
+
+  // Events
+  const upcoming=(events||[]).filter(e=>e.events&&new Date(e.events.start_time)>=new Date());
+  if(upcoming.length){
+    let h='';
+    upcoming.slice(0,3).forEach(e=>{
+      const ev=e.events;
+      h+=`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
+        <span>${ev.title}</span><span style="font-size:0.8rem;color:var(--text-muted)">${fmtDate(ev.start_time)}</span>
+      </div>`;
+    });
+    document.getElementById('overviewEvents').innerHTML=h;
+  } else {
+    document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events</div>';
+  }
+}
+
+function switchToView(view){
+  document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
+  const link=document.querySelector(`[data-view="${view}"]`);
+  if(link)link.classList.add('active');
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('v-'+view).classList.add('active');
+}
+
+function switchToProjectDetail(id){
+  switchToView('projects');
+  openProjectDetail(id);
+}
+
+function switchToTaskDetail(id){
+  switchToView('tasks');
+  openTaskDetail(id);
+}
+
+// ══════════════════════════════════
+// ── PROJECTS ──
+// ══════════════════════════════════
+async function loadProjects(){
+  if(!clientId){document.getElementById('projCards').innerHTML='<div class="empty">No projects found</div>';return}
+  const{data}=await sb.from('projects').select('id,name,status,tier,start_date,due_date,contract_value').eq('client_id',clientId).order('created_at',{ascending:false});
+  if(!data||!data.length){document.getElementById('projCards').innerHTML='<div class="empty">No projects yet</div>';return}
+
+  let h='';
+  for(const p of data){
+    const pct=await calcProjectProgress(p.id);
+    h+=`<div class="proj-card" onclick="openProjectDetail('${p.id}')">
+      <h4>${p.name}</h4>
+      <div class="proj-meta">${statusBadge(p.status)} <span class="badge badge-gold">${(p.tier||'').replace(/_/g,' ')}</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.8rem;color:var(--text-muted)">
+        <span>${pct}%</span><span>Due ${fmtDate(p.due_date)}</span>
+      </div>
+    </div>`;
+  }
+  document.getElementById('projCards').innerHTML=h;
+  document.getElementById('projectsList').style.display='';
+  document.getElementById('projectDetail').style.display='none';
+}
+
+async function openProjectDetail(id){
+  const{data:project}=await sb.from('projects').select('*').eq('id',id).single();
+  if(!project)return;
+  const[{data:tasks},{data:milestones},{data:files},{data:comments},{data:creds}]=await Promise.all([
+    sb.from('tasks').select('*').eq('project_id',id).order('sort_order'),
+    sb.from('project_milestones').select('*').eq('project_id',id).order('sort_order'),
+    sb.from('project_files').select('*').eq('project_id',id).order('created_at',{ascending:false}),
+    sb.from('comments').select('*').eq('project_id',id).order('created_at',{ascending:false}),
+    sb.from('project_credentials').select('*').eq('project_id',id).order('created_at')
+  ]);
+
+  document.getElementById('projectsList').style.display='none';
+  const d=document.getElementById('projectDetail');d.style.display='block';
+  const pct=await calcProjectProgress(id);
+
+  let taskRows='';
+  (tasks||[]).forEach(t=>{
+    const isDone=t.status==='done';
+    taskRows+=`<tr class="clickable" onclick="switchToTaskDetail('${t.id}')">
+      <td>${t.title}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${fmtDate(t.due_date)}</td>
+      <td>${t.assigned_name||'—'}</td>
+      <td>${isDone?'<span class="badge badge-success">Done</span>':`<button class="btn btn-sm btn-success" onclick="event.stopPropagation();completeTask('${t.id}','${id}')">Complete</button>`}</td>
+    </tr>`;
+  });
+
+  let msRows='';
+  (milestones||[]).forEach(m=>{
+    msRows+=`<tr><td>${m.title}</td><td>${statusBadge(m.status)}</td><td>${fmtDate(m.due_date)}</td></tr>`;
+  });
+
+  let fileRows='';
+  (files||[]).forEach(f=>{
+    fileRows+=`<tr><td>${f.file_name}</td><td>${fmtDate(f.created_at)}</td><td><a href="${f.file_url}" target="_blank" class="btn btn-sm btn-secondary">Download</a></td></tr>`;
+  });
+
+  let commentHTML='';
+  (comments||[]).forEach(c=>{
+    commentHTML+=`<div class="comment-box">
+      <div class="comment-meta"><strong>${c.user_name||'Team'}</strong><span>${fmtDate(c.created_at)}</span></div>
+      <div class="comment-body">${c.content}</div>
+    </div>`;
+  });
+
+  // Credentials / API Keys
+  let credRows='';
+  (creds||[]).forEach(c=>{
+    credRows+=`<div class="cred-row">
+      <div class="cred-label">${c.credential_label}<span class="cred-type-badge">${c.credential_type}</span></div>
+      <div class="cred-value ${c.is_secret?'masked':''}" id="cv-${c.id}">${c.credential_value||'—'}</div>
+      <div class="cred-actions">
+        <button onclick="toggleCredVis('${c.id}')" title="Show/Hide">${c.is_secret?'&#128065;':'&#128274;'}</button>
+        <button onclick="copyCred('${c.id}')" title="Copy">&#128203;</button>
+        <button onclick="deleteCred('${c.id}','${id}')" title="Delete" style="color:var(--error)">&#10005;</button>
+      </div>
+    </div>`;
+  });
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="loadProjects()">&#8592; Back to Projects</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700;margin:0">${project.name}</h2>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-sm btn-secondary" onclick="editProjectModal('${id}')" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.75rem">Edit</button>
+        <button class="btn btn-sm btn-secondary" onclick="duplicateProject('${id}')" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.75rem">Duplicate</button>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Tier</div><div class="info-value"><span class="badge badge-gold">${(project.tier||'').replace(/_/g,' ')}</span></div></div>
+      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(project.status)}</div></div>
+      <div class="info-item"><div class="info-label">Progress</div><div class="info-value"><div class="progress-bar" style="width:120px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:${pct}%"></div></div> ${pct}%</div></div>
+      <div class="info-item"><div class="info-label">Start</div><div class="info-value">${fmtDate(project.start_date)}</div></div>
+      <div class="info-item"><div class="info-label">Deadline</div><div class="info-value">${fmtDate(project.due_date)}</div></div>
+      <div class="info-item"><div class="info-label">Payment</div><div class="info-value">${statusBadge(project.payment_status)}</div></div>
+    </div>
+    ${project.description?`<div class="rich-desc" style="white-space:pre-line;font-size:.85rem;color:var(--text-muted);margin:1rem 0;padding:1rem;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px">${project.description}</div>`:''}
+    <div class="detail-tabs">
+      <div class="detail-tab active" onclick="switchTab(this)">Tasks (${(tasks||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Milestones (${(milestones||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Files (${(files||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">API Keys (${(creds||[]).length})</div>
+      <div class="detail-tab" onclick="switchTab(this)">Comments (${(comments||[]).length})</div>
+    </div>
+    <div class="detail-pane active">
+      ${taskRows?`<table><thead><tr><th>Task</th><th>Status</th><th>Due</th><th>Assigned</th><th></th></tr></thead><tbody>${taskRows}</tbody></table>`:'<div class="empty">No tasks yet</div>'}
+    </div>
+    <div class="detail-pane">
+      ${msRows?`<table><thead><tr><th>Milestone</th><th>Status</th><th>Due</th></tr></thead><tbody>${msRows}</tbody></table>`:'<div class="empty">No milestones yet</div>'}
+    </div>
+    <div class="detail-pane">
+      <div style="margin-bottom:1rem">
+        <div class="upload-zone" onclick="document.getElementById('projFileInput').click()" style="padding:1rem">
+          <div class="uz-text" style="font-size:.8rem">&#128194; Drop files or <strong style="color:var(--accent)">click to upload</strong> project files</div>
+          <input type="file" id="projFileInput" multiple style="display:none" onchange="uploadProjectFile(this.files,'${id}')">
+        </div>
+      </div>
+      ${fileRows?`<table><thead><tr><th>File</th><th>Uploaded</th><th></th></tr></thead><tbody>${fileRows}</tbody></table>`:'<div class="empty">No files shared yet</div>'}
+    </div>
+    <div class="detail-pane">
+      <div style="margin-bottom:1.25rem;padding:1rem;background:var(--surface-2);border-radius:10px;border:1px solid var(--border-subtle)">
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:.75rem">Add API Key / Credential</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
+          <select id="credType" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem">
+            <option value="stripe_secret">Stripe Secret Key</option>
+            <option value="stripe_publishable">Stripe Publishable Key</option>
+            <option value="supabase_url">Supabase URL</option>
+            <option value="supabase_anon">Supabase Anon Key</option>
+            <option value="supabase_service">Supabase Service Role Key</option>
+            <option value="openai">OpenAI API Key</option>
+            <option value="anthropic">Anthropic API Key</option>
+            <option value="google_oauth">Google OAuth Client ID</option>
+            <option value="google_secret">Google OAuth Secret</option>
+            <option value="firebase">Firebase Config</option>
+            <option value="aws_access">AWS Access Key ID</option>
+            <option value="aws_secret">AWS Secret Access Key</option>
+            <option value="twilio_sid">Twilio Account SID</option>
+            <option value="twilio_token">Twilio Auth Token</option>
+            <option value="sendgrid">SendGrid API Key</option>
+            <option value="resend">Resend API Key</option>
+            <option value="vercel_token">Vercel Token</option>
+            <option value="github_token">GitHub Token</option>
+            <option value="domain_registrar">Domain Registrar</option>
+            <option value="smtp_host">SMTP Host</option>
+            <option value="smtp_user">SMTP Username</option>
+            <option value="smtp_pass">SMTP Password</option>
+            <option value="database_url">Database URL</option>
+            <option value="webhook_secret">Webhook Secret</option>
+            <option value="custom">Custom</option>
+          </select>
+          <input id="credLabel" placeholder="Label (e.g. Production Stripe Key)" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem">
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <input id="credValue" placeholder="Paste key or value here..." style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.8rem;font-family:monospace">
+          <label style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;white-space:nowrap"><input type="checkbox" id="credSecret" checked> Secret</label>
+          <button onclick="addCredential('${id}')" style="background:var(--accent);color:var(--bg);border:none;padding:8px 18px;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap">Add Key</button>
+        </div>
+      </div>
+      ${credRows||'<div class="empty" style="margin-top:.5rem">No API keys or credentials stored yet.</div>'}
+    </div>
+    <div class="detail-pane">
+      <div style="margin-bottom:1rem">
+        <textarea id="projComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+        <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postComment('${id}',null)">Post Comment</button>
+      </div>
+      ${commentHTML||'<div class="empty">No comments yet</div>'}
+    </div>
+  `;
+}
+
+function switchTab(el){
+  const tabs=el.parentElement;
+  tabs.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const idx=Array.from(tabs.children).indexOf(el);
+  const panes=tabs.parentElement.querySelectorAll('.detail-pane');
+  panes.forEach(p=>p.classList.remove('active'));
+  if(panes[idx])panes[idx].classList.add('active');
+}
+
+async function postComment(projectId,taskId){
+  const elId=taskId?'taskComment':'projComment';
+  const el=document.getElementById(elId);
+  const content=el.value.trim();if(!content)return;
+  const{error}=await sb.from('comments').insert({
+    project_id:projectId||null,
+    task_id:taskId||null,
+    user_id:currentUser.id,
+    user_name:profileName,
+    content
+  });
+  if(error){toast('Failed to post comment: '+error.message);return}
+  toast('Comment posted');
+  if(taskId){openTaskDetail(taskId)}
+  else if(projectId){openProjectDetail(projectId)}
+}
+
+async function completeTask(taskId,contextId){
+  const{error}=await sb.from('tasks').update({status:'done'}).eq('id',taskId);
+  if(error){toast('Error: '+error.message);return}
+  toast('Task completed!');
+  // Refresh whichever view we're in
+  if(contextId){openProjectDetail(contextId)}
+  else{loadTasks()}
+}
+
+// ══════════════════════════════════
+// ── TASKS PAGE ──
+// ══════════════════════════════════
+async function loadTasks(){
+  if(!clientId){document.getElementById('tasksTableWrap').innerHTML='<div class="empty">No tasks found</div>';return}
+
+  // Get all projects for this client
+  const{data:projects}=await sb.from('projects').select('id,name').eq('client_id',clientId);
+  allProjects=projects||[];
+  const projectIds=allProjects.map(p=>p.id);
+
+  // Populate project filter dropdown
+  const sel=document.getElementById('taskProjectFilter');
+  sel.innerHTML='<option value="">All Projects</option>';
+  allProjects.forEach(p=>{sel.innerHTML+=`<option value="${p.id}">${p.name}</option>`});
+
+  if(!projectIds.length){document.getElementById('tasksTableWrap').innerHTML='<div class="empty">No projects found</div>';return}
+
+  // Get all tasks for those projects
+  const{data:tasks}=await sb.from('tasks').select('*').in('project_id',projectIds).order('due_date');
+  allTasks=tasks||[];
+  renderTasksList();
+}
+
+function setTaskFilter(mode,btn){
+  taskFilterMode=mode;
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasksList();
+}
+
+function renderTasksList(){
+  const projFilter=document.getElementById('taskProjectFilter').value;
+  let filtered=allTasks;
+
+  if(taskFilterMode==='mine'){
+    filtered=filtered.filter(t=>t.assigned_to===currentUser.id);
+  }
+  if(projFilter){
+    filtered=filtered.filter(t=>t.project_id===projFilter);
+  }
+
+  if(!filtered.length){
+    document.getElementById('tasksTableWrap').innerHTML=`<div class="empty">${taskFilterMode==='mine'?'No tasks assigned to you':'No tasks found'}</div>`;
+    return;
+  }
+
+  // Group by project
+  const projMap={};
+  allProjects.forEach(p=>projMap[p.id]=p.name);
+
+  let h='<div class="card"><table><thead><tr><th>Task</th><th>Project</th><th>Status</th><th>Due</th><th>Assigned</th><th></th></tr></thead><tbody>';
+  filtered.forEach(t=>{
+    const isDone=t.status==='done';
+    h+=`<tr class="clickable" onclick="openTaskDetail('${t.id}')">
+      <td><strong>${t.title}</strong></td>
+      <td style="font-size:0.85rem;color:var(--text-muted)">${projMap[t.project_id]||'—'}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${fmtDate(t.due_date)}</td>
+      <td>${t.assigned_name||'—'}</td>
+      <td>${isDone?'<span class="badge badge-success">Done</span>':`<button class="btn btn-sm btn-success" onclick="event.stopPropagation();completeTask('${t.id}',null)">Complete</button>`}</td>
+    </tr>`;
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('tasksTableWrap').innerHTML=h;
+}
+
+async function openTaskDetail(id){
+  const{data:task}=await sb.from('tasks').select('*').eq('id',id).single();
+  if(!task)return;
+
+  // Get project name
+  let projName='—';
+  if(task.project_id){
+    const{data:proj}=await sb.from('projects').select('name').eq('id',task.project_id).single();
+    if(proj)projName=proj.name;
+  }
+
+  // Get comments for this task
+  const{data:comments}=await sb.from('comments').select('*').eq('task_id',id).order('created_at',{ascending:false});
+
+  document.getElementById('tasksList').style.display='none';
+  const d=document.getElementById('taskDetail');d.style.display='block';
+
+  const isDone=task.status==='done';
+  let commentHTML='';
+  (comments||[]).forEach(c=>{
+    commentHTML+=`<div class="comment-box">
+      <div class="comment-meta"><strong>${c.user_name||'Team'}</strong><span>${fmtDate(c.created_at)}</span></div>
+      <div class="comment-body">${c.content}</div>
+    </div>`;
+  });
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="backToTasks()">&#8592; Back to Tasks</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700">${task.title}</h2>
+      ${isDone?'<span class="badge badge-success" style="font-size:0.9rem;padding:6px 16px">Completed</span>':`<button class="btn btn-success" onclick="completeTaskFromDetail('${id}')">Mark Complete</button>`}
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Project</div><div class="info-value" style="cursor:pointer;color:var(--accent)" onclick="switchToProjectDetail('${task.project_id}')">${projName}</div></div>
+      <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(task.status)}</div></div>
+      <div class="info-item"><div class="info-label">Priority</div><div class="info-value">${statusBadge(task.priority||'normal')}</div></div>
+      <div class="info-item"><div class="info-label">Due Date</div><div class="info-value">${fmtDate(task.due_date)}</div></div>
+      <div class="info-item"><div class="info-label">Assigned To</div><div class="info-value">${task.assigned_name||'Unassigned'}</div></div>
+    </div>
+    ${task.description?`<div class="rich-desc" style="margin-bottom:1.5rem">${task.description}</div>`:''}
+    <h3 style="font-size:1rem;margin-bottom:1rem">Comments (${(comments||[]).length})</h3>
+    <div style="margin-bottom:1rem">
+      <textarea id="taskComment" placeholder="Leave a comment..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+      <button class="btn btn-sm btn-primary" style="margin-top:6px" onclick="postComment('${task.project_id}','${id}')">Post Comment</button>
+    </div>
+    ${commentHTML||'<div class="empty">No comments yet</div>'}
+  `;
+}
+
+async function completeTaskFromDetail(id){
+  const{error}=await sb.from('tasks').update({status:'done'}).eq('id',id);
+  if(error){toast('Error: '+error.message);return}
+  toast('Task completed!');
+  openTaskDetail(id);
+}
+
+function backToTasks(){
+  document.getElementById('taskDetail').style.display='none';
+  document.getElementById('tasksList').style.display='';
+  loadTasks();
+}
+
+// ══════════════════════════════════
+// ── APPS ──
+// ══════════════════════════════════
+async function loadApps(){
+  if(clientId){
+    const{data:myApps}=await sb.from('client_apps').select('*,app_library(*)').eq('client_id',clientId);
+    if(myApps&&myApps.length){
+      let h='';
+      myApps.forEach(a=>{
+        const app=a.app_library||{};
+        h+=`<div class="app-card">
+          <div style="display:flex;justify-content:space-between;align-items:start"><h4>${app.name||'—'}</h4>${statusBadge(a.status)}</div>
+          <p>${app.tagline||''}</p>
+          ${app.primary_button_url?`<a href="${app.primary_button_url}" target="_blank" class="btn btn-sm btn-primary">${app.primary_button_text||'Launch App'}</a>`:''}
+        </div>`;
+      });
+      document.getElementById('myAppsGrid').innerHTML=h;
+    } else {
+      document.getElementById('myAppsGrid').innerHTML='<div class="empty">No apps provisioned to your account yet.</div>';
+    }
+  }
+
+  const{data:allApps}=await sb.from('app_library').select('*').eq('is_active',true).eq('show_on_marketplace',true).order('created_at');
+  if(allApps&&allApps.length){
+    let h='';
+    allApps.forEach(a=>{
+      h+=`<div class="app-card">
+        <div style="display:flex;justify-content:space-between;align-items:start"><h4>${a.name}</h4>
+          <div style="display:flex;gap:4px">${a.is_featured?'<span class="badge badge-gold">Featured</span>':''}${a.is_popular?'<span class="badge badge-success">Popular</span>':''}</div>
+        </div>
+        <p>${a.tagline||a.description||''}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="color:var(--accent)">${a.price_label||'Free'}</strong>
+          ${a.primary_button_url?`<a href="${a.primary_button_url}" target="_blank" class="btn btn-sm btn-secondary">${a.primary_button_text||'Learn More'}</a>`:''}
+        </div>
+      </div>`;
+    });
+    document.getElementById('marketplaceGrid').innerHTML=h;
+  }
+}
+
+// ══════════════════════════════════
+// ── EVENTS ──
+// ══════════════════════════════════
+async function loadEvents(){
+  const{data:allEvents}=await sb.from('events').select('*').eq('is_public',true).order('start_time');
+  let myEventIds={};
+  if(clientId){
+    const{data:mine}=await sb.from('client_events').select('event_id,rsvp_status').eq('client_id',clientId);
+    myEventIds=(mine||[]).reduce((acc,e)=>{acc[e.event_id]=e.rsvp_status;return acc},{});
+  }
+
+  if(!allEvents||!allEvents.length){document.getElementById('eventsGrid').innerHTML='<div class="empty">No upcoming events</div>';return}
+  let h='';
+  allEvents.forEach(e=>{
+    const rsvp=myEventIds[e.id];
+    const priceStr=e.price?fmt$(e.price):'Free';
+    h+=`<div class="app-card">
+      <div style="display:flex;justify-content:space-between;align-items:start"><h4>${e.title}</h4>${statusBadge(e.event_type)}</div>
+      <p>${e.description||''}</p>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
+        ${fmtDate(e.start_time)} ${e.location?'&bull; '+e.location:'&bull; Virtual'}
+        ${e.price?` &bull; <strong style="color:var(--accent)">${priceStr}</strong>`:''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${rsvp?statusBadge(rsvp):`<button class="btn btn-sm btn-primary" onclick="rsvpEvent('${e.id}')">RSVP</button>`}
+        ${e.website_url?`<a href="${e.website_url}" target="_blank" class="btn btn-sm btn-secondary">Website</a>`:''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('eventsGrid').innerHTML=h;
+}
+
+async function rsvpEvent(eventId){
+  if(!clientId){toast('No client account linked');return}
+  const{error}=await sb.from('client_events').insert({client_id:clientId,event_id:eventId,rsvp_status:'attending'});
+  if(error){toast('RSVP failed');return}
+  toast('RSVP confirmed!');
+  loadEvents();
+}
+
+// ══════════════════════════════════
+// ── RESOURCES ──
+// ══════════════════════════════════
+async function loadResources(){
+  // Get resources: global (no client_id) + client-specific + project-specific
+  let projectIds=[];
+  if(clientId){
+    const{data:clientProjects}=await sb.from('projects').select('id').eq('client_id',clientId);
+    projectIds=(clientProjects||[]).map(p=>p.id);
+  }
+
+  // Build query to get global resources + client resources + project resources
+  let query=sb.from('resources').select('*').order('created_at',{ascending:false});
+
+  // Global resources (client_id IS NULL) + client-specific + project-specific
+  let orParts=['client_id.is.null'];
+  if(clientId)orParts.push(`client_id.eq.${clientId}`);
+  if(projectIds.length)orParts.push(`project_id.in.(${projectIds.join(',')})`);
+  query=query.or(orParts.join(','));
+
+  const{data}=await query;
+
+  if(!data||!data.length){
+    document.getElementById('resourcesGrid').innerHTML='<div class="empty">No resources available</div>';
+    return;
+  }
+
+  let h='';
+  data.forEach(r=>{
+    const typeLabel=(r.type||'general').replace(/_/g,' ');
+    const descPreview=r.description?stripHTML(r.description).substring(0,120)+'...':'No description';
+    h+=`<div class="res-card" onclick="openResourceDetail('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+        <h4>${r.title}</h4>
+        <span class="badge badge-info">${typeLabel}</span>
+      </div>
+      <div class="res-desc">${descPreview}</div>
+    </div>`;
+  });
+  document.getElementById('resourcesGrid').innerHTML=h;
+  document.getElementById('resourcesListView').style.display='';
+  document.getElementById('resourceDetail').style.display='none';
+}
+
+async function openResourceDetail(id){
+  const{data:resource}=await sb.from('resources').select('*').eq('id',id).single();
+  if(!resource)return;
+
+  document.getElementById('resourcesListView').style.display='none';
+  const d=document.getElementById('resourceDetail');d.style.display='block';
+
+  const typeLabel=(resource.type||'general').replace(/_/g,' ');
+
+  // Build file download section
+  let fileSection='';
+  if(resource.type==='file'&&resource.file_url){
+    fileSection=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.file_url}" target="_blank" class="btn btn-primary" download>Download File</a>
+    </div>`;
+  } else if(resource.type==='url'&&resource.url){
+    fileSection=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.url}" target="_blank" class="btn btn-primary">Open Link</a>
+    </div>`;
+  }
+
+  // If there's a file_url regardless of type
+  if(resource.file_url&&resource.type!=='file'){
+    fileSection+=`<div style="margin-bottom:1.5rem">
+      <a href="${resource.file_url}" target="_blank" class="btn btn-secondary">Download Attachment</a>
+    </div>`;
+  }
+
+  d.innerHTML=`
+    <div class="detail-back" onclick="backToResources()">&#8592; Back to Resources</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem">
+      <h2 style="font-size:1.4rem;font-weight:700">${resource.title}</h2>
+      <span class="badge badge-info" style="font-size:0.85rem;padding:5px 14px">${typeLabel}</span>
+    </div>
+    ${fileSection}
+    ${resource.description?`<div class="rich-desc">${resource.description}</div>`:'<div class="empty">No description provided</div>'}
+    <div style="margin-top:1.5rem;font-size:0.8rem;color:var(--text-muted)">Added ${fmtDate(resource.created_at)}</div>
+  `;
+}
+
+function backToResources(){
+  document.getElementById('resourceDetail').style.display='none';
+  document.getElementById('resourcesListView').style.display='';
+}
+
+// ══════════════════════════════════
+// ── ACCOUNT ──
+// ══════════════════════════════════
+async function loadAccount(){
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  document.getElementById('accountInfo').innerHTML=`
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Full Name</div>
+      <div style="font-size:1rem">${profile?.full_name||'—'}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Email</div>
+      <div style="font-size:1rem">${profile?.email||currentUser.email}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Phone</div>
+      <div style="font-size:1rem">${profile?.phone||'—'}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Membership Tier</div>
+      <div>${clientRecord?`<span class="badge badge-gold">${(clientRecord.tier||'').replace(/_/g,' ')}</span>`:'—'}</div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">Client Since</div>
+      <div style="font-size:1rem">${clientRecord?fmtDate(clientRecord.created_at):'—'}</div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
+      <a href="/book" class="btn btn-primary">Book a Strategy Call</a>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════
+// ── ONBOARDING ──
+// ══════════════════════════════════
+const DEFAULT_ONBOARDING_STEPS=[
+  {step_key:'walkthrough',step_label:'View the Portal Walkthrough',sort_order:1,desc:'Get familiar with your dashboard and what each section does.'},
+  {step_key:'blueprint_form',step_label:'Complete the Blueprint Intake Form',sort_order:2,desc:'Submit the detailed requirements form so we can architect your system.'},
+  {step_key:'upload_logo',step_label:'Upload Your Logo & Brand Assets',sort_order:3,desc:'Add your logo, color palette, fonts, or brand guidelines to the Branding folder.'},
+  {step_key:'upload_content',step_label:'Upload Content & Copy',sort_order:4,desc:'Add any text, copy, or content for your app to the Content folder.'},
+  {step_key:'upload_wireframes',step_label:'Upload Wireframes or Inspiration',sort_order:5,desc:'Drop in screenshots, mockups, or links to apps you like in the Wireframes folder.'},
+  {step_key:'review_project',step_label:'Review Your Project Details',sort_order:6,desc:'Once your project is created, review the scope, milestones, and timeline.'},
+  {step_key:'book_call',step_label:'Book Your Kickoff Call',sort_order:7,desc:'Schedule a call to align on the build plan and ask any remaining questions.'}
+];
+
+const DEFAULT_FOLDERS=[
+  {folder_key:'branding',folder_name:'Branding & Logos',description:'Upload your logo (PNG, SVG), brand colors, fonts, and any brand guidelines.',sort_order:1},
+  {folder_key:'content',folder_name:'Content & Copy',description:'App text, marketing copy, product descriptions, bio, about sections — anything text-based.',sort_order:2},
+  {folder_key:'wireframes',folder_name:'Wireframes & Inspiration',description:'Mockups, sketches, screenshots of apps you like, or rough wireframes showing layout ideas.',sort_order:3},
+  {folder_key:'documents',folder_name:'Documents & Agreements',description:'Contracts, NDAs, SOWs, and any signed agreements or legal documents.',sort_order:4},
+  {folder_key:'media',folder_name:'Photos & Media',description:'Product photos, team photos, videos, or any media assets for the app.',sort_order:5},
+  {folder_key:'other',folder_name:'Other Files',description:'Anything else that doesn\'t fit the categories above.',sort_order:6}
+];
+
+let onboardingSteps=[];
+let clientFolders=[];
+let currentFolderId=null;
+
+async function ensureOnboardingSteps(){
+  if(!clientId)return;
+  const{data:existing}=await sb.from('client_onboarding').select('*').eq('client_id',clientId).order('sort_order');
+  if(existing&&existing.length>0){onboardingSteps=existing;return;}
+  // Create default steps
+  const inserts=DEFAULT_ONBOARDING_STEPS.map(s=>({client_id:clientId,step_key:s.step_key,step_label:s.step_label,sort_order:s.sort_order}));
+  const{data}=await sb.from('client_onboarding').insert(inserts).select();
+  onboardingSteps=data||[];
+}
+
+async function ensureDefaultFolders(){
+  if(!clientId)return;
+  const{data:existing}=await sb.from('client_folders').select('*').eq('client_id',clientId).order('sort_order');
+  if(existing&&existing.length>0){clientFolders=existing;return;}
+  const inserts=DEFAULT_FOLDERS.map(f=>({client_id:clientId,folder_key:f.folder_key,folder_name:f.folder_name,description:f.description,sort_order:f.sort_order}));
+  const{data}=await sb.from('client_folders').insert(inserts).select();
+  clientFolders=data||[];
+}
+
+async function loadOnboarding(){
+  await ensureOnboardingSteps();
+  const completed=onboardingSteps.filter(s=>s.completed).length;
+  const total=onboardingSteps.length;
+  const pct=total?Math.round((completed/total)*100):0;
+
+  document.getElementById('onbPct').textContent=pct+'%';
+  document.getElementById('onbBarFill').style.width=pct+'%';
+  document.getElementById('onbStatus').textContent=pct===100?'All steps completed — you\'re all set!':completed+' of '+total+' steps completed. Keep going!';
+
+  let h='';
+  const buttonLabels={
+    walkthrough:'View Guide',
+    blueprint_form:'Fill Out Form',
+    upload_logo:'Upload Logo',
+    upload_content:'Upload Files',
+    upload_wireframes:'Upload Wireframes',
+    review_project:'View Project',
+    book_call:'Book Call'
+  };
+  for(const s of onboardingSteps){
+    const stepMeta=DEFAULT_ONBOARDING_STEPS.find(d=>d.step_key===s.step_key)||{};
+    const actionMap={
+      walkthrough:'onclick="event.stopPropagation();showWalkthrough();markOnboardingStep(\'walkthrough\')"',
+      blueprint_form:'onclick="event.stopPropagation();window.open(\'/blueprint\',\'_blank\');markOnboardingStep(\'blueprint_form\')"',
+      upload_logo:'onclick="event.stopPropagation();goToFilesTab(\'branding\')"',
+      upload_content:'onclick="event.stopPropagation();goToFilesTab(\'content\')"',
+      upload_wireframes:'onclick="event.stopPropagation();goToFilesTab(\'wireframes\')"',
+      review_project:'onclick="event.stopPropagation();goToNav(\'projects\')"',
+      book_call:'onclick="event.stopPropagation();window.open(\'/book\',\'_blank\');markOnboardingStep(\'book_call\')"'
+    };
+    const btnLabel=buttonLabels[s.step_key]||'Start';
+    h+=`<div class="onb-step${s.completed?' done':''}">
+      <div class="check">${s.completed?'&#10003;':''}</div>
+      <div class="step-info"><div class="step-label">${s.step_label}</div><div class="step-desc">${stepMeta.desc||''}</div></div>
+      <div class="step-action" ${actionMap[s.step_key]||''}>${s.completed?'&#10003; Done':btnLabel+' &rarr;'}</div>
+    </div>`;
+  }
+  document.getElementById('onbSteps').innerHTML=h;
+}
+
+async function renderOverviewOnboarding(){
+  await ensureOnboardingSteps();
+  const completed=onboardingSteps.filter(s=>s.completed).length;
+  const total=onboardingSteps.length;
+  const pct=total?Math.round((completed/total)*100):0;
+  if(pct===100){document.getElementById('overviewOnboarding').innerHTML='';return;}
+  const remaining=total-completed;
+  document.getElementById('overviewOnboarding').innerHTML=`
+    <div class="onb-banner" style="cursor:pointer" onclick="goToNav('onboarding')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h3 style="margin-bottom:2px">Complete Your Onboarding</h3><p style="margin-bottom:0">${remaining} step${remaining===1?'':'s'} remaining — click to continue setup.</p></div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--accent)">${pct}%</div>
+      </div>
+      <div class="onb-progress" style="margin-top:.75rem;margin-bottom:0"><div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div></div>
+    </div>`;
+}
+
+async function markOnboardingStep(stepKey){
+  const step=onboardingSteps.find(s=>s.step_key===stepKey);
+  if(!step||step.completed)return;
+  await sb.from('client_onboarding').update({completed:true,completed_at:new Date().toISOString()}).eq('id',step.id);
+  step.completed=true;step.completed_at=new Date().toISOString();
+}
+
+function goToNav(viewName){
+  document.querySelectorAll('.topnav-link').forEach(l=>{
+    l.classList.remove('active');
+    if(l.dataset.view===viewName)l.classList.add('active');
+  });
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('v-'+viewName).classList.add('active');
+  const loaders2={overview:loadOverview,onboarding:loadOnboarding,projects:loadProjects,tasks:loadTasks,files:loadFiles,apps:loadApps,events:loadEvents,resources:loadResources,account:loadAccount};
+  if(loaders2[viewName])loaders2[viewName]();
+}
+
+function goToFilesTab(folderKey){
+  goToNav('files');
+  setTimeout(()=>{
+    const folder=clientFolders.find(f=>f.folder_key===folderKey);
+    if(folder)openFolder(folder.id);
+  },300);
+}
+
+// ── Walkthrough ──
+function showWalkthrough(){
+  document.getElementById('wtOverlay').classList.add('show');
+  markOnboardingStep('walkthrough');
+}
+function closeWalkthrough(){
+  document.getElementById('wtOverlay').classList.remove('show');
+}
+
+// Check first visit
+(function(){
+  if(!localStorage.getItem('ko_walkthrough_seen')){
+    setTimeout(()=>{showWalkthrough();localStorage.setItem('ko_walkthrough_seen','1')},1500);
+  }
+})();
+
+// ══════════════════════════════════
+// ── FILES & FOLDERS ──
+// ══════════════════════════════════
+async function loadFiles(){
+  await ensureDefaultFolders();
+  renderFolderGrid();
+  document.getElementById('folderView').style.display='';
+  document.getElementById('folderDetail').style.display='none';
+}
+
+function renderFolderGrid(){
+  const iconMap={branding:'&#127912;',content:'&#128196;',wireframes:'&#128221;',documents:'&#128203;',media:'&#127909;',other:'&#128193;'};
+  let h='';
+  for(const f of clientFolders){
+    h+=`<div class="folder-card" onclick="openFolder('${f.id}')">
+      <div class="folder-icon">${iconMap[f.folder_key]||'&#128193;'}</div>
+      <div class="folder-name">${f.folder_name}</div>
+      <div class="folder-count" id="fc-${f.id}">Loading...</div>
+    </div>`;
+  }
+  document.getElementById('folderGrid').innerHTML=h;
+  // Load file counts
+  clientFolders.forEach(async f=>{
+    const{count}=await sb.from('client_files').select('id',{count:'exact',head:true}).eq('folder_id',f.id);
+    const el=document.getElementById('fc-'+f.id);
+    if(el)el.textContent=(count||0)+' file'+(count===1?'':'s');
+  });
+}
+
+async function openFolder(folderId){
+  currentFolderId=folderId;
+  const folder=clientFolders.find(f=>f.id===folderId);
+  if(!folder)return;
+  document.getElementById('folderView').style.display='none';
+  document.getElementById('folderDetail').style.display='';
+  document.getElementById('folderTitle').textContent=folder.folder_name;
+  document.getElementById('folderDesc').textContent=folder.description||'';
+
+  // Wire upload
+  const zone=document.getElementById('uploadZone');
+  const input=document.getElementById('fileInput');
+  zone.onclick=()=>input.click();
+  zone.ondragover=(e)=>{e.preventDefault();zone.classList.add('dragover')};
+  zone.ondragleave=()=>zone.classList.remove('dragover');
+  zone.ondrop=(e)=>{e.preventDefault();zone.classList.remove('dragover');handleFileUpload(e.dataTransfer.files)};
+  input.onchange=()=>{if(input.files.length)handleFileUpload(input.files);input.value=''};
+
+  await loadFolderFiles(folderId);
+
+  // Mark onboarding step if applicable
+  const keyMap={branding:'upload_logo',content:'upload_content',wireframes:'upload_wireframes'};
+  if(keyMap[folder.folder_key])markOnboardingStep(keyMap[folder.folder_key]);
+}
+
+function backToFolders(){
+  document.getElementById('folderView').style.display='';
+  document.getElementById('folderDetail').style.display='none';
+  renderFolderGrid();
+}
+
+async function loadFolderFiles(folderId){
+  const{data:files}=await sb.from('client_files').select('*').eq('folder_id',folderId).order('created_at',{ascending:false});
+  const el=document.getElementById('fileList');
+  const cnt=document.getElementById('fileCount');
+  cnt.textContent=(files||[]).length+' file'+((files||[]).length===1?'':'s');
+  if(!files||!files.length){el.innerHTML='<div class="empty">No files uploaded yet. Drag and drop or click above to upload.</div>';return;}
+  let h='';
+  for(const f of files){
+    const ext=(f.file_name||'').split('.').pop().toLowerCase();
+    const iconMap={pdf:'&#128196;',png:'&#128248;',jpg:'&#128248;',jpeg:'&#128248;',svg:'&#128248;',gif:'&#128248;',doc:'&#128196;',docx:'&#128196;',xls:'&#128202;',xlsx:'&#128202;',mp4:'&#127909;',mov:'&#127909;',zip:'&#128230;'};
+    const icon=iconMap[ext]||'&#128196;';
+    const size=f.file_size?(f.file_size>1048576?(f.file_size/1048576).toFixed(1)+' MB':(f.file_size/1024).toFixed(0)+' KB'):'';
+    h+=`<div class="file-list-item">
+      <div class="file-icon">${icon}</div>
+      <div class="file-info"><div class="file-name">${f.file_name}</div><div class="file-meta">${size} &middot; ${fmtDate(f.created_at)}</div></div>
+      <div class="file-actions">
+        <button onclick="downloadFile('${f.file_path}','${f.file_name}')">Download</button>
+      </div>
+    </div>`;
+  }
+  el.innerHTML=h;
+}
+
+async function handleFileUpload(fileList){
+  if(!currentFolderId||!clientId)return;
+  const folder=clientFolders.find(f=>f.id===currentFolderId);
+  const folderKey=folder?folder.folder_key:'uploads';
+
+  for(const file of fileList){
+    if(file.size>52428800){toast('File too large (max 50MB): '+file.name);continue;}
+    toast('Uploading '+file.name+'...');
+    const path=clientId+'/'+folderKey+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const{error:upErr}=await sb.storage.from('client-files').upload(path,file,{contentType:file.type,upsert:false});
+    if(upErr){toast('Upload failed: '+upErr.message);continue;}
+    await sb.from('client_files').insert({
+      client_id:clientId,
+      project_id:null,
+      folder_id:currentFolderId,
+      file_name:file.name,
+      file_path:path,
+      file_size:file.size,
+      mime_type:file.type,
+      uploaded_by:currentUser.id
+    });
+    toast('Uploaded: '+file.name);
+  }
+  await loadFolderFiles(currentFolderId);
+}
+
+async function downloadFile(path,name){
+  const{data,error}=await sb.storage.from('client-files').download(path);
+  if(error){toast('Download failed: '+error.message);return;}
+  const url=URL.createObjectURL(data);
+  const a=document.createElement('a');a.href=url;a.download=name;a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════
+// ── NEW PROJECT MODAL (Blueprint) ──
+// ══════════════════════════════════
+let bpDrafts=JSON.parse(localStorage.getItem('ko_bp_drafts')||'[]');
+let editingProjectId=null;
+
+function openBPModal(editId){
+  editingProjectId=editId||null;
+  document.getElementById('bpEditId').value=editId||'';
+  document.getElementById('bpModalTitle').textContent=editId?'Edit Project':'New Project — Blueprint';
+  // Clear fields
+  ['m_time_sink','m_revenue_driver','m_ten_x','m_core_outcome','m_target_users','m_non_negotiables','m_mvp','m_current_tools','m_notes'].forEach(id=>{document.getElementById(id).value=''});
+  ['m_system_type','m_platform','m_deployment','m_budget','m_timeline'].forEach(id=>{document.getElementById(id).selectedIndex=0});
+
+  if(editId){
+    // Load project data into form
+    sb.from('projects').select('*').eq('id',editId).single().then(({data:p})=>{
+      if(!p)return;
+      // Parse description back into fields
+      const desc=p.description||'';
+      const extract=(key)=>{const m=desc.match(new RegExp(key+': (.+?)(?:\\n|$)'));return m?m[1]:''};
+      document.getElementById('m_core_outcome').value=extract('Core Outcome');
+      document.getElementById('m_target_users').value=extract('Target Users');
+      document.getElementById('m_non_negotiables').value=extract('Must-Haves');
+      document.getElementById('m_mvp').value=extract('MVP');
+      document.getElementById('m_time_sink').value=extract('Time Sink');
+      document.getElementById('m_revenue_driver').value=extract('Revenue Driver');
+      document.getElementById('m_ten_x').value=extract('10x Vision');
+      document.getElementById('m_current_tools').value=extract('Current Tools')||'';
+      const sysMatch=extract('System Type');if(sysMatch){const sel=document.getElementById('m_system_type');for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===sysMatch)sel.selectedIndex=i}}
+      const platMatch=extract('Platform');if(platMatch){const sel=document.getElementById('m_platform');for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===platMatch)sel.selectedIndex=i}}
+    });
+  }
+
+  document.getElementById('bpOverlay').classList.add('show');
+}
+
+function closeBPModal(){
+  document.getElementById('bpOverlay').classList.remove('show');
+  editingProjectId=null;
+}
+
+function getBPFormData(){
+  return{
+    core_outcome:document.getElementById('m_core_outcome').value.trim(),
+    target_users:document.getElementById('m_target_users').value.trim(),
+    system_type:document.getElementById('m_system_type').value,
+    platform:document.getElementById('m_platform').value,
+    deployment:document.getElementById('m_deployment').value,
+    budget:document.getElementById('m_budget').value,
+    timeline:document.getElementById('m_timeline').value,
+    time_sink:document.getElementById('m_time_sink').value.trim(),
+    revenue_driver:document.getElementById('m_revenue_driver').value.trim(),
+    ten_x:document.getElementById('m_ten_x').value.trim(),
+    non_negotiables:document.getElementById('m_non_negotiables').value.trim(),
+    mvp:document.getElementById('m_mvp').value.trim(),
+    current_tools:document.getElementById('m_current_tools').value.trim(),
+    notes:document.getElementById('m_notes').value.trim()
+  };
+}
+
+function buildProjectDesc(d){
+  return[
+    d.core_outcome?'Core Outcome: '+d.core_outcome:'',
+    d.system_type?'System Type: '+d.system_type:'',
+    d.platform?'Platform: '+d.platform:'',
+    d.deployment?'Deployment: '+d.deployment:'',
+    d.non_negotiables?'Must-Haves: '+d.non_negotiables:'',
+    d.mvp?'MVP: '+d.mvp:'',
+    d.target_users?'Target Users: '+d.target_users:'',
+    d.time_sink?'Time Sink: '+d.time_sink:'',
+    d.revenue_driver?'Revenue Driver: '+d.revenue_driver:'',
+    d.ten_x?'10x Vision: '+d.ten_x:'',
+    d.current_tools?'Current Tools: '+d.current_tools:'',
+    d.notes?'Notes: '+d.notes:''
+  ].filter(Boolean).join('\n\n');
+}
+
+function saveBPDraft(){
+  const d=getBPFormData();
+  d.saved_at=new Date().toISOString();
+  d.id=Date.now().toString();
+  bpDrafts.push(d);
+  localStorage.setItem('ko_bp_drafts',JSON.stringify(bpDrafts));
+  toast('Draft saved');
+  closeBPModal();
+}
+
+async function submitBPModal(){
+  const d=getBPFormData();
+  if(!d.core_outcome){toast('Core outcome is required');return}
+  const tierMap={'under_5k':'night_launch','5k_10k':'night_build','10k_25k':'night_build','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
+  const tier=tierMap[d.budget]||'custom';
+  const desc=buildProjectDesc(d);
+
+  if(editingProjectId){
+    // Update existing
+    const{error}=await sb.from('projects').update({name:d.core_outcome.substring(0,80),description:desc,tier:tier}).eq('id',editingProjectId);
+    if(error){toast('Error: '+error.message);return}
+    toast('Project updated');
+    closeBPModal();
+    openProjectDetail(editingProjectId);
+  }else{
+    // Create new
+    const{data:newP,error}=await sb.from('projects').insert({
+      client_id:clientId,
+      name:d.core_outcome.substring(0,80),
+      description:desc,
+      tier:tier,
+      status:'discovery'
+    }).select().single();
+    if(error){toast('Error: '+error.message);return}
+    toast('Project created!');
+    closeBPModal();
+    // Mark onboarding
+    markOnboardingStep('blueprint_form');
+    if(newP)openProjectDetail(newP.id);
+    else loadProjects();
+  }
+}
+
+function editProjectModal(id){
+  openBPModal(id);
+}
+
+async function duplicateProject(id){
+  const{data:orig}=await sb.from('projects').select('*').eq('id',id).single();
+  if(!orig)return;
+  const{data:dup,error}=await sb.from('projects').insert({
+    client_id:clientId,
+    name:orig.name+' (Copy)',
+    description:orig.description,
+    tier:orig.tier,
+    status:'discovery'
+  }).select().single();
+  if(error){toast('Error: '+error.message);return}
+  toast('Project duplicated');
+  if(dup)openProjectDetail(dup.id);
+  else loadProjects();
+}
+
+// ══════════════════════════════════
+// ── CREDENTIALS / API KEYS ──
+// ══════════════════════════════════
+const CRED_TYPE_LABELS={
+  stripe_secret:'Stripe Secret',stripe_publishable:'Stripe Pub',supabase_url:'Supabase URL',supabase_anon:'Supabase Anon',supabase_service:'Supabase Service',
+  openai:'OpenAI',anthropic:'Anthropic',google_oauth:'Google OAuth',google_secret:'Google Secret',firebase:'Firebase',
+  aws_access:'AWS Access',aws_secret:'AWS Secret',twilio_sid:'Twilio SID',twilio_token:'Twilio Token',
+  sendgrid:'SendGrid',resend:'Resend',vercel_token:'Vercel',github_token:'GitHub',
+  domain_registrar:'Domain',smtp_host:'SMTP Host',smtp_user:'SMTP User',smtp_pass:'SMTP Pass',
+  database_url:'DB URL',webhook_secret:'Webhook',custom:'Custom'
+};
+
+async function addCredential(projectId){
+  const type=document.getElementById('credType').value;
+  const label=document.getElementById('credLabel').value.trim()||CRED_TYPE_LABELS[type]||type;
+  const value=document.getElementById('credValue').value.trim();
+  const secret=document.getElementById('credSecret').checked;
+  if(!value){toast('Enter a value');return}
+  const{error}=await sb.from('project_credentials').insert({
+    project_id:projectId,client_id:clientId,
+    credential_type:type,credential_label:label,
+    credential_value:value,is_secret:secret
+  });
+  if(error){toast('Error: '+error.message);return}
+  toast('Credential added');
+  openProjectDetail(projectId);
+}
+
+function toggleCredVis(credId){
+  const el=document.getElementById('cv-'+credId);
+  if(el)el.classList.toggle('masked');
+}
+
+function copyCred(credId){
+  const el=document.getElementById('cv-'+credId);
+  if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(()=>toast('Copied to clipboard'));
+}
+
+async function deleteCred(credId,projectId){
+  if(!confirm('Delete this credential?'))return;
+  await sb.from('project_credentials').delete().eq('id',credId);
+  toast('Credential deleted');
+  openProjectDetail(projectId);
+}
+
+// ══════════════════════════════════
+// ── PROJECT FILE UPLOAD ──
+// ══════════════════════════════════
+async function uploadProjectFile(fileList,projectId){
+  for(const file of fileList){
+    if(file.size>52428800){toast('File too large (max 50MB): '+file.name);continue}
+    toast('Uploading '+file.name+'...');
+    const path=clientId+'/projects/'+projectId+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const{error:upErr}=await sb.storage.from('client-files').upload(path,file,{contentType:file.type,upsert:false});
+    if(upErr){toast('Upload failed: '+upErr.message);continue}
+    // Store in client_files with project reference
+    await sb.from('client_files').insert({
+      client_id:clientId,project_id:projectId,folder_id:null,
+      file_name:file.name,file_path:path,file_size:file.size,
+      mime_type:file.type,uploaded_by:currentUser.id
+    });
+    toast('Uploaded: '+file.name);
+  }
+  openProjectDetail(projectId);
+}
+
+</script>
+</body>
+</html>

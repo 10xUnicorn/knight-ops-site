@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsubscribe — Knight Ops</title>
+<meta name="description" content="Unsubscribe from Knight Ops email communications.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://www.knightops.biz/unsubscribe">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0A0B;--surface:#111113;--surface2:#18181B;--card:#1C1C1F;
+  --border:#2A2A2E;--border-light:#3A3A3F;
+  --text:#F4F4F5;--muted:#A1A1AA;--dim:#71717A;
+  --gold:#C8A456;--gold-hover:#D4B56A;--gold-subtle:rgba(200,164,86,.1);--gold-border:rgba(200,164,86,.25);
+  --green:#22C55E;--danger:#ef4444;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:64px}
+.nav-logo{font-size:1.1rem;font-weight:900;letter-spacing:.08em;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:80px 24px}
+.card{max-width:520px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:40px 32px;text-align:center}
+.icon{width:56px;height:56px;border-radius:14px;background:var(--gold-subtle);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 18px}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:10px}
+p{color:var(--muted);font-size:.95rem;line-height:1.6;margin-bottom:20px}
+.field{margin-bottom:14px;text-align:left}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.field input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--gold)}
+.btn{width:100%;background:var(--gold);color:var(--bg);border:none;padding:14px 24px;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;margin-top:8px}
+.btn:hover{background:var(--gold-hover);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.success{display:none;color:var(--green);font-weight:600;margin-top:14px}
+.success.show{display:block}
+.error{display:none;color:var(--danger);font-weight:600;margin-top:14px}
+.error.show{display:block}
+.fine{font-size:.78rem;color:var(--dim);margin-top:24px}
+.fine a{color:var(--muted);text-decoration:underline}
+footer{padding:24px;border-top:1px solid var(--border);text-align:center;color:var(--dim);font-size:.78rem}
+footer a{color:var(--muted);margin:0 6px;text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a href="/" class="nav-logo">KNIGHT<span>OPS</span></a></div></nav>
+<main>
+  <div class="card">
+    <div class="icon">📧</div>
+    <h1>Unsubscribe from Knight Ops emails</h1>
+    <p>We're sorry to see you go. Enter your email below to be removed from all Knight Ops communications. You'll stop receiving emails within 24 hours.</p>
+    <form id="unsubForm">
+      <div class="field">
+        <label for="email">Your email</label>
+        <input type="email" id="email" required placeholder="you@company.com">
+      </div>
+      <button type="submit" class="btn" id="submitBtn">Unsubscribe Me</button>
+      <div class="success" id="success">✓ Done. You've been unsubscribed. Sorry to see you go.</div>
+      <div class="error" id="error">Something went wrong. Email <a style="color:var(--gold)" href="mailto:daniel@knightops.biz">daniel@knightops.biz</a> and we'll handle it manually.</div>
+    </form>
+    <p class="fine">If this was a mistake, just email <a href="mailto:daniel@knightops.biz">daniel@knightops.biz</a> and we'll re-subscribe you. Or visit <a href="/">knightops.biz</a> to learn more.</p>
+  </div>
+</main>
+<footer>
+  &copy; 2026 Knight Ops · <a href="/">Home</a> · <a href="/about">About</a> · <a href="/audit">AI Audit</a>
+</footer>
+<script>
+// Pre-fill email from URL ?email=... if present
+const params = new URLSearchParams(window.location.search);
+const emailParam = params.get('email');
+if (emailParam) document.getElementById('email').value = decodeURIComponent(emailParam);
+
+const SB_URL = 'https://trpnlkntvulkjerevngm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+
+document.getElementById('unsubForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const btn = document.getElementById('submitBtn');
+  const success = document.getElementById('success');
+  const error = document.getElementById('error');
+  if (!email || !email.includes('@')) return;
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  success.classList.remove('show'); error.classList.remove('show');
+
+  try {
+    // Pause all active drip_queue rows for this email
+    const r1 = await fetch(SB_URL + '/rest/v1/drip_queue?email=eq.' + encodeURIComponent(email) + '&status=eq.active', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ status: 'unsubscribed', updated_at: new Date().toISOString() })
+    });
+    // Mark lead status
+    const r2 = await fetch(SB_URL + '/rest/v1/leads?email=eq.' + encodeURIComponent(email), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ nurture_status: 'unsubscribed', status: 'lost', disqualified_reason: 'unsubscribed', disqualified_at: new Date().toISOString() })
+    });
+    // Log engagement event
+    await fetch(SB_URL + '/rest/v1/engagement_events', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ event_type: 'unsubscribed', score_delta: -100, metadata: { email: email, source: 'unsubscribe_page' } })
+    });
+    success.classList.add('show');
+    btn.style.display = 'none';
+  } catch (err) {
+    console.error(err);
+    error.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Unsubscribe Me';
+  }
+});
+</script>
+</body>
+</html>
