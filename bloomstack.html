@@ -97,13 +97,12 @@ h1 .g{color:var(--accent)}
 .bubble.bot{background:var(--bg-tertiary);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px}
 .bubble.bot b{color:var(--accent)}
 .bubble.me{background:var(--accent);color:var(--bg-primary);align-self:flex-end;border-bottom-right-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.step{display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap;animation:fade .3s ease}
-.step>input{flex:1;min-width:140px;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:11px;color:var(--text-primary);font-size:1.05rem;font-family:'JetBrains Mono',monospace;padding:13px 14px}
-.step>input:focus{outline:none;border-color:var(--accent)}
-.step .id-row{display:flex;gap:10px;width:100%;flex-wrap:wrap}
-.step .id-row input{flex:1;min-width:140px;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:11px;color:var(--text-primary);font-size:1rem;font-family:'JetBrains Mono',monospace;padding:13px 14px}
-.step .id-row input:focus{outline:none;border-color:var(--accent)}
-.step-btn{flex:0 0 auto;width:auto;padding:13px 22px}
+.chatbar{display:flex;gap:9px;align-items:center;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:14px;padding:6px 6px 6px 14px;transition:border .15s}
+.chatbar:focus-within{border-color:var(--accent)}
+.chatbar input{flex:1;background:transparent;border:none;color:var(--text-primary);font-size:1.02rem;padding:9px 0}
+.chatbar input:focus{outline:none}
+.chat-send{flex:0 0 auto;width:42px;height:42px;border-radius:11px;border:none;background:var(--accent);color:var(--bg-primary);font-size:1.1rem;cursor:pointer;transition:background .15s}
+.chat-send:hover{background:var(--accent-hover)}
 .main-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .main-actions .btn{flex:1;min-width:180px;margin-top:0;padding:12px 14px;font-size:.92rem}
 .rules{font-size:.66rem;color:var(--text-muted);margin-top:12px;line-height:1.5}
@@ -207,39 +206,30 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
           <div class="livepill"><span class="livedot"></span>Live &amp; growing</div>
         </div>
 
-        <!-- CONVERSATIONAL GAME -->
+        <!-- CONVERSATIONAL GAME (real chat) -->
         <div>
           <h1>Guess the <span class="g">future.</span> Win the prize.</h1>
 
-          <form id="guessForm" autocomplete="on" novalidate>
+          <form id="guessForm" autocomplete="off" novalidate>
             <!-- chat thread -->
             <div class="chat" id="chatThread">
-              <div class="bubble bot" id="bubbleQ1">🤖 How many people do you think will play this game?</div>
+              <div class="bubble bot">🤖 Hey! Let's play. First, how many people do you think will play this game?</div>
             </div>
 
-            <!-- STEP 1: total plays -->
-            <div class="step" id="step1">
-              <input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="your number" required>
-              <button class="btn step-btn" type="button" id="next1">Next →</button>
+            <!-- single persistent chat input bar -->
+            <div class="chatbar" id="chatBar">
+              <input id="chatInput" type="text" inputmode="numeric" placeholder="Type your answer…" autocomplete="off" required>
+              <button class="chat-send" type="button" id="chatSend" aria-label="Send">➤</button>
             </div>
-
-            <!-- STEP 2: average gumballs -->
-            <div class="step" id="step2" style="display:none">
-              <input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="your number" required>
-              <button class="btn step-btn" type="button" id="next2">Next →</button>
-            </div>
-
-            <!-- STEP 3: name + email + lock in -->
-            <div class="step" id="step3" style="display:none">
-              <div class="id-row">
-                <input id="fname" name="fname" type="text" placeholder="First name" required>
-                <input id="email" name="email" type="email" inputmode="email" placeholder="Email" required>
-              </div>
-              <label class="consent"><input type="checkbox" id="consent" checked><span>Email me my results &amp; prizes. Cool with Knight Ops follow-up.</span></label>
-              <button class="btn" type="submit" id="submitBtn">🔮 Lock In My Answer</button>
-            </div>
-
             <div class="err" id="formErr"></div>
+
+            <!-- hidden fields the submit logic reads -->
+            <input type="hidden" id="qAtt" name="qAtt">
+            <input type="hidden" id="qGum" name="qGum">
+            <input type="hidden" id="fname" name="fname">
+            <input type="hidden" id="email" name="email">
+            <input type="checkbox" id="consent" checked style="display:none">
+            <button type="submit" id="submitBtn" style="display:none">submit</button>
           </form>
 
           <!-- main-screen action buttons -->
@@ -391,32 +381,67 @@ pollState(); setInterval(pollState, 12000);
 /* ============================================================
    CONVERSATIONAL STEP FLOW
    ============================================================ */
+const chatInput=document.getElementById('chatInput'), chatSend=document.getElementById('chatSend');
 function addBubble(role,text){
   const d=document.createElement('div'); d.className='bubble '+role; d.innerHTML=text;
-  document.getElementById('chatThread').appendChild(d); return d;
+  document.getElementById('chatThread').appendChild(d);
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+  return d;
 }
-document.getElementById('next1').onclick=()=>{
-  const v=parseInt(document.getElementById('qAtt').value,10);
-  if(!Number.isFinite(v)||v<0){document.getElementById('formErr').textContent='Enter a number first 🙂';return;}
-  document.getElementById('formErr').textContent='';
-  addBubble('me', v.toLocaleString()+' players');
-  document.getElementById('step1').style.display='none';
-  addBubble('bot', "🤖 Nice. Now, how many gumballs do you think the <b>average</b> person is guessing?");
-  addBubble('bot', "💡 Hint: every guess adds that person's gumballs to the jar. Watch the jar, then do the math! 🔮");
-  const s2=document.getElementById('step2'); s2.style.display='flex'; s2.querySelector('input').focus();
-};
-document.getElementById('next2').onclick=()=>{
-  const v=parseInt(document.getElementById('qGum').value,10);
-  if(!Number.isFinite(v)||v<0){document.getElementById('formErr').textContent='Enter a number first 🙂';return;}
-  document.getElementById('formErr').textContent='';
-  addBubble('me', v.toLocaleString()+' gumballs avg');
-  document.getElementById('step2').style.display='none';
-  addBubble('bot', "🤖 Locked and loaded! Drop your name + email and I'll save your answer and send your results + prizes. 🎟️");
-  const s3=document.getElementById('step3'); s3.style.display='block'; s3.querySelector('input').focus();
-};
-// enter key advances steps
-document.getElementById('qAtt').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('next1').click();}});
-document.getElementById('qGum').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('next2').click();}});
+function botSay(text,delay){ setTimeout(()=>addBubble('bot',text), delay||350); }
+
+// conversation states: 0=ask players, 1=ask avg, 2=ask name, 3=ask email, 4=done
+let chatStep=0;
+function configureInput(){
+  if(chatStep===0||chatStep===1){chatInput.type='text';chatInput.inputMode='numeric';chatInput.placeholder='Type a number…';}
+  else if(chatStep===2){chatInput.type='text';chatInput.inputMode='text';chatInput.placeholder='Type your first name…';}
+  else if(chatStep===3){chatInput.type='text';chatInput.inputMode='email';chatInput.placeholder='Type your email…';}
+}
+function handleChat(){
+  const raw=chatInput.value.trim();
+  const err=document.getElementById('formErr'); err.textContent='';
+  if(!raw){return;}
+
+  if(chatStep===0){
+    const v=parseInt(raw.replace(/[^0-9]/g,''),10);
+    if(!Number.isFinite(v)||v<0){err.textContent='Just a number works best 🙂';return;}
+    document.getElementById('qAtt').value=v;
+    addBubble('me', v.toLocaleString()+' players');
+    chatInput.value='';
+    botSay("🤖 Nice. Now, how many gumballs do you think the <b>average</b> person is guessing?",300);
+    botSay("💡 Hint: every guess adds that person's gumballs to the jar. Watch the jar, then do the math! 🔮",900);
+    chatStep=1; configureInput();
+  }
+  else if(chatStep===1){
+    const v=parseInt(raw.replace(/[^0-9]/g,''),10);
+    if(!Number.isFinite(v)||v<0){err.textContent='Just a number works best 🙂';return;}
+    document.getElementById('qGum').value=v;
+    addBubble('me', v.toLocaleString()+' gumballs avg');
+    chatInput.value='';
+    botSay("🤖 Locked and loaded! What's your first name?",300);
+    chatStep=2; configureInput();
+  }
+  else if(chatStep===2){
+    document.getElementById('fname').value=raw;
+    addBubble('me', raw);
+    chatInput.value='';
+    botSay("🤖 Nice to meet you, "+escapeHtml(raw)+"! Last thing, what's your email? I'll send your results + prizes there. 🎟️",300);
+    chatStep=3; configureInput();
+  }
+  else if(chatStep===3){
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)){err.textContent='That email looks off, double-check it.';return;}
+    document.getElementById('email').value=raw;
+    addBubble('me', raw);
+    chatInput.value='';
+    botSay("🤖 Got it! Locking in your answer… 🔮",250);
+    chatStep=4; chatInput.disabled=true; chatSend.disabled=true;
+    // fire the existing submit handler
+    setTimeout(()=>document.getElementById('guessForm').requestSubmit(),600);
+  }
+}
+chatSend.onclick=handleChat;
+chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();handleChat();}});
+configureInput();
 
 /* main-screen action buttons */
 document.getElementById('mainOfferBtn').onclick=()=>show('screenOffer');
@@ -437,33 +462,29 @@ form.addEventListener('submit', async (e)=>{
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){errBox.textContent='That email looks off, double-check it.';return;}
   if(!Number.isFinite(qAtt)||qAtt<0){errBox.textContent='Enter your attendance guess (a whole number).';return;}
   if(!Number.isFinite(qGum)||qGum<0){errBox.textContent='Enter your total-gumballs guess (a whole number).';return;}
-  btn.disabled=true; btn.textContent='Locking it in...';
   try{
     const res=await fetch(REST+"/bloomstack_guesses",{method:"POST",headers:{...headers,"Prefer":"return=minimal"},
       body:JSON.stringify({first_name:fname,email:email,guess_attendance:qAtt,guess_gumballs:qGum,consent:consent,user_agent:navigator.userAgent.slice(0,180)})});
     if(!res.ok){throw new Error('save failed '+res.status);}
     document.getElementById('confirmMini').innerHTML =
       `🔥 Locked in, <b>${escapeHtml(fname)}</b>. You guessed <b>${qAtt.toLocaleString()}</b> total guesses and an average of <b>${qGum.toLocaleString()}</b> gumballs. We'll email your result + prizes after 6/11.`;
-    // prefill the Text MAGNET button with their name
     setMagnetLink(fname);
     pollState();
     show('screenOffer');
   }catch(err){
-    errBox.textContent='Hmm, that didn\'t save. Check your connection and try once more.';
-    btn.disabled=false; btn.textContent='🔮 Lock In My Answer';
+    errBox.textContent='Hmm, that didn\'t save. Type your email again to retry.';
+    chatStep=3; chatInput.disabled=false; chatSend.disabled=false; chatInput.focus();
   }
 });
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 // reset the conversational flow so they can play again
 function resetGame(){
-  btn.disabled=false; btn.textContent='🔮 Lock In My Answer';
   document.getElementById('qAtt').value=''; document.getElementById('qGum').value='';
   document.getElementById('fname').value=''; document.getElementById('email').value='';
-  document.getElementById('chatThread').innerHTML='<div class="bubble bot">🤖 How many people do you think will play this game?</div>';
-  document.getElementById('step1').style.display='flex';
-  document.getElementById('step2').style.display='none';
-  document.getElementById('step3').style.display='none';
+  document.getElementById('chatThread').innerHTML='<div class="bubble bot">🤖 Hey! Let\'s play. First, how many people do you think will play this game?</div>';
+  chatStep=0; configureInput();
+  chatInput.value=''; chatInput.disabled=false; chatSend.disabled=false;
   errBox.textContent='';
 }
 
