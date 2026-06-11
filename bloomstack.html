@@ -111,6 +111,10 @@ h1 .g{color:var(--accent)}
 .price-now{font-family:'JetBrains Mono',monospace;color:var(--accent);font-weight:700;font-size:2rem;line-height:1}
 .price-tag{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--success);border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);padding:4px 9px;border-radius:100px}
 .guarantee{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;color:var(--text-secondary);margin-top:4px}
+.offer-row{display:flex;gap:10px;flex-wrap:wrap}
+.offer-row .btn{flex:1;min-width:200px;margin-top:0}
+.btn-glow{background:var(--accent);color:var(--bg-primary);animation:glow 1.8s ease-in-out infinite;margin-bottom:6px}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(200,164,86,.0),0 6px 18px rgba(200,164,86,.25)}50%{box-shadow:0 0 22px rgba(200,164,86,.55),0 6px 18px rgba(200,164,86,.4)}}
 ul.benefits{list-style:none;display:grid;gap:7px;margin:6px 0}
 ul.benefits li{display:flex;gap:9px;font-size:.86rem;color:var(--text-secondary)}
 ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
@@ -217,23 +221,10 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
       </div>
     </section>
 
-    <!-- ============ SCREEN 2: CONFIRM + BOOK ============ -->
-    <section class="screen" id="screenBook">
-      <h1>🔥 You're in the <span class="g">Prophecy.</span></h1>
-      <p class="sub">Your guess is locked. Come back and guess again anytime, the jar keeps moving. Now, want to actually <b>fix your systems?</b></p>
-      <div class="confirm-mini" id="confirmMini"></div>
-      <h1 style="font-size:1.25rem;margin-top:8px">Book your FREE 10x Systems Blueprint Session</h1>
-      <p class="sub">A 90-minute deep-dive into your tech, a full roadmap, and an implementation plan. Normally a $2,500 engagement, free for Bloomstack attendees. Daniel guarantees at least one idea that could double your revenue.</p>
-      <div class="cal-wrap">
-        <iframe src="https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV" scrolling="yes" title="Book a Blueprint Session"></iframe>
-      </div>
-      <button class="btn btn-ghost" id="toOfferBtn" type="button">Go to Special Event Offer!<small>Maximize Lead Gen at Events 🚀</small></button>
-      <span class="backlink" id="backToGame1">← Back to the game</span>
-    </section>
-
-    <!-- ============ SCREEN 3: SPECIAL OFFER ============ -->
+    <!-- ============ SCREEN 2: OFFER (shown right after guess) ============ -->
     <section class="screen" id="screenOffer">
-      <div class="tag" style="margin-bottom:12px">🚀 Event-Only Special</div>
+      <div class="confirm-mini" id="confirmMini"></div>
+      <div class="tag" style="margin:4px 0 10px">🚀 Event-Only Special</div>
       <h1>Want this <span class="g">exact</span> experience at <span class="g">your</span> events?</h1>
       <p class="sub">The game you just played? That's a Lead Magnet Engine. We build them for you, tuned to your audience, so you capture leads in a fun, high-converting way, whether you're speaking, on a panel, hosting, at a virtual booth, or a physical one.</p>
       <div class="offer">
@@ -249,10 +240,24 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
           <span class="price-tag">Bloomstack event pricing</span>
         </div>
         <div class="guarantee">🛡️ Satisfaction guaranteed. We'll hook you up.</div>
-        <button class="btn" id="claimOfferBtn" type="button">See the Event Special →</button>
-        <button class="btn btn-ghost" id="bookInsteadBtn" type="button">Rather talk first? Book a free call<small>10x Systems Blueprint, no cost 🗓️</small></button>
+        <button class="btn" id="claimOfferBtn" type="button">Grab It Now for $797 →</button>
+        <div class="offer-row">
+          <a class="btn btn-ghost" id="textMagnetBtn" href="#">📲 Text "MAGNET" to Daniel<small>Fastest way in. We'll get you set up.</small></a>
+          <button class="btn btn-ghost" id="bookInsteadBtn" type="button">Rather talk first? Book a free call<small>10x Systems Blueprint, no cost 🗓️</small></button>
+        </div>
         <span class="backlink" id="backToGame2">← Back to the game</span>
       </div>
+    </section>
+
+    <!-- ============ SCREEN 3: CALENDAR (only if they choose Book a call) ============ -->
+    <section class="screen" id="screenBook">
+      <h1 style="font-size:1.4rem">Book your FREE 10x Systems Blueprint Session</h1>
+      <p class="sub">A 90-minute deep-dive into your tech, a full roadmap, and an implementation plan. Normally a $2,500 engagement, free for Bloomstack attendees. Daniel guarantees at least one idea that could double your revenue.</p>
+      <button class="btn btn-glow" id="claimOfferBtn2" type="button">⚡ Grab the $797 Lead Magnet Engine →<small>Event-only pricing, before you go</small></button>
+      <div class="cal-wrap">
+        <iframe src="https://api.unicornuniverse.io/widget/booking/F2GsBGGCAYHgnQees0pV" scrolling="yes" title="Book a Blueprint Session"></iframe>
+      </div>
+      <span class="backlink" id="backToOffer">← Back to the offer</span>
     </section>
 
   </div>
@@ -358,9 +363,11 @@ form.addEventListener('submit', async (e)=>{
       body:JSON.stringify({first_name:fname,email:email,guess_attendance:qAtt,guess_gumballs:qGum,consent:consent,user_agent:navigator.userAgent.slice(0,180)})});
     if(!res.ok){throw new Error('save failed '+res.status);}
     document.getElementById('confirmMini').innerHTML =
-      `Locked in, <b>${escapeHtml(fname)}</b>. You guessed <b>${qAtt.toLocaleString()}</b> total guesses and an average of <b>${qGum.toLocaleString()}</b> gumballs. We'll email your result + prizes after 6/11.`;
+      `🔥 Locked in, <b>${escapeHtml(fname)}</b>. You guessed <b>${qAtt.toLocaleString()}</b> total guesses and an average of <b>${qGum.toLocaleString()}</b> gumballs. We'll email your result + prizes after 6/11.`;
+    // prefill the Text MAGNET button with their name
+    setMagnetLink(fname);
     pollState();
-    show('screenBook');
+    show('screenOffer');
   }catch(err){
     errBox.textContent='Hmm, that didn\'t save. Check your connection and try once more.';
     btn.disabled=false; btn.textContent='🔮 Lock In My Guess';
@@ -369,16 +376,24 @@ form.addEventListener('submit', async (e)=>{
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 /* ============================================================
-   FUNNEL NAV
+   FUNNEL NAV  (Guess → Offer → [Calendar if they pick Book a call])
    ============================================================ */
-document.getElementById('toOfferBtn').onclick=()=>show('screenOffer');
-document.getElementById('bookInsteadBtn').onclick=()=>show('screenBook');
-document.getElementById('backToGame1').onclick=()=>{btn.disabled=false;btn.textContent='🔮 Lock In My Guess';show('screenGame');};
+const STRIPE_CHECKOUT="https://buy.stripe.com/7sY9ASahVd1w1l32MC8g00S";
+const DANIEL_SMS="6027020807";
+function grabNow(){window.open(STRIPE_CHECKOUT,'_blank');}
+document.getElementById('claimOfferBtn').onclick=grabNow;       // "Grab It Now for $797" (offer screen)
+document.getElementById('claimOfferBtn2').onclick=grabNow;      // glowing button above the calendar
+document.getElementById('bookInsteadBtn').onclick=()=>show('screenBook');   // Book a free call → calendar screen
+document.getElementById('backToOffer').onclick=()=>show('screenOffer');
 document.getElementById('backToGame2').onclick=()=>{btn.disabled=false;btn.textContent='🔮 Lock In My Guess';show('screenGame');};
-document.getElementById('claimOfferBtn').onclick=()=>{
-  const nm=encodeURIComponent((document.getElementById('fname').value||'').trim());
-  window.open(OFFER_CLAIM_URL + (nm?('?name='+nm):''),'_blank');
-};
+
+// Text MAGNET to Daniel — prefilled with their first name
+function setMagnetLink(fname){
+  const name=(fname||'').trim();
+  const body="\"MAGNET\" – Hey Daniel! This is "+(name||"")+", and I would love to set up a time to chat.";
+  document.getElementById('textMagnetBtn').href="sms:"+DANIEL_SMS+"?&body="+encodeURIComponent(body);
+}
+setMagnetLink(''); // safe default before submit
 
 /* ============================================================
    "How is this possible?" explainer
