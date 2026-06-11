@@ -187,7 +187,7 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
           </svg>
           <div class="counter">
             <div class="num" id="jarCount">0</div>
-            <div class="lbl">Total gumballs guessed &amp; climbing</div>
+            <div class="lbl">Gumballs in the jar so far</div>
           </div>
           <div class="livepill"><span class="livedot"></span>Live &amp; growing</div>
         </div>
@@ -195,7 +195,7 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
         <!-- COPY + FORM -->
         <div>
           <h1>Guess the <span class="g">future.</span> Win the prize.</h1>
-          <p class="sub">Two questions. Both about the future. Both being changed <b>right now</b> by everyone else playing. The jar grows as you read this. Guess as many times as you want, the closest wins. 😈</p>
+          <p class="sub">Make your 2 guesses below. Closest wins. Play as many times as you want. 😈</p>
 
           <form id="guessForm" autocomplete="on" novalidate>
             <div class="id-row">
@@ -203,10 +203,10 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
               <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" inputmode="email" placeholder="you@company.com" required></div>
             </div>
             <div class="qrow">
-              <div class="field"><label for="qAtt">① How many total guesses will be played?</label><input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="e.g. 1200" required></div>
-              <div class="field"><label for="qGum">② What will the AVERAGE gumball guess be?</label><input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="e.g. 5000" required></div>
+              <div class="field"><label for="qAtt">① How many people will play this game?</label><input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="your guess" required></div>
+              <div class="field"><label for="qGum">② What's the average gumball guess?</label><input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="your guess" required></div>
             </div>
-            <p class="hint">Heads up: the jar shows the <b>total</b> gumballs guessed so far, climbing live. But you're guessing the <b>average</b>. Example: if everyone's guesses add up to one million across 1,000 plays, the average is 1,000, and whoever's closest to the final average wins. How many people will play? That's the part you have to feel out. 🔮</p>
+            <p class="hint">💡 Closest to both wins. The jar shows everyone's <b>total</b> so far. You're guessing the <b>average</b> per person.</p>
             <label class="consent"><input type="checkbox" id="consent" checked><span>Email me my results &amp; my prizes. I'm cool with Knight Ops follow-up. (You can unsubscribe anytime.)</span></label>
             <button class="btn" type="submit" id="submitBtn">🔮 Lock In My Guess</button>
             <div class="err" id="formErr"></div>
@@ -216,7 +216,7 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
             <div class="chip"><b>🏆 Closest guess wins</b><span>A $2,500 90-min 10x Systems Blueprint, a full roadmap + implementation plan for your tech.</span></div>
             <div class="chip"><b>🎟️ Everyone who plays</b><span>A 3-Day UNICON ticket (September) + a high-value voucher. Revealed after the event.</span></div>
           </div>
-          <div class="rules">Unlimited guesses, your best one counts. Winner = closest combined guess to the final total number of guesses + the final average gumball guess, locked 6/11 2:22pm PT. Ties go to the earliest guess. <a id="howLink">How is this even possible?</a></div>
+          <div class="rules">Your best guess counts. Winner locked 6/11 at 2:22pm PT. <a id="howLink">How does this work?</a></div>
         </div>
       </div>
     </section>
