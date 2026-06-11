@@ -91,6 +91,21 @@ h1 .g{color:var(--accent)}
 .hint{font-size:.72rem;line-height:1.5;color:var(--text-secondary);background:var(--accent-subtle);border:1px solid var(--accent-border);border-radius:10px;padding:9px 11px;margin:4px 0 12px}
 .hint b{color:var(--accent)}
 .err{color:var(--danger);font-size:.78rem;min-height:1.1em;margin-top:6px}
+/* conversational flow */
+.chat{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.bubble{max-width:92%;padding:11px 14px;border-radius:14px;font-size:1rem;line-height:1.4;animation:fade .3s ease}
+.bubble.bot{background:var(--bg-tertiary);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px}
+.bubble.bot b{color:var(--accent)}
+.bubble.me{background:var(--accent);color:var(--bg-primary);align-self:flex-end;border-bottom-right-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.step{display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap;animation:fade .3s ease}
+.step>input{flex:1;min-width:140px;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:11px;color:var(--text-primary);font-size:1.05rem;font-family:'JetBrains Mono',monospace;padding:13px 14px}
+.step>input:focus{outline:none;border-color:var(--accent)}
+.step .id-row{display:flex;gap:10px;width:100%;flex-wrap:wrap}
+.step .id-row input{flex:1;min-width:140px;background:var(--bg-tertiary);border:1px solid var(--border-light);border-radius:11px;color:var(--text-primary);font-size:1rem;font-family:'JetBrains Mono',monospace;padding:13px 14px}
+.step .id-row input:focus{outline:none;border-color:var(--accent)}
+.step-btn{flex:0 0 auto;width:auto;padding:13px 22px}
+.main-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.main-actions .btn{flex:1;min-width:180px;margin-top:0;padding:12px 14px;font-size:.92rem}
 .rules{font-size:.66rem;color:var(--text-muted);margin-top:12px;line-height:1.5}
 .rules a{color:var(--accent);cursor:pointer}
 
@@ -192,25 +207,46 @@ ul.benefits li::before{content:'▹';color:var(--accent);font-weight:700}
           <div class="livepill"><span class="livedot"></span>Live &amp; growing</div>
         </div>
 
-        <!-- COPY + FORM -->
+        <!-- CONVERSATIONAL GAME -->
         <div>
           <h1>Guess the <span class="g">future.</span> Win the prize.</h1>
-          <p class="sub">Make your 2 guesses below. Closest wins. Play as many times as you want. 😈</p>
 
           <form id="guessForm" autocomplete="on" novalidate>
-            <div class="id-row">
-              <div class="field"><label for="fname">First name</label><input id="fname" name="fname" type="text" placeholder="Daniel" required></div>
-              <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" inputmode="email" placeholder="you@company.com" required></div>
+            <!-- chat thread -->
+            <div class="chat" id="chatThread">
+              <div class="bubble bot" id="bubbleQ1">🤖 How many people do you think will play this game?</div>
             </div>
-            <div class="qrow">
-              <div class="field"><label for="qAtt">① How many people will play this game?</label><input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="your guess" required></div>
-              <div class="field"><label for="qGum">② What's the average gumball guess?</label><input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="your guess" required></div>
+
+            <!-- STEP 1: total plays -->
+            <div class="step" id="step1">
+              <input id="qAtt" name="qAtt" type="number" min="0" inputmode="numeric" placeholder="your number" required>
+              <button class="btn step-btn" type="button" id="next1">Next →</button>
             </div>
-            <p class="hint">💡 Closest to both wins. The jar shows everyone's <b>total</b> so far. You're guessing the <b>average</b> per person.</p>
-            <label class="consent"><input type="checkbox" id="consent" checked><span>Email me my results &amp; my prizes. I'm cool with Knight Ops follow-up. (You can unsubscribe anytime.)</span></label>
-            <button class="btn" type="submit" id="submitBtn">🔮 Lock In My Guess</button>
+
+            <!-- STEP 2: average gumballs -->
+            <div class="step" id="step2" style="display:none">
+              <input id="qGum" name="qGum" type="number" min="0" inputmode="numeric" placeholder="your number" required>
+              <button class="btn step-btn" type="button" id="next2">Next →</button>
+            </div>
+
+            <!-- STEP 3: name + email + lock in -->
+            <div class="step" id="step3" style="display:none">
+              <div class="id-row">
+                <input id="fname" name="fname" type="text" placeholder="First name" required>
+                <input id="email" name="email" type="email" inputmode="email" placeholder="Email" required>
+              </div>
+              <label class="consent"><input type="checkbox" id="consent" checked><span>Email me my results &amp; prizes. Cool with Knight Ops follow-up.</span></label>
+              <button class="btn" type="submit" id="submitBtn">🔮 Lock In My Answer</button>
+            </div>
+
             <div class="err" id="formErr"></div>
           </form>
+
+          <!-- main-screen action buttons -->
+          <div class="main-actions">
+            <button class="btn btn-ghost" type="button" id="mainOfferBtn">🚀 View the Special Event Offer!</button>
+            <button class="btn btn-ghost" type="button" id="mainBookBtn">🗓️ Book a Call with Daniel</button>
+          </div>
 
           <div class="prize">
             <div class="chip"><b>🏆 Closest guess wins</b><span>A $2,500 90-min 10x Systems Blueprint, a full roadmap + implementation plan for your tech.</span></div>
@@ -343,6 +379,50 @@ async function pollState(){
 pollState(); setInterval(pollState, 12000);
 
 /* ============================================================
+   PAGE VIEW TRACKING (fire once per load)
+   ============================================================ */
+(function(){
+  try{
+    fetch(REST+"/bloomstack_pageviews",{method:"POST",headers:{...headers,"Prefer":"return=minimal"},
+      body:JSON.stringify({page:"bloomstack",referrer:(document.referrer||"").slice(0,300),user_agent:navigator.userAgent.slice(0,300)})});
+  }catch(e){}
+})();
+
+/* ============================================================
+   CONVERSATIONAL STEP FLOW
+   ============================================================ */
+function addBubble(role,text){
+  const d=document.createElement('div'); d.className='bubble '+role; d.innerHTML=text;
+  document.getElementById('chatThread').appendChild(d); return d;
+}
+document.getElementById('next1').onclick=()=>{
+  const v=parseInt(document.getElementById('qAtt').value,10);
+  if(!Number.isFinite(v)||v<0){document.getElementById('formErr').textContent='Enter a number first 🙂';return;}
+  document.getElementById('formErr').textContent='';
+  addBubble('me', v.toLocaleString()+' players');
+  document.getElementById('step1').style.display='none';
+  addBubble('bot', "🤖 Nice. Now, how many gumballs do you think the <b>average</b> person is guessing?");
+  addBubble('bot', "💡 Hint: every guess adds that person's gumballs to the jar. Watch the jar, then do the math! 🔮");
+  const s2=document.getElementById('step2'); s2.style.display='flex'; s2.querySelector('input').focus();
+};
+document.getElementById('next2').onclick=()=>{
+  const v=parseInt(document.getElementById('qGum').value,10);
+  if(!Number.isFinite(v)||v<0){document.getElementById('formErr').textContent='Enter a number first 🙂';return;}
+  document.getElementById('formErr').textContent='';
+  addBubble('me', v.toLocaleString()+' gumballs avg');
+  document.getElementById('step2').style.display='none';
+  addBubble('bot', "🤖 Locked and loaded! Drop your name + email and I'll save your answer and send your results + prizes. 🎟️");
+  const s3=document.getElementById('step3'); s3.style.display='block'; s3.querySelector('input').focus();
+};
+// enter key advances steps
+document.getElementById('qAtt').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('next1').click();}});
+document.getElementById('qGum').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('next2').click();}});
+
+/* main-screen action buttons */
+document.getElementById('mainOfferBtn').onclick=()=>show('screenOffer');
+document.getElementById('mainBookBtn').onclick=()=>show('screenBook');
+
+/* ============================================================
    GUESS SUBMIT
    ============================================================ */
 const form=document.getElementById('guessForm'), errBox=document.getElementById('formErr'), btn=document.getElementById('submitBtn');
@@ -370,10 +450,22 @@ form.addEventListener('submit', async (e)=>{
     show('screenOffer');
   }catch(err){
     errBox.textContent='Hmm, that didn\'t save. Check your connection and try once more.';
-    btn.disabled=false; btn.textContent='🔮 Lock In My Guess';
+    btn.disabled=false; btn.textContent='🔮 Lock In My Answer';
   }
 });
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// reset the conversational flow so they can play again
+function resetGame(){
+  btn.disabled=false; btn.textContent='🔮 Lock In My Answer';
+  document.getElementById('qAtt').value=''; document.getElementById('qGum').value='';
+  document.getElementById('fname').value=''; document.getElementById('email').value='';
+  document.getElementById('chatThread').innerHTML='<div class="bubble bot">🤖 How many people do you think will play this game?</div>';
+  document.getElementById('step1').style.display='flex';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='none';
+  errBox.textContent='';
+}
 
 /* ============================================================
    FUNNEL NAV  (Guess → Offer → [Calendar if they pick Book a call])
@@ -385,7 +477,7 @@ document.getElementById('claimOfferBtn').onclick=grabNow;       // "Grab It Now 
 document.getElementById('claimOfferBtn2').onclick=grabNow;      // glowing button above the calendar
 document.getElementById('bookInsteadBtn').onclick=()=>show('screenBook');   // Book a free call → calendar screen
 document.getElementById('backToOffer').onclick=()=>show('screenOffer');
-document.getElementById('backToGame2').onclick=()=>{btn.disabled=false;btn.textContent='🔮 Lock In My Guess';show('screenGame');};
+document.getElementById('backToGame2').onclick=()=>{resetGame();show('screenGame');};
 
 // Text MAGNET to Daniel — prefilled with their first name
 function setMagnetLink(fname){
