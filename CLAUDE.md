@@ -199,6 +199,14 @@ Primary table. Key columns:
 | `orchestrator-briefing` | Daily briefing |
 | `orchestrator-manager` | Agent orchestration |
 
+### Roundtable Reminders (2026-06-17) — NO GHL
+`roundtable-reminders` edge function sends branded emails (Resend, from daniel@knightops.biz) to everyone in `roundtable_registrations` (deduped by email). Triggered by `?type=24h|5min|thankyou`. Driven by **pg_cron** jobs (verify_jwt=false; cron passes anon apikey via pg_net):
+- `roundtable-24h-reminder` — `0 17 * * 2` (Tue 10am PT) — Zoom link + add-to-calendar
+- `roundtable-5min-reminder` — `55 16 * * 3` (Wed 9:55am PT) — "starting in 5 min" + Zoom
+- `roundtable-thankyou` — `0 19 * * 3` (Wed 12pm PT) — thanks + book a call (/book)
+
+Zoom = knightops.biz/roundtable-zoom. Times are UTC for PDT (UTC−7); shift +1h hour (18/17:55/20) if PST is ever needed. The roundtable page NO LONGER posts to GoHighLevel — that webhook was removed. Knight Ops does not use GHL anywhere.
+
 ---
 
 ## Frontend Pages
