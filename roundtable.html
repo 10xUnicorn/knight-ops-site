@@ -10,9 +10,13 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://knightops.biz/roundtable">
 <meta property="og:image" content="https://knightops.biz/ko-og-roundtable.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta property="og:image:alt" content="Tech Knights at the Round Table — free weekly call, every Wednesday 10am PT / 1pm ET">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Tech Knights at the Round Table | Knight Ops">
 <meta name="twitter:description" content="Free weekly call — live teaching, hot seats & real-time problem solving. Every Wednesday, 10am PT / 1pm ET.">
+<meta name="twitter:image" content="https://knightops.biz/ko-og-roundtable.png">
 <link rel="icon" href="https://knightops.biz/favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -521,6 +525,9 @@ section{padding:100px 24px}
 
 /* FORM FIELDS */
 .field{margin-bottom:20px}
+/* Progressive reveal: phone + goals stay hidden until name & email are filled */
+.reveal-field{display:none;opacity:0;max-height:0;overflow:hidden;margin-bottom:0;transition:opacity .35s ease,max-height .35s ease,margin-bottom .35s ease}
+.reveal-field.revealed{display:block;opacity:1;max-height:260px;margin-bottom:20px}
 .field label{
   display:block;
   font-family:'Space Grotesk',sans-serif;
@@ -741,7 +748,6 @@ footer a:hover{text-decoration:underline}
     <div class="hero-details rv">
       <span class="hero-detail">Every Wednesday</span>
       <span class="hero-detail">10am PT / 1pm ET</span>
-      <span class="hero-detail">Free Forever</span>
     </div>
     <div class="topic-chips rv">
       <span class="topic-chip">AI Strategy</span>
@@ -862,16 +868,14 @@ footer a:hover{text-decoration:underline}
               <div class="field-error">Please enter a valid email address.</div>
             </div>
 
-            <div class="field">
-              <label>Phone <span class="req">*</span></label>
-              <input type="tel" id="phone" required placeholder="(555) 123-4567">
-              <div class="field-error">Please enter your phone number.</div>
+            <div class="field reveal-field" id="phoneField">
+              <label>Phone <span style="font-size:.7rem;color:var(--dim)">(optional)</span></label>
+              <input type="tel" id="phone" placeholder="(555) 123-4567">
             </div>
 
-            <div class="field">
-              <label>What are you looking to get out of the call? <span class="req">*</span></label>
-              <textarea id="goals" required placeholder="What you're hoping to learn, solve, or build..."></textarea>
-              <div class="field-error">Please let us know what you're after.</div>
+            <div class="field reveal-field" id="goalsField">
+              <label>What are you looking to get out of the call? <span style="font-size:.7rem;color:var(--dim)">(optional)</span></label>
+              <textarea id="goals" placeholder="What you're hoping to learn, solve, or build..."></textarea>
             </div>
 
             <button type="submit" class="btn-gold" style="width:100%;justify-content:center" id="submitBtn">
@@ -1142,6 +1146,24 @@ function validateField(el){
   for(var i=0;i<fields.length;i++){
     fields[i].addEventListener('blur',function(){validateField(this)});
   }
+})();
+
+/* Progressive reveal — show Phone + "what do you want out of the call?"
+   only after Full Name and a valid Email are entered. */
+(function(){
+  var nameEl=document.getElementById('fullName');
+  var emailEl=document.getElementById('email');
+  var reveals=document.querySelectorAll('#regForm .reveal-field');
+  function emailOk(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||'').trim());}
+  function check(){
+    var ready=nameEl.value.trim()!=='' && emailOk(emailEl.value);
+    for(var i=0;i<reveals.length;i++){
+      reveals[i].classList.toggle('revealed',ready);
+    }
+  }
+  nameEl.addEventListener('input',check);
+  emailEl.addEventListener('input',check);
+  check(); /* handle autofill / back-navigation */
 })();
 
 /* ========================================================
