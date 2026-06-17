@@ -1024,11 +1024,7 @@ footer a:hover{text-decoration:underline}
    ======================================================== */
 var ZOOM_LINK='https://us06web.zoom.us/j/81378636831?jst=2';
 
-/* GHL webhook (per spec). Leads are ALSO written to Supabase below so
-   the CRM captures every registration even if GHL is not wired up. */
-var GHL_WEBHOOK='https://services.leadconnectorhq.com/hooks/formSubmit';
-
-/* Supabase backup capture (existing roundtable_registrations table) */
+/* Supabase capture (roundtable_registrations table) */
 var SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co/rest/v1/roundtable_registrations';
 var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
@@ -1215,15 +1211,10 @@ document.getElementById('regForm').addEventListener('submit',function(e){
     localStorage.setItem('roundtable_registrations',JSON.stringify(stored));
   }catch(err){/* ignore storage errors */}
 
-  /* 1) POST to GHL webhook (fire & forget) */
-  fetch(GHL_WEBHOOK,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(lead)
-  }).catch(function(err){console.error('GHL webhook error:',err);});
-
-  /* 2) POST to Supabase so the CRM always captures the lead.
-        Maps the single "what do you want from the call" answer to goals_90_days. */
+  /* POST to Supabase so the CRM captures every registration.
+        Maps the single "what do you want from the call" answer to goals_90_days.
+        Reminder emails (24h before, 5 min before, thank-you) are handled by the
+        roundtable-reminders edge function + pg_cron. No third-party CRM. */
   fetch(SUPABASE_URL,{
     method:'POST',
     headers:{
