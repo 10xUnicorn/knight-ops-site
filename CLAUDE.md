@@ -3,7 +3,7 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-05-23
+> **Last Updated:** 2026-06-17
 
 ---
 
@@ -319,6 +319,9 @@ Primary table. Key columns:
 
 ### Navigation Sections
 Dashboard, Leads, Deals, Tasks, Projects, Clients, Notifications, KPIs, Settings
+
+### Forms & Surveys View (2026-06-17)
+Reads from tables in `FS_TABLE_MAP`: `intake_submissions`, `cc_intake_submissions`, `roundtable_registrations`, `leads` (INBOUND ONLY — `fsQuery()` forces `.eq('lead_type','inbound')`, never prospects per Rule 2), assessment/community/speaker surveys. The "Form Submitted" column shows the REAL per-row origin via `fsLeadOrigin()` + `FS_FORM_LABELS` (derived from `metadata.source`/`capture_tool`/`form_type`/`tags`), not the coarse `source` enum. Detail panel (`showFsDetail`) renders every captured field as readable Q&A. Note: `roundtable_registrations` is a separate table — roundtable signups will NOT appear under Leads.
 
 ### Inline Editing
 All list views support inline editing via `inlineEdit()` / `inlineSave()` / `inlineCancel()`:
