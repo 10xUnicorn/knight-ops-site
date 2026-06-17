@@ -9302,16 +9302,58 @@ const FS_PAGE_SIZE=25;
 let fsAllRows=[],fsFiltered=[],fsPage=1,fsSortCol='date',fsSortDir='desc',fsActiveType='all';
 const FS_TABLE_MAP={
   intake_submissions:{label:'Intake Form',type:'form'},
-  inbound_leads:{label:'Inbound Lead',type:'form'},
+  cc_intake_submissions:{label:'Command Center Intake',type:'form'},
+  roundtable_registrations:{label:'Roundtable Registration',type:'form'},
+  leads:{label:'Inbound Lead',type:'form'},
   assessment_responses:{label:'Assessment',type:'assessment'},
   community_survey_responses:{label:'Community Survey',type:'survey'},
   speaker_survey_responses:{label:'Speaker Survey',type:'survey'},
   speaker_feedback:{label:'Speaker Feedback',type:'survey'},
   job_applications:{label:'Job Application',type:'application'}
 };
+
+// Friendly labels for the specific intake form / origin a row actually came from.
+// The DB only stores a coarse `source` enum, but the real origin lives in
+// metadata.source / metadata.capture_tool / metadata.form_type / tags / form_type.
+const FS_FORM_LABELS={
+  // intake_submissions.form_type values
+  blueprint:'Blueprint Application',mini_blueprint:'Mini Blueprint',website:'Website Intake',
+  website_intake:'Website Intake',build:'Build Intake',command_center:'Command Center Intake',
+  speed_to_value:'Speed to Value',stv:'Speed to Value',
+  // leads.source enum values
+  intake_form:'Website Intake Form',website:'Website Form',event:'Event Capture',
+  referral:'Referral',manual:'Manual Entry',mini_blueprint_src:'Mini Blueprint',
+  filter_score:'Prospecting Filter Score',assessment:'Assessment',
+  // metadata.source / capture_tool values (the real origin of "intake_form" rows)
+  discovery_call:'Discovery Call',linkedin:'LinkedIn',linkedin_inbound:'LinkedIn Inbound',
+  linkedin_inbound_reply:'LinkedIn Reply',linkedin_reply:'LinkedIn Reply',
+  linkedin_cold:'LinkedIn (Cold)',linkedin_cold_open:'LinkedIn (Cold Open)',
+  ai_meeting_scan:'AI Meeting Scan',ai_systems_audit:'AI Systems Audit',
+  gravity_audit:'AI Systems Audit',unicorn_universe_widget:'Unicorn Universe Booking'
+};
+function fsLabelize(s){
+  if(!s)return '';
+  if(FS_FORM_LABELS[s])return FS_FORM_LABELS[s];
+  return String(s).replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+// Resolve the most specific real-world form/origin name for a leads row.
+function fsLeadOrigin(r){
+  const md=r.metadata||{};
+  // Most specific first: an actual capture tool / form, then the human channel, then the enum.
+  const candidate = md.capture_tool || md.form_type || md.source
+    || (md.booking_source) || r.source || '';
+  let label=fsLabelize(candidate);
+  // If we still only have the generic enum, try to enrich from tags.
+  if((!label || label==='Intake Form' || candidate==='intake_form') && Array.isArray(r.tags)){
+    const tag=r.tags.find(t=>/linkedin|referral|partnership|audit|1k-sprint|networking/i.test(t));
+    if(tag)label=fsLabelize(tag);
+  }
+  return label||'Inbound Lead';
+}
 const FS_COLS=[
   {key:'type',label:'Type',vis:true,w:90},
-  {key:'source_table',label:'Source',vis:true,w:120},
+  {key:'form_name',label:'Form Submitted',vis:true,w:180},
+  {key:'source_table',label:'Source',vis:false,w:120},
   {key:'name',label:'Name',vis:true,w:150},
   {key:'email',label:'Email',vis:true,w:180},
   {key:'phone',label:'Phone',vis:true,w:120},
@@ -9338,40 +9380,70 @@ function fsNormalize(rows,table){
   return rows.map(r=>{
     let name='',email='',phone='',company='',status='',date='',form_type='';
     let industry='',revenue_range='',budget='',lead_score='',ai_score='';
+    let form_name=info.label; // default = the table's generic label
     date=r.created_at||r.submitted_at||'';
     if(table==='intake_submissions'){
       name=[r.first_name,r.last_name].filter(Boolean).join(' ');
       email=r.email||'';phone=r.phone||'';company=r.company||'';
       status=r.status||'pending';form_type=r.form_type||'';budget=r.budget||'';
-    }else if(table==='inbound_leads'){
-      name=r.name||'';email=r.email||'';phone=r.phone||'';
+      industry=r.mb_industry||'';
+      // Real form: which intake variant was filled (Blueprint / Mini Blueprint / Website / Build)
+      form_name=fsLabelize(r.form_type)||'Intake Form';
+    }else if(table==='cc_intake_submissions'){
+      name=[r.first_name,r.last_name].filter(Boolean).join(' ');
+      email=r.email||'';phone=r.phone||'';company=r.company||'';
+      status=r.status||'pending';form_type='command_center';
+      revenue_range=r.monthly_revenue||'';budget=r.tier_selected||'';
+      form_name='Command Center Intake';
+    }else if(table==='roundtable_registrations'){
+      name=r.full_name||'';email=r.email||'';phone=r.phone||'';
+      company=r.business_name||'';status=r.status||'registered';
+      revenue_range=r.current_revenue||'';
+      form_name='Roundtable Registration';
+    }else if(table==='leads'){
+      name=r.name||[r.first_name,r.last_name].filter(Boolean).join(' ');
+      email=r.email||'';phone=r.phone||'';
       company=r.company||'';status=r.status||'new';
       budget=r.budget_range||'';lead_score=r.lead_score||'';
       industry=r.company_industry||'';
+      // Real origin from metadata / tags rather than the generic "intake_form" enum
+      form_name=fsLeadOrigin(r);
     }else if(table==='assessment_responses'){
       name=r.name||'';email=r.email||'';phone=r.phone||'';
       company=r.company||'';industry=r.industry||'';
       revenue_range=r.revenue_range||'';ai_score=r.ai_opportunity_score||'';
-      status='completed';
+      status='completed';form_name='Business Assessment';
     }else if(table==='community_survey_responses'){
       name=r.first_name||r.preferred_name||'';email=r.email||'';
       phone=r.phone||'';status=r.completed?'completed':'partial';
+      form_name='Community Survey';
     }else if(table==='speaker_survey_responses'){
       name=r.name||'';email=r.email||'';phone=r.phone||'';status='completed';
+      form_name=r.event_name?('Speaker Survey · '+r.event_name):(r.survey_name?fsLabelize(r.survey_name):'Speaker Survey');
     }else if(table==='speaker_feedback'){
       name=r.name||'';email=r.email||'';status='completed';
+      form_name='Speaker Feedback';
     }else if(table==='job_applications'){
       name=[r.first_name,r.last_name].filter(Boolean).join(' ');
       email=r.email||'';phone=r.phone||'';status=r.status||'submitted';
       date=r.submitted_at||r.created_at||'';
+      form_name=r.position?('Application · '+r.position):'Job Application';
     }
-    return{id:r.id,type:info.type,source_table:info.label,name,email,phone,company,status,date,form_type,industry,revenue_range,budget,lead_score,ai_score,_raw:r,_table:table};
+    return{id:r.id,type:info.type,source_table:info.label,form_name,name,email,phone,company,status,date,form_type,industry,revenue_range,budget,lead_score,ai_score,_raw:r,_table:table};
   });
 }
 
+// Build the right query per table. CRITICAL: the `leads` table holds thousands of
+// Apollo/prospecting rows — only inbound leads belong on this Forms dashboard
+// (see CLAUDE.md Rule 2). Never pull lead_type='prospect' in here.
+function fsQuery(t){
+  let q=sb.from(t).select('*');
+  if(t==='leads'){q=q.eq('lead_type','inbound').order('created_at',{ascending:false}).limit(1000);}
+  return q.then(r=>{ if(r.error){console.warn('Forms: failed to load '+t,r.error.message);return [];} return r.data||[]; });
+}
 async function loadForms(){
   const tables=Object.keys(FS_TABLE_MAP);
-  const results=await Promise.all(tables.map(t=>sb.from(t).select('*').then(r=>r.data||[])));
+  const results=await Promise.all(tables.map(t=>fsQuery(t)));
   fsAllRows=[];
   tables.forEach((t,i)=>fsAllRows.push(...fsNormalize(results[i],t)));
   fsAllRows.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
@@ -9390,16 +9462,16 @@ function updateFsMetrics(){
   const recent=fsAllRows.filter(r=>r.date&&new Date(r.date)>=d30).length;
   document.getElementById('fsMetrics').innerHTML=`
     <div class="stat-card" style="cursor:pointer" onclick="setFsType('all',null)"><div class="stat-value">${fsAllRows.length}</div><div class="stat-label">Total Responses</div><div class="stat-sub">${recent} in last 30 days</div></div>
-    <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--primary)" onclick="setFsType('form',null)"><div class="stat-value">${forms.length}</div><div class="stat-label">Forms</div><div class="stat-sub">Intake & Inbound</div></div>
+    <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--primary)" onclick="setFsType('form',null)"><div class="stat-value">${forms.length}</div><div class="stat-label">Forms</div><div class="stat-sub">Intake, Roundtable & Inbound</div></div>
     <div class="stat-card" style="cursor:pointer;border-left:3px solid #8b5cf6" onclick="setFsType('survey',null)"><div class="stat-value">${surveys.length}</div><div class="stat-label">Surveys</div><div class="stat-sub">Speaker & Community</div></div>
     <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--accent)" onclick="setFsType('assessment',null)"><div class="stat-value">${assessments.length}</div><div class="stat-label">Assessments</div><div class="stat-sub">${assessments.length?'Avg AI: '+Math.round(assessments.reduce((s,r)=>s+(+r.ai_score||0),0)/assessments.length):'None yet'}</div></div>
     <div class="stat-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="setFsType('application',null)"><div class="stat-value">${apps.length}</div><div class="stat-label">Applications</div><div class="stat-sub">${apps.filter(r=>r.status==='submitted').length} pending</div></div>`;
 }
 
 function populateFsFilters(){
-  const sources=[...new Set(fsAllRows.map(r=>r.source_table))].sort();
+  const sources=[...new Set(fsAllRows.map(r=>r.form_name).filter(Boolean))].sort();
   const statuses=[...new Set(fsAllRows.map(r=>r.status).filter(Boolean))].sort();
-  document.getElementById('fsSourceFilter').innerHTML='<option value="">All Sources</option>'+sources.map(s=>`<option>${s}</option>`).join('');
+  document.getElementById('fsSourceFilter').innerHTML='<option value="">All Forms</option>'+sources.map(s=>`<option>${s}</option>`).join('');
   document.getElementById('fsStatusFilter').innerHTML='<option value="">All Statuses</option>'+statuses.map(s=>`<option value="${s}">${s[0].toUpperCase()+s.slice(1)}</option>`).join('');
 }
 
@@ -9432,9 +9504,9 @@ function renderForms(){
 
   fsFiltered=fsAllRows.filter(r=>{
     if(fsActiveType!=='all'&&r.type!==fsActiveType)return false;
-    if(source&&r.source_table!==source)return false;
+    if(source&&r.form_name!==source)return false;
     if(status&&r.status!==status)return false;
-    if(search){const h=`${r.name} ${r.email} ${r.company} ${r.source_table}`.toLowerCase();if(!h.includes(search))return false;}
+    if(search){const h=`${r.name} ${r.email} ${r.company} ${r.source_table} ${r.form_name}`.toLowerCase();if(!h.includes(search))return false;}
     if(from&&r.date&&r.date<from)return false;
     if(to&&r.date&&r.date.slice(0,10)>to)return false;
     return true;
@@ -9474,7 +9546,8 @@ function renderFsTable(){
     return '<tr style="cursor:pointer" onclick="showFsDetail(\''+r.id+'\',\''+r._table+'\')">'+vis.map(c=>{
       const v=r[c.key]||'';
       if(c.key==='type')return `<td>${typeBadge(r.type)}</td>`;
-      if(c.key==='status'&&v)return `<td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:${v==='completed'||v==='converted'||v==='qualified'?'var(--success)':v==='new'?'var(--primary)':v==='contacted'?'var(--accent)':v==='disqualified'?'var(--danger)':'var(--text-muted)'}"></span>${v}</td>`;
+      if(c.key==='form_name')return `<td><span style="display:inline-block;padding:2px 9px;border-radius:6px;font-size:.72rem;font-weight:600;background:var(--hover);border:1px solid var(--border);white-space:nowrap">${v||'—'}</span></td>`;
+      if(c.key==='status'&&v)return `<td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:${v==='completed'||v==='converted'||v==='qualified'||v==='registered'?'var(--success)':v==='new'||v==='pending'?'var(--primary)':v==='contacted'?'var(--accent)':v==='disqualified'?'var(--danger)':'var(--text-muted)'}"></span>${v}</td>`;
       if(c.key==='date'&&v)return `<td style="color:var(--text-muted)">${new Date(v).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>`;
       if(c.key==='lead_score'&&v)return `<td style="font-weight:600;color:${+v>=7?'var(--success)':+v>=4?'var(--accent)':'var(--danger)'}">${v}/10</td>`;
       if(c.key==='ai_score'&&v)return `<td style="font-weight:600;color:var(--accent)">${v}</td>`;
@@ -9505,49 +9578,104 @@ function renderFsPagination(){
 }
 function fsPg(p){const t=Math.ceil(fsFiltered.length/FS_PAGE_SIZE);if(p<1||p>t)return;fsPage=p;renderFsTable();}
 
-// Detail panel
+// Detail panel — shows EVERYTHING captured for a single response.
+const FS_ESC=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// Friendly question labels for the structured intake fields (so responses read like a Q&A).
+const FS_FIELD_LABELS={
+  goals_90_days:'90-Day Goals',biggest_challenge:'Biggest Challenge',has_business:'Has a Business?',
+  business_name:'Business Name',current_revenue:'Current Revenue',revenue_goal:'Revenue Goal',
+  current_tech_usage:'Current Tech Stack',tech_wishlist:'Tech Wishlist',support_areas:'Support Areas',
+  social_platforms:'Social Platforms',social_handles:'Social Handles',other_details:'Other Details',
+  selected_date:'Selected Date',profile_completed:'Profile Completed',
+  core_outcome:'Core Outcome',morning_screen:'First Screen Each Morning',automate_wish:'Wants to Automate',
+  monthly_revenue:'Monthly Revenue',active_clients:'Active Clients',team_size:'Team Size',
+  tier_selected:'Tier Selected',ascension_model:'Ascension Model',client_acquisition:'Client Acquisition',
+  bp_time_sink:'Biggest Time Sink',bp_revenue_driver:'Top Revenue Driver',bp_ten_x:'What Would 10x It',
+  bp_core_outcome:'Core Outcome',bp_target_users:'Target Users',bp_biggest_bottleneck:'Biggest Bottleneck',
+  mb_strengths:'Strengths',mb_weaknesses:'Weaknesses',mb_opportunities:'Opportunities',mb_threats:'Threats',
+  mb_dream_system:'Dream System',mb_systems_needed:'Systems Needed',mb_cost_of_inaction:'Cost of Inaction',
+  ws_current_url:'Current Website',ws_style_vibe:'Style / Vibe',ws_pages_needed:'Pages Needed',
+  ws_features_needed:'Features Needed',ws_primary_cta:'Primary CTA',ws_ideal_client:'Ideal Client',
+  ws_differentiator:'Differentiator',where_we_met:'Where We Met',service_interest:'Service Interest',
+  notes:'Notes'
+};
+function fsFieldLabel(k){return FS_FIELD_LABELS[k]||k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function fsRow(label,val){
+  return `<div style="display:flex;margin-bottom:7px;gap:10px"><span style="width:140px;font-size:.78rem;color:var(--text-muted);flex-shrink:0">${FS_ESC(label)}</span><span style="font-size:.82rem;word-break:break-word;white-space:pre-wrap">${FS_ESC(val)}</span></div>`;
+}
+function fsSection(title){
+  return `<div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:0 0 10px;padding-bottom:5px;border-bottom:1px solid var(--border)">${FS_ESC(title)}</div>`;
+}
+function fsFmtVal(v){
+  if(v==null)return '';
+  if(Array.isArray(v))return v.length?v.join(', '):'';
+  if(typeof v==='object'){
+    const parts=Object.entries(v).filter(([,vv])=>vv!=null&&vv!=='');
+    if(!parts.length)return '';
+    return parts.map(([kk,vv])=>`${fsFieldLabel(kk)}: ${typeof vv==='object'?JSON.stringify(vv):vv}`).join('\n');
+  }
+  if(typeof v==='boolean')return v?'Yes':'No';
+  return String(v);
+}
+
 function showFsDetail(id,table){
   const row=fsAllRows.find(r=>String(r.id)===String(id)&&r._table===table);
   if(!row)return;
-  const raw=row._raw;
-  let h=`<div style="margin-bottom:1rem">${document.querySelector('.fs-type')?.parentElement?.querySelector('[data-type]')?' ':''}`;
+  const raw=row._raw||{};
   const colors={form:'var(--primary)',survey:'#8b5cf6',assessment:'var(--accent)',application:'#ef4444'};
-  h+=`<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:600;text-transform:uppercase;background:${colors[row.type]||'#666'}22;color:${colors[row.type]||'#666'};border:1px solid ${colors[row.type]||'#666'}33;margin-bottom:8px">${row.type}</span>`;
-  h+=`<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:8px">${row.source_table}</div>`;
-  h+=`<div style="font-size:1.2rem;font-weight:700;margin-bottom:4px">${row.name||'No Name'}</div>`;
-  if(row.email)h+=`<div style="font-size:.85rem;color:var(--primary);margin-bottom:2px">${row.email}</div>`;
-  if(row.phone)h+=`<div style="font-size:.85rem;color:var(--text-muted);margin-bottom:12px">${row.phone}</div>`;
+  const c=colors[row.type]||'#666';
+
+  // ── Header ──
+  let h=`<div style="margin-bottom:1.25rem">`;
+  h+=`<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:600;text-transform:uppercase;background:${c}22;color:${c};border:1px solid ${c}33;margin-bottom:10px">${FS_ESC(row.type)}</span>`;
+  h+=`<div style="font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:2px">${FS_ESC(row.form_name||row.source_table)}</div>`;
+  h+=`<div style="font-size:.7rem;color:var(--text-muted);margin-bottom:12px">Stored in: ${FS_ESC(row.source_table)}${row.date?' · '+new Date(row.date).toLocaleString():''}</div>`;
+  h+=`<div style="font-size:1.3rem;font-weight:700;margin-bottom:4px">${FS_ESC(row.name||'No Name')}</div>`;
+  if(row.email)h+=`<div style="font-size:.85rem;color:var(--primary);margin-bottom:2px"><a href="mailto:${FS_ESC(row.email)}" style="color:var(--primary)">${FS_ESC(row.email)}</a></div>`;
+  if(row.phone)h+=`<div style="font-size:.85rem;color:var(--text-muted)">${FS_ESC(row.phone)}</div>`;
   h+='</div>';
 
-  h+='<div style="margin-bottom:1.25rem"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Overview</div>';
-  [['Company',row.company],['Status',row.status],['Date',row.date?new Date(row.date).toLocaleString():''],['Form Type',row.form_type],['Industry',row.industry],['Revenue',row.revenue_range],['Budget',row.budget],['Lead Score',row.lead_score?row.lead_score+'/10':''],['AI Score',row.ai_score]].forEach(([l,v])=>{
-    if(v)h+=`<div style="display:flex;margin-bottom:6px"><span style="width:110px;font-size:.8rem;color:var(--text-muted);flex-shrink:0">${l}</span><span style="font-size:.8rem">${v}</span></div>`;
+  // ── Overview (the normalized summary fields) ──
+  const overview=[['Company',row.company],['Status',row.status],['Submitted',row.date?new Date(row.date).toLocaleString():''],
+    ['Form Type',row.form_type&&fsFieldLabel(row.form_type)],['Industry',row.industry],['Revenue',row.revenue_range],
+    ['Budget',row.budget],['Lead Score',row.lead_score?row.lead_score+'/10':''],['AI Score',row.ai_score]].filter(([,v])=>v);
+  if(overview.length){h+='<div style="margin-bottom:1.4rem">'+fsSection('Overview')+overview.map(([l,v])=>fsRow(l,v)).join('')+'</div>';}
+
+  // ── Full responses: every remaining field on the raw record ──
+  // Fields already shown in the header/overview so we don't repeat them.
+  const shown=new Set(['id','type','created_at','updated_at','submitted_at','reviewed_at','contacted_at',
+    'converted_at','build_started_at','delivered_at','name','first_name','last_name','full_name','preferred_name',
+    'email','phone','company','business_name','status','form_type','company_industry','company_size',
+    'company_domain','budget','budget_range','lead_score','ai_opportunity_score','revenue_range','current_revenue',
+    'monthly_revenue','industry','mb_industry','title','job_title','profile_id','client_id','lead_id','deal_id',
+    'project_id','draft_token','current_page','external_id','prospecting_run_id','campaign_assigned',
+    'enriched_at','last_contacted_at','contact_count','nurture_status','lead_type','added_by',
+    'utm_source','utm_medium','utm_campaign','referral_source','logo_url']);
+
+  // Long-form text answers (the heart of the response) rendered as readable Q&A.
+  const longKeys=['notes','goals_90_days','biggest_challenge','core_outcome','morning_screen','automate_wish',
+    'tech_wishlist','current_tech_usage','additional_notes','other_details','service_interest','where_we_met',
+    'bp_time_sink','bp_revenue_driver','bp_ten_x','bp_core_outcome','bp_biggest_bottleneck',
+    'mb_strengths','mb_weaknesses','mb_opportunities','mb_threats','mb_dream_system','mb_systems_needed',
+    'mb_cost_of_inaction','ws_current_url','ws_style_vibe','ws_features_needed','ws_ideal_client','ws_differentiator'];
+  let answers='';
+  longKeys.forEach(k=>{const v=raw[k];if(v&&!shown.has(k)){answers+=`<div style="margin-bottom:12px"><div style="font-size:.78rem;color:var(--text-muted);margin-bottom:3px">${fsFieldLabel(k)}</div><div style="font-size:.85rem;white-space:pre-wrap;word-break:break-word;background:var(--hover);padding:8px 10px;border-radius:6px;border:1px solid var(--border)">${FS_ESC(v)}</div></div>`;shown.add(k);}});
+  if(answers)h+='<div style="margin-bottom:1.4rem">'+fsSection('Their Responses')+answers+'</div>';
+
+  // Remaining simple + structured fields (arrays, jsonb like metadata/tags, misc scalars).
+  let rest='';
+  Object.keys(raw).forEach(k=>{
+    if(shown.has(k))return;
+    const v=raw[k];
+    const formatted=fsFmtVal(v);
+    if(formatted==='')return;
+    rest+=fsRow(fsFieldLabel(k),formatted);
   });
-  h+='</div>';
+  if(rest)h+='<div style="margin-bottom:1.4rem">'+fsSection('All Captured Details')+rest+'</div>';
 
-  // Complex fields (JSON/arrays)
-  const complex=Object.keys(raw).filter(k=>{const v=raw[k];return v&&typeof v==='object'&&k!=='id';});
-  if(complex.length){
-    h+='<div style="margin-bottom:1.25rem"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Detailed Responses</div>';
-    complex.forEach(k=>{
-      const v=raw[k];const label=k.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
-      if(Array.isArray(v))h+=`<div style="display:flex;margin-bottom:6px"><span style="width:110px;font-size:.8rem;color:var(--text-muted);flex-shrink:0">${label}</span><span style="font-size:.8rem;word-break:break-word">${v.join(', ')}</span></div>`;
-      else h+=`<div style="margin-bottom:8px"><div style="font-size:.8rem;color:var(--text-muted);margin-bottom:2px">${label}</div><pre style="font-size:.75rem;background:var(--hover);padding:8px;border-radius:6px;overflow-x:auto;white-space:pre-wrap">${JSON.stringify(v,null,2)}</pre></div>`;
-    });
-    h+='</div>';
-  }
-
-  // Extra text fields
-  const skip=new Set(['id','created_at','submitted_at','email','phone','name','first_name','last_name','preferred_name','company','status','notes','utm_source','utm_medium','utm_campaign','form_type','industry','revenue_range','team_size','budget','timeline','service_interest','lead_score','ai_opportunity_score','budget_range','company_industry','company_size','company_domain','job_title']);
-  const extras=Object.entries(raw).filter(([k,v])=>!skip.has(k)&&v&&typeof v!=='object');
-  if(extras.length){
-    h+='<div style="margin-bottom:1.25rem"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Additional Fields</div>';
-    extras.forEach(([k,v])=>{
-      const label=k.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
-      h+=`<div style="display:flex;margin-bottom:6px"><span style="width:110px;font-size:.8rem;color:var(--text-muted);flex-shrink:0">${label}</span><span style="font-size:.8rem;word-break:break-word">${v}</span></div>`;
-    });
-    h+='</div>';
-  }
+  // UTM / attribution, shown last and only if present.
+  const utm=[['UTM Source',raw.utm_source],['UTM Medium',raw.utm_medium],['UTM Campaign',raw.utm_campaign],['Referral Source',raw.referral_source],['Added By',raw.added_by]].filter(([,v])=>v);
+  if(utm.length)h+='<div style="margin-bottom:1rem">'+fsSection('Attribution')+utm.map(([l,v])=>fsRow(l,v)).join('')+'</div>';
 
   document.getElementById('fsDetailContent').innerHTML=h;
   document.getElementById('fsDetailOverlay').style.display='block';
