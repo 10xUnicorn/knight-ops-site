@@ -47,6 +47,10 @@
       "destination": "/api/preview?slug=:slug"
     },
     {
+      "source": "/le/:slug",
+      "destination": "/api/le?slug=:slug"
+    },
+    {
       "source": "/:path",
       "destination": "/:path.html"
     }
@@ -81,6 +85,15 @@
     },
     {
       "source": "/preview/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/le/(.*)",
       "headers": [
         {
           "key": "Content-Type",
