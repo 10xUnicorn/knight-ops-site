@@ -209,6 +209,17 @@ Zoom = knightops.biz/roundtable-zoom. Times are UTC for PDT (UTC−7); shift +1h
 
 ---
 
+## Event Lead Engine (2026-06-19)
+
+Free/$1,497 custom interactive lead-capture magnets for event vendors/speakers. Full spec: `EVENT-LEAD-ENGINE-SPEC.md`.
+- Pages: `/event-lead-engine` (offer), `/event-lead-engine-intake` (form), `/ele-admin` (approvals), `/le/:slug` (hosted magnet via `api/le.js`→`serve-le`).
+- Tables: `ele_builds`, `ele_leads`, `ele_event_hosts`. Attendee leads dual-write to `leads` (source=`event`, tag `ele-magnet`, lead_type inbound — Rule 2 safe).
+- Magnet engine template lives in storage `ele-assets/engine/ele-magnet-engine.html` (builder reads from storage). Re-upload after editing `templates/ele-magnet-engine.html`.
+- Edge fns: ele-intake, ele-build, ele-capture, ele-approve, ele-autosend (pg_cron 30m → 24h auto-send), ele-review, ele-save, ele-resume, ele-host-coupon, ele-stripe-webhook, serve-le.
+- Stripe LIVE: build $1,497, hosting $97/mo, transfer $249. Delivery email from team@knightops.biz, reply-to eden@knightops.biz.
+
+---
+
 ## Frontend Pages
 
 ### Admin & Internal

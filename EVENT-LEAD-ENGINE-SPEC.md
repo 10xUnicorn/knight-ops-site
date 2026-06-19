@@ -26,11 +26,44 @@ A near-zero-touch system that lets event speakers, sponsors, and exhibitors get 
 | 4 | `event-lead-engine.html` offer landing page | ✅ Done |
 | 5 | `event-lead-engine-intake.html` intake form (live preview, review-with-AI, approve/revise/edit, save) | ✅ Done |
 | 5 | `templates/ele-magnet-engine.html` config-driven magnet engine | ✅ Done |
-| **6** | **Edge functions (intake, build/Sonnet, review, save/resume, capture, approve, regenerate, stripe-webhook, host-coupon)** | ⏳ Next |
-| **7** | **Stripe products + coupons + payment links** | ⏳ Next |
-| **8** | **Admin wiring (ELE applications, preview link, Approve/Regenerate/Decline, hosted clients, ele_leads view, 24h auto-send cron)** | ⏳ Next |
-| 9 | `/le/:slug` routing (surgical vercel.json edit) | ⏳ Next |
-| 10 | End-to-end test + git push deploy | ⏳ Next |
+| 6 | Edge functions (intake, build, review, save/resume, capture, approve, autosend, stripe-webhook, host-coupon, serve-le) | ✅ Done |
+| 7 | Stripe products + payment links (+ coupon fn) | ✅ Done |
+| 8 | Admin wiring (ele-admin.html + admin.html quick link) | ✅ Done |
+| 9 | `/le/:slug` routing (api/le.js + vercel.json) | ✅ Done |
+| 10 | End-to-end test (KnightOps + Unicorn Universe) + git push deploy | ✅ Done |
+
+---
+
+## Phase 6+ — SHIPPED (2026-06-19)
+
+**Deployed commit:** `361c70a` (Vercel READY, production). vercel.json was restored to the canonical GitHub version + only the `/le` route added (the mounted copy had been stale and missing `/assessment`, `/sitemap.xml`, `/map`, `/app` routes — those are preserved).
+
+**Edge functions (all live, verify_jwt=false):** `ele-intake`, `ele-build`, `ele-capture`, `ele-approve`, `ele-autosend`, `ele-review`, `ele-save`, `ele-resume`, `ele-host-coupon`, `ele-stripe-webhook`, `serve-le`.
+
+**Magnet template source of truth:** stored in `ele-assets` bucket at `engine/ele-magnet-engine.html` (builder reads from storage, NOT the website — avoids redirect/timeout). **If you edit `templates/ele-magnet-engine.html`, re-upload it to that storage object** or builds use the old engine.
+
+**Stripe (LIVE mode, acct_1TjiAc3cMVgmMIuj):**
+- Build $1,497 → price `price_1TjxxR3cMVgmMIujpFpkB8ar` → link `https://buy.stripe.com/14AdR21kzcDg22O4UG2B200` (promo codes on)
+- Hosting $97/mo → price `price_1TjxyC3cMVgmMIuj7g3Jlz4o` → link `https://buy.stripe.com/bJe5kwbZdgTw6j4gDo2B201`
+- Transfer $249 → price `price_1TjxyD3cMVgmMIujCqdbKlxD` → link `https://buy.stripe.com/00w00c8N17iWcHsevg2B202`
+- Per-host 100%-off coupons minted by `ele-host-coupon` (needs `STRIPE_SECRET_KEY` secret).
+
+**Admin:** `/ele-admin` (lists builds, preview, Approve/Regenerate/Decline, host-coupon generator, lead counts). Floating quick-link added to `/admin`.
+
+**Cron:** pg_cron job `ele-autosend-30m` (jobid 11) runs every 30 min → approves preview_ready builds past `auto_send_at` (24h).
+
+**Verified end-to-end (2 live demo builds, status delivered):**
+- Knight Ops — quiz — `https://knightops.biz/le/speaker-quiz-ai-founders-summit`
+- Unicorn Universe — archetype — `https://knightops.biz/le/unicorn-dna-connection-event`
+Chain confirmed: intake → vendor lead in /admin → application → ele-build (real engine, not fallback) → preview → approve → Resend delivery email (from team@knightops.biz, reply-to eden@) → attendee capture dual-write (ele_leads + KO copy in leads tagged `ele-magnet`).
+
+**Secrets required in Supabase:** `RESEND_API_KEY` (✅ confirmed working), `STRIPE_SECRET_KEY` (for coupons), `ANTHROPIC_API_KEY` (optional — ele-review AI polish; falls back to deterministic client mockup if absent), optional `STRIPE_WEBHOOK_SECRET`.
+
+**Notes / hardening TODO:**
+- `notifications.type` enum has no `ele` → uses `new_lead`.
+- `ele-stripe-webhook` does not yet verify the Stripe signature (set `STRIPE_WEBHOOK_SECRET` + verify). Point a Stripe webhook at `…/functions/v1/ele-stripe-webhook`.
+- RLS: `ele_builds`/`ele_leads`/`ele_event_hosts` allow anon SELECT (consistent with existing admin reads via anon key). Harden later to authenticated-only if admin moves to session auth.
+- Confirm support email is `eden@knightops.biz` (used in delivery emails).
 
 ---
 
