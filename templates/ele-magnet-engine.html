@@ -5,236 +5,282 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>{{MAGNET_TITLE}}</title>
 <!--
-  ============================================================
-  EVENT LEAD ENGINE — MAGNET ENGINE (config-driven template)
-  ============================================================
-  The ele-build edge function injects window.ELE_CONFIG (below) per vendor.
-  This single engine renders ALL mechanisms + ALL styles + ALL CTAs,
-  captures the lead, dual-posts (Knight Ops capture endpoint + vendor webhook),
-  passes interactive data, and routes to the chosen CTA page.
-  Required on EVERY build (do not remove): pre-checked consent line,
-  "Powered by Knight Ops" footer link, client company copyright.
-  ============================================================
+  EVENT LEAD ENGINE — MAGNET ENGINE v2 (theme-driven, AI-styled)
+  ele-build injects window.ELE_CONFIG (with an optional ai `theme`).
+  Guarantees on every build: interactive step, capture form, pre-checked
+  consent, view+submission tracking, "Powered by Knight Ops" footer.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#05061a;--acc:#C9922A;--sec:#7B2FFF;--txt:#f6f5f2;--mut:rgba(255,255,255,.62);--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.14);--radius:16px;--font:'Inter',sans-serif;--display:'Inter',sans-serif}
-html,body{min-height:100dvh;background:var(--bg);color:var(--txt);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
-.wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 18px}
-.container{width:100%;max-width:560px}
-.logo{text-align:center;margin-bottom:18px}
-.logo img{max-height:46px}
-.logo .wordmark{font-weight:800;letter-spacing:.28em;color:var(--acc);font-size:1.05rem}
-.kicker{text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;opacity:.9}
-h1.q{font-family:var(--display);font-size:clamp(1.5rem,5vw,2rem);font-weight:800;text-align:center;line-height:1.2;margin-bottom:10px}
-.sub{text-align:center;color:var(--mut);font-size:.95rem;margin-bottom:24px}
+:root{
+  --bg:#05061a;--bg2:#0a0c24;--accent:#C9922A;--accent2:#7B2FFF;
+  --text:#f6f5f2;--mut:rgba(255,255,255,.62);--card:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.14);--btnText:#1a1303;--radius:18px;
+  --fh:'Space Grotesk',sans-serif;--fb:'Inter',sans-serif;--shadow:0 24px 60px rgba(0,0,0,.35);
+}
+html,body{min-height:100dvh;background:var(--bg);color:var(--text);font-family:var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#fx{position:fixed;inset:0;z-index:5;pointer-events:none}
+.wrap{position:relative;z-index:2;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 16px}
+.container{width:100%;max-width:600px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;backdrop-filter:blur(6px)}
+.topbar{height:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.pad{padding:30px 26px 32px}
+@media(max-width:480px){.pad{padding:24px 18px 26px}}
+.logo{text-align:center;margin-bottom:16px}
+.logo img{max-height:46px;object-fit:contain}
+.logo .wm{font-family:var(--fh);font-weight:800;letter-spacing:.22em;color:var(--accent);font-size:1rem;text-transform:uppercase}
+.kicker{text-align:center;font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+h1.q{font-family:var(--fh);font-size:clamp(1.55rem,5.2vw,2.15rem);font-weight:800;text-align:center;line-height:1.18;margin-bottom:10px;letter-spacing:-.01em}
+h1.q .hl{color:var(--accent)}
+.sub{text-align:center;color:var(--mut);font-size:.97rem;margin-bottom:22px;line-height:1.5}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:420px){.grid{grid-template-columns:1fr}}
-.opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px 16px;cursor:pointer;transition:.2s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:12px}
-.opt:hover,.opt.sel{border-color:var(--acc);background:rgba(201,146,42,.12);transform:translateY(-2px)}
-.opt .badge{flex:none;width:30px;height:30px;border-radius:50%;background:var(--acc);color:#1a1303;font-weight:800;display:flex;align-items:center;justify-content:center}
-.opt b{font-weight:700;font-size:.98rem}
-.btn{width:100%;border:none;border-radius:13px;padding:16px;font-weight:800;font-size:1rem;cursor:pointer;background:linear-gradient(135deg,var(--acc),#e7b84e);color:#1a1303;transition:.15s;font-family:inherit}
-.btn:hover{filter:brightness(1.07)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn-sec{background:var(--card);border:1px solid var(--line);color:var(--txt)}
-.field{margin-bottom:12px}
-.field input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;color:var(--txt);padding:13px 15px;font-size:1rem;font-family:inherit}
-.field input:focus{outline:none;border-color:var(--acc)}
-.consent{display:flex;gap:10px;align-items:flex-start;margin:14px 0 18px;font-size:.76rem;color:var(--mut);line-height:1.45}
-.consent input{margin-top:3px;width:17px;height:17px;accent-color:var(--acc);flex:none}
-.consent a{color:var(--acc)}
-.card-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px}
-.foot{text-align:center;margin-top:22px;font-size:.72rem;color:var(--mut)}
-.foot a{color:var(--acc);text-decoration:none;font-weight:700}
-.step{display:none;animation:fade .45s ease both}
-.step.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.reveal-tag{display:inline-block;background:rgba(201,146,42,.16);border-left:3px solid var(--acc);padding:12px 16px;border-radius:8px;margin:14px 0;text-align:left;width:100%}
-.reveal-tag small{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:4px}
-.gift-card{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;margin:16px 0}
-.gift-card .v{font-size:.72rem;color:var(--acc);font-weight:700}
-.wheel-wrap{text-align:center;margin:10px 0 18px}
-#wheel{max-width:260px;width:100%}
-.scratch{position:relative;width:100%;height:130px;border-radius:12px;overflow:hidden;margin:14px 0;cursor:pointer}
+@media(max-width:430px){.grid{grid-template-columns:1fr}}
+.opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:17px 16px;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:13px;-webkit-tap-highlight-color:transparent;text-align:left}
+.opt:hover,.opt.sel{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.opt .badge{flex:none;width:32px;height:32px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.opt.sel .badge{background:var(--accent);color:var(--btnText)}
+.opt b{font-weight:600;font-size:.98rem;line-height:1.25}
+.btn{width:100%;border:none;border-radius:13px;padding:16px;font-weight:800;font-size:1.02rem;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--btnText);transition:.15s;font-family:var(--fb);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.alt{background:var(--card);border:1px solid var(--line);color:var(--text);box-shadow:none}
+.field{margin-bottom:11px}
+.field input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:11px;color:var(--text);padding:14px 15px;font-size:1rem;font-family:inherit}
+.field input::placeholder{color:var(--mut)}
+.field input:focus{outline:none;border-color:var(--accent)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:13px 0 16px;font-size:.76rem;color:var(--mut);line-height:1.45}
+.consent input{margin-top:2px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.two-col{display:grid;grid-template-columns:1fr 0.8fr;gap:22px;align-items:center}
+@media(max-width:560px){.two-col{grid-template-columns:1fr;gap:18px}}
+.reveal-tag{display:block;background:color-mix(in srgb,var(--accent) 16%,transparent);border-left:4px solid var(--accent);padding:13px 16px;border-radius:10px;margin:14px 0;text-align:left}
+.reveal-tag small{display:block;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:4px}
+.reveal-tag b{font-size:1.02rem}
+.cover{border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.3);background:linear-gradient(150deg,var(--accent),var(--accent2));aspect-ratio:3/4;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#fff;position:relative}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover .lbl{position:relative;z-index:1;font-weight:800;font-size:1.05rem;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.cover .val{position:relative;z-index:1;font-size:.74rem;font-weight:700;opacity:.9;margin-top:6px;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.cover .ico{position:relative;z-index:1;font-size:2.2rem;margin-bottom:auto}
+.gift-pill{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin:14px 0;display:flex;align-items:center;gap:12px}
+.gift-pill .v{font-size:.72rem;color:var(--accent);font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:20px}
+.chip{border:1.5px solid var(--accent);color:var(--text);border-radius:999px;padding:9px 15px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s;background:var(--card)}
+.chip.sel{background:var(--accent);color:var(--btnText)}
+.wheel-wrap{text-align:center;margin:6px 0 16px;position:relative}
+#wheel{max-width:300px;width:100%;height:auto;filter:drop-shadow(0 14px 30px rgba(0,0,0,.3))}
+.scratch{position:relative;width:100%;height:150px;border-radius:14px;overflow:hidden;margin:14px 0;cursor:pointer;border:1px solid var(--line)}
 .scratch canvas{position:absolute;inset:0;width:100%;height:100%}
-.scratch .under{display:flex;align-items:center;justify-content:center;height:100%;font-weight:800;font-size:1.1rem;background:rgba(201,146,42,.14)}
-.chip{border:1px solid var(--acc);border-radius:999px;padding:7px 13px;font-size:.82rem;cursor:pointer;transition:.15s}
-.chip.sel{background:var(--acc);color:#1a1303;font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.scratch .under{display:flex;align-items:center;justify-content:center;height:100%;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-align:center;padding:10px}
+.step{display:none;animation:fade .5s ease both}
+.step.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.foot{text-align:center;margin-top:20px;font-size:.72rem;color:var(--mut)}
+.foot a{color:var(--accent);text-decoration:none;font-weight:700}
+.small{font-size:.78rem;color:var(--mut);text-align:center;margin-top:8px}
 </style>
 </head>
 <body>
+<canvas id="bg"></canvas>
 <canvas id="fx"></canvas>
 <div class="wrap"><div class="container">
   <div id="app"></div>
-  <div class="foot">Powered by <a href="https://knightops.biz" target="_blank" rel="noopener" id="poweredLink">Knight Ops</a> · <span id="copyright">© Company</span></div>
+  <div class="foot">Powered by <a id="poweredLink" href="https://knightops.biz" target="_blank" rel="noopener">Knight Ops</a> · <span id="copyright">© Company</span></div>
 </div></div>
 
 <script>
-/* ===== DEFAULT DEMO CONFIG — the ele-build edge function overwrites this ===== */
+/* ===== DEFAULT DEMO CONFIG (ele-build overwrites) ===== */
 window.ELE_CONFIG = window.ELE_CONFIG || {
-  build_id:"demo",
-  magnet_title:"What Makes a Great Speech?",
-  company:"Knight Ops",
-  logo_url:"",
-  design_style:"cosmic_gold",
-  colors:{primary:"#05061a",accent:"#C9922A",secondary:"#7B2FFF",text:"#f6f5f2"},
+  build_id:"demo", company:"Knight Ops", logo_url:"", design_style:"clean_light",
+  colors:{primary:"#fbf7f0",accent:"#E8643C",secondary:"#C9922A",text:"#1a1303"},
+  theme:null,
+  magnet_title:"What Makes a Real Estate Deal a Good Deal?",
   mechanism:"quiz",
-  config:{
-    question:"What's the #1 way to tell if your speech was a good speech?",
-    sub:"Pick the strongest answer to reveal what actually matters.",
-    choices:["People come up to you after","No mistakes, engaged audience","People converted into your offer","Killer content to reuse"],
-    correct:2,
-    result:"The best answer is conversions.",
-    explain:"Applause feels good, but conversions are the real measure. A great speech moves people to act."
-  },
-  gift:{name:"The Speaker's Edge Guide",value:"$197 value",file_url:"",url:""},
-  cta:{type:"download"}, // download | calendar | text_keyword | offer | redirect
-  cta_config:{}, // calendar:{url|embed}, text_keyword:{keyword,phone}, offer:{offer_url,checkout}, redirect:{url}
-  consent_text:"Yes! Send my gift and keep me in the loop. I agree {company} and Knight Ops may follow up by email.",
-  endpoints:{
-    capture:"https://trpnlkntvulkjerevngm.supabase.co/functions/v1/ele-capture",
-    anon:"PUBLIC_ANON_KEY",
-    vendor_webhook:"" // optional: vendor CRM webhook URL
-  }
+  config:{ question:"What makes a real estate deal a", accent_word:"good deal?", sub:"Most people focus on the wrong thing first. Choose the strongest answer.", choices:["The Numbers / Sales Price","The Condition of the Property","The Seller's Situation / Motivation","The Terms of the Loan"], correct:2, result:"The best answer is the seller's situation and motivation.", explain:"The strongest opportunities come from understanding the seller's real situation and motivation." },
+  gift:{name:"The Little-Known Secret for Wealthy Real Estate",value:"$197 value",image_url:"",file_url:"",url:""},
+  cta:{type:"download"}, cta_config:{},
+  consent_text:"Yes! Send my gift and keep me in the loop. I agree {company} and Knight Ops may follow up.",
+  endpoints:{ capture:"", track:"", anon:"", vendor_webhook:"" }
 };
-
 const C=window.ELE_CONFIG, cfg=C.config||{}, app=document.getElementById('app');
-const STATE={interactive:{}, type:''};
+const STATE={interactive:{},type:'',contact:null};
 
-/* ---- apply palette + style ---- */
-(function(){
-  const styles={
-    cosmic_gold:{bg:C.colors.primary||'#05061a',display:"'Playfair Display',serif",fx:'stars'},
-    clean_light:{bg:'#ffffff',text:'#1a1303',mut:'#5a5a5a',card:'#f6f2ea',line:'#e4ddd0',display:"'Playfair Display',serif",fx:'none'},
-    bold_neon:{bg:'#0a0a0a',display:"'Inter',sans-serif",fx:'grid'},
-    elegant_editorial:{bg:C.colors.primary||'#11132e',display:"'Playfair Display',serif",fx:'none'}
-  };
-  const s=styles[C.design_style]||styles.cosmic_gold;const r=document.documentElement.style;
-  r.setProperty('--bg',s.bg);r.setProperty('--acc',C.colors.accent||'#C9922A');r.setProperty('--sec',C.colors.secondary||'#7B2FFF');
-  r.setProperty('--display',s.display);
-  if(s.text){r.setProperty('--txt',s.text);r.setProperty('--mut',s.mut);r.setProperty('--card',s.card);r.setProperty('--line',s.line);}
-  STATE.fx=s.fx;
+/* ===== THEME ENGINE ===== */
+const FONTS={inter:"'Inter',sans-serif",poppins:"'Poppins',sans-serif",outfit:"'Outfit',sans-serif",space:"'Space Grotesk',sans-serif",playfair:"'Playfair Display',serif",fraunces:"'Fraunces',serif",dmserif:"'DM Serif Display',serif"};
+const PRESETS={
+  cosmic_gold:{mode:'dark',bg:{type:'pattern',pattern:'stars',colors:['#05061a','#0a0c24']},accent:'#C9922A',accent2:'#7B2FFF',fh:'space',fb:'inter',decor:'stars'},
+  clean_light:{mode:'light',bg:{type:'solid',colors:['#fbf7f0']},accent:'#E8643C',accent2:'#C9922A',fh:'fraunces',fb:'inter',decor:'none',topbar:true},
+  bold_neon:{mode:'dark',bg:{type:'solid',colors:['#0a0a0a']},accent:'#00D4C8',accent2:'#7B2FFF',fh:'outfit',fb:'outfit',decor:'grid'},
+  elegant_editorial:{mode:'dark',bg:{type:'gradient',colors:['#11132e','#1c1430']},accent:'#C9922A',accent2:'#e7b84e',fh:'playfair',fb:'inter',decor:'none'},
+  vibrant_sunset:{mode:'dark',bg:{type:'gradient',colors:['#ff6a3d','#c81d77']},accent:'#ffd23f',accent2:'#ffffff',fh:'poppins',fb:'poppins',decor:'confetti-bg'},
+  playful_magenta:{mode:'dark',bg:{type:'pattern',pattern:'checker',colors:['#6d0a45','#5a0838']},accent:'#f5c542',accent2:'#ff5db1',fh:'poppins',fb:'poppins',decor:'none'},
+  ocean_fresh:{mode:'dark',bg:{type:'gradient',colors:['#0093E9','#0a4d68']},accent:'#80ffea',accent2:'#ffffff',fh:'outfit',fb:'inter',decor:'none'},
+  royal_purple:{mode:'dark',bg:{type:'gradient',colors:['#3a0ca3','#7209b7']},accent:'#f7b801',accent2:'#f8f0ff',fh:'playfair',fb:'inter',decor:'stars'}
+};
+function hexToRgb(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255];}
+function lum(hex){try{const[r,g,b]=hexToRgb(hex).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b;}catch(e){return 0;}}
+function deriveTheme(){
+  let t=Object.assign({},PRESETS[C.design_style]||PRESETS.clean_light);
+  if(C.theme&&typeof C.theme==='object')t=Object.assign(t,C.theme); // AI override
+  const col=C.colors||{};
+  // honor explicitly chosen brand colors / image palette
+  if(col.accent)t.accent=col.accent;
+  if(col.secondary)t.accent2=col.secondary;
+  if(col.primary&&!(C.theme&&C.theme.bg)){const L=lum(col.primary);t.bg={type:'solid',colors:[col.primary]};t.mode=L>0.5?'light':'dark';}
+  return t;
+}
+function applyTheme(t){
+  const r=document.documentElement.style;
+  const light=t.mode==='light';
+  r.setProperty('--accent',t.accent);r.setProperty('--accent2',t.accent2||t.accent);
+  r.setProperty('--text',light?'#15110a':'#f7f6f3');
+  r.setProperty('--mut',light?'rgba(20,16,10,.6)':'rgba(255,255,255,.62)');
+  r.setProperty('--card',light?'#ffffff':'rgba(255,255,255,.06)');
+  r.setProperty('--line',light?'rgba(20,16,10,.12)':'rgba(255,255,255,.14)');
+  r.setProperty('--btnText', lum(t.accent)>0.6?'#1a1303':'#ffffff');
+  r.setProperty('--fh',FONTS[t.fh]||FONTS.inter);r.setProperty('--fb',FONTS[t.fb]||FONTS.inter);
+  // background
+  const bg=t.bg||{type:'solid',colors:['#05061a']};const c=bg.colors||['#05061a'];
+  if(bg.type==='gradient')document.body.style.background='linear-gradient(160deg,'+c[0]+','+(c[1]||c[0])+')';
+  else document.body.style.background=c[0];
+  STATE.theme=t;
   document.title=C.magnet_title||'Lead Magnet';
   document.getElementById('copyright').textContent='© '+(C.company||'Company');
-})();
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function logoHtml(){return C.logo_url?'<div class="logo"><img src="'+C.logo_url+'" alt="'+esc(C.company)+'"></div>':'<div class="logo"><div class="wm">'+esc((C.company||'BRAND'))+'</div></div>';}
+function topbar(){return (STATE.theme&&STATE.theme.topbar)?'<div class="topbar"></div>':'';}
+function coverHtml(){const g=C.gift||{};if(g.image_url)return '<div class="cover"><img src="'+g.image_url+'" alt=""><div class="lbl">'+esc(g.name||'')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';return '<div class="cover"><div class="ico">🎁</div><div class="lbl">'+esc(g.name||'Your Free Gift')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';}
+function card(inner){return '<div class="card">'+topbar()+'<div class="pad">'+logoHtml()+inner+'</div></div>';}
 
-function logoHtml(){return C.logo_url?'<div class="logo"><img src="'+C.logo_url+'" alt="'+C.company+'"></div>':'<div class="logo"><div class="wordmark">'+(C.company||'BRAND').toUpperCase()+'</div></div>';}
-function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-
-/* ===================== MECHANISM RENDERERS ===================== */
-function renderMechanism(){
-  const m=C.mechanism;
+/* ===== MECHANISMS ===== */
+function renderMechanism(){const m=C.mechanism;
   if(m==='quiz')return renderQuiz();
   if(m==='guess_win')return renderGuess();
-  if(m==='spin_win')return renderSpin();
+  if(m==='spin_win')return renderSpinGate();
   if(m==='contest')return renderContest();
   if(m==='archetype')return renderArchetype();
   if(m==='scratch')return renderScratch();
   if(m==='pick_door')return renderPickDoor();
   return renderContest();
 }
-function renderQuiz(){
-  let sel=-1;
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Quick Question</div><h1 class="q">'+esc(cfg.question)+'</h1><div class="sub">'+esc(cfg.sub||'')+'</div><div class="grid" id="opts"></div><button class="btn" id="go" style="margin-top:18px" disabled>See the answer</button></div>';
-  const L=['A','B','C','D'];(cfg.choices||[]).forEach((ch,i)=>{const d=document.createElement('div');d.className='opt';d.innerHTML='<span class="badge">'+L[i]+'</span><b>'+esc(ch)+'</b>';d.onclick=()=>{document.querySelectorAll('#opts .opt').forEach(o=>o.classList.remove('sel'));d.classList.add('sel');sel=i;document.getElementById('go').disabled=false;};document.getElementById('opts').appendChild(d);});
-  document.getElementById('go').onclick=()=>{STATE.type='answer';STATE.interactive={selected:L[sel],selected_text:cfg.choices[sel],correct:L[cfg.correct],is_correct:sel===cfg.correct};showQuizReveal();};
+function renderQuiz(){let sel=-1;
+  const head='<div class="kicker">'+esc(cfg.kicker||'Quick Question')+'</div><h1 class="q">'+esc(cfg.question||'Your question')+(cfg.accent_word?' <span class="hl">'+esc(cfg.accent_word)+'</span>':'')+'</h1><div class="sub">'+esc(cfg.sub||'')+'</div>';
+  let opts='<div class="grid" id="opts"></div><button class="btn" id="go" style="margin-top:18px" disabled>'+esc(cfg.button||'See the answer')+'</button>';
+  app.innerHTML=card('<div class="step active">'+head+opts+'</div>');
+  const L=['A','B','C','D','E','F'];(cfg.choices||[]).forEach((ch,i)=>{const d=document.createElement('div');d.className='opt';d.innerHTML='<span class="badge">'+L[i]+'</span><b>'+esc(ch)+'</b>';d.onclick=()=>{[...document.querySelectorAll('#opts .opt')].forEach(o=>o.classList.remove('sel'));d.classList.add('sel');sel=i;document.getElementById('go').disabled=false;};document.getElementById('opts').appendChild(d);});
+  document.getElementById('go').onclick=()=>{STATE.type='answer';STATE.interactive={selected:L[sel],selected_text:cfg.choices[sel],correct:L[cfg.correct],is_correct:sel===cfg.correct};quizReveal();};
 }
-function showQuizReveal(){
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Your Result</div><h1 class="q">'+esc(cfg.result||'Here’s the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc(cfg.choices[cfg.correct])+'</b></div><div class="sub" style="margin-bottom:18px">'+esc(cfg.explain||'')+'</div><button class="btn" id="go">Continue →</button></div>';
-  document.getElementById('go').onclick=showCapture;
+function quizReveal(){
+  const inner='<div class="step active"><div class="two-col"><div><div class="kicker">Your Result</div><h1 class="q" style="text-align:left">'+esc(cfg.result||'Here is the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc((cfg.choices&&cfg.choices[cfg.correct])||'')+'</b></div><div class="sub" style="text-align:left;margin-bottom:18px">'+esc(cfg.explain||'')+'</div><button class="btn" id="go">'+esc(cfg.continue||'Continue →')+'</button></div><div>'+coverHtml()+'</div></div></div>';
+  app.innerHTML=card(inner);document.getElementById('go').onclick=showCapture;
 }
 function renderGuess(){
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Guess &amp; Win</div><h1 class="q">'+esc(cfg.label||'Guess the number')+'</h1><div class="gift-card"><b>🏆 '+esc(cfg.prize_win||'Closest guess wins')+'</b><div class="v">🎁 Everyone gets: '+esc(cfg.prize_all||C.gift.name)+'</div></div><div class="field"><input type="number" id="guess" placeholder="Type your best guess..."></div><button class="btn" id="go" disabled>Lock in my guess</button></div>';
-  const inp=document.getElementById('guess');inp.oninput=()=>document.getElementById('go').disabled=!inp.value;
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Guess & Win')+'</div><h1 class="q">'+esc(cfg.label||'Guess the number')+'</h1><div class="gift-pill"><span>🏆</span><div><b>'+esc(cfg.prize_win||'Closest guess wins')+'</b><div class="v">🎁 Everyone gets: '+esc(cfg.prize_all||(C.gift&&C.gift.name)||'a gift')+'</div></div></div><div class="field"><input type="number" id="guess" placeholder="Type your best guess..."></div><button class="btn" id="go" disabled>Lock in my guess</button></div>';
+  app.innerHTML=card(inner);const inp=document.getElementById('guess');inp.oninput=()=>document.getElementById('go').disabled=!inp.value;
   document.getElementById('go').onclick=()=>{STATE.type='guess';STATE.interactive={guess:inp.value,target:cfg.number};showCapture();};
 }
 function renderContest(){
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Enter to Win</div><h1 class="q">'+esc(cfg.prize?('Win '+cfg.prize):'Enter to Win')+'</h1>'+(cfg.prize?'<div class="gift-card"><b>🏆 '+esc(cfg.prize)+'</b></div>':'')+'<div class="sub">'+esc(cfg.rules||'Enter below for your chance to win. Winner announced after the event.')+'</div><button class="btn" id="go">Enter Now →</button></div>';
-  document.getElementById('go').onclick=()=>{STATE.type='entry';STATE.interactive={entered:true,prize:cfg.prize||''};showCapture();};
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Enter to Win')+'</div><h1 class="q">'+esc(cfg.prize?('Win '+cfg.prize):'Enter to Win')+'</h1>'+(cfg.prize?'<div class="gift-pill"><span>🏆</span><b>'+esc(cfg.prize)+'</b></div>':'')+'<div class="sub">'+esc(cfg.rules||'Enter for your chance to win. Winner announced after the event.')+'</div><button class="btn" id="go">Enter Now →</button></div>';
+  app.innerHTML=card(inner);document.getElementById('go').onclick=()=>{STATE.type='entry';STATE.interactive={entered:true,prize:cfg.prize||''};showCapture();};
 }
-function renderArchetype(){
-  const tr=cfg.traits||[];const picked=[];
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Find Your Type</div><h1 class="q">'+esc(cfg.prompt||'What’s your type?')+'</h1><div class="chips" id="chips"></div><button class="btn" id="go" disabled>Reveal my result</button></div>';
+function renderArchetype(){const tr=cfg.traits||[];const picked=[];
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Find Your Type')+'</div><h1 class="q">'+esc(cfg.prompt||'What is your type?')+'</h1><div class="sub">'+esc(cfg.sub||'Tap the traits that sound like you.')+'</div><div class="chips" id="chips"></div><button class="btn" id="go" disabled>Reveal my result →</button></div>';
+  app.innerHTML=card(inner);
   tr.forEach(t=>{const c=document.createElement('div');c.className='chip';c.textContent=t;c.onclick=()=>{c.classList.toggle('sel');const i=picked.indexOf(t);if(i>=0)picked.splice(i,1);else picked.push(t);document.getElementById('go').disabled=!picked.length;};document.getElementById('chips').appendChild(c);});
   document.getElementById('go').onclick=()=>{STATE.type='archetype';STATE.interactive={traits:picked,result:cfg.result};showCapture();};
 }
-function renderScratch(){
-  const opts=cfg.options||[cfg.reveal||'You win a free gift!'];const prize=opts[Math.floor(Math.random()*opts.length)];STATE.interactive={revealed:prize};STATE.type='scratch_result';
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Scratch to Reveal</div><h1 class="q">'+esc(cfg.reveal||'Scratch to reveal your prize')+'</h1><div class="scratch" id="sc"><div class="under">🎉 '+esc(prize)+'</div><canvas id="scc"></canvas></div><button class="btn" id="go" disabled>Claim it</button></div>';
-  initScratch(()=>document.getElementById('go').disabled=false);
-  document.getElementById('go').onclick=showCapture;
+function renderScratch(){const opts=cfg.options||[cfg.reveal||'You win a free gift!'];const prize=opts[Math.floor(Math.random()*opts.length)];STATE.interactive={revealed:prize};STATE.type='scratch_result';
+  const inner='<div class="step active"><div class="kicker">Scratch to Reveal</div><h1 class="q">'+esc(cfg.reveal||'Scratch to reveal your prize')+'</h1><div class="scratch" id="sc"><div class="under">🎉 '+esc(prize)+'</div><canvas id="scc"></canvas></div><button class="btn" id="go" disabled>Claim it</button></div>';
+  app.innerHTML=card(inner);initScratch(()=>document.getElementById('go').disabled=false);document.getElementById('go').onclick=showCapture;
 }
-function initScratch(done){
-  const wrap=document.getElementById('sc'),cv=document.getElementById('scc');const ctx=cv.getContext('2d');
-  function size(){cv.width=wrap.clientWidth;cv.height=wrap.clientHeight;ctx.fillStyle='#b9911f';ctx.fillRect(0,0,cv.width,cv.height);ctx.fillStyle='#1a1303';ctx.font='bold 14px Inter';ctx.textAlign='center';ctx.fillText('SCRATCH HERE',cv.width/2,cv.height/2);}
-  size();let drawing=false,cleared=0;
-  function scratch(x,y){ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();cleared++;if(cleared>40){cv.style.opacity=0;done();}}
-  function pos(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return[t.clientX-r.left,t.clientY-r.top];}
-  cv.addEventListener('pointerdown',e=>{drawing=true;scratch(...pos(e));});
-  cv.addEventListener('pointermove',e=>{if(drawing)scratch(...pos(e));});
-  addEventListener('pointerup',()=>drawing=false);
+function initScratch(done){const wrap=document.getElementById('sc'),cv=document.getElementById('scc'),ctx=cv.getContext('2d');
+  function size(){cv.width=wrap.clientWidth;cv.height=wrap.clientHeight;ctx.fillStyle='#9a9a9a';ctx.fillRect(0,0,cv.width,cv.height);ctx.fillStyle='#fff';ctx.font='bold 15px Inter';ctx.textAlign='center';ctx.fillText('SCRATCH HERE',cv.width/2,cv.height/2);}
+  size();let drawing=false,n=0;function s(x,y){ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(x,y,24,0,7);ctx.fill();n++;if(n>42){cv.style.transition='opacity .4s';cv.style.opacity=0;done();}}
+  function p(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return[t.clientX-r.left,t.clientY-r.top];}
+  cv.addEventListener('pointerdown',e=>{drawing=true;s(...p(e));});cv.addEventListener('pointermove',e=>{if(drawing)s(...p(e));});addEventListener('pointerup',()=>drawing=false);
 }
-function renderPickDoor(){
-  const opts=cfg.options||[cfg.reveal||'A free gift','A surprise bonus','A special offer'];
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Pick a Door</div><h1 class="q">'+esc(cfg.reveal||'Pick a door to reveal your prize')+'</h1><div class="grid" id="doors"></div><div class="sub" id="dhint">Tap a door to reveal what is behind it.</div></div>';
-  let opened=false;
-  ['1','2','3'].forEach((n)=>{const d=document.createElement('div');d.className='opt';d.style.justifyContent='center';d.style.minHeight='84px';d.innerHTML='<b style="font-size:1.5rem">🚪 '+n+'</b>';
-    d.onclick=()=>{if(opened)return;opened=true;const prize=opts[Math.floor(Math.random()*opts.length)];STATE.type='door';STATE.interactive={door:n,revealed:prize};d.innerHTML='<b>🎉 '+esc(prize)+'</b>';d.classList.add('sel');document.getElementById('dhint').textContent='Nice. Grab it on the next step.';setTimeout(showCapture,1000);};
+function renderPickDoor(){const opts=cfg.options||[cfg.reveal||'A free gift','A surprise bonus','A special offer'];let opened=false;
+  const inner='<div class="step active"><div class="kicker">Pick a Door</div><h1 class="q">'+esc(cfg.reveal||'Pick a door to reveal your prize')+'</h1><div class="grid" id="doors"></div><div class="small" id="dh">Tap a door to reveal what is behind it.</div></div>';
+  app.innerHTML=card(inner);
+  ['1','2','3'].forEach(n=>{const d=document.createElement('div');d.className='opt';d.style.cssText='justify-content:center;min-height:92px;font-size:1.5rem';d.innerHTML='<b>🚪 '+n+'</b>';
+    d.onclick=()=>{if(opened)return;opened=true;const prize=opts[Math.floor(Math.random()*opts.length)];STATE.type='door';STATE.interactive={door:n,revealed:prize};d.innerHTML='<b>🎉 '+esc(prize)+'</b>';d.classList.add('sel');document.getElementById('dh').textContent='Nice. Grab it on the next step.';setTimeout(showCapture,1000);};
     document.getElementById('doors').appendChild(d);});
 }
-function renderSpin(){
-  const prizes=cfg.prizes||['Free gift','10% off','Free consult','Swag'];
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Spin to Win</div><h1 class="q">Everyone wins something.</h1><div class="wheel-wrap"><canvas id="wheel" width="280" height="280"></canvas></div><button class="btn" id="go">Spin the wheel</button></div>';
-  const cv=document.getElementById('wheel'),ctx=cv.getContext('2d'),N=prizes.length,cx=140,cy=140,rad=130;let ang=0,spinning=false;
-  const cols=[C.colors.accent||'#C9922A',C.colors.secondary||'#7B2FFF','#00D4C8','#e7b84e','#3b82f6','#f87171'];
-  function draw(){ctx.clearRect(0,0,280,280);for(let i=0;i<N;i++){const a0=ang+i*2*Math.PI/N,a1=ang+(i+1)*2*Math.PI/N;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,rad,a0,a1);ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a0+a1)/2);ctx.fillStyle='#1a1303';ctx.font='bold 11px Inter';ctx.textAlign='right';ctx.fillText(prizes[i].slice(0,14),rad-10,4);ctx.restore();}ctx.fillStyle=C.colors.text||'#fff';ctx.beginPath();ctx.moveTo(cx+rad-2,cy-9);ctx.lineTo(cx+rad+14,cy);ctx.lineTo(cx+rad-2,cy+9);ctx.fill();}
+/* ---- SPIN: email gate first ---- */
+function renderSpinGate(){
+  const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up.').replace('{company}',C.company||'this brand');
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Spin to Win')+'</div><h1 class="q">'+esc(cfg.headline||'Enter to Spin & Win')+'</h1><div class="sub">'+esc(cfg.sub||'Everyone wins something. Enter your details to spin the wheel.')+'</div><div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="go">🎡 Spin the Wheel</button></div>';
+  app.innerHTML=card(inner);
+  document.getElementById('go').onclick=()=>{const e=document.getElementById('ce').value.trim();if(!e){alert('Please enter your email to spin.');return;}STATE.contact={name:document.getElementById('cn').value.trim(),email:e,phone:document.getElementById('cp').value.trim(),optin:document.getElementById('optin').checked};showWheel();};
+}
+function showWheel(){
+  const inner='<div class="step active"><div class="kicker">Good luck!</div><h1 class="q">'+esc(cfg.headline||'Spin to Win')+'</h1><div class="wheel-wrap"><canvas id="wheel" width="320" height="320"></canvas></div><button class="btn" id="go">Spin</button></div>';
+  app.innerHTML=card(inner);
+  const prizes=(cfg.prizes&&cfg.prizes.length?cfg.prizes:['Free gift','10% off','Free consult','Swag','Bonus','Discount']);
+  const cv=document.getElementById('wheel'),ctx=cv.getContext('2d'),N=prizes.length,cx=160,cy=160,rad=150;let ang=-Math.PI/2,spinning=false;
+  const t=STATE.theme||{};const base=[t.accent||'#C9922A',t.accent2||'#7B2FFF','#00D4C8','#ff5db1','#ffd23f','#4cc9f0','#f72585','#80ffea'];
+  function fit(label,max){let s=label;ctx.font='700 '+fs+'px '+(getComputedStyle(document.body).fontFamily);while(ctx.measureText(s).width>max&&s.length>3)s=s.slice(0,-1);return s.length<label.length?s.trim()+'…':s;}
+  const fs=N<=6?15:N<=8?13:11;
+  function draw(){ctx.clearRect(0,0,320,320);for(let i=0;i<N;i++){const a0=ang+i*2*Math.PI/N,a1=ang+(i+1)*2*Math.PI/N;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,rad,a0,a1);ctx.closePath();ctx.fillStyle=base[i%base.length];ctx.fill();ctx.lineWidth=4;ctx.strokeStyle='#ffffff';ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate((a0+a1)/2);ctx.textAlign='right';ctx.fillStyle=lum(base[i%base.length])>0.6?'#1a1303':'#ffffff';ctx.font='700 '+fs+'px '+getComputedStyle(document.body).fontFamily;ctx.fillText(fit(prizes[i],rad-46),rad-16,fs/3);ctx.restore();}
+    // hub + pointer
+    ctx.beginPath();ctx.arc(cx,cy,22,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=t.accent||'#C9922A';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+rad-4,cy-14);ctx.lineTo(cx+rad+18,cy);ctx.lineTo(cx+rad-4,cy+14);ctx.closePath();ctx.fillStyle=t.accent||'#C9922A';ctx.fill();}
   draw();
-  document.getElementById('go').onclick=()=>{if(spinning)return;spinning=true;const win=Math.floor(Math.random()*N);const target=2*Math.PI*5+(2*Math.PI - (win*2*Math.PI/N) - Math.PI/N);const start=ang,t0=performance.now(),dur=3600;
-    (function anim(t){const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);ang=start+target*e;draw();if(p<1)requestAnimationFrame(anim);else{STATE.type='spin_result';STATE.interactive={won:prizes[win]};setTimeout(showCapture,700);}})(t0);};
+  document.getElementById('go').onclick=()=>{if(spinning)return;spinning=true;const win=Math.floor(Math.random()*N);const dest=2*Math.PI*5-(win+0.5)*(2*Math.PI/N);const start=ang,t0=performance.now(),dur=4200;
+    (function anim(tn){const p=Math.min((tn-t0)/dur,1),e=1-Math.pow(1-p,3);ang=start+(dest-start)*e;draw();if(p<1)requestAnimationFrame(anim);else{STATE.type='spin_result';STATE.interactive={won:prizes[win]};setTimeout(()=>submitLead(),700);}})(t0);};
 }
 
-/* ===================== CAPTURE FORM ===================== */
+/* ===== CAPTURE ===== */
 function showCapture(){
-  const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up by email.').replace('{company}',C.company||'this brand');
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="card-panel"><div class="kicker">One last step</div><h1 class="q" style="font-size:1.4rem">Where should we send your '+esc(C.gift?C.gift.name:'gift')+'?</h1>'+(C.gift&&C.gift.value?'<div class="gift-card"><b>🎁 '+esc(C.gift.name)+'</b><div class="v">'+esc(C.gift.value)+'</div></div>':'')+'<div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="submit">Get my gift →</button></div></div>';
-  document.getElementById('submit').onclick=submitLead;
+  const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up.').replace('{company}',C.company||'this brand');
+  const g=C.gift||{};
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.capture_kicker||'One last step')+'</div><h1 class="q" style="font-size:1.4rem">'+esc(cfg.capture_head||('Where should we send your '+(g.name||'gift')+'?'))+'</h1>'+(g.value?'<div class="gift-pill"><span>🎁</span><div><b>'+esc(g.name||'Your gift')+'</b><div class="v">'+esc(g.value)+'</div></div></div>':'')+'<div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="submit">'+esc(cfg.submit||'Get my gift →')+'</button></div>';
+  app.innerHTML=card(inner);document.getElementById('submit').onclick=()=>submitLead(true);
 }
-async function submitLead(){
-  const name=document.getElementById('cn').value.trim(),email=document.getElementById('ce').value.trim(),phone=document.getElementById('cp').value.trim(),optin=document.getElementById('optin').checked;
-  if(!email){alert('Please add your email.');return;}
-  const btn=document.getElementById('submit');btn.disabled=true;btn.textContent='Sending...';
+async function submitLead(fromForm){
+  let name,email,phone,optin;
+  if(fromForm){name=val('cn');email=val('ce');phone=val('cp');optin=document.getElementById('optin').checked;if(!email){alert('Please add your email.');return;}const b=document.getElementById('submit');if(b){b.disabled=true;b.textContent='Sending...';}}
+  else if(STATE.contact){name=STATE.contact.name;email=STATE.contact.email;phone=STATE.contact.phone;optin=STATE.contact.optin;}
+  else{return showCTA();}
   const payload={build_id:C.build_id,name,email,phone,interactive_type:STATE.type,interactive_data:STATE.interactive,consent_vendor_email:optin,consent_vendor_sms:optin,consent_ko_email:optin,event_name:C.event_name||'',vendor_company:C.company||'',source_tag:'ele-magnet',user_agent:navigator.userAgent};
-  // 1) Knight Ops capture (stores + forwards + KO list)
-  try{await fetch(C.endpoints.capture,{method:'POST',headers:{'Content-Type':'application/json','apikey':C.endpoints.anon,'Authorization':'Bearer '+C.endpoints.anon},body:JSON.stringify(payload)});}catch(e){console.error('capture',e);}
-  // 2) Vendor webhook (direct, real-time) if provided and not routed server-side
-  if(C.endpoints.vendor_webhook){try{await fetch(C.endpoints.vendor_webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(e){console.error('webhook',e);}}
+  if(C.endpoints&&C.endpoints.capture){try{await fetch(C.endpoints.capture,{method:'POST',headers:{'Content-Type':'application/json','apikey':C.endpoints.anon,'Authorization':'Bearer '+C.endpoints.anon},body:JSON.stringify(payload)});}catch(e){}}
+  if(C.endpoints&&C.endpoints.vendor_webhook){try{await fetch(C.endpoints.vendor_webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(e){}}
   showCTA();
 }
+function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
 
-/* ===================== CTA PAGE ===================== */
-function showCTA(){
-  const t=C.cta&&C.cta.type||'download',cc=C.cta_config||{};
-  let inner='';
-  if(t==='download'){const url=(C.gift&&(C.gift.file_url||C.gift.url))||'#';inner='<div class="kicker">It’s yours</div><h1 class="q">Your '+esc(C.gift.name)+' is ready.</h1><div class="sub">Open it now, and watch your inbox for your copy.</div><a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">⬇️ Download '+esc(C.gift.name)+'</a>';}
-  else if(t==='calendar'){if(cc.embed){inner='<div class="kicker">Last step</div><h1 class="q">Book your time</h1><div style="margin-top:14px">'+cc.embed+'</div>';}else{inner='<div class="kicker">Last step</div><h1 class="q">Pick a time that works.</h1><div class="sub">Grab a spot now while it’s top of mind.</div><a class="btn" href="'+esc(cc.url||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📅 Book my call</a>';}}
-  else if(t==='text_keyword'){const body=encodeURIComponent(cc.keyword||'');inner='<div class="kicker">Let’s connect</div><h1 class="q">Text '+esc(cc.keyword||'the keyword')+' to get started.</h1><div class="sub">Tap below and it opens your messages, pre-filled.</div><a class="btn" href="sms:'+esc(cc.phone||'')+'?&body='+body+'" style="display:block;text-align:center;text-decoration:none">📲 Text '+esc(cc.keyword||'now')+'</a>';}
-  else if(t==='offer'){inner='<div class="kicker">Because you’re here</div><h1 class="q">You’re ready for the next step.</h1><div class="sub">You came, you played, you showed up. Here’s where it gets real. Take the next step now while the momentum is yours.</div><a class="btn" href="'+esc(cc.offer_url||cc.checkout||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">🚀 See the offer</a>'+(cc.checkout?'<a class="btn btn-sec" href="'+esc(cc.checkout)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:10px">Get started now</a>':'');}
-  else{inner='<div class="kicker">All set</div><h1 class="q">You’re in. 🎉</h1><div class="sub">Check your email for your gift.</div>'+(cc.url?'<a class="btn" href="'+esc(cc.url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Continue →</a>':'');}
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="card-panel">'+inner+'</div></div>';
-  confetti();
+/* ===== CTA ===== */
+function showCTA(){const t=(C.cta&&C.cta.type)||'download',cc=C.cta_config||{},g=C.gift||{};let inner='';
+  if(t==='download'){const url=g.file_url||g.url||'#';inner='<div class="kicker">It is yours</div><h1 class="q">'+esc((g.name||'Your gift')+' is ready.')+'</h1><div class="sub">Open it now and keep an eye on your inbox for your copy.</div>'+coverMini()+'<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">⬇️ Download '+esc(g.name||'now')+'</a>';}
+  else if(t==='calendar'){if(cc.embed)inner='<div class="kicker">Last step</div><h1 class="q">Book your time</h1><div style="margin-top:14px">'+cc.embed+'</div>';else inner='<div class="kicker">Last step</div><h1 class="q">Pick a time that works.</h1><div class="sub">Grab a spot now while it is top of mind.</div><a class="btn" href="'+esc(cc.url||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📅 Book my call</a>';}
+  else if(t==='text_keyword'){inner='<div class="kicker">Let us connect</div><h1 class="q">Text '+esc(cc.keyword||'the keyword')+' to get started.</h1><div class="sub">Tap below and it opens your messages, pre-filled.</div><a class="btn" href="sms:'+esc(cc.phone||'')+'?&body='+encodeURIComponent(cc.keyword||'')+'" style="display:block;text-align:center;text-decoration:none">📲 Text '+esc(cc.keyword||'now')+'</a>';}
+  else if(t==='offer'){inner='<div class="kicker">Because you are here</div><h1 class="q">'+esc(cfg.offer_head||'You are ready for the next step.')+'</h1><div class="sub">'+esc(cfg.offer_sub||'You showed up and took action. Here is where it gets real. Take the next step now while the momentum is yours.')+'</div><a class="btn" href="'+esc(cc.offer_url||cc.checkout||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">'+esc(cfg.offer_btn||'🚀 See the offer')+'</a>'+(cc.checkout?'<a class="btn alt" href="'+esc(cc.checkout)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:10px">Get started now</a>':'');}
+  else inner='<div class="kicker">All set</div><h1 class="q">You are in. 🎉</h1><div class="sub">Check your email for your gift.</div>'+(cc.url?'<a class="btn" href="'+esc(cc.url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Continue →</a>':'');
+  app.innerHTML=card('<div class="step active">'+inner+'</div>');confetti();
 }
+function coverMini(){const g=C.gift||{};return g.image_url?'<div style="text-align:center;margin:8px 0 14px"><img src="'+g.image_url+'" style="max-height:160px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.3)"></div>':'';}
 
-/* ===================== FX ===================== */
-function bgFx(){const cv=document.getElementById('fx');if(STATE.fx==='none'){return;}const x=cv.getContext('2d');let w,h,p=[];const cols=['rgba(201,146,42,','rgba(0,212,200,','rgba(123,47,255,','rgba(255,255,255,'];function rs(){w=cv.width=innerWidth;h=cv.height=innerHeight;p=[];const n=Math.min(90,(w*h)/16000);for(let i=0;i<n;i++)p.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.3,a:Math.random()*.5+.15,s:Math.random()*.3+.05,c:cols[Math.floor(Math.random()*cols.length)]});}function dr(){x.clearRect(0,0,w,h);if(STATE.fx==='grid'){x.strokeStyle='rgba(0,212,200,.06)';for(let i=0;i<w;i+=40){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke();}for(let j=0;j<h;j+=40){x.beginPath();x.moveTo(0,j);x.lineTo(w,j);x.stroke();}}p.forEach(s=>{s.y-=s.s;if(s.y<0)s.y=h;x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fillStyle=s.c+s.a+')';x.fill();});requestAnimationFrame(dr);}rs();dr();addEventListener('resize',rs);}
-function confetti(){const cv=document.getElementById('fx');const x=cv.getContext('2d');const cols=[C.colors.accent,C.colors.secondary,'#00D4C8','#fff','#34d399'];let ps=[];for(let i=0;i<90;i++)ps.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-.5)*4,vy:Math.random()*4+2,r:Math.random()*6+3,c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6});let t=0;(function a(){x.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;x.save();x.translate(p.x,p.y);x.rotate(p.rot+=.1);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);x.restore();});t++;if(t<150)requestAnimationFrame(a);})();}
+/* ===== BACKGROUND + FX ===== */
+function bgFx(){const t=STATE.theme||{},cv=document.getElementById('bg'),x=cv.getContext('2d');let w,h,P=[];
+  function rs(){w=cv.width=innerWidth;h=cv.height=innerHeight;P=[];if(t.decor==='stars'){for(let i=0;i<70;i++)P.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.3,a:Math.random()*.5+.15,s:Math.random()*.3+.05});}}
+  function dr(){x.clearRect(0,0,w,h);
+    if(t.decor==='checker'){const s=46;x.globalAlpha=1;for(let i=0;i<Math.ceil(w/s);i++)for(let j=0;j<Math.ceil(h/s);j++){if((i+j)%2===0){x.fillStyle='rgba(255,255,255,.04)';x.fillRect(i*s,j*s,s,s);}}}
+    if(t.decor==='grid'){x.strokeStyle='rgba(255,255,255,.05)';for(let i=0;i<w;i+=42){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke();}for(let j=0;j<h;j+=42){x.beginPath();x.moveTo(0,j);x.lineTo(w,j);x.stroke();}}
+    if(t.decor==='stars'){P.forEach(p=>{p.y-=p.s;if(p.y<0)p.y=h;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba(255,255,255,'+p.a+')';x.fill();});}
+    requestAnimationFrame(dr);}
+  rs();dr();addEventListener('resize',rs);}
+function confetti(){const cv=document.getElementById('fx'),x=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const t=STATE.theme||{};const cols=[t.accent,t.accent2,'#00D4C8','#fff','#34d399','#ffd23f','#ff5db1'];let ps=[];for(let i=0;i<110;i++)ps.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-.5)*5,vy:Math.random()*4+2,r:Math.random()*7+3,c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6});let n=0;(function a(){x.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;x.save();x.translate(p.x,p.y);x.rotate(p.rot+=.1);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);x.restore();});n++;if(n<160)requestAnimationFrame(a);else x.clearRect(0,0,cv.width,cv.height);})();}
 
-/* ===== boot ===== */
+/* ===== TRACKING (views) ===== */
+function trackView(){try{if(C.endpoints&&C.endpoints.track){fetch(C.endpoints.track,{method:'POST',headers:{'Content-Type':'application/json','apikey':C.endpoints.anon,'Authorization':'Bearer '+C.endpoints.anon},body:JSON.stringify({build_id:C.build_id,type:'view',user_agent:navigator.userAgent,ref:document.referrer||''}),keepalive:true});}}catch(e){}}
+
+/* ===== BOOT ===== */
+applyTheme(deriveTheme());
 bgFx();
+trackView();
 renderMechanism();
 </script>
 </body>

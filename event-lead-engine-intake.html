@@ -81,6 +81,13 @@ textarea{min-height:84px;resize:vertical}
 .swl{background:linear-gradient(135deg,#fff,#f1ebe0);color:#1a1303}
 .swn{background:#0a0a0a;color:#fff;box-shadow:inset 0 0 40px rgba(0,212,200,.3)}
 .swe{background:linear-gradient(135deg,#11132e,#1c1430);color:#e7b84e;font-family:'Playfair Display',serif}
+.swvs{background:linear-gradient(135deg,#ff6a3d,#c81d77);color:#fff}
+.swpm{background:#6d0a45;color:#f5c542}
+.swof{background:linear-gradient(135deg,#0093E9,#0a4d68);color:#80ffea}
+.swrp{background:linear-gradient(135deg,#3a0ca3,#7209b7);color:#f7b801}
+.palette{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.palette .swatch{width:34px;height:34px;border-radius:8px;cursor:pointer;border:2px solid transparent;position:relative}
+.palette .swatch:hover{border-color:#fff}
 
 /* color swatch inputs */
 .colors{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
@@ -353,9 +360,18 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
         <div class="sw swl" data-style="clean_light"><small>Bright</small>Clean Light</div>
         <div class="sw swn" data-style="bold_neon"><small>High energy</small>Bold Neon</div>
         <div class="sw swe" data-style="elegant_editorial"><small>Premium</small>Elegant</div>
+        <div class="sw swvs" data-style="vibrant_sunset"><small>Warm</small>Vibrant Sunset</div>
+        <div class="sw swpm" data-style="playful_magenta"><small>Playful</small>Magenta Pop</div>
+        <div class="sw swof" data-style="ocean_fresh"><small>Cool</small>Ocean Fresh</div>
+        <div class="sw swrp" data-style="royal_purple"><small>Bold</small>Royal Purple</div>
       </div>
+      <label class="fl">Match my brand from an image <span class="hint" style="display:inline">(optional, recommended)</span></label>
+      <div class="drop" id="brandImgDrop">🎨 Upload a brand image, flyer, or logo to auto-match your colors</div>
+      <input type="file" id="brandImgFile" accept="image/*" style="display:none">
+      <div class="palette" id="brandPalette"></div>
+      <div class="hint" id="paletteHint" style="display:none">We pulled these from your image and set your colors below. Tap any swatch to make it your accent, or adjust manually.</div>
       <div class="colors">
-        <label>Primary<input type="color" id="col_primary" value="#05061a"></label>
+        <label>Background<input type="color" id="col_primary" value="#05061a"></label>
         <label>Accent<input type="color" id="col_accent" value="#C9922A"></label>
         <label>Secondary<input type="color" id="col_secondary" value="#00D4C8"></label>
       </div>
@@ -514,7 +530,7 @@ document.querySelector('#styleChoices .swc').classList.add('sel');
 document.querySelector('#hostChoices [data-host="self"]').classList.add('sel');
 
 function applyStylePalette(style){
-  const map={cosmic_gold:['#05061a','#C9922A','#7B2FFF'],clean_light:['#ffffff','#C9922A','#E8643C'],bold_neon:['#0a0a0a','#00D4C8','#7B2FFF'],elegant_editorial:['#11132e','#C9922A','#e7b84e']};
+  const map={cosmic_gold:['#05061a','#C9922A','#7B2FFF'],clean_light:['#ffffff','#C9922A','#E8643C'],bold_neon:['#0a0a0a','#00D4C8','#7B2FFF'],elegant_editorial:['#11132e','#C9922A','#e7b84e'],vibrant_sunset:['#c81d77','#ffd23f','#ff6a3d'],playful_magenta:['#6d0a45','#f5c542','#ff5db1'],ocean_fresh:['#0a4d68','#80ffea','#0093E9'],royal_purple:['#3a0ca3','#f7b801','#7209b7']};
   const p=map[style]||map.cosmic_gold;$('col_primary').value=p[0];$('col_accent').value=p[1];$('col_secondary').value=p[2];renderPreview();
 }
 
@@ -544,6 +560,28 @@ function wireUpload(dropId,inputId,prefix,cb){
 }
 wireUpload('giftDrop','giftFile','gifts',p=>{S.gift_file_path=p;});
 wireUpload('logoDrop','logoFile','logos',p=>{S.logo_path=p;renderPreview();});
+
+/* brand image -> auto color extraction (Section 6) */
+function rgbToHex(r,g,b){return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');}
+function satOf(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b);return mx===0?0:(mx-mn)/mx;}
+function extractPalette(img){
+  const c=document.createElement('canvas'),s=64;c.width=s;c.height=s;const x=c.getContext('2d');x.drawImage(img,0,0,s,s);
+  let data;try{data=x.getImageData(0,0,s,s).data;}catch(e){return[];}
+  const map={};
+  for(let i=0;i<data.length;i+=4){if(data[i+3]<200)continue;const r=Math.round(data[i]/24)*24,g=Math.round(data[i+1]/24)*24,b=Math.round(data[i+2]/24)*24;const k=r+'|'+g+'|'+b;map[k]=(map[k]||0)+1;}
+  return Object.entries(map).map(([k,n])=>{const[r,g,b]=k.split('|').map(Number);return{r,g,b,n,hex:rgbToHex(r,g,b),sat:satOf(r,g,b)};}).sort((a,b)=>b.n-a.n).slice(0,8);
+}
+(function(){const drop=$('brandImgDrop'),inp=$('brandImgFile');drop.onclick=()=>inp.click();
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;drop.textContent='⏳ Reading colors...';const rd=new FileReader();
+    rd.onload=()=>{const img=new Image();img.onload=()=>{const pal=extractPalette(img);if(!pal.length){drop.textContent='⚠️ Could not read colors, set them manually';return;}
+      const byVibe=pal.slice().sort((a,b)=>b.sat-a.sat);
+      $('col_primary').value=pal[0].hex;$('col_accent').value=byVibe[0].hex;$('col_secondary').value=(byVibe[1]&&byVibe[1].hex!==byVibe[0].hex?byVibe[1].hex:(pal[1]?pal[1].hex:byVibe[0].hex));
+      S.colors_from_image=true;
+      $('brandPalette').innerHTML=pal.map(p=>'<div class="swatch" style="background:'+p.hex+'" title="'+p.hex+'" data-hex="'+p.hex+'"></div>').join('');
+      [...document.querySelectorAll('#brandPalette .swatch')].forEach(sw=>sw.onclick=()=>{$('col_accent').value=sw.dataset.hex;renderPreview();});
+      $('paletteHint').style.display='block';drop.classList.add('has');drop.textContent='✓ Colors matched from '+f.name;renderPreview();
+    };img.src=rd.result;};rd.readAsDataURL(f);};
+})();
 
 /* ---------- gather state ---------- */
 function gather(){
