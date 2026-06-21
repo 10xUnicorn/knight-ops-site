@@ -83,6 +83,18 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
 </div>
 <div class="toast" id="toast"></div>
 
+<div id="reviseModal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(2,3,15,.9);align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:560px;background:var(--card);border:1px solid var(--gold);border-radius:16px;padding:24px">
+    <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:6px">✏️ Revise with AI</h2>
+    <p style="color:var(--mut);font-size:.9rem;margin-bottom:14px">Describe exactly what to change. Claude rebuilds the magnet from your instructions while keeping the vendor's original intent, capture form, consent, and branding. Be specific or sweeping.</p>
+    <textarea id="reviseInput" style="width:100%;min-height:120px;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--white);padding:12px;font-family:inherit;font-size:.92rem" placeholder="e.g. Switch to a more luxury gold look. Rewrite the question to be punchier. Change the CTA to book a call at knightops.biz/book. Make the gift a $297 value."></textarea>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn b-primary" id="reviseGo">Apply revision</button>
+      <button class="btn b-ghost" id="reviseCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPA='https://trpnlkntvulkjerevngm.supabase.co';
 const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
@@ -124,6 +136,7 @@ function card(b,leadCount,showActions){
     (preview?'<a class="btn b-ghost" href="'+preview+'" target="_blank">👁 Preview</a>':'<span style="color:var(--mut);font-size:.8rem">No preview yet</span>')+
     (showActions?
       '<button class="btn b-primary" onclick="approve(\''+b.id+'\')">✓ Approve &amp; send</button>'+
+      '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
       '<button class="btn b-ghost" onclick="regen(\''+b.id+'\')">↻ Regenerate</button>'+
       '<button class="btn b-danger" onclick="decline(\''+b.id+'\')">✕ Decline</button>'
     :'')+
@@ -132,6 +145,16 @@ function card(b,leadCount,showActions){
 async function approve(id){if(!confirm('Approve and send this lead magnet to the vendor?'))return;toast('Sending...');try{await fnCall('ele-approve',{build_id:id,action:'approve'});toast('Sent ✓');load();}catch(e){toast('Error: '+e.message);}}
 async function decline(id){if(!confirm('Decline this build?'))return;try{await fnCall('ele-approve',{build_id:id,action:'decline'});toast('Declined');load();}catch(e){toast('Error: '+e.message);}}
 async function regen(id){toast('Regenerating...');try{await fnCall('ele-build',{build_id:id});toast('Regenerated ✓');setTimeout(load,1500);}catch(e){toast('Error: '+e.message);}}
+let reviseId=null;
+function openRevise(id){reviseId=id;$('reviseInput').value='';$('reviseModal').style.display='flex';}
+$('reviseCancel').onclick=()=>{$('reviseModal').style.display='none';};
+$('reviseGo').onclick=async()=>{
+  const ins=$('reviseInput').value.trim();if(!ins){toast('Tell Claude what to change');return;}
+  const btn=$('reviseGo');btn.disabled=true;btn.textContent='Revising with AI...';
+  try{const j=await fnCall('ele-revise',{build_id:reviseId,instructions:ins});$('reviseModal').style.display='none';toast('Revised ✓ '+((j.changed||[]).join(', ')));setTimeout(load,2000);}
+  catch(e){toast('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='Apply revision';
+};
 $('genCoupon').onclick=async()=>{
   const event=$('h_event').value.trim();if(!event){toast('Event name required');return;}
   toast('Creating...');

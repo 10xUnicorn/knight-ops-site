@@ -134,7 +134,8 @@ function renderMechanism(){
   if(m==='spin_win')return renderSpin();
   if(m==='contest')return renderContest();
   if(m==='archetype')return renderArchetype();
-  if(m==='scratch'||m==='pick_door')return renderScratch();
+  if(m==='scratch')return renderScratch();
+  if(m==='pick_door')return renderPickDoor();
   return renderContest();
 }
 function renderQuiz(){
@@ -144,8 +145,8 @@ function renderQuiz(){
   document.getElementById('go').onclick=()=>{STATE.type='answer';STATE.interactive={selected:L[sel],selected_text:cfg.choices[sel],correct:L[cfg.correct],is_correct:sel===cfg.correct};showQuizReveal();};
 }
 function showQuizReveal(){
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Your Result</div><h1 class="q">'+esc(cfg.result||'Here’s the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc(cfg.choices[cfg.correct])+'</b></div><div class="sub" style="margin-bottom:20px">'+esc(cfg.explain||'')+'</div></div>';
-  setTimeout(showCapture,1200);
+  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Your Result</div><h1 class="q">'+esc(cfg.result||'Here’s the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc(cfg.choices[cfg.correct])+'</b></div><div class="sub" style="margin-bottom:18px">'+esc(cfg.explain||'')+'</div><button class="btn" id="go">Continue →</button></div>';
+  document.getElementById('go').onclick=showCapture;
 }
 function renderGuess(){
   app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Guess &amp; Win</div><h1 class="q">'+esc(cfg.label||'Guess the number')+'</h1><div class="gift-card"><b>🏆 '+esc(cfg.prize_win||'Closest guess wins')+'</b><div class="v">🎁 Everyone gets: '+esc(cfg.prize_all||C.gift.name)+'</div></div><div class="field"><input type="number" id="guess" placeholder="Type your best guess..."></div><button class="btn" id="go" disabled>Lock in my guess</button></div>';
@@ -153,8 +154,8 @@ function renderGuess(){
   document.getElementById('go').onclick=()=>{STATE.type='guess';STATE.interactive={guess:inp.value,target:cfg.number};showCapture();};
 }
 function renderContest(){
-  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Enter to Win</div><h1 class="q">'+esc((cfg.prize?('Win '+cfg.prize):'Enter to Win'))+'</h1><div class="sub">'+esc(cfg.rules||'Enter below for your chance to win.')+'</div></div>';
-  setTimeout(showCapture,300);
+  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Enter to Win</div><h1 class="q">'+esc(cfg.prize?('Win '+cfg.prize):'Enter to Win')+'</h1>'+(cfg.prize?'<div class="gift-card"><b>🏆 '+esc(cfg.prize)+'</b></div>':'')+'<div class="sub">'+esc(cfg.rules||'Enter below for your chance to win. Winner announced after the event.')+'</div><button class="btn" id="go">Enter Now →</button></div>';
+  document.getElementById('go').onclick=()=>{STATE.type='entry';STATE.interactive={entered:true,prize:cfg.prize||''};showCapture();};
 }
 function renderArchetype(){
   const tr=cfg.traits||[];const picked=[];
@@ -177,6 +178,14 @@ function initScratch(done){
   cv.addEventListener('pointerdown',e=>{drawing=true;scratch(...pos(e));});
   cv.addEventListener('pointermove',e=>{if(drawing)scratch(...pos(e));});
   addEventListener('pointerup',()=>drawing=false);
+}
+function renderPickDoor(){
+  const opts=cfg.options||[cfg.reveal||'A free gift','A surprise bonus','A special offer'];
+  app.innerHTML=logoHtml()+'<div class="step active"><div class="kicker">Pick a Door</div><h1 class="q">'+esc(cfg.reveal||'Pick a door to reveal your prize')+'</h1><div class="grid" id="doors"></div><div class="sub" id="dhint">Tap a door to reveal what is behind it.</div></div>';
+  let opened=false;
+  ['1','2','3'].forEach((n)=>{const d=document.createElement('div');d.className='opt';d.style.justifyContent='center';d.style.minHeight='84px';d.innerHTML='<b style="font-size:1.5rem">🚪 '+n+'</b>';
+    d.onclick=()=>{if(opened)return;opened=true;const prize=opts[Math.floor(Math.random()*opts.length)];STATE.type='door';STATE.interactive={door:n,revealed:prize};d.innerHTML='<b>🎉 '+esc(prize)+'</b>';d.classList.add('sel');document.getElementById('dhint').textContent='Nice. Grab it on the next step.';setTimeout(showCapture,1000);};
+    document.getElementById('doors').appendChild(d);});
 }
 function renderSpin(){
   const prizes=cfg.prizes||['Free gift','10% off','Free consult','Swag'];

@@ -198,11 +198,9 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
     <!-- 1 EVENT -->
     <div class="sec">
       <div class="sec-h"><div class="n">1</div><h2>Your event</h2></div>
-      <div class="sec-sub">If your event host gave you a code, enter it to unlock your free build.</div>
-      <div class="two">
-        <div><label class="fl">Event code <span class="hint" style="display:inline">(optional)</span></label><input type="text" id="f_code" placeholder="e.g. SUMMIT2026"></div>
-        <div><label class="fl">Event name <span class="req">*</span></label><input type="text" id="f_event" placeholder="The event you'll use this at"></div>
-      </div>
+      <div class="sec-sub">Where will you use this? Leave it blank if it is not tied to one specific event.</div>
+      <label class="fl">Event name <span class="hint" style="display:inline">(optional)</span></label>
+      <input type="text" id="f_event" placeholder="e.g. AI Founders Summit (or leave blank for evergreen use)">
     </div>
 
     <!-- 2 ABOUT YOU -->
@@ -562,7 +560,7 @@ function gather(){
   if(S.cta==='text_keyword')Object.assign(cc,{keyword:v('cta_kw'),phone:v('cta_phone')});
   if(S.cta==='offer')Object.assign(cc,{offer_url:v('cta_offer_url'),checkout:v('cta_checkout')});
   return {
-    host_coupon_code:v('f_code'),event_name:v('f_event'),vendor_name:v('f_name'),company:v('f_company'),
+    host_coupon_code:S.host_coupon_code||'',event_name:v('f_event')||'Evergreen',vendor_name:v('f_name'),company:v('f_company'),
     website:v('f_website'),email:v('f_email'),phone:v('f_phone'),
     mechanism:S.mechanism,mechanism_config:mc,
     free_gift:v('f_gift'),free_gift_value:v('f_gift_value'),free_gift_file_path:S.gift_file_path,free_gift_url:v('f_gift_url'),
@@ -606,7 +604,6 @@ renderPreview();
 /* ---------- validation ---------- */
 function validate(){
   const d=gather();const miss=[];
-  if(!d.event_name)miss.push('Event name');
   if(!d.vendor_name)miss.push('Your name');
   if(!d.company)miss.push('Company');
   if(!d.email)miss.push('Email');
@@ -709,7 +706,7 @@ function toRow(p){
 function setVal(id,v){if($(id)!=null&&v!=null)$(id).value=v;}
 function clickChoice(wrap,attr,val){if(!val)return;const el=document.querySelector('#'+wrap+' [data-'+attr+'="'+val+'"]');if(el)el.click();}
 function hydrate(b){
-  setVal('f_code',b.host_coupon_code);setVal('f_event',b.event_name);setVal('f_name',b.vendor_name);setVal('f_company',b.company);
+  if(b.host_coupon_code)S.host_coupon_code=b.host_coupon_code;setVal('f_event',b.event_name);setVal('f_name',b.vendor_name);setVal('f_company',b.company);
   setVal('f_website',b.website);setVal('f_email',b.email);setVal('f_phone',b.phone);
   setVal('f_gift',b.free_gift);setVal('f_gift_value',b.free_gift_value);setVal('f_gift_url',b.free_gift_url);
   setVal('f_title',b.magnet_title);setVal('f_webhook',b.lead_webhook);setVal('f_crm',b.crm_type);
@@ -736,7 +733,7 @@ function hydrate(b){
 }
 (function(){
   const p=new URLSearchParams(location.search);
-  if(p.get('code'))$('f_code').value=p.get('code');
+  if(p.get('code'))S.host_coupon_code=p.get('code');
   const rt=p.get('resume');
   if(rt){
     fetch(SUPA+'/functions/v1/ele-resume?resume='+encodeURIComponent(rt),{headers:{'apikey':ANON,'Authorization':'Bearer '+ANON}})
