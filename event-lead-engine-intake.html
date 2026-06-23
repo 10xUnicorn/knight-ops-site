@@ -85,11 +85,11 @@ textarea{min-height:84px;resize:vertical}
 .swpm{background:#6d0a45;color:#f5c542}
 .swof{background:linear-gradient(135deg,#0093E9,#0a4d68);color:#80ffea}
 .swrp{background:linear-gradient(135deg,#3a0ca3,#7209b7);color:#f7b801}
-.palette{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.palette .swatch{width:34px;height:34px;border-radius:8px;cursor:pointer;border:2px solid transparent;position:relative}
-.palette .swatch:hover{border-color:#fff}
-.palette .swatch.assigned{border-color:#fff}
-.palette .swatch .rlbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.palette{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pal-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.palette .swatch{width:52px;height:34px;border-radius:8px;border:2px solid transparent}
+.palette .swatch.assigned{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}
+.pal-role{background:var(--void-2);border:1px solid var(--line);border-radius:6px;color:var(--white);font-size:.64rem;padding:3px 4px;font-family:inherit;width:82px}
 
 /* color swatch inputs */
 .colors{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
@@ -372,7 +372,7 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <input type="file" id="brandImgFile" accept="image/*" style="display:none">
       <div class="palette" id="brandPalette"></div>
       <div id="removeImgWrap" style="display:none;margin-top:6px"><span id="removeImg" style="color:var(--gold-light);cursor:pointer;font-size:.82rem">✕ Remove image &amp; clear colors</span></div>
-      <div class="hint" id="paletteHint" style="display:none">Tap a swatch to cycle its role: <b>Background → Accent → Secondary → off</b>. We auto-picked a starting set; adjust the pickers below anytime.</div>
+      <div class="hint" id="paletteHint" style="display:none">Use the dropdown under each color to set it as your <b>Background, Accent, or Secondary</b>. We auto-picked a starting set; adjust the pickers below anytime.</div>
       <div class="colors">
         <label>Background<input type="color" id="col_primary" value="#05061a"></label>
         <label>Accent<input type="color" id="col_accent" value="#C9922A"></label>
@@ -579,12 +579,20 @@ function extractPalette(img){
   return Object.entries(map).map(([k,n])=>{const[r,g,b]=k.split('|').map(Number);return{r,g,b,n,hex:rgbToHex(r,g,b),sat:satOf(r,g,b)};}).sort((a,b)=>b.n-a.n).slice(0,8);
 }
 let PAL=[],ROLES={bg:null,accent:null,secondary:null};
+function roleOf(hex){return ROLES.bg===hex?'bg':ROLES.accent===hex?'accent':ROLES.secondary===hex?'secondary':'';}
 function renderPalette(){
-  $('brandPalette').innerHTML=PAL.map(hex=>{const r=ROLES.bg===hex?'BG':ROLES.accent===hex?'AC':ROLES.secondary===hex?'SE':'';return '<div class="swatch'+(r?' assigned':'')+'" style="background:'+hex+'" title="'+hex+'" data-hex="'+hex+'"><span class="rlbl">'+r+'</span></div>';}).join('');
-  [...document.querySelectorAll('#brandPalette .swatch')].forEach(sw=>sw.onclick=()=>cycleRole(sw.dataset.hex));
+  $('brandPalette').innerHTML=PAL.map(hex=>{const r=roleOf(hex);
+    return '<div class="pal-item"><div class="swatch'+(r?' assigned':'')+'" style="background:'+hex+'" title="'+hex+'"></div>'+
+      '<select class="pal-role" data-hex="'+hex+'">'+
+      '<option value=""'+(r===''?' selected':'')+'>— role —</option>'+
+      '<option value="bg"'+(r==='bg'?' selected':'')+'>Background</option>'+
+      '<option value="accent"'+(r==='accent'?' selected':'')+'>Accent</option>'+
+      '<option value="secondary"'+(r==='secondary'?' selected':'')+'>Secondary</option>'+
+      '</select></div>';}).join('');
+  [...document.querySelectorAll('#brandPalette .pal-role')].forEach(sel=>sel.onchange=()=>setRole(sel.dataset.hex,sel.value));
   if(ROLES.bg)$('col_primary').value=ROLES.bg;if(ROLES.accent)$('col_accent').value=ROLES.accent;if(ROLES.secondary)$('col_secondary').value=ROLES.secondary;
 }
-function cycleRole(hex){const cur=ROLES.bg===hex?'bg':ROLES.accent===hex?'accent':ROLES.secondary===hex?'secondary':'none';['bg','accent','secondary'].forEach(r=>{if(ROLES[r]===hex)ROLES[r]=null;});const nx={none:'bg',bg:'accent',accent:'secondary',secondary:'none'}[cur];if(nx!=='none')ROLES[nx]=hex;renderPalette();renderPreview();}
+function setRole(hex,role){['bg','accent','secondary'].forEach(r=>{if(ROLES[r]===hex)ROLES[r]=null;});if(role)ROLES[role]=hex;renderPalette();renderPreview();}
 function clearBrandImage(){PAL=[];ROLES={bg:null,accent:null,secondary:null};S.colors_from_image=false;$('brandPalette').innerHTML='';$('paletteHint').style.display='none';$('removeImgWrap').style.display='none';const d=$('brandImgDrop');d.classList.remove('has');d.textContent='🎨 Upload a brand image, flyer, or logo to auto-match your colors';$('brandImgFile').value='';applyStylePalette(S.design_style||'cosmic_gold');}
 (function(){const drop=$('brandImgDrop'),inp=$('brandImgFile');drop.onclick=()=>inp.click();
   inp.onchange=()=>{const f=inp.files[0];if(!f)return;drop.textContent='⏳ Reading colors...';const rd=new FileReader();
