@@ -6,7 +6,7 @@
 <title>Unsubscribe — Knight Ops</title>
 <meta name="description" content="Unsubscribe from Knight Ops email communications.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="canonical" href="https://www.knightops.biz/unsubscribe">
+<link rel="canonical" href="https://knightops.biz/unsubscribe">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -132,6 +132,12 @@ document.getElementById('unsubForm').addEventListener('submit', async (e) => {
     btn.textContent = 'Unsubscribe Me';
   }
 });
+
+// One-click: if the email is in the link, unsubscribe immediately on load
+if (emailParam) {
+  document.querySelector('h1').textContent = 'Unsubscribing you...';
+  setTimeout(() => document.getElementById('unsubForm').requestSubmit(), 250);
+}
 </script>
 </body>
 </html>
