@@ -3,7 +3,16 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-06-17
+> **Last Updated:** 2026-06-22
+
+---
+
+## Changelog — 2026-06-22 (Prospecting overhaul)
+
+- **Prospecting dashboard count bug FIXED.** `prospecting.html` (base64-embedded dashboard) `loadDashboardData()` fetched `leads?lead_type=eq.prospect` with no limit, hitting PostgREST's 1000-row cap, so "Prospects Found" maxed at 1000. Query now `lead_type=eq.prospect&email=not.is.null&...&limit=50000`. Shows true reachable count (~2,267) and auto-excludes no-email leads. To edit the dashboard you must decode `var D` (base64), change, re-encode, replace.
+- **No-email phantoms flagged.** 1,627 prospects had NO email (bot-scraper inserts where Apollo found no verified email). Flagged `status='bad_lead'` + tag `no_email_phantom`; empty emails normalized to NULL. Reversible. Reachable prospects = 2,267.
+- **Scrapers paused:** `knight-ops-lead-gen-bot` and `knight-ops-intent-hunter` disabled — they were over-feeding email-less junk into a 0%-converting system. Re-enable only after conversion is fixed AND insert enforces a verified email.
+- **Conversion problem:** ~2,639 nurture sends → 11 replies, 0 meetings. Cause: no booking link in emails, selling a $7.5k+ build to cold prospects, 15+ overlapping sequences, per-send AI copy that hallucinates. Fix in flight: "Pull Up a Chair" Roundtable invite campaign (no-pitch, drives /roundtable + /book). Segment ~2,010 clean cold prospects.
 
 ---
 
