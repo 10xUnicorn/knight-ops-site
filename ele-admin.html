@@ -151,11 +151,13 @@ function card(b,subs,showActions){
     (preview?'<a class="btn b-ghost" href="'+preview+'" target="_blank">👁 Preview</a>':'<span style="color:var(--mut);font-size:.8rem">No preview yet</span>')+
     '<button class="btn b-ghost" onclick="toggleSubs(\''+b.id+'\')">📊 Leads ('+subs+')</button>'+
     '<button class="btn b-ghost" onclick="dlCSV(\''+b.id+'\',\''+esc(b.slug||'magnet')+'\')">⬇️ CSV</button>'+
+    (b.slug?'<button class="btn b-ghost" onclick="dlHTML(\''+b.id+'\')">⬇️ HTML</button>':'')+
     (preview?'<button class="btn b-ghost" onclick="showQRById(\''+b.id+'\')">📱 QR</button>':'')+
+    '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
+    '<button class="btn b-ghost" onclick="regen(\''+b.id+'\')" title="Overwrite this page (same URL)">↻ Regenerate</button>'+
+    '<button class="btn b-ghost" onclick="duplicateBuild(\''+b.id+'\')" title="New page, new URL + tracking">⧉ New version</button>'+
     (showActions?
       '<button class="btn b-primary" onclick="approve(\''+b.id+'\')">✓ Approve &amp; send</button>'+
-      '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
-      '<button class="btn b-ghost" onclick="regen(\''+b.id+'\')">↻ Regenerate</button>'+
       '<button class="btn b-danger" onclick="decline(\''+b.id+'\')">✕ Decline</button>'
     :'')+
     '</div><div class="subs" id="subs-'+b.id+'"></div></div>';
@@ -190,7 +192,11 @@ $('qrClose').onclick=()=>$('qrModal').classList.remove('open');
 
 async function approve(id){if(!confirm('Approve and send this lead magnet to the vendor?'))return;toast('Sending...');try{await fnCall('ele-approve',{build_id:id,action:'approve'});toast('Sent ✓');load();}catch(e){toast('Error: '+e.message);}}
 async function decline(id){if(!confirm('Decline this build?'))return;try{await fnCall('ele-approve',{build_id:id,action:'decline'});toast('Declined');load();}catch(e){toast('Error: '+e.message);}}
-async function regen(id){toast('Regenerating...');try{await fnCall('ele-build',{build_id:id});toast('Regenerated ✓');setTimeout(load,1600);}catch(e){toast('Error: '+e.message);}}
+async function regen(id){toast('Regenerating (overwriting this page)...');try{await fnCall('ele-build',{build_id:id});toast('Regenerated ✓');setTimeout(load,1600);}catch(e){toast('Error: '+e.message);}}
+async function dlHTML(id){const b=(window.BUILDS||{})[id];if(!b||!b.slug){toast('No file yet');return;}const url=SUPA+'/storage/v1/object/public/ele-assets/'+(b.html_path||('builds/'+b.slug+'/magnet.html'));try{const r=await fetch(url);const bl=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=slugifyName(b.magnet_title||b.slug)+'.html';a.click();}catch(e){window.open(url,'_blank');}}
+async function duplicateBuild(id){const b=(window.BUILDS||{})[id];if(!b)return;if(!confirm('Create a NEW version with its own URL and fresh tracking? The original stays live as-is.'))return;toast('Creating new version...');
+  const row={host_coupon_code:b.host_coupon_code,event_name:b.event_name,vendor_name:b.vendor_name,company:b.company,website:b.website,email:b.email,phone:b.phone,mechanism:b.mechanism,mechanism_config:b.mechanism_config,free_gift:b.free_gift,free_gift_value:b.free_gift_value,free_gift_file_path:b.free_gift_file_path,free_gift_url:b.free_gift_url,cta_type:b.cta_type,cta_config:b.cta_config,design_style:b.design_style,design_notes:b.design_notes,tonality:b.tonality,brand_colors:b.brand_colors,logo_path:b.logo_path,lead_webhook:b.lead_webhook,crm_type:b.crm_type,hosting:b.hosting,magnet_title:(b.magnet_title||'Magnet')+' v2',consent_config:b.consent_config,status:'submitted',submitted_at:new Date().toISOString(),auto_send_at:new Date(Date.now()+24*3600*1000).toISOString()};
+  try{const r=await fetch(SUPA+'/rest/v1/ele_builds',{method:'POST',headers:Object.assign({},H,{'Prefer':'return=representation'}),body:JSON.stringify(row)});const j=await r.json();const nid=j[0].id;await fnCall('ele-build',{build_id:nid});toast('New version created ✓');setTimeout(load,1800);}catch(e){toast('Error: '+e.message);}}
 let reviseId=null;
 function openRevise(id){reviseId=id;$('reviseInput').value='';$('reviseModal').classList.add('open');}
 $('reviseCancel').onclick=()=>$('reviseModal').classList.remove('open');
