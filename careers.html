@@ -192,14 +192,28 @@ async function init(){
   allJobs=data||[];
   buildFilters();
   renderJobs(allJobs);
-  // Check for direct link: /careers/job-id
-  const path=location.pathname.replace(/\/$/,'');
-  const parts=path.split('/');
-  if(parts.length===3&&parts[2]){
-    const job=allJobs.find(j=>j.id===parts[2]);
-    if(job)showDetail(job.id);
-  }
+  // Deep-link: open job from URL (?job=slug, ?job=id, or legacy /careers/:id)
+  openFromUrl(true);
 }
+
+// Build a human-readable, shareable slug from a job title
+function slugify(s){return(s||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function jobSlug(j){return slugify(j.title);}
+function findJobByParam(val){
+  if(!val)return null;
+  return allJobs.find(j=>jobSlug(j)===val)||allJobs.find(j=>j.id===val)||null;
+}
+function openFromUrl(fromUrl){
+  let val=new URLSearchParams(location.search).get('job');
+  if(!val){ // legacy /careers/:id path support
+    const parts=location.pathname.replace(/\/$/,'').split('/');
+    if(parts.length===3&&parts[2])val=parts[2];
+  }
+  const job=findJobByParam(val);
+  if(job)showDetail(job.id,fromUrl);
+  else backToList(true);
+}
+window.addEventListener('popstate',()=>openFromUrl(true));
 
 function buildFilters(){
   const types=[...new Set(allJobs.map(j=>j.employment_type))];
@@ -236,9 +250,14 @@ function renderJobs(jobs){
   }).join('');
 }
 
-async function showDetail(jobId){
+async function showDetail(jobId,fromUrl){
   const j=allJobs.find(x=>x.id===jobId);if(!j)return;
   currentJob=j;
+  // Update URL so the job posting is directly shareable (e.g. /careers?job=sales-consultant)
+  const url='/careers?job='+jobSlug(j);
+  if(fromUrl)history.replaceState({jobId:j.id},'',url);
+  else history.pushState({jobId:j.id},'',url);
+  document.title=j.title+' — Careers — Knight Ops';
   document.getElementById('listingsView').style.display='none';
   document.getElementById('detailView').style.display='block';
   window.scrollTo(0,0);
@@ -254,10 +273,12 @@ async function showDetail(jobId){
   document.getElementById('jobDetail').innerHTML=html;
 }
 
-function backToList(){
+function backToList(fromUrl){
   document.getElementById('detailView').style.display='none';
   document.getElementById('listingsView').style.display='block';
   currentJob=null;
+  document.title='Careers — Knight Ops';
+  if(!fromUrl)history.pushState({},'', '/careers');
 }
 
 async function openAppModal(){
