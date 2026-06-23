@@ -372,7 +372,7 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <input type="file" id="brandImgFile" accept="image/*" style="display:none">
       <div class="palette" id="brandPalette"></div>
       <div id="removeImgWrap" style="display:none;margin-top:6px"><span id="removeImg" style="color:var(--gold-light);cursor:pointer;font-size:.82rem">✕ Remove image &amp; clear colors</span></div>
-      <div class="hint" id="paletteHint" style="display:none">Use the dropdown under each color to set it as your <b>Background, Accent, or Secondary</b>. We auto-picked a starting set; adjust the pickers below anytime.</div>
+      <div class="hint" id="paletteHint" style="display:none">Use the dropdown under each color to set it as <b>Background, Accent, or Secondary</b> — leave any color on <b>Don’t Use</b> to skip it. You can pick multiple Secondary colors and we’ll work them all in. We auto-picked a starting set.</div>
       <div class="colors">
         <label>Background<input type="color" id="col_primary" value="#05061a"></label>
         <label>Accent<input type="color" id="col_accent" value="#C9922A"></label>
@@ -578,27 +578,39 @@ function extractPalette(img){
   for(let i=0;i<data.length;i+=4){if(data[i+3]<200)continue;const r=Math.round(data[i]/24)*24,g=Math.round(data[i+1]/24)*24,b=Math.round(data[i+2]/24)*24;const k=r+'|'+g+'|'+b;map[k]=(map[k]||0)+1;}
   return Object.entries(map).map(([k,n])=>{const[r,g,b]=k.split('|').map(Number);return{r,g,b,n,hex:rgbToHex(r,g,b),sat:satOf(r,g,b)};}).sort((a,b)=>b.n-a.n).slice(0,8);
 }
-let PAL=[],ROLES={bg:null,accent:null,secondary:null};
-function roleOf(hex){return ROLES.bg===hex?'bg':ROLES.accent===hex?'accent':ROLES.secondary===hex?'secondary':'';}
+let PAL=[],ROLE={}; // hex -> 'na' | 'bg' | 'accent' | 'secondary' (na = not used; multiple secondaries allowed)
+function applyRolesToInputs(){
+  let bg=null,acc=null,secs=[];
+  PAL.forEach(h=>{const r=ROLE[h]||'na';if(r==='bg')bg=h;else if(r==='accent')acc=h;else if(r==='secondary')secs.push(h);});
+  if(bg)$('col_primary').value=bg;
+  if(acc)$('col_accent').value=acc;
+  if(secs.length)$('col_secondary').value=secs[0];
+  S.secondaries=secs;
+}
 function renderPalette(){
-  $('brandPalette').innerHTML=PAL.map(hex=>{const r=roleOf(hex);
-    return '<div class="pal-item"><div class="swatch'+(r?' assigned':'')+'" style="background:'+hex+'" title="'+hex+'"></div>'+
+  $('brandPalette').innerHTML=PAL.map(hex=>{const r=ROLE[hex]||'na';
+    return '<div class="pal-item"><div class="swatch'+(r!=='na'?' assigned':'')+'" style="background:'+hex+'" title="'+hex+'"></div>'+
       '<select class="pal-role" data-hex="'+hex+'">'+
-      '<option value=""'+(r===''?' selected':'')+'>— role —</option>'+
+      '<option value="na"'+(r==='na'?' selected':'')+'>Don’t Use</option>'+
       '<option value="bg"'+(r==='bg'?' selected':'')+'>Background</option>'+
       '<option value="accent"'+(r==='accent'?' selected':'')+'>Accent</option>'+
       '<option value="secondary"'+(r==='secondary'?' selected':'')+'>Secondary</option>'+
       '</select></div>';}).join('');
   [...document.querySelectorAll('#brandPalette .pal-role')].forEach(sel=>sel.onchange=()=>setRole(sel.dataset.hex,sel.value));
-  if(ROLES.bg)$('col_primary').value=ROLES.bg;if(ROLES.accent)$('col_accent').value=ROLES.accent;if(ROLES.secondary)$('col_secondary').value=ROLES.secondary;
+  applyRolesToInputs();
 }
-function setRole(hex,role){['bg','accent','secondary'].forEach(r=>{if(ROLES[r]===hex)ROLES[r]=null;});if(role)ROLES[role]=hex;renderPalette();renderPreview();}
-function clearBrandImage(){PAL=[];ROLES={bg:null,accent:null,secondary:null};S.colors_from_image=false;$('brandPalette').innerHTML='';$('paletteHint').style.display='none';$('removeImgWrap').style.display='none';const d=$('brandImgDrop');d.classList.remove('has');d.textContent='🎨 Upload a brand image, flyer, or logo to auto-match your colors';$('brandImgFile').value='';applyStylePalette(S.design_style||'cosmic_gold');}
+function setRole(hex,role){
+  if(role==='bg'||role==='accent'){PAL.forEach(h=>{if(ROLE[h]===role)ROLE[h]='na';});} // bg/accent are single; displaced ones become unused
+  ROLE[hex]=role;renderPalette();renderPreview();
+}
+function clearBrandImage(){PAL=[];ROLE={};S.secondaries=[];S.colors_from_image=false;$('brandPalette').innerHTML='';$('paletteHint').style.display='none';$('removeImgWrap').style.display='none';const d=$('brandImgDrop');d.classList.remove('has');d.textContent='🎨 Upload a brand image, flyer, or logo to auto-match your colors';$('brandImgFile').value='';applyStylePalette(S.design_style||'cosmic_gold');}
 (function(){const drop=$('brandImgDrop'),inp=$('brandImgFile');drop.onclick=()=>inp.click();
   inp.onchange=()=>{const f=inp.files[0];if(!f)return;drop.textContent='⏳ Reading colors...';const rd=new FileReader();
     rd.onload=()=>{const img=new Image();img.onload=()=>{const pal=extractPalette(img);if(!pal.length){drop.textContent='⚠️ Could not read colors, set them manually';return;}
       const byVibe=pal.slice().sort((a,b)=>b.sat-a.sat);PAL=pal.map(p=>p.hex);
-      ROLES.bg=pal[0].hex;ROLES.accent=byVibe[0].hex;ROLES.secondary=(byVibe[1]&&byVibe[1].hex!==byVibe[0].hex?byVibe[1].hex:(pal[1]?pal[1].hex:byVibe[0].hex));
+      ROLE={};PAL.forEach(h=>ROLE[h]='na');
+      ROLE[pal[0].hex]='bg';
+      let accentHex=byVibe[0].hex;if(accentHex===pal[0].hex&&byVibe[1])accentHex=byVibe[1].hex;ROLE[accentHex]='accent';
       S.colors_from_image=true;renderPalette();
       $('paletteHint').style.display='block';$('removeImgWrap').style.display='block';drop.classList.add('has');drop.textContent='✓ Colors matched from '+f.name;renderPreview();
     };img.src=rd.result;};rd.readAsDataURL(f);};
@@ -626,7 +638,7 @@ function gather(){
     free_gift:v('f_gift'),free_gift_value:v('f_gift_value'),free_gift_file_path:S.gift_file_path,free_gift_url:v('f_gift_url'),
     cta_type:S.cta,cta_config:cc,
     design_style:S.design_style,design_notes:(v('f_design_notes')+(S.extraNotes||'')).trim(),tonality:v('f_tonality'),
-    brand_colors:{primary:v('col_primary'),accent:v('col_accent'),secondary:v('col_secondary')},logo_path:S.logo_path,
+    brand_colors:{primary:v('col_primary'),accent:v('col_accent'),secondary:v('col_secondary'),secondaries:S.secondaries||[]},logo_path:S.logo_path,
     lead_webhook:v('f_webhook'),crm_type:v('f_crm'),
     hosting:S.hosting,magnet_title:v('f_title'),
     consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag3:$('ag3').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,ag6:$('ag6').checked,

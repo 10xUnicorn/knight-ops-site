@@ -217,7 +217,7 @@ function renderPickDoor(){const opts=cfg.options||[cfg.reveal||'A free gift','A 
 function renderSpin(){
   const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up.').replace('{company}',C.company||'this brand');
   const prizes=(cfg.prizes&&cfg.prizes.length?cfg.prizes:['Free gift','10% off','Free consult','Swag','Bonus','Discount']);
-  const t=STATE.theme||{};const base=[t.accent||'#C9922A',t.accent2||'#7B2FFF','#00D4C8','#ff5db1','#ffd23f','#4cc9f0','#f72585','#80ffea'];
+  const t=STATE.theme||{};const secs=(C.colors&&C.colors.secondaries)||[];const base=[t.accent||'#C9922A',t.accent2||'#7B2FFF',...secs,'#00D4C8','#ff5db1','#ffd23f','#4cc9f0','#f72585','#80ffea'];
   const legend='<div class="legend" id="spinLegend">'+prizes.map((p,i)=>'<div class="lg"><span class="dot" style="background:'+base[i%base.length]+'"></span>'+esc(p)+'</div>').join('')+'</div>';
   const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Spin to Win')+'</div><h1 class="q">'+esc(cfg.headline||'Spin to Win')+'</h1><div class="sub">'+esc(cfg.sub||'Everyone wins something. Fill in your details below, then spin the wheel.')+'</div>'+
     '<div class="wheel-wrap"><canvas id="wheel" width="320" height="320"></canvas><div id="wtip" class="wtip"></div></div>'+legend+
