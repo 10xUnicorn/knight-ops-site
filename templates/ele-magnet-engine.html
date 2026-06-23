@@ -70,7 +70,11 @@ h1.q .hl{color:var(--accent)}
 .chip{border:1.5px solid var(--accent);color:var(--text);border-radius:999px;padding:9px 15px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s;background:var(--card)}
 .chip.sel{background:var(--accent);color:var(--btnText)}
 .wheel-wrap{text-align:center;margin:6px 0 16px;position:relative}
-#wheel{max-width:300px;width:100%;height:auto;filter:drop-shadow(0 14px 30px rgba(0,0,0,.3))}
+#wheel{max-width:300px;width:100%;height:auto;filter:drop-shadow(0 14px 30px rgba(0,0,0,.3));cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin:0 0 18px;font-size:.82rem;color:var(--mut)}
+.lg{display:flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+.wtip{position:absolute;background:#000;color:#fff;font-size:.75rem;font-weight:600;padding:6px 10px;border-radius:7px;pointer-events:none;display:none;transform:translate(-50%,-135%);white-space:nowrap;z-index:4;box-shadow:0 6px 16px rgba(0,0,0,.4)}
 .scratch{position:relative;width:100%;height:150px;border-radius:14px;overflow:hidden;margin:14px 0;cursor:pointer;border:1px solid var(--line)}
 .scratch canvas{position:absolute;inset:0;width:100%;height:100%}
 .scratch .under{display:flex;align-items:center;justify-content:center;height:100%;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-align:center;padding:10px}
@@ -159,7 +163,7 @@ function card(inner){return '<div class="card">'+topbar()+'<div class="pad">'+lo
 function renderMechanism(){const m=C.mechanism;
   if(m==='quiz')return renderQuiz();
   if(m==='guess_win')return renderGuess();
-  if(m==='spin_win')return renderSpinGate();
+  if(m==='spin_win')return renderSpin();
   if(m==='contest')return renderContest();
   if(m==='archetype')return renderArchetype();
   if(m==='scratch')return renderScratch();
@@ -209,28 +213,40 @@ function renderPickDoor(){const opts=cfg.options||[cfg.reveal||'A free gift','A 
     d.onclick=()=>{if(opened)return;opened=true;const prize=opts[Math.floor(Math.random()*opts.length)];STATE.type='door';STATE.interactive={door:n,revealed:prize};d.innerHTML='<b>🎉 '+esc(prize)+'</b>';d.classList.add('sel');document.getElementById('dh').textContent='Nice. Grab it on the next step.';setTimeout(showCapture,1000);};
     document.getElementById('doors').appendChild(d);});
 }
-/* ---- SPIN: email gate first ---- */
-function renderSpinGate(){
+/* ---- SPIN: wheel on top, progressive fields, hover details, show prize ---- */
+function renderSpin(){
   const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up.').replace('{company}',C.company||'this brand');
-  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Spin to Win')+'</div><h1 class="q">'+esc(cfg.headline||'Enter to Spin & Win')+'</h1><div class="sub">'+esc(cfg.sub||'Everyone wins something. Enter your details to spin the wheel.')+'</div><div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="go">🎡 Spin the Wheel</button></div>';
-  app.innerHTML=card(inner);
-  document.getElementById('go').onclick=()=>{const e=document.getElementById('ce').value.trim();if(!e){alert('Please enter your email to spin.');return;}STATE.contact={name:document.getElementById('cn').value.trim(),email:e,phone:document.getElementById('cp').value.trim(),optin:document.getElementById('optin').checked};showWheel();};
-}
-function showWheel(){
-  const inner='<div class="step active"><div class="kicker">Good luck!</div><h1 class="q">'+esc(cfg.headline||'Spin to Win')+'</h1><div class="wheel-wrap"><canvas id="wheel" width="320" height="320"></canvas></div><button class="btn" id="go">Spin</button></div>';
-  app.innerHTML=card(inner);
   const prizes=(cfg.prizes&&cfg.prizes.length?cfg.prizes:['Free gift','10% off','Free consult','Swag','Bonus','Discount']);
-  const cv=document.getElementById('wheel'),ctx=cv.getContext('2d'),N=prizes.length,cx=160,cy=160,rad=150;let ang=-Math.PI/2,spinning=false;
   const t=STATE.theme||{};const base=[t.accent||'#C9922A',t.accent2||'#7B2FFF','#00D4C8','#ff5db1','#ffd23f','#4cc9f0','#f72585','#80ffea'];
-  function fit(label,max){let s=label;ctx.font='700 '+fs+'px '+(getComputedStyle(document.body).fontFamily);while(ctx.measureText(s).width>max&&s.length>3)s=s.slice(0,-1);return s.length<label.length?s.trim()+'…':s;}
+  const legend='<div class="legend">'+prizes.map((p,i)=>'<div class="lg"><span class="dot" style="background:'+base[i%base.length]+'"></span>'+esc(p)+'</div>').join('')+'</div>';
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.kicker||'Spin to Win')+'</div><h1 class="q">'+esc(cfg.headline||'Spin to Win')+'</h1><div class="sub">'+esc(cfg.sub||'Everyone wins something. Fill in your details below, then spin the wheel.')+'</div>'+
+    '<div class="wheel-wrap"><canvas id="wheel" width="320" height="320"></canvas><div id="wtip" class="wtip"></div></div>'+legend+
+    '<div class="field" id="f_n"><input type="text" id="cn" placeholder="Your name"></div>'+
+    '<div class="field" id="f_e" style="display:none"><input type="email" id="ce" placeholder="Your email"></div>'+
+    '<div class="field" id="f_p" style="display:none"><input type="tel" id="cp" placeholder="Your phone"></div>'+
+    '<label class="consent" id="f_c" style="display:none"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label>'+
+    '<button class="btn" id="go" disabled>🎡 Spin the Wheel</button></div>';
+  app.innerHTML=card(inner);
+  const cn=document.getElementById('cn'),go=document.getElementById('go');
+  cn.oninput=()=>{if(cn.value.trim())document.getElementById('f_e').style.display='';};
+  document.getElementById('ce').oninput=function(){const ok=/.+@.+\..+/.test(this.value.trim());if(ok){document.getElementById('f_p').style.display='';document.getElementById('f_c').style.display='';}go.disabled=!ok;};
+  const cv=document.getElementById('wheel'),ctx=cv.getContext('2d'),N=prizes.length,cx=160,cy=160,rad=150;let ang=-Math.PI/2,spinning=false;
   const fs=N<=6?15:N<=8?13:11;
+  function fit(label,max){let s=String(label);ctx.font='700 '+fs+'px '+getComputedStyle(document.body).fontFamily;while(ctx.measureText(s).width>max&&s.length>3)s=s.slice(0,-1);return s.length<String(label).length?s.trim()+'…':s;}
   function draw(){ctx.clearRect(0,0,320,320);for(let i=0;i<N;i++){const a0=ang+i*2*Math.PI/N,a1=ang+(i+1)*2*Math.PI/N;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,rad,a0,a1);ctx.closePath();ctx.fillStyle=base[i%base.length];ctx.fill();ctx.lineWidth=4;ctx.strokeStyle='#ffffff';ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate((a0+a1)/2);ctx.textAlign='right';ctx.fillStyle=lum(base[i%base.length])>0.6?'#1a1303':'#ffffff';ctx.font='700 '+fs+'px '+getComputedStyle(document.body).fontFamily;ctx.fillText(fit(prizes[i],rad-46),rad-16,fs/3);ctx.restore();}
-    // hub + pointer
-    ctx.beginPath();ctx.arc(cx,cy,22,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=t.accent||'#C9922A';ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx+rad-4,cy-14);ctx.lineTo(cx+rad+18,cy);ctx.lineTo(cx+rad-4,cy+14);ctx.closePath();ctx.fillStyle=t.accent||'#C9922A';ctx.fill();}
+    ctx.beginPath();ctx.arc(cx,cy,22,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=base[0];ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+rad-4,cy-14);ctx.lineTo(cx+rad+18,cy);ctx.lineTo(cx+rad-4,cy+14);ctx.closePath();ctx.fillStyle=base[0];ctx.fill();}
   draw();
-  document.getElementById('go').onclick=()=>{if(spinning)return;spinning=true;const win=Math.floor(Math.random()*N);const dest=2*Math.PI*5-(win+0.5)*(2*Math.PI/N);const start=ang,t0=performance.now(),dur=4200;
-    (function anim(tn){const p=Math.min((tn-t0)/dur,1),e=1-Math.pow(1-p,3);ang=start+(dest-start)*e;draw();if(p<1)requestAnimationFrame(anim);else{STATE.type='spin_result';STATE.interactive={won:prizes[win]};setTimeout(()=>submitLead(),700);}})(t0);};
+  const tip=document.getElementById('wtip');
+  cv.onmousemove=e=>{const r=cv.getBoundingClientRect();const sc=cv.width/r.width;const sx=e.offsetX*sc-cx,sy=e.offsetY*sc-cy;if(sx*sx+sy*sy>rad*rad){tip.style.display='none';return;}let a=Math.atan2(sy,sx)-ang;a=((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI);const idx=Math.floor(a/(2*Math.PI/N))%N;tip.textContent=prizes[idx];tip.style.display='block';tip.style.left=e.offsetX/sc+'px';tip.style.top=e.offsetY/sc+'px';};
+  cv.onmouseleave=()=>{tip.style.display='none';};
+  go.onclick=()=>{if(spinning||go.disabled)return;spinning=true;STATE.contact={name:cn.value.trim(),email:document.getElementById('ce').value.trim(),phone:document.getElementById('cp').value.trim(),optin:document.getElementById('optin').checked};
+    const win=Math.floor(Math.random()*N);const dest=2*Math.PI*5-(win+0.5)*(2*Math.PI/N);const start=ang,t0=performance.now(),dur=4200;
+    (function anim(tn){const p=Math.min((tn-t0)/dur,1),e=1-Math.pow(1-p,3);ang=start+(dest-start)*e;draw();if(p<1)requestAnimationFrame(anim);else{STATE.type='spin_result';STATE.interactive={won:prizes[win]};showSpinResult(prizes[win]);}})(t0);};
+}
+function showSpinResult(prize){
+  const inner='<div class="step active" style="text-align:center"><div class="kicker">Congratulations!</div><h1 class="q">You won</h1><div class="reveal-tag" style="text-align:center;font-size:1.15rem;border-left:none;border:2px solid var(--accent)"><b>🎉 '+esc(prize)+'</b></div><div class="sub">Tap below to claim it.</div><button class="btn" id="go">Claim my prize →</button></div>';
+  app.innerHTML=card(inner);confetti();document.getElementById('go').onclick=()=>submitLead(false);
 }
 
 /* ===== CAPTURE ===== */

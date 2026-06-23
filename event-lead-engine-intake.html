@@ -88,6 +88,8 @@ textarea{min-height:84px;resize:vertical}
 .palette{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .palette .swatch{width:34px;height:34px;border-radius:8px;cursor:pointer;border:2px solid transparent;position:relative}
 .palette .swatch:hover{border-color:#fff}
+.palette .swatch.assigned{border-color:#fff}
+.palette .swatch .rlbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}
 
 /* color swatch inputs */
 .colors{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
@@ -305,7 +307,7 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <div class="sec-h"><div class="n">4</div><h2>The free gift</h2></div>
       <div class="sec-sub">Everyone who submits gets a gift. It is what makes playing feel rewarding.</div>
       <div class="two">
-        <div><label class="fl">What's the gift? <span class="req">*</span></label><input type="text" id="f_gift" placeholder="e.g. The 5-Step Wealth Guide"></div>
+        <div><label class="fl">What's the gift? <span class="hint" style="display:inline">(strongly recommended)</span></label><input type="text" id="f_gift" placeholder="e.g. The 5-Step Wealth Guide"></div>
         <div><label class="fl">Stated value</label><input type="text" id="f_gift_value" placeholder="e.g. $197 value"></div>
       </div>
       <label class="fl">Deliver the gift by...</label>
@@ -369,7 +371,8 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <div class="drop" id="brandImgDrop">🎨 Upload a brand image, flyer, or logo to auto-match your colors</div>
       <input type="file" id="brandImgFile" accept="image/*" style="display:none">
       <div class="palette" id="brandPalette"></div>
-      <div class="hint" id="paletteHint" style="display:none">We pulled these from your image and set your colors below. Tap any swatch to make it your accent, or adjust manually.</div>
+      <div id="removeImgWrap" style="display:none;margin-top:6px"><span id="removeImg" style="color:var(--gold-light);cursor:pointer;font-size:.82rem">✕ Remove image &amp; clear colors</span></div>
+      <div class="hint" id="paletteHint" style="display:none">Tap a swatch to cycle its role: <b>Background → Accent → Secondary → off</b>. We auto-picked a starting set; adjust the pickers below anytime.</div>
       <div class="colors">
         <label>Background<input type="color" id="col_primary" value="#05061a"></label>
         <label>Accent<input type="color" id="col_accent" value="#C9922A"></label>
@@ -413,8 +416,11 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <div class="chk"><input type="checkbox" id="ag1"><label for="ag1"><b>One revision included.</b> Additional revisions or changes may incur a charge.</label></div>
       <div class="chk"><input type="checkbox" id="ag2"><label for="ag2"><b>"Powered by Knight Ops" stays on the page.</b> Removing the tag may result in the page being taken down.</label></div>
       <div class="chk"><input type="checkbox" id="ag3"><label for="ag3"><b>Marketing rights.</b> Knight Ops may send a helpful follow-up by email to people who opt in. Your leads are always delivered to you too.</label></div>
-      <div class="chk"><input type="checkbox" id="ag4"><label for="ag4"><b>Hosting is flexible.</b> If we host it, we may stop at any time. You can request a full transfer of your file and lead database for a $249 transfer fee. A branded custom domain is not included.</label></div>
-      <div class="chk"><input type="checkbox" id="ag5"><label for="ag5"><b>I understand hosted builds take longer to set up</b> and I've shared any title or naming preferences above.</label></div>
+      <div class="chk"><input type="checkbox" id="ag6"><label for="ag6"><b>Results aren't guaranteed and positioning is everything.</b> How you frame and present this lead magnet is critical to conversions. I'll book a call to dial in my positioning after it's created.</label></div>
+      <div id="hostedTerms" style="display:none">
+        <div class="chk"><input type="checkbox" id="ag4"><label for="ag4"><b>Hosting is flexible.</b> If we host it, we may stop at any time. You can request a full transfer of your file and lead database for a $249 transfer fee. A branded custom domain is not included.</label></div>
+        <div class="chk"><input type="checkbox" id="ag5"><label for="ag5"><b>I understand hosted builds take longer to set up</b> and I've shared any title or naming preferences above.</label></div>
+      </div>
     </div>
 
   </div>
@@ -448,7 +454,8 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
   <div class="ov-sub">Review the mockup and the details below. Approve to start your build, or request a revision.</div>
   <div class="review-grid">
     <div>
-      <div class="phone" style="max-height:520px"><div class="pv-screen" id="reviewScreen"></div></div>
+      <iframe id="reviewFrame" title="Your lead magnet preview" style="width:100%;height:580px;border:1px solid var(--line);border-radius:18px;background:#000"></iframe>
+      <div class="hint" style="text-align:center;margin-top:8px">This is your real, live lead magnet. Try it out above.</div>
     </div>
     <div class="outline" id="reviewOutline"></div>
   </div>
@@ -484,10 +491,10 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <p><b>What happens next</b></p>
       <p>📨 We'll email your finished file and simple instructions within 24 hours.</p>
       <p>🛠️ Need a change or have a question? Email <a href="mailto:eden@knightops.biz">eden@knightops.biz</a>.</p>
-      <p>📞 Want help positioning it to capture the most leads? Book a call at <a href="https://knightops.biz/book">knightops.biz/book</a>.</p>
-      <p id="confirmHosted" style="display:none">☁️ <b>Hosting:</b> We'll send a secure link to start your $97/month hosting so we can publish your page and store your leads.</p>
+      <p>📞 Want help positioning it to capture the most leads? Book a call at <a href="https://knightops.biz/book" target="_blank" rel="noopener">knightops.biz/book</a>.</p>
+      <p id="confirmHosted" style="display:none">☁️ <b>You chose to have us host it.</b> Start your $97/month hosting now so we can publish your page and store your leads:<br><a href="https://buy.stripe.com/bJe5kwbZdgTw6j4gDo2B201" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Start hosting — $97/mo →</a></p>
     </div>
-    <a href="https://knightops.biz/book" class="btn btn-primary">Book your positioning call →</a>
+    <a href="https://knightops.biz/book" target="_blank" rel="noopener" class="btn btn-primary">Book your positioning call →</a>
   </div>
 </div></div>
 
@@ -525,7 +532,7 @@ const hostSec=$('hostChoices').closest('.sec');
 wireChoices('mechChoices','mechanism',m=>showCond(m,mechSec));
 wireChoices('ctaChoices','cta',c=>showCond(c,ctaSec));
 wireChoices('styleChoices','design_style',applyStylePalette);
-wireChoices('hostChoices','hosting',h=>{showCond(h,hostSec);});
+wireChoices('hostChoices','hosting',h=>{showCond(h,hostSec);$('hostedTerms').style.display=h==='hosted'?'block':'none';});
 document.querySelector('#styleChoices .swc').classList.add('sel');
 document.querySelector('#hostChoices [data-host="self"]').classList.add('sel');
 
@@ -571,16 +578,23 @@ function extractPalette(img){
   for(let i=0;i<data.length;i+=4){if(data[i+3]<200)continue;const r=Math.round(data[i]/24)*24,g=Math.round(data[i+1]/24)*24,b=Math.round(data[i+2]/24)*24;const k=r+'|'+g+'|'+b;map[k]=(map[k]||0)+1;}
   return Object.entries(map).map(([k,n])=>{const[r,g,b]=k.split('|').map(Number);return{r,g,b,n,hex:rgbToHex(r,g,b),sat:satOf(r,g,b)};}).sort((a,b)=>b.n-a.n).slice(0,8);
 }
+let PAL=[],ROLES={bg:null,accent:null,secondary:null};
+function renderPalette(){
+  $('brandPalette').innerHTML=PAL.map(hex=>{const r=ROLES.bg===hex?'BG':ROLES.accent===hex?'AC':ROLES.secondary===hex?'SE':'';return '<div class="swatch'+(r?' assigned':'')+'" style="background:'+hex+'" title="'+hex+'" data-hex="'+hex+'"><span class="rlbl">'+r+'</span></div>';}).join('');
+  [...document.querySelectorAll('#brandPalette .swatch')].forEach(sw=>sw.onclick=()=>cycleRole(sw.dataset.hex));
+  if(ROLES.bg)$('col_primary').value=ROLES.bg;if(ROLES.accent)$('col_accent').value=ROLES.accent;if(ROLES.secondary)$('col_secondary').value=ROLES.secondary;
+}
+function cycleRole(hex){const cur=ROLES.bg===hex?'bg':ROLES.accent===hex?'accent':ROLES.secondary===hex?'secondary':'none';['bg','accent','secondary'].forEach(r=>{if(ROLES[r]===hex)ROLES[r]=null;});const nx={none:'bg',bg:'accent',accent:'secondary',secondary:'none'}[cur];if(nx!=='none')ROLES[nx]=hex;renderPalette();renderPreview();}
+function clearBrandImage(){PAL=[];ROLES={bg:null,accent:null,secondary:null};S.colors_from_image=false;$('brandPalette').innerHTML='';$('paletteHint').style.display='none';$('removeImgWrap').style.display='none';const d=$('brandImgDrop');d.classList.remove('has');d.textContent='🎨 Upload a brand image, flyer, or logo to auto-match your colors';$('brandImgFile').value='';applyStylePalette(S.design_style||'cosmic_gold');}
 (function(){const drop=$('brandImgDrop'),inp=$('brandImgFile');drop.onclick=()=>inp.click();
   inp.onchange=()=>{const f=inp.files[0];if(!f)return;drop.textContent='⏳ Reading colors...';const rd=new FileReader();
     rd.onload=()=>{const img=new Image();img.onload=()=>{const pal=extractPalette(img);if(!pal.length){drop.textContent='⚠️ Could not read colors, set them manually';return;}
-      const byVibe=pal.slice().sort((a,b)=>b.sat-a.sat);
-      $('col_primary').value=pal[0].hex;$('col_accent').value=byVibe[0].hex;$('col_secondary').value=(byVibe[1]&&byVibe[1].hex!==byVibe[0].hex?byVibe[1].hex:(pal[1]?pal[1].hex:byVibe[0].hex));
-      S.colors_from_image=true;
-      $('brandPalette').innerHTML=pal.map(p=>'<div class="swatch" style="background:'+p.hex+'" title="'+p.hex+'" data-hex="'+p.hex+'"></div>').join('');
-      [...document.querySelectorAll('#brandPalette .swatch')].forEach(sw=>sw.onclick=()=>{$('col_accent').value=sw.dataset.hex;renderPreview();});
-      $('paletteHint').style.display='block';drop.classList.add('has');drop.textContent='✓ Colors matched from '+f.name;renderPreview();
+      const byVibe=pal.slice().sort((a,b)=>b.sat-a.sat);PAL=pal.map(p=>p.hex);
+      ROLES.bg=pal[0].hex;ROLES.accent=byVibe[0].hex;ROLES.secondary=(byVibe[1]&&byVibe[1].hex!==byVibe[0].hex?byVibe[1].hex:(pal[1]?pal[1].hex:byVibe[0].hex));
+      S.colors_from_image=true;renderPalette();
+      $('paletteHint').style.display='block';$('removeImgWrap').style.display='block';drop.classList.add('has');drop.textContent='✓ Colors matched from '+f.name;renderPreview();
     };img.src=rd.result;};rd.readAsDataURL(f);};
+  $('removeImg').onclick=clearBrandImage;
 })();
 
 /* ---------- gather state ---------- */
@@ -603,11 +617,11 @@ function gather(){
     mechanism:S.mechanism,mechanism_config:mc,
     free_gift:v('f_gift'),free_gift_value:v('f_gift_value'),free_gift_file_path:S.gift_file_path,free_gift_url:v('f_gift_url'),
     cta_type:S.cta,cta_config:cc,
-    design_style:S.design_style,design_notes:v('f_design_notes'),tonality:v('f_tonality'),
+    design_style:S.design_style,design_notes:(v('f_design_notes')+(S.extraNotes||'')).trim(),tonality:v('f_tonality'),
     brand_colors:{primary:v('col_primary'),accent:v('col_accent'),secondary:v('col_secondary')},logo_path:S.logo_path,
     lead_webhook:v('f_webhook'),crm_type:v('f_crm'),
     hosting:S.hosting,magnet_title:v('f_title'),
-    consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag3:$('ag3').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,
+    consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag3:$('ag3').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,ag6:$('ag6').checked,
       attendee_optin:'pre-checked: vendor email+sms, knight ops email-only',powered_by:'Powered by Knight Ops'}
   };
 }
@@ -649,7 +663,9 @@ function validate(){
   if(!d.free_gift)miss.push('The free gift');
   if(!d.cta_type)miss.push('A call to action');
   if(!d.magnet_title)miss.push('A name for your magnet');
-  if(!(d.consent_config.ag1&&d.consent_config.ag2&&d.consent_config.ag3&&d.consent_config.ag4&&d.consent_config.ag5))miss.push('Agree to all terms');
+  const cc2=d.consent_config;let agOk=cc2.ag1&&cc2.ag2&&cc2.ag3&&cc2.ag6;
+  if(d.hosting==='hosted')agOk=agOk&&cc2.ag4&&cc2.ag5;
+  if(!agOk)miss.push('Agree to all terms');
   return miss;
 }
 
@@ -671,38 +687,36 @@ function buildOutline(d){
     '<div class="row"><span class="k">Branding</span><span class="v">Powered by Knight Ops</span></div>';
 }
 
-/* ---------- AI review (phase-5: client mockup; phase-6: edge fn) ---------- */
-const genSteps=['Reading your brand and goals','Selecting your interactive layout','Applying your colors and tone','Writing your conversion copy','Assembling the mockup'];
-function runGen(title,after){
-  $('genTitle').textContent=title;$('genLog').innerHTML='';$('genOverlay').classList.add('open');
-  genSteps.forEach((s,i)=>{setTimeout(()=>{const div=document.createElement('div');div.textContent=s;div.style.animationDelay='0s';$('genLog').appendChild(div);if(i>0)$('genLog').children[i-1].classList.add('done');},i*620);});
-  setTimeout(()=>{$('genLog').lastChild.classList.add('done');$('genOverlay').classList.remove('open');after();},genSteps.length*620+500);
-}
-async function aiReview(){
-  const d=gather();
-  // AI polish via ele-review (Sonnet). Mockup is rendered client-side from the
-  // same config the engine uses, so it accurately reflects the final build.
-  let outline=null;
+/* ---------- AI review: generate the REAL magnet and show it live in an iframe ---------- */
+const genSteps=['Reading your brand and goals','Designing your layout and palette','Writing your conversion copy','Building your interactive experience','Polishing the final design'];
+function startGen(title){$('genTitle').textContent=title;$('genLog').innerHTML='';$('genOverlay').classList.add('open');genSteps.forEach((s,i)=>setTimeout(()=>{const d=document.createElement('div');d.textContent=s;$('genLog').appendChild(d);if(i>0&&$('genLog').children[i-1])$('genLog').children[i-1].classList.add('done');},i*950));}
+function stopGen(){[...$('genLog').children].forEach(c=>c.classList.add('done'));$('genOverlay').classList.remove('open');}
+async function runPreview(title){
+  startGen(title||'Designing your lead magnet...');
   try{
-    const r=await fetch(SUPA+'/functions/v1/ele-review',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(d)});
-    if(r.ok){const j=await r.json();if(j&&j.outline_html)outline=j.outline_html;}
-  }catch(e){/* fallback below */}
-  renderPreview($('reviewScreen'));
-  $('reviewOutline').innerHTML=outline||buildOutline(d);
+    const d=gather();
+    const r=await fetch(SUPA+'/functions/v1/ele-preview',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(Object.assign({},d,{resume_token:S.resume_token||null}))});
+    const j=await r.json();
+    if(!r.ok||!j.preview_url)throw new Error(j.error||'preview failed');
+    S.resume_token=j.resume_token;S.previewBuildId=j.build_id;S.previewUrl=j.preview_url;
+    $('reviewFrame').src=j.preview_url+'?t='+Date.now();
+    $('reviewOutline').innerHTML=buildOutline(d);
+    stopGen();$('reviewOverlay').classList.add('open');
+  }catch(e){stopGen();toast('Preview error: '+e.message);}
 }
 $('btnReview').onclick=()=>{
   const miss=validate();
   if(miss.length){toast('Please complete: '+miss.slice(0,2).join(', ')+(miss.length>2?'...':''));window.scrollTo({top:0,behavior:'smooth'});return;}
-  runGen('Building your mockup...',async()=>{await aiReview();$('reviewOverlay').classList.add('open');});
+  runPreview('Designing your lead magnet...');
 };
 
-/* revise */
+/* revise — feeds your instructions back through the AI designer and rebuilds the live preview */
 $('btnRevise').onclick=()=>$('reviseBox').classList.add('on');
 $('btnReviseCancel').onclick=()=>$('reviseBox').classList.remove('on');
 $('btnReviseSubmit').onclick=()=>{
   const note=$('reviseText').value.trim();if(!note){toast('Tell us what to change');return;}
-  S.revision_notes=note;$('reviewOverlay').classList.remove('open');
-  runGen('Updating your mockup...',async()=>{await aiReview();$('reviseBox').classList.remove('on');$('reviewOverlay').classList.add('open');toast('Mockup updated');});
+  S.extraNotes=(S.extraNotes||'')+'\n\nRevision request: '+note;$('reviseText').value='';$('reviseBox').classList.remove('on');$('reviewOverlay').classList.remove('open');
+  runPreview('Applying your revision...');
 };
 $('btnEdit').onclick=()=>$('reviewOverlay').classList.remove('open');
 
@@ -724,7 +738,7 @@ $('btnSave').onclick=async()=>{
 /* ---------- approve & submit ---------- */
 $('btnApprove').onclick=async()=>{
   const d=gather();$('btnApprove').disabled=true;$('btnApprove').textContent='Submitting...';
-  const payload=Object.assign({},d,{status:'submitted',revision_notes:S.revision_notes||'',ai_mockup:{outline:buildOutline(d)},source:'event_lead_engine'});
+  const payload=Object.assign({},d,{status:'submitted',revision_notes:(S.extraNotes||'').trim(),resume_token:S.resume_token||null,ai_mockup:{outline:buildOutline(d)},source:'event_lead_engine'});
   try{
     const r=await fetch(SUPA+'/functions/v1/ele-intake',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(payload)});
     if(!r.ok)throw new Error(await r.text());

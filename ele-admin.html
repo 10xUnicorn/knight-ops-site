@@ -102,7 +102,7 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
   <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:12px">📱 QR Code</h2>
   <img id="qrImg" src="" alt="QR" style="width:240px;height:240px;background:#fff;border-radius:12px;padding:10px">
   <p id="qrUrl" style="color:var(--mut);font-size:.8rem;margin:12px 0;word-break:break-all"></p>
-  <div style="display:flex;gap:10px;justify-content:center"><a id="qrDl" class="btn b-primary" target="_blank">⬇️ Download PNG</a><button class="btn b-ghost" id="qrClose">Close</button></div>
+  <div style="display:flex;gap:10px;justify-content:center"><button id="qrDl" class="btn b-primary">⬇️ Download PNG</button><button class="btn b-ghost" id="qrClose">Close</button></div>
 </div></div>
 
 <script>
@@ -118,12 +118,13 @@ async function rest(q){const r=await fetch(SUPA+'/rest/v1/'+q,{headers:H});retur
 let VIEWS={};
 async function load(){
   const rows=await rest('ele_builds?select=*&order=created_at.desc&limit=300');
+  window.BUILDS={};rows.forEach(b=>BUILDS[b.id]=b);
   const leads=await rest('ele_leads?select=build_id');
   const events=await rest('ele_events?select=build_id&type=eq.view');
   const subCount={};(leads||[]).forEach(l=>subCount[l.build_id]=(subCount[l.build_id]||0)+1);
   VIEWS={};(events||[]).forEach(e=>VIEWS[e.build_id]=(VIEWS[e.build_id]||0)+1);
 
-  const pending=rows.filter(b=>['submitted','generating','preview_ready','draft'].includes(b.status));
+  const pending=rows.filter(b=>['submitted','generating','preview_ready'].includes(b.status));
   const done=rows.filter(b=>['approved','delivered','live','declined'].includes(b.status));
   const hosted=rows.filter(b=>b.hosting==='hosted'&&['delivered','live','approved'].includes(b.status));
   const totalViews=(events||[]).length, totalSubs=(leads||[]).length;
@@ -150,7 +151,7 @@ function card(b,subs,showActions){
     (preview?'<a class="btn b-ghost" href="'+preview+'" target="_blank">👁 Preview</a>':'<span style="color:var(--mut);font-size:.8rem">No preview yet</span>')+
     '<button class="btn b-ghost" onclick="toggleSubs(\''+b.id+'\')">📊 Leads ('+subs+')</button>'+
     '<button class="btn b-ghost" onclick="dlCSV(\''+b.id+'\',\''+esc(b.slug||'magnet')+'\')">⬇️ CSV</button>'+
-    (preview?'<button class="btn b-ghost" onclick="showQR(\''+(location.origin+preview)+'\')">📱 QR</button>':'')+
+    (preview?'<button class="btn b-ghost" onclick="showQRById(\''+b.id+'\')">📱 QR</button>':'')+
     (showActions?
       '<button class="btn b-primary" onclick="approve(\''+b.id+'\')">✓ Approve &amp; send</button>'+
       '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
@@ -180,7 +181,11 @@ async function dlCSV(id,slug){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=slug+'-leads.csv';a.click();
   toast('CSV downloaded');
 }
-function showQR(url){const api='https://api.qrserver.com/v1/create-qr-code/?size=480x480&data='+encodeURIComponent(url);$('qrImg').src=api;$('qrUrl').textContent=url;$('qrDl').href=api+'&download=1';$('qrModal').classList.add('open');}
+function slugifyName(s){return String(s||'lead-magnet').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||'lead-magnet';}
+let QR_API='',QR_NAME='lead-magnet-qr.png';
+function showQRById(id){const b=(window.BUILDS||{})[id];if(!b)return;showQR(location.origin+'/le/'+b.slug,b.magnet_title||b.slug);}
+function showQR(url,title){QR_API='https://api.qrserver.com/v1/create-qr-code/?size=800x800&data='+encodeURIComponent(url);QR_NAME=slugifyName(title)+'-qr.png';$('qrImg').src='https://api.qrserver.com/v1/create-qr-code/?size=480x480&data='+encodeURIComponent(url);$('qrUrl').textContent=url;$('qrModal').classList.add('open');}
+$('qrDl').onclick=async()=>{try{const r=await fetch(QR_API);const bl=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=QR_NAME;a.click();}catch(e){window.open(QR_API+'&download=1','_blank');}};
 $('qrClose').onclick=()=>$('qrModal').classList.remove('open');
 
 async function approve(id){if(!confirm('Approve and send this lead magnet to the vendor?'))return;toast('Sending...');try{await fnCall('ele-approve',{build_id:id,action:'approve'});toast('Sent ✓');load();}catch(e){toast('Error: '+e.message);}}
