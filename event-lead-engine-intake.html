@@ -415,7 +415,6 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       <div class="sec-sub">Because this is built for you at no cost, please confirm the fair exchange.</div>
       <div class="chk"><input type="checkbox" id="ag1"><label for="ag1"><b>One revision included.</b> Additional revisions or changes may incur a charge.</label></div>
       <div class="chk"><input type="checkbox" id="ag2"><label for="ag2"><b>"Powered by Knight Ops" stays on the page.</b> Removing the tag may result in the page being taken down.</label></div>
-      <div class="chk"><input type="checkbox" id="ag3"><label for="ag3"><b>Marketing rights.</b> Knight Ops may send a helpful follow-up by email to people who opt in. Your leads are always delivered to you too.</label></div>
       <div class="chk"><input type="checkbox" id="ag6"><label for="ag6"><b>Results aren't guaranteed and positioning is everything.</b> How you frame and present this lead magnet is critical to conversions. I'll book a call to dial in my positioning after it's created.</label></div>
       <div id="hostedTerms" style="display:none">
         <div class="chk"><input type="checkbox" id="ag4"><label for="ag4"><b>Hosting is flexible.</b> If we host it, we may stop at any time. You can request a full transfer of your file and lead database for a $249 transfer fee. A branded custom domain is not included.</label></div>
@@ -641,7 +640,7 @@ function gather(){
     brand_colors:{primary:v('col_primary'),accent:v('col_accent'),secondary:v('col_secondary'),secondaries:S.secondaries||[]},logo_path:S.logo_path,
     lead_webhook:v('f_webhook'),crm_type:v('f_crm'),
     hosting:S.hosting,magnet_title:v('f_title'),
-    consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag3:$('ag3').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,ag6:$('ag6').checked,
+    consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,ag6:$('ag6').checked,
       attendee_optin:'pre-checked: vendor email+sms, knight ops email-only',powered_by:'Powered by Knight Ops'}
   };
 }
@@ -683,7 +682,7 @@ function validate(){
   if(!d.free_gift)miss.push('The free gift');
   if(!d.cta_type)miss.push('A call to action');
   if(!d.magnet_title)miss.push('A name for your magnet');
-  const cc2=d.consent_config;let agOk=cc2.ag1&&cc2.ag2&&cc2.ag3&&cc2.ag6;
+  const cc2=d.consent_config;let agOk=cc2.ag1&&cc2.ag2&&cc2.ag6;
   if(d.hosting==='hosted')agOk=agOk&&cc2.ag4&&cc2.ag5;
   if(!agOk)miss.push('Agree to all terms');
   return miss;
