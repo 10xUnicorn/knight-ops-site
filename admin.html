@@ -2828,9 +2828,11 @@ async function showClientDetail(id){
   }else{html+='<p class="table-empty">No credentials stored for this client</p>';}
   html+='</div>';
 
+  html+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Mockup Approval</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.7rem">Voting links for this client&apos;s dashboard projects.</p><div id="mockCardClient_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>';
   html+=getOutreachHtml({name:p.full_name||'',email:p.email||'',phone:p.phone||''},'clients');
   document.getElementById('clientDetailView').innerHTML=html;
   updateOutreachPreview();
+  renderMockupCard('mockCardClient_'+id,{clientId:id,businessName:(p.full_name||'')});
 }
 
 function switchCDTab(btn,panelId){
@@ -3022,31 +3024,100 @@ async function showProjectDetail(id){
   loadDashboardMockupLink(id);
 }
 
+var _mockCardOpts={};
 async function loadDashboardMockupLink(id){
-  var el=document.getElementById('dashMockup_'+id); if(!el) return;
+  var p=(S.projects||[]).find(function(x){return x.id===id;})||{};
+  return renderMockupCard('dashMockup_'+id,{projectId:id,leadId:p.lead_id,businessName:p.name,brandColor:(p.intake_data||{}).brand_color});
+}
+async function renderMockupCard(containerId,opts){
+  var el=document.getElementById(containerId); if(!el) return;
+  opts=opts||{}; _mockCardOpts[containerId]=opts;
+  el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Loading...</p>';
+  var cols='id,business_name,status,share_review_token,share_edit_token,resume_token,mockups,ai_mockup_html,chosen_mockup,project_id';
   try{
-    var p=S.projects.find(function(x){return x.id===id;})||{};
-    var cols='id,business_name,status,share_review_token,share_edit_token,resume_token,mockups,ai_mockup_html';
-    var q=await sb.from('dashboard_builds').select(cols).eq('project_id',id).order('created_at',{ascending:false});
-    var rows=(q&&q.data)||[];
-    if(!rows.length&&p.lead_id){ var q2=await sb.from('dashboard_builds').select(cols).eq('lead_id',p.lead_id).order('created_at',{ascending:false}); rows=(q2&&q2.data)||[]; }
-    if(!rows.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No dashboard mockups linked to this project yet. Build them in the <a href="https://knightops.biz/dashboard-intake" target="_blank" style="color:var(--accent)">Dashboard Builder</a> (or the 📊 Dashboard button above) and they appear here automatically.</p>'; return; }
-    el.innerHTML=rows.map(function(b){
-      var n=(Array.isArray(b.mockups)?b.mockups.length:0)||(b.ai_mockup_html?1:0);
-      var review='https://knightops.biz/db?t='+b.share_review_token;
-      var builder='https://knightops.biz/dashboard-intake?resume='+b.resume_token;
-      var voteTag=n>1?(n+' mockups to vote on'):(n+' mockup');
-      return '<div style="border:1px solid var(--border);border-radius:8px;padding:.85rem;margin-bottom:.6rem">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:.55rem;flex-wrap:wrap"><b style="font-size:.9rem">'+(b.business_name||'Dashboard build')+'</b><span class="badge badge-info" style="font-size:.66rem">'+voteTag+' &middot; '+(b.status||'')+'</span></div>'
-        +'<div style="font-size:.74rem;color:var(--text-muted);margin-bottom:.45rem">Client voting page (they pick which mockup we build):</div>'
-        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:.55rem"><input readonly value="'+review+'" onclick="this.select()" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.72rem"></div>'
-        +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
-        +'<button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(\''+review+'\');showToast(\'Client voting link copied!\')">📋 Copy voting link</button>'
-        +'<a class="btn btn-sm btn-secondary" href="'+review+'" target="_blank">👁 Preview</a>'
-        +'<button class="btn btn-sm" style="border:1px solid var(--border);color:var(--text-muted)" onclick="navigator.clipboard.writeText(\''+builder+'\');showToast(\'Your edit link copied!\')">✏️ My edit link</button>'
-        +'</div></div>';
-    }).join('');
-  }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load mockup links.</p>'; }
+    var projIds=[];
+    if(opts.projectId){ projIds=[opts.projectId]; }
+    else if(opts.appId){ var prq=await sb.from('projects').select('id').or('intake_id.eq.'+opts.appId+(opts.leadId?(',lead_id.eq.'+opts.leadId):'')); projIds=((prq&&prq.data)||[]).map(function(x){return x.id;}); }
+    else if(opts.clientId){ var pcq=await sb.from('project_clients').select('project_id').eq('client_id',opts.clientId); projIds=((pcq&&pcq.data)||[]).map(function(x){return x.project_id;}); }
+    var builds=[];
+    if(projIds.length){ var bq=await sb.from('dashboard_builds').select(cols).in('project_id',projIds).order('created_at',{ascending:false}); builds=(bq&&bq.data)||[]; }
+    if(!builds.length&&opts.leadId){ var blq=await sb.from('dashboard_builds').select(cols).eq('lead_id',opts.leadId).order('created_at',{ascending:false}); builds=(blq&&blq.data)||[]; }
+    if(!builds.length){
+      var createBtn=opts.projectId?'<button class="btn btn-sm btn-primary" onclick="dashMockEnsure(\''+containerId+'\')">+ Create voting page for this project</button>':'<a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank">Open Dashboard Builder</a>';
+      el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem;margin-bottom:.6rem">No mockup voting page yet'+(opts.projectId?'':' linked to this record')+'. '+(opts.projectId?'Create one, then upload HTML mockups or generate styles to vote on.':'Build it in the Dashboard Builder and link a project.')+'</p>'+createBtn;
+      return;
+    }
+    el.innerHTML=builds.map(function(b){ return _mockBuildBlock(b,containerId); }).join('');
+  }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load mockups: '+((e&&e.message)||e)+'</p>'; }
+}
+function _mockBuildBlock(b,containerId){
+  var review='https://knightops.biz/db?t='+b.share_review_token;
+  var builder='https://knightops.biz/dashboard-intake?resume='+b.resume_token;
+  var vars=Array.isArray(b.mockups)?b.mockups.slice():[];
+  if(!vars.length&&b.ai_mockup_html){ vars=[{id:'primary',label:'Original',html:b.ai_mockup_html,_primary:true}]; }
+  var shown=vars.filter(function(v){return !v.hidden;}).length;
+  var rows=vars.map(function(v){
+    var chosen=b.chosen_mockup===v.id;
+    return '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--border)">'
+      +'<span style="flex:1;font-size:.8rem">'+(v.label||'Style')+(chosen?' <span class="badge badge-success" style="font-size:.56rem">client picked</span>':'')+(v.hidden?' <span style="color:#ef4444;font-size:.66rem">(hidden)</span>':'')+'</span>'
+      +'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockPreview(\''+b.id+'\',\''+v.id+'\')">👁</button>'
+      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockToggle(\''+b.id+'\',\''+v.id+'\','+(v.hidden?'false':'true')+',\''+containerId+'\')">'+(v.hidden?'Show':'Hide')+'</button>')
+      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid #ef4444;color:#ef4444" onclick="dashMockDelete(\''+b.id+'\',\''+v.id+'\',\''+containerId+'\')">🗑</button>')
+      +'</div>';
+  }).join('');
+  return '<div style="border:1px solid var(--border);border-radius:8px;padding:.85rem;margin-bottom:.6rem">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:.5rem;flex-wrap:wrap"><b style="font-size:.9rem">'+(b.business_name||'Dashboard build')+'</b><span class="badge badge-info" style="font-size:.6rem">'+shown+' shown &middot; '+vars.length+' total &middot; '+(b.status||'')+'</span></div>'
+    +'<div style="font-size:.73rem;color:var(--text-muted);margin-bottom:.4rem">Client voting link (only shown styles appear to the client):</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:.5rem"><input readonly value="'+review+'" onclick="this.select()" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.72rem"></div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.55rem">'
+    +'<button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(\''+review+'\');showToast(\'Voting link copied!\')">📋 Copy voting link</button>'
+    +'<a class="btn btn-sm btn-secondary" href="'+review+'" target="_blank">👁 Preview page</a>'
+    +'<button class="btn btn-sm" style="border:1px solid var(--accent);color:var(--accent)" onclick="dashMockUpload(\''+b.id+'\',\''+containerId+'\')">⬆ Upload mockup HTML</button>'
+    +'<a class="btn btn-sm" style="border:1px solid var(--border);color:var(--text-muted)" href="'+builder+'" target="_blank">🎨 Generate styles</a>'
+    +'</div>'
+    +'<div style="font-size:.66rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Styles</div>'
+    +(rows||'<div style="font-size:.78rem;color:var(--text-muted);padding:6px 0">No styles yet. Upload an HTML mockup or generate styles in the builder.</div>')
+    +'</div>';
+}
+function _reRenderMock(containerId){ renderMockupCard(containerId,_mockCardOpts[containerId]||{}); }
+async function dashMockEnsure(containerId){
+  var o=_mockCardOpts[containerId]||{}; if(!o.projectId){showToast('No project');return;}
+  showToast('Creating voting page...');
+  var brand=o.brandColor?{primary:o.brandColor,secondary:'#05061a',accent:'#00D4C8',mode:'dark'}:null;
+  var res=await api('dashboard-mockups',{action:'ensure_for_project',project_id:o.projectId,business_name:o.businessName||'',brand:brand});
+  if(res&&res.build_id)showToast('Voting page ready'); else showToast('Could not create: '+((res&&res.error)||''));
+  _reRenderMock(containerId);
+}
+async function dashMockToggle(buildId,mid,hide,containerId){
+  var h=(hide===true||hide==='true');
+  await api('dashboard-mockups',{action:'toggle',id:buildId,mockup_id:mid,hidden:h});
+  showToast(h?'Style hidden from clients':'Style now visible to clients');
+  _reRenderMock(containerId);
+}
+async function dashMockDelete(buildId,mid,containerId){
+  if(!confirm('Delete this style permanently?'))return;
+  await api('dashboard-mockups',{action:'delete',id:buildId,mockup_id:mid});
+  showToast('Style deleted'); _reRenderMock(containerId);
+}
+function dashMockUpload(buildId,containerId){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='.html,.htm,text/html';
+  inp.onchange=async function(){
+    var f=inp.files&&inp.files[0]; if(!f)return;
+    var text=await f.text();
+    if(!text||text.length<100){showToast('That HTML file looks empty');return;}
+    showToast('Uploading mockup...');
+    var label=(f.name||'Uploaded').replace(/\.(html?|htm)$/i,'').slice(0,40)||'Uploaded';
+    var res=await api('dashboard-mockups',{action:'add',id:buildId,html:text,label:label});
+    if(res&&res.ok)showToast('Mockup added as a voting option'); else showToast('Upload failed: '+((res&&res.error)||''));
+    _reRenderMock(containerId);
+  };
+  inp.click();
+}
+async function dashMockPreview(buildId,mid){
+  var r=await sb.from('dashboard_builds').select('mockups,ai_mockup_html').eq('id',buildId).maybeSingle();
+  var html=''; if(r&&r.data){ if(mid==='primary'){html=r.data.ai_mockup_html||'';} else { var v=((r.data.mockups)||[]).find(function(x){return x.id===mid;}); html=v?v.html:''; } }
+  if(!html){showToast('No preview for that style');return;}
+  var w=window.open('','_blank'); if(!w){showToast('Allow popups to preview');return;} w.document.open(); w.document.write(html); w.document.close();
 }
 
 // ═══ PROMPT GENERATORS ═══
@@ -5871,6 +5942,9 @@ async function showAppDetail(id){
       '<div id="appFilesBody-'+a.id+'"></div>'+
     '</div>'+
 
+    // ═══ CLIENT MOCKUP APPROVAL ═══
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Mockup Approval</h3><a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank" style="font-size:.72rem">Open Builder</a></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.7rem">Client voting link for this application&apos;s project. Upload HTML mockups or generate styles, then share the link.</p><div id="mockCardApp_'+a.id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
+
     // ═══ APPLICATION DETAILS — EDITABLE GRID ═══
     '<div style="padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1rem">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--text)">👤 Client & Project Details</h3><button class="btn btn-sm btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All</button></div>'+
@@ -5941,6 +6015,7 @@ async function showAppDetail(id){
   refreshBlueprintPreview(a.id);
   loadProposalSection(a);
   loadAppFilesSection(a);
+  renderMockupCard('mockCardApp_'+a.id,{appId:a.id,leadId:a.lead_id,businessName:(a.company||fullName)});
 }
 
 async function refreshPromptPreview(intakeId){

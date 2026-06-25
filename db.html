@@ -88,7 +88,7 @@ function render(){
   let h='';
   h+=`<div class="hl"><h1 class="serif">${esc(B.business_name||B.company||'Your Dashboard')}</h1><p>${esc(B.niche||'')}</p><div class="statuspill ${B.status==='approved'?'approved':''}">${esc(B.status||'draft')}</div></div>`;
   // mockup
-  var _vars=(Array.isArray(B.mockups)&&B.mockups.length)?B.mockups:(B.ai_mockup_html?[{id:'primary',label:'Mockup',html:B.ai_mockup_html}]:[]);
+  var _vars=(Array.isArray(B.mockups)&&B.mockups.length)?B.mockups.filter(function(v){return !v.hidden;}):(B.ai_mockup_html?[{id:'primary',label:'Mockup',html:B.ai_mockup_html}]:[]);
   if(!_curMockId||!_vars.some(function(v){return v.id===_curMockId;}))_curMockId=(B.chosen_mockup&&_vars.some(function(v){return v.id===B.chosen_mockup;}))?B.chosen_mockup:(_vars[0]&&_vars[0].id);
   h+='<div class="card"><h2>Mockup'+(_vars.length>1?(' — '+_vars.length+' styles to choose from'):'')+'</h2>';
   if(_vars.length>1){h+='<div class="chips" style="margin-bottom:10px">'+_vars.map(function(v){return '<div class="chip '+(v.id===_curMockId?'on':'')+'" onclick="switchVariation(\''+v.id+'\')">'+esc(v.label)+(v.id===B.chosen_mockup?' ✓ chosen':'')+'</div>';}).join('')+'</div>';}
