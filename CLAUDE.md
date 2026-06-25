@@ -229,6 +229,26 @@ Free/$1,497 custom interactive lead-capture magnets for event vendors/speakers. 
 
 ---
 
+## Dashboard Builder (2026-06-24)
+
+Self-serve engine that turns an intake into a build-ready Claude Code prompt + spec for a full client dashboard. Modeled on the Event Lead Engine. Full spec: `DASHBOARD-BUILDER-SPEC.md`.
+
+**Update 2026-06-24b (streaming mockup + community + grouping + owner emails):**
+- **AI mockup now STREAMS** via new edge fn `dashboard-stream` (SSE, model sonnet, max 12k). Fixes the 504: old `dashboard-ai` review at 16k tokens hit the 150s edge gateway wall = "Could not generate". Builder shows a branded skeleton + animated progress bar with time-driven phase labels + elapsed timer; renders the dashboard live into the iframe as `<body>` streams. `db.html` revise uses it too. Resilience: a 16s stall watchdog + completeness check (`</body>`/`</main>`) auto-falls-back to non-streaming `dashboard-ai` (now max **11000** to stay <150s) so an interrupted stream never shows a broken CSS-only result.
+- **Community module** added to `dashboard_modules` + builder MODULES + `dashboard-analyze` MODKEYS.
+- **Consolidated sidebar**: `MODGROUPS` in builder groups modules into Home / Sales & Revenue / Clients & Success / Client Portal / Community / Growth / AI / System (live preview + AI mockup prompt both consolidate).
+- **Owner-only edit emails**: `dashboard-build` save emails DANIEL (NOTIFY = dknightunicorn@gmail.com + daniel@knightops.biz) the builder resume/edit link on first save AND on every manual Save draft (`notify:true`); finalize emails Daniel the client review+edit+admin links (never auto-emails the client). To email an edit link for any existing build without mutating it: POST dashboard-build `{action:'save',resume_token,status:<current>,notify:true}`.
+
+- **Pages:** `/dashboard-intake` (builder: AI-first entry, 7 sections, live preview, AI review, spec, prompt + copy, save/finalize/share), `/db` (`db.html` — public shareable build page, review + edit modes via token).
+- **Admin:** project detail Build Prompt Generator now has a 5th button **📊 Dashboard** (`showDashboardPrompt()` in admin.html, next to ⚡ Command Center). Dashboard builds appear in Forms & Surveys (form_type `dashboard`, label "Dashboard Build").
+- **Tables:** `dashboard_builds` (submissions, selections, status, resume + review/edit share tokens, ai_mockup_html, spec_md, build_prompt, lead_id/client_id/project_id), `dashboard_modules` (24-row module catalog). RLS mirrors ele_builds (anon insert + anon read + admin + service_role).
+- **Edge functions:** `dashboard-build` (save/resume/submit/approve/save_edit + creates lead+project on submit), `dashboard-ai` (review mockup + spec via Anthropic, model `claude-sonnet-4-6`, fallback templates), `dashboard-analyze` (AI pre-fill from a free-text brief), `dashboard-shared` (token-scoped read for `/db`). All verify_jwt=false, called with anon key.
+- **Storage:** `dashboard-assets` bucket (public read, anon insert) for logos/docs.
+- **Generated dashboards** are prescribed as Next.js + Supabase + Resend + Stripe on Vercel (one Supabase project per client, Rule 7). The builder OUTPUTS the goal-function prompt; the actual client build runs in Claude Code.
+- Note: AI mockup/spec generation takes ~30-45s (fine in browser; exceeds the VM bash 45s cap — generate via background curl or the browser, not a blocking shell call).
+
+---
+
 ## Frontend Pages
 
 ### Admin & Internal
