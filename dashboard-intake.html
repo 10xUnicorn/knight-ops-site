@@ -118,7 +118,17 @@ textarea{resize:vertical;min-height:74px}
 .ov-head h3{font-size:1rem}
 .ov-body{padding:16px 18px;overflow:auto}
 .ov-foot{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-.mockframe{width:100%;height:60vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+.mockframe{width:100%;height:60vh;border:1px solid var(--line);border-radius:10px;background:#fff;transition:box-shadow .3s}
+.mockbuilding .mockframe{box-shadow:0 0 0 1px var(--line-gold),0 0 34px rgba(0,212,200,.16)}
+.mockprog{display:none;margin:0 0 13px}
+.mockprog.on{display:block}
+.mockprog-row{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;margin-bottom:7px}
+.mockphase{color:var(--gold-light);font-weight:600;letter-spacing:.2px}
+.mocktime{color:#8b8fb5;font-variant-numeric:tabular-nums}
+.mockbar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+.mockbar i{position:absolute;left:0;top:0;bottom:0;width:2%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--teal));transition:width .45s ease;box-shadow:0 0 16px rgba(0,212,200,.55)}
+.mockbar::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(-100%);animation:mocksheen 1.5s infinite}
+@keyframes mocksheen{100%{transform:translateX(100%)}}
 .specbox{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:.78rem;background:var(--void-2);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:60vh;overflow:auto}
 .x{cursor:pointer;color:var(--muted);font-size:1.3rem;line-height:1}
 .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--gold);border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-3px}
@@ -323,8 +333,9 @@ textarea{resize:vertical;min-height:74px}
   <div class="ov-card">
     <div class="ov-head"><h3>AI mockup <span id="mockAi" class="aibadge" style="display:none">live AI</span></h3><span class="x" onclick="closeOv('ovMock')">&times;</span></div>
     <div class="ov-body">
+      <div class="mockprog" id="mockProg"><div class="mockprog-row"><span class="mockphase" id="mockPhase">Warming up the design engine…</span><span class="mocktime" id="mockTime">0s</span></div><div class="mockbar"><i id="mockBarFill"></i></div></div>
       <iframe class="mockframe" id="mockFrame" sandbox="allow-scripts allow-same-origin"></iframe>
-      <label class="fl">Want changes? Tell the AI or deselect modules, then regenerate.</label>
+      <label class="fl">Want changes? Type them below — it builds live, and Regenerate restarts instantly with your notes.</label>
       <textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals module, emphasize the client portal"></textarea>
     </div>
     <div class="ov-foot">
@@ -400,12 +411,23 @@ const MODULES=[
  {k:'events',l:'Live Event Capture',c:'Growth',s:'admin',d:'QR capture, tagging, follow-up',f:['Quick/QR capture','Tagging','AI follow-up']},
  {k:'aibrain',l:'AI Brain & Intelligence',c:'AI',s:'shared',d:'Transcripts, signals, briefs',f:['Transcript ingest','Action items','Signal detection','Pre-call briefs','Anomalies']},
  {k:'content',l:'Content & Blog',c:'Marketing',s:'shared',d:'Calendar, voice, blog automation',f:['Content calendar','Brand voice','Blog automation','In-dashboard management']},
+ {k:'community',l:'Community',c:'Community',s:'shared',d:'Member feed, groups, events, leaderboard, DMs',f:['Activity feed','Groups','Discussions','Events','Leaderboard','Direct messages']},
  {k:'notifications',l:'Notifications',c:'System',s:'shared',d:'Bell, email digests, SMS/Slack',f:['In-app bell','Email digests','SMS/Slack','Per-user prefs']},
  {k:'messaging',l:'Admin ↔ Client Messaging',c:'Portal',s:'shared',d:'Threads, approvals, file share',f:['Threads','Approvals','File share']},
  {k:'team',l:'Team & People',c:'System',s:'admin',d:'Users, role matrix, invites',f:['User list','Role matrix','Invites','Permission audit']},
  {k:'settings',l:'Settings & Admin',c:'System',s:'admin',d:'Profile, integrations, branding',f:['Profile','Integrations vault','Module toggles','Branding']},
  {k:'worksheets',l:'Worksheets & Tools',c:'Portal',s:'client',d:'Self-serve interactive tools',f:['Worksheets','Persistence','Export']},
  {k:'reports',l:'Client Reports',c:'Success',s:'admin',d:'KPI report generator',f:['Report generator','KPI pull','Export']}
+];
+const MODGROUPS=[
+ {g:'Home',keys:['overview','kpis']},
+ {g:'Sales & Revenue',keys:['leads','pipeline','deals','finance','payments']},
+ {g:'Clients & Success',keys:['clients','cohort','journey','reports']},
+ {g:'Client Portal',keys:['portal','worksheets','messaging','partner']},
+ {g:'Community',keys:['community']},
+ {g:'Growth',keys:['webinar','media','events','content']},
+ {g:'AI',keys:['aibrain']},
+ {g:'System',keys:['notifications','team','settings']}
 ];
 const ROLES=['Super Admin','Admin','Team member','Coach','Client','Partner / JV','Read-only viewer'];
 const INTS=[{k:'resend',l:'Resend email'},{k:'stripe',l:'Stripe payments'},{k:'ai',l:'AI / Anthropic'},{k:'crm',l:'CRM (GHL/HubSpot)'},{k:'calendar',l:'Calendar'},{k:'fathom',l:'Fathom transcripts'},{k:'kajabi',l:'Course platform'},{k:'ads',l:'Ad platforms'},{k:'webhooks',l:'Webhooks'}];
@@ -480,8 +502,15 @@ function render(){
   const txt=isLight?'#15151f':'#fff';
   const mut=isLight?'rgba(0,0,0,.5)':'rgba(255,255,255,.55)';
   const logoTx=contrastOk(b.primary,b.secondary)?b.primary:(isLight?'#15151f':'#fff');
-  const shown=allMods.slice(0,8);const extra=allMods.length-shown.length;
-  const nav=allMods.length?(shown.map(function(m,i){return '<div style="color:'+(i===0?(isLight?'#15151f':'#fff'):sideTx)+';background:'+(i===0?(b.accent+'22'):'transparent')+';border-left:2px solid '+(i===0?b.accent:'transparent')+';font-weight:'+(i===0?'600':'400')+'">'+m+'</div>';}).join('')+(extra>0?('<div style="color:'+mut+';font-size:.56rem;padding-top:4px">+ '+extra+' more</div>'):'')):'<div style="color:'+mut+'">No modules yet</div>';
+  var _first=true;var nav='';
+  MODGROUPS.forEach(function(grp){
+    var ks=S.modules.filter(function(k){return grp.keys.indexOf(k)>=0;});
+    if(!ks.length)return;
+    nav+='<div style="font-size:.5rem;letter-spacing:.6px;text-transform:uppercase;color:'+mut+';padding:9px 2px 3px;font-weight:600">'+grp.g+'</div>';
+    ks.forEach(function(k){var a=_first;_first=false;nav+='<div style="color:'+(a?(isLight?'#15151f':'#fff'):sideTx)+';background:'+(a?(b.accent+'22'):'transparent')+';border-left:2px solid '+(a?b.accent:'transparent')+';font-weight:'+(a?'600':'400')+'">'+modLabel(k)+'</div>';});
+  });
+  if(S.customModules.length){nav+='<div style="font-size:.5rem;letter-spacing:.6px;text-transform:uppercase;color:'+mut+';padding:9px 2px 3px;font-weight:600">Custom</div>'+S.customModules.map(function(m){return '<div style="color:'+sideTx+'">'+m+'</div>';}).join('');}
+  if(!nav)nav='<div style="color:'+mut+'">No modules yet</div>';
   const cardBg=isLight?'#ffffff':'rgba(255,255,255,.05)';const cardBd=isLight?'rgba(0,0,0,.08)':'rgba(255,255,255,.1)';
   const cards=[['Revenue','$48.2k'],['Clients','23'],['Pipeline','$112k'],['Tasks','7']].map(function(c){return '<div class="pv-card" style="background:'+cardBg+';border-color:'+cardBd+'"><div class="k" style="color:'+b.accent+'">'+c[0]+'</div><div class="v" style="color:'+txt+'">'+c[1]+'</div></div>';}).join('');
   const badges=[];if(d.facing!=='internal_only')badges.push('Client portal');if(d.payments)badges.push('Stripe');if(S.ai_on)badges.push('AI');if(S.website_on)badges.push('Website');if(S.blog_on)badges.push('Blog');
@@ -654,17 +683,73 @@ function applySuggested(s){
   render();
 }
 
-// ---- review with AI ----
+// ---- review with AI (live streaming build) ----
 let _lastMock='';
+let _streamAbort=null;
+function _mockRepair(h){
+  h=h.replace(/^```html\s*/i,'').replace(/^```\s*/i,'').trim();
+  if(/<style/i.test(h)&&!/<\/style>/i.test(h))h+='</style>';
+  if(/<body/i.test(h)&&!/<\/body>/i.test(h))h+='</div></main></div></body></html>';
+  if(!/<\/html>/i.test(h))h+='</html>';
+  return h;
+}
+function _mockPhase(txt,bytes,secs){
+  if(secs<2)return 'Reading the brand, modules & offers…';
+  if(!/<body/i.test(txt))return 'Painting the brand system & layout…';
+  if(bytes<6000)return 'Framing the sidebar & top bar…';
+  if(!/<\/style>/i.test(txt)&&bytes<11000)return 'Styling components for contrast…';
+  if(!/(<table|kanban|grid-template)/i.test(txt)&&bytes<20000)return 'Building KPI cards & navigation…';
+  if(!/<\/main>/i.test(txt))return 'Filling in real data & tables…';
+  return 'Polishing the final details…';
+}
 async function reviewWithAI(){
   if(!S.modules.length&&!S.customModules.length){toast('Pick at least one module');return;}
-  openOv('ovMock');document.getElementById('mockFrame').srcdoc='<body style="font-family:sans-serif;padding:30px;color:#555">Generating a real mockup with AI… (~15-30s)</body>';
+  if(_streamAbort){try{_streamAbort.abort();}catch(e){}}
+  openOv('ovMock');
+  var prog=document.getElementById('mockProg'),phase=document.getElementById('mockPhase'),timeEl=document.getElementById('mockTime'),bar=document.getElementById('mockBarFill'),frame=document.getElementById('mockFrame'),card=document.querySelector('#ovMock .ov-card');
+  var d=gather();d.revision_notes=val('revNotes');
+  var bg=((d.brand||{}).secondary)||'#05061a';
+  prog.classList.add('on');if(card)card.classList.add('mockbuilding');
+  phase.textContent='Warming up the design engine…';bar.style.width='2%';timeEl.textContent='0s';
+  frame.srcdoc='<body style="margin:0;background:'+bg+'"></body>';
   document.getElementById('regenBtn').disabled=true;
-  const d=gather();d.revision_notes=val('revNotes');
-  const res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});
-  document.getElementById('regenBtn').disabled=false;
-  if(res.mockup_html){_lastMock=res.mockup_html;document.getElementById('mockFrame').srcdoc=res.mockup_html;document.getElementById('mockAi').style.display=res.ai?'inline-block':'none';}
-  else{document.getElementById('mockFrame').srcdoc='<body style="padding:30px;font-family:sans-serif">Could not generate. '+(res.error||'')+'</body>';}
+  var ac=new AbortController();_streamAbort=ac;
+  var t0=Date.now(),full='',lastRender=0,renderedLen=0;
+  var timer=setInterval(function(){
+    var secs=(Date.now()-t0)/1000;timeEl.textContent=Math.round(secs)+'s';
+    var byteW=Math.min(93,(full.length/42000)*100),timeW=Math.min(90,(secs/95)*100);
+    bar.style.width=Math.max(byteW,timeW*0.7,2).toFixed(1)+'%';
+    phase.textContent=_mockPhase(full,full.length,secs);
+  },300);
+  function finish(html,aiFlag){
+    clearInterval(timer);_lastMock=html;frame.srcdoc=html;
+    bar.style.width='100%';phase.textContent='Ready ✓';
+    document.getElementById('mockAi').style.display=aiFlag?'inline-block':'none';
+    document.getElementById('regenBtn').disabled=false;
+    setTimeout(function(){prog.classList.remove('on');if(card)card.classList.remove('mockbuilding');},700);
+    _streamAbort=null;
+  }
+  try{
+    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:d,id:S.id,resume_token:S.resume_token}),signal:ac.signal});
+    if(!r.ok||!r.body)throw new Error('stream '+r.status);
+    var aiFlag=r.headers.get('x-ai')!=='0';
+    var reader=r.body.getReader(),dec=new TextDecoder();
+    while(true){
+      var rd=await reader.read();
+      if(rd.done)break;
+      full+=dec.decode(rd.value,{stream:true});
+      var now=Date.now();
+      if(now-lastRender>350&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+    }
+    finish(_mockRepair(full),aiFlag&&full.length>800);
+  }catch(e){
+    if(ac.signal.aborted){clearInterval(timer);return;}
+    clearInterval(timer);phase.textContent='Finishing…';
+    try{var res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});if(res.mockup_html){finish(res.mockup_html,!!res.ai);return;}}catch(e2){}
+    bar.style.width='100%';phase.textContent='Could not generate';
+    frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';
+    document.getElementById('regenBtn').disabled=false;_streamAbort=null;
+  }
 }
 function approveMock(){closeOv('ovMock');toast('Mockup approved');if(S.id||S.resume_token)api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});}
 async function saveMockStyle(){
@@ -690,11 +775,12 @@ function downloadSpec(){const blob=new Blob([_spec],{type:'text/markdown'});cons
 
 // ---- save / finalize ----
 async function saveDraft(){
-  if(!val('email')){toast('Add an email to save');return;}
+  if(!val('business_name')&&!val('email')){toast('Add a business name first');return;}
+  var _firstSave=!S.resume_token;
   const btn=document.getElementById('saveBtn');btn.disabled=true;
   const res=await api('dashboard-build',{action:'save',...gather(),resume_token:S.resume_token,build_prompt:buildPrompt()});
   btn.disabled=false;
-  if(res.build){S.id=res.build.id;S.resume_token=res.resume_token||res.build.resume_token;S.share_review_token=res.share_review_token||res.build.share_review_token;S.share_edit_token=res.share_edit_token||res.build.share_edit_token;toast('Draft saved');}
+  if(res.build){S.id=res.build.id;S.resume_token=res.resume_token||res.build.resume_token;S.share_review_token=res.share_review_token||res.build.share_review_token;S.share_edit_token=res.share_edit_token||res.build.share_edit_token;toast(_firstSave?'Saved - edit link sent to your inbox':'Draft saved');}
   else toast('Save failed: '+(res.error||''));
 }
 async function finalize(){

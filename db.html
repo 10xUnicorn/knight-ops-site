@@ -149,15 +149,31 @@ async function pickVariation(){
   if(res&&res.ok){B.chosen_mockup=_curMockId;toast('Thanks! Your chosen style is saved.');render();}
   else{if(b){b.disabled=false;b.textContent='✓ Pick this style';}toast('Could not save your pick');}
 }
+function _rep(h){h=h.replace(/^```html\s*/i,'').replace(/^```\s*/i,'').trim();if(/<style/i.test(h)&&!/<\/style>/i.test(h))h+='</style>';if(/<body/i.test(h)&&!/<\/body>/i.test(h))h+='</div></main></div></body></html>';if(!/<\/html>/i.test(h))h+='</html>';return h;}
 async function regenMock(){
   var nEl=document.getElementById('revNotes');var notes=nEl?nEl.value.trim():'';
-  var b=document.getElementById('regenBtn');if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> Generating (~30s)...';}
-  toast('Regenerating mockup with AI...');
+  var b=document.getElementById('regenBtn');var f=document.getElementById('mf');
+  if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> Building…';}
   var build=Object.assign({},B,{revision_notes:notes});
-  var res=await api('dashboard-ai',{action:'review',build:build,id:B.id});
-  if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}
-  if(res&&res.mockup_html){B.ai_mockup_html=res.mockup_html;render();toast('Mockup updated');}
-  else toast('Could not regenerate: '+((res&&res.error)||''));
+  var bg=((build.brand||{}).secondary)||'#05061a';
+  if(f)f.srcdoc='<body style="margin:0;background:'+bg+'"></body>';
+  var t0=Date.now(),full='',lastRender=0;
+  var timer=setInterval(function(){if(b)b.innerHTML='<span class="spin"></span> Building it live… '+Math.round((Date.now()-t0)/1000)+'s';},500);
+  try{
+    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:build,id:B.id})});
+    if(!r.ok||!r.body)throw new Error('stream '+r.status);
+    var reader=r.body.getReader(),dec=new TextDecoder();
+    while(true){var rd=await reader.read();if(rd.done)break;full+=dec.decode(rd.value,{stream:true});var now=Date.now();if(now-lastRender>350&&f&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}}
+    clearInterval(timer);
+    B.ai_mockup_html=_rep(full);render();
+    if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}
+    toast('Mockup updated');
+  }catch(e){
+    clearInterval(timer);
+    try{var res=await api('dashboard-ai',{action:'review',build:build,id:B.id});if(res&&res.mockup_html){B.ai_mockup_html=res.mockup_html;render();toast('Mockup updated');if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}return;}}catch(e2){}
+    if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}
+    toast('Could not regenerate — try again');
+  }
 }
 boot();
 </script>
