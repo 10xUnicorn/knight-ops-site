@@ -53,7 +53,7 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
 .subs th,.subs td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
 .subs th{color:var(--mut);font-size:.66rem;text-transform:uppercase;letter-spacing:.05em}
 .subs .empty{color:var(--mut);font-size:.85rem;padding:10px 0}
-.gen{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px}
+.gen{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px}
 @media(max-width:760px){.gen{grid-template-columns:1fr 1fr}}
 .gen input{background:var(--void);border:1px solid var(--line);border-radius:8px;color:var(--white);padding:9px 11px;font-size:.85rem;font-family:inherit}
 .result{font-size:.85rem;color:var(--ok);margin-top:8px;word-break:break-all}
@@ -78,9 +78,10 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
     <h2>🎟️ Generate an event host coupon</h2>
     <div class="gen">
       <input id="h_event" placeholder="Event name *">
+      <input id="h_code" placeholder="Custom code (optional)">
       <input id="h_host" placeholder="Host name">
       <input id="h_email" placeholder="Host email">
-      <input id="h_max" type="number" placeholder="Max redemptions">
+      <input id="h_max" type="number" placeholder="Max uses">
       <button class="btn b-primary" id="genCoupon">Create code</button>
     </div>
     <div class="result" id="couponResult"></div>
@@ -156,6 +157,7 @@ function card(b,subs,showActions){
     '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
     '<button class="btn b-ghost" onclick="regen(\''+b.id+'\')" title="Overwrite this page (same URL)">↻ Regenerate</button>'+
     '<button class="btn b-ghost" onclick="duplicateBuild(\''+b.id+'\')" title="New page, new URL + tracking">⧉ New version</button>'+
+    '<button class="btn b-ghost" onclick="issueCode(\''+b.id+'\')" title="Mint a free event code for this vendor">🎟️ Issue code</button>'+
     (showActions?
       '<button class="btn b-primary" onclick="approve(\''+b.id+'\')">✓ Approve &amp; send</button>'+
       '<button class="btn b-danger" onclick="decline(\''+b.id+'\')">✕ Decline</button>'
@@ -201,7 +203,8 @@ let reviseId=null;
 function openRevise(id){reviseId=id;$('reviseInput').value='';$('reviseModal').classList.add('open');}
 $('reviseCancel').onclick=()=>$('reviseModal').classList.remove('open');
 $('reviseGo').onclick=async()=>{const ins=$('reviseInput').value.trim();if(!ins){toast('Tell Claude what to change');return;}const btn=$('reviseGo');btn.disabled=true;btn.textContent='Revising with AI...';try{const j=await fnCall('ele-revise',{build_id:reviseId,instructions:ins});$('reviseModal').classList.remove('open');toast('Revised ✓ '+((j.changed||[]).join(', ')));setTimeout(load,2000);}catch(e){toast('Error: '+e.message);}btn.disabled=false;btn.textContent='Apply revision';};
-$('genCoupon').onclick=async()=>{const event=$('h_event').value.trim();if(!event){toast('Event name required');return;}toast('Creating...');try{const j=await fnCall('ele-host-coupon',{event_name:event,host_name:$('h_host').value.trim(),host_email:$('h_email').value.trim(),max_redemptions:$('h_max').value?Number($('h_max').value):null});$('couponResult').innerHTML='✓ Code <b>'+esc(j.coupon_code)+'</b> · Share: <a style="color:var(--gold-l)" href="'+j.intake_link+'" target="_blank">'+esc(j.intake_link)+'</a>';toast('Coupon created');}catch(e){toast('Error: '+e.message);}};
+$('genCoupon').onclick=async()=>{const event=$('h_event').value.trim();if(!event){toast('Event name required');return;}toast('Creating...');try{const j=await fnCall('ele-host-coupon',{event_name:event,code:$('h_code').value.trim()||undefined,host_name:$('h_host').value.trim(),host_email:$('h_email').value.trim(),max_redemptions:$('h_max').value?Number($('h_max').value):null});$('couponResult').innerHTML='✓ Code <b>'+esc(j.coupon_code)+'</b> · Share: <a style="color:var(--gold-l)" href="'+j.intake_link+'" target="_blank">'+esc(j.intake_link)+'</a>';toast('Coupon created');}catch(e){toast('Error: '+e.message);}};
+async function issueCode(id){const b=(window.BUILDS||{})[id];if(!b)return;const ev=(b.event_name&&b.event_name!=='Evergreen')?b.event_name:(b.company||'Event');toast('Creating code...');try{const j=await fnCall('ele-host-coupon',{event_name:ev,host_name:b.vendor_name||'',host_email:b.email||'',company:b.company||''});$('couponResult').innerHTML='✓ Code for '+esc(b.company||ev)+': <b>'+esc(j.coupon_code)+'</b> · Share: <a style="color:var(--gold-l)" href="'+j.intake_link+'" target="_blank">'+esc(j.intake_link)+'</a>';window.scrollTo({top:0,behavior:'smooth'});toast('Code created ✓');}catch(e){toast('Error: '+e.message);}}
 load();
 </script>
 </body>
