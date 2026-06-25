@@ -719,20 +719,26 @@ async function reviewWithAI(){
   frame.srcdoc=_mockSkeleton(bg,(d.brand||{}).primary,(d.brand||{}).accent);
   document.getElementById('regenBtn').disabled=true;
   var ac=new AbortController();_streamAbort=ac;
-  var t0=Date.now(),full='',lastRender=0,renderedLen=0;
+  var t0=Date.now(),full='',lastRender=0,renderedLen=0,lastGrow=Date.now(),stalled=false,inFallback=false,doneOk=false;
   var timer=setInterval(function(){
     var secs=(Date.now()-t0)/1000;timeEl.textContent=Math.round(secs)+'s';
     var byteW=Math.min(93,(full.length/42000)*100),timeW=Math.min(90,(secs/95)*100);
     bar.style.width=Math.max(byteW,timeW*0.7,2).toFixed(1)+'%';
-    phase.textContent=_mockPhase(full,full.length,secs);
+    if(!inFallback)phase.textContent=_mockPhase(full,full.length,secs);
+    if(!doneOk&&!inFallback&&!/<body/i.test(full)&&Date.now()-lastGrow>16000){stalled=true;try{ac.abort();}catch(e){}}
   },300);
   function finish(html,aiFlag){
-    clearInterval(timer);_lastMock=html;frame.srcdoc=html;
+    doneOk=true;clearInterval(timer);_lastMock=html;frame.srcdoc=html;
     bar.style.width='100%';phase.textContent='Ready ✓';
     document.getElementById('mockAi').style.display=aiFlag?'inline-block':'none';
     document.getElementById('regenBtn').disabled=false;
     setTimeout(function(){prog.classList.remove('on');if(card)card.classList.remove('mockbuilding');},700);
     _streamAbort=null;
+  }
+  async function nonStream(){
+    inFallback=true;phase.textContent='Assembling the full mockup…';
+    try{var res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});if(res&&res.mockup_html){finish(res.mockup_html,!!res.ai);return true;}}catch(e){}
+    return false;
   }
   try{
     var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:d,id:S.id,resume_token:S.resume_token}),signal:ac.signal});
@@ -742,33 +748,33 @@ async function reviewWithAI(){
     var reader=r.body.getReader(),dec=new TextDecoder();
     if(!isSSE){
       var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}
-      finish(_mockRepair(txt),aiFlag&&txt.length>800);return;
-    }
-    var sbuf='';
-    while(true){
-      var rd=await reader.read();
-      if(rd.done)break;
-      sbuf+=dec.decode(rd.value,{stream:true});
-      var parts=sbuf.split('\n\n');sbuf=parts.pop();
-      for(var i=0;i<parts.length;i++){
-        var lines=parts[i].split('\n');
-        for(var j=0;j<lines.length;j++){
-          var ln=lines[j];if(ln.indexOf('data:')!==0)continue;
-          var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;
-          try{full+=JSON.parse(pay);}catch(_e){}
+      full=txt;
+    }else{
+      var sbuf='';
+      while(true){
+        var rd=await reader.read();
+        if(rd.done)break;
+        sbuf+=dec.decode(rd.value,{stream:true});
+        var parts=sbuf.split('\n\n');sbuf=parts.pop();
+        for(var i=0;i<parts.length;i++){
+          var lines=parts[i].split('\n');
+          for(var j=0;j<lines.length;j++){
+            var ln=lines[j];if(ln.indexOf('data:')!==0)continue;
+            var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;
+            try{var add=JSON.parse(pay);if(add){full+=add;lastGrow=Date.now();}}catch(_e){}
+          }
         }
+        var now=Date.now();
+        if(now-lastRender>350&&/<body/i.test(full)&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
       }
-      var now=Date.now();
-      if(now-lastRender>350&&/<body/i.test(full)&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
     }
-    finish(_mockRepair(full),aiFlag&&full.length>800);
+    var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
+    if(complete){finish(_mockRepair(full),aiFlag&&full.length>1200);}
+    else{var ok=await nonStream();if(!ok)finish(_mockRepair(full),false);}
   }catch(e){
-    if(ac.signal.aborted){clearInterval(timer);return;}
-    clearInterval(timer);phase.textContent='Finishing…';
-    try{var res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});if(res.mockup_html){finish(res.mockup_html,!!res.ai);return;}}catch(e2){}
-    bar.style.width='100%';phase.textContent='Could not generate';
-    frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';
-    document.getElementById('regenBtn').disabled=false;_streamAbort=null;
+    if(ac.signal.aborted&&!stalled){clearInterval(timer);return;}
+    var ok2=await nonStream();
+    if(!ok2){clearInterval(timer);bar.style.width='100%';phase.textContent='Could not generate';frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';document.getElementById('regenBtn').disabled=false;_streamAbort=null;}
   }
 }
 function approveMock(){closeOv('ovMock');toast('Mockup approved');if(S.id||S.resume_token)api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});}

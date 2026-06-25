@@ -173,6 +173,8 @@ async function regenMock(){
     if(!isSSE){var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}full=txt;}
     else{var sbuf='';while(true){var rd=await reader.read();if(rd.done)break;sbuf+=dec.decode(rd.value,{stream:true});var parts=sbuf.split('\n\n');sbuf=parts.pop();for(var i=0;i<parts.length;i++){var lines=parts[i].split('\n');for(var j=0;j<lines.length;j++){var ln=lines[j];if(ln.indexOf('data:')!==0)continue;var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;try{full+=JSON.parse(pay);}catch(_e){}}}var now=Date.now();if(now-lastRender>350&&f&&/<body/i.test(full)&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}}}
     clearInterval(timer);
+    var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
+    if(!complete){var res2=await api('dashboard-ai',{action:'review',build:build,id:B.id});if(res2&&res2.mockup_html)full=res2.mockup_html;}
     B.ai_mockup_html=_rep(full);render();
     if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}
     toast('Mockup updated');
