@@ -23,6 +23,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--void);color:var(-
 .statuspill{display:inline-block;font-size:.7rem;border:1px solid var(--line-gold);color:var(--gold-light);border-radius:99px;padding:3px 10px;margin-top:8px;text-transform:capitalize}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
 .card h2{font-size:1rem;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--void);border-radius:99px;padding:7px 14px;font-size:.82rem;cursor:pointer;transition:.15s;user-select:none;color:var(--white)}
+.chip:hover{border-color:var(--gold-light)}
+.chip.on{border-color:var(--gold);background:rgba(201,146,42,.14);color:var(--gold-light)}
 .mockframe{width:100%;height:64vh;border:1px solid var(--line);border-radius:12px;background:#fff}
 .sum{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media(max-width:560px){.sum{grid-template-columns:1fr}}
