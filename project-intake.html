@@ -163,6 +163,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-
       <button class="tab active" onclick="switchTab('creds')">🔑 Project Credentials</button>
       <button class="tab" onclick="switchTab('logins')">🔐 Login Credentials</button>
       <button class="tab" onclick="switchTab('files')">📁 Files</button>
+      <button class="tab" onclick="switchTab('bugs')">🐞 Report a Bug</button>
     </div>
 
     <!-- PROJECT CREDENTIALS TAB -->
@@ -188,6 +189,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-
         <div class="file-drop-text"><strong>Click to browse</strong> or drag files here<br>Any file type accepted · Max 50MB per file</div>
       </div>
       <div class="file-list" id="file-list"></div>
+    </div>
+
+    <!-- BUG REPORT TAB -->
+    <div class="tab-panel" id="tab-bugs">
+      <div class="section-intro">Found something that needs fixing? Report it here. Please be <b>specific</b> &mdash; what you expected, what actually happened, the page or area it is on, and the steps to reproduce it. Screenshots or a short screen recording help us fix it fast. Add a separate bug for each issue so we route each fix to the right module.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <input type="text" id="bug-reporter-name" placeholder="Your name (optional)" style="flex:1;min-width:160px;background:#0d1020;border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;padding:9px 11px;font-size:.9rem;font-family:inherit">
+        <input type="email" id="bug-reporter-email" placeholder="Your email (optional)" style="flex:1;min-width:160px;background:#0d1020;border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;padding:9px 11px;font-size:.9rem;font-family:inherit">
+      </div>
+      <div id="bugs-list"></div>
+      <button class="add-btn" onclick="addBugCard()">+ Add another bug</button>
+      <div style="margin-top:16px"><button class="submit-btn" id="bug-submit-btn" onclick="submitBugs()">Submit bug report &rarr;</button></div>
     </div>
 
     <div class="submit-section">
@@ -258,10 +271,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-
   // ===== TABS =====
   window.switchTab = function(tab) {
     document.querySelectorAll('.tab').forEach(function(t, i) {
-      t.classList.toggle('active', ['creds','logins','files'][i] === tab);
+      t.classList.toggle('active', ['creds','logins','files','bugs'][i] === tab);
     });
     document.querySelectorAll('.tab-panel').forEach(function(p, i) {
-      p.classList.toggle('active', ['tab-creds','tab-logins','tab-files'][i] === 'tab-' + tab);
+      p.classList.toggle('active', ['tab-creds','tab-logins','tab-files','tab-bugs'][i] === 'tab-' + tab);
     });
   };
 
@@ -464,6 +477,63 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-
   };
 
   // ===== REQUEST NEW LINK =====
+  // ===== BUG REPORTS =====
+  var bugCounter = 0;
+  var bugFiles = {};
+  var BUG_STYLE = 'width:100%;background:#0d1020;border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;padding:9px 11px;font-size:.9rem;margin-top:6px;font-family:inherit;box-sizing:border-box';
+  window.addBugCard = function() {
+    var id = 'bug' + (bugCounter++);
+    bugFiles[id] = [];
+    var wrap = document.createElement('div');
+    wrap.className = 'card'; wrap.id = id;
+    wrap.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;margin-bottom:12px';
+    var types = ['Login / Account access','Dashboard / Overview','Client Portal','Payments / Billing','Forms / Intake','Email / Notifications','Reports','Mobile / Display','Performance / Loading','Something else'];
+    var sevs = ['Blocking (cannot use it)','Major (broken feature)','Minor (annoying)','Cosmetic (looks off)'];
+    var topt = types.map(function(o){ return '<option>' + o + '</option>'; }).join('');
+    var sopt = sevs.map(function(o){ return '<option>' + o + '</option>'; }).join('');
+    wrap.innerHTML =
+      '<input type="text" class="bug-title" placeholder="Short title (e.g. Login button does nothing on mobile)" style="' + BUG_STYLE + '">' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap"><select class="bug-type" style="' + BUG_STYLE + ';flex:1;min-width:170px">' + topt + '</select>' +
+      '<select class="bug-sev" style="' + BUG_STYLE + ';flex:1;min-width:150px">' + sopt + '</select></div>' +
+      '<textarea class="bug-desc" placeholder="Be specific: What did you expect? What actually happened? Which page or URL? Steps to reproduce? When did it start?" style="' + BUG_STYLE + ';min-height:84px;resize:vertical"></textarea>' +
+      '<div style="margin-top:8px"><label style="font-size:.78rem;color:#9fa0b6">Screenshots, video, or files</label><input type="file" multiple class="bug-files" style="' + BUG_STYLE + '"></div>' +
+      '<div class="bug-files-list" style="font-size:.75rem;color:#9fa0b6;margin-top:4px"></div>' +
+      '<button type="button" class="add-btn bug-remove" style="margin-top:8px">Remove this bug</button>';
+    document.getElementById('bugs-list').appendChild(wrap);
+    wrap.querySelector('.bug-files').addEventListener('change', function(e){ bugFilesPick(id, e.target); });
+    wrap.querySelector('.bug-remove').addEventListener('click', function(){ removeBug(id); });
+  };
+  window.removeBug = function(id) { var el = document.getElementById(id); if (el) el.remove(); delete bugFiles[id]; };
+  window.bugFilesPick = function(id, input) { bugFiles[id] = Array.from(input.files); var c = document.getElementById(id); if (c) c.querySelector('.bug-files-list').textContent = bugFiles[id].map(function(f){ return f.name; }).join(', '); };
+  async function uploadBugFile(file) {
+    var path = 'bugs/' + Date.now() + '-' + Math.random().toString(36).slice(2,7) + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    var r = await fetch(SUPABASE_URL + '/storage/v1/object/bug-attachments/' + path, { method: 'POST', headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file });
+    return r.ok ? path : null;
+  }
+  window.submitBugs = async function() {
+    var cards = Array.from(document.querySelectorAll('#bugs-list .card'));
+    var bugs = [];
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      var title = card.querySelector('.bug-title').value.trim();
+      var desc = card.querySelector('.bug-desc').value.trim();
+      if (!title && !desc) continue;
+      var paths = []; var files = bugFiles[card.id] || [];
+      for (var f = 0; f < files.length; f++) { if (files[f].size <= 1024*1024*1024) { var p = await uploadBugFile(files[f]); if (p) paths.push(p); } }
+      bugs.push({ title: title, bug_type: card.querySelector('.bug-type').value, severity: card.querySelector('.bug-sev').value, description: desc, attachment_paths: paths });
+    }
+    if (!bugs.length) { alert('Please add at least one bug with a title or description.'); return; }
+    var btn = document.getElementById('bug-submit-btn'); btn.disabled = true; btn.textContent = 'Submitting...';
+    try {
+      var res = await fetch(SUPABASE_URL + '/functions/v1/bug-report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }, body: JSON.stringify({ token: token, project_id: projectId, reporter_name: (document.getElementById('bug-reporter-name')||{}).value || '', reporter_email: (document.getElementById('bug-reporter-email')||{}).value || '', bugs: bugs }) });
+      var j = await res.json();
+      btn.disabled = false; btn.textContent = 'Submit bug report →';
+      if (j && j.ok) { document.getElementById('bugs-list').innerHTML = ''; addBugCard(); alert('Thank you! Your bug report was sent to the Knight Ops team and will be triaged for a fix.'); }
+      else { alert('Could not submit: ' + ((j && j.error) || 'unknown error')); }
+    } catch (e) { btn.disabled = false; btn.textContent = 'Submit bug report →'; alert('Network error: ' + e); }
+  };
+  addBugCard();
+
   window.requestNewLink = async function() {
     var btn = document.getElementById('renew-btn');
     var status = document.getElementById('renew-status');
