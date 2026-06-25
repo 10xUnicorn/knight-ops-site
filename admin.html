@@ -3025,6 +3025,7 @@ async function showProjectDetail(id){
 }
 
 var _mockCardOpts={};
+async function _dmApi(payload){ try{ var r=await sb.functions.invoke('dashboard-mockups',{body:payload}); if(r&&r.error) return {error:((r.error&&r.error.message)||String(r.error))}; return (r&&r.data)||{}; }catch(e){ return {error:String(e)}; } }
 async function loadDashboardMockupLink(id){
   var p=(S.projects||[]).find(function(x){return x.id===id;})||{};
   return renderMockupCard('dashMockup_'+id,{projectId:id,leadId:p.lead_id,businessName:p.name,brandColor:(p.intake_data||{}).brand_color});
@@ -3084,19 +3085,19 @@ async function dashMockEnsure(containerId){
   var o=_mockCardOpts[containerId]||{}; if(!o.projectId){showToast('No project');return;}
   showToast('Creating voting page...');
   var brand=o.brandColor?{primary:o.brandColor,secondary:'#05061a',accent:'#00D4C8',mode:'dark'}:null;
-  var res=await api('dashboard-mockups',{action:'ensure_for_project',project_id:o.projectId,business_name:o.businessName||'',brand:brand});
+  var res=await _dmApi({action:'ensure_for_project',project_id:o.projectId,business_name:o.businessName||'',brand:brand});
   if(res&&res.build_id)showToast('Voting page ready'); else showToast('Could not create: '+((res&&res.error)||''));
   _reRenderMock(containerId);
 }
 async function dashMockToggle(buildId,mid,hide,containerId){
   var h=(hide===true||hide==='true');
-  await api('dashboard-mockups',{action:'toggle',id:buildId,mockup_id:mid,hidden:h});
+  await _dmApi({action:'toggle',id:buildId,mockup_id:mid,hidden:h});
   showToast(h?'Style hidden from clients':'Style now visible to clients');
   _reRenderMock(containerId);
 }
 async function dashMockDelete(buildId,mid,containerId){
   if(!confirm('Delete this style permanently?'))return;
-  await api('dashboard-mockups',{action:'delete',id:buildId,mockup_id:mid});
+  await _dmApi({action:'delete',id:buildId,mockup_id:mid});
   showToast('Style deleted'); _reRenderMock(containerId);
 }
 function dashMockUpload(buildId,containerId){
@@ -3107,7 +3108,7 @@ function dashMockUpload(buildId,containerId){
     if(!text||text.length<100){showToast('That HTML file looks empty');return;}
     showToast('Uploading mockup...');
     var label=(f.name||'Uploaded').replace(/\.(html?|htm)$/i,'').slice(0,40)||'Uploaded';
-    var res=await api('dashboard-mockups',{action:'add',id:buildId,html:text,label:label});
+    var res=await _dmApi({action:'add',id:buildId,html:text,label:label});
     if(res&&res.ok)showToast('Mockup added as a voting option'); else showToast('Upload failed: '+((res&&res.error)||''));
     _reRenderMock(containerId);
   };
