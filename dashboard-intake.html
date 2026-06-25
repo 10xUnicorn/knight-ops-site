@@ -329,6 +329,7 @@ textarea{resize:vertical;min-height:74px}
     </div>
     <div class="ov-foot">
       <button class="btn btn-ghost" onclick="reviewWithAI()" id="regenBtn">🔄 Regenerate</button>
+      <button class="btn btn-ghost" onclick="saveMockStyle()" id="saveStyleBtn">💾 Save this style</button>
       <button class="btn btn-primary" onclick="approveMock()">✓ Looks right — continue</button>
     </div>
   </div>
@@ -666,6 +667,16 @@ async function reviewWithAI(){
   else{document.getElementById('mockFrame').srcdoc='<body style="padding:30px;font-family:sans-serif">Could not generate. '+(res.error||'')+'</body>';}
 }
 function approveMock(){closeOv('ovMock');toast('Mockup approved');if(S.id||S.resume_token)api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});}
+async function saveMockStyle(){
+  if(!_lastMock){toast('Generate a mockup first');return;}
+  var label=prompt('Name this style (e.g. Dark Gold, Light Editorial)','Style '+((S.savedStyles||0)+1));
+  if(label===null)return;
+  var btn=document.getElementById('saveStyleBtn');if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  var res=await api('dashboard-mockups',Object.assign({action:'add',html:_lastMock,label:label||'Style',id:S.id,resume_token:S.resume_token},gather()));
+  if(btn){btn.disabled=false;btn.textContent='💾 Save this style';}
+  if(res&&res.ok){S.id=res.build_id;S.resume_token=res.resume_token||S.resume_token;S.savedStyles=res.count;toast('Saved style ('+res.count+' total). Finalize to share all styles for the client to pick.');}
+  else toast('Could not save: '+((res&&res.error)||''));
+}
 
 // ---- spec ----
 let _spec='';
