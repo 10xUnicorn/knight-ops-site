@@ -184,6 +184,12 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
 .lb .x{position:absolute;top:18px;right:26px;font-size:2rem;color:#fff;cursor:pointer}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card-2);border:1px solid var(--line-gold);color:#fff;padding:12px 20px;border-radius:10px;font-size:.9rem;z-index:90;opacity:0;transition:.25s;pointer-events:none}
 .toast.show{opacity:1}
+.ai-sec{border:1px solid var(--line-gold);background:linear-gradient(180deg,rgba(201,146,42,.10),rgba(123,47,255,.06))}
+.ai-sec .n{background:linear-gradient(135deg,#C9922A,#7B2FFF);color:#fff}
+.ai-badge{display:inline-block;font-size:.58rem;letter-spacing:.1em;background:#C9922A;color:#1a1303;padding:3px 8px;border-radius:999px;vertical-align:middle;margin-left:8px;font-weight:800;text-transform:uppercase}
+.ai-build-btn{width:100%;margin-top:16px;justify-content:center}
+.ai-or{margin-top:12px;text-align:center}
+.ai-sec.loading{opacity:.6;pointer-events:none}
 </style>
 </head>
 <body>
@@ -203,6 +209,18 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
   </div>
 
   <div class="form-col">
+
+    <!-- 0 BUILD WITH AI -->
+    <div class="sec ai-sec">
+      <div class="sec-h"><div class="n">⚡</div><h2>Build it with AI<span class="ai-badge">Fastest</span></h2></div>
+      <div class="sec-sub">Short on time? Describe your event and drop your link. Our AI scans your site — colors, fonts, voice, and offer — then designs your entire lead magnet for you. You review and tweak everything before a single thing is built.</div>
+      <label class="fl">Tell us about your event &amp; what you want <span class="req">*</span></label>
+      <textarea id="ai_brief" rows="4" placeholder="e.g. I'm hosting a 200-person real estate investing summit in Austin. I want to capture every attendee and book strategy calls. My core offer is a $2k mastermind. Make it feel premium and high-energy."></textarea>
+      <label class="fl">Your website, offer, or checkout URL <span class="hint" style="display:inline">(we scan it for design + links)</span></label>
+      <input type="url" id="ai_url" placeholder="https://your-site.com">
+      <button class="btn btn-primary ai-build-btn" id="ai_go" type="button">⚡ Design my lead magnet with AI →</button>
+      <div class="hint ai-or">Prefer to choose everything yourself? Scroll down and build it by hand — every choice stays editable.</div>
+    </div>
 
     <!-- 1 EVENT -->
     <div class="sec">
@@ -241,6 +259,7 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
         <div class="choice" data-mech="contest"><div class="ic">🎟️</div><b>Contest / Giveaway</b><span>Enter-to-win, framed as a must-do.</span></div>
         <div class="choice" data-mech="archetype"><span class="ex" data-img="/assets/ele-examples/example-archetype.png" data-cap="Find Your Type">example</span><div class="ic">✨</div><b>Find Your Type</b><span>Tap to build a profile, unlock a result.</span></div>
         <div class="choice" data-mech="scratch"><div class="ic">🃏</div><b>Scratch / Pick a Door</b><span>Reveal a prize. Tiny suspense, big play rate.</span></div>
+        <div class="choice" data-mech="special_offer"><div class="ic">🔥</div><b>Events Special Offer</b><span>No game. A bold, high-converting offer + checkout page.</span></div>
       </div>
 
       <!-- quiz config -->
@@ -302,6 +321,25 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
         <input type="text" id="sc_reveal" placeholder="e.g. A surprise discount, a prize, a message">
         <label class="fl">List the possible reveals (one per line)</label>
         <textarea id="sc_options" placeholder="e.g.&#10;15% off&#10;Free guide&#10;Book a free call"></textarea>
+      </div>
+
+      <!-- special offer config -->
+      <div class="cond" data-for="special_offer">
+        <label class="fl">Offer headline <span class="req">*</span></label>
+        <input type="text" id="so_headline" placeholder="e.g. Get the Complete AI Founder System — 60% Off Today Only">
+        <label class="fl">Supporting line</label>
+        <input type="text" id="so_sub" placeholder="e.g. Everything you need to launch, automate, and scale — in one place.">
+        <div class="two">
+          <div><label class="fl">What's the offer?</label><input type="text" id="so_offer" placeholder="e.g. The AI Founder System"></div>
+          <div><label class="fl">Value / price</label><input type="text" id="so_value" placeholder="e.g. $1,997 → $797"></div>
+        </div>
+        <label class="fl">Key benefits / bullets (one per line)</label>
+        <textarea id="so_benefits" placeholder="e.g.&#10;12 plug-and-play automations&#10;Lifetime updates&#10;Private community access"></textarea>
+        <div class="two">
+          <div><label class="fl">Urgency line</label><input type="text" id="so_urgency" placeholder="e.g. Only 20 seats at this price"></div>
+          <div><label class="fl">Button text</label><input type="text" id="so_button" placeholder="e.g. Claim My Spot →"></div>
+        </div>
+        <div class="hint">A straight offer page — no game. Pair it with the "Your Offer / Checkout" call to action below to send people to your checkout.</div>
       </div>
     </div>
 
@@ -639,6 +677,7 @@ function gather(){
   if(S.mechanism==='contest')Object.assign(mc,{prize:v('c_prize'),rules:v('c_rules')});
   if(S.mechanism==='archetype')Object.assign(mc,{prompt:v('a_prompt'),traits:v('a_traits').split(/[,\n]/).map(x=>x.trim()).filter(Boolean),result:v('a_result')});
   if(S.mechanism==='scratch')Object.assign(mc,{reveal:v('sc_reveal'),options:v('sc_options').split('\n').map(x=>x.trim()).filter(Boolean)});
+  if(S.mechanism==='special_offer')Object.assign(mc,{headline:v('so_headline'),sub:v('so_sub'),offer:v('so_offer'),value:v('so_value'),benefits:v('so_benefits').split('\n').map(x=>x.trim()).filter(Boolean),urgency:v('so_urgency'),button_text:v('so_button')});
   const cc={};
   if(S.cta==='calendar')cc.calendar=v('cta_cal');
   if(S.cta==='text_keyword')Object.assign(cc,{keyword:v('cta_kw'),phone:v('cta_phone')});
@@ -674,6 +713,7 @@ function renderPreview(target){
   else if(d.mechanism==='contest'){const mc=d.mechanism_config;body='<div style="text-align:center"><div style="font-size:2.4rem">🎟️</div><div style="font-size:1.05rem;font-weight:800;color:'+txt+';margin:8px 0">Enter to Win</div>'+card('🏆 '+(mc.prize||'Your prize'))+'<div style="font-size:.72rem;color:'+mut+'">'+(mc.rules||'')+'</div></div>';}
   else if(d.mechanism==='archetype'){const mc=d.mechanism_config;const tr=(mc.traits||['Visionary','Builder','Connector','Closer']);body='<div style="text-align:center"><div style="font-size:1.05rem;font-weight:800;color:'+txt+';margin-bottom:12px">'+(mc.prompt||'Find your type')+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">'+tr.slice(0,8).map(t=>'<span style="border:1px solid '+acc+';color:'+txt+';border-radius:999px;padding:5px 11px;font-size:.72rem">'+t+'</span>').join('')+'</div></div>';}
   else if(d.mechanism==='scratch'){const mc=d.mechanism_config;body='<div style="text-align:center"><div style="font-size:2.4rem">🃏</div><div style="font-size:1.05rem;font-weight:800;color:'+txt+';margin:8px 0">'+(mc.reveal||'Scratch to reveal')+'</div>'+card('✨ Tap to reveal your prize')+'</div>';}
+  else if(d.mechanism==='special_offer'){const mc=d.mechanism_config;const bens=(mc.benefits&&mc.benefits.length?mc.benefits:['Benefit one','Benefit two','Benefit three']);body='<div><div style="font-size:.62rem;letter-spacing:.12em;color:'+acc+';font-weight:700;margin-bottom:8px">SPECIAL OFFER</div><div style="font-size:1.02rem;font-weight:800;color:'+txt+';margin-bottom:10px;line-height:1.25">'+(mc.headline||'A special offer for you')+'</div>'+(mc.sub?'<div style="font-size:.76rem;color:'+mut+';margin-bottom:10px">'+mc.sub+'</div>':'')+((mc.offer||mc.value)?card('<b style="color:'+txt+'">'+(mc.offer||'This offer')+'</b>'+(mc.value?' <span style="color:'+acc+'">'+mc.value+'</span>':'')):'')+'<div style="margin-top:6px">'+bens.slice(0,4).map(x=>'<div style="font-size:.74rem;color:'+txt+';margin-bottom:5px"><span style="color:'+acc+';font-weight:800">✓</span> '+x+'</div>').join('')+'</div>'+(mc.urgency?'<div style="text-align:center;color:'+acc+';font-weight:700;font-size:.72rem;margin-top:8px">⏳ '+mc.urgency+'</div>':'')+'</div>';}
   let ctaTxt='';
   if(d.cta==='download')ctaTxt='⬇️ '+(d.free_gift||'Download your free gift');
   else if(d.cta==='calendar')ctaTxt='📅 Book your call';
@@ -692,7 +732,6 @@ function validate(){
   if(!d.company)miss.push('Company');
   if(!d.email)miss.push('Email');
   if(!d.mechanism)miss.push('An interactive experience');
-  if(!d.free_gift)miss.push('The free gift');
   if(!d.cta_type)miss.push('A call to action');
   if(!d.magnet_title)miss.push('A name for your magnet');
   const cc2=d.consent_config;let agOk=cc2.ag1&&cc2.ag2&&cc2.ag6;
@@ -704,7 +743,7 @@ function validate(){
 /* ---------- outline ---------- */
 function buildOutline(d){
   const row=(k,v)=>v?'<div class="row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>':'';
-  const mechNames={quiz:'Single Question',guess_win:'Guess & Win',spin_win:'Spin to Win',contest:'Contest / Giveaway',archetype:'Find Your Type',scratch:'Scratch / Pick a Door'};
+  const mechNames={quiz:'Single Question',guess_win:'Guess & Win',spin_win:'Spin to Win',contest:'Contest / Giveaway',archetype:'Find Your Type',scratch:'Scratch / Pick a Door',special_offer:'Events Special Offer'};
   const ctaNames={download:'Instant Download',calendar:'Book a Call',text_keyword:'Text a Keyword',offer:'Your Offer / Checkout'};
   const styleNames={cosmic_gold:'Cosmic Gold',clean_light:'Clean Light',bold_neon:'Bold Neon',elegant_editorial:'Elegant Editorial'};
   return '<h4>Your build outline</h4>'+
@@ -823,12 +862,57 @@ function hydrate(b){
   if(b.mechanism==='contest'){setVal('c_prize',mc.prize);setVal('c_rules',mc.rules);}
   if(b.mechanism==='archetype'){setVal('a_prompt',mc.prompt);if(mc.traits)setVal('a_traits',mc.traits.join(', '));setVal('a_result',mc.result);}
   if(b.mechanism==='scratch'){setVal('sc_reveal',mc.reveal);if(mc.options)setVal('sc_options',mc.options.join('\n'));}
+  if(b.mechanism==='special_offer'){setVal('so_headline',mc.headline);setVal('so_sub',mc.sub);setVal('so_offer',mc.offer);setVal('so_value',mc.value);if(mc.benefits)setVal('so_benefits',Array.isArray(mc.benefits)?mc.benefits.join('\n'):mc.benefits);setVal('so_urgency',mc.urgency);setVal('so_button',mc.button_text);}
   const cc=b.cta_config||{};
   if(b.cta_type==='calendar')setVal('cta_cal',cc.calendar||cc.url||cc.embed);
   if(b.cta_type==='text_keyword'){setVal('cta_kw',cc.keyword);setVal('cta_phone',cc.phone);}
   if(b.cta_type==='offer'){setVal('cta_offer_url',cc.offer_url);setVal('cta_checkout',cc.checkout);}
   S.resume_token=b.resume_token;renderPreview();
 }
+
+/* ---------- AI-first: scan a site + brief, design the whole magnet ---------- */
+function applyAiConfig(cfg,ctx){
+  let mech=cfg.mechanism;
+  if(mech==='pick_door')mech='scratch';
+  let ctaType=cfg.cta_type,cc=Object.assign({},cfg.cta_config||{});
+  if(ctaType==='redirect'){ctaType='offer';cc={offer_url:cc.url||cc.offer_url||'',checkout:cc.checkout||''};}
+  const notes=((cfg.design_notes||'')+(ctx.brief?'\n\nVendor brief: '+ctx.brief:'')).trim();
+  const b={
+    magnet_title:cfg.magnet_title||$('f_title').value||'',
+    event_name:$('f_event').value||'',
+    company:$('f_company').value||'',
+    website:ctx.url||$('f_website').value||'',
+    mechanism:mech,mechanism_config:cfg.mechanism_config||{},
+    free_gift:cfg.free_gift||'',free_gift_value:cfg.free_gift_value||'',free_gift_url:cfg.free_gift_url||'',
+    cta_type:ctaType,cta_config:cc,
+    design_style:cfg.design_style||'clean_light',
+    tonality:cfg.tonality||'',design_notes:notes
+  };
+  if(cfg.brand_colors)b.brand_colors={primary:cfg.brand_colors.primary,accent:cfg.brand_colors.accent,secondary:cfg.brand_colors.secondary};
+  if(ctx.url&&!$('f_website').value)setVal('f_website',ctx.url);
+  hydrate(b);
+  if(ctx.brief)S.aiBrief=ctx.brief;
+}
+async function aiAnalyze(){
+  const brief=($('ai_brief').value||'').trim();
+  const url=($('ai_url').value||'').trim();
+  if(!brief&&!url){toast('Add a short brief or a URL so the AI has something to work with');return;}
+  const btn=$('ai_go'),sec=btn.closest('.sec'),orig=btn.textContent;
+  btn.disabled=true;btn.textContent='⚡ Scanning & designing...';sec.classList.add('loading');
+  startGen('Scanning your site and designing your magnet...');
+  try{
+    const r=await fetch(SUPA+'/functions/v1/ele-analyze',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({brief,url})});
+    const j=await r.json();
+    if(!r.ok||!j.success||!j.config)throw new Error(j.error||'Could not design it automatically. Add more detail, or build it by hand below.');
+    applyAiConfig(j.config,{brief,url});
+    stopGen();
+    toast(j.scanned?'Done — we scanned your site and filled everything in. Review and tweak below.':'Done — designed from your brief. Review and tweak below.');
+    const evSec=$('f_event').closest('.sec');if(evSec)evSec.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){stopGen();toast(e.message);}
+  btn.disabled=false;btn.textContent=orig;sec.classList.remove('loading');
+}
+$('ai_go').onclick=aiAnalyze;
+
 (function(){
   const p=new URLSearchParams(location.search);
   const code=p.get('code');if(code){S.host_coupon_code=code;if($('f_code'))$('f_code').value=code;}

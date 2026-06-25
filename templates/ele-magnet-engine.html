@@ -168,7 +168,20 @@ function renderMechanism(){const m=C.mechanism;
   if(m==='archetype')return renderArchetype();
   if(m==='scratch')return renderScratch();
   if(m==='pick_door')return renderPickDoor();
+  if(m==='special_offer')return renderSpecialOffer();
   return renderContest();
+}
+function renderSpecialOffer(){
+  const c=cfg;
+  const benefits=(c.benefits||[]).map(b=>'<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;text-align:left"><span style="color:var(--accent);font-weight:900;flex:none">✓</span><span style="font-size:.95rem">'+esc(b)+'</span></div>').join('');
+  const inner='<div class="step active"><div class="kicker">'+esc(c.kicker||'Special Offer')+'</div><h1 class="q">'+esc(c.headline||'A Special Offer For You')+'</h1><div class="sub">'+esc(c.sub||'')+'</div>'+
+    ((c.offer||c.value)?'<div class="gift-pill" style="justify-content:space-between"><b>'+esc(c.offer||'This offer')+'</b>'+(c.value?'<span class="v">'+esc(c.value)+'</span>':'')+'</div>':'')+
+    (benefits?'<div style="margin:14px 0">'+benefits+'</div>':'')+
+    (c.urgency?'<div style="text-align:center;color:var(--accent);font-weight:700;font-size:.9rem;margin-bottom:10px">⏳ '+esc(c.urgency)+'</div>':'')+
+    '<button class="btn" id="go">'+esc(c.button_text||'Claim This Offer →')+'</button></div>';
+  app.innerHTML=card(inner);
+  STATE.type='offer_claim';STATE.interactive={offer:c.offer||c.headline||''};
+  document.getElementById('go').onclick=showCapture;
 }
 function renderQuiz(){let sel=-1;
   const head='<div class="kicker">'+esc(cfg.kicker||'Quick Question')+'</div><h1 class="q">'+esc(cfg.question||'Your question')+(cfg.accent_word?' <span class="hl">'+esc(cfg.accent_word)+'</span>':'')+'</h1><div class="sub">'+esc(cfg.sub||'')+'</div>';
