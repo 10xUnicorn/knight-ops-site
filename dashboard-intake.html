@@ -152,6 +152,13 @@ textarea{resize:vertical;min-height:74px}
       </div>
     </div>
 
+    <!-- PRESETS -->
+    <div class="sec" id="sec-presets">
+      <div class="sec-h"><span class="n">⚡</span><h2>Start from a preset</h2></div>
+      <div class="sec-sub">One click pre-fills the modules, access, and integrations for a common Knight Ops dashboard type. Adjust anything after.</div>
+      <div class="chips" id="presetChips"></div>
+    </div>
+
     <!-- AI-FIRST -->
     <div class="sec" id="sec-ai">
       <div class="sec-h"><span class="n">✨</span><h2>Tell AI what you're building</h2></div>
@@ -681,8 +688,31 @@ function closeOv(id){document.getElementById(id).classList.remove('on');}
 let _tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2600);}
 
 // ---- resume / prefill ----
+const PRESETS=[
+ {k:'coach',label:'🎯 Coach / Course + Community',cfg:{modules:['overview','kpis','cohort','journey','portal','payments','content','aibrain','reports','notifications','settings'],facing:'both',integrations:['resend','stripe','ai'],payments:true,ai_on:true,brand:{primary:'#1CA2A8',accent:'#C9922A'}}},
+ {k:'pr',label:'📣 PR / Agency Client Portal',cfg:{modules:['overview','clients','pipeline','portal','worksheets','reports','content','payments','journey','messaging','settings'],facing:'both',integrations:['resend','stripe','ai','fathom'],payments:true,ai_on:true,brand:{primary:'#363795',accent:'#c9a055'}}},
+ {k:'mastermind',label:'🚀 Mastermind / Ascension',cfg:{modules:['overview','kpis','webinar','cohort','journey','portal','payments','media','events','aibrain','reports','notifications','settings'],facing:'both',integrations:['resend','stripe','ai','ads'],payments:true,ai_on:true}},
+ {k:'speaker',label:'🎤 Speaker Lead Engine',cfg:{modules:['overview','leads','events','media','journey','content','reports','notifications','settings'],facing:'internal_only',integrations:['resend','ai'],payments:false,ai_on:true}},
+ {k:'service',label:'🛠️ Service Business CRM',cfg:{modules:['overview','leads','pipeline','deals','clients','tasks','payments','reports','notifications','settings'],facing:'internal_only',integrations:['resend','stripe'],payments:true,ai_on:false}},
+ {k:'ops',label:'🧭 Internal Ops Command Center',cfg:{modules:['overview','kpis','leads','pipeline','deals','tasks','clients','finance','aibrain','notifications','settings'],facing:'internal_only',integrations:['resend','ai'],payments:false,ai_on:true}}
+];
+function buildPresets(){var el=document.getElementById('presetChips');if(el)el.innerHTML=PRESETS.map(function(p){return '<div class="chip" onclick="applyPreset(\''+p.k+'\')">'+p.label+'</div>';}).join('');}
+function applyPreset(k){
+  var p=PRESETS.find(function(x){return x.k===k;});if(!p)return;var c=p.cfg;
+  S.modules=c.modules.slice();
+  if(c.facing)S.facing=c.facing;
+  if(c.integrations)S.integrations=c.integrations.slice();
+  S.payments=!!c.payments;S.ai_on=!!c.ai_on;
+  if(c.brand){if(c.brand.primary)document.getElementById('c_primary').value=c.brand.primary;if(c.brand.accent)document.getElementById('c_accent').value=c.brand.accent;}
+  buildModGrid();syncModCards();buildFeatures();
+  document.querySelectorAll('#facingChips .chip').forEach(function(ch){ch.classList.toggle('on',ch.dataset.facing===S.facing);});
+  document.getElementById('sw_payments').classList.toggle('on',S.payments);
+  document.getElementById('sw_ai').classList.toggle('on',S.ai_on);
+  render();toast('Preset applied');
+  document.getElementById('s2').scrollIntoView({behavior:'smooth'});
+}
 async function boot(){
-  buildModGrid();buildFeatures();render();
+  buildModGrid();buildPresets();buildFeatures();render();
   const q=new URLSearchParams(location.search);
   if(q.get('resume')){const res=await api('dashboard-build',{action:'resume',resume_token:q.get('resume')});if(res.build)hydrate(res.build);}
   else if(q.get('prefill')){try{hydrate(JSON.parse(decodeURIComponent(escape(atob(q.get('prefill'))))));S.ai_drafted=true;}catch(e){}}

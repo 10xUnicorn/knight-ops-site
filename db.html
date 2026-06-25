@@ -86,6 +86,7 @@ function render(){
   h+=`<div class="card"><h2>Mockup</h2>`;
   if(B.ai_mockup_html){h+=`<iframe class="mockframe" id="mf"></iframe>`;}
   else{h+=`<p style="color:var(--muted);font-size:.88rem">A visual mockup will appear here once it is generated.</p>`;}
+  h+=`<div style="margin-top:12px"><label class="fl" style="margin-top:0">Revise the mockup with AI (optional)</label><textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals panel, emphasize the client portal"></textarea><div style="margin-top:8px"><button class="btn btn-ghost" id="regenBtn" onclick="regenMock()">🔄 Revise mockup with AI</button></div></div>`;
   h+=`</div>`;
   // summary
   h+=`<div class="card"><h2>What we will build</h2><div class="modlist">${mods.map(m=>`<span class="modchip">${esc(m)}</span>`).join('')||'<span style="color:var(--muted)">No modules selected yet</span>'}</div>`;
@@ -129,6 +130,16 @@ async function saveEdit(){const b=document.getElementById('saveBtn');b.disabled=
   const res=await api('dashboard-build',{action:'save_edit',share_edit_token:TOKEN,business_name:document.getElementById('e_business').value.trim(),company:document.getElementById('e_business').value.trim(),niche:document.getElementById('e_niche').value.trim(),what_they_do:document.getElementById('e_what').value.trim(),offers:document.getElementById('e_offers').value.trim(),audience:document.getElementById('e_aud').value.trim(),team:document.getElementById('e_team').value.trim(),additional_details:document.getElementById('e_more').value.trim()});
   b.disabled=false;b.textContent='Save my updates';
   if(res.build){B=res.build;toast('Saved — thank you!');}else toast('Could not save: '+(res.error||''));
+}
+async function regenMock(){
+  var nEl=document.getElementById('revNotes');var notes=nEl?nEl.value.trim():'';
+  var b=document.getElementById('regenBtn');if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> Generating (~30s)...';}
+  toast('Regenerating mockup with AI...');
+  var build=Object.assign({},B,{revision_notes:notes});
+  var res=await api('dashboard-ai',{action:'review',build:build,id:B.id});
+  if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}
+  if(res&&res.mockup_html){B.ai_mockup_html=res.mockup_html;render();toast('Mockup updated');}
+  else toast('Could not regenerate: '+((res&&res.error)||''));
 }
 boot();
 </script>
