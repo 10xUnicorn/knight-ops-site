@@ -146,7 +146,7 @@ function card(b,subs,showActions){
     '<div class="meta">'+esc(b.company||'')+' · '+esc(b.event_name||'')+' · '+esc(b.email||'')+'</div></div>'+
     '<div style="text-align:right;color:var(--mut);font-size:.8rem">'+(b.hosting==='hosted'?'☁️ Hosted':'📁 Self-host')+'<br>'+esc(b.design_style||'')+'</div></div>'+
     '<div class="stats"><div class="stat"><div class="v teal">'+views+'</div><div class="k">Views</div></div><div class="stat"><div class="v gold">'+subs+'</div><div class="k">Leads</div></div><div class="stat"><div class="v green">'+conv+'%</div><div class="k">Conversion</div></div></div>'+
-    '<div class="chips"><span>'+esc(b.mechanism||'')+'</span><span>CTA: '+esc(b.cta_type||'')+'</span><span>'+esc(b.stripe_payment_status||'')+'</span>'+(b.host_coupon_code?'<span>code: '+esc(b.host_coupon_code)+'</span>':'')+(b.revision_count?'<span>rev '+b.revision_count+'</span>':'')+'</div>'+
+    '<div class="chips"><span>'+esc(b.mechanism||'')+'</span><span>CTA: '+esc(b.cta_type||'')+'</span><span style="color:var(--gold-l);border-color:rgba(201,146,42,.45)">'+(b.stripe_payment_status==='paid'?'💳 Paid build':(b.host_coupon_code?('🎟️ Code: '+esc(b.host_coupon_code)):'⏳ '+esc(b.stripe_payment_status||'pending')))+'</span>'+(b.revision_count?'<span>rev '+b.revision_count+'</span>':'')+'</div>'+
     cd+
     '<div class="acts">'+
     (preview?'<a class="btn b-ghost" href="'+preview+'" target="_blank">👁 Preview</a>':'<span style="color:var(--mut);font-size:.8rem">No preview yet</span>')+
