@@ -84,7 +84,7 @@ function render(){
   h+=`<div class="hl"><h1 class="serif">${esc(B.business_name||B.company||'Your Dashboard')}</h1><p>${esc(B.niche||'')}</p><div class="statuspill ${B.status==='approved'?'approved':''}">${esc(B.status||'draft')}</div></div>`;
   // mockup
   h+=`<div class="card"><h2>Mockup</h2>`;
-  if(B.ai_mockup_html){h+=`<iframe class="mockframe" id="mf" sandbox="allow-scripts"></iframe>`;}
+  if(B.ai_mockup_html){h+=`<iframe class="mockframe" id="mf" sandbox="allow-scripts allow-same-origin"></iframe>`;}
   else{h+=`<p style="color:var(--muted);font-size:.88rem">A visual mockup will appear here once it is generated.</p>`;}
   h+=`<div style="margin-top:12px"><label class="fl" style="margin-top:0">Revise the mockup with AI (optional)</label><textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals panel, emphasize the client portal"></textarea><div style="margin-top:8px"><button class="btn btn-ghost" id="regenBtn" onclick="regenMock()">🔄 Revise mockup with AI</button></div></div>`;
   h+=`</div>`;
