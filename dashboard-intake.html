@@ -162,9 +162,10 @@ textarea{resize:vertical;min-height:74px}
       <textarea id="ai_transcript" placeholder="Discovery call transcript, Fathom summary, voice memo notes..."></textarea>
       <div class="row">
         <div><label class="fl">Their website (optional — AI will reference it)</label><input type="url" id="ai_research" placeholder="https://"></div>
-        <div><label class="fl">Upload docs / transcriptions (optional)</label><input type="file" id="ai_files" multiple style="font-size:.8rem;padding:8px"></div>
+        <div><label class="fl">Upload docs / transcriptions (optional)</label><input type="file" id="ai_files" multiple style="font-size:.8rem;padding:8px"><div class="hint">Any format, multiple files, or a zip. Text files (md/txt/json/csv) are read to inform the AI. 1 GB total.</div></div>
       </div>
-      <div style="margin-top:14px"><button class="btn btn-primary" id="btnAnalyze" onclick="analyzeBuild()">✨ Analyze &amp; pre-fill the build</button> <span id="aiStat" class="hint"></span></div>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="btnAnalyze" onclick="analyzeBuild()">✨ Analyze &amp; pre-fill the build</button> <button class="btn btn-ghost" onclick="openCapture()">📥 Capture an existing project</button> <span id="aiStat" class="hint"></span></div>
+      <div class="hint" style="margin-top:8px">Have an existing app? Click <b>Capture an existing project</b> to copy a prompt that turns any project (in Claude Code) into a <code>dashboard-kickoff.md</code>. Upload that file above and Analyze to auto-map every field.</div>
     </div>
 
     <div class="mininav" id="mininav"></div>
@@ -277,7 +278,9 @@ textarea{resize:vertical;min-height:74px}
       <label class="fl">Additional context</label><textarea id="additional_details"></textarea>
       <label class="fl">Meeting transcriptions</label><textarea id="transcripts" placeholder="Paste any transcripts to inform the build"></textarea>
       <label class="fl">File paths to reference (one per line)</label><textarea id="file_paths" placeholder="/Users/.../Claude Home/Projects/Client/..."></textarea>
-      <label class="fl">Upload supporting files</label><input type="file" id="extra_files" multiple style="font-size:.8rem;padding:8px">
+      <label class="fl">Upload supporting files (any format, multiple, up to 1 GB total)</label><input type="file" id="extra_files" multiple style="font-size:.8rem;padding:8px">
+      <label class="fl">…or upload an entire folder</label><input type="file" id="extra_folder" multiple webkitdirectory directory style="font-size:.8rem;padding:8px">
+      <div class="hint">Reused in the build and bundled into the exported build kit. Zips are passed through for the build to unpack.</div>
       <div id="uploadList" class="chips"></div>
     </div>
   </div>
@@ -301,6 +304,7 @@ textarea{resize:vertical;min-height:74px}
   <button class="btn btn-ghost" onclick="saveDraft()" id="saveBtn">💾 Save draft</button>
   <button class="btn btn-teal" onclick="reviewWithAI()" id="reviewBtn">🔍 Review with AI</button>
   <button class="btn btn-ghost" onclick="createSpec()" id="specBtn">📄 Create spec</button>
+  <button class="btn btn-ghost" onclick="exportZip()" id="exportBtn">📦 Export build kit</button>
   <button class="btn btn-primary" onclick="finalize()" id="finalizeBtn">🚀 Finalize &amp; share</button>
 </div>
 
@@ -329,6 +333,18 @@ textarea{resize:vertical;min-height:74px}
   </div>
 </div>
 
+<!-- OVERLAY: CAPTURE PROMPT -->
+<div class="ov" id="ovCapture">
+  <div class="ov-card">
+    <div class="ov-head"><h3>Capture an existing project</h3><span class="x" onclick="closeOv('ovCapture')">&times;</span></div>
+    <div class="ov-body">
+      <p class="hint" style="margin-bottom:8px">Paste this into Claude Code inside your existing project. It analyzes everything and writes <code>dashboard-kickoff.md</code>. Upload that file in "Build with AI" above, then Analyze to auto-map every field.</p>
+      <div class="specbox" id="captureBox"></div>
+    </div>
+    <div class="ov-foot"><button class="btn btn-primary" onclick="copyCapture()" id="capCopyBtn">📋 Copy prompt</button><button class="btn btn-ghost" onclick="closeOv('ovCapture')">Done</button></div>
+  </div>
+</div>
+
 <!-- OVERLAY: SUCCESS -->
 <div class="ov" id="ovDone">
   <div class="ov-card" style="max-width:620px">
@@ -346,6 +362,7 @@ textarea{resize:vertical;min-height:74px}
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const SB='https://trpnlkntvulkjerevngm.supabase.co';
 const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
@@ -383,7 +400,7 @@ const ROLES=['Super Admin','Admin','Team member','Coach','Client','Partner / JV'
 const INTS=[{k:'resend',l:'Resend email'},{k:'stripe',l:'Stripe payments'},{k:'ai',l:'AI / Anthropic'},{k:'crm',l:'CRM (GHL/HubSpot)'},{k:'calendar',l:'Calendar'},{k:'fathom',l:'Fathom transcripts'},{k:'kajabi',l:'Course platform'},{k:'ads',l:'Ad platforms'},{k:'webhooks',l:'Webhooks'}];
 
 // ---- State ----
-const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false};
+const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],files:[],uploads_text:'',totalBytes:0,id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false};
 
 // ---- Build catalog UI ----
 function buildModGrid(){
@@ -465,9 +482,23 @@ function buildPrompt(){
   const ints=d.integrations.join(', ');
   const portal=d.facing!=='internal_only';
   const L=[];
+  L.push('/goal The build is complete once ALL of the following are TRUE:');
+  L.push('- '+app+' is deployed to Vercel and reachable at its live URL.');
+  L.push('- Supabase schema, row-level security, soft-delete, and an audit log exist for every table.');
+  L.push('- Auth works end to end: signup/invite, activation email via Resend, a working set-password page, and a working reset-password page, verified with a real test user.');
+  L.push('- Every selected module works with real create, edit, and delete, tested live by creating then removing records.');
+  if(portal)L.push('- The client portal works and admin-to-client messaging, approvals, and notifications function in both directions.');
+  if(d.payments)L.push('- Stripe processes a test payment and the webhook updates the matching record.');
+  if(S.ai_on)L.push('- The AI features respond correctly with real inputs.');
+  if(S.website_on)L.push('- The marketing website is built and live.');
+  if(S.blog_on)L.push('- Blog automation publishes a post'+(d.blog.manage_in_dashboard?' and it is manageable inside the dashboard':'')+'.');
+  L.push('- Ascension stages, statuses, and the role permission matrix are all editable from the admin.');
+  L.push('- You have walked the full ADMIN journey and the full CLIENT journey end to end with zero errors.');
+  L.push('- Every automated and manual test passes and you have self-reviewed and fixed anything weak.');
+  L.push('');
+  L.push('First, itemize every task individually and show me the plan before you start. Then build everything out without stopping until the goal above is met. Loop: build, test, fix, improve, re-test. Do not declare done until every criterion is verified. Use the handoff/instructions file, the existing environment variables and secret keys, and the Supabase and Vercel access in the project files.');
+  L.push('');
   L.push('/project-selector');L.push('');
-  L.push('# GOAL FUNCTION — build '+app+' to 100% completion');L.push('');
-  L.push('GOAL: Build, deploy, and fully test '+(d.business_name||'the client')+'’s custom dashboard. Do not stop until every module works with real CRUD, auth + email + password flows verified, and you have walked the full admin AND client journey end to end. Loop: build → test → fix → re-test until the goal is met.');L.push('');
   L.push('## Client');L.push('- Business: '+(d.business_name||'[name]'));L.push('- Niche: '+(d.niche||''));L.push('- What they do: '+(d.what_they_do||''));if(d.offers)L.push('- Offers/pricing: '+d.offers);if(d.audience)L.push('- Audience: '+d.audience);if(d.team)L.push('- Team: '+d.team);L.push('');
   L.push('## Brand');L.push('- Primary '+b.primary+' / Background '+b.secondary+' / Accent '+b.accent+' / '+b.mode+' mode');if(b.fonts)L.push('- Fonts: '+b.fonts);if(b.voice)L.push('- Voice: '+b.voice);if(b.logo_path)L.push('- Logo: '+SB+'/storage/v1/object/public/dashboard-assets/'+b.logo_path);L.push('');
   L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + Postgres + RLS) + Resend'+(d.payments?' + Stripe':'')+', deploy to Vercel.');L.push('- Create a NEW Supabase project for this client (one app = one project). Validate env with Zod.');L.push('');
@@ -488,12 +519,65 @@ function buildPrompt(){
   L.push('');
   if(d.additional_details){L.push('## Additional context');L.push(d.additional_details);}
   if(d.file_paths.length){L.push('## File paths to reference');d.file_paths.forEach(p=>L.push('- '+p));}
-  if(d.transcripts){L.push('## Transcript');L.push(d.transcripts.slice(0,4000));}
-  L.push('');L.push('Reference the attached spec doc for module acceptance criteria. Build it all the way through.');
+  if(S.upload_paths&&S.upload_paths.length){L.push('## Uploaded files (in the build kit zip + Supabase storage)');S.upload_paths.forEach(p=>L.push('- '+p));}
+  if(d.transcripts){L.push('## Transcript / notes');L.push(d.transcripts.slice(0,4000));}
+  L.push('');L.push('## Definition of done');L.push('Re-read the /goal criteria at the top. Only finish when every one is verified true, then output the live URLs, test credentials, and a short runbook. Reference the spec doc for module acceptance criteria.');
   return L.join(String.fromCharCode(10));
 }
 function copyPrompt(){navigator.clipboard.writeText(document.getElementById('promptOut').value).then(()=>{toast('Build prompt copied');const b=document.getElementById('copyBtn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1800);});}
 function copyEl(id){const e=document.getElementById(id);e.select();navigator.clipboard.writeText(e.value);toast('Copied');}
+function buildCapturePrompt(){
+  var keys=MODULES.map(function(m){return m.k;}).join(', ');
+  var L=[];
+  L.push('# Capture this project for the Knight Ops Dashboard Builder');L.push('');
+  L.push('You are a senior solutions architect. Analyze THIS existing project in full and write ONE markdown file named dashboard-kickoff.md that I can upload to the Knight Ops Dashboard Builder to auto-map a new build. Be thorough and accurate; if something is unknown, write UNKNOWN. Never print secret values, only the NAMES of env vars and secret keys.');L.push('');
+  L.push('## Read first');
+  L.push('- The instructions / handoff file (CLAUDE.md or equivalent), README, and any spec docs.');
+  L.push('- package.json and dependencies, the route and folder structure, and the key source files.');
+  L.push('- The database schema (Supabase tables, columns, RLS) if present.');
+  L.push('- Deployment config (Vercel) and the NAMES of environment variables and secret keys.');
+  L.push('- Existing brand assets, colors, fonts, and copy.');L.push('');
+  L.push('## Write dashboard-kickoff.md with these labeled sections');
+  L.push('1. SUMMARY - a tight executive summary of what this project is and does.');
+  L.push('2. DETAILED OVERVIEW - architecture, data model, integrations, auth, and how it works today, from the real project data.');
+  L.push('3. FULL ANALYSIS - what exists, what is missing or weak, risks, and the highest-leverage opportunities.');
+  L.push('4. FIELD MAP - explicit values for each builder field, using these exact labels:');
+  L.push('   business_name; niche; what_they_do; offers; audience; team;');
+  L.push('   brand (primary hex, secondary/background hex, accent hex, mode dark/light, fonts, voice);');
+  L.push('   modules (choose from: '+keys+'; plus any custom modules with a one-line purpose);');
+  L.push('   features (key features per chosen module);');
+  L.push('   facing (internal_only OR client_portal OR both);');
+  L.push('   roles (role templates and what each can do);');
+  L.push('   integrations (from: supabase_auth, resend, stripe, ai, crm, calendar, fathom, kajabi, ads, webhooks);');
+  L.push('   payments (yes/no); ai_features (yes/no + notes); website (yes/no + pages); blog (automate yes/no + manage_in_dashboard yes/no);');
+  L.push('   hosting (knightops/client); domain; client_size (smb/midmarket/enterprise);');
+  L.push('   additional_details; file_paths (exact paths worth reusing); files_to_reupload (which files to bring to the new build).');
+  L.push('5. REUSE vs REBUILD - what to carry over (env vars present, Supabase project, Vercel project, working modules) versus rebuild fresh.');
+  L.push('6. GOAL CRITERIA - a draft list for the goal-is-complete-once checklist tailored to this project.');L.push('');
+  L.push('When done, save the file and tell me to upload dashboard-kickoff.md to the Knight Ops Dashboard Builder (Build with AI) and Analyze to map every field. Keep it specific to this project.');
+  return L.join(String.fromCharCode(10));
+}
+function openCapture(){document.getElementById('captureBox').textContent=buildCapturePrompt();openOv('ovCapture');}
+function copyCapture(){navigator.clipboard.writeText(buildCapturePrompt()).then(function(){var b=document.getElementById('capCopyBtn');b.textContent='✓ Copied';setTimeout(function(){b.textContent='📋 Copy prompt';},1800);toast('Capture prompt copied');});}
+async function exportZip(){
+  if(typeof JSZip==='undefined'){toast('Zip library still loading, try again');return;}
+  toast('Building your build kit...');
+  try{
+    var zip=new JSZip();
+    zip.file('BUILD-PROMPT.md',buildPrompt());
+    zip.file('SPEC.md',_spec||('# Spec'+String.fromCharCode(10)+'Open the builder and click Create spec for the full spec.'));
+    zip.file('build.json',JSON.stringify(gather(),null,2));
+    zip.file('CAPTURE-EXISTING-PROJECT.md',buildCapturePrompt());
+    var nm=val('business_name')||'Dashboard';
+    zip.file('README.md','# '+nm+' build kit'+String.fromCharCode(10,10)+'1. Open a new Claude Code conversation in an empty project folder.'+String.fromCharCode(10)+'2. Paste BUILD-PROMPT.md as the first message (it is a /goal prompt).'+String.fromCharCode(10)+'3. uploads/ holds the supporting files. SPEC.md has acceptance criteria. mockup.html is the AI preview.'+String.fromCharCode(10,10)+'Generated by the Knight Ops Dashboard Builder.');
+    if(_lastMock)zip.file('mockup.html',_lastMock);
+    var up=zip.folder('uploads');
+    (S.files||[]).forEach(function(f){try{up.file(f.webkitRelativePath||f.name,f);}catch(e){}});
+    var blob=await zip.generateAsync({type:'blob'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(nm.toLowerCase().replace(/[^a-z0-9]+/g,'-'))+'-build-kit.zip';a.click();
+    toast('Build kit downloaded');
+  }catch(e){toast('Export failed: '+e);}
+}
 
 // ---- uploads ----
 async function uploadFile(file,prefix){
@@ -501,16 +585,30 @@ async function uploadFile(file,prefix){
   const r=await fetch(SB+'/storage/v1/object/dashboard-assets/'+path,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':file.type||'application/octet-stream'},body:file});
   if(r.ok)return path;return null;
 }
-document.getElementById('logo_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;toast('Uploading logo...');const p=await uploadFile(f,'logos');if(p){S.logo_path=p;toast('Logo uploaded');render();}else toast('Upload failed');});
-document.getElementById('extra_files').addEventListener('change',async e=>{for(const f of e.target.files){toast('Uploading '+f.name);const p=await uploadFile(f,'docs');if(p){S.upload_paths.push(p);}}renderUploads();toast('Files uploaded');});
-document.getElementById('ai_files').addEventListener('change',async e=>{for(const f of e.target.files){toast('Uploading '+f.name);const p=await uploadFile(f,'ai-docs');if(p)S.upload_paths.push(p);}renderUploads();});
-function renderUploads(){document.getElementById('uploadList').innerHTML=S.upload_paths.map(p=>`<div class="chip on">${p.split('/').pop()}</div>`).join('');}
+const GB=1024*1024*1024;
+function addFiles(fileList,prefix,intoText){
+  for(const f of fileList){
+    if(f.size>GB){toast(f.name+' is over 1 GB - skipped');continue;}
+    if((S.totalBytes+f.size)>GB){toast('1 GB total reached - '+f.name+' skipped');continue;}
+    S.totalBytes+=f.size;S.files.push(f);
+    uploadFile(f,prefix).then(p=>{if(p){S.upload_paths.push(p);}}).catch(()=>{});
+    if(intoText&&/\.(md|txt|json|csv|tsv|html|js|ts|yaml|yml|xml|log)$/i.test(f.name)&&f.size<2097152){
+      const r=new FileReader();r.onload=()=>{S.uploads_text=(S.uploads_text+String.fromCharCode(10,10)+'=== '+f.name+' ==='+String.fromCharCode(10)+r.result).slice(0,200000);};r.readAsText(f);
+    }
+  }
+  renderUploads();
+}
+document.getElementById('logo_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;if(f.size>GB){toast('Logo over 1 GB');return;}toast('Uploading logo...');const p=await uploadFile(f,'logos');if(p){S.logo_path=p;toast('Logo uploaded');render();}else toast('Upload failed');});
+document.getElementById('extra_files').addEventListener('change',e=>{addFiles(e.target.files,'docs',true);toast('Files added');});
+var _ef=document.getElementById('extra_folder');if(_ef)_ef.addEventListener('change',e=>{addFiles(e.target.files,'docs',true);toast('Folder added');});
+document.getElementById('ai_files').addEventListener('change',e=>{addFiles(e.target.files,'ai-docs',true);toast('Files added - they will inform the AI');});
+function renderUploads(){var el=document.getElementById('uploadList');if(!el)return;var n=S.files.length;var mb=(S.totalBytes/1048576).toFixed(1);el.innerHTML=S.files.map(function(f){return '<div class="chip on">'+((f.webkitRelativePath||f.name).split('/').pop())+'</div>';}).join('')+(n?('<div class="chip">'+n+' file(s), '+mb+' MB</div>'):'');}
 
 // ---- AI analyze (pre-fill) ----
 async function analyzeBuild(){
   const brief=val('ai_brief');if(!brief){toast('Describe what you’re building first');return;}
   const btn=document.getElementById('btnAnalyze');btn.disabled=true;document.getElementById('aiStat').innerHTML='<span class="spin"></span> Analyzing...';
-  const res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research')});
+  const res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),uploads_text:S.uploads_text});
   btn.disabled=false;document.getElementById('aiStat').textContent='';
   if(res.error&&!res.suggested){toast('AI error: '+res.error);return;}
   applySuggested(res.suggested||{});
