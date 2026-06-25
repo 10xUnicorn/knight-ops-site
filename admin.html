@@ -1376,7 +1376,9 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries(),loadMsgTemplates()]);
   // Hash routing — restore view from URL or default to dashboard
   var initHash=window.location.hash.slice(1);
-  if(initHash)activateView(initHash,true);
+  var _pm=initHash.match(/^projects\/(.+)$/);
+  if(_pm){activateView('projects',true);setTimeout(function(){try{showProjectDetail(decodeURIComponent(_pm[1]));}catch(e){}},150);}
+  else if(initHash)activateView(initHash,true);
   else loadDashboard();
 })();
 
@@ -2978,6 +2980,7 @@ function renderProjects(){
   document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td><span class="inline-edit" data-value="'+(p.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'projects\',\''+p.id+'\',\'status\',\'select\','+JSON.stringify(PROJ_STATUS_OPTS).replace(/"/g,'&quot;')+',loadProjects)">'+B(p.status)+'</span></td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
 }
 async function showProjectDetail(id){
+  try{window.history.replaceState(null,null,'#projects/'+id);}catch(e){}
   const p=S.projects.find(x=>x.id===id);if(!p)return;
   navTo('projects');
   document.getElementById('projectsListView').style.display='none';
