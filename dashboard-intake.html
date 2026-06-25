@@ -198,7 +198,10 @@ textarea{resize:vertical;min-height:74px}
         <div><label class="fl">Team &amp; roles</label><textarea id="team"></textarea></div>
       </div>
       <label class="fl">Brand</label>
-      <div class="row">
+      <div class="hint" style="margin-bottom:6px">Pick a palette, import colors from an image, or set them below.</div>
+      <div class="chips" id="paletteChips"></div>
+      <input type="file" accept="image/*" id="palette_img" onchange="extractPalette(this)" style="font-size:.74rem;margin-top:8px">
+      <div class="row" style="margin-top:8px">
         <div class="colorrow"><input type="color" id="c_primary" value="#C9922A" oninput="render()"><span class="hint">Primary</span></div>
         <div class="colorrow"><input type="color" id="c_secondary" value="#05061a" oninput="render()"><span class="hint">Background</span></div>
       </div>
@@ -320,7 +323,7 @@ textarea{resize:vertical;min-height:74px}
   <div class="ov-card">
     <div class="ov-head"><h3>AI mockup <span id="mockAi" class="aibadge" style="display:none">live AI</span></h3><span class="x" onclick="closeOv('ovMock')">&times;</span></div>
     <div class="ov-body">
-      <iframe class="mockframe" id="mockFrame"></iframe>
+      <iframe class="mockframe" id="mockFrame" sandbox="allow-scripts"></iframe>
       <label class="fl">Want changes? Tell the AI or deselect modules, then regenerate.</label>
       <textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals module, emphasize the client portal"></textarea>
     </div>
@@ -463,17 +466,28 @@ function gather(){
 }
 function modLabel(k){const m=MODULES.find(x=>x.k===k);return m?m.l:k;}
 
+// ---- color helpers ----
+function hex2rgb(h){h=(h||'').replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];var n=parseInt(h||'000000',16);return [(n>>16)&255,(n>>8)&255,n&255];}
+function lum(h){var c=hex2rgb(h).map(function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];}
+function contrastOk(a,bg){var L1=lum(a),L2=lum(bg),hi=Math.max(L1,L2),lo=Math.min(L1,L2);return (hi+0.05)/(lo+0.05)>=2.2;}
 // ---- render preview ----
 function render(){
   const d=gather();const b=d.brand;const allMods=S.modules.map(modLabel).concat(S.customModules);
-  const nav=allMods.length?allMods.map(m=>`<div>${m}</div>`).join(''):'<div style="color:#666">No modules yet</div>';
-  const cards=[['Revenue','$48.2k'],['Clients','23'],['Pipeline','$112k'],['Tasks','7']].map(c=>`<div class="pv-card" style="border-color:${b.accent}33"><div class="k" style="color:${b.accent}">${c[0]}</div><div class="v">${c[1]}</div></div>`).join('');
+  const isLight=lum(b.secondary)>0.55;
+  const sideTx=isLight?'#3a3a48':'#e9ebf7';
+  const sideBg=isLight?'rgba(0,0,0,.045)':'rgba(255,255,255,.05)';
+  const txt=isLight?'#15151f':'#fff';
+  const mut=isLight?'rgba(0,0,0,.5)':'rgba(255,255,255,.55)';
+  const logoTx=contrastOk(b.primary,b.secondary)?b.primary:(isLight?'#15151f':'#fff');
+  const shown=allMods.slice(0,8);const extra=allMods.length-shown.length;
+  const nav=allMods.length?(shown.map(function(m,i){return '<div style="color:'+(i===0?(isLight?'#15151f':'#fff'):sideTx)+';background:'+(i===0?(b.accent+'22'):'transparent')+';border-left:2px solid '+(i===0?b.accent:'transparent')+';font-weight:'+(i===0?'600':'400')+'">'+m+'</div>';}).join('')+(extra>0?('<div style="color:'+mut+';font-size:.56rem;padding-top:4px">+ '+extra+' more</div>'):'')):'<div style="color:'+mut+'">No modules yet</div>';
+  const cardBg=isLight?'#ffffff':'rgba(255,255,255,.05)';const cardBd=isLight?'rgba(0,0,0,.08)':'rgba(255,255,255,.1)';
+  const cards=[['Revenue','$48.2k'],['Clients','23'],['Pipeline','$112k'],['Tasks','7']].map(function(c){return '<div class="pv-card" style="background:'+cardBg+';border-color:'+cardBd+'"><div class="k" style="color:'+b.accent+'">'+c[0]+'</div><div class="v" style="color:'+txt+'">'+c[1]+'</div></div>';}).join('');
   const badges=[];if(d.facing!=='internal_only')badges.push('Client portal');if(d.payments)badges.push('Stripe');if(S.ai_on)badges.push('AI');if(S.website_on)badges.push('Website');if(S.blog_on)badges.push('Blog');
-  const txt=b.mode==='light'?'#1a1303':'#fff';
   document.getElementById('pvApp').style.background=b.secondary;
   document.getElementById('pvApp').innerHTML=
-    `<div class="pv-side"><div class="pv-logo" style="color:${b.primary}">${(d.business_name||'DASHBOARD').toUpperCase()}</div><div class="pv-nav">${nav}</div></div>`+
-    `<div class="pv-main" style="color:${txt}"><h3>Welcome back</h3><div class="sub">${d.niche||''}</div><div class="pv-cards">${cards}</div><div class="pv-badges">${badges.map(x=>`<span class="pv-badge">${x}</span>`).join('')}</div></div>`;
+    '<div class="pv-side" style="background:'+sideBg+'"><div class="pv-logo" style="color:'+logoTx+'">'+(d.business_name||'DASHBOARD').toUpperCase()+'</div><div class="pv-nav">'+nav+'</div></div>'+
+    '<div class="pv-main" style="color:'+txt+'"><h3>Welcome'+(val('first_name')?(', '+val('first_name')):'')+'</h3><div class="sub" style="color:'+mut+'">'+(d.niche||'')+'</div><div class="pv-cards">'+cards+'</div><div class="pv-badges">'+badges.map(function(x){return '<span class="pv-badge">'+x+'</span>';}).join('')+'</div></div>';
   document.getElementById('prevSum').innerHTML=
     line('Business',d.business_name||'—')+line('Modules',(allMods.length)+' selected')+line('Access',d.facing.replace('_',' '))+
     line('Roles',S.roles.length+'')+line('Integrations',d.integrations.length+'')+line('Payments',d.payments?'Stripe':'no')+line('Hosting',d.hosting);
@@ -613,7 +627,7 @@ function renderUploads(){var el=document.getElementById('uploadList');if(!el)ret
 
 // ---- AI analyze (pre-fill) ----
 async function analyzeBuild(){
-  const brief=val('ai_brief');if(!brief){toast('Describe what you’re building first');return;}
+  const brief=val('ai_brief');if(!brief&&!S.uploads_text&&!val('ai_transcript')){toast('Describe what you’re building first');return;}
   const btn=document.getElementById('btnAnalyze');btn.disabled=true;document.getElementById('aiStat').innerHTML='<span class="spin"></span> Analyzing...';
   const res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),uploads_text:S.uploads_text});
   btn.disabled=false;document.getElementById('aiStat').textContent='';
@@ -623,7 +637,7 @@ async function analyzeBuild(){
 }
 function applySuggested(s){
   const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
-  set('business_name',s.business_name);set('niche',s.niche);set('what_they_do',s.what_they_do);set('offers',s.offers);set('audience',s.audience);set('team',s.team);set('additional_details',s.additional_details);
+  set('first_name',s.first_name);set('last_name',s.last_name);set('business_name',s.business_name);set('niche',s.niche);set('what_they_do',s.what_they_do);set('offers',s.offers);set('audience',s.audience);set('team',s.team);set('additional_details',s.additional_details);
   if(s.brand){set('c_primary',s.brand.primary);set('c_secondary',s.brand.secondary);set('c_accent',s.brand.accent);set('fonts',s.brand.fonts);set('voice',s.brand.voice);if(s.brand.mode)document.getElementById('brand_mode').value=s.brand.mode;}
   if(Array.isArray(s.modules)){S.modules=s.modules.slice();syncModCards();buildFeatures();}
   if(s.facing){S.facing=s.facing;document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.facing===s.facing));}
@@ -633,6 +647,9 @@ function applySuggested(s){
   if(s.website&&s.website.build){S.website_on=true;document.getElementById('sw_website').classList.add('on');document.getElementById('websiteOpts').style.display='block';set('website_pages',s.website.pages);}
   if(s.blog&&s.blog.automate){S.blog_on=true;document.getElementById('sw_blog').classList.add('on');document.getElementById('blogOpts').style.display='block';}
   if(s.client_size)document.getElementById('client_size').value=s.client_size;
+  if(s.roles&&Array.isArray(s.roles.templates))S.roles=s.roles.templates.slice();
+  buildModGrid();syncModCards();
+  S.ai_drafted=true;
   render();
 }
 
@@ -688,6 +705,42 @@ function closeOv(id){document.getElementById(id).classList.remove('on');}
 let _tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2600);}
 
 // ---- resume / prefill ----
+const PALETTES=[
+ {n:'Cosmic Gold',p:'#C9922A',s:'#05061a',a:'#00D4C8'},
+ {n:'Cabernet & Gold',p:'#C9A961',s:'#1a0e14',a:'#C9266B'},
+ {n:'Indigo & Gold',p:'#6366f1',s:'#0f0f1e',a:'#f5b942'},
+ {n:'Emerald & Cream',p:'#2E7D5B',s:'#0d1714',a:'#E6B84C'},
+ {n:'Teal & Slate',p:'#1CA2A8',s:'#0e1726',a:'#C9922A'},
+ {n:'Royal Purple',p:'#7B2FFF',s:'#0c0a1a',a:'#00D4C8'},
+ {n:'Rose & Charcoal',p:'#E5484D',s:'#161213',a:'#F5A524'},
+ {n:'Ocean',p:'#2563eb',s:'#0a0f1f',a:'#22d3ee'},
+ {n:'Sunset',p:'#f97316',s:'#1a0f0a',a:'#fbbf24'},
+ {n:'Forest',p:'#16a34a',s:'#0a140d',a:'#eab308'},
+ {n:'Mono Light',p:'#111827',s:'#f7f7f5',a:'#C8A456'},
+ {n:'Mint Light',p:'#0f766e',s:'#f3faf8',a:'#f59e0b'}
+];
+function buildPalettes(){var el=document.getElementById('paletteChips');if(!el)return;el.innerHTML=PALETTES.map(function(p,i){return '<div class="chip" title="'+p.n+'" onclick="applyPalette('+i+')" style="padding:4px 8px"><span style="display:inline-flex;gap:2px;vertical-align:-2px;margin-right:5px"><span style="width:11px;height:11px;border-radius:3px;background:'+p.p+'"></span><span style="width:11px;height:11px;border-radius:3px;background:'+p.s+';border:1px solid rgba(255,255,255,.25)"></span><span style="width:11px;height:11px;border-radius:3px;background:'+p.a+'"></span></span>'+p.n+'</div>';}).join('');}
+function applyPalette(i){var p=PALETTES[i];if(!p)return;document.getElementById('c_primary').value=p.p;document.getElementById('c_secondary').value=p.s;document.getElementById('c_accent').value=p.a;document.getElementById('brand_mode').value=lum(p.s)>0.55?'light':'dark';render();toast('Palette: '+p.n);}
+function extractPalette(input){
+  var f=input.files&&input.files[0];if(!f)return;toast('Reading image...');
+  var img=new Image();
+  img.onload=function(){
+    var cv=document.createElement('canvas');var w=cv.width=64,h=cv.height=64;var ctx=cv.getContext('2d');ctx.drawImage(img,0,0,w,h);
+    var data;try{data=ctx.getImageData(0,0,w,h).data;}catch(e){toast('Could not read that image');return;}
+    var px=[];for(var k=0;k<data.length;k+=4){if(data[k+3]<128)continue;px.push([data[k],data[k+1],data[k+2]]);}
+    if(!px.length){toast('No colors found');return;}
+    function sat(c){var mx=Math.max(c[0],c[1],c[2]),mn=Math.min(c[0],c[1],c[2]);return mx===0?0:(mx-mn)/mx;}
+    function bri(c){return (c[0]+c[1]+c[2])/3;}
+    var vivid=px.slice().sort(function(a,b){return (sat(b)*Math.sqrt(bri(b)))-(sat(a)*Math.sqrt(bri(a)));});
+    var dark=px.slice().sort(function(a,b){return bri(a)-bri(b);});
+    var primary=vivid[0];var secondary=dark[Math.floor(dark.length*0.04)];var accent=vivid[Math.min(vivid.length-1,Math.floor(vivid.length*0.18))];
+    function toHex(c){return '#'+c.map(function(v){return ('0'+Math.round(v).toString(16)).slice(-2);}).join('');}
+    document.getElementById('c_primary').value=toHex(primary);document.getElementById('c_secondary').value=toHex(secondary);document.getElementById('c_accent').value=toHex(accent);
+    document.getElementById('brand_mode').value=lum(secondary)>0.55?'light':'dark';
+    render();toast('Colors imported from image');
+  };
+  var rd=new FileReader();rd.onload=function(){img.src=rd.result;};rd.readAsDataURL(f);
+}
 const PRESETS=[
  {k:'coach',label:'🎯 Coach / Course + Community',cfg:{modules:['overview','kpis','cohort','journey','portal','payments','content','aibrain','reports','notifications','settings'],facing:'both',integrations:['resend','stripe','ai'],payments:true,ai_on:true,brand:{primary:'#1CA2A8',accent:'#C9922A'}}},
  {k:'pr',label:'📣 PR / Agency Client Portal',cfg:{modules:['overview','clients','pipeline','portal','worksheets','reports','content','payments','journey','messaging','settings'],facing:'both',integrations:['resend','stripe','ai','fathom'],payments:true,ai_on:true,brand:{primary:'#363795',accent:'#c9a055'}}},
@@ -712,7 +765,7 @@ function applyPreset(k){
   document.getElementById('s2').scrollIntoView({behavior:'smooth'});
 }
 async function boot(){
-  buildModGrid();buildPresets();buildFeatures();render();
+  buildModGrid();buildPresets();buildPalettes();buildFeatures();render();
   const q=new URLSearchParams(location.search);
   if(q.get('resume')){const res=await api('dashboard-build',{action:'resume',resume_token:q.get('resume')});if(res.build)hydrate(res.build);}
   else if(q.get('prefill')){try{hydrate(JSON.parse(decodeURIComponent(escape(atob(q.get('prefill'))))));S.ai_drafted=true;}catch(e){}}
