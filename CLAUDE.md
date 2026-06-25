@@ -226,6 +226,7 @@ Free/$1,497 custom interactive lead-capture magnets for event vendors/speakers. 
 - Magnet engine template lives in storage `ele-assets/engine/ele-magnet-engine.html` (builder reads from storage). Re-upload after editing `templates/ele-magnet-engine.html`.
 - Edge fns: ele-intake, ele-build, ele-capture, ele-approve, ele-autosend (pg_cron 30m → 24h auto-send), ele-review, ele-save, ele-resume, ele-host-coupon, ele-stripe-webhook, serve-le.
 - Stripe LIVE: build $1,497, hosting $97/mo, transfer $249. Delivery email from team@knightops.biz, reply-to eden@knightops.biz.
+- **2026-06-25 (AI-first + Special Offer):** Intake opens with a "Build it with AI" section — vendor brief + URL → `ele-analyze` edge fn (scans site colors/fonts/action-links/text, Sonnet designs the full config) → form auto-fills + live preview, all editable. New mechanism `special_offer` (Events Special Offer = straight NLP offer/checkout page, no game; engine fn `renderSpecialOffer()`). `ele-analyze` + `ele-revise` MECHS include `special_offer`. AI-first form normalizes `pick_door`→`scratch` and `redirect`→`offer` to a real card. **Free gift is now OPTIONAL** (removed from intake `validate()`). Re-uploaded engine to storage. Deployed `7d2fc8e`.
 
 ---
 
