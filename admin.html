@@ -3034,7 +3034,7 @@ async function renderMockupCard(containerId,opts){
   var el=document.getElementById(containerId); if(!el) return;
   opts=opts||{}; _mockCardOpts[containerId]=opts;
   el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Loading...</p>';
-  var cols='id,business_name,status,share_review_token,share_edit_token,resume_token,mockups,ai_mockup_html,chosen_mockup,project_id';
+  var cols='id,business_name,status,share_review_token,share_edit_token,resume_token,mockups,ai_mockup_html,chosen_mockup,project_id,build_live_url,build_repo_url,build_error,approved_by';
   try{
     var projIds=[];
     if(opts.projectId){ projIds=[opts.projectId]; }
@@ -3051,23 +3051,35 @@ async function renderMockupCard(containerId,opts){
     el.innerHTML=builds.map(function(b){ return _mockBuildBlock(b,containerId); }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load mockups: '+((e&&e.message)||e)+'</p>'; }
 }
+function _mockLifecycle(b,containerId){
+  var s=b.status;
+  if(s==='queued')return '<div style="background:rgba(201,146,42,.12);border:1px solid #C9922A;border-radius:7px;padding:7px 10px;margin-bottom:.5rem;font-size:.74rem;color:#C9922A;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>⏳ Queued for auto-build — the hourly orchestrator builds the approved design.</span><button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid #C9922A;color:#C9922A" onclick="dashMockCancel(\''+b.id+'\',\''+containerId+'\')">✋ Cancel build</button></div>';
+  if(s==='building')return '<div style="background:rgba(33,150,243,.12);border:1px solid #2196F3;border-radius:7px;padding:7px 10px;margin-bottom:.5rem;font-size:.74rem;color:#2196F3">🔨 Building now — Claude Code is generating this dashboard.</div>';
+  if(s==='built')return '<div style="background:rgba(76,175,80,.12);border:1px solid #4CAF50;border-radius:7px;padding:7px 10px;margin-bottom:.5rem;font-size:.74rem;color:#4CAF50">✅ Built'+(b.build_live_url?' — <a href="'+b.build_live_url+'" target="_blank" style="color:#4CAF50;text-decoration:underline">open live site</a>':'')+(b.build_repo_url?' · <a href="'+b.build_repo_url+'" target="_blank" style="color:#4CAF50">repo</a>':'')+'</div>';
+  if(s==='error')return '<div style="background:rgba(239,68,68,.12);border:1px solid #ef4444;border-radius:7px;padding:7px 10px;margin-bottom:.5rem;font-size:.74rem;color:#ef4444;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>⚠ Build error'+(b.build_error?': '+(b.build_error+'').slice(0,160):'')+'</span>'+(b.chosen_mockup?'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid #ef4444;color:#ef4444" onclick="dashMockApprove(\''+b.id+'\',\''+b.chosen_mockup+'\',\''+containerId+'\')">↻ Retry build</button>':'')+'</div>';
+  return '';
+}
 function _mockBuildBlock(b,containerId){
   var review='https://knightops.biz/db?t='+b.share_review_token;
   var builder='https://knightops.biz/dashboard-intake?resume='+b.resume_token;
   var vars=Array.isArray(b.mockups)?b.mockups.slice():[];
   if(!vars.length&&b.ai_mockup_html){ vars=[{id:'primary',label:'Original',html:b.ai_mockup_html,_primary:true}]; }
   var shown=vars.filter(function(v){return !v.hidden;}).length;
+  var chosenLabel='';
   var rows=vars.map(function(v){
-    var chosen=b.chosen_mockup===v.id;
-    return '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--border)">'
-      +'<span style="flex:1;font-size:.8rem">'+(v.label||'Style')+(chosen?' <span class="badge badge-success" style="font-size:.56rem">client picked</span>':'')+(v.hidden?' <span style="color:#ef4444;font-size:.66rem">(hidden)</span>':'')+'</span>'
-      +'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockPreview(\''+b.id+'\',\''+v.id+'\')">👁</button>'
-      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockToggle(\''+b.id+'\',\''+v.id+'\','+(v.hidden?'false':'true')+',\''+containerId+'\')">'+(v.hidden?'Show':'Hide')+'</button>')
-      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:2px 7px;border:1px solid #ef4444;color:#ef4444" onclick="dashMockDelete(\''+b.id+'\',\''+v.id+'\',\''+containerId+'\')">🗑</button>')
+    var chosen=b.chosen_mockup===v.id; if(chosen)chosenLabel=v.label||'Style';
+    var rs='display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;margin-top:5px;border:1px solid '+(chosen?'#C9922A':'var(--border)')+';'+(v.hidden?'opacity:.55;background:#141422;':(chosen?'background:rgba(201,146,42,.10);':''));
+    return '<div style="'+rs+'">'
+      +'<span style="flex:1;font-size:.8rem;font-weight:'+(chosen?'700':'400')+';color:'+(v.hidden?'#8a8aa0':'var(--text)')+'">'+(v.label||'Style')+(chosen?' <span class="badge" style="background:#C9922A;color:#0a0a14;font-size:.54rem;font-weight:700">✓ APPROVED · BUILDS THIS</span>':'')+'</span>'
+      +'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockPreview(\''+b.id+'\',\''+v.id+'\')">👁 View</button>'
+      +(chosen?'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="dashMockUnapprove(\''+b.id+'\',\''+containerId+'\')">Unapprove</button>':'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid #C9922A;color:#C9922A;font-weight:600" onclick="dashMockApprove(\''+b.id+'\',\''+v.id+'\',\''+containerId+'\')">✓ Approve &amp; Build</button>')
+      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;'+(v.hidden?'background:#0a0a0a;color:#bbb;border:1px solid #444':'border:1px solid var(--border);color:var(--text-muted)')+'" onclick="dashMockToggle(\''+b.id+'\',\''+v.id+'\','+(v.hidden?'false':'true')+',\''+containerId+'\')">'+(v.hidden?'🚫 Hidden':'Hide')+'</button>')
+      +(v._primary?'':'<button class="btn btn-sm" style="font-size:.62rem;padding:3px 8px;border:1px solid #ef4444;color:#ef4444" onclick="dashMockDelete(\''+b.id+'\',\''+v.id+'\',\''+containerId+'\')">🗑</button>')
       +'</div>';
   }).join('');
   return '<div style="border:1px solid var(--border);border-radius:8px;padding:.85rem;margin-bottom:.6rem">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:.5rem;flex-wrap:wrap"><b style="font-size:.9rem">'+(b.business_name||'Dashboard build')+'</b><span class="badge badge-info" style="font-size:.6rem">'+shown+' shown &middot; '+vars.length+' total &middot; '+(b.status||'')+'</span></div>'
+    +_mockLifecycle(b,containerId)
     +'<div style="font-size:.73rem;color:var(--text-muted);margin-bottom:.4rem">Client voting link (only shown styles appear to the client):</div>'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:.5rem"><input readonly value="'+review+'" onclick="this.select()" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.72rem"></div>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.55rem">'
@@ -3076,7 +3088,7 @@ function _mockBuildBlock(b,containerId){
     +'<button class="btn btn-sm" style="border:1px solid var(--accent);color:var(--accent)" onclick="dashMockUpload(\''+b.id+'\',\''+containerId+'\')">⬆ Upload mockup HTML</button>'
     +'<a class="btn btn-sm" style="border:1px solid var(--border);color:var(--text-muted)" href="'+builder+'" target="_blank">🎨 Generate styles</a>'
     +'</div>'
-    +'<div style="font-size:.66rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Styles</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:.66rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Styles</span>'+(chosenLabel?'<span style="font-size:.66rem;color:#C9922A;font-weight:700">▶ Auto-build will build: '+chosenLabel+'</span>':'<span style="font-size:.64rem;color:var(--text-muted)">Approve one to set what the auto-build builds</span>')+'</div>'
     +(rows||'<div style="font-size:.78rem;color:var(--text-muted);padding:6px 0">No styles yet. Upload an HTML mockup or generate styles in the builder.</div>')
     +'</div>';
 }
@@ -3099,6 +3111,22 @@ async function dashMockDelete(buildId,mid,containerId){
   if(!confirm('Delete this style permanently?'))return;
   await _dmApi({action:'delete',id:buildId,mockup_id:mid});
   showToast('Style deleted'); _reRenderMock(containerId);
+}
+async function dashMockApprove(buildId,mid,containerId){
+  showToast('Marking approved...');
+  var res=await _dmApi({action:'approve_style',id:buildId,mockup_id:mid});
+  if(res&&res.ok)showToast('Approved & queued — auto-build runs within the hour (Cancel to stop)'); else showToast('Could not approve: '+((res&&res.error)||''));
+  _reRenderMock(containerId);
+}
+async function dashMockCancel(buildId,containerId){
+  var res=await _dmApi({action:'cancel_build',id:buildId});
+  if(res&&res.ok)showToast('Auto-build canceled'); else showToast('Could not cancel: '+((res&&res.error)||''));
+  _reRenderMock(containerId);
+}
+async function dashMockUnapprove(buildId,containerId){
+  var res=await _dmApi({action:'unapprove',id:buildId});
+  if(res&&res.ok)showToast('Approval cleared'); else showToast('Could not update: '+((res&&res.error)||''));
+  _reRenderMock(containerId);
 }
 function dashMockUpload(buildId,containerId){
   var inp=document.createElement('input'); inp.type='file'; inp.accept='.html,.htm,text/html';
@@ -3987,6 +4015,7 @@ function showDashboardPrompt(projectId){
   L.push('GOAL: Build, deploy, and fully test the custom dashboard for '+biz+'. Do not stop until every module works with real CRUD, auth + activation email + password set/reset verified, and you have walked the full admin AND client journey. Loop build, test, fix, re-test until done.');L.push('');
   L.push('## Client');L.push('- Business: '+biz);if(niche)L.push('- Niche: '+niche);if(outcome)L.push('- Core outcome: '+outcome);if(p.description)L.push('- Notes: '+p.description);L.push('');
   L.push('## Brand');L.push('- Primary '+brandColor+', dark mode. Refine in the Dashboard Builder.');L.push('');
+  if(db&&db.chosen_mockup){L.push('## Approved mockup design (BUILD THIS EXACTLY)');L.push('- An approved mockup was selected. Implement its layout, sections, components and styling exactly. The approved design HTML is saved on this build (dashboard_builds.ai_mockup_html) and is viewable at: https://knightops.biz/db?t='+(db.share_review_token||''));L.push('');}
   L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + RLS) + Resend + Stripe if payments, deploy to Vercel. Create a NEW Supabase project for this client.');L.push('');
   L.push('## Modules (refine in the Dashboard Builder)');L.push('- Overview, Clients/CRM, Tasks/Projects, Client Portal, Notifications, Settings.');L.push('');
   L.push('## Build + test loop');
