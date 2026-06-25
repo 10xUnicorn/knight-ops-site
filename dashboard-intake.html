@@ -792,10 +792,31 @@ async function saveMockStyle(){
 // ---- spec ----
 let _spec='';
 async function createSpec(){
-  openOv('ovSpec');document.getElementById('specBox').innerHTML='<span class="spin"></span> Writing the spec with AI…';
-  const res=await api('dashboard-ai',{action:'spec',build:gather(),id:S.id,resume_token:S.resume_token});
-  _spec=res.spec_md||'';document.getElementById('specBox').textContent=_spec||('Could not generate. '+(res.error||''));
-  document.getElementById('specAi').style.display=res.ai?'inline-block':'none';
+  openOv('ovSpec');
+  var box=document.getElementById('specBox');
+  box.innerHTML='<span class="spin"></span> Writing the spec with AI…';
+  document.getElementById('specAi').style.display='none';
+  var d=gather();var t0=Date.now();var full='';
+  var tick=setInterval(function(){if(!full)box.innerHTML='<span class="spin"></span> Writing the spec with AI… '+Math.round((Date.now()-t0)/1000)+'s';},800);
+  async function nonStreamSpec(){try{var res=await api('dashboard-ai',{action:'spec',build:d,id:S.id,resume_token:S.resume_token});if(res&&res.spec_md)return res.spec_md;}catch(e){}return '';}
+  try{
+    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({mode:'spec',build:d,id:S.id,resume_token:S.resume_token})});
+    if(!r.ok||!r.body)throw new Error('spec '+r.status);
+    var aiFlag=r.headers.get('x-ai')!=='0';
+    var isSSE=(r.headers.get('content-type')||'').indexOf('event-stream')>=0;
+    var reader=r.body.getReader(),dec=new TextDecoder();
+    if(!isSSE){var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}full=txt;box.textContent=full;}
+    else{var sbuf='';while(true){var rd=await reader.read();if(rd.done)break;sbuf+=dec.decode(rd.value,{stream:true});var parts=sbuf.split('\n\n');sbuf=parts.pop();for(var i=0;i<parts.length;i++){var lines=parts[i].split('\n');for(var j=0;j<lines.length;j++){var ln=lines[j];if(ln.indexOf('data:')!==0)continue;var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;try{var add=JSON.parse(pay);if(add){full+=add;box.textContent=full;}}catch(_e){}}}}}
+    clearInterval(tick);
+    if(!full||full.length<40){full=await nonStreamSpec();box.textContent=full;}
+    _spec=full;box.textContent=full||'Could not generate the spec. Tap Create spec to retry.';
+    document.getElementById('specAi').style.display=(full&&aiFlag)?'inline-block':'none';
+  }catch(e){
+    clearInterval(tick);
+    var fb=await nonStreamSpec();
+    _spec=fb;box.textContent=fb||'Could not generate the spec. Please tap Create spec to retry.';
+    document.getElementById('specAi').style.display=fb?'inline-block':'none';
+  }
 }
 function downloadSpec(){const blob=new Blob([_spec],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(val('business_name')||'dashboard')+'-spec.md';a.click();}
 
