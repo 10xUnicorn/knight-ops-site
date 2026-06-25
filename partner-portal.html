@@ -889,358 +889,6 @@
         padding: 0.75rem;
       }
     }
-
-    /* ═══════════ ENRICHED OVERVIEW STYLES ═══════════ */
-    .overview-section-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 2rem 0 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .gifts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
-
-    .gift-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .gift-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-
-    .gift-type {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 4px 10px;
-      border-radius: 6px;
-      margin-bottom: 0.75rem;
-    }
-    .gift-type-assess { background: rgba(99,102,241,0.15); color: #818cf8; }
-    .gift-type-audit  { background: rgba(200,164,86,0.15); color: #c8a456; }
-    .gift-type-call   { background: rgba(34,197,94,0.15);  color: #22c55e; }
-
-    .gift-card h3 {
-      font-size: 1.1rem;
-      margin: 0 0 0.25rem;
-      color: var(--text-primary);
-    }
-    .gift-card .gift-tagline {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
-      font-style: italic;
-    }
-    .gift-card p.desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 0.75rem;
-    }
-    .gift-card .gift-cta {
-      display: inline-block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--accent);
-      cursor: pointer;
-    }
-
-    /* Golden Ticket */
-    .golden-ticket {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-      border: 2px solid rgba(200,164,86,0.4);
-      border-radius: 16px;
-      padding: 2rem;
-      margin: 1.5rem 0 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .golden-ticket::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent 40%, rgba(200,164,86,0.06) 50%, transparent 60%);
-      animation: shimmer 3s infinite;
-    }
-    @keyframes shimmer {
-      0% { transform: translateX(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) rotate(45deg); }
-    }
-    .golden-inner {
-      position: relative;
-      z-index: 1;
-    }
-    .golden-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #c8a456;
-      margin-bottom: 0.75rem;
-    }
-    .golden-star { font-size: 1rem; }
-    .golden-ticket h3 {
-      font-size: 1.2rem;
-      color: #fff;
-      margin: 0 0 0.5rem;
-    }
-    .golden-ticket h3 em {
-      color: #c8a456;
-      font-style: normal;
-    }
-    .golden-sub {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-    .golden-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-    }
-    .golden-detail {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(200,164,86,0.2);
-      border-radius: 10px;
-      padding: 1rem;
-    }
-    .golden-detail h5 {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #c8a456;
-      margin: 0 0 0.35rem;
-    }
-    .golden-detail p {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.65);
-      line-height: 1.5;
-      margin: 0;
-    }
-
-    /* Trigger / Signal Cards */
-    .trigger-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .trigger-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .trigger-card h4 {
-      font-size: 0.95rem;
-      margin: 0 0 0.75rem;
-      color: var(--text-primary);
-    }
-    .trigger-card h4 .icon {
-      margin-right: 0.35rem;
-    }
-    .trigger-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .trigger-card ul li {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      padding: 0.3rem 0;
-      line-height: 1.5;
-    }
-
-    .kw {
-      display: inline-block;
-      background: rgba(99,102,241,0.12);
-      color: #818cf8;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    /* Commission Tier Grid */
-    .tier-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .tier-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      text-align: center;
-    }
-    .tier-card .tier-tag {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--accent);
-      margin-bottom: 0.35rem;
-    }
-    .tier-card h4 {
-      font-size: 1rem;
-      margin: 0 0 0.25rem;
-      color: var(--text-primary);
-    }
-    .tier-card .tier-price {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--accent);
-      margin-bottom: 0.15rem;
-    }
-    .tier-card .tier-earn {
-      font-size: 0.8rem;
-      color: #22c55e;
-      font-weight: 600;
-    }
-
-    /* Intro Scripts */
-    .scripts-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .script-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .script-card .script-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-    }
-    .script-card .script-text {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 0.75rem;
-      white-space: pre-wrap;
-    }
-    .script-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .action-btn {
-      padding: 6px 14px;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .action-btn:hover { opacity: 0.85; }
-    .btn-copy {
-      background: rgba(99,102,241,0.15);
-      color: #818cf8;
-    }
-    .btn-sms {
-      background: rgba(34,197,94,0.15);
-      color: #22c55e;
-    }
-    .btn-email {
-      background: rgba(59,130,246,0.15);
-      color: #3b82f6;
-    }
-
-    /* CTA Box */
-    .partner-cta-box {
-      background: linear-gradient(135deg, rgba(200,164,86,0.1) 0%, rgba(99,102,241,0.08) 100%);
-      border: 1px solid rgba(200,164,86,0.3);
-      border-radius: 14px;
-      padding: 2rem;
-      text-align: center;
-      margin: 2rem 0;
-    }
-    .partner-cta-box h3 {
-      font-size: 1.15rem;
-      color: var(--text-primary);
-      margin: 0 0 0.5rem;
-    }
-    .partner-cta-box p {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin: 0 0 1rem;
-    }
-    .cta-btn-gold {
-      display: inline-block;
-      padding: 12px 28px;
-      background: linear-gradient(135deg, #c8a456, #d4af37);
-      color: #000;
-      font-weight: 700;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .cta-btn-gold:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(200,164,86,0.3);
-    }
-
-    /* Quick Tips */
-    .quick-tips {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .quick-tip {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    .quick-tip strong {
-      color: var(--text-primary);
-    }
-
-    @media (max-width: 768px) {
-      .gifts-grid, .trigger-grid, .tier-grid, .golden-details, .quick-tips {
-        grid-template-columns: 1fr;
-      }
-      .golden-ticket { padding: 1.25rem; }
-      .script-actions { flex-direction: column; }
-      .action-btn { width: 100%; text-align: center; }
-    }
   </style>
 </head>
 <body>
@@ -1290,74 +938,8 @@
           <div class="activity-list" id="activityFeed"></div>
         </div>
 
-        <!-- Gifts You Can Give -->
-        <h2 class="overview-section-title">&#127873; Three Free Gifts You Can Give</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">Three ways to give your network real value. Gift one, two, or all three.</p>
-        <div class="gifts-grid" id="giftsGrid"></div>
-
-        <!-- Golden Ticket -->
-        <div class="golden-ticket">
-          <div class="golden-inner">
-            <div class="golden-badge">
-              <span class="golden-star">&#10022;</span>
-              <span>Power Partner Exclusive</span>
-              <span class="golden-star">&#10022;</span>
-            </div>
-            <h3>The Golden Ticket: <em>90-Minute Deep-Dive Blueprint</em></h3>
-            <p class="golden-sub">Top-performing partners unlock the ability to gift <strong style="color:#c8a456">90-minute deep-dive Blueprint Sessions</strong> to their most valuable contacts. This is a premium $750 strategy session &mdash; yours to gift for free.</p>
-            <div class="golden-details">
-              <div class="golden-detail">
-                <h5>Value</h5>
-                <p><strong style="color:#c8a456;font-size:20px">$750</strong> per session, gifted free by you</p>
-              </div>
-              <div class="golden-detail">
-                <h5>What They Get</h5>
-                <p>90-min deep-dive with Daniel: full systems audit, automation blueprint, and growth roadmap</p>
-              </div>
-              <div class="golden-detail">
-                <h5>How to Unlock</h5>
-                <p>Earn Power Partner status through consistent referrals</p>
-              </div>
-              <div class="golden-detail">
-                <h5>Why It Matters</h5>
-                <p>You become the person who gifts $750 strategy sessions. That's a relationship accelerator.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Referral Links -->
-        <h2 class="overview-section-title">&#128279; Your Referral Links</h2>
+        <h2 class="section-title">Quick Links</h2>
         <div class="quick-links" id="quickLinks"></div>
-
-        <!-- Who to Refer -->
-        <h2 class="overview-section-title">&#127919; Who to Refer &mdash; Listen for These Signals</h2>
-        <div style="margin:0 0 12px">
-          <span style="font-size:0.8rem;font-weight:600;color:var(--text-secondary)">Common keywords:</span>&nbsp;
-          <span class="kw">automate</span>&nbsp;<span class="kw">bottleneck</span>&nbsp;<span class="kw">manual work</span>&nbsp;<span class="kw">AI tools</span>&nbsp;<span class="kw">build an app</span>&nbsp;<span class="kw">scale</span>&nbsp;<span class="kw">systems</span>&nbsp;<span class="kw">no developer</span>&nbsp;<span class="kw">CRM</span>&nbsp;<span class="kw">too many tools</span>&nbsp;<span class="kw">overhead</span>&nbsp;<span class="kw">onboarding</span>&nbsp;<span class="kw">follow-up</span>&nbsp;<span class="kw">tech stack</span>&nbsp;<span class="kw">custom tool</span>&nbsp;<span class="kw">workflow</span>
-        </div>
-        <div class="trigger-grid" id="triggerGrid"></div>
-
-        <!-- What You're Earning On -->
-        <h2 class="overview-section-title">&#128176; What You're Earning On</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">10% commission on every closed deal. No cap.</p>
-        <div class="tier-grid" id="tierGrid"></div>
-
-        <!-- Intro Scripts -->
-        <h2 class="overview-section-title">&#128172; Intro Scripts &mdash; Copy, Paste, Send</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">Don't overthink the intro. Grab one, customize the name, and hit send.</p>
-        <div class="scripts-list" id="scriptsList"></div>
-
-        <!-- CTA -->
-        <div class="partner-cta-box">
-          <h3>Ready to send your first referral?</h3>
-          <p>Book a free Blueprint Session for your contact &mdash; they get real strategy, you get credit for the referral.</p>
-          <a href="https://knightops.biz/book" target="_blank" class="cta-btn-gold">Book a Blueprint Session</a>
-        </div>
-
-        <!-- Quick Tips -->
-        <h2 class="overview-section-title">&#128161; Quick Tips</h2>
-        <div class="quick-tips" id="quickTips"></div>
       </div>
 
       <!-- MY LEADS TAB -->
@@ -1695,250 +1277,7 @@
     async function loadOverview() {
       await loadStatCards();
       await loadActivityFeed();
-      loadGiftsGrid();
       loadQuickLinks();
-      loadTriggerGrid();
-      loadTierGrid();
-      loadOverviewScripts();
-      loadQuickTips();
-    }
-
-    function loadGiftsGrid() {
-      const slug = currentPartnerData?.slug || 'partner';
-      const gifts = [
-        {
-          type: 'assess',
-          typeLabel: '&#9881; Gift 1 &mdash; Self-Serve Tool',
-          title: 'Tech Type Assessment',
-          tagline: 'A personality quiz &mdash; not a call',
-          desc: 'A quick online personality assessment that reveals their "Tech Type" &mdash; how they naturally approach building with technology. They get personalized AI tool recommendations matched to their style. Takes under 3 minutes.',
-          cta: 'Share Assessment Link',
-          url: `https://knightops.biz/assess?ref=${slug}`
-        },
-        {
-          type: 'audit',
-          typeLabel: '&#9889; Gift 2 &mdash; Self-Serve Audit',
-          title: 'AI Systems Audit',
-          tagline: 'A 2-minute audit with a custom build plan',
-          desc: 'Your contact answers 10 quick questions and instantly gets their Systems Score, a gap analysis across 6 areas, and a custom plan of exactly what to build. Shows their revenue leak in dollars.',
-          cta: 'Share Audit Link',
-          url: `https://knightops.biz/audit?ref=${slug}`
-        },
-        {
-          type: 'call',
-          typeLabel: '&#9742; Gift 3 &mdash; Live Strategy Session',
-          title: '10x Systems Blueprint Call',
-          tagline: 'Free 30-min strategy call with Daniel',
-          desc: 'A live 1-on-1 strategy session where Daniel maps out the AI-powered operational infrastructure they need to scale. They walk away with a clear, actionable blueprint. Always free. No pitch.',
-          cta: 'Share Booking Link',
-          url: `https://knightops.biz/book?ref=${slug}`
-        }
-      ];
-
-      document.getElementById('giftsGrid').innerHTML = gifts.map(g => `
-        <div class="gift-card"${g.type === 'audit' ? ' style="border-color:rgba(200,164,86,.28)"' : g.type === 'call' ? ' style="border-color:rgba(34,197,94,.25)"' : ''}>
-          <div class="gift-type gift-type-${g.type}">${g.typeLabel}</div>
-          <h3>${g.title}</h3>
-          <div class="gift-tagline">${g.tagline}</div>
-          <p class="desc">${g.desc}</p>
-          <div class="script-actions">
-            <button class="action-btn btn-copy" onclick="copyToClipboard('${g.url}', this)">${g.cta}</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function loadTriggerGrid() {
-      const triggers = [
-        {
-          icon: '&#9881;',
-          title: 'Drowning in manual work',
-          items: [
-            '"I spend hours on things that should be <span class="kw">automated</span>"',
-            '"I\'m still doing everything in <span class="kw">spreadsheets</span>"',
-            '"My team wastes time on <span class="kw">repetitive tasks</span>"',
-            '"I can\'t <span class="kw">scale</span> because I\'m the <span class="kw">bottleneck</span>"'
-          ]
-        },
-        {
-          icon: '&#128640;',
-          title: 'Want AI but don\'t know how',
-          items: [
-            '"I know <span class="kw">AI</span> could help, I just don\'t know where to start"',
-            '"Everyone\'s talking about <span class="kw">AI tools</span> but it\'s overwhelming"',
-            '"I want to <span class="kw">automate</span> my content / outreach / <span class="kw">onboarding</span>"'
-          ]
-        },
-        {
-          icon: '&#128187;',
-          title: 'Need an app or system built',
-          items: [
-            '"I have this idea for an <span class="kw">app</span> but <span class="kw">no developer</span>"',
-            '"I need a client portal / <span class="kw">CRM</span> / booking <span class="kw">system</span>"',
-            '"I paid a developer $10K and got nothing"',
-            '"I need a <span class="kw">custom tool</span> but can\'t afford a full dev team"'
-          ]
-        },
-        {
-          icon: '&#128200;',
-          title: 'Growing but systems are breaking',
-          items: [
-            '"Things worked when we were small, now it\'s chaos"',
-            '"Revenue is up but profit is flat from <span class="kw">overhead</span>"',
-            '"We\'re dropping balls on <span class="kw">follow-ups</span> and <span class="kw">onboarding</span>"',
-            '"I need to <span class="kw">systemize</span> before I can <span class="kw">scale</span>"'
-          ]
-        },
-        {
-          icon: '&#127919;',
-          title: 'Ideal business types',
-          items: [
-            'Coaches, consultants, and course creators',
-            'Agency owners (marketing, design, recruiting, dev)',
-            'E-commerce store owners needing <span class="kw">automation</span>',
-            'Service businesses (HVAC, real estate, med spas, legal)',
-            'SaaS founders & startup operators'
-          ]
-        },
-        {
-          icon: '&#128161;',
-          title: 'Mastermind-ready signals',
-          items: [
-            '"I want to grow through <span class="kw">partnerships</span>, not just ads"',
-            '"I\'m doing $20K+/mo but leaving money on the table"',
-            '"I want <span class="kw">systems</span>, not just strategies"',
-            'Community leaders, event hosts, mastermind runners'
-          ]
-        }
-      ];
-
-      document.getElementById('triggerGrid').innerHTML = triggers.map(t => `
-        <div class="trigger-card">
-          <h4><span class="icon">${t.icon}</span> ${t.title}</h4>
-          <ul>${t.items.map(i => `<li>${i}</li>`).join('')}</ul>
-        </div>
-      `).join('');
-    }
-
-    function loadTierGrid() {
-      const tiers = [
-        { tag: 'Tier 1 — Website', name: 'Night Launch', price: '$1,497', earn: 'You earn: ~$150' },
-        { tag: 'Tier 2 — Web App', name: 'Night Build', price: '$7,497', earn: 'You earn: ~$750' },
-        { tag: 'Tier 3 — Mobile App', name: 'Night Build Pro', price: '$14,997', earn: 'You earn: ~$1,500' },
-        { tag: 'Tier 4 — Custom', name: 'Enterprise Build', price: '$25,000+', earn: 'You earn: $2,500+' }
-      ];
-
-      document.getElementById('tierGrid').innerHTML = tiers.map(t => `
-        <div class="tier-card">
-          <div class="tier-tag">${t.tag}</div>
-          <h4>${t.name}</h4>
-          <div class="tier-price">${t.price}</div>
-          <div class="tier-earn">${t.earn}</div>
-        </div>
-      `).join('');
-    }
-
-    function loadOverviewScripts() {
-      const slug = currentPartnerData?.slug || 'partner';
-      const refLink = `https://knightops.biz/${slug}`;
-      const assessLink = `https://knightops.biz/assess?ref=${slug}`;
-      const bookLink = `https://knightops.biz/book?ref=${slug}`;
-
-      const scripts = [
-        {
-          label: 'Default — Simple & Direct',
-          text: `Hey [Name], this is Daniel Knight. Let's find a time when you can tell me more about what you do, and I'll see if I can send some business your way.`
-        },
-        {
-          label: 'For the Tech Type Assessment (share with anyone)',
-          text: `Hey [Name] — I came across this quick quiz that tells you your "Tech Type" and which AI tools would actually help your business. It's free and takes like 2 minutes. Thought of you because of what you said about [their pain point]. Here's the link: ${assessLink}`
-        },
-        {
-          label: 'For the Blueprint Call (warm intro)',
-          text: `Hey [Name] — I want to connect you with Daniel Knight. He builds AI-powered automation systems for businesses like yours. He's offering a free 30-minute strategy call where he'll map out exactly what you could automate — no pitch, just a clear plan. Given what you mentioned about [bottleneck/pain], I think this would be really valuable. Want me to intro you?`
-        },
-        {
-          label: 'Email Introduction (connecting both parties)',
-          text: `Subject: Intro — [Name], meet Daniel Knight\n\n[Name] — meet Daniel. He runs Knight Ops and builds custom AI & automation systems for entrepreneurs. I told him about [brief context] and he'd love to offer you a complimentary 10x Systems Blueprint Call — 30 min, no strings.\n\nDaniel — meet [Name]. They run [business] and are dealing with [pain point]. I think you two should connect.\n\nI'll let you two take it from here!`
-        },
-        {
-          label: 'Casual DM / Text Message',
-          text: `Yo — you still manually doing [task]? My guy Daniel builds AI systems that automate that stuff. He has a free strategy call — no sales pitch, just a game plan for what you could automate. Want the link?`
-        },
-        {
-          label: 'After an Event or Networking',
-          text: `Hey [Name], it was great meeting you at [event]. I kept thinking about what you said about [pain point]. I know someone who specializes in exactly that — he builds AI & automation systems for businesses like yours. Want me to connect you for a free strategy call?`
-        },
-        {
-          label: 'For the AI Systems Audit',
-          text: `Hey [Name] — found this 2-min audit that scores your business systems and shows exactly where you're leaking revenue. It's free and you get a custom build plan. Thought of you: ${assessLink}`
-        }
-      ];
-
-      document.getElementById('scriptsList').innerHTML = scripts.map((s, idx) => `
-        <div class="script-card">
-          <div class="script-label">${s.label}</div>
-          <div class="script-text">${s.text.replace(/\n/g, '<br>')}</div>
-          <div class="script-actions">
-            <button class="action-btn btn-copy" onclick="copyScriptByIndex(${idx})">&#128203; Copy</button>
-            <button class="action-btn btn-sms" onclick="sendScriptText(${idx})">&#128241; Send SMS</button>
-            <button class="action-btn btn-email" onclick="sendScriptEmail(${idx})">&#9993; Send Email</button>
-          </div>
-        </div>
-      `).join('');
-
-      // Store scripts for action buttons
-      window._overviewScripts = scripts;
-    }
-
-    function copyScriptByIndex(idx) {
-      const script = window._overviewScripts[idx];
-      if (!script) return;
-      navigator.clipboard.writeText(script.text).then(() => {
-        const btn = document.querySelectorAll('.scripts-list .btn-copy')[idx];
-        if (btn) {
-          const orig = btn.innerHTML;
-          btn.innerHTML = '&#10003; Copied!';
-          setTimeout(() => { btn.innerHTML = orig; }, 2000);
-        }
-      });
-    }
-
-    function sendScriptText(idx) {
-      const script = window._overviewScripts[idx];
-      if (!script) return;
-      const body = encodeURIComponent(script.text);
-      window.open(`sms:?body=${body}`, '_blank');
-    }
-
-    function sendScriptEmail(idx) {
-      const script = window._overviewScripts[idx];
-      if (!script) return;
-      let subject = 'Quick intro';
-      let body = script.text;
-      // Extract subject line if present
-      const subjMatch = body.match(/^Subject:\s*(.+?)(\n|$)/);
-      if (subjMatch) {
-        subject = subjMatch[1].trim();
-        body = body.replace(/^Subject:\s*.+?\n\n?/, '');
-      }
-      const mailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.open(mailUrl, '_blank');
-    }
-
-    function loadQuickTips() {
-      const tips = [
-        { text: '<strong>Lead with value, not a pitch.</strong> Share the free assessment or Blueprint Call first. Let Daniel handle the conversion.' },
-        { text: '<strong>Use keywords as your radar.</strong> When someone says "automate," "bottleneck," or "no developer" — that\'s your opening.' },
-        { text: '<strong>The warm intro wins.</strong> A personal introduction converts 5x better than a shared link. Use the email intro template.' },
-        { text: '<strong>Follow up once.</strong> If they took the assessment or booked a call, check in 3 days later. One follow-up doubles conversions.' },
-        { text: '<strong>Stack the gifts.</strong> Assessment first, then offer the Blueprint Call. Each step warms them up further.' },
-        { text: '<strong>Track everything here.</strong> Check your dashboard weekly. Know your numbers — leads, conversions, commissions.' }
-      ];
-
-      document.getElementById('quickTips').innerHTML = tips.map(t => `
-        <div class="quick-tip">${t.text}</div>
-      `).join('');
     }
 
     async function loadStatCards() {
@@ -2041,6 +1380,30 @@
       }
     }
 
+    async function appendEleCard(containerId) {
+      const c = document.getElementById(containerId); if (!c || !currentPartnerId) return;
+      let inner;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/ele_event_hosts?partner_id=eq.${currentPartnerId}&select=coupon_code,status&order=created_at.desc&limit=1`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+        const rows = await r.json(); const h = rows && rows[0];
+        if (h && h.status === 'active' && h.coupon_code) {
+          const url = `https://knightops.biz/event-lead-engine?code=${h.coupon_code}`;
+          inner = `<div class=\"quick-link-label\">🚀 Event Lead Engine (free gift)</div><div class=\"quick-link-url\">${url}</div><button class=\"copy-btn\" onclick=\"copyToClipboard('${url}', this)\">Copy Link</button><p style=\"font-size:0.85rem;color:var(--text-secondary);margin:0;\">Share with event hosts, speakers, and anyone presenting at events, webinars, or podcasts. They get a free custom interactive lead magnet; you get the lead and commission on anything they buy.</p>`;
+        } else if (h && h.status === 'pending') {
+          inner = `<div class=\"quick-link-label\">🚀 Event Lead Engine (free gift)</div><p style=\"font-size:0.9rem;color:var(--text-secondary);margin:0;\">⏳ Your Event Lead Engine code is pending approval — we'll email it shortly.</p>`;
+        } else {
+          inner = `<div class=\"quick-link-label\">🚀 Event Lead Engine (free gift)</div><p style=\"font-size:0.9rem;color:var(--text-secondary);margin:0 0 10px;\">Give event hosts &amp; speakers a free custom interactive lead magnet to convert their rooms. Activate to get your shareable code.</p><button class=\"copy-btn\" onclick=\"activateEle(this)\">Activate Event Lead Engine</button>`;
+        }
+      } catch (e) { return; }
+      const card = document.createElement('div'); card.className = 'quick-link-card'; card.innerHTML = inner; c.appendChild(card);
+    }
+    async function activateEle(btn) {
+      if (!currentPartnerData) return; btn.disabled = true; btn.textContent = 'Submitting...';
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/ele-host-apply`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }, body: JSON.stringify({ host_name: currentPartnerData.name, host_email: currentPartnerData.email, company: currentPartnerData.company || currentPartnerData.name, event_name: (currentPartnerData.company || currentPartnerData.name || 'Partner') + ' — Partner', partner_id: currentPartnerId, partner_slug: currentPartnerData.slug }) });
+        btn.textContent = 'Pending approval ✓';
+      } catch (e) { btn.disabled = false; btn.textContent = 'Activate Event Lead Engine'; }
+    }
     function loadQuickLinks() {
       const slug = currentPartnerData?.slug || 'partner';
       const links = [
@@ -2058,10 +1421,16 @@
           label: 'Booking Link',
           url: `https://knightops.biz/book?utm_source=${slug}`,
           description: 'Let prospects schedule a consultation directly.'
+        },
+        {
+          label: '🎟️ Roundtable Invite (free gift)',
+          url: `https://knightops.biz/roundtable?ref=${slug}`,
+          description: 'Invite anyone to the free weekly Tech Knights Round Table (Wednesdays). Best for anyone who wants a free growth call — you get credit for everyone who joins.'
         }
       ];
 
       const container = document.getElementById('quickLinks');
+      setTimeout(function(){ appendEleCard('quickLinks'); }, 0);
       container.innerHTML = links.map(link => `
         <div class="quick-link-card">
           <div class="quick-link-label">${link.label}</div>
@@ -2283,10 +1652,16 @@
           label: 'Booking Link',
           url: `https://knightops.biz/book?utm_source=${slug}`,
           description: 'Let prospects schedule a consultation directly.'
+        },
+        {
+          label: '🎟️ Roundtable Invite (free gift)',
+          url: `https://knightops.biz/roundtable?ref=${slug}`,
+          description: 'Invite anyone to the free weekly Tech Knights Round Table (Wednesdays). Best for anyone who wants a free growth call — you get credit for everyone who joins.'
         }
       ];
 
       const linksSection = document.getElementById('linksSection');
+      setTimeout(function(){ appendEleCard('linksSection'); }, 0);
       linksSection.innerHTML = links.map(link => `
         <div class="quick-link-card">
           <div class="quick-link-label">${link.label}</div>

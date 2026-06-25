@@ -359,14 +359,18 @@ footer a{color:var(--gold-light)}
         <div><b>Your event stands out.</b> Interactive booths beat static flyers at every other event.</div>
         <div><b>Your vendors win.</b> They capture leads they would have lost, and remember who made it happen.</div>
       </div>
-      <div id="hostForm" style="max-width:540px;margin:4px auto 0;text-align:left">
+      <div id="hostForm" style="max-width:560px;margin:4px auto 0;text-align:left">
         <div class="hf-row"><input class="hf-in" id="hf_name" placeholder="Your name"><input class="hf-in" id="hf_email" type="email" placeholder="Your email"></div>
-        <input class="hf-in" id="hf_event" placeholder="Event name">
+        <div class="hf-row"><input class="hf-in" id="hf_event" placeholder="Event name"><input class="hf-in" id="hf_website" placeholder="Event website"></div>
         <input class="hf-in" id="hf_topic" placeholder="What is your event about? (topic)">
-        <label class="hf-chk"><input type="checkbox" id="hf_speaker"> I would be open to having Daniel speak at my event (optional)</label>
-        <button class="btn btn-primary" id="hf_go" style="width:100%;justify-content:center">Get My Free Event Code →</button>
+        <label class="hf-chk"><input type="checkbox" id="hf_custom"> I'd like to choose my own custom code</label>
+        <input class="hf-in" id="hf_code" placeholder="Your desired code (e.g. SUMMIT2026)" style="display:none">
+        <label class="hf-chk"><input type="checkbox" id="hf_speaker"> I'm interested in having Daniel speak at my event</label>
+        <textarea class="hf-in" id="hf_notes" placeholder="Any customization requests or details? (optional)" style="min-height:72px;resize:vertical"></textarea>
+        <button class="btn btn-primary" id="hf_go" style="width:100%;justify-content:center">Apply for My Free Event Code →</button>
         <div class="hf-result" id="hf_result"></div>
-        <div style="text-align:center;margin-top:12px"><a href="mailto:eden@knightops.biz?subject=Event%20Lead%20Engine%20for%20my%20event" style="color:var(--muted);font-size:.85rem">Or email us about your event</a></div>
+        <div style="text-align:center;margin-top:10px;color:var(--muted);font-size:.8rem">We review every event and email your code + share link, usually within a day.</div>
+        <div style="text-align:center;margin-top:8px"><a href="mailto:eden@knightops.biz?subject=Event%20Lead%20Engine%20for%20my%20event" style="color:var(--muted);font-size:.85rem">Or email us about your event</a></div>
       </div>
     </div>
   </div>
@@ -442,21 +446,25 @@ document.getElementById('lbx').addEventListener('click',()=>lb.classList.remove(
 lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
 // pass through ?code= to intake
 (function(){const p=new URLSearchParams(location.search);const code=p.get('code');if(code){document.querySelectorAll('a[href="/event-lead-engine-intake"]').forEach(a=>a.href='/event-lead-engine-intake?code='+encodeURIComponent(code));}})();
-// event host: self-serve free code
+// event host: application (reviewed + code emailed). Tracks referring host code.
 (function(){
   const SUPA='https://trpnlkntvulkjerevngm.supabase.co';
   const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
   const go=document.getElementById('hf_go');if(!go)return;
+  const cc=document.getElementById('hf_custom'),codeIn=document.getElementById('hf_code'),res=document.getElementById('hf_result');
+  if(cc)cc.onchange=()=>{codeIn.style.display=cc.checked?'block':'none';if(!cc.checked)codeIn.value='';};
   go.onclick=async()=>{
     const ev=document.getElementById('hf_event').value.trim();
-    if(!ev){document.getElementById('hf_result').textContent='Please add your event name.';return;}
-    go.disabled=true;go.textContent='Creating your code...';
+    const email=document.getElementById('hf_email').value.trim();
+    if(!email){res.textContent='Please add your email so we can send your code.';return;}
+    go.disabled=true;go.textContent='Submitting your application...';
+    const refCode=new URLSearchParams(location.search).get('code')||'';
     try{
-      const r=await fetch(SUPA+'/functions/v1/ele-host-coupon',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({event_name:ev,host_name:document.getElementById('hf_name').value.trim(),host_email:document.getElementById('hf_email').value.trim(),event_topic:document.getElementById('hf_topic').value.trim(),wants_speaker:document.getElementById('hf_speaker').checked})});
+      const r=await fetch(SUPA+'/functions/v1/ele-host-apply',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({host_name:document.getElementById('hf_name').value.trim(),host_email:email,event_name:ev,event_website:document.getElementById('hf_website').value.trim(),event_topic:document.getElementById('hf_topic').value.trim(),wants_speaker:document.getElementById('hf_speaker').checked,desired_code:(cc&&cc.checked)?codeIn.value.trim():'',customization_notes:document.getElementById('hf_notes').value.trim(),referred_by_code:refCode})});
       const j=await r.json();if(!r.ok)throw new Error(j.error||'error');
-      document.getElementById('hf_result').innerHTML='✅ Your event code: <b>'+j.coupon_code+'</b><br>Share this link with your speakers, sponsors, and vendors:<br><a href="'+j.intake_link+'" style="color:var(--gold-light)">'+j.intake_link+'</a>';
-      go.textContent='Code created ✓';
-    }catch(e){go.disabled=false;go.textContent='Get My Free Event Code →';document.getElementById('hf_result').textContent='Something went wrong. Please email eden@knightops.biz and we will set you up.';}
+      res.innerHTML='✅ Application received! We review every event and will email your code and share link shortly (usually within a day).';
+      go.textContent='Application sent ✓';
+    }catch(e){go.disabled=false;go.textContent='Apply for My Free Event Code →';res.textContent='Something went wrong. Please email eden@knightops.biz and we will set you up.';}
   };
 })();
 </script>

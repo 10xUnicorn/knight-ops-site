@@ -1026,6 +1026,7 @@ var ZOOM_LINK='https://us06web.zoom.us/j/81378636831?jst=2';
 
 /* Supabase capture (roundtable_registrations table) */
 var SUPABASE_URL='https://trpnlkntvulkjerevngm.supabase.co/rest/v1/roundtable_registrations';
+var REF_SLUG=(new URLSearchParams(location.search).get('ref')||'').trim();
 var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
 /* ========================================================
@@ -1228,9 +1229,21 @@ document.getElementById('regForm').addEventListener('submit',function(e){
       email:emailVal,
       phone:phoneVal||null,
       goals_90_days:goalsVal,
-      profile_completed:true
+      profile_completed:true,
+      ref_slug:REF_SLUG||null
     })
   }).catch(function(err){console.error('Supabase capture error:',err);});
+
+  /* Partner attribution: if ?ref=<partner slug>, credit the partner with this registration */
+  if(REF_SLUG){
+    var SB='https://trpnlkntvulkjerevngm.supabase.co';
+    fetch(SB+'/rest/v1/partners?slug=eq.'+encodeURIComponent(REF_SLUG)+'&status=eq.active&select=id',{headers:{'apikey':ANON_KEY,'Authorization':'Bearer '+ANON_KEY}})
+      .then(function(r){return r.json();}).then(function(p){
+        if(p&&p.length){
+          fetch(SB+'/rest/v1/affiliate_leads',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON_KEY,'Authorization':'Bearer '+ANON_KEY,'Prefer':'return=minimal'},body:JSON.stringify({partner_id:p[0].id,name:name,email:emailVal,phone:phoneVal||null,source:'roundtable',status:'pending',notes:'Registered for Tech Knights at the Round Table'})});
+        }
+      }).catch(function(){});
+  }
 
   /* Always advance to confirmation — never block the user */
   function finish(){

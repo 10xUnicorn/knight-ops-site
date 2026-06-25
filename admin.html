@@ -1514,7 +1514,7 @@ function FG(label,id,type,val,opts){
 function FR(a,b){return '<div class="form-row">'+a+b+'</div>';}
 function clientOptions(sel){return '<option value="">Select Client</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+( c.profiles?.full_name||c.profiles?.email||'Client')+'</option>').join('');}
 function projectOptions(sel){return '<option value="">Select Project</option>'+S.projects.map(p=>'<option value="'+p.id+'"'+(p.id===sel?' selected':'')+'>'+p.name+'</option>').join('');}
-const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'night_launch',l:'Night Launch — Website ($1,497)'},{v:'night_build',l:'Night Build — Web/Mobile App ($7,497)'},{v:'night_build_pro',l:'Night Build Pro — Full App Store ($14,997)'},{v:'ai_marketing_machine',l:'AI Marketing Machine ($99/mo)'},{v:'workshop',l:'Build Your App Workshop ($1,000)'},{v:'consulting_1on1',l:'1:1 Consulting ($25K)'},{v:'unicorn_universe',l:'Unicorn Universe Membership ($99/mo)'},{v:'10x_mastermind',l:'10xUnicorn Mastermind ($10K/yr)'},{v:'custom',l:'Custom Project'}];
+const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'night_launch',l:'Night Launch — Website ($1,497)'},{v:'night_build',l:'Night Build — Web/Mobile App ($9,997)'},{v:'night_build_pro',l:'Night Build Pro — Full App Store ($14,997)'},{v:'ai_marketing_machine',l:'AI Marketing Machine ($99/mo)'},{v:'workshop',l:'Build Your App Workshop ($1,000)'},{v:'consulting_1on1',l:'1:1 Consulting ($25K)'},{v:'unicorn_universe',l:'Unicorn Universe Membership ($99/mo)'},{v:'10x_mastermind',l:'10xUnicorn Mastermind ($10K/yr)'},{v:'custom',l:'Custom Project'}];
 const BUDGET_OPTS=[{v:'',l:'Select'},{v:'under_1k',l:'Under $1K'},{v:'1k_5k',l:'$1K-$5K'},{v:'5k_15k',l:'$5K-$15K'},{v:'15k_25k',l:'$15K-$25K'},{v:'over_25k',l:'Over $25K'}];
 const TIMELINE_OPTS=[{v:'',l:'Select'},{v:'asap',l:'ASAP'},{v:'1_2_weeks',l:'1-2 Weeks'},{v:'1_month',l:'1 Month'},{v:'2_3_months',l:'2-3 Months'},{v:'just_exploring',l:'Just Exploring'}];
 const LEAD_STATUS_OPTS=[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'proposal_sent',l:'Proposal Sent'},{v:'negotiation',l:'Negotiation'},{v:'won',l:'Won'},{v:'lost',l:'Lost'},{v:'bad_lead',l:'Bad Lead'},{v:'not_qualified',l:'Not Qualified'}];
@@ -1873,11 +1873,11 @@ function renderGapAnalysis(target,collected,pending,scheduled){
   if(gap<=0){el.style.display='none';return;}
   el.style.display='block';
   const nightLaunches=Math.ceil(gap/1497);
-  const nightBuilds=Math.ceil(gap/7497);
+  const nightBuilds=Math.ceil(gap/9997);
   const nightBuildPros=Math.ceil(gap/14997);
   document.getElementById('revGapItems').innerHTML=
     '<div class="rev-gap-item"><div class="num">'+nightLaunches+'</div><div class="lbl">Night Launches @ $1,497</div></div>'+
-    '<div class="rev-gap-item"><div class="num">'+nightBuilds+'</div><div class="lbl">Night Builds @ $7,497</div></div>'+
+    '<div class="rev-gap-item"><div class="num">'+nightBuilds+'</div><div class="lbl">Night Builds @ $9,997</div></div>'+
     '<div class="rev-gap-item"><div class="num">'+nightBuildPros+'</div><div class="lbl">Night Build Pros @ $14,997</div></div>';
 }
 
@@ -4377,7 +4377,7 @@ function createAppFromProject(projId){
   const d=p.intake_data||{};
   const clientName=p.clients?.profiles?.full_name||'';
   const company=p.clients?.profiles?.company||d.company||'';
-  const body=FG('App Name *','e_name','text',p.name)+FG('Tagline','e_tagline','text',company?(company+' — Built by Knight Ops'):'Built by Knight Ops')+FG('Description','e_desc','textarea',p.description)+FR(FG('Category','e_category','text',d.bp_system_type||d.form_type||'Business App'),FG('Price Label','e_price_label','text',p.tier==='night_launch'?'$1,497':p.tier==='night_build'?'$7,497':p.tier==='night_build_pro'?'$14,997':'Custom'))+FR(FG('Launch URL','e_url','url',p.app_site_url||''),FG('Button Text','e_btn','text','Launch App'))+FG('Tags (comma-separated)','e_tags','text',(d.bp_platform||'web')+', '+(d.bp_system_type||'app'))+FR(FG('Featured','e_featured','checkbox',false),FG('Show on Marketplace','e_marketplace','checkbox',true));
+  const body=FG('App Name *','e_name','text',p.name)+FG('Tagline','e_tagline','text',company?(company+' — Built by Knight Ops'):'Built by Knight Ops')+FG('Description','e_desc','textarea',p.description)+FR(FG('Category','e_category','text',d.bp_system_type||d.form_type||'Business App'),FG('Price Label','e_price_label','text',p.tier==='night_launch'?'$1,497':p.tier==='night_build'?'$9,997':p.tier==='night_build_pro'?'$14,997':'Custom'))+FR(FG('Launch URL','e_url','url',p.app_site_url||''),FG('Button Text','e_btn','text','Launch App'))+FG('Tags (comma-separated)','e_tags','text',(d.bp_platform||'web')+', '+(d.bp_system_type||'app'))+FR(FG('Featured','e_featured','checkbox',false),FG('Show on Marketplace','e_marketplace','checkbox',true));
   openEditModal('Create App from Project: '+p.name,body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveAppFromProject(\''+projId+'\')">Create App</button>');
 }
 
@@ -6086,10 +6086,10 @@ function generateBuildPrompt(a,opts){
   // Infer recommended tier
   let recTier='';
   if(a.budget==='under_1500')recTier='Night Launch ($1,497) — Multi-page conversion site';
-  else if(a.budget==='1500_5000'||a.budget==='5000_10000')recTier='Night Build ($7,497) — Full-stack web or mobile app';
+  else if(a.budget==='1500_5000'||a.budget==='5000_10000')recTier='Night Build ($9,997) — Full-stack web or mobile app';
   else if(a.budget==='10000_25000'||a.budget==='25000_plus')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
-  else if(platform==='web')recTier='Night Build ($7,497) or Night Launch ($1,497) depending on complexity';
-  else if(platform==='mobile'||platform==='both')recTier='Night Build ($7,497) or Night Build Pro ($14,997) for App Store deployment';
+  else if(platform==='web')recTier='Night Build ($9,997) or Night Launch ($1,497) depending on complexity';
+  else if(platform==='mobile'||platform==='both')recTier='Night Build ($9,997) or Night Build Pro ($14,997) for App Store deployment';
   else recTier='To be determined after discovery call';
 
   return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium overnight development firm founded by Daniel Knight.
@@ -6106,7 +6106,7 @@ Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/bo
 
 Service Tiers:
 • Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions. No backend.
-• Night Build — $7,497 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
+• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
 • Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 • Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
 
@@ -6126,7 +6126,7 @@ STRIPE PRODUCT INSTRUCTIONS
 Before generating the proposal, search for an existing Stripe product matching this client/project. If one exists, use that product's payment link. If none exists, create a new Stripe product with:
 - Product name: "Knight Ops — ${fullName}${a.company?' ('+a.company+')':''}"
 - Description: Based on the recommended tier and project scope
-- Price: Based on the recommended tier (Night Launch $1,497 / Night Build $7,497 / Night Build Pro $14,997)
+- Price: Based on the recommended tier (Night Launch $1,497 / Night Build $9,997 / Night Build Pro $14,997)
 - Create a payment link for the product
 Then embed the payment link in the proposal.
 `:''}
@@ -6234,7 +6234,7 @@ SECTION 3 — CHOOSE YOUR PACKAGE (this is the interactive core)
   ✗ No app store deployment
   Split: $749 + $749
 
-  NIGHT BUILD — $7,497 (mark as "RECOMMENDED" if that's the recommended tier)
+  NIGHT BUILD — $9,997 (mark as "RECOMMENDED" if that's the recommended tier)
   • Full-stack web or mobile app
   • Auth, payments, CRM hooks, API integrations
   • Prototype in 48hrs
@@ -6512,7 +6512,7 @@ Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/bo
 
 Service Tiers:
 - Night Launch -- $1,497 (split: $749 x2) -- High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions.
-- Night Build -- $7,497 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
+- Night Build -- $9,997 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
 - Night Build Pro -- $14,997 (split: $7,499 x2) -- Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 - Workshop -- $1,000 -- 2-day, 4-hour hands-on workshop. Build your own app.
 
@@ -7298,7 +7298,7 @@ async function createDealFromApp(appId){
   const a=(S.applications||[]).find(x=>x.id===appId);if(!a)return;
   const name=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unnamed';
   const desc=a.bp_core_outcome||a.q4_core_outcome||'';
-  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':7497,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':7497,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
+  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':9997,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':9997,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
   const val=budgetMap[a.budget]||0;
   // Find or match client/lead
   const lead=a.lead_id?(S.leads||[]).find(l=>l.id===a.lead_id):null;
@@ -7316,7 +7316,7 @@ async function createProjectFromApp(appId){
   const coreOutcome=a.bp_core_outcome||a.q4_core_outcome||'';
   const platform=a.bp_platform||a.q7_platform_type||'';
   const deployment=a.bp_deployment||a.q8_app_store_deploy||'';
-  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':7497,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':7497,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
+  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':9997,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':9997,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
   const val=budgetMap[a.budget]||0;
   const tierMap={under_1500:'night_launch','1500_5000':'night_launch','5000_10000':'night_build','10000_25000':'night_build_pro','25000_plus':'night_build_pro',under_5k:'night_launch','5k_10k':'night_build','10k_25k':'night_build_pro','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
   const tier=tierMap[a.budget]||'custom';

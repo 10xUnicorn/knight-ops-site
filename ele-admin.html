@@ -87,6 +87,13 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
     <div class="result" id="couponResult"></div>
   </div>
 
+  <div class="panel">
+    <h2>🧑‍💼 Event host applications &amp; codes</h2>
+    <div id="hostPending"></div>
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:700;color:var(--gold-l);padding:6px 0">All event hosts &amp; codes ▾</summary><div id="hostAll" style="margin-top:10px"><div class="empty">Loading...</div></div></details>
+    <details style="margin-top:6px"><summary style="cursor:pointer;font-weight:700;color:var(--gold-l);padding:6px 0">Find submissions by code or host email ▾</summary><div style="margin-top:10px"><input id="subSearch" placeholder="Type a code, email, or company..." style="width:100%;background:var(--void);border:1px solid var(--line);border-radius:8px;color:var(--white);padding:10px 12px;font-family:inherit;font-size:.9rem"><div id="subSearchResult" style="margin-top:10px;color:var(--mut);font-size:.85rem">Type to search across all builds.</div></div></details>
+  </div>
+
   <div class="panel"><h2>Builds awaiting action</h2><div id="pending"><div class="empty">Loading...</div></div></div>
   <div class="panel"><h2>Delivered &amp; live</h2><div id="done"></div></div>
 </div>
@@ -134,7 +141,30 @@ async function load(){
   $('kpis').innerHTML=kpi(pending.length,'Awaiting action')+kpi(rows.filter(b=>b.status==='preview_ready').length,'Ready to approve')+kpi(totalViews,'Total views')+kpi(totalSubs,'Total leads')+kpi(conv+'%','Conversion');
   $('pending').innerHTML=pending.length?pending.map(b=>card(b,subCount[b.id]||0,true)).join(''):'<div class="empty">Nothing waiting. 🎉</div>';
   $('done').innerHTML=done.length?done.map(b=>card(b,subCount[b.id]||0,false)).join(''):'<div class="empty">No delivered builds yet.</div>';
+  loadHosts();
 }
+async function loadHosts(){
+  const hosts=await rest('ele_event_hosts?select=*&order=created_at.desc&limit=300');
+  window.HOSTS={};(hosts||[]).forEach(h=>HOSTS[h.id]=h);
+  const pending=(hosts||[]).filter(h=>h.status==='pending');
+  $('hostPending').innerHTML=pending.length?('<div style="font-weight:700;margin-bottom:8px;color:var(--warn)">⏳ '+pending.length+' application(s) awaiting your approval</div>'+pending.map(h=>
+    '<div class="build" style="border-color:rgba(251,191,36,.35)"><div class="top"><div><h3>'+esc(h.company||h.event_name||'Host')+'</h3><div class="meta">'+esc(h.host_name||'')+' · '+esc(h.host_email||'')+' · '+esc(h.event_name||'')+'</div></div></div>'+
+    '<div class="chips">'+(h.event_website?'<span>🌐 '+esc(h.event_website)+'</span>':'')+(h.event_topic?'<span>'+esc(h.event_topic)+'</span>':'')+(h.wants_speaker?'<span style="color:var(--gold-l)">🎤 wants Daniel to speak</span>':'')+(h.desired_code?'<span>wants code: '+esc(h.desired_code)+'</span>':'')+(h.referred_by_code?'<span>ref by: '+esc(h.referred_by_code)+'</span>':'')+'</div>'+
+    (h.customization_notes?'<div style="color:var(--mut);font-size:.85rem;margin-top:8px">📝 '+esc(h.customization_notes)+'</div>':'')+
+    '<div class="acts"><button class="btn b-primary" onclick="approveHost(\''+h.id+'\')">✓ Approve &amp; activate code</button><button class="btn b-danger" onclick="declineHost(\''+h.id+'\')">✕ Decline</button></div></div>'
+  ).join('')):'<div class="empty">No pending host applications.</div>';
+  const active=(hosts||[]).filter(h=>h.status!=='pending');
+  $('hostAll').innerHTML=active.length?('<table class="subs" style="display:table"><thead><tr><th>Code</th><th>Host</th><th>Event</th><th>Uses</th><th>Status</th><th></th></tr></thead><tbody>'+active.map(h=>
+    '<tr><td><b style="color:var(--gold-l)">'+esc(h.coupon_code||'—')+'</b></td><td>'+esc(h.host_name||'')+'<br><span style="color:var(--mut)">'+esc(h.host_email||'')+'</span></td><td>'+esc(h.event_name||'')+'</td>'+
+    '<td>'+(h.redemptions||0)+' / <input value="'+(h.max_redemptions==null?'':h.max_redemptions)+'" placeholder="∞" style="width:42px;background:var(--void);border:1px solid var(--line);color:#fff;border-radius:5px;padding:2px 4px" id="mx-'+h.id+'"> <button class="btn b-ghost" style="padding:3px 8px;font-size:.7rem" onclick="saveHostUses(\''+h.id+'\')">save</button></td>'+
+    '<td>'+esc(h.status||'')+'</td><td><button class="btn b-ghost" style="padding:4px 9px;font-size:.72rem" onclick="addHostCode(\''+h.id+'\')">+ code</button></td></tr>'
+  ).join('')+'</tbody></table>'):'<div class="empty">No active hosts yet.</div>';
+}
+async function approveHost(id){if(!confirm('Approve this host and activate their code?'))return;toast('Approving...');try{const j=await fnCall('ele-host-approve',{host_id:id,action:'approve'});toast('Approved ✓ Code: '+(j.code||''));load();}catch(e){toast('Error: '+e.message);}}
+async function declineHost(id){if(!confirm('Decline this host application?'))return;try{await fnCall('ele-host-approve',{host_id:id,action:'decline'});toast('Declined');load();}catch(e){toast('Error: '+e.message);}}
+async function saveHostUses(id){const v=$('mx-'+id).value.trim();try{await fnCall('ele-host-update',{host_id:id,max_redemptions:v===''?null:Number(v)});toast('Updated max uses ✓');}catch(e){toast('Error: '+e.message);}}
+async function addHostCode(id){const h=(window.HOSTS||{})[id];if(!h)return;toast('Creating additional code...');try{const j=await fnCall('ele-host-coupon',{event_name:h.event_name||h.company||'Event',host_name:h.host_name||'',host_email:h.host_email||'',company:h.company||''});$('couponResult').innerHTML='✓ Additional code for '+esc(h.company||h.event_name)+': <b>'+esc(j.coupon_code)+'</b> · <a style="color:var(--gold-l)" href="'+j.intake_link+'" target="_blank">'+esc(j.intake_link)+'</a>';window.scrollTo({top:0,behavior:'smooth'});toast('Code created ✓');setTimeout(load,1200);}catch(e){toast('Error: '+e.message);}}
+(function(){const s=document.getElementById('subSearch');if(!s)return;s.oninput=()=>{const q=s.value.trim().toLowerCase();if(!q){$('subSearchResult').innerHTML='Type to search across all builds.';return;}const all=Object.values(window.BUILDS||{});const m=all.filter(b=>[b.host_coupon_code,b.email,b.company,b.vendor_name,b.event_name,b.magnet_title].some(x=>String(x||'').toLowerCase().includes(q)));$('subSearchResult').innerHTML=m.length?m.map(b=>'<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+esc(b.magnet_title||b.company||'')+'</b> — '+esc(b.email||'')+' · code: '+esc(b.host_coupon_code||'—')+' · '+esc(b.status||'')+(b.slug?' · <a style="color:var(--gold-l)" href="/le/'+esc(b.slug)+'" target="_blank">view</a>':'')+'</div>').join(''):'No builds match.';};})();
 function kpi(n,l){return '<div class="kpi"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';}
 function card(b,subs,showActions){
   const preview=b.slug?('/le/'+b.slug):'';
