@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dashboard Build — Knight Ops</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#05061a;--card:#10122e;--card-2:#161937;--line:rgba(255,255,255,.09);--line-gold:rgba(201,146,42,.28);--gold:#C9922A;--gold-light:#e7b84e;--teal:#00D4C8;--white:#f6f5f2;--muted:#9fa0b6;--ok:#34d399;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--void);color:var(--white);line-height:1.5;background-image:radial-gradient(1200px 600px at 80% -10%,rgba(123,47,255,.16),transparent),radial-gradient(1000px 500px at -10% 10%,rgba(0,212,200,.10),transparent)}
+.serif{font-family:'Playfair Display',serif}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:rgba(5,6,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.5px}
+.brand .dot{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;color:#1a1303;font-weight:900}
+.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 20px 80px}
+.hl{background:linear-gradient(180deg,rgba(201,146,42,.10),rgba(16,18,46,.5));border:1px solid var(--line-gold);border-radius:18px;padding:22px;margin-bottom:20px}
+.hl h1{font-size:1.5rem;margin-bottom:4px}
+.hl p{color:var(--muted);font-size:.9rem}
+.statuspill{display:inline-block;font-size:.7rem;border:1px solid var(--line-gold);color:var(--gold-light);border-radius:99px;padding:3px 10px;margin-top:8px;text-transform:capitalize}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.card h2{font-size:1rem;margin-bottom:10px}
+.mockframe{width:100%;height:64vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:560px){.sum{grid-template-columns:1fr}}
+.sum .ln{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;background:var(--void);border:1px solid var(--line);border-radius:9px;font-size:.84rem}
+.sum .lv{color:var(--muted);text-align:right}
+.modlist{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.modchip{font-size:.78rem;border:1px solid var(--line-gold);background:rgba(201,146,42,.08);border-radius:99px;padding:5px 12px}
+details{margin-top:8px}
+summary{cursor:pointer;color:var(--teal);font-size:.85rem;padding:6px 0}
+pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:.76rem;background:var(--void);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:50vh;overflow:auto}
+label.fl{display:block;font-size:.78rem;font-weight:600;color:#cdd0e6;margin:11px 0 5px}
+input[type=text],textarea{width:100%;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--white);padding:10px 12px;font-family:inherit;font-size:.9rem;outline:none}
+input:focus,textarea:focus{border-color:var(--gold)}
+textarea{resize:vertical;min-height:70px}
+.btn{border:none;border-radius:10px;padding:12px 18px;font-family:inherit;font-weight:600;font-size:.9rem;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1303}
+.btn-ghost{background:var(--void);color:var(--white);border:1px solid var(--line)}
+.btn:disabled{opacity:.5}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card-2);border:1px solid var(--line-gold);border-radius:10px;padding:11px 18px;font-size:.84rem;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--gold);border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:60px 20px;color:var(--muted)}
+.approved{border-color:var(--ok)!important;color:var(--ok)}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><span class="dot">K</span> KNIGHT OPS <span class="tag">Dashboard Build</span></div>
+  <span class="tag" id="modeTag">—</span>
+</div>
+<div class="wrap" id="wrap"><div class="center"><span class="spin"></span> Loading your build…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const SB='https://trpnlkntvulkjerevngm.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const FN=SB+'/functions/v1/';
+async function api(fn,p){const r=await fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(p)});return r.json();}
+const MODLABEL={overview:'Today / Overview',kpis:'KPI / CEO Dashboard',leads:'Leads & CRM',pipeline:'Sales Pipeline',deals:'Deals & Revenue',tasks:'Tasks & Projects',clients:'Clients & Contacts',cohort:'Retention & Ascension',journey:'Customer Journey Map',portal:'Client Portal',partner:'Partner / JV Portal',finance:'Money & Finance',payments:'Payments & Billing',webinar:'Webinar & Ad Spend',media:'Media & JV Tracker',events:'Live Event Capture',aibrain:'AI Brain & Intelligence',content:'Content & Blog',notifications:'Notifications',messaging:'Admin/Client Messaging',team:'Team & People',settings:'Settings & Admin',worksheets:'Worksheets & Tools',reports:'Client Reports'};
+function modLabel(m){if(typeof m==='string')return MODLABEL[m]||m;return m&&(m.label||m.key)||'';}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let TOKEN='',MODE='review',B={};
+let _tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2600);}
+
+async function boot(){
+  const q=new URLSearchParams(location.search);TOKEN=q.get('t')||q.get('token')||'';
+  if(!TOKEN){document.getElementById('wrap').innerHTML='<div class="center">No build token. Ask Knight Ops for your link.</div>';return;}
+  const res=await api('dashboard-shared',{token:TOKEN});
+  if(!res||!res.build){document.getElementById('wrap').innerHTML='<div class="center">Build not found or link expired.</div>';return;}
+  B=res.build;MODE=res.mode||'review';
+  document.getElementById('modeTag').textContent=MODE==='edit'?'Edit access':'Review access';
+  render();
+}
+function render(){
+  const brand=B.brand||{};const mods=(B.modules||[]).map(modLabel).filter(Boolean).concat((B.customModules||[]));
+  const ints=(B.integrations||[]).join(', ');
+  const facing=(B.facing||'internal_only').replace(/_/g,' ');
+  let h='';
+  h+=`<div class="hl"><h1 class="serif">${esc(B.business_name||B.company||'Your Dashboard')}</h1><p>${esc(B.niche||'')}</p><div class="statuspill ${B.status==='approved'?'approved':''}">${esc(B.status||'draft')}</div></div>`;
+  // mockup
+  h+=`<div class="card"><h2>Mockup</h2>`;
+  if(B.ai_mockup_html){h+=`<iframe class="mockframe" id="mf"></iframe>`;}
+  else{h+=`<p style="color:var(--muted);font-size:.88rem">A visual mockup will appear here once it is generated.</p>`;}
+  h+=`</div>`;
+  // summary
+  h+=`<div class="card"><h2>What we will build</h2><div class="modlist">${mods.map(m=>`<span class="modchip">${esc(m)}</span>`).join('')||'<span style="color:var(--muted)">No modules selected yet</span>'}</div>`;
+  h+=`<div class="sum" style="margin-top:12px">`+
+     ln('Access',facing)+ln('Roles',((B.roles&&B.roles.templates)||[]).join(', ')||'—')+
+     ln('Integrations',ints||'—')+ln('Payments',B.payments?'Stripe':'No')+
+     ln('Hosting',B.hosting||'—')+ln('Client size',B.client_size||'—')+`</div>`;
+  if(B.what_they_do)h+=`<details><summary>About the business</summary><pre>${esc(B.what_they_do)}${B.offers?('\n\nOffers:\n'+esc(B.offers)):''}</pre></details>`;
+  if(B.spec_md)h+=`<details><summary>View full build spec</summary><pre>${esc(B.spec_md)}</pre></details>`;
+  if(B.build_prompt)h+=`<details><summary>View build prompt</summary><pre>${esc(B.build_prompt)}</pre></details>`;
+  h+=`</div>`;
+  // actions
+  if(MODE==='edit'){
+    h+=`<div class="card"><h2>Add or update your info</h2>
+      <label class="fl">Business / brand name</label><input type="text" id="e_business" value="${esc(B.business_name||B.company||'')}">
+      <label class="fl">Niche</label><input type="text" id="e_niche" value="${esc(B.niche||'')}">
+      <label class="fl">What you do</label><textarea id="e_what">${esc(B.what_they_do||'')}</textarea>
+      <label class="fl">Offers & pricing</label><textarea id="e_offers">${esc(B.offers||'')}</textarea>
+      <label class="fl">Audience</label><textarea id="e_aud">${esc(B.audience||'')}</textarea>
+      <label class="fl">Team & roles</label><textarea id="e_team">${esc(B.team||'')}</textarea>
+      <label class="fl">Anything else / changes you want</label><textarea id="e_more">${esc(B.additional_details||'')}</textarea>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="saveBtn" onclick="saveEdit()">Save my updates</button></div></div>`;
+  } else {
+    h+=`<div class="card"><h2>Review & approve</h2><p style="color:var(--muted);font-size:.88rem">If this captures your build, approve it and we will start. Want changes? Leave a note.</p>
+      <label class="fl">Notes / change requests (optional)</label><textarea id="r_note"></textarea>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary" id="appBtn" onclick="approve()">✓ Approve this plan</button><button class="btn btn-ghost" onclick="sendNote()">Send note only</button></div></div>`;
+  }
+  document.getElementById('wrap').innerHTML=h;
+  if(B.ai_mockup_html){const f=document.getElementById('mf');if(f)f.srcdoc=B.ai_mockup_html;}
+}
+function ln(k,v){return `<div class="ln"><span>${k}</span><span class="lv">${esc(v)}</span></div>`;}
+async function approve(){const b=document.getElementById('appBtn');b.disabled=true;b.innerHTML='<span class="spin"></span> Approving...';
+  const res=await api('dashboard-build',{action:'approve',share_review_token:TOKEN,admin_notes:document.getElementById('r_note').value.trim()});
+  if(res.build){B=res.build;toast('Approved — thank you!');render();}else{b.disabled=false;b.textContent='✓ Approve this plan';toast('Could not approve');}
+}
+async function sendNote(){const note=document.getElementById('r_note').value.trim();if(!note){toast('Add a note first');return;}
+  const res=await api('dashboard-build',{action:'approve',share_review_token:TOKEN,admin_notes:note});
+  if(res.build!==undefined)toast('Note sent to Knight Ops');else toast('Could not send');
+}
+async function saveEdit(){const b=document.getElementById('saveBtn');b.disabled=true;b.innerHTML='<span class="spin"></span> Saving...';
+  const res=await api('dashboard-build',{action:'save_edit',share_edit_token:TOKEN,business_name:document.getElementById('e_business').value.trim(),company:document.getElementById('e_business').value.trim(),niche:document.getElementById('e_niche').value.trim(),what_they_do:document.getElementById('e_what').value.trim(),offers:document.getElementById('e_offers').value.trim(),audience:document.getElementById('e_aud').value.trim(),team:document.getElementById('e_team').value.trim(),additional_details:document.getElementById('e_more').value.trim()});
+  b.disabled=false;b.textContent='Save my updates';
+  if(res.build){B=res.build;toast('Saved — thank you!');}else toast('Could not save: '+(res.error||''));
+}
+boot();
+</script>
+</body>
+</html>

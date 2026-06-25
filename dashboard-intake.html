@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Builder — Knight Ops</title>
+<meta name="description" content="Design and spec a custom client dashboard. Pick your modules, preview a real AI mockup, and generate a build-ready prompt.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#05061a; --void-2:#0a0c24; --card:#10122e; --card-2:#161937;
+  --line:rgba(255,255,255,.09); --line-gold:rgba(201,146,42,.28);
+  --gold:#C9922A; --gold-light:#e7b84e; --teal:#00D4C8; --purple:#7B2FFF;
+  --white:#f6f5f2; --muted:#9fa0b6; --ok:#34d399; --err:#f87171; --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--void);color:var(--white);line-height:1.5;
+  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(123,47,255,.16),transparent),radial-gradient(1000px 500px at -10% 10%,rgba(0,212,200,.10),transparent);}
+.serif{font-family:'Playfair Display',serif}
+a{color:var(--teal);text-decoration:none}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;background:rgba(5,6,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.5px}
+.brand .dot{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;color:#1a1303;font-weight:900}
+.tb-tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+.shell{max-width:1320px;margin:0 auto;padding:26px 20px 140px;display:grid;grid-template-columns:1fr 430px;gap:26px}
+@media(max-width:980px){.shell{grid-template-columns:1fr}}
+.col-form{min-width:0}
+.col-prev{min-width:0}
+.hero{background:linear-gradient(180deg,rgba(201,146,42,.10),rgba(16,18,46,.5));border:1px solid var(--line-gold);border-radius:18px;padding:22px;margin-bottom:20px}
+.hero h1{font-size:1.65rem;font-weight:800;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:.92rem;max-width:62ch}
+.modepick{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.modebtn{flex:1;min-width:170px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:13px 15px;cursor:pointer;transition:.15s}
+.modebtn.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.modebtn b{display:block;font-size:.95rem;margin-bottom:2px}
+.modebtn span{font-size:.78rem;color:var(--muted)}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.sec.hide{display:none}
+.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sec-h .n{width:26px;height:26px;border-radius:7px;background:rgba(201,146,42,.15);border:1px solid var(--line-gold);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex:none}
+.sec-h h2{font-size:1.02rem;font-weight:700}
+.sec-sub{color:var(--muted);font-size:.82rem;margin:2px 0 16px 36px}
+@media(max-width:560px){.sec-sub{margin-left:0}}
+label.fl{display:block;font-size:.78rem;font-weight:600;color:#cdd0e6;margin:12px 0 5px}
+.req{color:var(--gold-light)}
+input[type=text],input[type=email],input[type=url],input[type=tel],textarea,select{
+  width:100%;background:var(--void-2);border:1px solid var(--line);border-radius:10px;color:var(--white);
+  padding:10px 12px;font-family:inherit;font-size:.9rem;outline:none;transition:.15s}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+textarea{resize:vertical;min-height:74px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.hint{font-size:.74rem;color:var(--muted);margin-top:4px}
+.grid-mods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+@media(max-width:560px){.grid-mods{grid-template-columns:1fr}}
+.modcard{border:1px solid var(--line);background:var(--void-2);border-radius:11px;padding:11px 12px;cursor:pointer;transition:.15s;position:relative}
+.modcard:hover{border-color:var(--line-gold)}
+.modcard.on{border-color:var(--gold);background:rgba(201,146,42,.08)}
+.modcard .mt{font-weight:600;font-size:.86rem;display:flex;align-items:center;gap:7px}
+.modcard .md{font-size:.74rem;color:var(--muted);margin-top:3px}
+.scopebadge{font-size:.6rem;letter-spacing:.4px;text-transform:uppercase;padding:2px 6px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.scope-admin{color:#ffd27a;border-color:rgba(201,146,42,.4)}
+.scope-client{color:#8ee9ff;border-color:rgba(0,212,200,.4)}
+.scope-shared{color:#c9b6ff;border-color:rgba(123,47,255,.4)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--void-2);border-radius:99px;padding:7px 13px;font-size:.8rem;cursor:pointer;transition:.15s;user-select:none}
+.chip.on{border-color:var(--gold);background:rgba(201,146,42,.12);color:var(--gold-light)}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:10px}
+.sw{width:42px;height:24px;border-radius:99px;background:var(--void-2);border:1px solid var(--line);position:relative;cursor:pointer;flex:none;transition:.15s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#555;transition:.15s}
+.sw.on{background:rgba(201,146,42,.3);border-color:var(--gold)}
+.sw.on::after{left:21px;background:var(--gold-light)}
+.colorrow{display:flex;align-items:center;gap:8px}
+.colorrow input[type=color]{width:42px;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--void-2);padding:2px;cursor:pointer}
+.btn{border:none;border-radius:10px;padding:11px 16px;font-family:inherit;font-weight:600;font-size:.86rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1303}
+.btn-ghost{background:var(--void-2);color:var(--white);border:1px solid var(--line)}
+.btn-teal{background:var(--teal);color:#022}
+.btn:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.smallbtn{font-size:.74rem;padding:6px 11px}
+.addrow{display:flex;gap:8px;margin-top:8px}
+/* preview */
+.prevwrap{position:sticky;top:84px}
+.prevhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.prevhead b{font-size:.82rem;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.preview{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#070815;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.pv-app{display:flex;min-height:330px}
+.pv-side{width:124px;background:rgba(0,0,0,.3);border-right:1px solid var(--line);padding:12px 9px;flex:none}
+.pv-logo{font-weight:800;font-size:.66rem;letter-spacing:.4px;margin-bottom:11px;word-break:break-word}
+.pv-nav div{font-size:.62rem;color:#c9ccdf;padding:5px 7px;border-radius:6px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-main{flex:1;padding:14px}
+.pv-main h3{font-size:.8rem;margin-bottom:2px}
+.pv-main .sub{font-size:.64rem;color:var(--muted);margin-bottom:11px}
+.pv-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pv-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:9px}
+.pv-card .k{font-size:.54rem;text-transform:uppercase;letter-spacing:.5px}
+.pv-card .v{font-size:1.05rem;font-weight:800;margin-top:3px}
+.pv-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pv-badge{font-size:.56rem;border:1px solid var(--line);border-radius:99px;padding:3px 8px;color:var(--muted)}
+.prevsum{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;font-size:.8rem}
+.prevsum .ln{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+.prevsum .ln:last-child{border:none}
+.prevsum .lv{color:var(--muted);text-align:right}
+.promptbox{margin-top:12px}
+.promptbox textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:.72rem}
+/* sticky actions */
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(5,6,26,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line-gold);padding:12px 20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* overlay */
+.ov{position:fixed;inset:0;z-index:60;background:rgba(2,3,12,.74);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.ov.on{display:flex}
+.ov-card{background:var(--card);border:1px solid var(--line-gold);border-radius:16px;max-width:980px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.ov-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line)}
+.ov-head h3{font-size:1rem}
+.ov-body{padding:16px 18px;overflow:auto}
+.ov-foot{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.mockframe{width:100%;height:60vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+.specbox{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:.78rem;background:var(--void-2);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:60vh;overflow:auto}
+.x{cursor:pointer;color:var(--muted);font-size:1.3rem;line-height:1}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--gold);border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:var(--card-2);border:1px solid var(--line-gold);border-radius:10px;padding:11px 18px;font-size:.84rem;z-index:80;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+.aibadge{font-size:.66rem;color:var(--teal);border:1px solid rgba(0,212,200,.35);border-radius:99px;padding:2px 8px;margin-left:6px}
+.mininav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.mininav a{font-size:.74rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+.mininav a:hover{border-color:var(--gold);color:var(--gold-light)}
+.success{text-align:center}
+.success .lk{display:flex;gap:8px;margin:8px 0;align-items:center}
+.success input{font-size:.78rem}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="dot">K</span> KNIGHT OPS <span class="tb-tag">Dashboard Builder</span></div>
+  <div><a href="/admin" class="tb-tag">Admin</a></div>
+</div>
+
+<div class="shell">
+  <!-- ============ FORM COLUMN ============ -->
+  <div class="col-form">
+    <div class="hero">
+      <h1 class="serif">Build a client dashboard</h1>
+      <p>Answer a few questions (or let AI draft it from a description). Preview a real mockup, then generate a build-ready prompt + spec that ships the whole thing.</p>
+      <div class="modepick">
+        <div class="modebtn active" id="mode-ai" onclick="setMode('ai')"><b>✨ Build with AI</b><span>Describe it + drop files. AI fills everything in.</span></div>
+        <div class="modebtn" id="mode-manual" onclick="setMode('manual')"><b>✍️ Build manually</b><span>Step through each section yourself.</span></div>
+      </div>
+    </div>
+
+    <!-- AI-FIRST -->
+    <div class="sec" id="sec-ai">
+      <div class="sec-h"><span class="n">✨</span><h2>Tell AI what you're building</h2></div>
+      <div class="sec-sub">Who's the client, what do they do, and what should the dashboard accomplish? Paste call notes or transcripts and attach docs.</div>
+      <label class="fl">What are we building? (client + goal)</label>
+      <textarea id="ai_brief" placeholder="e.g. A dashboard for a leadership coach who runs a 12-week cohort. Needs a client portal, ascension tracking, Stripe payments, and an AI coaching assistant. Brand is calm teal + gold."></textarea>
+      <label class="fl">Paste a transcript or notes (optional)</label>
+      <textarea id="ai_transcript" placeholder="Discovery call transcript, Fathom summary, voice memo notes..."></textarea>
+      <div class="row">
+        <div><label class="fl">Their website (optional — AI will reference it)</label><input type="url" id="ai_research" placeholder="https://"></div>
+        <div><label class="fl">Upload docs / transcriptions (optional)</label><input type="file" id="ai_files" multiple style="font-size:.8rem;padding:8px"></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="btnAnalyze" onclick="analyzeBuild()">✨ Analyze &amp; pre-fill the build</button> <span id="aiStat" class="hint"></span></div>
+    </div>
+
+    <div class="mininav" id="mininav"></div>
+
+    <!-- 1 CLIENT & BUSINESS -->
+    <div class="sec" id="s1">
+      <div class="sec-h"><span class="n">1</span><h2>Client &amp; Business</h2></div>
+      <div class="sec-sub">Who this is for and how it should look. Links to a contact record in your admin.</div>
+      <div class="row">
+        <div><label class="fl">First name</label><input type="text" id="first_name"></div>
+        <div><label class="fl">Last name</label><input type="text" id="last_name"></div>
+      </div>
+      <div class="row">
+        <div><label class="fl">Email <span class="req">*</span></label><input type="email" id="email"></div>
+        <div><label class="fl">Phone</label><input type="tel" id="phone"></div>
+      </div>
+      <label class="fl">Business / brand name <span class="req">*</span></label><input type="text" id="business_name" oninput="render()">
+      <label class="fl">Niche / industry</label><input type="text" id="niche" oninput="render()">
+      <label class="fl">What they do</label><textarea id="what_they_do"></textarea>
+      <label class="fl">Offers &amp; pricing</label><textarea id="offers" placeholder="List their offers + price points (drives ascension + payments)"></textarea>
+      <div class="row">
+        <div><label class="fl">Target audience</label><textarea id="audience"></textarea></div>
+        <div><label class="fl">Team &amp; roles</label><textarea id="team"></textarea></div>
+      </div>
+      <label class="fl">Brand</label>
+      <div class="row">
+        <div class="colorrow"><input type="color" id="c_primary" value="#C9922A" oninput="render()"><span class="hint">Primary</span></div>
+        <div class="colorrow"><input type="color" id="c_secondary" value="#05061a" oninput="render()"><span class="hint">Background</span></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="colorrow"><input type="color" id="c_accent" value="#00D4C8" oninput="render()"><span class="hint">Accent</span></div>
+        <div><select id="brand_mode" onchange="render()"><option value="dark">Dark mode</option><option value="light">Light mode</option></select></div>
+      </div>
+      <div class="row">
+        <div><label class="fl">Fonts (optional)</label><input type="text" id="fonts" placeholder="e.g. Playfair + Inter"></div>
+        <div><label class="fl">Logo upload (optional)</label><input type="file" id="logo_file" accept="image/*" style="font-size:.8rem;padding:8px"></div>
+      </div>
+      <label class="fl">Brand voice (optional)</label><input type="text" id="voice" placeholder="e.g. bold, warm, mission-driven">
+    </div>
+
+    <!-- 2 MODULES -->
+    <div class="sec" id="s2">
+      <div class="sec-h"><span class="n">2</span><h2>Modules</h2></div>
+      <div class="sec-sub">Pick the building blocks. Each updates the preview. <span class="scopebadge scope-admin">admin</span> <span class="scopebadge scope-client">client</span> <span class="scopebadge scope-shared">shared</span></div>
+      <div class="grid-mods" id="modGrid"></div>
+      <label class="fl">Custom modules</label>
+      <div class="addrow"><input type="text" id="customMod" placeholder="Name a custom module"><button class="btn btn-ghost smallbtn" onclick="addCustomMod()">+ Add</button></div>
+      <div class="chips" id="customModList"></div>
+    </div>
+
+    <!-- 3 FEATURES -->
+    <div class="sec" id="s3">
+      <div class="sec-h"><span class="n">3</span><h2>Features &amp; functions</h2></div>
+      <div class="sec-sub">Fine-tune what each selected module does.</div>
+      <div id="featWrap"><p class="hint">Select modules above to configure features.</p></div>
+    </div>
+
+    <!-- 4 ROLES -->
+    <div class="sec" id="s4">
+      <div class="sec-h"><span class="n">4</span><h2>Users, roles &amp; permissions</h2></div>
+      <div class="sec-sub">Who logs in and what they can do. Statuses below are editable inside the built admin.</div>
+      <label class="fl">Who is this for?</label>
+      <div class="chips" id="facingChips">
+        <div class="chip" data-facing="internal_only" onclick="setFacing(this)">Internal team only</div>
+        <div class="chip" data-facing="client_portal" onclick="setFacing(this)">Client portal only</div>
+        <div class="chip on" data-facing="both" onclick="setFacing(this)">Both (team + client portal)</div>
+      </div>
+      <label class="fl">Role templates</label>
+      <div class="chips" id="roleChips"></div>
+      <label class="fl">Customer-journey / ascension stages (comma separated, editable later)</label>
+      <input type="text" id="journey_stages" value="Lead, Onboarding, Active, Ascension, Renewal, Alumni" oninput="render()">
+      <label class="fl">Project / client statuses</label>
+      <input type="text" id="status_set" value="New, In Progress, Review, Complete, On Hold">
+    </div>
+
+    <!-- 5 INTEGRATIONS -->
+    <div class="sec" id="s5">
+      <div class="sec-h"><span class="n">5</span><h2>Integrations</h2></div>
+      <div class="sec-sub">Supabase auth (with activation + password set/reset) is always included.</div>
+      <div class="chips" id="intChips"></div>
+      <div class="toggle"><div class="sw" id="sw_payments" onclick="toggleSw('sw_payments','payments')"></div><span>Stripe payments / subscriptions</span></div>
+      <div class="toggle"><div class="sw" id="sw_ai" onclick="toggleSw('sw_ai','ai_on')"></div><span>AI features (assistant, insights, automations)</span></div>
+    </div>
+
+    <!-- 6 WEBSITE / BLOG / HOSTING -->
+    <div class="sec" id="s6">
+      <div class="sec-h"><span class="n">6</span><h2>Website, blog &amp; hosting</h2></div>
+      <div class="sec-sub">Optional marketing site + automated content, and where it lives.</div>
+      <div class="toggle"><div class="sw" id="sw_website" onclick="toggleSw('sw_website','website_on')"></div><span>Build a marketing website too</span></div>
+      <div id="websiteOpts" style="display:none"><label class="fl">Website pages / structure</label><input type="text" id="website_pages" placeholder="Home, About, Services, Pricing, Contact"></div>
+      <div class="toggle"><div class="sw" id="sw_blog" onclick="toggleSw('sw_blog','blog_on')"></div><span>Automate blog posts</span></div>
+      <div id="blogOpts" style="display:none">
+        <div class="toggle"><div class="sw" id="sw_blogmanage" onclick="toggleSw('sw_blogmanage','blog_manage')"></div><span>Manage blog from inside the dashboard</span></div>
+        <label class="fl">Cadence</label><input type="text" id="blog_cadence" placeholder="e.g. 2x / week, AI-drafted, human-approved">
+      </div>
+      <label class="fl">Hosting</label>
+      <div class="chips">
+        <div class="chip on" data-host="knightops" onclick="setHost(this)">Knight Ops hosts it</div>
+        <div class="chip" data-host="client" onclick="setHost(this)">Client hosts it</div>
+      </div>
+      <label class="fl">Domain (optional — we proceed without it)</label><input type="text" id="domain" placeholder="app.theirbrand.com">
+      <label class="fl">Client size (gates enterprise security options)</label>
+      <select id="client_size"><option value="smb">Small business</option><option value="midmarket">Mid-market</option><option value="enterprise">Enterprise</option></select>
+    </div>
+
+    <!-- 7 ADDITIONAL -->
+    <div class="sec" id="s7">
+      <div class="sec-h"><span class="n">7</span><h2>Additional details, files &amp; paths</h2></div>
+      <div class="sec-sub">Anything else, plus exact file paths for the build to reference.</div>
+      <label class="fl">Additional context</label><textarea id="additional_details"></textarea>
+      <label class="fl">Meeting transcriptions</label><textarea id="transcripts" placeholder="Paste any transcripts to inform the build"></textarea>
+      <label class="fl">File paths to reference (one per line)</label><textarea id="file_paths" placeholder="/Users/.../Claude Home/Projects/Client/..."></textarea>
+      <label class="fl">Upload supporting files</label><input type="file" id="extra_files" multiple style="font-size:.8rem;padding:8px">
+      <div id="uploadList" class="chips"></div>
+    </div>
+  </div>
+
+  <!-- ============ PREVIEW COLUMN ============ -->
+  <div class="col-prev">
+    <div class="prevwrap">
+      <div class="prevhead"><b>Live preview</b><span id="modeTag" class="aibadge" style="display:none">AI drafted</span></div>
+      <div class="preview"><div class="pv-app" id="pvApp"></div></div>
+      <div class="prevsum" id="prevSum"></div>
+      <div class="promptbox">
+        <div class="prevhead" style="margin-top:4px"><b>Build prompt</b><button class="btn btn-ghost smallbtn" onclick="copyPrompt()" id="copyBtn">📋 Copy</button></div>
+        <textarea id="promptOut" readonly></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STICKY ACTIONS -->
+<div class="actionbar">
+  <button class="btn btn-ghost" onclick="saveDraft()" id="saveBtn">💾 Save draft</button>
+  <button class="btn btn-teal" onclick="reviewWithAI()" id="reviewBtn">🔍 Review with AI</button>
+  <button class="btn btn-ghost" onclick="createSpec()" id="specBtn">📄 Create spec</button>
+  <button class="btn btn-primary" onclick="finalize()" id="finalizeBtn">🚀 Finalize &amp; share</button>
+</div>
+
+<!-- OVERLAY: AI MOCKUP -->
+<div class="ov" id="ovMock">
+  <div class="ov-card">
+    <div class="ov-head"><h3>AI mockup <span id="mockAi" class="aibadge" style="display:none">live AI</span></h3><span class="x" onclick="closeOv('ovMock')">&times;</span></div>
+    <div class="ov-body">
+      <iframe class="mockframe" id="mockFrame"></iframe>
+      <label class="fl">Want changes? Tell the AI or deselect modules, then regenerate.</label>
+      <textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals module, emphasize the client portal"></textarea>
+    </div>
+    <div class="ov-foot">
+      <button class="btn btn-ghost" onclick="reviewWithAI()" id="regenBtn">🔄 Regenerate</button>
+      <button class="btn btn-primary" onclick="approveMock()">✓ Looks right — continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY: SPEC -->
+<div class="ov" id="ovSpec">
+  <div class="ov-card">
+    <div class="ov-head"><h3>Build spec <span id="specAi" class="aibadge" style="display:none">live AI</span></h3><span class="x" onclick="closeOv('ovSpec')">&times;</span></div>
+    <div class="ov-body"><div class="specbox" id="specBox"></div></div>
+    <div class="ov-foot"><button class="btn btn-ghost" onclick="downloadSpec()">⬇ Download .md</button><button class="btn btn-primary" onclick="closeOv('ovSpec')">Done</button></div>
+  </div>
+</div>
+
+<!-- OVERLAY: SUCCESS -->
+<div class="ov" id="ovDone">
+  <div class="ov-card" style="max-width:620px">
+    <div class="ov-head"><h3>🚀 Build saved</h3><span class="x" onclick="closeOv('ovDone')">&times;</span></div>
+    <div class="ov-body success">
+      <p style="color:var(--muted);margin-bottom:14px">Your build is stored and a contact + project were created in admin. Share these live links — they reload fresh every time.</p>
+      <label class="fl" style="text-align:left">Review &amp; approve link (read-only)</label>
+      <div class="lk"><input type="text" id="lkReview" readonly><button class="btn btn-ghost smallbtn" onclick="copyEl('lkReview')">Copy</button></div>
+      <label class="fl" style="text-align:left">Edit link (client can add info)</label>
+      <div class="lk"><input type="text" id="lkEdit" readonly><button class="btn btn-ghost smallbtn" onclick="copyEl('lkEdit')">Copy</button></div>
+    </div>
+    <div class="ov-foot"><button class="btn btn-ghost" onclick="copyPrompt()">📋 Copy build prompt</button><button class="btn btn-primary" onclick="closeOv('ovDone')">Done</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB='https://trpnlkntvulkjerevngm.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const FN=SB+'/functions/v1/';
+async function api(fn,payload){const r=await fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(payload)});return r.json();}
+
+// ---- Module catalog (mirrors dashboard_modules seed) ----
+const MODULES=[
+ {k:'overview',l:'Today / Overview',c:'Core',s:'shared',d:'KPI hero, action items, snapshot',f:['KPI hero row','Action items','Snapshot']},
+ {k:'kpis',l:'KPI / CEO Dashboard',c:'Core',s:'admin',d:'Gauges, trends, roll-ups',f:['Animated gauges','Trend charts','Roll-ups']},
+ {k:'leads',l:'Leads & CRM',c:'Sales',s:'admin',d:'Capture, temperature, stages, activity',f:['Capture','Temperature G/Y/R','Stages','Inline edit','Activity feed']},
+ {k:'pipeline',l:'Sales Pipeline',c:'Sales',s:'admin',d:'Kanban, scoreboard, alerts',f:['Kanban','Scoreboard','Deal cards','Inactivity alerts']},
+ {k:'deals',l:'Deals & Revenue',c:'Sales',s:'admin',d:'Stages, value, won/lost',f:['Stage↔status link','Value','Won/Lost','Channel']},
+ {k:'tasks',l:'Tasks & Projects',c:'Ops',s:'shared',d:'Priority, due dates, statuses',f:['Priority sort','Due dates','Assignees','Editable statuses']},
+ {k:'clients',l:'Clients & Contacts',c:'Sales',s:'admin',d:'Contact anchor + detail tabs',f:['Contact anchor','Detail tabs','Tags','Activity']},
+ {k:'cohort',l:'Retention & Ascension',c:'Success',s:'admin',d:'Cohort grid, drift alerts',f:['Cohort grid','Engagement','Drift alerts','Ascension triggers']},
+ {k:'journey',l:'Customer Journey Map',c:'Success',s:'shared',d:'Stages, next-best-offer',f:['Journey map','Stages','Next-best-offer','Editable statuses']},
+ {k:'portal',l:'Client Portal',c:'Portal',s:'client',d:'My journey, materials, next offer',f:['My journey','Materials library','Next offer','My calls','Support chat']},
+ {k:'partner',l:'Partner / JV Portal',c:'Portal',s:'client',d:'Link stats, commissions',f:['Link stats','Commission ledger','Payouts']},
+ {k:'finance',l:'Money & Finance',c:'Finance',s:'admin',d:'Revenue, P&L, forecast',f:['Revenue/expense','Cash position','P&L','Forecast']},
+ {k:'payments',l:'Payments & Billing',c:'Finance',s:'shared',d:'Stripe checkout, subscriptions',f:['Checkout','Subscriptions','Refunds','Status']},
+ {k:'webinar',l:'Webinar & Ad Spend',c:'Growth',s:'admin',d:'Registrations, ROAS, anomaly',f:['Registrations','Attendance','ROAS/EPL','Anomaly alerts']},
+ {k:'media',l:'Media & JV Tracker',c:'Growth',s:'admin',d:'Guests, attribution, commissions',f:['Guests','Attribution links','Commissions','Episode ROI']},
+ {k:'events',l:'Live Event Capture',c:'Growth',s:'admin',d:'QR capture, tagging, follow-up',f:['Quick/QR capture','Tagging','AI follow-up']},
+ {k:'aibrain',l:'AI Brain & Intelligence',c:'AI',s:'shared',d:'Transcripts, signals, briefs',f:['Transcript ingest','Action items','Signal detection','Pre-call briefs','Anomalies']},
+ {k:'content',l:'Content & Blog',c:'Marketing',s:'shared',d:'Calendar, voice, blog automation',f:['Content calendar','Brand voice','Blog automation','In-dashboard management']},
+ {k:'notifications',l:'Notifications',c:'System',s:'shared',d:'Bell, email digests, SMS/Slack',f:['In-app bell','Email digests','SMS/Slack','Per-user prefs']},
+ {k:'messaging',l:'Admin ↔ Client Messaging',c:'Portal',s:'shared',d:'Threads, approvals, file share',f:['Threads','Approvals','File share']},
+ {k:'team',l:'Team & People',c:'System',s:'admin',d:'Users, role matrix, invites',f:['User list','Role matrix','Invites','Permission audit']},
+ {k:'settings',l:'Settings & Admin',c:'System',s:'admin',d:'Profile, integrations, branding',f:['Profile','Integrations vault','Module toggles','Branding']},
+ {k:'worksheets',l:'Worksheets & Tools',c:'Portal',s:'client',d:'Self-serve interactive tools',f:['Worksheets','Persistence','Export']},
+ {k:'reports',l:'Client Reports',c:'Success',s:'admin',d:'KPI report generator',f:['Report generator','KPI pull','Export']}
+];
+const ROLES=['Super Admin','Admin','Team member','Coach','Client','Partner / JV','Read-only viewer'];
+const INTS=[{k:'resend',l:'Resend email'},{k:'stripe',l:'Stripe payments'},{k:'ai',l:'AI / Anthropic'},{k:'crm',l:'CRM (GHL/HubSpot)'},{k:'calendar',l:'Calendar'},{k:'fathom',l:'Fathom transcripts'},{k:'kajabi',l:'Course platform'},{k:'ads',l:'Ad platforms'},{k:'webhooks',l:'Webhooks'}];
+
+// ---- State ----
+const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false};
+
+// ---- Build catalog UI ----
+function buildModGrid(){
+  document.getElementById('modGrid').innerHTML=MODULES.map(m=>
+    `<div class="modcard" data-k="${m.k}" onclick="toggleMod('${m.k}')"><div class="mt">${m.l} <span class="scopebadge scope-${m.s}">${m.s}</span></div><div class="md">${m.d}</div></div>`).join('');
+  document.getElementById('roleChips').innerHTML=ROLES.map(r=>`<div class="chip ${S.roles.includes(r)?'on':''}" onclick="toggleRole(this,'${r}')">${r}</div>`).join('');
+  document.getElementById('intChips').innerHTML=INTS.map(i=>`<div class="chip ${S.integrations.includes(i.k)?'on':''}" data-int="${i.k}" onclick="toggleInt(this,'${i.k}')">${i.l}</div>`).join('');
+  document.getElementById('mininav').innerHTML=['Client','Modules','Features','Roles','Integrations','Website','Details'].map((t,i)=>`<a href="#s${i+1}">${t}</a>`).join('');
+}
+function toggleMod(k){const i=S.modules.indexOf(k);if(i>=0)S.modules.splice(i,1);else S.modules.push(k);syncModCards();buildFeatures();render();}
+function syncModCards(){document.querySelectorAll('.modcard').forEach(c=>c.classList.toggle('on',S.modules.includes(c.dataset.k)));}
+function addCustomMod(){const v=document.getElementById('customMod').value.trim();if(!v)return;S.customModules.push(v);document.getElementById('customMod').value='';renderCustomMods();render();}
+function renderCustomMods(){document.getElementById('customModList').innerHTML=S.customModules.map((m,i)=>`<div class="chip on" onclick="S.customModules.splice(${i},1);renderCustomMods();render()">${m} ✕</div>`).join('');}
+function buildFeatures(){
+  const sel=MODULES.filter(m=>S.modules.includes(m.k));
+  if(!sel.length){document.getElementById('featWrap').innerHTML='<p class="hint">Select modules above to configure features.</p>';return;}
+  document.getElementById('featWrap').innerHTML=sel.map(m=>{
+    const chosen=S.features[m.k]||m.f.slice();
+    S.features[m.k]=chosen;
+    return `<div style="margin-bottom:13px"><label class="fl" style="margin-top:0">${m.l}</label><div class="chips">`+
+      m.f.map(f=>`<div class="chip ${chosen.includes(f)?'on':''}" onclick="toggleFeat('${m.k}','${f.replace(/'/g,"\\'")}',this)">${f}</div>`).join('')+`</div></div>`;
+  }).join('');
+}
+function toggleFeat(k,f,el){const arr=S.features[k]||[];const i=arr.indexOf(f);if(i>=0)arr.splice(i,1);else arr.push(f);S.features[k]=arr;el.classList.toggle('on');}
+function toggleRole(el,r){const i=S.roles.indexOf(r);if(i>=0)S.roles.splice(i,1);else S.roles.push(r);el.classList.toggle('on');render();}
+function toggleInt(el,k){const i=S.integrations.indexOf(k);if(i>=0)S.integrations.splice(i,1);else S.integrations.push(k);el.classList.toggle('on');render();}
+function setFacing(el){document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');S.facing=el.dataset.facing;render();}
+function setHost(el){document.querySelectorAll('[data-host]').forEach(c=>c.classList.remove('on'));el.classList.add('on');S.host=el.dataset.host;}
+function toggleSw(id,key){const el=document.getElementById(id);S[key]=!S[key];el.classList.toggle('on',S[key]);
+  if(key==='website_on')document.getElementById('websiteOpts').style.display=S.website_on?'block':'none';
+  if(key==='blog_on')document.getElementById('blogOpts').style.display=S.blog_on?'block':'none';
+  if(key==='payments'&&S.payments&&!S.integrations.includes('stripe')){S.integrations.push('stripe');buildModGrid();syncModCards();}
+  render();}
+function setMode(m){S.mode=m;document.getElementById('mode-ai').classList.toggle('active',m==='ai');document.getElementById('mode-manual').classList.toggle('active',m==='manual');document.getElementById('sec-ai').classList.toggle('hide',m!=='manual'?false:true);if(m==='manual')document.getElementById('sec-ai').classList.add('hide');else document.getElementById('sec-ai').classList.remove('hide');}
+
+// ---- gather ----
+function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function gather(){
+  return {mode:S.mode,first_name:val('first_name'),last_name:val('last_name'),email:val('email'),phone:val('phone'),
+    company:val('business_name'),business_name:val('business_name'),niche:val('niche'),what_they_do:val('what_they_do'),
+    offers:val('offers'),audience:val('audience'),team:val('team'),
+    brand:{primary:val('c_primary'),secondary:val('c_secondary'),accent:val('c_accent'),mode:val('brand_mode'),fonts:val('fonts'),logo_path:S.logo_path,voice:val('voice')},
+    modules:S.modules.concat(S.customModules.map(m=>({key:'custom',label:m,custom:true}))),
+    features:S.features,facing:S.facing,
+    roles:{templates:S.roles,journey_stages:val('journey_stages'),statuses:val('status_set')},
+    integrations:Array.from(new Set(['supabase_auth'].concat(S.integrations))),
+    payments:S.payments,ai_features:{enabled:S.ai_on},
+    website:{build:S.website_on,pages:val('website_pages')},blog:{automate:S.blog_on,manage_in_dashboard:S.blog_manage,cadence:val('blog_cadence')},
+    hosting:S.host,domain:val('domain'),client_size:val('client_size'),
+    additional_details:val('additional_details'),transcripts:val('transcripts'),
+    file_paths:val('file_paths').split('\n').map(x=>x.trim()).filter(Boolean),upload_paths:S.upload_paths,
+    resume_token:S.resume_token,id:S.id};
+}
+function modLabel(k){const m=MODULES.find(x=>x.k===k);return m?m.l:k;}
+
+// ---- render preview ----
+function render(){
+  const d=gather();const b=d.brand;const allMods=S.modules.map(modLabel).concat(S.customModules);
+  const nav=allMods.length?allMods.map(m=>`<div>${m}</div>`).join(''):'<div style="color:#666">No modules yet</div>';
+  const cards=[['Revenue','$48.2k'],['Clients','23'],['Pipeline','$112k'],['Tasks','7']].map(c=>`<div class="pv-card" style="border-color:${b.accent}33"><div class="k" style="color:${b.accent}">${c[0]}</div><div class="v">${c[1]}</div></div>`).join('');
+  const badges=[];if(d.facing!=='internal_only')badges.push('Client portal');if(d.payments)badges.push('Stripe');if(S.ai_on)badges.push('AI');if(S.website_on)badges.push('Website');if(S.blog_on)badges.push('Blog');
+  const txt=b.mode==='light'?'#1a1303':'#fff';
+  document.getElementById('pvApp').style.background=b.secondary;
+  document.getElementById('pvApp').innerHTML=
+    `<div class="pv-side"><div class="pv-logo" style="color:${b.primary}">${(d.business_name||'DASHBOARD').toUpperCase()}</div><div class="pv-nav">${nav}</div></div>`+
+    `<div class="pv-main" style="color:${txt}"><h3>Welcome back</h3><div class="sub">${d.niche||''}</div><div class="pv-cards">${cards}</div><div class="pv-badges">${badges.map(x=>`<span class="pv-badge">${x}</span>`).join('')}</div></div>`;
+  document.getElementById('prevSum').innerHTML=
+    line('Business',d.business_name||'—')+line('Modules',(allMods.length)+' selected')+line('Access',d.facing.replace('_',' '))+
+    line('Roles',S.roles.length+'')+line('Integrations',d.integrations.length+'')+line('Payments',d.payments?'Stripe':'no')+line('Hosting',d.hosting);
+  document.getElementById('promptOut').value=buildPrompt();
+  document.getElementById('modeTag').style.display=S.ai_drafted?'inline-block':'none';
+}
+function line(k,v){return `<div class="ln"><span>${k}</span><span class="lv">${v}</span></div>`;}
+
+// ---- build prompt (goal-function) ----
+function buildPrompt(){
+  const d=gather();const b=d.brand;const mods=S.modules.map(modLabel).concat(S.customModules);
+  const app=(d.business_name||'Client')+' Dashboard';
+  const ints=d.integrations.join(', ');
+  const portal=d.facing!=='internal_only';
+  const L=[];
+  L.push('/project-selector');L.push('');
+  L.push('# GOAL FUNCTION — build '+app+' to 100% completion');L.push('');
+  L.push('GOAL: Build, deploy, and fully test '+(d.business_name||'the client')+'’s custom dashboard. Do not stop until every module works with real CRUD, auth + email + password flows verified, and you have walked the full admin AND client journey end to end. Loop: build → test → fix → re-test until the goal is met.');L.push('');
+  L.push('## Client');L.push('- Business: '+(d.business_name||'[name]'));L.push('- Niche: '+(d.niche||''));L.push('- What they do: '+(d.what_they_do||''));if(d.offers)L.push('- Offers/pricing: '+d.offers);if(d.audience)L.push('- Audience: '+d.audience);if(d.team)L.push('- Team: '+d.team);L.push('');
+  L.push('## Brand');L.push('- Primary '+b.primary+' / Background '+b.secondary+' / Accent '+b.accent+' / '+b.mode+' mode');if(b.fonts)L.push('- Fonts: '+b.fonts);if(b.voice)L.push('- Voice: '+b.voice);if(b.logo_path)L.push('- Logo: '+SB+'/storage/v1/object/public/dashboard-assets/'+b.logo_path);L.push('');
+  L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + Postgres + RLS) + Resend'+(d.payments?' + Stripe':'')+', deploy to Vercel.');L.push('- Create a NEW Supabase project for this client (one app = one project). Validate env with Zod.');L.push('');
+  L.push('## Modules to build');mods.forEach(m=>L.push('- '+m));L.push('');
+  L.push('## Access & roles');L.push('- Facing: '+d.facing.replace('_',' ')+(portal?' (build the client portal + admin↔client interaction)':' (internal only)'));L.push('- Roles: '+S.roles.join(', '));L.push('- Editable journey stages: '+d.roles.journey_stages);L.push('- Editable statuses: '+d.roles.statuses);L.push('- Enforce RLS per role on every sensitive table; permission matrix editable in admin.');L.push('');
+  L.push('## Integrations');L.push('- '+ints);if(d.payments)L.push('- Stripe: checkout, subscriptions, refunds, webhooks (signature-verified).');L.push('- Resend: account activation + notification emails from the client domain.');L.push('');
+  if(S.website_on){L.push('## Website');L.push('- Build a marketing site: '+(d.website.pages||'standard pages')+'.');L.push('');}
+  if(S.blog_on){L.push('## Blog');L.push('- Automate blog posts'+(d.blog.manage_in_dashboard?' and manage them inside the dashboard':'')+'. Cadence: '+(d.blog.cadence||'TBD')+'.');L.push('');}
+  L.push('## Hosting');L.push('- '+(d.hosting==='knightops'?'Knight Ops hosts on Vercel':'Client hosts')+(d.domain?(' — domain '+d.domain):' — no domain yet; ship on the Vercel URL with mockups where data is missing.'));L.push('');
+  L.push('## Build + test loop (must all pass before done)');
+  L.push('1. Scaffold + Supabase schema + RLS + soft-delete + audit log.');
+  L.push('2. Auth: signup/invite → activation email (Resend) → set password page → reset password page. VERIFY the reset URL flow works.');
+  L.push('3. Build every module above with the universal patterns (record detail tabs, KPI row, G/Y/R statuses, bulk actions, empty states, saved views, activity feed).');
+  if(portal)L.push('4. Client portal: client sees their journey/status/next step; admin and client message + approve back and forth; notifications fire via Resend.');
+  L.push((portal?'5':'4')+'. Ascension model wired with editable stages; show clients where they are and what is next.');
+  L.push((portal?'6':'5')+'. Deploy to Vercel. Then LIVE TEST: create, edit, and delete test records in every module; add a test user; confirm activation + password set/reset emails; walk the full admin journey and full client journey.');
+  L.push((portal?'7':'6')+'. Fix anything broken and re-run the tests. Only finish when all green. Output URLs, test credentials, and a short runbook.');
+  L.push('');
+  if(d.additional_details){L.push('## Additional context');L.push(d.additional_details);}
+  if(d.file_paths.length){L.push('## File paths to reference');d.file_paths.forEach(p=>L.push('- '+p));}
+  if(d.transcripts){L.push('## Transcript');L.push(d.transcripts.slice(0,4000));}
+  L.push('');L.push('Reference the attached spec doc for module acceptance criteria. Build it all the way through.');
+  return L.join(String.fromCharCode(10));
+}
+function copyPrompt(){navigator.clipboard.writeText(document.getElementById('promptOut').value).then(()=>{toast('Build prompt copied');const b=document.getElementById('copyBtn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1800);});}
+function copyEl(id){const e=document.getElementById(id);e.select();navigator.clipboard.writeText(e.value);toast('Copied');}
+
+// ---- uploads ----
+async function uploadFile(file,prefix){
+  const path=prefix+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const r=await fetch(SB+'/storage/v1/object/dashboard-assets/'+path,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':file.type||'application/octet-stream'},body:file});
+  if(r.ok)return path;return null;
+}
+document.getElementById('logo_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;toast('Uploading logo...');const p=await uploadFile(f,'logos');if(p){S.logo_path=p;toast('Logo uploaded');render();}else toast('Upload failed');});
+document.getElementById('extra_files').addEventListener('change',async e=>{for(const f of e.target.files){toast('Uploading '+f.name);const p=await uploadFile(f,'docs');if(p){S.upload_paths.push(p);}}renderUploads();toast('Files uploaded');});
+document.getElementById('ai_files').addEventListener('change',async e=>{for(const f of e.target.files){toast('Uploading '+f.name);const p=await uploadFile(f,'ai-docs');if(p)S.upload_paths.push(p);}renderUploads();});
+function renderUploads(){document.getElementById('uploadList').innerHTML=S.upload_paths.map(p=>`<div class="chip on">${p.split('/').pop()}</div>`).join('');}
+
+// ---- AI analyze (pre-fill) ----
+async function analyzeBuild(){
+  const brief=val('ai_brief');if(!brief){toast('Describe what you’re building first');return;}
+  const btn=document.getElementById('btnAnalyze');btn.disabled=true;document.getElementById('aiStat').innerHTML='<span class="spin"></span> Analyzing...';
+  const res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research')});
+  btn.disabled=false;document.getElementById('aiStat').textContent='';
+  if(res.error&&!res.suggested){toast('AI error: '+res.error);return;}
+  applySuggested(res.suggested||{});
+  S.ai_drafted=true;toast(res.ai?'AI drafted your build — review below':'Pre-filled (AI offline)');document.getElementById('s1').scrollIntoView({behavior:'smooth'});
+}
+function applySuggested(s){
+  const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
+  set('business_name',s.business_name);set('niche',s.niche);set('what_they_do',s.what_they_do);set('offers',s.offers);set('audience',s.audience);set('team',s.team);set('additional_details',s.additional_details);
+  if(s.brand){set('c_primary',s.brand.primary);set('c_secondary',s.brand.secondary);set('c_accent',s.brand.accent);set('fonts',s.brand.fonts);set('voice',s.brand.voice);if(s.brand.mode)document.getElementById('brand_mode').value=s.brand.mode;}
+  if(Array.isArray(s.modules)){S.modules=s.modules.slice();syncModCards();buildFeatures();}
+  if(s.facing){S.facing=s.facing;document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.facing===s.facing));}
+  if(Array.isArray(s.integrations)){S.integrations=Array.from(new Set(s.integrations));buildModGrid();syncModCards();}
+  if(s.payments){S.payments=true;document.getElementById('sw_payments').classList.add('on');}
+  if(s.ai_features&&s.ai_features.enabled){S.ai_on=true;document.getElementById('sw_ai').classList.add('on');}
+  if(s.website&&s.website.build){S.website_on=true;document.getElementById('sw_website').classList.add('on');document.getElementById('websiteOpts').style.display='block';set('website_pages',s.website.pages);}
+  if(s.blog&&s.blog.automate){S.blog_on=true;document.getElementById('sw_blog').classList.add('on');document.getElementById('blogOpts').style.display='block';}
+  if(s.client_size)document.getElementById('client_size').value=s.client_size;
+  render();
+}
+
+// ---- review with AI ----
+let _lastMock='';
+async function reviewWithAI(){
+  if(!S.modules.length&&!S.customModules.length){toast('Pick at least one module');return;}
+  openOv('ovMock');document.getElementById('mockFrame').srcdoc='<body style="font-family:sans-serif;padding:30px;color:#555">Generating a real mockup with AI… (~15-30s)</body>';
+  document.getElementById('regenBtn').disabled=true;
+  const d=gather();d.revision_notes=val('revNotes');
+  const res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});
+  document.getElementById('regenBtn').disabled=false;
+  if(res.mockup_html){_lastMock=res.mockup_html;document.getElementById('mockFrame').srcdoc=res.mockup_html;document.getElementById('mockAi').style.display=res.ai?'inline-block':'none';}
+  else{document.getElementById('mockFrame').srcdoc='<body style="padding:30px;font-family:sans-serif">Could not generate. '+(res.error||'')+'</body>';}
+}
+function approveMock(){closeOv('ovMock');toast('Mockup approved');if(S.id||S.resume_token)api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});}
+
+// ---- spec ----
+let _spec='';
+async function createSpec(){
+  openOv('ovSpec');document.getElementById('specBox').innerHTML='<span class="spin"></span> Writing the spec with AI…';
+  const res=await api('dashboard-ai',{action:'spec',build:gather(),id:S.id,resume_token:S.resume_token});
+  _spec=res.spec_md||'';document.getElementById('specBox').textContent=_spec||('Could not generate. '+(res.error||''));
+  document.getElementById('specAi').style.display=res.ai?'inline-block':'none';
+}
+function downloadSpec(){const blob=new Blob([_spec],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(val('business_name')||'dashboard')+'-spec.md';a.click();}
+
+// ---- save / finalize ----
+async function saveDraft(){
+  if(!val('email')){toast('Add an email to save');return;}
+  const btn=document.getElementById('saveBtn');btn.disabled=true;
+  const res=await api('dashboard-build',{action:'save',...gather(),resume_token:S.resume_token,build_prompt:buildPrompt()});
+  btn.disabled=false;
+  if(res.build){S.id=res.build.id;S.resume_token=res.resume_token||res.build.resume_token;S.share_review_token=res.share_review_token||res.build.share_review_token;S.share_edit_token=res.share_edit_token||res.build.share_edit_token;toast('Draft saved');}
+  else toast('Save failed: '+(res.error||''));
+}
+async function finalize(){
+  if(!val('email')||!val('business_name')){toast('Business name + email required');return;}
+  const btn=document.getElementById('finalizeBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';
+  const res=await api('dashboard-build',{action:'submit',...gather(),resume_token:S.resume_token,build_prompt:buildPrompt(),ai_mockup_html:_lastMock,spec_md:_spec});
+  btn.disabled=false;btn.innerHTML='🚀 Finalize & share';
+  if(res.share_review_token){
+    const base=location.origin+'/db.html?t=';
+    document.getElementById('lkReview').value=base+res.share_review_token;
+    document.getElementById('lkEdit').value=base+res.share_edit_token;
+    openOv('ovDone');toast('Build saved + contact created');
+  } else toast('Submit failed: '+(res.error||''));
+}
+
+// ---- overlays/toast ----
+function openOv(id){document.getElementById(id).classList.add('on');}
+function closeOv(id){document.getElementById(id).classList.remove('on');}
+let _tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2600);}
+
+// ---- resume / prefill ----
+async function boot(){
+  buildModGrid();buildFeatures();render();
+  const q=new URLSearchParams(location.search);
+  if(q.get('resume')){const res=await api('dashboard-build',{action:'resume',resume_token:q.get('resume')});if(res.build)hydrate(res.build);}
+  else if(q.get('prefill')){try{hydrate(JSON.parse(decodeURIComponent(escape(atob(q.get('prefill'))))));S.ai_drafted=true;}catch(e){}}
+}
+function hydrate(b){
+  S.id=b.id||null;S.resume_token=b.resume_token||S.resume_token;S.share_review_token=b.share_review_token;S.share_edit_token=b.share_edit_token;
+  const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
+  set('first_name',b.first_name);set('last_name',b.last_name);set('email',b.email);set('phone',b.phone);set('business_name',b.business_name||b.company);set('niche',b.niche);set('what_they_do',b.what_they_do);set('offers',b.offers);set('audience',b.audience);set('team',b.team);set('additional_details',b.additional_details);set('transcripts',b.transcripts);
+  if(b.brand){set('c_primary',b.brand.primary);set('c_secondary',b.brand.secondary);set('c_accent',b.brand.accent);set('fonts',b.brand.fonts);set('voice',b.brand.voice);if(b.brand.mode)document.getElementById('brand_mode').value=b.brand.mode;S.logo_path=b.brand.logo_path||'';}
+  if(Array.isArray(b.modules))S.modules=b.modules.filter(m=>typeof m==='string');
+  if(b.roles&&b.roles.templates)S.roles=b.roles.templates;
+  if(Array.isArray(b.integrations))S.integrations=b.integrations.filter(x=>x!=='supabase_auth');
+  S.facing=b.facing||S.facing;S.payments=!!b.payments;S.ai_on=b.ai_features&&b.ai_features.enabled;
+  if(b.roles){set('journey_stages',b.roles.journey_stages);set('status_set',b.roles.statuses);}
+  if(Array.isArray(b.file_paths))set('file_paths',b.file_paths.join('\n'));
+  if(b.payments)document.getElementById('sw_payments').classList.add('on');
+  if(S.ai_on)document.getElementById('sw_ai').classList.add('on');
+  buildModGrid();syncModCards();buildFeatures();
+  document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.facing===S.facing));
+  render();
+}
+boot();
+</script>
+</body>
+</html>

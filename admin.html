@@ -2998,7 +2998,7 @@ async function showProjectDetail(id){
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Linked Clients</h3><button class="btn btn-sm btn-primary" onclick="linkClientToProject(\''+id+'\')">+ Link Client</button></div><div id="linkedClients_'+id+'"><p style="color:var(--text-muted);font-size:.85rem">Loading...</p></div></div>'+
-    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'</div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'<button class="btn btn-sm" id="promptBtnDashboard" onclick="showDashboardPrompt(\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📊 Dashboard</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyBuildPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'files\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'files\',\'Project Files\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔑 Project Credentials</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'project-credentials\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'project-credentials\',\'Project Credentials\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="addProjectCredential(\''+id+'\')">+ Add Credential</button></div></div><div id="projectCredentials_'+id+'"></div></div>'+
@@ -3865,6 +3865,39 @@ email_logs (id, user_id, template, status, error, created_at)
 function ccInlineButtons(projectId){
   return '<button class="btn btn-sm" id="promptBtnCC" onclick="showCCPrompt(\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#9889; Command Center</button>';
 }
+function showDashboardPrompt(projectId){
+  var p=S.projects.find(function(x){return x.id===projectId;});
+  if(!p)return;
+  var db=(S.dashboardBuilds||[]).find(function(b){return (p.lead_id&&b.lead_id===p.lead_id)||(b.project_id===p.id);});
+  if(db&&db.build_prompt){document.getElementById('promptOutput').style.display='block';document.getElementById('promptText').textContent=db.build_prompt;dashHi();return;}
+  var idata=p.intake_data||{};
+  var company=p.name||'';
+  var client=(p.clients&&p.clients.profiles)?p.clients.profiles.full_name:'';
+  var biz=company||client||'[CLIENT]';
+  var niche=idata.industry||idata.niche||'';
+  var outcome=idata.q4_core_outcome||idata.core_outcome||idata.bp_core_outcome||'';
+  var brandColor=idata.brand_color||idata.primary_color||'#C8A456';
+  var L=[];
+  L.push('/project-selector');L.push('');
+  L.push('# GOAL FUNCTION - build '+biz+' Dashboard to 100% completion');L.push('');
+  L.push('GOAL: Build, deploy, and fully test the custom dashboard for '+biz+'. Do not stop until every module works with real CRUD, auth + activation email + password set/reset verified, and you have walked the full admin AND client journey. Loop build, test, fix, re-test until done.');L.push('');
+  L.push('## Client');L.push('- Business: '+biz);if(niche)L.push('- Niche: '+niche);if(outcome)L.push('- Core outcome: '+outcome);if(p.description)L.push('- Notes: '+p.description);L.push('');
+  L.push('## Brand');L.push('- Primary '+brandColor+', dark mode. Refine in the Dashboard Builder.');L.push('');
+  L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + RLS) + Resend + Stripe if payments, deploy to Vercel. Create a NEW Supabase project for this client.');L.push('');
+  L.push('## Modules (refine in the Dashboard Builder)');L.push('- Overview, Clients/CRM, Tasks/Projects, Client Portal, Notifications, Settings.');L.push('');
+  L.push('## Build + test loop');
+  L.push('1. Schema + RLS + soft-delete + audit log.');
+  L.push('2. Auth: invite, activation email (Resend), set password page, reset password page. Verify the reset URL flow.');
+  L.push('3. Build modules with the universal patterns; client portal with admin and client messaging + approvals.');
+  L.push('4. Ascension model + editable statuses + role permissions editable in admin.');
+  L.push('5. Deploy to Vercel; LIVE TEST: create, edit, delete records in every module; add a test user; confirm emails; walk admin and client journeys; fix and re-test until green.');
+  L.push('');
+  L.push('Refine every field (modules, integrations, roles, brand, AI mockup, spec) in the Dashboard Builder: https://knightops.biz/dashboard-intake');
+  document.getElementById('promptOutput').style.display='block';
+  document.getElementById('promptText').textContent=L.join(String.fromCharCode(10));
+  dashHi();
+}
+function dashHi(){['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(function(bid){var b=document.getElementById(bid);if(b)b.style.background='transparent';});var d=document.getElementById('promptBtnDashboard');if(d)d.style.background='rgba(200,164,86,0.15)';}
 function showCCPrompt(projectId){
   var p=S.projects.find(function(x){return x.id===projectId;});
   if(!p)return;
@@ -3923,7 +3956,7 @@ function showCCPrompt(projectId){
 
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC'].forEach(function(bid){
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(function(bid){
     var btn=document.getElementById(bid);
     if(btn)btn.style.background='transparent';
   });
@@ -4018,7 +4051,7 @@ function showBuildPrompt(type,projectId){
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
 
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC'].forEach(id=>{
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(id=>{
     const btn=document.getElementById(id);
     if(btn)btn.style.background='transparent';
   });
@@ -9317,6 +9350,7 @@ const FS_TABLE_MAP={
 // metadata.source / metadata.capture_tool / metadata.form_type / tags / form_type.
 const FS_FORM_LABELS={
   // intake_submissions.form_type values
+  dashboard:'Dashboard Build',
   blueprint:'Blueprint Application',mini_blueprint:'Mini Blueprint',website:'Website Intake',
   website_intake:'Website Intake',build:'Build Intake',command_center:'Command Center Intake',
   speed_to_value:'Speed to Value',stv:'Speed to Value',
