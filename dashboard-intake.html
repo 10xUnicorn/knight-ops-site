@@ -700,13 +700,12 @@ function _mockSkeleton(bg,pri,ac){
   return '<!doctype html><html><head><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:'+bg+';color:#fff;display:flex;min-height:100vh}.sk{position:relative;overflow:hidden;background:rgba(255,255,255,.06);border-radius:10px}.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);transform:translateX(-100%);animation:sh 1.4s infinite}@keyframes sh{100%{transform:translateX(100%)}}aside{width:240px;background:rgba(0,0,0,.28);border-right:1px solid rgba(255,255,255,.08);padding:18px}main{flex:1;padding:26px}</style></head><body><aside><div style="font-weight:800;letter-spacing:2px;color:'+pri+';margin-bottom:22px">● ● ●</div>'+bars+'</aside><main><div class="sk" style="height:22px;width:240px;margin-bottom:7px"></div><div class="sk" style="height:12px;width:160px;margin-bottom:24px;opacity:.6"></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px">'+cards+'</div><div class="sk" style="height:230px;border-top:3px solid '+ac+'"></div></main></body></html>';
 }
 function _mockPhase(txt,bytes,secs){
-  if(secs<2)return 'Reading the brand, modules & offers…';
-  if(!/<body/i.test(txt))return 'Painting the brand system & layout…';
-  if(bytes<6000)return 'Framing the sidebar & top bar…';
-  if(!/<\/style>/i.test(txt)&&bytes<11000)return 'Styling components for contrast…';
-  if(!/(<table|kanban|grid-template)/i.test(txt)&&bytes<20000)return 'Building KPI cards & navigation…';
-  if(!/<\/main>/i.test(txt))return 'Filling in real data & tables…';
-  return 'Polishing the final details…';
+  if(/<\/main>/i.test(txt)||/<\/body>/i.test(txt))return 'Polishing the final details…';
+  if(/(<table|<tr|kanban)/i.test(txt))return 'Filling in real data & tables…';
+  if(/<body/i.test(txt))return 'Laying out the dashboard views…';
+  // pre-body (CSS) phase: advance by elapsed time so it never looks stuck
+  var stages=['Reading the brand, modules & offers…','Composing the layout grid…','Defining the color & contrast system…','Styling the sidebar & navigation…','Designing the KPI cards…','Styling tables, panels & status pills…','Assembling the views…'];
+  return stages[Math.min(stages.length-1,Math.floor(secs/11))];
 }
 async function reviewWithAI(){
   if(!S.modules.length&&!S.customModules.length){toast('Pick at least one module');return;}
@@ -799,7 +798,7 @@ async function saveDraft(){
   if(!val('business_name')&&!val('email')){toast('Add a business name first');return;}
   var _firstSave=!S.resume_token;
   const btn=document.getElementById('saveBtn');btn.disabled=true;
-  const res=await api('dashboard-build',{action:'save',...gather(),resume_token:S.resume_token,build_prompt:buildPrompt()});
+  const res=await api('dashboard-build',{action:'save',...gather(),resume_token:S.resume_token,build_prompt:buildPrompt(),notify:true});
   btn.disabled=false;
   if(res.build){S.id=res.build.id;S.resume_token=res.resume_token||res.build.resume_token;S.share_review_token=res.share_review_token||res.build.share_review_token;S.share_edit_token=res.share_edit_token||res.build.share_edit_token;toast(_firstSave?'Saved - edit link sent to your inbox':'Draft saved');}
   else toast('Save failed: '+(res.error||''));
