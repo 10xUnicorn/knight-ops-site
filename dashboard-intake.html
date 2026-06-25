@@ -693,6 +693,12 @@ function _mockRepair(h){
   if(!/<\/html>/i.test(h))h+='</html>';
   return h;
 }
+function _mockSkeleton(bg,pri,ac){
+  bg=bg||'#05061a';pri=pri||'#C9922A';ac=ac||'#00D4C8';
+  var bars='';for(var i=0;i<7;i++)bars+='<div class="sk" style="height:13px;margin:13px 6px"></div>';
+  var cards='';for(var j=0;j<4;j++)cards+='<div class="sk" style="height:78px"></div>';
+  return '<!doctype html><html><head><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:'+bg+';color:#fff;display:flex;min-height:100vh}.sk{position:relative;overflow:hidden;background:rgba(255,255,255,.06);border-radius:10px}.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);transform:translateX(-100%);animation:sh 1.4s infinite}@keyframes sh{100%{transform:translateX(100%)}}aside{width:240px;background:rgba(0,0,0,.28);border-right:1px solid rgba(255,255,255,.08);padding:18px}main{flex:1;padding:26px}</style></head><body><aside><div style="font-weight:800;letter-spacing:2px;color:'+pri+';margin-bottom:22px">● ● ●</div>'+bars+'</aside><main><div class="sk" style="height:22px;width:240px;margin-bottom:7px"></div><div class="sk" style="height:12px;width:160px;margin-bottom:24px;opacity:.6"></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px">'+cards+'</div><div class="sk" style="height:230px;border-top:3px solid '+ac+'"></div></main></body></html>';
+}
 function _mockPhase(txt,bytes,secs){
   if(secs<2)return 'Reading the brand, modules & offers…';
   if(!/<body/i.test(txt))return 'Painting the brand system & layout…';
@@ -711,7 +717,7 @@ async function reviewWithAI(){
   var bg=((d.brand||{}).secondary)||'#05061a';
   prog.classList.add('on');if(card)card.classList.add('mockbuilding');
   phase.textContent='Warming up the design engine…';bar.style.width='2%';timeEl.textContent='0s';
-  frame.srcdoc='<body style="margin:0;background:'+bg+'"></body>';
+  frame.srcdoc=_mockSkeleton(bg,(d.brand||{}).primary,(d.brand||{}).accent);
   document.getElementById('regenBtn').disabled=true;
   var ac=new AbortController();_streamAbort=ac;
   var t0=Date.now(),full='',lastRender=0,renderedLen=0;
@@ -733,13 +739,28 @@ async function reviewWithAI(){
     var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:d,id:S.id,resume_token:S.resume_token}),signal:ac.signal});
     if(!r.ok||!r.body)throw new Error('stream '+r.status);
     var aiFlag=r.headers.get('x-ai')!=='0';
+    var isSSE=(r.headers.get('content-type')||'').indexOf('event-stream')>=0;
     var reader=r.body.getReader(),dec=new TextDecoder();
+    if(!isSSE){
+      var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}
+      finish(_mockRepair(txt),aiFlag&&txt.length>800);return;
+    }
+    var sbuf='';
     while(true){
       var rd=await reader.read();
       if(rd.done)break;
-      full+=dec.decode(rd.value,{stream:true});
+      sbuf+=dec.decode(rd.value,{stream:true});
+      var parts=sbuf.split('\n\n');sbuf=parts.pop();
+      for(var i=0;i<parts.length;i++){
+        var lines=parts[i].split('\n');
+        for(var j=0;j<lines.length;j++){
+          var ln=lines[j];if(ln.indexOf('data:')!==0)continue;
+          var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;
+          try{full+=JSON.parse(pay);}catch(_e){}
+        }
+      }
       var now=Date.now();
-      if(now-lastRender>350&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(now-lastRender>350&&/<body/i.test(full)&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
     }
     finish(_mockRepair(full),aiFlag&&full.length>800);
   }catch(e){
