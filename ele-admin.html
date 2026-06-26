@@ -154,11 +154,19 @@ async function loadHosts(){
     '<div class="acts"><button class="btn b-primary" onclick="approveHost(\''+h.id+'\')">✓ Approve &amp; activate code</button><button class="btn b-danger" onclick="declineHost(\''+h.id+'\')">✕ Decline</button></div></div>'
   ).join('')):'<div class="empty">No pending host applications.</div>';
   const active=(hosts||[]).filter(h=>h.status!=='pending');
-  $('hostAll').innerHTML=active.length?('<table class="subs" style="display:table"><thead><tr><th>Code</th><th>Host</th><th>Event</th><th>Uses</th><th>Status</th><th></th></tr></thead><tbody>'+active.map(h=>
-    '<tr><td><b style="color:var(--gold-l)">'+esc(h.coupon_code||'—')+'</b></td><td>'+esc(h.host_name||'')+'<br><span style="color:var(--mut)">'+esc(h.host_email||'')+'</span></td><td>'+esc(h.event_name||'')+'</td>'+
-    '<td>'+(h.redemptions||0)+' / <input value="'+(h.max_redemptions==null?'':h.max_redemptions)+'" placeholder="∞" style="width:42px;background:var(--void);border:1px solid var(--line);color:#fff;border-radius:5px;padding:2px 4px" id="mx-'+h.id+'"> <button class="btn b-ghost" style="padding:3px 8px;font-size:.7rem" onclick="saveHostUses(\''+h.id+'\')">save</button></td>'+
-    '<td>'+esc(h.status||'')+'</td><td><button class="btn b-ghost" style="padding:4px 9px;font-size:.72rem" onclick="addHostCode(\''+h.id+'\')">+ code</button></td></tr>'
-  ).join('')+'</tbody></table>'):'<div class="empty">No active hosts yet.</div>';
+  const groups={};active.forEach(h=>{const k=(h.host_email||'').toLowerCase()||('id:'+h.id);(groups[k]=groups[k]||[]).push(h);});
+  const gkeys=Object.keys(groups);
+  $('hostAll').innerHTML=gkeys.length?gkeys.map(k=>{const arr=groups[k].slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));const lead=arr[0];
+    return '<div class="build"><div class="top"><div><h3>'+esc(lead.company||lead.event_name||'Host')+'</h3><div class="meta">'+esc(lead.host_name||'')+(lead.host_email?' · '+esc(lead.host_email):'')+(lead.event_name?' · '+esc(lead.event_name):'')+' · '+arr.length+' code'+(arr.length>1?'s':'')+'</div></div>'+
+      '<div><button class="btn b-ghost" onclick="newHostCode(\''+lead.id+'\')">+ New code</button></div></div>'+
+      '<table class="subs" style="display:table;margin-top:10px"><thead><tr><th>Code</th><th>Invite link</th><th>Uses</th><th>Status</th></tr></thead><tbody>'+
+      arr.map(h=>{const code=h.coupon_code||'';const link='https://knightops.biz/event-lead-engine?code='+encodeURIComponent(code);
+        return '<tr><td><b style="color:var(--gold-l)">'+esc(code||'—')+'</b>'+(code?' <button class="btn b-ghost" style="padding:2px 7px;font-size:.7rem" onclick="copyText(\''+esc(code)+'\',\'Code\')">📋 Copy</button>':'')+'</td>'+
+        '<td>'+(code?'<button class="btn b-ghost" style="padding:2px 7px;font-size:.7rem" onclick="copyText(\''+link+'\',\'Invite link\')">🔗 Copy link</button>':'—')+'</td>'+
+        '<td>'+(h.redemptions||0)+' / <input value="'+(h.max_redemptions==null?'':h.max_redemptions)+'" placeholder="∞" style="width:42px;background:var(--void);border:1px solid var(--line);color:#fff;border-radius:5px;padding:2px 4px" id="mx-'+h.id+'"> <button class="btn b-ghost" style="padding:3px 8px;font-size:.7rem" onclick="saveHostUses(\''+h.id+'\')">save</button></td>'+
+        '<td>'+esc(h.status||'')+'</td></tr>';}).join('')+
+      '</tbody></table></div>';
+  }).join(''):'<div class="empty">No active hosts yet.</div>';
 }
 async function approveHost(id){if(!confirm('Approve this host and activate their code?'))return;toast('Approving...');try{const j=await fnCall('ele-host-approve',{host_id:id,action:'approve'});toast('Approved ✓ Code: '+(j.code||''));load();}catch(e){toast('Error: '+e.message);}}
 async function declineHost(id){if(!confirm('Decline this host application?'))return;try{await fnCall('ele-host-approve',{host_id:id,action:'decline'});toast('Declined');load();}catch(e){toast('Error: '+e.message);}}
@@ -178,6 +186,7 @@ function card(b,subs,showActions){
     '<div class="stats"><div class="stat"><div class="v teal">'+views+'</div><div class="k">Views</div></div><div class="stat"><div class="v gold">'+subs+'</div><div class="k">Leads</div></div><div class="stat"><div class="v green">'+conv+'%</div><div class="k">Conversion</div></div></div>'+
     '<div class="chips"><span>'+esc(b.mechanism||'')+'</span><span>CTA: '+esc(b.cta_type||'')+'</span><span style="color:var(--gold-l);border-color:rgba(201,146,42,.45)">'+(b.stripe_payment_status==='paid'?'💳 Paid build':(b.host_coupon_code?('🎟️ Code: '+esc(b.host_coupon_code)):'⏳ '+esc(b.stripe_payment_status||'pending')))+'</span>'+(b.revision_count?'<span>rev '+b.revision_count+'</span>':'')+'</div>'+
     cd+
+    (b.candidate_html_path?'<div class="countdown" style="border-color:rgba(0,212,200,.45)">🧪 Candidate version ready — <a style="color:var(--gold-l)" href="'+(b.candidate_preview_url||('/le/'+(b.slug||'')+'?v=candidate'))+'" target="_blank">preview it</a>, then Use or Discard below.</div>':'')+
     '<div class="acts">'+
     (preview?'<a class="btn b-ghost" href="'+preview+'" target="_blank">👁 Preview</a>':'<span style="color:var(--mut);font-size:.8rem">No preview yet</span>')+
     '<button class="btn b-ghost" onclick="toggleSubs(\''+b.id+'\')">📊 Leads ('+subs+')</button>'+
@@ -187,6 +196,9 @@ function card(b,subs,showActions){
     '<button class="btn b-ghost" onclick="openRevise(\''+b.id+'\')">✏️ Revise with AI</button>'+
     '<button class="btn b-ghost" onclick="regen(\''+b.id+'\')" title="Overwrite this page (same URL)">↻ Regenerate</button>'+
     '<button class="btn b-ghost" onclick="duplicateBuild(\''+b.id+'\')" title="New page, new URL + tracking">⧉ New version</button>'+
+    '<button class="btn b-ghost" onclick="editBuild(\''+b.id+'\')" title="Edit every field, files, and link preview">✏️ Edit</button>'+
+    (b.candidate_html_path?'<button class="btn b-primary" onclick="finalizeBuild(\''+b.id+'\')" title="Promote the candidate to live">✅ Use candidate</button><button class="btn b-ghost" onclick="discardCandidate(\''+b.id+'\')">🗑 Discard candidate</button>':'')+
+    (b.hosting==='hosted'?'<button class="btn b-ghost" onclick="hostingPayLink(\''+b.id+'\')" title="Copy or email the $97/mo hosting link">☁️ Hosting link</button>':'<button class="btn b-ghost" onclick="turnOnHosting(\''+b.id+'\')" title="Switch to hosted + get a pay link">☁️ Turn on hosting</button>')+
     '<button class="btn b-ghost" onclick="issueCode(\''+b.id+'\')" title="Mint a free event code for this vendor">🎟️ Issue code</button>'+
     (showActions?
       '<button class="btn b-primary" onclick="approve(\''+b.id+'\')">✓ Approve &amp; send</button>'+
@@ -229,6 +241,15 @@ async function dlHTML(id){const b=(window.BUILDS||{})[id];if(!b||!b.slug){toast(
 async function duplicateBuild(id){const b=(window.BUILDS||{})[id];if(!b)return;if(!confirm('Create a NEW version with its own URL and fresh tracking? The original stays live as-is.'))return;toast('Creating new version...');
   const row={host_coupon_code:b.host_coupon_code,event_name:b.event_name,vendor_name:b.vendor_name,company:b.company,website:b.website,email:b.email,phone:b.phone,mechanism:b.mechanism,mechanism_config:b.mechanism_config,free_gift:b.free_gift,free_gift_value:b.free_gift_value,free_gift_file_path:b.free_gift_file_path,free_gift_url:b.free_gift_url,cta_type:b.cta_type,cta_config:b.cta_config,design_style:b.design_style,design_notes:b.design_notes,tonality:b.tonality,brand_colors:b.brand_colors,logo_path:b.logo_path,lead_webhook:b.lead_webhook,crm_type:b.crm_type,hosting:b.hosting,magnet_title:(b.magnet_title||'Magnet')+' v2',consent_config:b.consent_config,status:'submitted',submitted_at:new Date().toISOString(),auto_send_at:new Date(Date.now()+24*3600*1000).toISOString()};
   try{const r=await fetch(SUPA+'/rest/v1/ele_builds',{method:'POST',headers:Object.assign({},H,{'Prefer':'return=representation'}),body:JSON.stringify(row)});const j=await r.json();const nid=j[0].id;await fnCall('ele-build',{build_id:nid});toast('New version created ✓');setTimeout(load,1800);}catch(e){toast('Error: '+e.message);}}
+function copyText(t,label){const done=()=>toast((label||'Copied')+' ✓');try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fallbackCopy(t,done));return;}}catch(e){}fallbackCopy(t,done);}
+function fallbackCopy(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);cb&&cb();}
+function editBuild(id){window.open('/event-lead-engine-intake?edit='+id,'_blank');}
+async function finalizeBuild(id){if(!confirm('Make the candidate version the LIVE page? This replaces what visitors see now (same URL).'))return;toast('Publishing candidate...');try{await fnCall('ele-edit',{action:'finalize',build_id:id});toast('Live page updated ✓');setTimeout(load,1400);}catch(e){toast('Error: '+e.message);}}
+async function discardCandidate(id){if(!confirm('Discard the candidate version? Your live page stays exactly as-is.'))return;try{await fnCall('ele-edit',{action:'discard',build_id:id});toast('Candidate discarded');setTimeout(load,1000);}catch(e){toast('Error: '+e.message);}}
+async function turnOnHosting(id){if(!confirm('Switch this build to HOSTED ($97/mo)? You can copy or email the pay link next.'))return;try{await fnCall('ele-edit',{action:'set_hosting',build_id:id,hosting:'hosted'});hostingPayPrompt(id,'https://buy.stripe.com/bJe5kwbZdgTw6j4gDo2B201');setTimeout(load,1200);}catch(e){toast('Error: '+e.message);}}
+function hostingPayLink(id){hostingPayPrompt(id,'https://buy.stripe.com/bJe5kwbZdgTw6j4gDo2B201');}
+function hostingPayPrompt(id,pay){const b=(window.BUILDS||{})[id]||{};copyText(pay,'Hosting pay link copied');if(confirm('Hosting pay link copied to your clipboard:\n\n'+pay+'\n\nEmail it to '+(b.email||'the vendor')+' now?')){fnCall('ele-edit',{action:'set_hosting',build_id:id,hosting:'hosted',notify:true}).then(j=>toast(j.emailed?'Pay link emailed to vendor ✓':'Saved (email not sent)')).catch(e=>toast('Error: '+e.message));}}
+async function newHostCode(id){const h=(window.HOSTS||{})[id];if(!h)return;const custom=prompt('New code for '+(h.company||h.event_name||'this host')+'.\n\nType a custom code, or leave blank to auto-generate. Letters, numbers, _ and - only.','');if(custom===null)return;const code=custom.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'');toast('Creating code...');try{const j=await fnCall('ele-host-coupon',Object.assign({event_name:h.event_name||h.company||'Event',host_name:h.host_name||'',host_email:h.host_email||'',company:h.company||''},code?{code}:{}));copyText('https://knightops.biz/event-lead-engine?code='+encodeURIComponent(j.coupon_code),'New code + invite link');toast('Code '+j.coupon_code+' created ✓ (link copied)');setTimeout(load,1200);}catch(e){toast('Error: '+e.message);}}
 let reviseId=null;
 function openRevise(id){reviseId=id;$('reviseInput').value='';$('reviseModal').classList.add('open');}
 $('reviseCancel').onclick=()=>$('reviseModal').classList.remove('open');

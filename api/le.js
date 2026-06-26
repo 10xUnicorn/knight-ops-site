@@ -1,12 +1,14 @@
 module.exports = async function handler(req, res) {
   const slug = req.query.slug;
+  const v = req.query.v;
 
   if (!slug) {
     res.status(400).send('Missing slug');
     return;
   }
 
-  const url = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-le?slug=' + encodeURIComponent(slug);
+  let url = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/serve-le?slug=' + encodeURIComponent(slug);
+  if (v) url += '&v=' + encodeURIComponent(v);
 
   try {
     const resp = await fetch(url, {

@@ -450,6 +450,20 @@ input[type=color]{width:56px;height:38px;border:1px solid var(--line);border-rad
       </div>
     </div>
 
+    <!-- 7.5 LINK PREVIEW (OG) -->
+    <div class="sec">
+      <div class="sec-h"><div class="n">🔗</div><h2>Link preview</h2></div>
+      <div class="sec-sub">How your page looks when the link gets shared in a text, DM, or social post. Optional, but it makes your link far more clickable.</div>
+      <label class="fl">Link title</label>
+      <input type="text" id="f_link_title" placeholder="e.g. Spin to win at the AI Founders Summit 🎁">
+      <label class="fl">Link description</label>
+      <textarea id="f_link_desc" placeholder="One or two punchy lines that show under the title when your link is shared."></textarea>
+      <label class="fl">Link preview image <span class="hint" style="display:inline">(1200×630 looks best)</span></label>
+      <div class="drop" id="linkImgDrop">🖼️ Upload the image that shows when your link is shared</div>
+      <input type="file" id="linkImgFile" accept="image/*" style="display:none">
+      <div class="hint">Skip it and we use your logo, then a Knight Ops banner, as the fallback.</div>
+    </div>
+
     <!-- 8 AGREEMENTS -->
     <div class="sec">
       <div class="sec-h"><div class="n">8</div><h2>The fine print (quick)</h2></div>
@@ -617,6 +631,7 @@ function wireUpload(dropId,inputId,prefix,cb){
 }
 wireUpload('giftDrop','giftFile','gifts',p=>{S.gift_file_path=p;});
 wireUpload('logoDrop','logoFile','logos',p=>{S.logo_path=p;renderPreview();});
+wireUpload('linkImgDrop','linkImgFile','link',p=>{S.link_preview_image=p;});
 
 /* brand image -> auto color extraction (Section 6) */
 function rgbToHex(r,g,b){return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');}
@@ -692,6 +707,7 @@ function gather(){
     brand_colors:{primary:v('col_primary'),accent:v('col_accent'),secondary:v('col_secondary'),secondaries:S.secondaries||[]},logo_path:S.logo_path,
     lead_webhook:v('f_webhook'),crm_type:v('f_crm'),
     hosting:S.hosting,magnet_title:v('f_title'),
+    link_title:v('f_link_title'),link_description:v('f_link_desc'),link_preview_image:S.link_preview_image||'',
     consent_config:{ag1:$('ag1').checked,ag2:$('ag2').checked,ag4:$('ag4').checked,ag5:$('ag5').checked,ag6:$('ag6').checked,
       attendee_optin:'pre-checked: vendor email+sms, knight ops email-only',powered_by:'Powered by Knight Ops'}
   };
@@ -736,7 +752,7 @@ function validate(){
   if(!d.magnet_title)miss.push('A name for your magnet');
   const cc2=d.consent_config;let agOk=cc2.ag1&&cc2.ag2&&cc2.ag6;
   if(d.hosting==='hosted')agOk=agOk&&cc2.ag4&&cc2.ag5;
-  if(!agOk)miss.push('Agree to all terms');
+  if(!S.adminEdit&&!agOk)miss.push('Agree to all terms');
   return miss;
 }
 
@@ -816,6 +832,7 @@ $('btnBuy').onclick=async()=>{
   window.location.href='https://buy.stripe.com/14AdR21kzcDg22O4UG2B200';
 };
 $('btnApprove').onclick=async()=>{
+  if(S.adminEdit){return finalizeEdit();}
   const d=gather();const code=d.host_coupon_code;
   if(!S.paid){
     if(!code){return openBuy('Enter your event code to build for free, or purchase your build now.');}
@@ -842,6 +859,7 @@ function toRow(p){
 /* prefill code + resume saved draft */
 function setVal(id,v){if($(id)!=null&&v!=null)$(id).value=v;}
 function clickChoice(wrap,attr,val){if(!val)return;const el=document.querySelector('#'+wrap+' [data-'+attr+'="'+val+'"]');if(el)el.click();}
+function markKept(dropId,path,label){const d=$(dropId);if(!d||!path)return;d.classList.add('has');d.textContent='✓ Current '+(label||'file')+' kept — click to replace';}
 function hydrate(b){
   if(b.host_coupon_code){S.host_coupon_code=b.host_coupon_code;setVal('f_code',b.host_coupon_code);}setVal('f_event',b.event_name);setVal('f_name',b.vendor_name);setVal('f_company',b.company);
   setVal('f_website',b.website);setVal('f_email',b.email);setVal('f_phone',b.phone);
@@ -851,6 +869,10 @@ function hydrate(b){
   if(b.brand_colors){setVal('col_primary',b.brand_colors.primary);setVal('col_accent',b.brand_colors.accent);setVal('col_secondary',b.brand_colors.secondary);}
   if(b.free_gift_file_path)S.gift_file_path=b.free_gift_file_path;
   if(b.logo_path)S.logo_path=b.logo_path;
+  setVal('f_link_title',b.link_title);setVal('f_link_desc',b.link_description);
+  if(b.link_preview_image)S.link_preview_image=b.link_preview_image;
+  if(b.consent_config){['ag1','ag2','ag4','ag5','ag6'].forEach(k=>{if($(k)&&b.consent_config[k])$(k).checked=true;});}
+  markKept('giftDrop',b.free_gift_file_path,'gift file');markKept('logoDrop',b.logo_path,'logo');markKept('linkImgDrop',b.link_preview_image,'preview image');
   clickChoice('mechChoices','mech',b.mechanism);
   clickChoice('ctaChoices','cta',b.cta_type);
   clickChoice('styleChoices','style',b.design_style);
@@ -913,8 +935,64 @@ async function aiAnalyze(){
 }
 $('ai_go').onclick=aiAnalyze;
 
+/* ---------- ADMIN EDIT MODE (?edit=<build_id>) ---------- */
+const HDRS={'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON};
+function enterEditMode(){
+  S.adminEdit=true;
+  const h1=document.querySelector('.intro h1');if(h1)h1.textContent='Edit your lead magnet';
+  const ip=document.querySelector('.intro p');if(ip)ip.textContent='Change anything below — including the uploaded files and the link preview. Save & rebuild to preview a new version, then choose to make it live. Your current live page stays up until you finalize.';
+  const aiSec=$('ai_go')?$('ai_go').closest('.sec'):null;if(aiSec)aiSec.style.display='none';
+  const br=$('btnReview');if(br){br.textContent='💾 Save & rebuild preview';br.onclick=saveAndRebuild;}
+  const left=document.querySelector('.ab-left');if(left)left.textContent='Editing an existing build. Nothing changes live until you finalize.';
+  const right=document.querySelector('.ab-right');
+  if(right&&!$('btnDuplicate')){const dup=document.createElement('button');dup.className='btn btn-ghost';dup.id='btnDuplicate';dup.textContent='⧉ Duplicate as new';dup.onclick=duplicateBuild;right.insertBefore(dup,right.firstChild);}
+}
+function loadForEdit(id){
+  S.editId=id;S.adminEdit=true;S.paid=true;enterEditMode();
+  startGen('Loading your build...');
+  fetch(SUPA+'/functions/v1/ele-edit',{method:'POST',headers:HDRS,body:JSON.stringify({action:'load',id})})
+    .then(r=>r.json()).then(j=>{stopGen();if(!j||!j.build)throw new Error((j&&j.error)||'not found');
+      hydrate(j.build);S.editId=id;S.liveUrl=j.build.preview_url||('https://knightops.biz/le/'+(j.build.slug||''));S.candidatePending=!!j.build.candidate_html_path;
+      toast('Editing "'+(j.build.magnet_title||'your build')+'". Change anything, then Save & rebuild.');
+    }).catch(e=>{stopGen();toast('Could not load that build: '+e.message);});
+}
+function saveAndRebuild(){
+  const miss=validate();
+  if(miss.length){toast('Please complete: '+miss.slice(0,2).join(', ')+(miss.length>2?'...':''));window.scrollTo({top:0,behavior:'smooth'});return;}
+  const d=gather();startGen('Saving your changes and rebuilding a new version...');
+  fetch(SUPA+'/functions/v1/ele-edit',{method:'POST',headers:HDRS,body:JSON.stringify({action:'regenerate',build_id:S.editId,fields:d})})
+    .then(r=>r.json()).then(j=>{stopGen();if(!j.success||!j.candidate_preview_url)throw new Error(j.error||'rebuild failed');
+      S.candidateUrl=j.candidate_preview_url;S.candidatePending=true;
+      $('reviewFrame').src=j.candidate_preview_url+'&t='+Date.now();
+      $('reviewOutline').innerHTML=buildOutline(d)+'<div class="hint" style="margin-top:14px">This is a <b>new candidate version</b>. Your live page is unchanged until you finalize.</div>'+(S.liveUrl?'<div style="margin-top:8px"><a href="'+S.liveUrl+'" target="_blank" rel="noopener" style="color:var(--gold-light)">↗ Open current live page to compare</a></div>':'');
+      $('btnApprove').textContent='✓ Use this version (go live)';
+      const rb=$('btnRevise');if(rb)rb.style.display='none';
+      $('reviewOverlay').classList.add('open');
+    }).catch(e=>{stopGen();toast('Error: '+e.message);});
+}
+async function finalizeEdit(){
+  const btn=$('btnApprove');btn.disabled=true;const orig=btn.textContent;btn.textContent='Publishing...';
+  try{const r=await fetch(SUPA+'/functions/v1/ele-edit',{method:'POST',headers:HDRS,body:JSON.stringify({action:'finalize',build_id:S.editId})});
+    const j=await r.json();if(!j.success)throw new Error(j.error||'finalize failed');
+    S.candidatePending=false;S.liveUrl=j.preview_url||S.liveUrl;
+    $('reviewOverlay').classList.remove('open');
+    toast('Live page updated ✓');
+  }catch(e){toast('Error: '+e.message);}
+  btn.disabled=false;btn.textContent=orig;
+}
+async function duplicateBuild(){
+  if(!confirm('Create a brand-new build copied from this one? The original stays exactly as-is, and the copy opens for editing.'))return;
+  toast('Duplicating...');
+  try{const r=await fetch(SUPA+'/functions/v1/ele-edit',{method:'POST',headers:HDRS,body:JSON.stringify({action:'duplicate',build_id:S.editId})});
+    const j=await r.json();if(!j.success||!j.edit_url)throw new Error(j.error||'duplicate failed');
+    toast('New build created — opening it...');setTimeout(()=>{location.href=j.edit_url;},900);
+  }catch(e){toast('Error: '+e.message);}
+}
+
 (function(){
   const p=new URLSearchParams(location.search);
+  const editId=p.get('edit');
+  if(editId){loadForEdit(editId);return;}
   const code=p.get('code');if(code){S.host_coupon_code=code;if($('f_code'))$('f_code').value=code;}
   if(p.get('paid')==='1')S.paid=true;
   let rt=p.get('resume');
