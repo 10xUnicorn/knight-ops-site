@@ -66,6 +66,8 @@ h1.q .hl{color:var(--accent)}
 .cover .ico{position:relative;z-index:1;font-size:2.2rem;margin-bottom:auto}
 .gift-pill{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin:14px 0;display:flex;align-items:center;gap:12px}
 .gift-pill .v{font-size:.72rem;color:var(--accent);font-weight:800}
+.cal-wrap{margin-top:14px}
+.cal-wrap iframe{width:100%;min-height:760px;border:0;display:block;background:#fff;border-radius:12px}
 .chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:20px}
 .chip{border:1.5px solid var(--accent);color:var(--text);border-radius:999px;padding:9px 15px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s;background:var(--card)}
 .chip.sel{background:var(--accent);color:var(--btnText)}
@@ -156,7 +158,9 @@ function applyTheme(t){
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function logoHtml(){return C.logo_url?'<div class="logo"><img src="'+C.logo_url+'" alt="'+esc(C.company)+'"></div>':'<div class="logo"><div class="wm">'+esc((C.company||'BRAND'))+'</div></div>';}
 function topbar(){return (STATE.theme&&STATE.theme.topbar)?'<div class="topbar"></div>':'';}
-function coverHtml(){const g=C.gift||{};if(g.image_url)return '<div class="cover"><img src="'+g.image_url+'" alt=""><div class="lbl">'+esc(g.name||'')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';return '<div class="cover"><div class="ico">🎁</div><div class="lbl">'+esc(g.name||'Your Free Gift')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';}
+function hasGift(){const g=C.gift||{};return !!(((g.name||'').trim())||g.image_url||g.file_url||g.url);}
+function coverHtml(){const g=C.gift||{};if(!hasGift())return '';if(g.image_url)return '<div class="cover"><img src="'+g.image_url+'" alt=""><div class="lbl">'+esc(g.name||'')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';return '<div class="cover"><div class="ico">🎁</div><div class="lbl">'+esc(g.name||'Your Free Gift')+'</div>'+(g.value?'<div class="val">'+esc(g.value)+'</div>':'')+'</div>';}
+function reactivateScripts(root){try{root.querySelectorAll('script').forEach(function(old){const s=document.createElement('script');for(let i=0;i<old.attributes.length;i++){s.setAttribute(old.attributes[i].name,old.attributes[i].value);}s.textContent=old.textContent;old.parentNode.replaceChild(s,old);});}catch(e){}}
 function card(inner){return '<div class="card">'+topbar()+'<div class="pad">'+logoHtml()+inner+'</div></div>';}
 
 /* ===== MECHANISMS ===== */
@@ -188,10 +192,12 @@ function renderQuiz(){let sel=-1;
   let opts='<div class="grid" id="opts"></div><button class="btn" id="go" style="margin-top:18px" disabled>'+esc(cfg.button||'See the answer')+'</button>';
   app.innerHTML=card('<div class="step active">'+head+opts+'</div>');
   const L=['A','B','C','D','E','F'];(cfg.choices||[]).forEach((ch,i)=>{const d=document.createElement('div');d.className='opt';d.innerHTML='<span class="badge">'+L[i]+'</span><b>'+esc(ch)+'</b>';d.onclick=()=>{[...document.querySelectorAll('#opts .opt')].forEach(o=>o.classList.remove('sel'));d.classList.add('sel');sel=i;document.getElementById('go').disabled=false;};document.getElementById('opts').appendChild(d);});
-  document.getElementById('go').onclick=()=>{STATE.type='answer';STATE.interactive={selected:L[sel],selected_text:cfg.choices[sel],correct:L[cfg.correct],is_correct:sel===cfg.correct};quizReveal();};
+  document.getElementById('go').onclick=()=>{STATE.type='answer';STATE.interactive={selected:L[sel],selected_text:cfg.choices[sel],correct:L[cfg.correct],is_correct:sel===cfg.correct};if(cfg.skip_reveal){showCapture();}else{quizReveal();}};
 }
 function quizReveal(){
-  const inner='<div class="step active"><div class="two-col"><div><div class="kicker">Your Result</div><h1 class="q" style="text-align:left">'+esc(cfg.result||'Here is the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc((cfg.choices&&cfg.choices[cfg.correct])||'')+'</b></div><div class="sub" style="text-align:left;margin-bottom:18px">'+esc(cfg.explain||'')+'</div><button class="btn" id="go">'+esc(cfg.continue||'Continue →')+'</button></div><div>'+coverHtml()+'</div></div></div>';
+  const cover=coverHtml();
+  const body='<div class="kicker">Your Result</div><h1 class="q"'+(cover?' style="text-align:left"':'')+'>'+esc(cfg.result||'Here is the answer')+'</h1><div class="reveal-tag"><small>Correct Answer</small><b>'+esc((cfg.choices&&cfg.choices[cfg.correct])||'')+'</b></div>'+(cfg.explain?'<div class="sub"'+(cover?' style="text-align:left;margin-bottom:18px"':'')+'>'+esc(cfg.explain)+'</div>':'')+'<button class="btn" id="go">'+esc(cfg.continue||'Continue →')+'</button>';
+  const inner=cover?('<div class="step active"><div class="two-col"><div>'+body+'</div><div>'+cover+'</div></div></div>'):('<div class="step active">'+body+'</div>');
   app.innerHTML=card(inner);document.getElementById('go').onclick=showCapture;
 }
 function renderGuess(){
@@ -270,7 +276,8 @@ function showSpinWin(prize){
 function showCapture(){
   const consent=(C.consent_text||'I agree {company} and Knight Ops may follow up.').replace('{company}',C.company||'this brand');
   const g=C.gift||{};
-  const inner='<div class="step active"><div class="kicker">'+esc(cfg.capture_kicker||'One last step')+'</div><h1 class="q" style="font-size:1.4rem">'+esc(cfg.capture_head||('Where should we send your '+(g.name||'gift')+'?'))+'</h1>'+(g.value?'<div class="gift-pill"><span>🎁</span><div><b>'+esc(g.name||'Your gift')+'</b><div class="v">'+esc(g.value)+'</div></div></div>':'')+'<div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="submit">'+esc(cfg.submit||'Get my gift →')+'</button></div>';
+  const hg=hasGift();
+  const inner='<div class="step active"><div class="kicker">'+esc(cfg.capture_kicker||'One last step')+'</div><h1 class="q" style="font-size:1.4rem">'+esc(cfg.capture_head||(hg?('Where should we send your '+(g.name||'gift')+'?'):'Enter your details to continue'))+'</h1>'+(hg&&g.value?'<div class="gift-pill"><span>🎁</span><div><b>'+esc(g.name||'Your gift')+'</b><div class="v">'+esc(g.value)+'</div></div></div>':'')+'<div class="field"><input type="text" id="cn" placeholder="Your name"></div><div class="field"><input type="email" id="ce" placeholder="Your email"></div><div class="field"><input type="tel" id="cp" placeholder="Your phone"></div><label class="consent"><input type="checkbox" id="optin" checked><span>'+esc(consent)+'</span></label><button class="btn" id="submit">'+esc(cfg.submit||(hg?'Get my gift →':'Continue →'))+'</button></div>';
   app.innerHTML=card(inner);document.getElementById('submit').onclick=()=>submitLead(true);
 }
 async function submitLead(fromForm){
@@ -290,15 +297,26 @@ async function captureLead(c){
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
 
 /* ===== CTA ===== */
-function ctaInner(){const t=(C.cta&&C.cta.type)||'download',cc=C.cta_config||{},g=C.gift||{};let inner='';
-  if(t==='download'){const url=g.file_url||g.url||'#';inner='<div class="kicker">It is yours</div><h1 class="q">'+esc((g.name||'Your gift')+' is ready.')+'</h1><div class="sub">Open it now and keep an eye on your inbox for your copy.</div>'+coverMini()+'<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">⬇️ Download '+esc(g.name||'now')+'</a>';}
-  else if(t==='calendar'){if(cc.embed)inner='<div class="kicker">Last step</div><h1 class="q">Book your time</h1><div style="margin-top:14px">'+cc.embed+'</div>';else inner='<div class="kicker">Last step</div><h1 class="q">Pick a time that works.</h1><div class="sub">Grab a spot now while it is top of mind.</div><a class="btn" href="'+esc(cc.url||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📅 Book my call</a>';}
-  else if(t==='text_keyword'){inner='<div class="kicker">Let us connect</div><h1 class="q">Text '+esc(cc.keyword||'the keyword')+' to get started.</h1><div class="sub">Tap below and it opens your messages, pre-filled.</div><a class="btn" href="sms:'+esc(cc.phone||'')+'?&body='+encodeURIComponent(cc.keyword||'')+'" style="display:block;text-align:center;text-decoration:none">📲 Text '+esc(cc.keyword||'now')+'</a>';}
-  else if(t==='offer'){inner='<div class="kicker">Because you are here</div><h1 class="q">'+esc(cfg.offer_head||'You are ready for the next step.')+'</h1><div class="sub">'+esc(cfg.offer_sub||'You showed up and took action. Here is where it gets real. Take the next step now while the momentum is yours.')+'</div><a class="btn" href="'+esc(cc.offer_url||cc.checkout||'#')+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">'+esc(cfg.offer_btn||'🚀 See the offer')+'</a>'+(cc.checkout?'<a class="btn alt" href="'+esc(cc.checkout)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:10px">Get started now</a>':'');}
-  else inner='<div class="kicker">All set</div><h1 class="q">You are in. 🎉</h1><div class="sub">Check your email for your gift.</div>'+(cc.url?'<a class="btn" href="'+esc(cc.url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Continue →</a>':'');
-  return inner;
+function ctaInner(){const t=(C.cta&&C.cta.type)||'download',cc=C.cta_config||{},g=C.gift||{};
+  if(t==='download'){const url=g.file_url||g.url||'#';return '<div class="kicker">It is yours</div><h1 class="q">'+esc((g.name||'Your gift')+' is ready.')+'</h1><div class="sub">Open it now and watch your inbox for your copy.</div>'+coverMini()+'<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">⬇️ Download '+esc(g.name||'now')+'</a>';}
+  if(t==='text_keyword'){return '<div class="kicker">Let us connect</div><h1 class="q">Text '+esc(cc.keyword||'the keyword')+' to get started.</h1><div class="sub">Tap below — it opens your messages, pre-filled.</div><a class="btn" href="sms:'+esc(cc.phone||'')+'?&body='+encodeURIComponent(cc.keyword||'')+'" style="display:block;text-align:center;text-decoration:none">📲 Text '+esc(cc.keyword||'now')+'</a>';}
+  const calEmbed=cc.embed||(cc.calendar&&cc.calendar.indexOf('<')>=0?cc.calendar:'');
+  const calUrl=cc.url||(cc.calendar&&cc.calendar.indexOf('<')<0?cc.calendar:'');
+  const offerUrl=cc.offer_url||cc.checkout||'';
+  const wantCal=(t==='calendar'||t==='offer_calendar')||!!calEmbed||!!calUrl;
+  const wantOffer=(t==='offer'||t==='offer_calendar')||!!offerUrl;
+  if(wantCal||wantOffer){
+    const kicker=esc(cc.kicker||cfg.offer_kicker||(wantCal&&!wantOffer?'Last step':'Your next step'));
+    const head=esc(cc.head||cfg.offer_head||(wantCal&&!wantOffer?'Book your time':'You are ready for the next step.'));
+    const sub=esc(cc.sub||cfg.offer_sub||'');
+    let html='<div class="kicker">'+kicker+'</div><h1 class="q">'+head+'</h1>'+(sub?'<div class="sub">'+sub+'</div>':'');
+    if(wantOffer&&offerUrl){html+='<a class="btn" href="'+esc(offerUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none'+(wantCal?';margin-bottom:10px':'')+'">'+esc(cc.btn||cfg.offer_btn||'See the offer →')+'</a>';}
+    if(wantCal){if(calEmbed)html+='<div class="cal-wrap">'+calEmbed+'</div>';else if(calUrl)html+='<a class="btn" href="'+esc(calUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📅 Book my time</a>';}
+    return html;
+  }
+  return '<div class="kicker">All set</div><h1 class="q">You are in. 🎉</h1>'+(hasGift()?'<div class="sub">Check your email for your gift.</div>':'<div class="sub">We will be in touch shortly.</div>')+(cc.url?'<a class="btn" href="'+esc(cc.url)+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Continue →</a>':'');
 }
-function showCTA(){app.innerHTML=card('<div class="step active">'+ctaInner()+'</div>');confetti();}
+function showCTA(){app.innerHTML=card('<div class="step active">'+ctaInner()+'</div>');reactivateScripts(app);confetti();}
 function coverMini(){const g=C.gift||{};return g.image_url?'<div style="text-align:center;margin:8px 0 14px"><img src="'+g.image_url+'" style="max-height:160px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.3)"></div>':'';}
 
 /* ===== BACKGROUND + FX ===== */
