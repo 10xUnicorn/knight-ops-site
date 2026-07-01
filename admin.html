@@ -4280,15 +4280,24 @@ async function loadProjectFiles(projectId){
   const{data,error}=await sb.storage.from('project-files').list(projectId+'/');
   const container=document.getElementById('projectFiles_'+projectId);
   if(!container)return;
+  var shared={};
+  try{var sr=await sb.from('project_files').select('file_name,client_visible').eq('project_id',projectId);(sr.data||[]).forEach(function(r){shared[r.file_name]=r.client_visible;});}catch(e){}
   if(error||!data||!data.length){
-    container.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">No files uploaded yet</p>';
+    container.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem">No files uploaded yet. Uploads here can be shared to the client Files link with the 👁 toggle.</p>';
     return;
   }
   container.innerHTML=data.map(f=>{
     const url=sb.storage.from('project-files').getPublicUrl(projectId+'/'+f.name).data.publicUrl;
     const size=f.metadata?.size?Math.round(f.metadata.size/1024)+' KB':'';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle)"><div><a href="'+url+'" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.9rem">'+f.name+'</a>'+(size?' <span style="color:var(--text-muted);font-size:0.8rem">('+size+')</span>':'')+'</div><button class="btn btn-sm btn-danger" onclick="deleteProjectFile(\''+projectId+'\',\''+f.name.replace(/'/g,"\\'")+'\')" style="cursor:pointer">🗑</button></div>';
+    const vis=!!shared[f.name];
+    const tog='<button class="btn btn-sm" title="'+(vis?'Visible on the client Files link — click to hide':'Hidden from client — click to share on the Files link')+'" style="border:1px solid '+(vis?'#4CAF50':'var(--border)')+';color:'+(vis?'#4CAF50':'var(--text-muted)')+'" onclick="shareFile(\''+projectId+'\',\''+f.name.replace(/'/g,"\\'")+'\','+(vis?'false':'true')+')">'+(vis?'👁 Client sees':'🙈 Share')+'</button>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-subtle)"><div style="min-width:0"><a href="'+url+'" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.9rem">'+f.name+'</a>'+(size?' <span style="color:var(--text-muted);font-size:0.8rem">('+size+')</span>':'')+'</div><div style="display:flex;gap:6px;align-items:center;flex-shrink:0">'+tog+'<button class="btn btn-sm btn-danger" onclick="deleteProjectFile(\''+projectId+'\',\''+f.name.replace(/'/g,"\\'")+'\')" style="cursor:pointer">🗑</button></div></div>';
   }).join('');
+}
+async function shareFile(projectId,fileName,share){
+  const url=sb.storage.from('project-files').getPublicUrl(projectId+'/'+fileName).data.publicUrl;
+  try{await sb.functions.invoke('admin-file-share',{body:{project_id:projectId,file_name:fileName,file_url:url,share:share}});showToast(share?'Shared on the client Files link':'Hidden from client');}catch(e){showToast('Could not update sharing','error');}
+  loadProjectFiles(projectId);
 }
 
 function uploadProjectFile(projectId){
