@@ -3007,7 +3007,8 @@ async function showProjectDetail(id){
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Mockup Approval</h3><a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank" style="font-size:.72rem">+ New / Edit Mockups</a></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Send your client the voting link. They see every saved mockup variation for this project and pick the one they want built.</p><div id="dashMockup_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Permanent Client Links</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">One link for the client to report <b>bugs &amp; request features</b>, one for their <b>files &amp; details</b>. They never expire unless you set an expiry or revoke.</p><div id="projLinks_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">✨ Feature Requests</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Approve to auto-build, or request revisions with notes.</p><div id="projFeatures_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔧 Recent Fixes &amp; Builds</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-fixed bugs and built features, newest first, with commit links.</p><div id="projActivity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">✨ Feature Requests</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Approve → builds in Claude Code (you can add build details on approve). Or request revisions with notes.</p><div id="projFeatures_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🐞 Bug Reports</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-prioritized and auto-fixed by the builder.</p><div id="projBugs_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📁 Project Files</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'files\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'files\',\'Project Files\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="uploadProjectFile(\''+id+'\')">+ Upload File</button></div></div><div id="projectFiles_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔑 Project Credentials</h3><div style="display:flex;gap:4px;align-items:center"><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="copySectionLink(\''+id+'\',\'project-credentials\')" title="Copy client link">🔗 Copy Link</button><button class="btn btn-sm" style="font-size:.65rem;padding:3px 8px;border:1px solid var(--border);color:var(--text-muted)" onclick="emailSectionLink(\''+id+'\',\'project-credentials\',\'Project Credentials\')" title="Email to client">📧 Send</button><button class="btn btn-sm btn-primary" onclick="addProjectCredential(\''+id+'\')">+ Add Credential</button></div></div><div id="projectCredentials_'+id+'"></div></div>'+
@@ -3025,6 +3026,7 @@ async function showProjectDetail(id){
   loadLinkedClients(id);
   loadIntakeTokens(id);
   loadProjectLinks(id);
+  loadProjectActivity(id);
   loadProjectFeatures(id);
   loadProjectBugs(id);
   loadDashboardMockupLink(id);
@@ -4243,8 +4245,21 @@ async function loadProjectLinks(id){
       }
       return h+'</div>';
     }
-    el.innerHTML=row('features_bugs','Features & Bugs','🐞')+row('files_details','Project Files','📁');
+    var pj=null;try{pj=(await sb.from('projects').select('repo_url,autofix_enabled').eq('id',id).maybeSingle()).data;}catch(e){}
+    var repo=pj&&pj.repo_url; var af=!pj||pj.autofix_enabled!==false;
+    var repoRow='<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-top:.55rem;background:rgba(201,146,42,.05)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div style="min-width:0"><b style="font-size:.84rem">⚙️ Auto-fix repo</b> '+(repo?('<span class="badge badge-success" style="font-size:.58rem">'+(af?'autofix on':'autofix off')+'</span>'):'<span class="badge" style="font-size:.58rem;background:var(--surface-2);color:var(--text-muted)">not set</span>')+'<div style="font-size:.73rem;color:var(--text-muted);word-break:break-all;margin-top:2px">'+(repo?esc(repo):'Bugs can\'t auto-fix until a GitHub repo is linked.')+'</div></div><button class="btn btn-sm btn-primary" onclick="setProjectRepo(\''+id+'\')">'+(repo?'Change':'Set / auto-detect')+'</button></div></div>';
+    el.innerHTML=row('features_bugs','Features & Bugs','🐞')+row('files_details','Project Files','📁')+repoRow;
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load links.</p>'; }
+}
+async function setProjectRepo(id){
+  var detected='';showToast('Checking Vercel…');
+  try{var r=await sb.functions.invoke('detect-repo',{body:{project_id:id}});if(r.data&&r.data.ok&&r.data.repo_url)detected=r.data.repo_url;}catch(e){}
+  var msg=detected?'Auto-detected from Vercel — confirm or edit the GitHub repo URL:':'Enter the GitHub repo URL (https://github.com/org/repo). Add a VERCEL_TOKEN secret to enable auto-detect.';
+  var url=prompt(msg,detected||'');
+  if(url===null)return;url=url.trim();
+  var res=await sb.from('projects').update({repo_url:url||null}).eq('id',id);
+  if(res.error){showToast('Error: '+res.error.message,'error');return;}
+  showToast(url?'Repo saved — bug auto-fix enabled':'Repo cleared');loadProjectLinks(id);
 }
 async function genLink(id,lt,days){var r=await sb.functions.invoke('project-link',{body:{action:'create',project_id:id,link_type:lt,expires_days:(days==='never'?null:days)}});showToast((r&&r.data&&r.data.ok)?'Link created':'Could not create');loadProjectLinks(id);}
 async function revokeLinkTok(t,id){if(!confirm('Revoke this link? It stops working immediately (you can generate a new one).'))return;await sb.functions.invoke('project-link',{body:{action:'revoke',token:t}});showToast('Link revoked');loadProjectLinks(id);}
@@ -4261,7 +4276,7 @@ async function loadProjectFeatures(id){
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load feature requests.</p>'; }
 }
-async function featAct(id,frId,action){await sb.functions.invoke('feature-action',{body:{id:frId,action:action}});showToast(action==='approve'?'Approved — queued for auto-build':(action==='reject'?'Rejected':'Updated'));loadProjectFeatures(id);}
+async function featAct(id,frId,action){var extra=null;if(action==='approve'){extra=prompt('Approve & build. Add any build details / clarifications for Claude Code (optional — leave blank to build as described):');if(extra===null)return;}await sb.functions.invoke('feature-action',{body:{id:frId,action:action,notes:extra||undefined}});showToast(action==='approve'?'Approved — queued for the desktop builder':(action==='reject'?'Rejected':'Updated'));loadProjectFeatures(id);}
 async function featRevise(id,frId){var n=prompt('Revision notes — what needs to change or be clarified before building:');if(n===null)return;await sb.functions.invoke('feature-action',{body:{id:frId,action:'request_revisions',notes:n}});showToast('Marked for revisions + notes saved');loadProjectFeatures(id);}
 async function loadProjectBugs(id){
   var el=document.getElementById('projBugs_'+id); if(!el) return;
@@ -4275,6 +4290,19 @@ async function loadProjectBugs(id){
       return '<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span></span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load bug reports.</p>'; }
+}
+async function loadProjectActivity(id){
+  var el=document.getElementById('projActivity_'+id); if(!el) return;
+  try{
+    var bq=await sb.from('bug_reports').select('title,fix_summary,fix_commit_url,fixed_at').eq('project_id',id).not('fixed_at','is',null).order('fixed_at',{ascending:false}).limit(15);
+    var fq=await sb.from('feature_requests').select('title,fix_commit_url,built_at').eq('project_id',id).not('built_at','is',null).order('built_at',{ascending:false}).limit(15);
+    var items=[].concat((bq.data||[]).map(function(x){return {kind:'🐞 Fix',c:'#4CAF50',title:x.title,summary:x.fix_summary,url:x.fix_commit_url,at:x.fixed_at};}),(fq.data||[]).map(function(x){return {kind:'✨ Build',c:'#C9922A',title:x.title,summary:null,url:x.fix_commit_url,at:x.built_at};}));
+    items.sort(function(a,b){return new Date(b.at)-new Date(a.at);});
+    if(!items.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Nothing shipped yet. Auto-fixed bugs and built features show up here with commit links as they happen.</p>'; return; }
+    el.innerHTML=items.slice(0,20).map(function(x){
+      return '<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-subtle)"><div style="font-size:.74rem;white-space:nowrap;color:var(--text-muted);min-width:70px">'+(x.at?new Date(x.at).toLocaleDateString():'')+'</div><div style="flex:1;min-width:0"><div style="font-size:.85rem"><span style="color:'+x.c+';font-weight:600">'+x.kind+'</span> '+esc(x.title||'(untitled)')+'</div>'+(x.summary?('<div style="font-size:.76rem;color:var(--text-muted);margin-top:2px">'+esc(x.summary)+'</div>'):'')+(x.url?(' <a href="'+x.url+'" target="_blank" style="font-size:.74rem;color:var(--accent)">view commit ↗</a>'):'')+'</div></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load activity.</p>'; }
 }
 async function loadProjectFiles(projectId){
   const{data,error}=await sb.storage.from('project-files').list(projectId+'/');
