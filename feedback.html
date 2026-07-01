@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feedback — Knight Ops</title>
+<style>
+:root{--void:#05061a;--void2:#0a0c24;--card:#10122e;--line:rgba(255,255,255,.09);--gold:#C9922A;--gold2:#e7b84e;--teal:#00D4C8;--purple:#7B2FFF;--txt:#eef0ff;--mut:#9095bd}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 700px at 70% -10%,rgba(123,47,255,.10),transparent),var(--void);color:var(--txt);font-family:Inter,system-ui,-apple-system,sans-serif;min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 60px}
+.head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.dot{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#0a0a14;font-weight:900}
+.brand{font-weight:800;letter-spacing:.4px}
+h1{font-size:1.35rem;margin:14px 0 2px}
+.sub{color:var(--mut);font-size:.9rem;margin-bottom:18px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--void2);color:var(--mut);font-weight:600;cursor:pointer;text-align:center;font-size:.92rem}
+.tab.on{border-color:var(--gold);color:var(--gold2);background:rgba(201,146,42,.10)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+label{display:block;font-size:.78rem;color:var(--mut);margin:12px 0 5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+input,textarea,select{width:100%;background:var(--void2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:11px 12px;font-size:.95rem;font-family:inherit}
+textarea{min-height:120px;resize:vertical}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--mut);font-size:.85rem;cursor:pointer}
+.files{margin-top:8px;font-size:.82rem;color:var(--teal)}
+.btn{margin-top:18px;width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0a14;font-weight:800;font-size:1rem;cursor:pointer}
+.btn:disabled{opacity:.6}
+.hint{font-size:.78rem;color:var(--mut);margin-top:8px;line-height:1.5}
+.ok{background:rgba(0,212,200,.10);border:1px solid var(--teal);border-radius:12px;padding:20px;text-align:center}
+.err{background:rgba(239,68,68,.10);border:1px solid #ef4444;border-radius:12px;padding:20px;text-align:center;color:#fca5a5}
+.pill{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:99px;background:rgba(0,212,200,.12);color:var(--teal);border:1px solid rgba(0,212,200,.3)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#0a0a14;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+a{color:var(--gold2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><div class="dot">K</div><div class="brand">KNIGHT OPS</div></div>
+  <h1 id="title">Feedback</h1>
+  <div class="sub" id="sub">Loading…</div>
+  <div id="app" style="display:none">
+    <div class="tabs">
+      <div class="tab on" id="tabBug" onclick="showTab('bug')">🐞 Report a Bug</div>
+      <div class="tab" id="tabFeat" onclick="showTab('feat')">✨ Request a Feature</div>
+    </div>
+
+    <div class="card" id="paneBug">
+      <p class="hint" style="margin-top:0">Found something broken? Tell us exactly what happened — the more specific, the faster we fix it. Bugs are auto-prioritized and fixed.</p>
+      <label>Bug title</label>
+      <input id="b_title" placeholder="e.g. Save button does nothing on the profile page">
+      <div class="row">
+        <div><label>Type</label><select id="b_type"><option>Functional</option><option>Visual</option><option>Data</option><option>Performance</option><option>Other</option></select></div>
+        <div><label>Severity</label><select id="b_sev"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+      </div>
+      <label>What happens? What did you expect?</label>
+      <textarea id="b_desc" placeholder="Steps to reproduce, what you saw, and what you expected instead."></textarea>
+      <label>Screenshots / video (optional)</label>
+      <div class="drop" id="b_drop">Click to attach files (images, video, docs)</div>
+      <input type="file" id="b_file" multiple style="display:none">
+      <div class="files" id="b_files"></div>
+      <label>Your name (optional)</label>
+      <input id="b_name" placeholder="Name">
+      <button class="btn" id="b_btn" onclick="submitBug()">Submit bug</button>
+    </div>
+
+    <div class="card" id="paneFeat" style="display:none">
+      <p class="hint" style="margin-top:0">Want something added or changed? Describe it — it goes to the team for approval, then gets built.</p>
+      <label>Feature title</label>
+      <input id="f_title" placeholder="e.g. Add a monthly revenue chart to the dashboard">
+      <label>Describe the feature and the outcome you want</label>
+      <textarea id="f_desc" placeholder="What should it do, who is it for, and what problem does it solve?"></textarea>
+      <label>Reference files (optional)</label>
+      <div class="drop" id="f_drop">Click to attach files</div>
+      <input type="file" id="f_file" multiple style="display:none">
+      <div class="files" id="f_files"></div>
+      <div class="row">
+        <div><label>Your name</label><input id="f_name" placeholder="Name"></div>
+        <div><label>Your email</label><input id="f_email" placeholder="you@email.com"></div>
+      </div>
+      <button class="btn" id="f_btn" onclick="submitFeat()">Send feature request</button>
+    </div>
+  </div>
+  <div id="gate"></div>
+</div>
+<script>
+const SB='https://trpnlkntvulkjerevngm.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const FN=SB+'/functions/v1/';
+const TOKEN=new URLSearchParams(location.search).get('t')||'';
+let PROJECT=null;
+async function api(fn,p){const r=await fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(p)});return r.json();}
+function showTab(t){document.getElementById('tabBug').classList.toggle('on',t==='bug');document.getElementById('tabFeat').classList.toggle('on',t==='feat');document.getElementById('paneBug').style.display=t==='bug'?'block':'none';document.getElementById('paneFeat').style.display=t==='feat'?'block':'none';}
+var bugFiles=[],featFiles=[];
+function wireDrop(dropId,inputId,listId,arr){var d=document.getElementById(dropId),i=document.getElementById(inputId);d.onclick=function(){i.click();};i.onchange=function(){for(var k=0;k<i.files.length;k++)arr.push(i.files[k]);document.getElementById(listId).textContent=arr.map(function(f){return f.name;}).join(', ');};}
+async function upload(files){var paths=[];for(var k=0;k<files.length;k++){var f=files[k];var path='feedback/'+TOKEN+'/'+Date.now()+'-'+f.name.replace(/[^a-zA-Z0-9._-]/g,'_');try{await fetch(SB+'/storage/v1/object/bug-attachments/'+path,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':f.type||'application/octet-stream'},body:f});paths.push(path);}catch(e){}}return paths;}
+async function submitBug(){
+  var title=document.getElementById('b_title').value.trim();var desc=document.getElementById('b_desc').value.trim();
+  if(!title&&!desc){alert('Add a title or description');return;}
+  var btn=document.getElementById('b_btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Submitting…';
+  var paths=await upload(bugFiles);
+  var res=await api('bug-report',{token:TOKEN,reporter_name:document.getElementById('b_name').value,bugs:[{title:title,description:desc,bug_type:document.getElementById('b_type').value,severity:document.getElementById('b_sev').value,attachment_paths:paths}]});
+  btn.disabled=false;btn.textContent='Submit bug';
+  if(res&&res.ok){done('🐞 Bug submitted','Thanks! This bug is logged and auto-prioritized for a fix. You can submit another anytime.');}
+  else alert('Could not submit: '+((res&&res.error)||''));
+}
+async function submitFeat(){
+  var title=document.getElementById('f_title').value.trim();var desc=document.getElementById('f_desc').value.trim();
+  if(!title&&!desc){alert('Add a title or description');return;}
+  var btn=document.getElementById('f_btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Sending…';
+  var paths=await upload(featFiles);
+  var res=await api('feature-request',{token:TOKEN,requester_name:document.getElementById('f_name').value,requester_email:document.getElementById('f_email').value,title:title,description:desc,attachment_paths:paths});
+  btn.disabled=false;btn.textContent='Send feature request';
+  if(res&&res.ok){done('✨ Feature request sent','Thanks! Your request was sent to the team for review. You will hear back once it is approved and scheduled to build.');}
+  else alert('Could not send: '+((res&&res.error)||''));
+}
+function done(t,m){document.getElementById('app').style.display='none';document.getElementById('title').textContent=t;document.getElementById('sub').style.display='none';document.getElementById('gate').innerHTML='<div class="ok"><div style="font-size:38px">✓</div><p>'+m+'</p><a href="#" onclick="location.reload();return false">Submit another</a></div>';}
+(async function(){
+  if(!TOKEN){document.getElementById('sub').innerHTML='<div class="err">Missing link token.</div>';return;}
+  var r=await api('resolve-link',{token:TOKEN});
+  if(!r||!r.ok){document.getElementById('title').textContent='Link unavailable';document.getElementById('sub').innerHTML='<div class="err">This link is '+((r&&r.reason)||'invalid')+'. Please ask for a new one.</div>';return;}
+  PROJECT=r;
+  document.getElementById('title').textContent=(r.project_name||'Your project')+' — Feedback';
+  document.getElementById('sub').innerHTML='Report bugs or request features for <b>'+(r.project_name||'this project')+'</b>. <span class="pill">secure link</span>';
+  document.getElementById('app').style.display='block';
+  wireDrop('b_drop','b_file','b_files',bugFiles);wireDrop('f_drop','f_file','f_files',featFiles);
+})();
+</script>
+</body>
+</html>
