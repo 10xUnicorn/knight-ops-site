@@ -3,7 +3,22 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-06-22
+> **Last Updated:** 2026-07-01
+
+---
+
+## Changelog — 2026-07-01 (Client Feedback + API Autofix system)
+
+Permanent per-project client links + an API-first bug-fix / feature-build engine.
+
+- **Permanent client links (2 per project).** Admin → project detail → "🔗 Permanent Client Links" generates two never-expire links (expiry configurable Never/7/30/90 + revoke): Features & Bugs (`/feedback?t=<token>`) and Project Files (`/project-files?t=<token>`). Backed by `project_intake_tokens` (+ `link_type`). Edge fns: `project-link` (create/list/revoke/set_expiry), `resolve-link` (validate → project name/brand).
+- **feedback.html** (`/feedback?t=`): tabs Bug / Feature / Your Submissions. Auto-saves drafts to localStorage; "Your Submissions" shows live status and lets the client EDIT anything not yet completed (`my-submissions`, `edit-submission`). Capture toolbar on both forms: 🎤 mic dictation (Web Speech), 📋 paste transcript, 🎬 pull transcript from a Loom/YouTube URL (`transcribe-url`, optional TRANSCRIBE_API_KEY for other sources). Uploads → bug-attachments bucket.
+- **project-files.html** (`/project-files?t=`): client sees files Daniel marks visible + their own uploads; download + upload (client-files bucket). Admin controls visibility with the 👁 Share toggle per file in Project Files (`admin-file-share` upserts a `project_files` row, client_visible). Edge fn `project-files-view` (load/add_file).
+- **Feature requests** (`feature-request`): client submits → emails Daniel (dknightunicorn@gmail.com + daniel@knightops.biz) with an Approve link + admin link. Admin → "✨ Feature Requests": Approve & build / Request revisions (Daniel types notes, no client email) / Reject (`feature-action`). Only status='approved' ever builds.
+- **Bugs** (`bug-report`): auto-prioritized. Admin → "🐞 Bug Reports" lists them per project.
+- **API AUTOFIX (cloud, no desktop app).** Edge fn `api-autofix` {kind:bug|feature,id,background?}: Claude API (claude-sonnet-4-6) plans → reads repo files via GitHub API → writes the fix → commits (single commit via git data API) to the repo's default branch → Vercel auto-deploys → emails Daniel. Confidence gate: if not safe it sets autofix_error='low_confidence' and emails instead of committing. Event-driven: `bug-report` fires it on submit, `feature-action` fires it on approve (both via EdgeRuntime.waitUntil). Needs projects.repo_url + two Supabase secrets: ANTHROPIC_API_KEY (set) and **GITHUB_TOKEN (MUST be added — repo write for org 10xUnicorn)**. Until GITHUB_TOKEN is set it returns no_github_token and the orchestrator falls back to desktop Claude Code.
+- **Schema:** `projects` +repo_url,repo_subpath,deploy_cmd,autofix_enabled. `bug_reports` +fix_summary,fix_commit_url,fixed_at,autofix_attempts,autofix_error. `feature_requests` table (pending→approved/revisions/rejected→building/built) +approval_token. `project_files` +client_visible,added_via_token,storage_path. `client-files` public bucket.
+- **Orchestrator** (`knight-ops-autobuild-orchestrator`, hourly) reordered API-first: STEP 1 bugs (trigger api-autofix + poll; resolve+backfill projects.repo_url via Vercel/vault; desktop fallback on low_confidence/no_token), STEP 2 approved features (api-autofix), STEP 3 net-new dashboard builds (desktop). Bugs/features now fix in the cloud even with the Mac closed.
 
 ---
 
