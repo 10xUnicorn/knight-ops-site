@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-07-02b (Attachment-aware autofix + client uploads + completion emails)
+
+- **Autofix now uses screenshots/files (vision).** `api-autofix` v5: a bug/feature's `attachment_paths` (public `bug-attachments` bucket = persistent + re-readable at build time) are passed to Claude sonnet as image blocks (png/jpg/gif/webp) + document blocks (pdf) in BOTH the file-selection and fix steps. Prompts treat screenshots as the primary evidence of which page/element/error is meant, and set `confident=false` when ambiguous. `attachBlocks()` + a `claude()` wrapper that auto-retries text-only if an attachment URL is unfetchable (never hard-fails).
+- **Client uploads encouraged.** `client-hub.html` bug + feature forms now have a prominent "📸 Screenshots / files (highly recommended)" multi-upload (images/pdf/docs) → `hubUpload()` posts to `bug-attachments` (`hub/<token>/…`) and passes `attachment_paths` to `bug-report`/`feature-request`. (feedback.html already had attachments.)
+- **Attachments visible in admin.** `attHtml()` renders image thumbnails + file chips (public bucket) in the global Features & Bugs module rows and the per-project ✨/🐞 cards, so you can see the evidence before approving/building.
+- **Completion emails (owner + client).** New edge fn **`notify-completion`** (verify_jwt=false) + DB triggers `trg_bug_completion` (bug status→fixed) / `trg_feature_completion` (feature status→built) via pg_net. On completion it emails the CLIENT a friendly done note (reporter/requester email, else project client) AND Daniel a technical note (summary + commit + deep-link). Idempotent via `completion_notified_at` (migration `add_completion_notified_at`). `api-autofix` v5 dropped its own success email so completion is single-source (no owner dupes). Covers BOTH API autofix and desktop-built completions.
+- **Edge fns:** `api-autofix` v5, `notify-completion` v1 (new). Backfilled `action_token` on all existing bugs.
+
+---
+
 ## Changelog — 2026-07-02 (Deep-links, favorites, Features & Bugs module, link types, email actions)
 
 Admin UX + client-link expansion. All in `admin.html` + one new page + edge fns; deployed via git push (commits `d69d6ec`, `385e5f3`).
