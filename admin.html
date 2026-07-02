@@ -425,6 +425,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item has-children" data-group="delivery" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="nav-label">Delivery</span><span class="expand-arrow">&#9654;</span></div>
       <div class="nav-children" id="nav-delivery">
         <div class="nav-child" data-view="projects">Projects</div>
+        <div class="nav-child" data-view="featbugs">Features &amp; Bugs</div>
         <div class="nav-child" data-view="tasks">Tasks</div>
         <div class="nav-child" data-view="clients">Clients</div>
         <div class="nav-child" data-view="applications">Applications</div>
@@ -532,6 +533,22 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
       <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><select id="taskLeadFilter" onchange="renderTasks()"><option value="">All Leads</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
+      <!-- ═══ FEATURES & BUGS VIEW (Delivery) ═══ -->
+      <div class="view" id="v-featbugs">
+        <div class="table-card">
+          <div class="table-header">
+            <h2>Features &amp; Bugs</h2>
+            <div class="table-filters">
+              <input type="text" placeholder="Search…" id="fbSearch" oninput="FB.q=this.value.toLowerCase();renderFeatBugs()">
+              <select id="fbType" onchange="FB.filterType=this.value;renderFeatBugs()"><option value="all">All types</option><option value="features">Features only</option><option value="bugs">Bugs only</option></select>
+              <select id="fbStatus" onchange="FB.filterStatus=this.value;renderFeatBugs()"><option value="">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="revisions">Revisions</option><option value="rejected">Rejected</option><option value="building">Building</option><option value="built">Built</option><option value="new">New (bug)</option><option value="fixing">Fixing</option><option value="fixed">Fixed</option><option value="closed">Closed</option></select>
+              <select id="fbProj" onchange="FB.filterProj=this.value;renderFeatBugs()"><option value="">All projects</option></select>
+              <button class="btn btn-sm btn-secondary" onclick="loadFeatBugs()">↻ Refresh</button>
+            </div>
+          </div>
+          <div id="featbugsBody" style="padding:1rem"></div>
+        </div>
+      </div>
       <!-- ═══ DEALS VIEW ═══ -->
       <div class="view" id="v-deals">
         <div id="dealsListView">
@@ -1453,7 +1470,7 @@ function activateView(v,skipHash){
   var ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
   var alv=document.getElementById('appsListView');if(alv)alv.style.display='';
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();
   // Email sub-views
   if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
@@ -3045,7 +3062,7 @@ async function showProjectDetail(id){
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Mockup Approval</h3><a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank" style="font-size:.72rem">+ New / Edit Mockups</a></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Send your client the voting link. They see every saved mockup variation for this project and pick the one they want built.</p><div id="dashMockup_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">➕ Add a Module (injection prompt)</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Generate a project-tailored prompt to inject any module into this client\'s existing dashboard, wired into everything already built. Paste it into Claude Code.</p><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.55rem"><select id="miMod_'+id+'" style="flex:1;min-width:170px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:.82rem"><option value="">Loading…</option></select><button class="btn btn-sm btn-primary" onclick="genModuleInjection(\''+id+'\')">Generate</button></div><input id="miNotes_'+id+'" placeholder="Optional specifics (else it assumes best from project data)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.82rem;margin-bottom:.5rem"><div id="miOut_'+id+'"></div></div>'+
-  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Permanent Client Links</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">One link for the client to report <b>bugs &amp; request features</b>, one for their <b>files &amp; details</b>. They never expire unless you set an expiry or revoke.</p><div id="projLinks_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Permanent Client Links</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Permanent links to send the client: bugs &amp; features, files, an <b>all-in-one hub</b>, credentials &amp; access, proposal &amp; invoices, and portal access. They never expire unless you set an expiry or revoke. Hit <b>📧 Draft email</b> on any link to send it from daniel@knightops.biz.</p><div id="projLinks_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔧 Recent Fixes &amp; Builds</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-fixed bugs and built features, newest first, with commit links.</p><div id="projActivity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">✨ Feature Requests</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Approve → builds in Claude Code (you can add build details on approve). Or request revisions with notes.</p><div id="projFeatures_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🐞 Bug Reports</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-prioritized and auto-fixed by the builder.</p><div id="projBugs_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
@@ -4279,7 +4296,7 @@ async function loadProjectLinks(id){
       var active=links.filter(function(x){return x.link_type===lt&&!x.revoked&&!x.expired;})[0];
       var h='<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem"><b style="font-size:.86rem">'+emoji+' '+label+'</b>'+(active?('<span class="badge badge-success" style="font-size:.6rem">active '+(active.expires_at?('· exp '+new Date(active.expires_at).toLocaleDateString()):'· never expires')+'</span>'):'<span class="badge" style="font-size:.6rem;background:var(--surface-2);color:var(--text-muted)">no link yet</span>')+'</div>';
       if(active){
-        h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:.45rem"><input readonly value="'+active.url+'" onclick="this.select()" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.72rem"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(\''+active.url+'\');showToast(\'Link copied\')">📋 Copy</button><a class="btn btn-sm btn-secondary" href="'+active.url+'" target="_blank">👁 Open</a><select onchange="setLinkExpiry(\''+active.token+'\',this.value,\''+id+'\')" style="font-size:.7rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px"><option value="">Change expiry…</option><option value="never">Never</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="revokeLinkTok(\''+active.token+'\',\''+id+'\')">Revoke</button></div>';
+        h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:.45rem"><input readonly value="'+active.url+'" onclick="this.select()" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 9px;border-radius:6px;font-size:.72rem"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(\''+active.url+'\');showToast(\'Link copied\')">📋 Copy</button><a class="btn btn-sm btn-secondary" href="'+active.url+'" target="_blank">👁 Open</a><button class="btn btn-sm btn-secondary" onclick="emailLinkDraft(\''+id+'\',\''+lt+'\',\''+label.replace(/'/g,"")+'\',\''+active.url+'\')">📧 Draft email</button><select onchange="setLinkExpiry(\''+active.token+'\',this.value,\''+id+'\')" style="font-size:.7rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px"><option value="">Change expiry…</option><option value="never">Never</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="revokeLinkTok(\''+active.token+'\',\''+id+'\')">Revoke</button></div>';
       }else{
         h+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><select id="exp_'+lt+'_'+id+'" style="font-size:.7rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px"><option value="never">Never expires</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select><button class="btn btn-sm btn-primary" onclick="genLink(\''+id+'\',\''+lt+'\',document.getElementById(\'exp_'+lt+'_'+id+'\').value)">+ Generate link</button></div>';
       }
@@ -4288,7 +4305,7 @@ async function loadProjectLinks(id){
     var pj=null;try{pj=(await sb.from('projects').select('repo_url,autofix_enabled').eq('id',id).maybeSingle()).data;}catch(e){}
     var repo=pj&&pj.repo_url; var af=!pj||pj.autofix_enabled!==false;
     var repoRow='<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-top:.55rem;background:rgba(201,146,42,.05)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div style="min-width:0"><b style="font-size:.84rem">⚙️ Auto-fix repo</b> '+(repo?('<span class="badge badge-success" style="font-size:.58rem">'+(af?'autofix on':'autofix off')+'</span>'):'<span class="badge" style="font-size:.58rem;background:var(--surface-2);color:var(--text-muted)">not set</span>')+'<div style="font-size:.73rem;color:var(--text-muted);word-break:break-all;margin-top:2px">'+(repo?esc(repo):'Bugs can\'t auto-fix until a GitHub repo is linked.')+'</div></div><button class="btn btn-sm btn-primary" onclick="setProjectRepo(\''+id+'\')">'+(repo?'Change':'Set / auto-detect')+'</button></div></div>';
-    el.innerHTML=row('features_bugs','Features & Bugs','🐞')+row('files_details','Project Files','📁')+repoRow;
+    el.innerHTML=row('features_bugs','Features & Bugs','🐞')+row('files_details','Project Files','📁')+row('all_in_one','Client Hub (all-in-one)','🧭')+row('credentials','Credentials & Access','🔑')+row('proposal_invoice','Proposal & Invoices','🧾')+row('portal_access','Client Portal Access','🚪')+repoRow;
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load links.</p>'; }
 }
 async function setProjectRepo(id){
@@ -4330,6 +4347,169 @@ function dlText(name,text){var a=document.createElement('a');a.href='data:text/m
 async function genLink(id,lt,days){var r=await sb.functions.invoke('project-link',{body:{action:'create',project_id:id,link_type:lt,expires_days:(days==='never'?null:days)}});showToast((r&&r.data&&r.data.ok)?'Link created':'Could not create');loadProjectLinks(id);}
 async function revokeLinkTok(t,id){if(!confirm('Revoke this link? It stops working immediately (you can generate a new one).'))return;await sb.functions.invoke('project-link',{body:{action:'revoke',token:t}});showToast('Link revoked');loadProjectLinks(id);}
 async function setLinkExpiry(t,days,id){if(!days)return;await sb.functions.invoke('project-link',{body:{action:'set_expiry',token:t,expires_days:(days==='never'?null:days)}});showToast('Expiry updated');loadProjectLinks(id);}
+// ── Native editable email-draft per link type (sends from daniel@knightops.biz) ──
+var EMAIL_LINK_TEMPLATES={
+  features_bugs:{subject:'Report bugs & request features for {project}',body:'Hi {name},\n\nHere is your private link to report any bugs or request new features for {project}. Bookmark it — it stays live so you can use it anytime:\n\n{url}\n\nJust describe what you need (you can even record a voice note or paste a video link) and it comes straight to me.\n\nTalk soon,\nDaniel'},
+  files_details:{subject:'Upload your files for {project}',body:'Hi {name},\n\nHere is your private link to upload files and see the documents I have shared for {project}. It stays live, so use it anytime:\n\n{url}\n\nTalk soon,\nDaniel'},
+  all_in_one:{subject:'Your {project} client hub',body:'Hi {name},\n\nHere is your all-in-one hub for {project} — report bugs, request features, upload files, and share access, all in one place. Bookmark it, it stays live:\n\n{url}\n\nTalk soon,\nDaniel'},
+  credentials:{subject:'Securely share your logins & access for {project}',body:'Hi {name},\n\nWhen you have a minute, here is a secure link to share the logins and access I need for {project}. It stays live so you can add things as you get them:\n\n{url}\n\nThanks,\nDaniel'},
+  proposal_invoice:{subject:'Your proposal & invoices for {project}',body:'Hi {name},\n\nHere is your link to view your proposal and invoices for {project} anytime:\n\n{url}\n\nTalk soon,\nDaniel'},
+  portal_access:{subject:'Access your {project} portal',body:'Hi {name},\n\nHere is your private access link for {project}. Bookmark it — it stays live:\n\n{url}\n\nTalk soon,\nDaniel'},
+  _default:{subject:'A link for {project}',body:'Hi {name},\n\nHere is your link for {project}:\n\n{url}\n\nTalk soon,\nDaniel'}
+};
+function emailLinkDraft(pid,lt,label,url){
+  var p=(S.projects||[]).find(function(x){return x.id===pid;})||{};
+  var clientEmail='';var clientName='';
+  if(p.client_id){var c=(S.clients||[]).find(function(x){return x.id===p.client_id;});if(c){clientEmail=(c.profiles&&c.profiles.email)||c.email||'';clientName=(c.profiles&&c.profiles.full_name)||'';}}
+  var tpl=EMAIL_LINK_TEMPLATES[lt]||EMAIL_LINK_TEMPLATES._default;
+  var firstName=(clientName||'there').split(' ')[0];
+  var subject=tpl.subject.split('{project}').join(p.name||'your project');
+  var bodyTxt=tpl.body.split('{name}').join(firstName).split('{project}').join(p.name||'your project').split('{url}').join(url);
+  var inp='width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.85rem';
+  var bodyHTML='<div style="display:grid;gap:.7rem">'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">To</div><input id="elTo" value="'+esc(clientEmail)+'" placeholder="client@email.com" style="'+inp+'"></div>'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">Subject</div><input id="elSubj" value="'+esc(subject)+'" style="'+inp+'"></div>'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">Message</div><textarea id="elBody" style="'+inp+';min-height:230px;resize:vertical;font-family:inherit">'+esc(bodyTxt)+'</textarea></div>'+
+    '<div style="font-size:.7rem;color:var(--text-muted)">Sends from daniel@knightops.biz. Edit anything before you hit send.</div>'+
+  '</div>';
+  var foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button> <button class="btn btn-primary" onclick="sendLinkDraft()">📧 Send email</button>';
+  openEditModal('Email link to client — '+label,bodyHTML,foot);
+}
+async function sendLinkDraft(){
+  var to=((document.getElementById('elTo')||{}).value||'').trim();
+  var subject=((document.getElementById('elSubj')||{}).value||'').trim();
+  var bodyTxt=((document.getElementById('elBody')||{}).value||'');
+  if(!to){showToast('Add a recipient email');return;}
+  showToast('Sending…');
+  try{
+    var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#111">'+esc(bodyTxt).replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" style="color:#C9922A;font-weight:600">$1</a>')+'</div>';
+    var r=await sb.functions.invoke('send-plain-email',{body:{to:to,subject:subject,body:bodyTxt,html:html,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    if(r.error||(r.data&&r.data.success===false))throw new Error((r.error&&r.error.message)||'send failed');
+    showToast('Email sent to '+to);closeEditModal();
+  }catch(e){showToast('Could not send: '+(e&&e.message||e),'error');}
+}
+// ═══ GLOBAL FEATURES & BUGS (Delivery module) ═══
+var FB={items:[],sel:new Set(),filterType:'all',filterStatus:'',filterProj:'',q:''};
+async function loadFeatBugs(){
+  var host=document.getElementById('featbugsBody'); if(!host)return;
+  host.innerHTML='<p style="color:var(--text-muted);font-size:.85rem;padding:1rem">Loading all features &amp; bugs…</p>';
+  try{
+    var fr=await sb.from('feature_requests').select('id,project_id,title,description,status,priority,requester_name,requester_email,admin_notes,created_at').order('created_at',{ascending:false});
+    var br=await sb.from('bug_reports').select('id,project_id,title,description,status,severity,bug_type,reporter_name,reporter_email,admin_notes,created_at').order('created_at',{ascending:false});
+    var pmap={};(S.projects||[]).forEach(function(p){pmap[p.id]=p.name;});
+    var feats=(fr.data||[]).map(function(f){return {kind:'feature',id:f.id,project_id:f.project_id,project:pmap[f.project_id]||'—',title:f.title,description:f.description,status:f.status||'pending',sev:f.priority||'',requester:f.requester_name||f.requester_email||'',notes:f.admin_notes||'',created:f.created_at};});
+    var bugs=(br.data||[]).map(function(b){return {kind:'bug',id:b.id,project_id:b.project_id,project:pmap[b.project_id]||'—',title:b.title,description:b.description,status:b.status||'new',sev:b.severity||'',requester:b.reporter_name||b.reporter_email||'',notes:b.admin_notes||'',created:b.created_at};});
+    FB.items=feats.concat(bugs).sort(function(a,b){return new Date(b.created)-new Date(a.created);});
+    var psel=document.getElementById('fbProj');
+    if(psel){var ids={};FB.items.forEach(function(x){if(x.project_id)ids[x.project_id]=x.project;});var cur=psel.value;psel.innerHTML='<option value="">All projects</option>'+Object.keys(ids).sort(function(a,b){return (ids[a]||'').localeCompare(ids[b]||'');}).map(function(id){return '<option value="'+id+'">'+esc(ids[id])+'</option>';}).join('');psel.value=cur||FB.filterProj||'';}
+    renderFeatBugs();
+  }catch(e){host.innerHTML='<p style="color:#ef4444;font-size:.85rem;padding:1rem">Could not load: '+esc(String(e&&e.message||e))+'</p>';}
+}
+function fbKey(x){return x.kind.charAt(0)+':'+x.id;}
+function fbVisible(){
+  return FB.items.filter(function(x){
+    if(FB.filterType==='features'&&x.kind!=='feature')return false;
+    if(FB.filterType==='bugs'&&x.kind!=='bug')return false;
+    if(FB.filterStatus&&x.status!==FB.filterStatus)return false;
+    if(FB.filterProj&&x.project_id!==FB.filterProj)return false;
+    if(FB.q){var s=((x.title||'')+' '+(x.description||'')+' '+(x.project||'')+' '+(x.requester||'')).toLowerCase();if(s.indexOf(FB.q)<0)return false;}
+    return true;
+  });
+}
+function renderFeatBugs(){
+  var host=document.getElementById('featbugsBody'); if(!host)return;
+  var items=fbVisible();
+  var pend=FB.items.filter(function(x){return x.kind==='feature'&&x.status==='pending';}).length;
+  var bar='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.9rem;padding:.7rem .8rem;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)">'+
+    '<label style="display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="fbSelAll" onchange="fbToggleAll(this.checked)"> Select all shown</label>'+
+    '<span id="fbSelCount" style="font-size:.76rem;color:var(--text-muted)">'+FB.sel.size+' selected</span>'+
+    '<div style="flex:1;min-width:20px"></div>'+
+    '<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="fbBulk(\'approve\')">✓ Approve &amp; build selected</button>'+
+    '<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50;background:rgba(76,175,80,.12)" onclick="fbApproveAll()">✓ Approve &amp; build ALL pending features ('+pend+')</button>'+
+    '<button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="fbBulk(\'reject\')">✕ Reject selected</button>'+
+  '</div>';
+  host.innerHTML=bar+(items.length?items.map(fbRow).join(''):'<p style="color:var(--text-muted);font-size:.85rem;padding:1rem 0">Nothing matches these filters.</p>');
+  var sa=document.getElementById('fbSelAll'); if(sa)sa.checked=items.length>0&&items.every(function(x){return FB.sel.has(fbKey(x));});
+}
+function fbRow(x){
+  var k=fbKey(x); var kid=k.replace(':','_');
+  var checked=FB.sel.has(k)?'checked':'';
+  var kindC=x.kind==='feature'?'#C9922A':'#ef4444';
+  var kindL=x.kind==='feature'?'✨ Feature':'🐞 Bug';
+  var sc=x.kind==='feature'
+    ? ({pending:'#C9922A',approved:'#4CAF50',revisions:'#2196F3',rejected:'#ef4444',building:'#2196F3',built:'#4CAF50',error:'#ef4444'}[x.status]||'#888')
+    : ({new:'#C9922A',fixing:'#2196F3',fixed:'#4CAF50',closed:'#888'}[x.status]||'#888');
+  var desc=(x.description||''); var dtrim=desc.slice(0,240);
+  return '<div id="fbRow_'+kid+'" style="border:1px solid var(--border);border-radius:8px;padding:.7rem .8rem;margin-bottom:.5rem">'+
+    '<div style="display:flex;gap:10px;align-items:flex-start">'+
+      '<input type="checkbox" '+checked+' onchange="fbSel(\''+k+'\',this.checked)" style="margin-top:3px;flex-shrink:0">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.25rem">'+
+          '<span class="badge" style="font-size:.6rem;background:'+kindC+'22;color:'+kindC+';border:1px solid '+kindC+'55">'+kindL+'</span>'+
+          '<b style="font-size:.86rem">'+esc(x.title||'(untitled)')+'</b>'+
+          '<span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(x.status)+'</span>'+
+          (x.sev?'<span class="badge" style="font-size:.58rem;background:var(--surface-2);color:var(--text-muted)">'+esc(x.sev)+'</span>':'')+
+        '</div>'+
+        '<div style="font-size:.74rem;color:var(--text-muted);margin-bottom:.2rem"><a onclick="showProjectDetail(\''+x.project_id+'\')" style="color:var(--accent);cursor:pointer">'+esc(x.project)+'</a>'+(x.requester?(' · '+esc(x.requester)):'')+' · '+(x.created?new Date(x.created).toLocaleDateString():'')+'</div>'+
+        '<div style="font-size:.76rem;color:var(--text-muted);white-space:pre-wrap">'+esc(dtrim)+(desc.length>240?'…':'')+'</div>'+
+        (x.notes?'<div style="font-size:.72rem;color:#2196F3;margin-top:.25rem"><b>Notes:</b> '+esc(x.notes)+'</div>':'')+
+        '<div style="margin-top:.4rem;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="fbToggleDetails(\''+k+'\')">✎ Add details / revise</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="showProjectDetail(\''+x.project_id+'\')">Open in project →</button></div>'+
+        '<div id="fbDet_'+kid+'" style="display:none;margin-top:.5rem">'+
+          '<textarea id="fbNote_'+kid+'" placeholder="Add build details / clarifications / revision notes…" style="width:100%;min-height:64px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px;font-size:.78rem;resize:vertical">'+esc(x.notes||'')+'</textarea>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:.35rem">'+
+            (x.kind==='feature'
+              ?'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="fbSubmitRow(\''+k+'\',\'approve\')">✓ Approve &amp; build with these details</button><button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="fbSubmitRow(\''+k+'\',\'revise\')">💾 Save &amp; request revisions</button>'
+              :'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="fbSubmitRow(\''+k+'\',\'note\')">💾 Save notes</button>')+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function fbSel(k,on){ if(on)FB.sel.add(k);else FB.sel.delete(k); var cnt=document.getElementById('fbSelCount'); if(cnt)cnt.textContent=FB.sel.size+' selected'; }
+function fbToggleAll(on){ fbVisible().forEach(function(x){var k=fbKey(x);if(on)FB.sel.add(k);else FB.sel.delete(k);}); renderFeatBugs(); }
+function fbToggleDetails(k){ var el=document.getElementById('fbDet_'+k.replace(':','_')); if(el)el.style.display=(el.style.display==='none'?'block':'none'); }
+async function fbBulk(action){
+  var keys=Array.from(FB.sel);
+  if(!keys.length){showToast('Select at least one item first');return;}
+  var feats=keys.filter(function(k){return k.charAt(0)==='f';}).map(function(k){return k.slice(2);});
+  var bugs=keys.filter(function(k){return k.charAt(0)==='b';}).map(function(k){return k.slice(2);});
+  if(action==='approve'){
+    if(!feats.length){showToast('Approve & build applies to features — select feature(s)');return;}
+    if(!confirm('Approve & build '+feats.length+' feature(s)? They queue for the desktop builder.'+(bugs.length?' (Selected bugs are skipped — bugs auto-fix on submit.)':'')))return;
+    showToast('Approving '+feats.length+' feature(s)…');
+    for(var i=0;i<feats.length;i++){ try{await sb.functions.invoke('feature-action',{body:{id:feats[i],action:'approve'}});}catch(e){} }
+    showToast('Approved & queued '+feats.length+' feature(s)');
+  } else if(action==='reject'){
+    if(!feats.length&&!bugs.length){return;}
+    if(!confirm('Reject '+feats.length+' feature(s)'+(bugs.length?(' and close '+bugs.length+' bug(s)'):'')+'?'))return;
+    for(var j=0;j<feats.length;j++){ try{await sb.functions.invoke('feature-action',{body:{id:feats[j],action:'reject'}});}catch(e){} }
+    if(bugs.length){ try{await sb.from('bug_reports').update({status:'closed'}).in('id',bugs);}catch(e){} }
+    showToast('Rejected/closed the selected items');
+  }
+  FB.sel.clear(); await loadFeatBugs();
+}
+async function fbApproveAll(){
+  var pend=FB.items.filter(function(x){return x.kind==='feature'&&x.status==='pending';});
+  if(!pend.length){showToast('No pending features to approve');return;}
+  if(!confirm('Approve & build ALL '+pend.length+' pending feature(s)? Each queues for the desktop builder.'))return;
+  showToast('Approving '+pend.length+' feature(s)…');
+  for(var i=0;i<pend.length;i++){ try{await sb.functions.invoke('feature-action',{body:{id:pend[i].id,action:'approve'}});}catch(e){} }
+  showToast('All pending features approved & queued'); FB.sel.clear(); await loadFeatBugs();
+}
+async function fbSubmitRow(k,mode){
+  var id=k.slice(2); var isFeature=k.charAt(0)==='f';
+  var ta=document.getElementById('fbNote_'+k.replace(':','_')); var note=(ta&&ta.value||'').trim();
+  try{
+    if(isFeature){
+      if(mode==='approve'){ await sb.functions.invoke('feature-action',{body:{id:id,action:'approve',notes:note||undefined}}); showToast('Approved & queued with your details'); }
+      else { if(!note){showToast('Add revision notes first');return;} await sb.functions.invoke('feature-action',{body:{id:id,action:'request_revisions',notes:note}}); showToast('Saved & marked for revisions'); }
+    } else {
+      await sb.from('bug_reports').update({admin_notes:note||null}).eq('id',id); showToast('Notes saved on bug');
+    }
+    await loadFeatBugs();
+  }catch(e){ showToast('Error: '+(e&&e.message||e),'error'); }
+}
 async function loadProjectFeatures(id){
   var el=document.getElementById('projFeatures_'+id); if(!el) return;
   try{
