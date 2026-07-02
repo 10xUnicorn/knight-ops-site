@@ -4427,16 +4427,26 @@ async function sendLinkDraft(){
   }catch(e){showToast('Could not send: '+(e&&e.message||e),'error');}
 }
 // ═══ GLOBAL FEATURES & BUGS (Delivery module) ═══
+// Render client-uploaded screenshots/files (images as thumbnails, others as chips). Stored in the public bug-attachments bucket, so they persist for review + the autofix build.
+function attHtml(paths){
+  if(!Array.isArray(paths)||!paths.length)return '';
+  var base=SUPABASE_URL+'/storage/v1/object/public/bug-attachments/';
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:.45rem 0">'+paths.slice(0,10).map(function(p){
+    var url=base+p;var ext=String(p).toLowerCase().split('.').pop();
+    if(['png','jpg','jpeg','gif','webp'].indexOf(ext)>=0)return '<a href="'+url+'" target="_blank" title="'+esc(String(p))+'"><img src="'+url+'" loading="lazy" style="height:56px;width:56px;object-fit:cover;border:1px solid var(--border);border-radius:6px"></a>';
+    return '<a href="'+url+'" target="_blank" style="font-size:.64rem;border:1px solid var(--border);color:var(--accent);padding:5px 9px;border-radius:6px;text-decoration:none">📎 '+esc(String(p).split('/').pop().slice(0,26))+'</a>';
+  }).join('')+'</div>';
+}
 var FB={items:[],sel:new Set(),filterType:'all',filterStatus:'',filterProj:'',q:''};
 async function loadFeatBugs(){
   var host=document.getElementById('featbugsBody'); if(!host)return;
   host.innerHTML='<p style="color:var(--text-muted);font-size:.85rem;padding:1rem">Loading all features &amp; bugs…</p>';
   try{
-    var fr=await sb.from('feature_requests').select('id,project_id,title,description,status,priority,requester_name,requester_email,admin_notes,created_at').order('created_at',{ascending:false});
-    var br=await sb.from('bug_reports').select('id,project_id,title,description,status,severity,bug_type,reporter_name,reporter_email,admin_notes,created_at').order('created_at',{ascending:false});
+    var fr=await sb.from('feature_requests').select('id,project_id,title,description,status,priority,requester_name,requester_email,admin_notes,attachment_paths,created_at').order('created_at',{ascending:false});
+    var br=await sb.from('bug_reports').select('id,project_id,title,description,status,severity,bug_type,reporter_name,reporter_email,admin_notes,attachment_paths,created_at').order('created_at',{ascending:false});
     var pmap={};(S.projects||[]).forEach(function(p){pmap[p.id]=p.name;});
-    var feats=(fr.data||[]).map(function(f){return {kind:'feature',id:f.id,project_id:f.project_id,project:pmap[f.project_id]||'—',title:f.title,description:f.description,status:f.status||'pending',sev:f.priority||'',requester:f.requester_name||f.requester_email||'',notes:f.admin_notes||'',created:f.created_at};});
-    var bugs=(br.data||[]).map(function(b){return {kind:'bug',id:b.id,project_id:b.project_id,project:pmap[b.project_id]||'—',title:b.title,description:b.description,status:b.status||'new',sev:b.severity||'',requester:b.reporter_name||b.reporter_email||'',notes:b.admin_notes||'',created:b.created_at};});
+    var feats=(fr.data||[]).map(function(f){return {kind:'feature',id:f.id,project_id:f.project_id,project:pmap[f.project_id]||'—',title:f.title,description:f.description,status:f.status||'pending',sev:f.priority||'',requester:f.requester_name||f.requester_email||'',notes:f.admin_notes||'',att:f.attachment_paths,created:f.created_at};});
+    var bugs=(br.data||[]).map(function(b){return {kind:'bug',id:b.id,project_id:b.project_id,project:pmap[b.project_id]||'—',title:b.title,description:b.description,status:b.status||'new',sev:b.severity||'',requester:b.reporter_name||b.reporter_email||'',notes:b.admin_notes||'',att:b.attachment_paths,created:b.created_at};});
     FB.items=feats.concat(bugs).sort(function(a,b){return new Date(b.created)-new Date(a.created);});
     var psel=document.getElementById('fbProj');
     if(psel){var ids={};FB.items.forEach(function(x){if(x.project_id)ids[x.project_id]=x.project;});var cur=psel.value;psel.innerHTML='<option value="">All projects</option>'+Object.keys(ids).sort(function(a,b){return (ids[a]||'').localeCompare(ids[b]||'');}).map(function(id){return '<option value="'+id+'">'+esc(ids[id])+'</option>';}).join('');psel.value=cur||FB.filterProj||'';}
@@ -4490,6 +4500,7 @@ function fbRow(x){
         '</div>'+
         '<div style="font-size:.74rem;color:var(--text-muted);margin-bottom:.2rem"><a onclick="showProjectDetail(\''+x.project_id+'\')" style="color:var(--accent);cursor:pointer">'+esc(x.project)+'</a>'+(x.requester?(' · '+esc(x.requester)):'')+' · '+(x.created?new Date(x.created).toLocaleDateString():'')+'</div>'+
         '<div style="font-size:.76rem;color:var(--text-muted);white-space:pre-wrap">'+esc(dtrim)+(desc.length>240?'…':'')+'</div>'+
+        attHtml(x.att)+
         (x.notes?'<div style="font-size:.72rem;color:#2196F3;margin-top:.25rem"><b>Notes:</b> '+esc(x.notes)+'</div>':'')+
         '<div style="margin-top:.4rem;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="fbToggleDetails(\''+k+'\')">✎ Add details / revise</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="showProjectDetail(\''+x.project_id+'\')">Open in project →</button></div>'+
         '<div id="fbDet_'+kid+'" style="display:none;margin-top:.5rem">'+
@@ -4551,12 +4562,12 @@ async function fbSubmitRow(k,mode){
 async function loadProjectFeatures(id){
   var el=document.getElementById('projFeatures_'+id); if(!el) return;
   try{
-    var q=await sb.from('feature_requests').select('id,title,description,status,requester_name,requester_email,admin_notes,created_at').eq('project_id',id).order('created_at',{ascending:false});
+    var q=await sb.from('feature_requests').select('id,title,description,status,requester_name,requester_email,admin_notes,attachment_paths,created_at').eq('project_id',id).order('created_at',{ascending:false});
     var data=q.data||[];
     if(!data.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No feature requests yet. Clients submit them via the Features & Bugs link.</p>'; return; }
     el.innerHTML=data.map(function(f){
       var c={pending:'#C9922A',approved:'#4CAF50',revisions:'#2196F3',rejected:'#ef4444',building:'#2196F3',built:'#4CAF50',error:'#ef4444'}[f.status]||'#888';
-      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
+      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+attHtml(f.attachment_paths)+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load feature requests.</p>'; }
 }
@@ -4565,13 +4576,13 @@ async function featRevise(id,frId){var n=prompt('Revision notes — what needs t
 async function loadProjectBugs(id){
   var el=document.getElementById('projBugs_'+id); if(!el) return;
   try{
-    var q=await sb.from('bug_reports').select('id,title,description,bug_type,severity,status,reporter_name,created_at').eq('project_id',id).order('created_at',{ascending:false});
+    var q=await sb.from('bug_reports').select('id,title,description,bug_type,severity,status,reporter_name,attachment_paths,created_at').eq('project_id',id).order('created_at',{ascending:false});
     var data=q.data||[];
     if(!data.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No bugs reported. Clients report them via the Features & Bugs link — they auto-prioritize for a fix.</p>'; return; }
     el.innerHTML=data.map(function(bg){
       var sc={Low:'#888',Medium:'#C9922A',High:'#ff8c42',Critical:'#ef4444'}[bg.severity]||'#888';
       var tc={new:'#C9922A',fixing:'#2196F3',fixed:'#4CAF50',closed:'#888'}[bg.status]||'#888';
-      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span></span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div></div>';
+      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span></span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div>'+attHtml(bg.attachment_paths)+'</div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load bug reports.</p>'; }
 }

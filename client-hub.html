@@ -60,12 +60,14 @@
         <label>What's broken?</label><input id="bugTitle" placeholder="Short title">
         <label>Describe it</label><textarea id="bugDesc" placeholder="What happened, where, and what you expected…"></textarea>
         <div class="row"><div><label>Severity</label><select id="bugSev"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div><div><label>Your name (optional)</label><input id="bugName" placeholder="Name"></div></div>
+        <label>📸 Screenshots / files <span style="color:var(--gold)">(highly recommended)</span></label><input type="file" id="bugFiles" multiple accept="image/*,.pdf,.txt,.log,.doc,.docx"><div class="muted" style="margin-top:.35rem">A screenshot of the exact page and the problem lets us pinpoint and fix it fast. Add as many as help.</div>
         <div style="margin-top:.9rem"><button class="btn" onclick="submitBug()">Submit bug</button></div>
       </div>
       <div class="card hide" id="fbFeat">
         <label>What would you like added?</label><input id="featTitle" placeholder="Short title">
         <label>Describe it</label><textarea id="featDesc" placeholder="What should it do and why…"></textarea>
         <label>Your name (optional)</label><input id="featName" placeholder="Name">
+        <label>📸 Screenshots / mockups / files <span style="color:var(--gold)">(highly recommended)</span></label><input type="file" id="featFiles" multiple accept="image/*,.pdf,.txt,.log,.doc,.docx"><div class="muted" style="margin-top:.35rem">A screenshot of what you have now, or a sketch/mockup of what you want, helps us build exactly the right thing.</div>
         <div style="margin-top:.9rem"><button class="btn" onclick="submitFeature()">Submit request</button></div>
       </div>
     </div>
@@ -135,20 +137,30 @@
   }
   function segFb(k){document.getElementById('segBug').classList.toggle('on',k==='bug');document.getElementById('segFeat').classList.toggle('on',k==='feature');document.getElementById('fbBug').classList.toggle('hide',k!=='bug');document.getElementById('fbFeat').classList.toggle('hide',k!=='feature');}
 
+  async function hubUpload(input){
+    var files=(input&&input.files)?input.files:[];var paths=[];
+    for(var i=0;i<files.length;i++){var f=files[i];var path='hub/'+TOKEN+'/'+Date.now()+'-'+i+'-'+f.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      try{await fetch(SUPABASE_URL+'/storage/v1/object/bug-attachments/'+path,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':f.type||'application/octet-stream'},body:f});paths.push(path);}catch(e){}}
+    return paths;
+  }
   async function submitBug(){
     var title=document.getElementById('bugTitle').value.trim();var desc=document.getElementById('bugDesc').value.trim();
-    if(!title&&!desc){toast('Add a title or description');return;}
-    toast('Sending…');
-    var r=await fn('bug-report',{token:TOKEN,reporter_name:document.getElementById('bugName').value||null,bugs:[{title:title,description:desc,severity:document.getElementById('bugSev').value,bug_type:'client'}]});
-    if(r&&r.ok){document.getElementById('bugTitle').value='';document.getElementById('bugDesc').value='';toast('Bug submitted — thank you!');}
+    var fin=document.getElementById('bugFiles');var nf=fin&&fin.files?fin.files.length:0;
+    if(!title&&!desc&&!nf){toast('Add a title, description, or screenshot');return;}
+    toast(nf?'Uploading & sending…':'Sending…');
+    var paths=await hubUpload(fin);
+    var r=await fn('bug-report',{token:TOKEN,reporter_name:document.getElementById('bugName').value||null,bugs:[{title:title,description:desc,severity:document.getElementById('bugSev').value,bug_type:'client',attachment_paths:paths}]});
+    if(r&&r.ok){document.getElementById('bugTitle').value='';document.getElementById('bugDesc').value='';if(fin)fin.value='';toast('Bug submitted'+(paths.length?(' with '+paths.length+' file(s)'):'')+' — thank you!');}
     else toast('Could not submit. Try again.');
   }
   async function submitFeature(){
     var title=document.getElementById('featTitle').value.trim();var desc=document.getElementById('featDesc').value.trim();
-    if(!title&&!desc){toast('Add a title or description');return;}
-    toast('Sending…');
-    var r=await fn('feature-request',{token:TOKEN,requester_name:document.getElementById('featName').value||null,title:title,description:desc});
-    if(r&&r.ok){document.getElementById('featTitle').value='';document.getElementById('featDesc').value='';toast('Request submitted — thank you!');}
+    var fin=document.getElementById('featFiles');var nf=fin&&fin.files?fin.files.length:0;
+    if(!title&&!desc&&!nf){toast('Add a title, description, or screenshot');return;}
+    toast(nf?'Uploading & sending…':'Sending…');
+    var paths=await hubUpload(fin);
+    var r=await fn('feature-request',{token:TOKEN,requester_name:document.getElementById('featName').value||null,title:title,description:desc,attachment_paths:paths});
+    if(r&&r.ok){document.getElementById('featTitle').value='';document.getElementById('featDesc').value='';if(fin)fin.value='';toast('Request submitted'+(paths.length?(' with '+paths.length+' file(s)'):'')+' — thank you!');}
     else toast('Could not submit. Try again.');
   }
 
