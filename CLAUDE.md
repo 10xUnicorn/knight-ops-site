@@ -3,7 +3,22 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-07-01
+> **Last Updated:** 2026-07-02
+
+---
+
+## Changelog — 2026-07-02 (Deep-links, favorites, Features & Bugs module, link types, email actions)
+
+Admin UX + client-link expansion. All in `admin.html` + one new page + edge fns; deployed via git push (commits `d69d6ec`, `385e5f3`).
+
+- **Record-level deep-links.** `admin.html` routing now deep-links every record: `#leads/{id}`, `#clients/{id}`, `#deals/{id}`, `#tasks/{id}`, `#projects/{id}`, plus `#projects/{id}/bug/{bugId}` and `#projects/{id}/feature/{featureId}` (auto-scrolls + highlights the card). Central `routeFromHash()` + `setRecordHash()` + `_ROUTING` guard; every `show*Detail()` pushes its hash; `hashchange`/`popstate` restore it. Survives refresh + back/forward. Feature/bug emails now link to these hashes.
+- **Favorite projects.** `projects.is_favorite` (bool, migration `add_projects_is_favorite`). Star toggle in the projects list + detail header (`favStar()`/`toggleProjectFav()`); favorites sort to the top in `renderProjects()`.
+- **Features & Bugs module (Delivery).** New nav child + `#v-featbugs` view + `loadFeatBugs()`: all `feature_requests` + `bug_reports` across every project, with type/status/project/search filters. Multi-select + bulk "Approve & build selected", "Approve & build ALL pending features", "Reject selected"; per-row inline "Add details / revise" → approve-with-notes / request revisions (features) or save notes (bugs). Bulk approve loops `feature-action`; bug reject sets `status='closed'`.
+- **New permanent link types (4).** `project-link` v2 + `LABELS`/`PATHS` extended: `all_in_one`, `credentials`, `proposal_invoice`, `portal_access` (all → `/client-hub`), alongside existing `features_bugs`/`files_details`. Admin `loadProjectLinks()` renders all 6 rows (generate/copy/open/expiry/revoke).
+- **`client-hub.html` (`/client-hub?t=`).** New all-in-one client page: tabs Bugs & Features (reuses `bug-report`/`feature-request` by token), Files (`project-files-view`), Credentials & Access (new `hub-data` → inserts `login_credentials.added_via_token`), Proposal & Invoices (`hub-data` load → invoices by project_id + proposals by lead_id). Default tab chosen by `link_type` via `resolve-link`. New edge fn **`hub-data`** (load + submit_credential; verify_jwt=false).
+- **Email-draft composer (#6).** `📧 Draft email` button on every link row → `emailLinkDraft()` opens the in-app editor prefilled per-type (`EMAIL_LINK_TEMPLATES`), editable, `sendLinkDraft()` → `send-plain-email` from daniel@knightops.biz.
+- **One-click email actions (#4).** `feature-request` v2 email now has Approve / ✋ Reject / 📝 Add-note buttons (GET links to `feature-action`) + deep-links to `#projects/{id}/feature/{id}`. `feature-action` v4 adds `note` action + branded note-form page. `bug-report` v4 stamps each bug with `action_token` (migration `add_bug_reports_action_token`) and adds 📝 Add-note / ✋ Close / Open-in-admin (deep-link) buttons per bug; new **`bug-action`** edge fn (note/close/reopen GET + note form). Auto-fix trigger preserved.
+- **Edge fns touched:** `project-link` v2, `hub-data` v1 (new), `feature-action` v4, `feature-request` v2, `bug-report` v4, `bug-action` v1 (new). All verify_jwt=false.
 
 ---
 
