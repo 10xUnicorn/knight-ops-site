@@ -1374,12 +1374,8 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
   await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries(),loadMsgTemplates()]);
-  // Hash routing — restore view from URL or default to dashboard
-  var initHash=window.location.hash.slice(1);
-  var _pm=initHash.match(/^projects\/(.+)$/);
-  if(_pm){activateView('projects',true);setTimeout(function(){try{showProjectDetail(decodeURIComponent(_pm[1]));}catch(e){}},150);}
-  else if(initHash)activateView(initHash,true);
-  else loadDashboard();
+  // Hash routing — restore the exact record from the URL (survives refresh + back/forward)
+  routeFromHash();
 })();
 
 // SIDEBAR
@@ -1409,8 +1405,8 @@ function toggleMore(el){
 }
 function activateView(v,skipHash){
   // Update URL hash for navigation persistence
-  if(!skipHash&&v!=='dashboard')window.history.pushState(null,null,'#'+v);
-  else if(!skipHash&&v==='dashboard')window.history.pushState(null,null,window.location.pathname);
+  if(!skipHash&&!_ROUTING&&v!=='dashboard'){window.history.pushState(null,null,'#'+v);_lastRouteHash=v;}
+  else if(!skipHash&&!_ROUTING&&v==='dashboard'){window.history.pushState(null,null,window.location.pathname);_lastRouteHash=null;}
   // Stop email auto-refresh when leaving email views
   var emailViews={emailInbox:1,emailDrafts:1,emailSent:1,emailTemplates:1,emailSettings:1,comms:1};
   if(!emailViews[v])stopEmailAutoRefresh();
@@ -1470,8 +1466,8 @@ function activateView(v,skipHash){
   closeSidebar();
 }
 // Hash routing — restore view on back/forward/refresh
-window.addEventListener('hashchange',function(){var h=window.location.hash.slice(1);if(h)activateView(h,true);else activateView('dashboard',true);});
-window.addEventListener('popstate',function(){var h=window.location.hash.slice(1);if(h)activateView(h,true);else activateView('dashboard',true);});
+window.addEventListener('hashchange',routeFromHash);
+window.addEventListener('popstate',routeFromHash);
 // Dashboard top-level click
 document.querySelectorAll('.nav-item[data-view]').forEach(function(item){
   item.addEventListener('click',function(e){activateView(e.currentTarget.dataset.view);});
@@ -1481,6 +1477,38 @@ document.querySelectorAll('.nav-child').forEach(function(child){
   child.addEventListener('click',function(e){activateView(e.currentTarget.dataset.view);});
 });
 function navTo(view){activateView(view);}
+
+// ── Record-level deep-link routing (URL points at the exact record; survives refresh + back/forward) ──
+var _ROUTING=false;var _lastRouteHash=null;
+function setRecordHash(view,id){
+  if(_ROUTING)return;
+  try{var nh='#'+view+'/'+id;if(window.location.hash!==nh){window.history.pushState(null,null,nh);_lastRouteHash=view+'/'+id;}}catch(e){}
+}
+function highlightProjChild(kind,cid){
+  var tries=0;(function poll(){
+    var el=document.getElementById((kind==='bug'?'bugRow_':'featRow_')+cid);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 2px var(--accent)';setTimeout(function(){el.style.boxShadow='';},2800);return;}
+    if(tries++<40)setTimeout(poll,150);
+  })();
+}
+function routeFromHash(){
+  var h=window.location.hash.slice(1);
+  if(h===_lastRouteHash)return; _lastRouteHash=h;
+  _ROUTING=true;
+  try{
+    if(!h){activateView('dashboard',true);}
+    else{
+      var parts=h.split('/');var view=parts[0];
+      if(view==='projects'&&parts[1]){var pid=decodeURIComponent(parts[1]);activateView('projects',true);showProjectDetail(pid);if(parts[2]==='bug'&&parts[3])highlightProjChild('bug',decodeURIComponent(parts[3]));else if(parts[2]==='feature'&&parts[3])highlightProjChild('feature',decodeURIComponent(parts[3]));}
+      else if(view==='leads'&&parts[1]){activateView('leads',true);showLeadDetail(decodeURIComponent(parts[1]));}
+      else if(view==='clients'&&parts[1]){activateView('clients',true);showClientDetail(decodeURIComponent(parts[1]));}
+      else if(view==='deals'&&parts[1]){activateView('deals',true);showDealDetail(decodeURIComponent(parts[1]));}
+      else if(view==='tasks'&&parts[1]){activateView('tasks',true);showTaskDetail(decodeURIComponent(parts[1]));}
+      else{activateView(view,true);}
+    }
+  }catch(e){}
+  _ROUTING=false;
+}
 
 // MODAL
 function openEditModal(title,bodyHTML,footHTML){
@@ -2161,7 +2189,7 @@ function renderLeads(){
 }
 async function showLeadDetail(id){
   const l=S.leads.find(x=>x.id===id);if(!l)return;
-  navTo('leads');
+  navTo('leads');setRecordHash('leads',id);
   document.getElementById('leadsListView').style.display='none';
   document.getElementById('leadDetailView').style.display='block';
   // Find linked applications for this lead
@@ -2720,7 +2748,7 @@ function renderClients(){
 }
 async function showClientDetail(id){
   const c=S.clients.find(x=>x.id===id);if(!c)return;const p=c.profiles||{};
-  navTo('clients');
+  navTo('clients');setRecordHash('clients',id);
   document.getElementById('clientsListView').style.display='none';
   document.getElementById('clientDetailView').style.display='block';
   const directProjs=S.projects.filter(x=>x.client_id===id);
@@ -2979,12 +3007,22 @@ async function loadProjects(){const{data}=await sb.from('projects').select('*,cl
 function renderProjects(){
   const st=document.getElementById('projStatusFilter')?.value||'';
   const f=S.projects.filter(p=>!st||p.status===st);
-  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td><span class="inline-edit" data-value="'+(p.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'projects\',\''+p.id+'\',\'status\',\'select\','+JSON.stringify(PROJ_STATUS_OPTS).replace(/"/g,'&quot;')+',loadProjects)">'+B(p.status)+'</span></td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
+  f.sort((a,b)=>((b.is_favorite?1:0)-(a.is_favorite?1:0)));
+  document.getElementById('projectsTable').innerHTML='<table><thead><tr><th>Name</th><th>Client</th><th>Tier</th><th>Value</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>'<tr class="clickable" onclick="showProjectDetail(\''+p.id+'\')"><td>'+favStar(p)+p.name+'</td><td>'+(p.clients?.profiles?.full_name||'—')+'</td><td>'+B(p.tier)+'</td><td>'+fmtMoney(p.contract_value)+'</td><td><span class="inline-edit" data-value="'+(p.status||'')+'" onclick="event.stopPropagation();inlineEdit(this,\'projects\',\''+p.id+'\',\'status\',\'select\','+JSON.stringify(PROJ_STATUS_OPTS).replace(/"/g,'&quot;')+',loadProjects)">'+B(p.status)+'</span></td><td>'+fmtDate(p.due_date)+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects)">🗑</button></td></tr>').join(''):'<tr><td colspan="7" class="table-empty">No projects</td></tr>')+'</tbody></table>';
+}
+function favStar(p){var f=!!p.is_favorite;return '<span title="'+(f?'Remove favorite':'Favorite this project')+'" onclick="event.stopPropagation();toggleProjectFav(\''+p.id+'\',event)" style="cursor:pointer;font-size:1rem;line-height:1;color:'+(f?'#C9922A':'var(--text-muted)')+';margin-right:7px">'+(f?'★':'☆')+'</span>';}
+async function toggleProjectFav(id,ev){
+  if(ev)ev.stopPropagation();
+  var p=S.projects.find(x=>x.id===id);if(!p)return;
+  var nv=!p.is_favorite;p.is_favorite=nv;
+  if(ev&&ev.target){ev.target.textContent=nv?'★':'☆';ev.target.style.color=nv?'#C9922A':'var(--text-muted)';}
+  renderProjects();
+  try{var r=await sb.from('projects').update({is_favorite:nv}).eq('id',id);if(r.error)throw r.error;showToast(nv?'★ Favorited — pinned to top':'Removed from favorites');}
+  catch(e){p.is_favorite=!nv;renderProjects();showToast('Could not update favorite','error');}
 }
 async function showProjectDetail(id){
-  try{window.history.replaceState(null,null,'#projects/'+id);}catch(e){}
   const p=S.projects.find(x=>x.id===id);if(!p)return;
-  navTo('projects');
+  navTo('projects');setRecordHash('projects',id);
   document.getElementById('projectsListView').style.display='none';
   document.getElementById('projectDetailView').style.display='block';
   const tasks=S.tasks.filter(t=>t.project_id===id);
@@ -2997,7 +3035,7 @@ async function showProjectDetail(id){
   const timerHTML='<div class="timer-bar'+(isRunning?' running':'')+'">'+(isRunning?'<span class="timer-display" id="timerDisplay">'+fmtTimerElapsed(getTimerElapsed())+'</span><span class="timer-title">'+activeTimer.title+' ('+activeTimer.workType+')</span><button class="btn-timer-pause" onclick="pauseProjectTimer()" style="background:#f0ad4e;color:#fff;border:none;padding:2px 8px;border-radius:4px;margin-right:4px;cursor:pointer">&#10074;&#10074; Pause</button><button class="btn-timer-resume" onclick="resumeProjectTimer()" style="background:#5cb85c;color:#fff;border:none;padding:2px 8px;border-radius:4px;margin-right:4px;cursor:pointer">&#9654; Resume</button><button class="btn-timer-stop" onclick="stopProjectTimer()">&#9632; Stop</button>':'<button class="btn-timer-start" onclick="startProjectTimer(\''+id+'\')">&#9654; Start Timer</button><span style="color:var(--text-muted);font-size:0.85rem">Track time on this project</span>')+'<button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="addManualTimeEntry(\''+id+'\')">+ Manual Entry</button></div>';
   const timeSummary=entries.length?'<div class="time-summary"><div class="time-stat"><div class="ts-val">'+fmtDuration(totalMins)+'</div><div class="ts-label">Total Time</div></div><div class="time-stat"><div class="ts-val">'+fmtDuration(paidMins)+'</div><div class="ts-label">Paid</div></div><div class="time-stat"><div class="ts-val">'+fmtDuration(unpaidMins)+'</div><div class="ts-label">Unpaid</div></div><div class="time-stat"><div class="ts-val">'+entries.length+'</div><div class="ts-label">Entries</div></div></div>':'';
   const timeTable='<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h2>Time Entries</h2>'+(entries.length?'<span class="badge badge-gold">'+fmtDuration(totalMins)+' total</span>':'')+'</div>'+(entries.length?'<table><thead><tr><th>Title</th><th>Type</th><th>Duration</th><th>Date</th><th>Source</th><th></th></tr></thead><tbody>'+entries.map(e=>'<tr><td>'+e.title+'</td><td>'+B(e.work_type)+'</td><td style="font-weight:600">'+fmtDuration(e.duration_minutes)+'</td><td>'+fmtDate(e.created_at)+'</td><td><span class="badge '+(e.is_manual?'badge-info':'badge-success')+'">'+(e.is_manual?'Manual':'Timer')+'</span></td><td><button class="btn btn-sm btn-secondary" onclick="editTimeEntry(\''+e.id+'\',\''+id+'\')">&#9998;</button> <button class="btn btn-sm btn-danger" onclick="deleteTimeEntry(\''+e.id+'\',\''+id+'\')">&#10005;</button></td></tr>').join('')+'</tbody></table>':'<p class="table-empty">No time entries yet</p>')+'</div>';
-  document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> '+(p.app_id?'<button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">📱 View App</button>':' <button class="btn btn-sm btn-primary" onclick="createAppFromProject(\''+p.id+'\')">🚀 Create App</button>')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>'+
+  document.getElementById('projectDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'">&#8592; Back to Projects</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'prev\',showProjectDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+p.name+'</h2>'+favStar(p)+'<button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.projects,\''+p.id+'\',\'next\',showProjectDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editProject(\''+p.id+'\')">Edit</button> '+(p.app_id?'<button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">📱 View App</button>':' <button class="btn btn-sm btn-primary" onclick="createAppFromProject(\''+p.id+'\')">🚀 Create App</button>')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'projects\',\''+p.id+'\',\'Project\',loadProjects).then(()=>{document.getElementById(\'projectsListView\').style.display=\'\';document.getElementById(\'projectDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div>'+
   timerHTML+timeSummary+
   '<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+(p.clients?.profiles?.full_name||'—')+'</div></div><div><div class="dg-label">Tier</div><div class="dg-value"><span class="inline-edit" data-value="'+(p.tier||'')+'" onclick="inlineEdit(this,\'projects\',\''+p.id+'\',\'tier\',\'select\',TIER_OPTS,()=>showProjectDetail(\''+p.id+'\'))">'+B(p.tier)+'</span></div></div><div><div class="dg-label">Contract Value</div><div class="dg-value"><span class="inline-edit" data-value="'+(p.contract_value||'')+'" onclick="inlineEdit(this,\'projects\',\''+p.id+'\',\'contract_value\',\'number\',null,()=>showProjectDetail(\''+p.id+'\'))">'+fmtMoney(p.contract_value)+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(p.status||'')+'" onclick="inlineEdit(this,\'projects\',\''+p.id+'\',\'status\',\'select\',PROJ_STATUS_OPTS,()=>showProjectDetail(\''+p.id+'\'))">'+B(p.status)+'</span></div></div><div><div class="dg-label">Start</div><div class="dg-value"><span class="inline-edit" data-value="'+(p.start_date||'')+'" onclick="inlineEdit(this,\'projects\',\''+p.id+'\',\'start_date\',\'date\',null,()=>showProjectDetail(\''+p.id+'\'))">'+fmtDate(p.start_date)+'</span></div></div><div><div class="dg-label">Due</div><div class="dg-value"><span class="inline-edit" data-value="'+(p.due_date||'')+'" onclick="inlineEdit(this,\'projects\',\''+p.id+'\',\'due_date\',\'date\',null,()=>showProjectDetail(\''+p.id+'\'))">'+fmtDate(p.due_date)+'</span></div></div></div>'+(p.description?'<p style="margin-bottom:1.5rem;font-size:0.9rem">'+p.description+'</p>':'')+
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
@@ -4300,7 +4338,7 @@ async function loadProjectFeatures(id){
     if(!data.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No feature requests yet. Clients submit them via the Features & Bugs link.</p>'; return; }
     el.innerHTML=data.map(function(f){
       var c={pending:'#C9922A',approved:'#4CAF50',revisions:'#2196F3',rejected:'#ef4444',building:'#2196F3',built:'#4CAF50',error:'#ef4444'}[f.status]||'#888';
-      return '<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
+      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load feature requests.</p>'; }
 }
@@ -4315,7 +4353,7 @@ async function loadProjectBugs(id){
     el.innerHTML=data.map(function(bg){
       var sc={Low:'#888',Medium:'#C9922A',High:'#ff8c42',Critical:'#ef4444'}[bg.severity]||'#888';
       var tc={new:'#C9922A',fixing:'#2196F3',fixed:'#4CAF50',closed:'#888'}[bg.status]||'#888';
-      return '<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span></span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div></div>';
+      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span></span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load bug reports.</p>'; }
 }
@@ -4435,7 +4473,7 @@ function renderTasks(){
 }
 async function showTaskDetail(id){
   const t=S.tasks.find(x=>x.id===id);if(!t)return;
-  navTo('tasks');
+  navTo('tasks');setRecordHash('tasks',id);
   document.getElementById('tasksListView').style.display='none';
   document.getElementById('taskDetailView').style.display='block';
   const{data:comments}=await sb.from('comments').select('*').eq('task_id',id).order('created_at',{ascending:true});
@@ -7529,7 +7567,7 @@ async function saveProjectFromApp(){
 
 async function showDealDetail(id){
   const d=S.deals.find(x=>x.id===id);if(!d)return;
-  navTo('deals');
+  navTo('deals');setRecordHash('deals',id);
   document.getElementById('dealsListView').style.display='none';
   document.getElementById('dealDetailView').style.display='block';
   const cname=d.clients?.profiles?.full_name||(d.leads?leadName(d.leads):'—');
