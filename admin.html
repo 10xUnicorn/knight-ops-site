@@ -4378,7 +4378,7 @@ async function revokeLinkTok(t,id){if(!confirm('Revoke this link? It stops worki
 async function setLinkExpiry(t,days,id){if(!days)return;await sb.functions.invoke('project-link',{body:{action:'set_expiry',token:t,expires_days:(days==='never'?null:days)}});showToast('Expiry updated');loadProjectLinks(id);}
 // ── Native editable email-draft per link type (sends from daniel@knightops.biz) ──
 var EMAIL_LINK_TEMPLATES={
-  features_bugs:{subject:'Report bugs & request features for {project}',body:'Hi {name},\n\nHere is your private link to report any bugs or request new features for {project}. Bookmark it — it stays live so you can use it anytime:\n\n{url}\n\nJust describe what you need (you can even record a voice note or paste a video link) and it comes straight to me.\n\nTalk soon,\nDaniel'},
+  features_bugs:{subject:'Report bugs & request features for {project}',body:'Hi {name},\n\nWe created a way to organize bug fixes and feature requests to get them fixed & updated as quickly as possible. Going forward, please use this for any updates and we\'ll get them done!\n\nHere is your private link to report any bugs or request new features for {project}. Bookmark it — it stays live so you can use it anytime:\n\n{url}\n\nJust describe what you need (you can even record a voice note or paste a video link) and it comes straight to me. Bug fixes should be somewhat automatic. Features will come to me for approval and I\'ll clarify with you if I have any questions.\n\nTalk soon,\nDaniel'},
   files_details:{subject:'Upload your files for {project}',body:'Hi {name},\n\nHere is your private link to upload files and see the documents I have shared for {project}. It stays live, so use it anytime:\n\n{url}\n\nTalk soon,\nDaniel'},
   all_in_one:{subject:'Your {project} client hub',body:'Hi {name},\n\nHere is your all-in-one hub for {project} — report bugs, request features, upload files, and share access, all in one place. Bookmark it, it stays live:\n\n{url}\n\nTalk soon,\nDaniel'},
   credentials:{subject:'Securely share your logins & access for {project}',body:'Hi {name},\n\nWhen you have a minute, here is a secure link to share the logins and access I need for {project}. It stays live so you can add things as you get them:\n\n{url}\n\nThanks,\nDaniel'},
@@ -4386,35 +4386,44 @@ var EMAIL_LINK_TEMPLATES={
   portal_access:{subject:'Access your {project} portal',body:'Hi {name},\n\nHere is your private access link for {project}. Bookmark it — it stays live:\n\n{url}\n\nTalk soon,\nDaniel'},
   _default:{subject:'A link for {project}',body:'Hi {name},\n\nHere is your link for {project}:\n\n{url}\n\nTalk soon,\nDaniel'}
 };
-function emailLinkDraft(pid,lt,label,url){
+async function emailLinkDraft(pid,lt,label,url){
   var p=(S.projects||[]).find(function(x){return x.id===pid;})||{};
   var clientEmail='';var clientName='';
-  if(p.client_id){var c=(S.clients||[]).find(function(x){return x.id===p.client_id;});if(c){clientEmail=(c.profiles&&c.profiles.email)||c.email||'';clientName=(c.profiles&&c.profiles.full_name)||'';}}
+  if(p.client_id){var c=(S.clients||[]).find(function(x){return x.id===p.client_id;});if(c){clientEmail=(c.profiles&&c.profiles.email)||c.email||'';clientName=(c.profiles&&c.profiles.full_name)||c.name||'';}}
+  var teamEmails=[];try{var tm=await sb.from('project_members').select('email').eq('project_id',pid);((tm&&tm.data)||[]).forEach(function(m){if(m.email&&m.email!==clientEmail&&teamEmails.indexOf(m.email)<0)teamEmails.push(m.email);});}catch(e){}
+  function nameFromEmail(e){var lp=(e||'').split('@')[0].split(/[._+\-]/)[0].replace(/[0-9]+/g,'');return lp?lp.charAt(0).toUpperCase()+lp.slice(1):'';}
+  var names=[];if(clientName)names.push(clientName.split(' ')[0]);teamEmails.forEach(function(e){var n=nameFromEmail(e);if(n&&names.indexOf(n)<0)names.push(n);});
+  var greet=names.length?(names.length===1?names[0]:(names.length===2?names[0]+' & '+names[1]:names.slice(0,-1).join(', ')+' & '+names[names.length-1])):'there';
   var tpl=EMAIL_LINK_TEMPLATES[lt]||EMAIL_LINK_TEMPLATES._default;
-  var firstName=(clientName||'there').split(' ')[0];
   var subject=tpl.subject.split('{project}').join(p.name||'your project');
-  var bodyTxt=tpl.body.split('{name}').join(firstName).split('{project}').join(p.name||'your project').split('{url}').join(url);
+  var bodyTxt=tpl.body.split('{name}').join(greet).split('{project}').join(p.name||'your project').split('{url}').join(url);
   var inp='width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.85rem';
-  var bodyHTML='<div style="display:grid;gap:.7rem">'+
-    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">To</div><input id="elTo" value="'+esc(clientEmail)+'" placeholder="client@email.com" style="'+inp+'"></div>'+
-    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">Subject</div><input id="elSubj" value="'+esc(subject)+'" style="'+inp+'"></div>'+
-    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:3px">Message</div><textarea id="elBody" style="'+inp+';min-height:230px;resize:vertical;font-family:inherit">'+esc(bodyTxt)+'</textarea></div>'+
-    '<div style="font-size:.7rem;color:var(--text-muted)">Sends from daniel@knightops.biz. Edit anything before you hit send.</div>'+
+  var lbl='font-size:.72rem;color:var(--text-muted);margin-bottom:3px';
+  var bodyHTML='<div style="display:grid;gap:.6rem">'+
+    '<div><div style="'+lbl+'">To</div><input id="elTo" value="'+esc(clientEmail)+'" placeholder="client@email.com, another@email.com" style="'+inp+'"></div>'+
+    '<div><div style="'+lbl+'">Cc (team members)</div><input id="elCc" value="'+esc(teamEmails.join(', '))+'" placeholder="teammate@email.com" style="'+inp+'"></div>'+
+    '<div><div style="'+lbl+'">Bcc</div><input id="elBcc" value="daniel@knightops.biz" placeholder="you@email.com" style="'+inp+'"></div>'+
+    '<div><div style="'+lbl+'">Subject</div><input id="elSubj" value="'+esc(subject)+'" style="'+inp+'"></div>'+
+    '<div><div style="'+lbl+'">Message</div><textarea id="elBody" style="'+inp+';min-height:220px;resize:vertical;font-family:inherit">'+esc(bodyTxt)+'</textarea></div>'+
+    '<div style="font-size:.7rem;color:var(--text-muted)">Sends from daniel@knightops.biz. Separate multiple emails with commas. Team members are Cc\'d automatically — edit anything before you send.</div>'+
   '</div>';
   var foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button> <button class="btn btn-primary" onclick="sendLinkDraft()">📧 Send email</button>';
   openEditModal('Email link to client — '+label,bodyHTML,foot);
 }
 async function sendLinkDraft(){
   var to=((document.getElementById('elTo')||{}).value||'').trim();
+  var cc=((document.getElementById('elCc')||{}).value||'').trim();
+  var bcc=((document.getElementById('elBcc')||{}).value||'').trim();
   var subject=((document.getElementById('elSubj')||{}).value||'').trim();
   var bodyTxt=((document.getElementById('elBody')||{}).value||'');
   if(!to){showToast('Add a recipient email');return;}
   showToast('Sending…');
   try{
     var html='<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#111">'+esc(bodyTxt).replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" style="color:#C9922A;font-weight:600">$1</a>')+'</div>';
-    var r=await sb.functions.invoke('send-plain-email',{body:{to:to,subject:subject,body:bodyTxt,html:html,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
-    if(r.error||(r.data&&r.data.success===false))throw new Error((r.error&&r.error.message)||'send failed');
-    showToast('Email sent to '+to);closeEditModal();
+    var r=await sb.functions.invoke('send-plain-email',{body:{to:to,cc:cc,bcc:bcc,subject:subject,body:bodyTxt,html:html,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    if(r.error){var em=r.error.message||'send failed';try{if(r.error.context&&r.error.context.json){var j=await r.error.context.json();if(j&&j.error)em=(typeof j.error==='string')?j.error:JSON.stringify(j.error);}}catch(_e){}throw new Error(em);}
+    if(r.data&&r.data.success===false)throw new Error(r.data.error||'send failed');
+    showToast('Email sent');closeEditModal();
   }catch(e){showToast('Could not send: '+(e&&e.message||e),'error');}
 }
 // ═══ GLOBAL FEATURES & BUGS (Delivery module) ═══
