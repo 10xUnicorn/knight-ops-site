@@ -4428,14 +4428,47 @@ async function sendLinkDraft(){
 }
 // ═══ GLOBAL FEATURES & BUGS (Delivery module) ═══
 // Render client-uploaded screenshots/files (images as thumbnails, others as chips). Stored in the public bug-attachments bucket, so they persist for review + the autofix build.
-function attHtml(paths){
-  if(!Array.isArray(paths)||!paths.length)return '';
+// Native in-dashboard media viewer (lightbox) for screenshots, video files, PDFs, and Loom/YouTube links.
+function ensureLightbox(){
+  if(document.getElementById('mediaLightbox'))return;
+  var o=document.createElement('div');o.id='mediaLightbox';
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:none;align-items:center;justify-content:center;padding:24px';
+  o.addEventListener('click',function(e){if(e.target===o)closeMedia();});
+  o.innerHTML='<div style="position:relative;max-width:94vw;max-height:94vh"><button onclick="closeMedia()" title="Close (Esc)" style="position:absolute;top:-16px;right:-16px;background:#C9922A;color:#0a0a14;border:none;border-radius:50%;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer;font-weight:700;z-index:2">×</button><div id="mediaBody"></div></div>';
+  document.body.appendChild(o);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMedia();});
+}
+function closeMedia(){var o=document.getElementById('mediaLightbox');if(o){o.style.display='none';document.getElementById('mediaBody').innerHTML='';}}
+function openMedia(url,kind){
+  ensureLightbox();var b=document.getElementById('mediaBody');
+  var st='max-width:94vw;max-height:94vh;border-radius:8px;display:block';
+  if(kind==='video')b.innerHTML='<video src="'+url+'" controls autoplay style="'+st+';background:#000"></video>';
+  else if(kind==='pdf')b.innerHTML='<iframe src="'+url+'" style="width:90vw;height:90vh;border:none;border-radius:8px;background:#fff"></iframe>';
+  else if(kind==='embed')b.innerHTML='<iframe src="'+url+'" allow="fullscreen" allowfullscreen style="width:min(90vw,960px);height:min(90vh,560px);border:none;border-radius:8px;background:#000"></iframe>';
+  else b.innerHTML='<img src="'+url+'" style="'+st+'">';
+  document.getElementById('mediaLightbox').style.display='flex';
+}
+function mediaEmbedUrl(u){
+  var m;
+  if(/loom\.com\/(?:share|embed)\/([a-z0-9]+)/i.test(u)){m=u.match(/loom\.com\/(?:share|embed)\/([a-z0-9]+)/i);return 'https://www.loom.com/embed/'+m[1];}
+  if(/youtu\.be\/([\w-]+)/i.test(u)){m=u.match(/youtu\.be\/([\w-]+)/i);return 'https://www.youtube.com/embed/'+m[1];}
+  if(/[?&]v=([\w-]+)/i.test(u)&&/youtube\.com/i.test(u)){m=u.match(/[?&]v=([\w-]+)/i);return 'https://www.youtube.com/embed/'+m[1];}
+  if(/youtube\.com\/embed\//i.test(u))return u.split('&')[0];
+  return null;
+}
+function attHtml(paths,text){
   var base=SUPABASE_URL+'/storage/v1/object/public/bug-attachments/';
-  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:.45rem 0">'+paths.slice(0,10).map(function(p){
+  var chips=[];
+  (Array.isArray(paths)?paths:[]).slice(0,12).forEach(function(p){
     var url=base+p;var ext=String(p).toLowerCase().split('.').pop();
-    if(['png','jpg','jpeg','gif','webp'].indexOf(ext)>=0)return '<a href="'+url+'" target="_blank" title="'+esc(String(p))+'"><img src="'+url+'" loading="lazy" style="height:56px;width:56px;object-fit:cover;border:1px solid var(--border);border-radius:6px"></a>';
-    return '<a href="'+url+'" target="_blank" style="font-size:.64rem;border:1px solid var(--border);color:var(--accent);padding:5px 9px;border-radius:6px;text-decoration:none">📎 '+esc(String(p).split('/').pop().slice(0,26))+'</a>';
-  }).join('')+'</div>';
+    if(['png','jpg','jpeg','gif','webp'].indexOf(ext)>=0)chips.push('<a onclick="openMedia(\''+url+'\',\'image\')" style="cursor:pointer" title="'+esc(String(p))+'"><img src="'+url+'" loading="lazy" style="height:58px;width:58px;object-fit:cover;border:1px solid var(--border);border-radius:6px"></a>');
+    else if(['mp4','mov','webm','m4v'].indexOf(ext)>=0)chips.push('<a onclick="openMedia(\''+url+'\',\'video\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;height:58px;padding:0 13px;border:1px solid var(--border);border-radius:6px;color:var(--accent);font-size:.7rem">▶ video</a>');
+    else if(ext==='pdf')chips.push('<a onclick="openMedia(\''+url+'\',\'pdf\')" style="cursor:pointer;display:inline-flex;align-items:center;height:58px;padding:0 13px;border:1px solid var(--border);border-radius:6px;color:var(--accent);font-size:.66rem">📄 '+esc(String(p).split('/').pop().slice(0,20))+'</a>');
+    else chips.push('<a href="'+url+'" target="_blank" style="display:inline-flex;align-items:center;height:58px;padding:0 13px;border:1px solid var(--border);border-radius:6px;color:var(--accent);font-size:.64rem;text-decoration:none">📎 '+esc(String(p).split('/').pop().slice(0,24))+'</a>');
+  });
+  if(text){var seen={};(String(text).match(/https?:\/\/[^\s)"']+/g)||[]).forEach(function(u){var e=mediaEmbedUrl(u);if(e&&!seen[e]){seen[e]=1;chips.push('<a onclick="openMedia(\''+e+'\',\'embed\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;height:58px;padding:0 13px;border:1px solid var(--border);border-radius:6px;color:var(--accent);font-size:.7rem">▶ '+(/loom/i.test(u)?'Loom':'video')+'</a>');}});}
+  if(!chips.length)return '';
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:.45rem 0">'+chips.join('')+'</div>';
 }
 var BUG_STATUSES=['new','fixing','fixed','closed'];
 var FEAT_STATUSES=['pending','approved','revisions','rejected','building','built'];
@@ -4528,7 +4561,7 @@ function fbRow(x){
         '</div>'+
         '<div style="font-size:.74rem;color:var(--text-muted);margin-bottom:.2rem"><a onclick="showProjectDetail(\''+x.project_id+'\')" style="color:var(--accent);cursor:pointer">'+esc(x.project)+'</a>'+(x.requester?(' · '+esc(x.requester)):'')+' · '+(x.created?new Date(x.created).toLocaleDateString():'')+'</div>'+
         '<div style="font-size:.76rem;color:var(--text-muted);white-space:pre-wrap">'+esc(dtrim)+(desc.length>240?'…':'')+'</div>'+
-        attHtml(x.att)+
+        attHtml(x.att,x.description)+
         (x.notes?'<div style="font-size:.72rem;color:#2196F3;margin-top:.25rem"><b>Notes:</b> '+esc(x.notes)+'</div>':'')+
         (x.feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.25rem"><b>👎 Client feedback:</b> '+esc(x.feedback)+'</div>':'')+
         '<div style="margin-top:.4rem;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="fbToggleDetails(\''+k+'\')">✎ Add details / revise</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="copyContract(\''+x.kind+'\',\''+x.id+'\')" title="Copy the instruction that tells the build to mark this done + report to the client">🛠 Build contract</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="showProjectDetail(\''+x.project_id+'\')">Open in project →</button></div>'+
@@ -4596,7 +4629,7 @@ async function loadProjectFeatures(id){
     if(!data.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No feature requests yet. Clients submit them via the Features & Bugs link.</p>'; return; }
     el.innerHTML=data.map(function(f){
       var c={pending:'#C9922A',approved:'#4CAF50',revisions:'#2196F3',rejected:'#ef4444',building:'#2196F3',built:'#4CAF50',error:'#ef4444'}[f.status]||'#888';
-      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span> '+statusSelect('feature',f.id,f.status||'pending',id)+' '+ratingBadge(f.client_rating)+'</div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+attHtml(f.attachment_paths)+(f.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-bottom:.5rem"><b>👎 Client:</b> '+esc(f.client_feedback)+'</div>':'')+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
+      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span> '+statusSelect('feature',f.id,f.status||'pending',id)+' '+ratingBadge(f.client_rating)+'</div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+attHtml(f.attachment_paths,f.description)+(f.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-bottom:.5rem"><b>👎 Client:</b> '+esc(f.client_feedback)+'</div>':'')+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load feature requests.</p>'; }
 }
@@ -4611,7 +4644,7 @@ async function loadProjectBugs(id){
     el.innerHTML=data.map(function(bg){
       var sc={Low:'#888',Medium:'#C9922A',High:'#ff8c42',Critical:'#ef4444'}[bg.severity]||'#888';
       var tc={new:'#C9922A',fixing:'#2196F3',fixed:'#4CAF50',closed:'#888'}[bg.status]||'#888';
-      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span> '+statusSelect('bug',bg.id,bg.status||'new',id)+' '+ratingBadge(bg.client_rating)+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div>'+attHtml(bg.attachment_paths)+(bg.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.3rem"><b>👎 Client:</b> '+esc(bg.client_feedback)+'</div>':'')+'</div>';
+      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span> '+statusSelect('bug',bg.id,bg.status||'new',id)+' '+ratingBadge(bg.client_rating)+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div>'+attHtml(bg.attachment_paths,bg.description)+(bg.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.3rem"><b>👎 Client:</b> '+esc(bg.client_feedback)+'</div>':'')+'</div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load bug reports.</p>'; }
 }
