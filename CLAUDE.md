@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-07-03 (Status control, client thumbs up/down loop, build contract, transcripts)
+
+- **Admin inline status control.** Every bug + feature in the global Features & Bugs module AND the per-project cards now has a status `<select>` (bugs: new/fixing/fixed/closed; features: pending/approved/revisions/rejected/building/built) → `setItemStatus()` writes directly. Setting fixed/built fires the completion notifier; moving off it clears `completion_notified_at` (re-arms so a later completion re-notifies). `statusSelect()`, `BUG_STATUSES`/`FEAT_STATUSES`.
+- **Client completion report + 👍/👎.** `notify-completion` v2 mints a `feedback_token`; the client's completion email shows a brief "What we did" report + 👍 Yes / 👎 Not quite. New edge fn **`completion-feedback`**: 👍 sets `client_rating='up'` (bug→closed) + pings Daniel; 👎 serves a branded form (details + screenshot upload to bug-attachments) → sets `client_rating='down'`, appends `client_feedback` + screenshots, **reopens** (bug→new / feature→revisions), re-arms the notifier, emails Daniel the details + deep-link. Admin shows the 👍/👎 badge + client feedback on every card. Migration `add_client_feedback_fields` (feedback_token, client_rating, client_feedback).
+- **Build-completion contract.** New **`report-completion`** edge fn: a build (desktop Claude Code or any worker) POSTs `{kind,id,summary,commit_url}` when done → sets status fixed/built + summary + commit → fires the client/owner completion emails. `feature-action` v5 approve stamps the contract into `admin_notes` so orchestrator-built features carry "when done, call report-completion" automatically; admin has a 🛠 copy-contract button per item.
+- **Transcript enrichment.** `bug-report` v5 + `feature-request` v3: on submit, any Loom/YouTube URL in the description with no transcript is auto-transcribed via `transcribe-url` and appended to the description (persists → used by autofix vision + desktop builds + admin). 13s timeout, best-effort.
+- **Edge fns:** `notify-completion` v2, `completion-feedback` v1 (new), `report-completion` v1 (new), `feature-action` v5, `bug-report` v5, `feature-request` v3. All verify_jwt=false.
+
+---
+
 ## Changelog — 2026-07-02b (Attachment-aware autofix + client uploads + completion emails)
 
 - **Autofix now uses screenshots/files (vision).** `api-autofix` v5: a bug/feature's `attachment_paths` (public `bug-attachments` bucket = persistent + re-readable at build time) are passed to Claude sonnet as image blocks (png/jpg/gif/webp) + document blocks (pdf) in BOTH the file-selection and fix steps. Prompts treat screenshots as the primary evidence of which page/element/error is meant, and set `confident=false` when ambiguous. `attachBlocks()` + a `claude()` wrapper that auto-retries text-only if an attachment URL is unfetchable (never hard-fails).
