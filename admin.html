@@ -9093,7 +9093,7 @@ function addProjectCredential(projectId){
 async function saveProjCred(projectId){
   var label=document.getElementById('pc_label').value.trim();var val=document.getElementById('pc_value').value.trim();
   if(!label||!val){showToast('Label and Value required','error');return;}
-  var{error}=await sb.from('project_credentials').insert({project_id:projectId,client_id:(S.projects.find(p=>p.id===projectId)||{}).client_id||'00000000-0000-0000-0000-000000000000',credential_type:document.getElementById('pc_type').value,credential_label:label,credential_value:val,is_secret:document.getElementById('pc_secret').checked,notes:document.getElementById('pc_notes').value.trim()||null});
+  var{error}=await sb.from('project_credentials').insert({project_id:projectId,client_id:((S.projects.find(p=>p.id===projectId)||{}).client_id)||null,credential_type:document.getElementById('pc_type').value,credential_label:label,credential_value:val,is_secret:document.getElementById('pc_secret').checked,notes:document.getElementById('pc_notes').value.trim()||null});
   if(error){showToast('Error: '+error.message,'error');return;}
   closeEditModal();loadProjectCredentials(projectId);showToast('Credential saved!');}
 // ═══ LOGIN CREDENTIALS ═══
