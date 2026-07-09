@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-07-03b (Auto-fix loop fix — claim timestamp + attempt cap + mandatory completion)
+
+- **Root cause of looping bug fixes:** `bug_reports` has no `updated_at`, so the orchestrator's "fixing" cooldown `coalesce(updated_at,created_at)` silently fell back to `created_at` (always stale) — a bug claimed `fixing` but never moved to `fixed` (desktop build finished the code but skipped the status update) was re-picked every run.
+- **Schema:** migration `add_autofix_started_at` adds `autofix_started_at` to `bug_reports` + `feature_requests`.
+- **`api-autofix` v6 (server-side guards):** skips items already fixed/closed (or built); CLAIMS with `status='fixing'` + `autofix_started_at=now()` + `autofix_attempts+1`; enforces a 20-min claim cooldown + a 3-attempt cap (then sets `autofix_error='max_attempts'`, emails Daniel with action buttons, and stops); reverts status to `new`/`approved` on every failure path so nothing is left stuck in `fixing`. `force:true` bypasses guards for manual re-runs.
+- **Orchestrator scheduled task updated:** STEP 0/STEP 1 queues use `autofix_started_at` + `autofix_attempts < 3`; the Terminal claim records `autofix_started_at` + increments attempts; and the desktop bug-fix AND feature-build prompts now END with a MANDATORY `report-completion` curl (marks fixed/built + summary + emails the client 👍/👎) instead of a raw status update — closing the loop for desktop builds too. Bugs past 3 attempts are surfaced to Daniel, not retried.
+- **Verified:** `api-autofix` on a fixed bug returns `skipped:already_fixed`; the stuck `fixing` bug was cleared (0 stuck now).
+
+---
+
 ## Changelog — 2026-07-03 (Status control, client thumbs up/down loop, build contract, transcripts)
 
 - **Admin inline status control.** Every bug + feature in the global Features & Bugs module AND the per-project cards now has a status `<select>` (bugs: new/fixing/fixed/closed; features: pending/approved/revisions/rejected/building/built) → `setItemStatus()` writes directly. Setting fixed/built fires the completion notifier; moving off it clears `completion_notified_at` (re-arms so a later completion re-notifies). `statusSelect()`, `BUG_STATUSES`/`FEAT_STATUSES`.
