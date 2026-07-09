@@ -4470,6 +4470,50 @@ function attHtml(paths,text){
   if(!chips.length)return '';
   return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:.45rem 0">'+chips.join('')+'</div>';
 }
+// Full-submission viewer — shows the COMPLETE request (untruncated description, all fields, attachments, transcript) in a modal.
+async function showFullSubmission(kind,id){
+  var table=kind==='feature'?'feature_requests':'bug_reports';
+  var cols=kind==='feature'
+    ? 'id,project_id,title,description,status,priority,requester_name,requester_email,admin_notes,attachment_paths,client_rating,client_feedback,created_at'
+    : 'id,project_id,title,description,status,severity,bug_type,reporter_name,reporter_email,admin_notes,attachment_paths,client_rating,client_feedback,created_at';
+  var q=await sb.from(table).select(cols).eq('id',id).maybeSingle();
+  var x=q&&q.data; if(!x){showToast('Could not load submission','error');return;}
+  var proj=(S.projects||[]).find(function(p){return p.id===x.project_id;});
+  var who=kind==='feature'?(x.requester_name||x.requester_email||''):(x.reporter_name||x.reporter_email||'');
+  var sev=kind==='feature'?(x.priority||''):(x.severity||'');
+  var desc=(x.description||'').trim();
+  var meta='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;color:var(--text-muted);font-size:.74rem;margin-bottom:.5rem">'
+    +'<span class="badge" style="font-size:.6rem;background:'+(kind==='feature'?'#C9922A':'#ef4444')+'22;color:'+(kind==='feature'?'#C9922A':'#ef4444')+';border:1px solid '+(kind==='feature'?'#C9922A':'#ef4444')+'55">'+(kind==='feature'?'✨ Feature':'🐞 Bug')+'</span>'
+    +'<span>'+esc(proj?proj.name:'—')+'</span>'
+    +(who?'<span>· from '+esc(who)+'</span>':'<span>· no name given</span>')
+    +(sev?'<span>· '+esc(sev)+'</span>':'')
+    +'<span>· '+esc(x.status||'')+'</span>'
+    +(x.created_at?'<span>· '+new Date(x.created_at).toLocaleString()+'</span>':'')
+    +ratingBadge(x.client_rating)
+    +'</div>';
+  var descBox=desc
+    ? '<div style="white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:48vh;overflow:auto;font-size:.85rem;line-height:1.5">'+esc(desc)+'</div>'
+    : '<div style="background:rgba(239,68,68,.08);border:1px solid #ef444455;border-radius:8px;padding:12px;font-size:.85rem;color:#ef8a8a"><b>No description was provided.</b> The client submitted only a title. Use “✎ Add details / revise” to note what you need, or ask them to resubmit with specifics + a screenshot.</div>';
+  var media=attHtml(x.attachment_paths,x.description);
+  var body='<div style="display:grid;gap:.55rem">'
+    +meta
+    +'<div style="font-weight:700;font-size:1.02rem">'+esc(x.title||'(untitled)')+'</div>'
+    +descBox
+    +(media?('<div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Attachments (click to view)</div>'+media):'')
+    +(x.admin_notes?'<div style="font-size:.8rem;color:#2196F3"><b>Your notes:</b> '+esc(x.admin_notes)+'</div>':'')
+    +(x.client_feedback?'<div style="font-size:.8rem;color:#ef4444"><b>👎 Client feedback:</b> '+esc(x.client_feedback)+'</div>':'')
+    +'</div>';
+  var foot='<button class="btn btn-secondary" onclick="closeEditModal()">Close</button> <button class="btn btn-secondary" onclick="closeEditModal();showProjectDetail(\''+x.project_id+'\')">Open in project →</button>';
+  if(kind==='feature') foot+=' <button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="fbModalAct(\'feature\',\''+id+'\',\''+x.project_id+'\',\'reject\')">✋ Reject</button> <button class="btn btn-primary" onclick="fbModalAct(\'feature\',\''+id+'\',\''+x.project_id+'\',\'approve\')">✓ Approve &amp; build</button>';
+  openEditModal((kind==='feature'?'Feature request':'Bug report')+' — full submission',body,foot);
+}
+async function fbModalAct(kind,id,projectId,action){
+  try{ await sb.functions.invoke('feature-action',{body:{id:id,action:action}}); showToast(action==='approve'?'Approved & queued':'Rejected'); }
+  catch(e){ showToast('Error: '+(e&&e.message||e),'error'); }
+  closeEditModal();
+  if(document.getElementById('featbugsBody'))loadFeatBugs();
+  if(projectId)loadProjectFeatures(projectId);
+}
 var BUG_STATUSES=['new','fixing','fixed','closed'];
 var FEAT_STATUSES=['pending','approved','revisions','rejected','building','built'];
 function statusSelect(kind,id,current,ctx){
@@ -4564,7 +4608,7 @@ function fbRow(x){
         attHtml(x.att,x.description)+
         (x.notes?'<div style="font-size:.72rem;color:#2196F3;margin-top:.25rem"><b>Notes:</b> '+esc(x.notes)+'</div>':'')+
         (x.feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.25rem"><b>👎 Client feedback:</b> '+esc(x.feedback)+'</div>':'')+
-        '<div style="margin-top:.4rem;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="fbToggleDetails(\''+k+'\')">✎ Add details / revise</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="copyContract(\''+x.kind+'\',\''+x.id+'\')" title="Copy the instruction that tells the build to mark this done + report to the client">🛠 Build contract</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="showProjectDetail(\''+x.project_id+'\')">Open in project →</button></div>'+
+        '<div style="margin-top:.4rem;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--accent);color:var(--accent)" onclick="showFullSubmission(\''+x.kind+'\',\''+x.id+'\')">🔍 View full</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="fbToggleDetails(\''+k+'\')">✎ Add details / revise</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="copyContract(\''+x.kind+'\',\''+x.id+'\')" title="Copy the instruction that tells the build to mark this done + report to the client">🛠 Build contract</button><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--border);color:var(--text-muted)" onclick="showProjectDetail(\''+x.project_id+'\')">Open in project →</button></div>'+
         '<div id="fbDet_'+kid+'" style="display:none;margin-top:.5rem">'+
           '<textarea id="fbNote_'+kid+'" placeholder="Add build details / clarifications / revision notes…" style="width:100%;min-height:64px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px;font-size:.78rem;resize:vertical">'+esc(x.notes||'')+'</textarea>'+
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:.35rem">'+
@@ -4629,7 +4673,7 @@ async function loadProjectFeatures(id){
     if(!data.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No feature requests yet. Clients submit them via the Features & Bugs link.</p>'; return; }
     el.innerHTML=data.map(function(f){
       var c={pending:'#C9922A',approved:'#4CAF50',revisions:'#2196F3',rejected:'#ef4444',building:'#2196F3',built:'#4CAF50',error:'#ef4444'}[f.status]||'#888';
-      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span> '+statusSelect('feature',f.id,f.status||'pending',id)+' '+ratingBadge(f.client_rating)+'</div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+attHtml(f.attachment_paths,f.description)+(f.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-bottom:.5rem"><b>👎 Client:</b> '+esc(f.client_feedback)+'</div>':'')+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap">'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
+      return '<div id="featRow_'+f.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(f.title||'(untitled)')+'</b><span class="badge" style="font-size:.62rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+esc(f.status||'')+'</span> '+statusSelect('feature',f.id,f.status||'pending',id)+' '+ratingBadge(f.client_rating)+'</div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap;margin-bottom:.5rem">'+esc((f.description||'').slice(0,700))+'</div>'+attHtml(f.attachment_paths,f.description)+(f.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-bottom:.5rem"><b>👎 Client:</b> '+esc(f.client_feedback)+'</div>':'')+((f.requester_name||f.requester_email)?('<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">From: '+esc(f.requester_name||'')+' '+(f.requester_email?('('+esc(f.requester_email)+')'):'')+'</div>'):'')+(f.admin_notes?('<div style="font-size:.72rem;color:#2196F3;margin-bottom:.5rem"><b>Your notes:</b> '+esc(f.admin_notes)+'</div>'):'')+'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="border:1px solid var(--accent);color:var(--accent)" onclick="showFullSubmission(\'feature\',\''+f.id+'\')">🔍 View full</button>'+(f.status==='approved'?'<span class="badge badge-success" style="font-size:.62rem">✓ approved · will build</span>':'<button class="btn btn-sm" style="border:1px solid #4CAF50;color:#4CAF50" onclick="featAct(\''+id+'\',\''+f.id+'\',\'approve\')">✓ Approve & build</button>')+'<button class="btn btn-sm" style="border:1px solid #2196F3;color:#2196F3" onclick="featRevise(\''+id+'\',\''+f.id+'\')">✎ Request revisions</button><button class="btn btn-sm" style="border:1px solid #ef4444;color:#ef4444" onclick="featAct(\''+id+'\',\''+f.id+'\',\'reject\')">Reject</button></div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load feature requests.</p>'; }
 }
@@ -4644,7 +4688,7 @@ async function loadProjectBugs(id){
     el.innerHTML=data.map(function(bg){
       var sc={Low:'#888',Medium:'#C9922A',High:'#ff8c42',Critical:'#ef4444'}[bg.severity]||'#888';
       var tc={new:'#C9922A',fixing:'#2196F3',fixed:'#4CAF50',closed:'#888'}[bg.status]||'#888';
-      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span> '+statusSelect('bug',bg.id,bg.status||'new',id)+' '+ratingBadge(bg.client_rating)+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div>'+attHtml(bg.attachment_paths,bg.description)+(bg.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.3rem"><b>👎 Client:</b> '+esc(bg.client_feedback)+'</div>':'')+'</div>';
+      return '<div id="bugRow_'+bg.id+'" style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.35rem"><b style="font-size:.88rem">'+esc(bg.title||'(untitled)')+'</b><span><span class="badge" style="font-size:.58rem;background:'+sc+'22;color:'+sc+';border:1px solid '+sc+'55">'+esc(bg.severity||'')+'</span> <span class="badge" style="font-size:.58rem;background:'+tc+'22;color:'+tc+';border:1px solid '+tc+'55">'+esc(bg.status||'new')+'</span> '+statusSelect('bug',bg.id,bg.status||'new',id)+' '+ratingBadge(bg.client_rating)+'</span></div><div style="font-size:.78rem;color:var(--text-muted);white-space:pre-wrap">'+esc((bg.description||'').slice(0,500))+'</div>'+attHtml(bg.attachment_paths,bg.description)+(bg.client_feedback?'<div style="font-size:.72rem;color:#ef4444;margin-top:.3rem"><b>👎 Client:</b> '+esc(bg.client_feedback)+'</div>':'')+'<div style="margin-top:.45rem"><button class="btn btn-sm" style="font-size:.66rem;border:1px solid var(--accent);color:var(--accent)" onclick="showFullSubmission(\'bug\',\''+bg.id+'\')">🔍 View full</button></div></div>';
     }).join('');
   }catch(e){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Could not load bug reports.</p>'; }
 }
