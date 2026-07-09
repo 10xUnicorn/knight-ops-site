@@ -3,7 +3,18 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-07-02
+> **Last Updated:** 2026-07-09
+
+---
+
+## Changelog — 2026-07-09 (Claude AI Assistant Workshop funnel)
+
+- **New pages:** `/workshop` (registration, date-based tier switching + live countdown), `/workshop-confirmed` (Stripe redirect target: Google/Apple/Outlook add-to-calendar + prep checklist), `/workshop-invite.ics` (both days, 11am–1pm PT Jul 23–24), `/workshop-zoom` (redirect page — **TODO: paste real Zoom URL into `ZOOM_URL` const**, currently shows "room opens soon").
+- **Event:** "Use Claude to Build Your AI Assistant" — live 2-day, Thu 7/23 + Fri 7/24 2026, 11:00–1:00 PT, 20-seat cap.
+- **Pricing tiers (say "Early Bird", NEVER "Founding"):** Early Bird $197 ends Fri 7/10 midnight PT → Standard $249 ends Sun 7/19 midnight PT → Final $297 until event start. Boundaries in `workshop.html` TIERS array (UTC: 07-11T07:00Z / 07-20T07:00Z / 07-23T18:00Z).
+- **Stripe (LIVE, 10xUnicorn acct):** product `prod_Ur6oPVY98cyVmG`; payment links (each capped 20 completed sessions, metadata `workshop=claude-ai-assistant-2026-07` + `tier`): Early Bird https://buy.stripe.com/5kQdR84XB5z49Rz9b08g00T · Standard https://buy.stripe.com/7sYbJ0blZ7HcbZHevk8g00U · Final https://buy.stripe.com/9B6dR8ahVf9EbZHevk8g00V. All redirect to `/workshop-confirmed?session_id={CHECKOUT_SESSION_ID}&tier=...`.
+- **Auto confirmation email:** Stripe webhook `we_1TrOo0BiXnUmQZ6kqPEA6Jvj` (checkout.session.completed) → edge fn **`workshop-stripe-webhook`** v2 (verify_jwt=false, HMAC signature verification w/ endpoint signing secret in code). Filters by metadata, inserts `workshop_registrations` (migration `create_workshop_registrations`, RLS locked to service role, idempotent by stripe_session_id), emails attendee (branded, from daniel@mail.knightops.biz, reply-to daniel@knightops.biz, calendar links + Claude-desktop-app/Fathom prep) + owner seat-count alert (N/20, warns at cap). Optional hardening: add `STRIPE_SECRET_KEY` Supabase secret → fn re-fetches session from Stripe API.
+- **Particles:** workshop pages use tuned network (speed 0.24, link alpha 0.32 w/ variable width, radii 0.8–3.2).
 
 ---
 
@@ -392,6 +403,9 @@ Self-serve engine that turns an intake into a build-ready Claude Code prompt + s
 | `blueprint.html` | /blueprint | Blueprint call |
 | `mini-blueprint.html` | /mini-blueprint | Mini blueprint form |
 | `roundtable.html` | /roundtable | Roundtable event |
+| `workshop.html` | /workshop | Claude AI Assistant Workshop registration (Jul 23–24, 2026) |
+| `workshop-confirmed.html` | /workshop-confirmed | Workshop Stripe redirect: calendar buttons + prep checklist |
+| `workshop-zoom.html` | /workshop-zoom | Workshop Zoom redirect (set ZOOM_URL) |
 | `website-intake.html` | /website-intake | Website development intake form |
 
 ### Portals

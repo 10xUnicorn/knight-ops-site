@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use Claude to Build Your AI Assistant — Live Workshop | Knight Ops</title>
+<meta name="description" content="Live 2-day workshop, July 23–24, 2026. Coaches, consultants, and service business owners: build your first AI assistant with Claude — email drafts, calendar, and meeting follow-ups automated. 20 seats.">
+<link rel="canonical" href="https://knightops.biz/workshop">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Use Claude to Build Your AI Assistant — Live Workshop">
+<meta property="og:description" content="Two live sessions. You leave with a working AI admin agent handling your email drafts, calendar, and meeting follow-ups. July 23–24, 2026 · 11 AM–1 PM PT · 20 seats.">
+<meta property="og:url" content="https://knightops.biz/workshop">
+<meta property="og:image" content="https://knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "Use Claude to Build Your AI Assistant Workshop",
+  "description": "Live 2-day virtual workshop for coaches, consultants, and service business owners. Build a working AI administrative assistant with Claude — email drafts, calendar management, and automatic meeting follow-ups. Capped at 20 seats.",
+  "startDate": "2026-07-23T11:00:00-07:00",
+  "endDate": "2026-07-24T13:00:00-07:00",
+  "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": { "@type": "VirtualLocation", "url": "https://knightops.biz/workshop" },
+  "image": "https://knightops.biz/knight-ops-banner-build-the-machine.jpg",
+  "organizer": { "@type": "Organization", "name": "Knight Ops", "url": "https://knightops.biz" },
+  "performer": { "@type": "Person", "name": "Daniel Knight" },
+  "offers": [
+    { "@type": "Offer", "name": "Early Bird", "price": "197", "priceCurrency": "USD", "availability": "https://schema.org/LimitedAvailability", "validThrough": "2026-07-11T00:00:00-07:00", "url": "https://knightops.biz/workshop" },
+    { "@type": "Offer", "name": "Standard", "price": "249", "priceCurrency": "USD", "availability": "https://schema.org/LimitedAvailability", "validFrom": "2026-07-11T00:00:00-07:00", "validThrough": "2026-07-20T00:00:00-07:00", "url": "https://knightops.biz/workshop" },
+    { "@type": "Offer", "name": "Final", "price": "297", "priceCurrency": "USD", "availability": "https://schema.org/LimitedAvailability", "validFrom": "2026-07-20T00:00:00-07:00", "validThrough": "2026-07-23T11:00:00-07:00", "url": "https://knightops.biz/workshop" }
+  ],
+  "maximumAttendeeCapacity": 20
+}
+</script>
+<style>
+  html, body { margin: 0; padding: 0; background: #05061a; }
+  body { font-family: 'Archivo', sans-serif; color: #EDEAE0; overflow-x: hidden; }
+  a { color: #C9922A; }
+  a:hover { color: #E3B356; }
+  ::selection { background: #C9922A; color: #05061a; }
+  @keyframes ko-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .black { font-family: 'Archivo Black', sans-serif; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; position: relative; z-index: 3; }
+  .topbar-cta { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: #05061a; background: #C9922A; padding: 10px 22px; border-radius: 4px; text-decoration: none; }
+  .topbar-cta:hover { background: #E3B356; color: #05061a; }
+
+  .hero-cta { display: inline-block; font-family: 'Archivo Black', sans-serif; font-size: 17px; letter-spacing: 0.06em; color: #05061a; background: #C9922A; padding: 18px 36px; border-radius: 4px; text-decoration: none; box-shadow: 0 0 40px rgba(201,146,42,0.35); }
+  .hero-cta:hover { background: #E3B356; color: #05061a; }
+  .final-cta { display: inline-block; font-family: 'Archivo Black', sans-serif; font-size: 18px; letter-spacing: 0.06em; color: #05061a; background: #C9922A; padding: 20px 44px; border-radius: 4px; text-decoration: none; box-shadow: 0 0 50px rgba(201,146,42,0.4); }
+  .final-cta:hover { background: #E3B356; color: #05061a; }
+
+  .section-pad { padding: 88px 48px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.2em; color: #00D4C8; margin-bottom: 20px; }
+  .h2 { font-family: 'Archivo Black', sans-serif; font-size: clamp(30px, 4vw, 48px); line-height: 1.1; margin: 0 0 48px; color: #EDEAE0; }
+
+  .tier-card { position: relative; display: flex; flex-direction: column; border-radius: 8px; padding: 36px 32px; border: 1px solid rgba(237,234,224,0.12); background: transparent; box-shadow: none; }
+  .tier-card.active { border: 2px solid #C9922A; background: rgba(201,146,42,0.06); box-shadow: 0 0 60px rgba(201,146,42,0.18); }
+  .tier-badge { display: none; position: absolute; top: -13px; left: 32px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; background: #C9922A; color: #05061a; padding: 5px 12px; border-radius: 3px; }
+  .tier-card.active .tier-badge { display: block; }
+  .tier-btn { display: block; text-align: center; font-family: 'Archivo Black', sans-serif; font-size: 16px; letter-spacing: 0.05em; padding: 16px; border-radius: 4px; text-decoration: none; background: transparent; color: rgba(237,234,224,0.6); border: 1px solid rgba(237,234,224,0.2); pointer-events: none; }
+  .tier-card.active .tier-btn { background: #C9922A; color: #05061a; border: 2px solid #C9922A; pointer-events: auto; }
+  .tier-card.active .tier-btn:hover { filter: brightness(1.12); }
+  .tier-card.past .tier-btn { color: rgba(237,234,224,0.3); }
+
+  @media (max-width: 640px) {
+    .topbar, .section-pad, .hero-section, footer.ko-footer { padding-left: 24px !important; padding-right: 24px !important; }
+  }
+</style>
+</head>
+<body>
+
+<div style="min-height: 100vh; background: #05061a; color: #EDEAE0; overflow-x: hidden">
+
+  <!-- animated particle network -->
+  <canvas id="ko-particles" style="position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none"></canvas>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="black" style="font-size: 16px; letter-spacing: 0.32em; color: #C9922A">KNIGHT OPS</div>
+    <a href="#register" class="topbar-cta">RESERVE A SEAT →</a>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero-section" style="position: relative; z-index: 1; padding: 72px 48px 96px; max-width: 1060px; margin: 0 auto">
+    <!-- starfield -->
+    <div style="position: absolute; inset: -120px -1000px 0; pointer-events: none; background-image: radial-gradient(1.5px 1.5px at 12% 20%, rgba(237,234,224,0.55) 50%, transparent 51%), radial-gradient(1px 1px at 28% 65%, rgba(237,234,224,0.35) 50%, transparent 51%), radial-gradient(2px 2px at 45% 12%, rgba(201,146,42,0.5) 50%, transparent 51%), radial-gradient(1px 1px at 60% 40%, rgba(237,234,224,0.4) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 75% 18%, rgba(0,212,200,0.45) 50%, transparent 51%), radial-gradient(1px 1px at 88% 55%, rgba(237,234,224,0.4) 50%, transparent 51%), radial-gradient(1px 1px at 35% 85%, rgba(237,234,224,0.3) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 92% 82%, rgba(201,146,42,0.4) 50%, transparent 51%), radial-gradient(1px 1px at 8% 78%, rgba(0,212,200,0.3) 50%, transparent 51%), radial-gradient(1px 1px at 52% 68%, rgba(237,234,224,0.3) 50%, transparent 51%); background-size: 1100px 700px; background-repeat: repeat"></div>
+
+    <div style="position: relative; z-index: 2">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 28px">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00D4C8; animation: ko-pulse 2s ease-in-out infinite"></span>
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #00D4C8">LIVE 2-DAY VIRTUAL WORKSHOP · 20 SEATS</span>
+      </div>
+
+      <h1 class="black" style="font-size: clamp(44px, 6.5vw, 84px); line-height: 1.02; margin: 0 0 28px; letter-spacing: -0.01em">
+        <span style="color: #EDEAE0">Use Claude to build</span><br>
+        <span style="color: #C9922A">your AI assistant.</span>
+      </h1>
+
+      <p style="font-size: 21px; line-height: 1.55; color: rgba(237,234,224,0.82); max-width: 620px; margin: 0 0 40px">
+        Two live sessions. You build it yourself, with guidance, step by step. By the end of day 2 you have a working AI admin agent handling your email drafts, calendar, and meeting follow-ups. Not theory. Not a recording. Running.
+      </p>
+
+      <div class="mono" style="display: flex; flex-wrap: wrap; gap: 28px; align-items: center; margin-bottom: 44px; font-size: 14px; color: rgba(237,234,224,0.9)">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> Thu July 23 &amp; Fri July 24, 2026
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> 11:00 AM – 1:00 PM PT, both days
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> On Zoom, cameras on, hands on
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+        <a href="#register" class="hero-cta">CLAIM YOUR SEAT — <span data-active-price>$197</span></a>
+        <span class="mono" data-urgency style="font-size: 13px; color: rgba(237,234,224,0.55)"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE PROBLEM ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1; border-top: 1px solid rgba(201,146,42,0.18); background: rgba(255,255,255,0.015)">
+    <div class="wrap">
+      <div class="kicker">SOUND FAMILIAR?</div>
+      <h2 class="h2" style="max-width: 720px">You didn't start your business to spend half your week on admin.</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 20px">
+        <div style="border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; padding: 28px">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">The inbox never empties.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Client emails pile up while you're in sessions. Replies that should take 2 minutes wait 2 days.</p>
+        </div>
+        <div style="border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; padding: 28px">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">The calendar runs you.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Reschedules, double-bookings, back-and-forth to find a time. It's a part-time job you never applied for.</p>
+        </div>
+        <div style="border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; padding: 28px">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">Follow-ups fall through.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Great meeting, clear next steps — then nothing gets sent, because writing the recap is one more thing on the pile.</p>
+        </div>
+      </div>
+      <p style="margin: 48px 0 0; font-size: 20px; line-height: 1.6; color: rgba(237,234,224,0.85); max-width: 680px">
+        You've heard AI can fix this. You've also never used it, and every tutorial assumes you already speak the language. <strong style="color: #00D4C8">This workshop assumes nothing.</strong> If you can write an email, you can build this.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ WHAT YOU'LL BUILD ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1">
+    <div class="wrap">
+      <div class="kicker">WHAT YOU'LL BUILD — LIVE, WITH US</div>
+      <h2 class="h2" style="margin-bottom: 56px">One AI assistant.<br><span style="color: #C9922A">Four jobs off your plate.</span></h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px">
+        <div style="display: flex; gap: 24px; border-left: 2px solid #C9922A; padding: 8px 0 8px 28px">
+          <div class="black" style="font-size: 40px; color: rgba(201,146,42,0.35); line-height: 1">01</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Connect Claude to your tools</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">We set up Claude's connectors together — plugging it into your email and calendar so it can actually do work, not just chat. No code, no jargon, every click shown on screen.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 24px; border-left: 2px solid #C9922A; padding: 8px 0 8px 28px">
+          <div class="black" style="font-size: 40px; color: rgba(201,146,42,0.35); line-height: 1">02</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Meeting → follow-up, automatically</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">We wire in Fathom so every meeting transcript turns into a drafted follow-up email — recap, next steps, ready for your one-line review and send.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 24px; border-left: 2px solid #C9922A; padding: 8px 0 8px 28px">
+          <div class="black" style="font-size: 40px; color: rgba(201,146,42,0.35); line-height: 1">03</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Calendar that manages itself</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Your assistant finds open slots, proposes times, handles reschedules, and protects your focus blocks — so scheduling stops being a conversation you're part of.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 24px; border-left: 2px solid #C9922A; padding: 8px 0 8px 28px">
+          <div class="black" style="font-size: 40px; color: rgba(201,146,42,0.35); line-height: 1">04</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Automate the repeat offenders</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">The basics of task automation: spot the things you do every week, hand them to your assistant, and check they got done right. You'll leave knowing how to keep expanding it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 56px; border: 1px solid rgba(0,212,200,0.3); background: rgba(0,212,200,0.05); border-radius: 6px; padding: 28px 32px; display: flex; gap: 20px; align-items: baseline; flex-wrap: wrap">
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.15em; color: #00D4C8; white-space: nowrap">THE PROMISE →</span>
+        <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #EDEAE0; flex: 1; min-width: 300px">You leave day 2 with a functioning system you built yourself — running on your accounts, on your real work. If you get stuck, we unstick you live. That's why it's capped at 20.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="register" class="section-pad" style="position: relative; z-index: 1; border-top: 1px solid rgba(201,146,42,0.18); background: rgba(255,255,255,0.015); padding-bottom: 104px">
+    <div class="wrap">
+      <div class="kicker" style="text-align: center">RESERVE YOUR SEAT</div>
+      <h2 class="h2" style="margin-bottom: 16px; text-align: center">The price only goes up.</h2>
+      <p style="margin: 0 auto 24px; font-size: 17px; line-height: 1.6; color: rgba(237,234,224,0.65); text-align: center; max-width: 520px">One ticket, both days, all materials. Three price windows — whichever is open when you register is what you pay.</p>
+
+      <div id="countdown-row" style="display: flex; justify-content: center; margin-bottom: 48px">
+        <div class="mono" style="display: inline-flex; align-items: center; gap: 14px; border: 1px solid rgba(201,146,42,0.45); border-radius: 6px; padding: 14px 24px">
+          <span id="countdown-label" style="font-size: 12px; letter-spacing: 0.15em; color: rgba(237,234,224,0.6)">EARLY BIRD RATE ENDS IN</span>
+          <span id="countdown" style="font-size: 22px; font-weight: 700; color: #C9922A; letter-spacing: 0.05em"></span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 24px; align-items: stretch; margin-top: 24px">
+
+        <!-- EARLY BIRD -->
+        <div class="tier-card" data-tier="early">
+          <div class="tier-badge">OPEN NOW</div>
+          <div class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #C9922A; margin-bottom: 16px">EARLY BIRD</div>
+          <div class="black" style="font-size: 56px; line-height: 1; color: #EDEAE0; margin-bottom: 8px">$197</div>
+          <div style="font-size: 15px; color: rgba(237,234,224,0.65); line-height: 1.5; margin-bottom: 28px; flex: 1">This week only.<br>Ends Friday, July 10 at midnight PT.</div>
+          <a href="https://buy.stripe.com/5kQdR84XB5z49Rz9b08g00T" class="tier-btn" data-tier-btn>REGISTER — $197</a>
+        </div>
+
+        <!-- STANDARD -->
+        <div class="tier-card" data-tier="standard">
+          <div class="tier-badge">OPEN NOW</div>
+          <div class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #C9922A; margin-bottom: 16px">STANDARD</div>
+          <div class="black" style="font-size: 56px; line-height: 1; color: #EDEAE0; margin-bottom: 8px">$249</div>
+          <div style="font-size: 15px; color: rgba(237,234,224,0.65); line-height: 1.5; margin-bottom: 28px; flex: 1">Opens Saturday, July 11.<br>Ends Sunday, July 19 at midnight PT.</div>
+          <a href="https://buy.stripe.com/7sYbJ0blZ7HcbZHevk8g00U" class="tier-btn" data-tier-btn>OPENS LATER</a>
+        </div>
+
+        <!-- FINAL -->
+        <div class="tier-card" data-tier="final">
+          <div class="tier-badge">OPEN NOW</div>
+          <div class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #C9922A; margin-bottom: 16px">FINAL</div>
+          <div class="black" style="font-size: 56px; line-height: 1; color: #EDEAE0; margin-bottom: 8px">$297</div>
+          <div style="font-size: 15px; color: rgba(237,234,224,0.65); line-height: 1.5; margin-bottom: 28px; flex: 1">Last-chance pricing.<br>Closes when the workshop starts — or when 20 seats are gone.</div>
+          <a href="https://buy.stripe.com/9B6dR8ahVf9EbZHevk8g00V" class="tier-btn" data-tier-btn>OPENS LATER</a>
+        </div>
+      </div>
+
+      <p class="mono" style="margin: 40px auto 0; text-align: center; font-size: 13px; color: rgba(237,234,224,0.5); max-width: 560px; line-height: 1.7">Secure checkout via Stripe. You'll get your confirmation, calendar invite, and a short prep checklist immediately after payment.</p>
+    </div>
+  </section>
+
+  <!-- ============ WHO IT'S FOR ============ -->
+  <section style="position: relative; z-index: 1; padding: 80px 48px">
+    <div class="wrap" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 48px">
+      <div>
+        <h3 class="black" style="font-size: 26px; margin: 0 0 24px; color: #00D4C8">This is for you if…</h3>
+        <div style="display: flex; flex-direction: column; gap: 16px; font-size: 17px; line-height: 1.55; color: rgba(237,234,224,0.82)">
+          <div style="display: flex; gap: 14px"><span style="color: #00D4C8">✓</span><span>You're a coach, consultant, or run a service business</span></div>
+          <div style="display: flex; gap: 14px"><span style="color: #00D4C8">✓</span><span>Admin work is eating hours you should be billing or living</span></div>
+          <div style="display: flex; gap: 14px"><span style="color: #00D4C8">✓</span><span>You've never used AI and want someone to walk you through it, live</span></div>
+          <div style="display: flex; gap: 14px"><span style="color: #00D4C8">✓</span><span>You want to leave with something working, not a to-do list</span></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="black" style="font-size: 26px; margin: 0 0 24px; color: rgba(237,234,224,0.45)">This is not for you if…</h3>
+        <div style="display: flex; flex-direction: column; gap: 16px; font-size: 17px; line-height: 1.55; color: rgba(237,234,224,0.6)">
+          <div style="display: flex; gap: 14px"><span style="color: rgba(237,234,224,0.35)">✕</span><span>You want a recording to watch "someday" — there isn't one, we build live</span></div>
+          <div style="display: flex; gap: 14px"><span style="color: rgba(237,234,224,0.35)">✕</span><span>You're a developer looking for advanced API tricks</span></div>
+          <div style="display: flex; gap: 14px"><span style="color: rgba(237,234,224,0.35)">✕</span><span>You can't make both sessions — day 2 builds on day 1</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section style="border-top: 1px solid rgba(201,146,42,0.18); padding: 88px 48px 72px; text-align: center; position: relative; z-index: 1">
+    <div style="max-width: 680px; margin: 0 auto">
+      <h2 class="black" style="font-size: clamp(32px, 4.5vw, 52px); line-height: 1.08; margin: 0 0 20px; color: #EDEAE0">20 seats. Two days.<br><span style="color: #C9922A">One assistant that works for you.</span></h2>
+      <p style="font-size: 18px; line-height: 1.6; color: rgba(237,234,224,0.7); margin: 0 0 36px">July 23–24, 2026 · 11 AM – 1 PM PT · Live on Zoom</p>
+      <a href="#register" class="final-cta" data-active-link>CLAIM YOUR SEAT — <span data-active-price>$197</span></a>
+    </div>
+  </section>
+
+  <footer class="ko-footer" style="position: relative; z-index: 1; padding: 32px 48px; border-top: 1px solid rgba(237,234,224,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+    <div class="black" style="font-size: 13px; letter-spacing: 0.32em; color: rgba(201,146,42,0.7)">KNIGHT OPS</div>
+    <div class="mono" style="font-size: 12px; color: rgba(237,234,224,0.4)">© 2026 · <a href="https://knightops.biz" style="color: rgba(201,146,42,0.7); text-decoration: none">knightops.biz</a></div>
+  </footer>
+</div>
+
+<script>
+// ============ PARTICLE NETWORK ============
+(function () {
+  var canvas = document.getElementById('ko-particles');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = 0, h = 0;
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var COUNT = Math.max(40, Math.min(110, Math.floor((w * h) / 16000)));
+  var parts = [];
+  for (var i = 0; i < COUNT; i++) {
+    parts.push({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.24, vy: (Math.random() - 0.5) * 0.24, // slowed down
+      r: 0.8 + Math.random() * 2.4, // more size variety
+      teal: Math.random() < 0.18
+    });
+  }
+  var LINK = 150;
+  function tick() {
+    ctx.clearRect(0, 0, w, h);
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -12) p.x = w + 12; else if (p.x > w + 12) p.x = -12;
+      if (p.y < -12) p.y = h + 12; else if (p.y > h + 12) p.y = -12;
+    }
+    for (var a1 = 0; a1 < parts.length; a1++) {
+      for (var b1 = a1 + 1; b1 < parts.length; b1++) {
+        var a = parts[a1], b = parts[b1];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < LINK * LINK) {
+          var t = 1 - Math.sqrt(d2) / LINK;
+          ctx.strokeStyle = 'rgba(201,146,42,' + (t * 0.32).toFixed(3) + ')'; // more prominent connections
+          ctx.lineWidth = 0.5 + t * 1.1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    for (var m = 0; m < parts.length; m++) {
+      var q = parts[m];
+      ctx.fillStyle = q.teal ? 'rgba(0,212,200,0.55)' : 'rgba(201,146,42,0.5)';
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ============ TIER SWITCHING + COUNTDOWN ============
+(function () {
+  // Tier boundaries (PT = UTC-7 in July, PDT)
+  var TIERS = [
+    { key: 'early',    price: '$197', ends: Date.parse('2026-07-11T07:00:00Z'), // Fri 7/10 midnight PT
+      link: 'https://buy.stripe.com/5kQdR84XB5z49Rz9b08g00T',
+      countdownLabel: 'EARLY BIRD RATE ENDS IN',
+      urgency: 'Early bird rate $197 — ends Friday, July 10 at midnight PT' },
+    { key: 'standard', price: '$249', ends: Date.parse('2026-07-20T07:00:00Z'), // Sun 7/19 midnight PT
+      link: 'https://buy.stripe.com/7sYbJ0blZ7HcbZHevk8g00U',
+      countdownLabel: 'STANDARD RATE ENDS IN',
+      urgency: 'Standard rate $249 — goes to $297 Sunday, July 19 at midnight PT' },
+    { key: 'final',    price: '$297', ends: Date.parse('2026-07-23T18:00:00Z'), // event start Thu 11am PT
+      link: 'https://buy.stripe.com/9B6dR8ahVf9EbZHevk8g00V',
+      countdownLabel: 'WORKSHOP STARTS IN',
+      urgency: 'Final pricing — closes when the workshop starts' }
+  ];
+
+  function activeTier(now) {
+    for (var i = 0; i < TIERS.length; i++) { if (now < TIERS[i].ends) return i; }
+    return TIERS.length - 1;
+  }
+
+  var lastKey = null;
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function render() {
+    var now = Date.now();
+    var idx = activeTier(now);
+    var tier = TIERS[idx];
+
+    if (tier.key !== lastKey) {
+      lastKey = tier.key;
+      // cards
+      var cards = document.querySelectorAll('.tier-card');
+      for (var c = 0; c < cards.length; c++) {
+        var card = cards[c];
+        var pos = c;
+        card.classList.toggle('active', pos === idx);
+        card.classList.toggle('past', pos < idx);
+        var btn = card.querySelector('[data-tier-btn]');
+        if (pos === idx) { btn.textContent = 'REGISTER — ' + TIERS[pos].price; }
+        else if (pos < idx) { btn.textContent = 'CLOSED'; }
+        else { btn.textContent = 'OPENS LATER'; }
+      }
+      // hero + final CTA
+      var prices = document.querySelectorAll('[data-active-price]');
+      for (var p = 0; p < prices.length; p++) prices[p].textContent = tier.price;
+      var urg = document.querySelector('[data-urgency]');
+      if (urg) urg.textContent = tier.urgency;
+      var lbl = document.getElementById('countdown-label');
+      if (lbl) lbl.textContent = tier.countdownLabel;
+    }
+
+    // countdown to the active tier's deadline
+    var s = Math.max(0, Math.floor((tier.ends - now) / 1000));
+    var d = Math.floor(s / 86400); s -= d * 86400;
+    var hh = Math.floor(s / 3600); s -= hh * 3600;
+    var mm = Math.floor(s / 60); s -= mm * 60;
+    var el = document.getElementById('countdown');
+    if (el) el.textContent = (d > 0 ? d + 'd ' : '') + pad(hh) + ':' + pad(mm) + ':' + pad(s);
+  }
+
+  render();
+  setInterval(render, 1000);
+})();
+</script>
+
+</body>
+</html>

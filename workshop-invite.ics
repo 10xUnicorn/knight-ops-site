@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Knight Ops//Claude AI Assistant Workshop//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:claude-workshop-day1-20260723@knightops.biz
+DTSTAMP:20260709T170000Z
+DTSTART:20260723T180000Z
+DTEND:20260723T200000Z
+SUMMARY:Use Claude to Build Your AI Assistant — Workshop Day 1
+DESCRIPTION:Live 2-day workshop with Daniel Knight (Knight Ops).\n11:00 AM
+  - 1:00 PM PT.\n\nBefore day 1:\n1) Install the Claude desktop app: http
+ s://claude.ai/download\n2) Sign up for Fathom: https://fathom.video\n3) J
+ oin from your laptop.\n\nJoin here: https://knightops.biz/workshop-zoom
+LOCATION:https://knightops.biz/workshop-zoom
+URL:https://knightops.biz/workshop-zoom
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Workshop Day 1 starts in 30 minutes
+TRIGGER:-PT30M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:claude-workshop-day2-20260724@knightops.biz
+DTSTAMP:20260709T170000Z
+DTSTART:20260724T180000Z
+DTEND:20260724T200000Z
+SUMMARY:Use Claude to Build Your AI Assistant — Workshop Day 2
+DESCRIPTION:Day 2 — we finish the build. By the end of this session your
+  AI admin agent is running.\n11:00 AM - 1:00 PM PT.\n\nJoin here: https:/
+ /knightops.biz/workshop-zoom
+LOCATION:https://knightops.biz/workshop-zoom
+URL:https://knightops.biz/workshop-zoom
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Workshop Day 2 starts in 30 minutes
+TRIGGER:-PT30M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
