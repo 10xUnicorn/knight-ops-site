@@ -944,6 +944,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <button title="Bulleted List" onclick="document.execCommand('insertUnorderedList')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
           </div>
           <div class="ec-body" id="ecBody" contenteditable="true" data-placeholder="Write your email..."></div>
+          <input type="file" id="ecFileInput" multiple accept="*/*" style="display:none" onchange="ecHandleFiles(this.files)">
+          <div id="ecAttachList" style="display:none;padding:6px 12px 2px;display:flex;flex-wrap:wrap;gap:6px;min-height:0"></div>
           <div class="ec-footer">
             <div class="ec-footer-left">
               <button class="ec-send" onclick="sendEmail()">
@@ -955,7 +957,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               </select>
             </div>
             <div class="ec-footer-right">
-              <button class="ec-icon-btn" title="Attach file"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+              <button class="ec-icon-btn" title="Attach file" onclick="document.getElementById('ecFileInput').click()"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
               <button class="ec-icon-btn" title="Insert signature" onclick="insertEmailSignature()"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
               <button class="ec-icon-btn" title="Schedule send" onclick="scheduleEmail()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
               <button class="ec-icon-btn" title="Save as draft" onclick="saveEmailDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
@@ -5126,6 +5128,7 @@ let emailCurrentFilter='all';
 let emailSelectedId=null;
 let emailSelectedIds=new Set();
 let emailEditingDraftId=null;
+let ecAttachments=[]; // [{filename,url,size}]
 let emailActiveAccount='all'; // 'all' or specific email address
 let emailAccounts=[]; // loaded from DB
 
@@ -5547,15 +5550,18 @@ async function sendEmail(){
     const fromEmail=ecFromSel&&ecFromSel.value?ecFromSel.value:'daniel@knightops.biz';
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
-    const{data,error}=await sb.functions.invoke('send-plain-email',{body:{to,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail}});
+    const sendBody={to,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail};
+    if(ecAttachments.length)sendBody.attachments=ecAttachments.map(a=>({filename:a.filename,url:a.url}));
+    const{data,error}=await sb.functions.invoke('send-plain-email',{body:sendBody});
     if(error)throw error;
     // If editing a draft, update instead of insert
     if(emailEditingDraftId){
-      await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
-      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail});
+      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined});
     }
+    ecAttachments=[];ecRenderAttachChips();
     showToast('Email sent successfully');
     document.getElementById('emailComposeModal').classList.remove('visible');
     await loadEmailInbox();
@@ -5572,11 +5578,12 @@ async function saveEmailDraft(){
     const draftFromEmail=ecFromSel2?ecFromSel2.value:'daniel@knightops.biz';
     const draftFromName=ecFromSel2?ecFromSel2.options[ecFromSel2.selectedIndex].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     if(emailEditingDraftId){
-      await sb.from('emails').update({from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),mailbox:draftFromEmail}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
     }else{
-      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true,mailbox:draftFromEmail}).select('id').single();
+      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true,mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).select('id').single();
       if(data)emailEditingDraftId=data.id;
     }
+    ecAttachments=[];ecRenderAttachChips();
     showToast('Draft saved');
     document.getElementById('emailComposeModal').classList.remove('visible');
     emailEditingDraftId=null;
@@ -5607,12 +5614,14 @@ async function scheduleEmail(){
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     const row={direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'scheduled',is_draft:false,is_read:true,mailbox:fromEmail,scheduled_at:sendAt.toISOString()};
+    if(ecAttachments.length)row.attachments=ecAttachments;
     if(emailEditingDraftId){
       await sb.from('emails').update(row).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
       await sb.from('emails').insert(row);
     }
+    ecAttachments=[];ecRenderAttachChips();
     showToast('Scheduled for '+sendAt.toLocaleString());
     document.getElementById('emailComposeModal').classList.remove('visible');
     await loadEmailInbox();
@@ -5646,6 +5655,8 @@ async function editDraft(id){
   document.getElementById('ecTo').value=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):'';
   document.getElementById('ecSubject').value=data.subject||'';
   document.getElementById('ecBody').innerHTML=data.body_html||'';
+  ecAttachments=Array.isArray(data.attachments)?data.attachments:[];
+  ecRenderAttachChips();
   document.getElementById('ecCcRow').style.display='none';
   document.getElementById('ecBccRow').style.display='none';
   document.getElementById('emailComposeModal').classList.add('visible');
@@ -5655,7 +5666,46 @@ function discardEmailDraft(){
   document.getElementById('ecTo').value='';
   document.getElementById('ecSubject').value='';
   document.getElementById('ecBody').innerHTML='';
+  ecAttachments=[];
+  ecRenderAttachChips();
   document.getElementById('emailComposeModal').classList.remove('visible');
+}
+
+function ecRenderAttachChips(){
+  const el=document.getElementById('ecAttachList');
+  if(!el)return;
+  if(!ecAttachments.length){el.style.display='none';el.innerHTML='';return;}
+  el.style.display='flex';
+  el.innerHTML=ecAttachments.map((a,i)=>{
+    const kb=a.size?Math.round(a.size/1024)+'KB':'';
+    return `<div style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;font-size:.72rem;color:var(--text)"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.filename)}</span>${kb?`<span style="color:var(--text-muted)">${kb}</span>`:''}<button onclick="ecRemoveAttach(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;margin-left:2px;font-size:.8rem;line-height:1" title="Remove">✕</button></div>`;
+  }).join('');
+}
+
+function ecRemoveAttach(i){
+  ecAttachments.splice(i,1);
+  ecRenderAttachChips();
+}
+
+async function ecHandleFiles(files){
+  if(!files||!files.length)return;
+  const uploading=Array.from(files);
+  const MAX=40*1024*1024; // 40MB per file (Resend limit)
+  for(const file of uploading){
+    if(file.size>MAX){showToast(file.name+' exceeds 40MB limit','error');continue;}
+    const key='email-attachments/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    showToast('Uploading '+file.name+'…');
+    try{
+      const{data,error}=await sb.storage.from('bug-attachments').upload(key,file,{upsert:true,contentType:file.type||'application/octet-stream'});
+      if(error)throw error;
+      const{data:urlData}=sb.storage.from('bug-attachments').getPublicUrl(key);
+      ecAttachments.push({filename:file.name,url:urlData.publicUrl,size:file.size});
+      ecRenderAttachChips();
+      showToast(file.name+' attached');
+    }catch(e){showToast('Failed to attach '+file.name+': '+e.message,'error');}
+  }
+  // reset input so same file can be re-selected
+  document.getElementById('ecFileInput').value='';
 }
 
 // Labels
