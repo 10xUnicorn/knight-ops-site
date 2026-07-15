@@ -5538,9 +5538,11 @@ function toggleEmailCompose(){
 
 async function sendEmail(){
   const to=document.getElementById('ecTo').value.trim();
+  const cc=(document.getElementById('ecCc')||{value:''}).value.trim();
+  const bcc=(document.getElementById('ecBcc')||{value:''}).value.trim();
   const subject=document.getElementById('ecSubject').value.trim();
   const body=document.getElementById('ecBody').innerHTML;
-  if(!to){showToast('Please enter a recipient','error');return;}
+  if(!to&&!bcc){showToast('Please enter a recipient (To or BCC)','error');return;}
   if(!subject){showToast('Please enter a subject','error');return;}
   const plainText=(body||'').replace(/<[^>]*>/g,'').trim();
   if(!plainText&&!body.replace(/<br\s*\/?>/gi,'').replace(/<div>\s*<\/div>/gi,'').trim()){showToast('Please enter a message body','error');return;}
@@ -5550,16 +5552,16 @@ async function sendEmail(){
     const fromEmail=ecFromSel&&ecFromSel.value?ecFromSel.value:'daniel@knightops.biz';
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
-    const sendBody={to,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail};
+    const sendBody={to,cc,bcc,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail};
     if(ecAttachments.length)sendBody.attachments=ecAttachments.map(a=>({filename:a.filename,url:a.url}));
     const{data,error}=await sb.functions.invoke('send-plain-email',{body:sendBody});
     if(error)throw error;
     // If editing a draft, update instead of insert
     if(emailEditingDraftId){
-      await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
-      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined});
+      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined});
     }
     ecAttachments=[];ecRenderAttachChips();
     showToast('Email sent successfully');
