@@ -358,30 +358,31 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .erp-attach-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* Compose Modal */
-.email-compose-overlay{display:none;position:fixed;bottom:20px;right:20px;width:580px;max-height:520px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden}
+.email-compose-overlay{display:none;position:fixed;bottom:20px;right:20px;width:600px;max-height:560px;background:#fff;border:1px solid #d1d5db;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.25);z-index:1001;flex-direction:column;overflow:hidden}
 .email-compose-overlay.visible{display:flex}
-.ec-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);cursor:move}
-.ec-header h4{font-size:.9rem;font-weight:600;margin:0;color:var(--text)}
-.ec-header button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
-.ec-header button:hover{color:var(--text)}
+.ec-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1a1a1a;border-bottom:1px solid #333;cursor:move}
+.ec-header h4{font-size:.9rem;font-weight:600;margin:0;color:#f0f0f0}
+.ec-header button{background:none;border:none;color:#aaa;cursor:pointer;padding:4px}
+.ec-header button:hover{color:#fff}
 .ec-header button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
-.ec-fields{padding:0 16px}
-.ec-field{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.04);padding:6px 0}
-.ec-field label{font-size:.75rem;color:var(--text-muted);width:40px;flex-shrink:0}
-.ec-field input,.ec-field select{flex:1;background:transparent;border:none;color:var(--text);font-size:.85rem;padding:4px 0;outline:none}
-.ec-toolbar{display:flex;gap:4px;padding:4px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
-.ec-toolbar button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:4px}
-.ec-toolbar button:hover{background:var(--surface-2);color:var(--text)}
+.ec-fields{padding:0 16px;background:#fff;border-bottom:1px solid #e5e7eb}
+.ec-field{display:flex;align-items:center;border-bottom:1px solid #f0f0f0;padding:6px 0}
+.ec-field:last-child{border-bottom:none}
+.ec-field label{font-size:.75rem;color:#6b7280;width:40px;flex-shrink:0}
+.ec-field input,.ec-field select{flex:1;background:transparent;border:none;color:#111;font-size:.85rem;padding:4px 0;outline:none}
+.ec-toolbar{display:flex;gap:4px;padding:4px 16px;border-bottom:1px solid #e5e7eb;background:#f9fafb}
+.ec-toolbar button{background:none;border:none;color:#6b7280;cursor:pointer;padding:4px;border-radius:4px}
+.ec-toolbar button:hover{background:#e5e7eb;color:#111}
 .ec-toolbar button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
-.ec-body{flex:1;padding:12px 16px;min-height:160px;max-height:220px;overflow-y:auto;font-size:.85rem;color:var(--text);line-height:1.6;outline:none}
-.ec-body:empty:before{content:attr(data-placeholder);color:var(--text-muted)}
-.ec-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border)}
+.ec-body{flex:1;padding:12px 16px;min-height:180px;max-height:240px;overflow-y:auto;font-size:.875rem;color:#111;line-height:1.6;outline:none;background:#fff}
+.ec-body:empty:before{content:attr(data-placeholder);color:#9ca3af}
+.ec-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #e5e7eb;background:#f9fafb}
 .ec-footer-left{display:flex;gap:4px;align-items:center}
 .ec-footer-right{display:flex;gap:4px;align-items:center}
 .ec-footer button.ec-send{background:var(--accent);color:#000;border:none;padding:7px 20px;border-radius:8px;font-weight:600;font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .ec-footer button.ec-send:hover{box-shadow:0 0 16px var(--accent-glow)}
-.ec-footer button.ec-icon-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
-.ec-footer button.ec-icon-btn:hover{color:var(--text)}
+.ec-footer button.ec-icon-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:4px}
+.ec-footer button.ec-icon-btn:hover{color:#111}
 .ec-footer button.ec-icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* Email Settings */
@@ -959,11 +960,27 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="ec-footer-right">
               <button class="ec-icon-btn" title="Attach file" onclick="document.getElementById('ecFileInput').click()"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
               <button class="ec-icon-btn" title="Insert signature" onclick="insertEmailSignature()"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
-              <button class="ec-icon-btn" title="Schedule send" onclick="scheduleEmail()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+              <button class="ec-icon-btn" title="Schedule send" onclick="toggleSchedulePicker()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
               <button class="ec-icon-btn" title="Save as draft" onclick="saveEmailDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
               <button class="ec-icon-btn" title="Discard" onclick="discardEmailDraft()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
             </div>
           </div>
+        </div>
+      </div>
+      <!-- Schedule picker (fixed to viewport, outside overflow:hidden compose box) -->
+      <div id="ecSchedulePicker" style="display:none;position:fixed;bottom:82px;right:22px;background:#fff;border:1px solid #d1d5db;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,.22);padding:14px 16px;z-index:1100;min-width:278px">
+        <div style="font-size:.78rem;font-weight:600;color:#374151;margin-bottom:8px">Schedule send</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button onclick="ecSetScheduleRelative(1,'h')" style="font-size:.7rem;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;color:#374151">In 1 hr</button>
+          <button onclick="ecSetScheduleRelative(4,'h')" style="font-size:.7rem;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;color:#374151">In 4 hrs</button>
+          <button onclick="ecSetScheduleRelative(1,'d')" style="font-size:.7rem;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;color:#374151">Tomorrow</button>
+          <button onclick="ecSetScheduleRelative(3,'d')" style="font-size:.7rem;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;color:#374151">In 3 days</button>
+        </div>
+        <label style="font-size:.72rem;color:#6b7280;display:block;margin-bottom:4px">Custom date &amp; time</label>
+        <input type="datetime-local" id="ecScheduleDatetime" style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:.82rem;color:#111;background:#fff;box-sizing:border-box;margin-bottom:10px">
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button onclick="document.getElementById('ecSchedulePicker').style.display='none'" style="font-size:.75rem;padding:5px 12px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;cursor:pointer;color:#374151">Cancel</button>
+          <button onclick="scheduleEmail()" style="font-size:.75rem;padding:5px 14px;border:none;border-radius:6px;background:#C9922A;color:#fff;font-weight:600;cursor:pointer">Schedule</button>
         </div>
       </div>
       <!-- ═══ PARTNERS VIEW ═══ -->
@@ -5521,17 +5538,24 @@ function forwardEmail(id){
 }
 
 // Compose
-function toggleEmailCompose(){
+async function toggleEmailCompose(){
   const modal=document.getElementById('emailComposeModal');
   if(modal.classList.contains('visible')){
     modal.classList.remove('visible');
   }else{
     emailEditingDraftId=null;
+    ecAttachments=[];ecRenderAttachChips();
     document.getElementById('ecTo').value='';
     document.getElementById('ecSubject').value='';
-    document.getElementById('ecBody').innerHTML='';
     document.getElementById('ecCcRow').style.display='none';
     document.getElementById('ecBccRow').style.display='none';
+    // Auto-insert default signature
+    const{data:sig}=await sb.from('email_signatures').select('*').eq('is_default',true).maybeSingle();
+    if(sig){
+      document.getElementById('ecBody').innerHTML='<p><br></p><div class="ec-sig" style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:10px;font-size:.82rem;color:#555">'+(sig.body_html||esc(sig.body_text||''))+'</div>';
+    }else{
+      document.getElementById('ecBody').innerHTML='';
+    }
     modal.classList.add('visible');
   }
 }
@@ -5594,18 +5618,34 @@ async function saveEmailDraft(){
 }
 
 // ── Scheduled send (general-purpose: any email can be scheduled in advance) ──
+function toggleSchedulePicker(){
+  const p=document.getElementById('ecSchedulePicker');
+  const visible=p.style.display!=='none';
+  p.style.display=visible?'none':'block';
+  if(!visible){
+    // Default to 12 hours from now
+    const def=new Date(Date.now()+12*60*60*1000);
+    const pad=n=>String(n).padStart(2,'0');
+    document.getElementById('ecScheduleDatetime').value=def.getFullYear()+'-'+pad(def.getMonth()+1)+'-'+pad(def.getDate())+'T'+pad(def.getHours())+':'+pad(def.getMinutes());
+  }
+}
+function ecSetScheduleRelative(n,unit){
+  const ms=unit==='h'?n*3600000:n*86400000;
+  const d=new Date(Date.now()+ms);
+  const pad=v=>String(v).padStart(2,'0');
+  document.getElementById('ecScheduleDatetime').value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+}
 async function scheduleEmail(){
+  document.getElementById('ecSchedulePicker').style.display='none';
   const to=document.getElementById('ecTo').value.trim();
+  const cc=(document.getElementById('ecCc')||{value:''}).value.trim();
+  const bcc=(document.getElementById('ecBcc')||{value:''}).value.trim();
   const subject=document.getElementById('ecSubject').value.trim();
   const body=document.getElementById('ecBody').innerHTML;
-  if(!to){showToast('Please enter a recipient','error');return;}
+  if(!to&&!bcc){showToast('Please enter a recipient (To or BCC)','error');return;}
   if(!subject){showToast('Please enter a subject','error');return;}
-  // Default to 12 hours out; let the user pick a custom time
-  const def=new Date(Date.now()+12*60*60*1000);
-  const pad=n=>String(n).padStart(2,'0');
-  const defStr=def.getFullYear()+'-'+pad(def.getMonth()+1)+'-'+pad(def.getDate())+'T'+pad(def.getHours())+':'+pad(def.getMinutes());
-  const when=prompt('Send at (YYYY-MM-DDTHH:MM, your local time). Default is 12 hours from now:',defStr);
-  if(!when)return;
+  const when=document.getElementById('ecScheduleDatetime').value;
+  if(!when){showToast('Please pick a date and time','error');return;}
   const sendAt=new Date(when);
   if(isNaN(sendAt.getTime())){showToast('Invalid date/time','error');return;}
   if(sendAt.getTime()<=Date.now()){showToast('Pick a time in the future','error');return;}
@@ -5615,7 +5655,7 @@ async function scheduleEmail(){
     const fromEmail=ecFromSel&&ecFromSel.value?ecFromSel.value:'daniel@knightops.biz';
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
-    const row={direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:[to],subject,body_html:body,snippet:plainText.slice(0,200),status:'scheduled',is_draft:false,is_read:true,mailbox:fromEmail,scheduled_at:sendAt.toISOString()};
+    const row={direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'scheduled',is_draft:false,is_read:true,mailbox:fromEmail,scheduled_at:sendAt.toISOString(),cc_addresses:cc?[cc]:undefined,bcc_addresses:bcc?[bcc]:undefined};
     if(ecAttachments.length)row.attachments=ecAttachments;
     if(emailEditingDraftId){
       await sb.from('emails').update(row).eq('id',emailEditingDraftId);
@@ -5698,7 +5738,7 @@ async function ecHandleFiles(files){
     const key='email-attachments/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
     showToast('Uploading '+file.name+'…');
     try{
-      const{data,error}=await sb.storage.from('bug-attachments').upload(key,file,{upsert:true,contentType:file.type||'application/octet-stream'});
+      const{data,error}=await sb.storage.from('bug-attachments').upload(key,file,{contentType:file.type||'application/octet-stream'});
       if(error)throw error;
       const{data:urlData}=sb.storage.from('bug-attachments').getPublicUrl(key);
       ecAttachments.push({filename:file.name,url:urlData.publicUrl,size:file.size});
