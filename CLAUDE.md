@@ -3,7 +3,17 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-07-09
+> **Last Updated:** 2026-07-16
+
+---
+
+## Changelog — 2026-07-16 (Orchestrate membership funnel)
+
+- **New pages:** `/orchestrate` (Build-With-You Membership landing: Harmony Method layers, proof stack, founding pricing card w/ monthly↔annual toggle + LIVE seat counter) + `/orchestrate-confirmed` (Stripe redirect target: what-happens-next). No vercel.json changes (`/:path`→`.html` rewrite covers both).
+- **Pricing displayed:** Founding $297/mo LOCKED FOR LIFE (cap 30, retail anchor $497 crossed out) + annual $2,970/yr (2 months free). The $197 private-invite rate is NEVER displayed (invitation-only).
+- **Stripe (LIVE, 10xUnicorn acct):** product `prod_UtSxseg96CZXCk`; payment links (each capped 30 completed sessions, metadata `membership=orchestrate` + `plan`): monthly https://buy.stripe.com/dRm4gy9dRd1w1l3evk8g00Z (`plink_1Ttg2HBiXnUmQZ6kABa7IEcC`) · annual https://buy.stripe.com/3cI14mgGj1iOfbTbj88g010 (`plink_1Ttg2IBiXnUmQZ6koFlx6nEs`). Both redirect `/orchestrate-confirmed?session_id={CHECKOUT_SESSION_ID}&plan=...`.
+- **Backend:** edge fn **`orchestrate-stripe-webhook`** v1 (mirror of workshop v2: verify_jwt=false, HMAC, idempotent by stripe_session_id) → new table `membership_registrations` (RLS service-role only), member welcome email (from daniel@mail.knightops.biz) + owner N/30 founding alert; `GET ?seats=1` = live seat count consumed by the landing page.
+- **TODO: Stripe webhook endpoint for `orchestrate-stripe-webhook` not yet created** (Stripe MCP can't create endpoints) — create in dashboard (checkout.session.completed → https://trpnlkntvulkjerevngm.supabase.co/functions/v1/orchestrate-stripe-webhook), then paste the whsec into `SIGNING_SECRET` and redeploy the fn.
 
 ---
 
