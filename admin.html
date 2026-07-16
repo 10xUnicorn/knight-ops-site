@@ -5577,7 +5577,7 @@ async function sendEmail(){
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     const sendBody={to,cc,bcc,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail};
-    if(ecAttachments.length)sendBody.attachments=ecAttachments.map(a=>({filename:a.filename,url:a.url}));
+    if(ecAttachments.length)sendBody.attachments=ecAttachments.map(a=>({filename:a.filename,content:a.content,type:a.type}));
     const{data,error}=await sb.functions.invoke('send-plain-email',{body:sendBody});
     if(error)throw error;
     // If editing a draft, update instead of insert
@@ -5604,9 +5604,9 @@ async function saveEmailDraft(){
     const draftFromEmail=ecFromSel2?ecFromSel2.value:'daniel@knightops.biz';
     const draftFromName=ecFromSel2?ecFromSel2.options[ecFromSel2.selectedIndex].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     if(emailEditingDraftId){
-      await sb.from('emails').update({from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
+      await sb.from('emails').update({from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments.map(a=>({filename:a.filename,size:a.size,type:a.type})):undefined}).eq('id',emailEditingDraftId);
     }else{
-      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true,mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).select('id').single();
+      const{data}=await sb.from('emails').insert({direction:'outbound',from_address:draftFromEmail,from_name:draftFromName,to_addresses:to?[to]:[],subject:subject||'(no subject)',body_html:body,snippet:plainText.slice(0,200),status:'draft',is_draft:true,is_read:true,mailbox:draftFromEmail,attachments:ecAttachments.length?ecAttachments.map(a=>({filename:a.filename,size:a.size,type:a.type})):undefined}).select('id').single();
       if(data)emailEditingDraftId=data.id;
     }
     ecAttachments=[];ecRenderAttachChips();
@@ -5697,7 +5697,8 @@ async function editDraft(id){
   document.getElementById('ecTo').value=Array.isArray(data.to_addresses)?data.to_addresses.join(', '):'';
   document.getElementById('ecSubject').value=data.subject||'';
   document.getElementById('ecBody').innerHTML=data.body_html||'';
-  ecAttachments=Array.isArray(data.attachments)?data.attachments:[];
+  // Drafts store only metadata (no base64 content) — show chips so user knows what was attached, but they'll need to re-add files to resend them
+  ecAttachments=Array.isArray(data.attachments)?data.attachments.map(a=>({filename:typeof a==='string'?a:(a.filename||'attachment'),size:a.size,type:a.type})):[];
   ecRenderAttachChips();
   document.getElementById('ecCcRow').style.display='none';
   document.getElementById('ecBccRow').style.display='none';
@@ -5720,7 +5721,11 @@ function ecRenderAttachChips(){
   el.style.display='flex';
   el.innerHTML=ecAttachments.map((a,i)=>{
     const kb=a.size?Math.round(a.size/1024)+'KB':'';
-    return `<div style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;font-size:.72rem;color:var(--text)"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.filename)}</span>${kb?`<span style="color:var(--text-muted)">${kb}</span>`:''}<button onclick="ecRemoveAttach(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;margin-left:2px;font-size:.8rem;line-height:1" title="Remove">✕</button></div>`;
+    const ready=!!a.content;
+    const border=ready?'#d1d5db':'#f59e0b';
+    const bg=ready?'#f9fafb':'#fffbeb';
+    const hint=ready?'':' title="Re-attach to include in send"';
+    return `<div style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:${bg};border:1px solid ${border};border-radius:6px;font-size:.72rem;color:#374151"${hint}><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:${ready?'#6b7280':'#f59e0b'};fill:none;stroke-width:2;flex-shrink:0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.filename)}</span>${kb?`<span style="color:#9ca3af">${kb}</span>`:''} ${ready?'':'<span style="color:#f59e0b">⚠</span>'}<button onclick="ecRemoveAttach(${i})" style="background:none;border:none;color:#9ca3af;cursor:pointer;padding:0;margin-left:2px;font-size:.8rem;line-height:1" title="Remove">✕</button></div>`;
   }).join('');
 }
 
@@ -5731,22 +5736,22 @@ function ecRemoveAttach(i){
 
 async function ecHandleFiles(files){
   if(!files||!files.length)return;
-  const uploading=Array.from(files);
-  const MAX=40*1024*1024; // 40MB per file (Resend limit)
-  for(const file of uploading){
-    if(file.size>MAX){showToast(file.name+' exceeds 40MB limit','error');continue;}
-    const key='email-attachments/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-    showToast('Uploading '+file.name+'…');
+  const MAX=15*1024*1024; // 15MB per file (base64 encoded → ~20MB payload, within edge fn limits)
+  for(const file of Array.from(files)){
+    if(file.size>MAX){showToast(file.name+' exceeds 15MB limit','error');continue;}
+    showToast('Reading '+file.name+'…');
     try{
-      const{data,error}=await sb.storage.from('bug-attachments').upload(key,file,{contentType:file.type||'application/octet-stream'});
-      if(error)throw error;
-      const{data:urlData}=sb.storage.from('bug-attachments').getPublicUrl(key);
-      ecAttachments.push({filename:file.name,url:urlData.publicUrl,size:file.size});
+      const base64=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=e=>resolve(e.target.result.split(',')[1]); // strip data:...;base64,
+        reader.onerror=()=>reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+      ecAttachments.push({filename:file.name,content:base64,type:file.type||'application/octet-stream',size:file.size});
       ecRenderAttachChips();
       showToast(file.name+' attached');
     }catch(e){showToast('Failed to attach '+file.name+': '+e.message,'error');}
   }
-  // reset input so same file can be re-selected
   document.getElementById('ecFileInput').value='';
 }
 
