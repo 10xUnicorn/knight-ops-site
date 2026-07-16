@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Orchestrate — You're In | Knight Ops</title>
+<meta name="description" content="Your Orchestrate founding membership is confirmed. Live build sessions the 1st & 3rd Thursday of every month.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #05061a; }
+  body { font-family: 'Archivo', sans-serif; color: #EDEAE0; overflow-x: hidden; }
+  a { color: #C9922A; }
+  a:hover { color: #E3B356; }
+  ::selection { background: #C9922A; color: #05061a; }
+  @keyframes ko-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .black { font-family: 'Archivo Black', sans-serif; }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  .next-card { border: 1px solid rgba(237,234,224,0.12); border-radius: 8px; padding: 28px; display: flex; gap: 22px; align-items: flex-start; background: rgba(255,255,255,0.015); }
+  .next-num { font-family: 'Archivo Black', sans-serif; font-size: 34px; color: rgba(201,146,42,0.35); line-height: 1; }
+  .next-link { display: inline-block; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #05061a; background: #C9922A; padding: 10px 18px; border-radius: 4px; text-decoration: none; }
+  .next-link:hover { background: #E3B356; color: #05061a; }
+
+  @media (max-width: 640px) {
+    .pad-x { padding-left: 24px !important; padding-right: 24px !important; }
+  }
+</style>
+</head>
+<body>
+
+<div style="min-height: 100vh; background: #05061a; color: #EDEAE0; overflow-x: hidden">
+
+  <!-- animated particle network -->
+  <canvas id="ko-particles" style="position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none"></canvas>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="pad-x" style="display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; position: relative; z-index: 3">
+    <div class="black" style="font-size: 16px; letter-spacing: 0.32em; color: #C9922A">KNIGHT OPS</div>
+    <a href="https://knightops.biz" class="mono" style="font-size: 13px; letter-spacing: 0.12em; color: rgba(237,234,224,0.6); text-decoration: none">knightops.biz</a>
+  </header>
+
+  <!-- ============ CONFIRMATION HERO ============ -->
+  <section class="pad-x" style="position: relative; z-index: 1; padding: 64px 48px 56px; text-align: center">
+    <div class="wrap">
+      <div style="display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; border: 1px solid rgba(0,212,200,0.4); background: rgba(0,212,200,0.06); border-radius: 30px; padding: 10px 22px">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00D4C8; animation: ko-pulse 2s ease-in-out infinite"></span>
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #00D4C8">FOUNDING MEMBER CONFIRMED</span>
+      </div>
+
+      <h1 class="black" style="font-size: clamp(40px, 6vw, 72px); line-height: 1.04; margin: 0 0 24px; letter-spacing: -0.01em">
+        <span style="color: #EDEAE0">Welcome to</span><br>
+        <span style="color: #C9922A">Orchestrate.</span>
+      </h1>
+
+      <p style="font-size: 19px; line-height: 1.6; color: rgba(237,234,224,0.82); max-width: 580px; margin: 0 auto 36px">
+        Your founding rate is locked for life. From here on out, twice a month, we build your business a system that works like an assistant — until you're the conductor and the music plays without you.
+      </p>
+
+      <div class="mono" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: center; font-size: 14px; color: rgba(237,234,224,0.9)">
+        <div style="display: flex; align-items: center; gap: 10px"><span style="color: #C9922A">◆</span> Live build sessions: 1st &amp; 3rd Thursday</div>
+        <div style="display: flex; align-items: center; gap: 10px"><span style="color: #C9922A">◆</span> 90 minutes · teaching, hot seats, building</div>
+        <div style="display: flex; align-items: center; gap: 10px"><span style="color: #C9922A">◆</span> All sessions recorded</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT HAPPENS NEXT ============ -->
+  <section class="pad-x" style="position: relative; z-index: 1; padding: 32px 48px 72px">
+    <div class="wrap">
+      <div class="mono" style="font-size: 13px; letter-spacing: 0.2em; color: #00D4C8; margin-bottom: 18px">WHAT HAPPENS NEXT</div>
+      <h2 class="black" style="font-size: clamp(26px, 3.5vw, 38px); line-height: 1.12; margin: 0 0 14px; color: #EDEAE0">Three things are already in motion.</h2>
+      <p style="margin: 0 0 32px; font-size: 17px; line-height: 1.6; color: rgba(237,234,224,0.7); max-width: 640px">Everything below lands in the inbox you used at checkout. Nothing else for you to do today except one small thing (see #3).</p>
+
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <div class="next-card">
+          <div class="next-num">01</div>
+          <div>
+            <div class="black" style="font-size: 20px; color: #EDEAE0; margin-bottom: 8px">Your calendar invite is on its way</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Within 24 hours you'll receive the recurring invite for the live build sessions — the 1st &amp; 3rd Thursday of every month — with the exact time and Zoom link inside. Accept it and you're set for every session.</p>
+          </div>
+        </div>
+        <div class="next-card">
+          <div class="next-num">02</div>
+          <div>
+            <div class="black" style="font-size: 20px; color: #EDEAE0; margin-bottom: 8px">Community access is coming to your inbox</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Your invite to the members' community is where the module library, the AI agent playbooks, and the conversation between calls live. Watch for it — that's also where you'll introduce yourself and your build.</p>
+          </div>
+        </div>
+        <div class="next-card">
+          <div class="next-num">03</div>
+          <div>
+            <div class="black" style="font-size: 20px; color: #EDEAE0; margin-bottom: 8px">Tell me what's eating your time</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Reply to your welcome email with the one part of your business that consumes the most of you — that answer shapes what we build in your first session. Come with your real business. We build on it, live.</p>
+            <a class="next-link" href="mailto:daniel@knightops.biz?subject=My%20Orchestrate%20build%20priority">EMAIL DANIEL →</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 40px; border: 1px solid rgba(0,212,200,0.3); background: rgba(0,212,200,0.05); border-radius: 6px; padding: 24px 28px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap">
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.15em; color: #00D4C8; white-space: nowrap">CHECK YOUR INBOX →</span>
+        <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #EDEAE0; flex: 1; min-width: 280px">Your welcome email is on its way with all of the above. Don't see it in a few minutes? Check spam, then email <a href="mailto:daniel@knightops.biz">daniel@knightops.biz</a> and we'll get you squared away.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="pad-x" style="position: relative; z-index: 1; padding: 32px 48px; border-top: 1px solid rgba(237,234,224,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+    <div class="black" style="font-size: 13px; letter-spacing: 0.32em; color: rgba(201,146,42,0.7)">KNIGHT OPS</div>
+    <div class="mono" style="font-size: 12px; color: rgba(237,234,224,0.4)">© 2026 · <a href="https://knightops.biz" style="color: rgba(201,146,42,0.7); text-decoration: none">knightops.biz</a></div>
+  </footer>
+</div>
+
+<script>
+// ============ PARTICLE NETWORK ============
+(function () {
+  var canvas = document.getElementById('ko-particles');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = 0, h = 0;
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var COUNT = Math.max(40, Math.min(110, Math.floor((w * h) / 16000)));
+  var parts = [];
+  for (var i = 0; i < COUNT; i++) {
+    parts.push({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.24, vy: (Math.random() - 0.5) * 0.24,
+      r: 0.8 + Math.random() * 2.4,
+      teal: Math.random() < 0.18
+    });
+  }
+  var LINK = 150;
+  function tick() {
+    ctx.clearRect(0, 0, w, h);
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -12) p.x = w + 12; else if (p.x > w + 12) p.x = -12;
+      if (p.y < -12) p.y = h + 12; else if (p.y > h + 12) p.y = -12;
+    }
+    for (var a1 = 0; a1 < parts.length; a1++) {
+      for (var b1 = a1 + 1; b1 < parts.length; b1++) {
+        var a = parts[a1], b = parts[b1];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < LINK * LINK) {
+          var t = 1 - Math.sqrt(d2) / LINK;
+          ctx.strokeStyle = 'rgba(201,146,42,' + (t * 0.32).toFixed(3) + ')';
+          ctx.lineWidth = 0.5 + t * 1.1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    for (var m = 0; m < parts.length; m++) {
+      var q = parts[m];
+      ctx.fillStyle = q.teal ? 'rgba(0,212,200,0.55)' : 'rgba(201,146,42,0.5)';
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+
+</body>
+</html>

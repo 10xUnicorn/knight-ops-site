@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orchestrate — Build-With-You Membership | Knight Ops</title>
+<meta name="description" content="Twice a month, build your own AI-powered command center live with Daniel Knight. Marketing automated, fulfillment systematized, time back. Founding rate $297/mo locked for life — first 30 members.">
+<link rel="canonical" href="https://knightops.biz/orchestrate">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Orchestrate — Your Business, Orchestrated">
+<meta property="og:description" content="Two live 90-minute build sessions a month (1st & 3rd Thursday). Build the exact system your business needs, alongside Daniel Knight. Founding rate $297/mo locked for life.">
+<meta property="og:url" content="https://knightops.biz/orchestrate">
+<meta property="og:image" content="https://knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Orchestrate Membership",
+  "description": "Build-With-You membership for coaches, consultants, and agency owners. Two 90-minute live build sessions per month (1st & 3rd Thursday), drop-in module library, AI agent playbooks, and community between calls.",
+  "brand": { "@type": "Organization", "name": "Knight Ops", "url": "https://knightops.biz" },
+  "offers": [
+    { "@type": "Offer", "name": "Founding Monthly", "price": "297", "priceCurrency": "USD", "availability": "https://schema.org/LimitedAvailability", "url": "https://knightops.biz/orchestrate" },
+    { "@type": "Offer", "name": "Founding Annual", "price": "2970", "priceCurrency": "USD", "availability": "https://schema.org/LimitedAvailability", "url": "https://knightops.biz/orchestrate" }
+  ]
+}
+</script>
+<style>
+  html, body { margin: 0; padding: 0; background: #05061a; }
+  body { font-family: 'Archivo', sans-serif; color: #EDEAE0; overflow-x: hidden; }
+  a { color: #C9922A; }
+  a:hover { color: #E3B356; }
+  ::selection { background: #C9922A; color: #05061a; }
+  @keyframes ko-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .black { font-family: 'Archivo Black', sans-serif; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; position: relative; z-index: 3; }
+  .topbar-cta { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: #05061a; background: #C9922A; padding: 10px 22px; border-radius: 4px; text-decoration: none; }
+  .topbar-cta:hover { background: #E3B356; color: #05061a; }
+
+  .hero-cta { display: inline-block; font-family: 'Archivo Black', sans-serif; font-size: 17px; letter-spacing: 0.06em; color: #05061a; background: #C9922A; padding: 18px 36px; border-radius: 4px; text-decoration: none; box-shadow: 0 0 40px rgba(201,146,42,0.35); }
+  .hero-cta:hover { background: #E3B356; color: #05061a; }
+  .final-cta { display: inline-block; font-family: 'Archivo Black', sans-serif; font-size: 18px; letter-spacing: 0.06em; color: #05061a; background: #C9922A; padding: 20px 44px; border-radius: 4px; text-decoration: none; box-shadow: 0 0 50px rgba(201,146,42,0.4); }
+  .final-cta:hover { background: #E3B356; color: #05061a; }
+
+  .section-pad { padding: 88px 48px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.2em; color: #00D4C8; margin-bottom: 20px; }
+  .h2 { font-family: 'Archivo Black', sans-serif; font-size: clamp(30px, 4vw, 48px); line-height: 1.1; margin: 0 0 48px; color: #EDEAE0; }
+
+  .prob-card { border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; padding: 28px; }
+  .layer-row { display: flex; gap: 24px; border-left: 2px solid #C9922A; padding: 8px 0 8px 28px; }
+  .layer-num { font-family: 'Archivo Black', sans-serif; font-size: 40px; color: rgba(201,146,42,0.35); line-height: 1; }
+
+  .proof-card { border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; padding: 26px 28px; background: rgba(255,255,255,0.015); }
+  .proof-stat { font-family: 'Archivo Black', sans-serif; font-size: 30px; color: #C9922A; line-height: 1.1; margin-bottom: 8px; }
+
+  /* pricing */
+  .price-card { position: relative; border: 2px solid #C9922A; background: rgba(201,146,42,0.06); box-shadow: 0 0 60px rgba(201,146,42,0.18); border-radius: 10px; padding: 44px 40px; max-width: 560px; margin: 0 auto; }
+  .price-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; background: #C9922A; color: #05061a; padding: 6px 14px; border-radius: 3px; white-space: nowrap; }
+  .price-btn { display: block; text-align: center; font-family: 'Archivo Black', sans-serif; font-size: 17px; letter-spacing: 0.05em; padding: 18px; border-radius: 4px; text-decoration: none; background: #C9922A; color: #05061a; border: 2px solid #C9922A; }
+  .price-btn:hover { filter: brightness(1.12); color: #05061a; }
+
+  .bill-toggle { display: inline-flex; border: 1px solid rgba(237,234,224,0.2); border-radius: 6px; overflow: hidden; }
+  .bill-toggle button { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 11px 20px; background: transparent; color: rgba(237,234,224,0.6); border: none; cursor: pointer; }
+  .bill-toggle button.on { background: #C9922A; color: #05061a; }
+
+  .seat-pill { display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(0,212,200,0.4); background: rgba(0,212,200,0.06); border-radius: 30px; padding: 9px 18px; }
+
+  /* FAQ */
+  .faq-item { border: 1px solid rgba(237,234,224,0.12); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+  .faq-item summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 26px; font-family: 'Archivo Black', sans-serif; font-size: 17px; color: #EDEAE0; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary:after { content: '+'; font-family: 'JetBrains Mono', monospace; color: #C9922A; font-size: 20px; flex-shrink: 0; }
+  .faq-item[open] summary:after { content: '–'; }
+  .faq-item p { margin: 0; padding: 0 26px 24px; font-size: 16px; line-height: 1.65; color: rgba(237,234,224,0.72); }
+
+  @media (max-width: 640px) {
+    .topbar, .section-pad, .hero-section, footer.ko-footer { padding-left: 24px !important; padding-right: 24px !important; }
+    .price-card { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div style="min-height: 100vh; background: #05061a; color: #EDEAE0; overflow-x: hidden">
+
+  <!-- animated particle network -->
+  <canvas id="ko-particles" style="position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none"></canvas>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="black" style="font-size: 16px; letter-spacing: 0.32em; color: #C9922A">KNIGHT OPS</div>
+    <a href="#join" class="topbar-cta">CLAIM A FOUNDING SEAT →</a>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero-section" style="position: relative; z-index: 1; padding: 72px 48px 96px; max-width: 1060px; margin: 0 auto">
+    <!-- starfield -->
+    <div style="position: absolute; inset: -120px -1000px 0; pointer-events: none; background-image: radial-gradient(1.5px 1.5px at 12% 20%, rgba(237,234,224,0.55) 50%, transparent 51%), radial-gradient(1px 1px at 28% 65%, rgba(237,234,224,0.35) 50%, transparent 51%), radial-gradient(2px 2px at 45% 12%, rgba(201,146,42,0.5) 50%, transparent 51%), radial-gradient(1px 1px at 60% 40%, rgba(237,234,224,0.4) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 75% 18%, rgba(0,212,200,0.45) 50%, transparent 51%), radial-gradient(1px 1px at 88% 55%, rgba(237,234,224,0.4) 50%, transparent 51%), radial-gradient(1px 1px at 35% 85%, rgba(237,234,224,0.3) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 92% 82%, rgba(201,146,42,0.4) 50%, transparent 51%), radial-gradient(1px 1px at 8% 78%, rgba(0,212,200,0.3) 50%, transparent 51%), radial-gradient(1px 1px at 52% 68%, rgba(237,234,224,0.3) 50%, transparent 51%); background-size: 1100px 700px; background-repeat: repeat"></div>
+
+    <div style="position: relative; z-index: 2">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 28px">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00D4C8; animation: ko-pulse 2s ease-in-out infinite"></span>
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #00D4C8">LIVE BUILD-WITH-YOU MEMBERSHIP · TWO SESSIONS A MONTH</span>
+      </div>
+
+      <h1 class="black" style="font-size: clamp(44px, 6.5vw, 84px); line-height: 1.02; margin: 0 0 28px; letter-spacing: -0.01em">
+        <span style="color: #EDEAE0">Your business,</span><br>
+        <span style="color: #C9922A">orchestrated.</span>
+      </h1>
+
+      <p style="font-size: 21px; line-height: 1.55; color: rgba(237,234,224,0.82); max-width: 640px; margin: 0 0 40px">
+        Twice a month, we get on a live call and build your business its own AI-powered command center. You bring your business, I bring the system, and we build it side by side — until your marketing runs itself, your fulfillment is systematized, and you're the conductor instead of the crew.
+      </p>
+
+      <div class="mono" style="display: flex; flex-wrap: wrap; gap: 28px; align-items: center; margin-bottom: 44px; font-size: 14px; color: rgba(237,234,224,0.9)">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> Two 90-minute live build sessions / month
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> 1st &amp; 3rd Thursday, every month
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="color: #C9922A">◆</span> For purpose-driven coaches, consultants &amp; agency owners
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+        <a href="#join" class="hero-cta">BECOME A FOUNDING MEMBER — $297/MO</a>
+        <span class="mono" data-seats-line style="font-size: 13px; color: rgba(237,234,224,0.55)">Founding rate locked for life · capped at 30 members</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE PROBLEM ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1; border-top: 1px solid rgba(201,146,42,0.18); background: rgba(255,255,255,0.015)">
+    <div class="wrap">
+      <div class="kicker">SOUND FAMILIAR?</div>
+      <h2 class="h2" style="max-width: 760px">Your tools are all playing in different keys.</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 20px">
+        <div class="prob-card">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">Five subscriptions. 80% of one job each.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">The CRM, the scheduler, the course platform, the email tool, the automation duct tape. Every one of them does more than you need and less than you need at the same time.</p>
+        </div>
+        <div class="prob-card">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">The thing you actually need doesn't exist.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">You're paying every month for bloat you never touch, while the feature you really want isn't on anybody's roadmap. It wasn't built for you. None of it was.</p>
+        </div>
+        <div class="prob-card">
+          <div class="black" style="font-size: 19px; color: #C9922A; margin-bottom: 12px">You're the glue holding it together.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Every handoff between tools runs through you. Which means the business only moves when you do — and your time goes to the machine instead of the mission.</p>
+        </div>
+      </div>
+      <p style="margin: 48px 0 0; font-size: 20px; line-height: 1.6; color: rgba(237,234,224,0.85); max-width: 720px">
+        Here's the shift: <strong style="color: #00D4C8">you don't have to rent ten tools that almost fit anymore.</strong> You can build the exact system your business needs — one that works like an assistant instead of a filing cabinet.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ THE HARMONY METHOD ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1">
+    <div class="wrap">
+      <div class="kicker">THE HARMONY METHOD</div>
+      <h2 class="h2" style="margin-bottom: 20px">Great systems are built<br><span style="color: #C9922A">like great songs. In layers.</span></h2>
+      <p style="margin: 0 0 56px; font-size: 18px; line-height: 1.6; color: rgba(237,234,224,0.72); max-width: 680px">Most businesses aren't failing because their tools are bad. They're failing because every tool is playing in a different key. Inside Orchestrate, we build your system the way a song is built — layer by layer, until it locks in.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px">
+        <div class="layer-row">
+          <div class="layer-num">01</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">The Core Beat</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Your recurring operations — clients, projects, proposals, notes — the pulse everything else sits on. This is your command center's foundation, and it's the first thing we lay down.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">02</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Bass &amp; Harmony</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Lead generation and nurture, holding everything together underneath. Prospecting that runs on a schedule, follow-up that never falls through — without you in the middle of it.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">03</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">The Melody</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Fulfillment — the part your clients actually remember. Client portals, on-demand reports that impress, delivery that feels premium enough to justify raising your prices.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">04</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">The AI Novelty</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">AI agents improvising on top — getting better every week. Content that publishes itself, agents that handle the busywork, automation that compounds while you sleep.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 56px; border: 1px solid rgba(0,212,200,0.3); background: rgba(0,212,200,0.05); border-radius: 6px; padding: 28px 32px; display: flex; gap: 20px; align-items: baseline; flex-wrap: wrap">
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.15em; color: #00D4C8; white-space: nowrap">THE POINT →</span>
+        <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #EDEAE0; flex: 1; min-width: 300px">You are not here to become a software developer. You're here to become the conductor — you decide what plays and when, then raise a hand and the music starts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT YOU GET ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1; border-top: 1px solid rgba(201,146,42,0.18); background: rgba(255,255,255,0.015)">
+    <div class="wrap">
+      <div class="kicker">WHAT'S INSIDE ORCHESTRATE</div>
+      <h2 class="h2" style="margin-bottom: 56px">We build it together.<br><span style="color: #C9922A">Twice a month. Every month.</span></h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px">
+        <div class="layer-row">
+          <div class="layer-num">01</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Two 90-minute live build sessions / month</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">1st &amp; 3rd Thursday. Teaching, hot seats, and real-time building — you're constructing your own command center alongside me, on your real business, every session. Recordings included.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">02</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">The module library</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Drop-in command center components — leads, projects, proposals, client portals, reports — so you never build from a blank page. New modules keep landing, so there's always a next thing to install.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">03</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">My AI agent playbooks</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Every automation and AI agent I prove out in my own business — prospecting, content, client care — flows to you as a playbook you can install. You get my R&amp;D without paying for my mistakes.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-num">04</div>
+          <div>
+            <div class="black" style="font-size: 21px; color: #EDEAE0; margin-bottom: 10px">Community between calls</div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(237,234,224,0.72)">Stuck between sessions? Post it. Get unstuck by me and by builders working through the exact same layers — so momentum never has to wait two weeks.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 56px; border: 1px solid rgba(0,212,200,0.3); background: rgba(0,212,200,0.05); border-radius: 6px; padding: 28px 32px; display: flex; gap: 20px; align-items: baseline; flex-wrap: wrap">
+        <span class="mono" style="font-size: 13px; letter-spacing: 0.15em; color: #00D4C8; white-space: nowrap">THE TRANSFORMATION →</span>
+        <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #EDEAE0; flex: 1; min-width: 300px">Marketing automated. Fulfillment systematized. Client reports that impress on demand. Fewer tools, lower costs, less labor — and your time back for the people and work you love.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROOF ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1">
+    <div class="wrap">
+      <div class="kicker">PROOF, NOT PROMISES</div>
+      <h2 class="h2" style="max-width: 760px">This is the system I run my own business on.</h2>
+
+      <p style="margin: 0 0 40px; font-size: 18px; line-height: 1.65; color: rgba(237,234,224,0.82); max-width: 760px">
+        My entire business runs through a command center I built — clients, projects, proposals, custom forms, my own email client, my files. It replaced my workspace suite, my drive, and a stack of subscriptions. My prospecting runs on a schedule. My content and blog publish themselves. When a client reports a bug, an AI agent fixes it and ships the repair automatically.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 20px; margin-bottom: 40px">
+        <div class="proof-card">
+          <div class="proof-stat">70 → 90 clients</div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(237,234,224,0.72)">Pedro runs an accounting firm. We built his command center and client portal, he raised his prices 20–30% because the experience justified it, and he went from 70 to 90 clients in 3 months. He told me directly he immediately made more money.</p>
+        </div>
+        <div class="proof-card">
+          <div class="proof-stat">4 hrs/night → 20 min</div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(237,234,224,0.72)">A financial advisor with a $100M book of business was prepping client reviews by hand every night. One dashboard later, it's a 20-minute process his assistant runs. Paper intake went digital in 24 hours.</p>
+        </div>
+        <div class="proof-card">
+          <div class="proof-stat">12+ years · 20+ businesses</div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(237,234,224,0.72)">From taking a 12-dealership region to #1 in the country on dashboards and scorecards (that playbook rolled out company-wide), to processing $75M+ in charitable contributions, to moving $4.5M in CARES funds in 30 days.</p>
+        </div>
+      </div>
+
+      <p class="mono" style="margin: 0; font-size: 13px; line-height: 1.8; color: rgba(237,234,224,0.5); max-width: 760px">Coaches, agencies, accountants, real estate, meal prep, publishing, branding — 20+ businesses served. Plus 8 apps of my own in production. The Harmony Method isn't a theory. It's the same build, repeated.</p>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="join" class="section-pad" style="position: relative; z-index: 1; border-top: 1px solid rgba(201,146,42,0.18); background: rgba(255,255,255,0.015); padding-bottom: 104px">
+    <div class="wrap">
+      <div class="kicker" style="text-align: center">FOUNDING MEMBERSHIP</div>
+      <h2 class="h2" style="margin-bottom: 16px; text-align: center">Lock the founding rate. For life.</h2>
+      <p style="margin: 0 auto 28px; font-size: 17px; line-height: 1.6; color: rgba(237,234,224,0.65); text-align: center; max-width: 560px">Retail is <span style="text-decoration: line-through; color: rgba(237,234,224,0.45)">$497/mo</span> — founding members lock <strong style="color: #C9922A">$297/mo for life</strong>. The rate rises as seats fill and never comes back down. Whatever you join at, you keep. Forever.</p>
+
+      <div style="display: flex; justify-content: center; margin-bottom: 36px">
+        <div class="seat-pill">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00D4C8; animation: ko-pulse 2s ease-in-out infinite"></span>
+          <span class="mono" data-seat-pill style="font-size: 13px; letter-spacing: 0.12em; color: #00D4C8">FOUNDING CAP: FIRST 30 MEMBERS</span>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; margin-bottom: 36px">
+        <div class="bill-toggle">
+          <button type="button" id="bill-monthly" class="on">MONTHLY</button>
+          <button type="button" id="bill-annual">ANNUAL · 2 MONTHS FREE</button>
+        </div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-badge">FOUNDING RATE — LOCKED FOR LIFE</div>
+        <div class="mono" style="font-size: 13px; letter-spacing: 0.18em; color: #C9922A; margin-bottom: 18px; text-align: center">ORCHESTRATE MEMBERSHIP</div>
+        <div style="text-align: center; margin-bottom: 6px">
+          <span class="mono" id="price-retail" style="font-size: 18px; color: rgba(237,234,224,0.4); text-decoration: line-through">Retail $497/mo</span>
+        </div>
+        <div style="text-align: center; margin-bottom: 26px">
+          <span class="black" id="price-amount" style="font-size: 64px; line-height: 1; color: #EDEAE0">$297</span>
+          <span class="mono" id="price-period" style="font-size: 16px; color: rgba(237,234,224,0.6)">/month</span>
+        </div>
+        <div style="font-size: 15px; color: rgba(237,234,224,0.72); line-height: 1.7; margin-bottom: 30px">
+          <div style="display: flex; gap: 12px; margin-bottom: 8px"><span style="color: #C9922A">✓</span><span>Two 90-min live build sessions every month (1st &amp; 3rd Thursday)</span></div>
+          <div style="display: flex; gap: 12px; margin-bottom: 8px"><span style="color: #C9922A">✓</span><span>Full module library — drop-in command center components</span></div>
+          <div style="display: flex; gap: 12px; margin-bottom: 8px"><span style="color: #C9922A">✓</span><span>Daniel's AI agent playbooks as they're proven in his business</span></div>
+          <div style="display: flex; gap: 12px; margin-bottom: 8px"><span style="color: #C9922A">✓</span><span>Community access between calls + all session recordings</span></div>
+          <div style="display: flex; gap: 12px"><span style="color: #C9922A">✓</span><span>Founding rate locked for life · cancel anytime</span></div>
+        </div>
+        <a id="checkout-btn" href="https://buy.stripe.com/dRm4gy9dRd1w1l3evk8g00Z" class="price-btn">LOCK IN $297/MO — FOR LIFE</a>
+        <p class="mono" id="price-note" style="margin: 18px 0 0; text-align: center; font-size: 12px; color: rgba(237,234,224,0.5); line-height: 1.7">Secure checkout via Stripe · Cancel anytime · Your rate never increases while you're a member</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section-pad" style="position: relative; z-index: 1">
+    <div class="wrap" style="max-width: 820px">
+      <div class="kicker">QUESTIONS, ANSWERED</div>
+      <h2 class="h2">Everything else you're wondering.</h2>
+
+      <details class="faq-item">
+        <summary>Who is Orchestrate for?</summary>
+        <p>Purpose-driven coaches, consultants, and agency owners who want their business to run on its own system instead of a pile of rented tools. If you're carrying clients, delivery, and marketing on your back and you want the machine to breathe with you instead of trapping you — this was built for you.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need any technical skills?</summary>
+        <p>None. If you can write an email, you can build this. Every session is guided step by step, hot seats unstick you live, and the module library means you're installing proven components — not coding from scratch. You're training to be the conductor, not the developer.</p>
+      </details>
+      <details class="faq-item">
+        <summary>When are the live sessions?</summary>
+        <p>The 1st and 3rd Thursday of every month — two 90-minute working sessions. Teaching up front, then hot seats and real-time building on your actual business. Your calendar invite with the exact time and join link arrives right after you join.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What if I can't make a session?</summary>
+        <p>Every session is recorded and every recording is included in your membership. Catch the replay, post your questions in the community, and pick the build back up — momentum doesn't depend on perfect attendance.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I cancel anytime?</summary>
+        <p>Yes — no contracts, no hoops. One thing to know: the founding rate is locked for life <em>while you're a member</em>. If you cancel and rejoin later, you come back in at the going rate, which only moves up.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What does "founding member" actually mean?</summary>
+        <p>The first 30 members lock $297/mo for life — retail is $497/mo. As the community grows, the public rate rises and never comes back down. Founding members are grandfathered forever, and the annual option ($2,970/yr) locks the same founding rate with two months free.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section style="border-top: 1px solid rgba(201,146,42,0.18); padding: 88px 48px 72px; text-align: center; position: relative; z-index: 1">
+    <div style="max-width: 720px; margin: 0 auto">
+      <h2 class="black" style="font-size: clamp(32px, 4.5vw, 52px); line-height: 1.08; margin: 0 0 20px; color: #EDEAE0">Stop feeding the filing cabinet.<br><span style="color: #C9922A">Start conducting.</span></h2>
+      <p style="font-size: 18px; line-height: 1.6; color: rgba(237,234,224,0.7); margin: 0 0 12px">Two live builds a month · 1st &amp; 3rd Thursday · Module library · AI agent playbooks · Community</p>
+      <p class="mono" data-seats-line style="font-size: 13px; color: rgba(237,234,224,0.55); margin: 0 0 36px">Founding rate locked for life · capped at 30 members</p>
+      <a href="#join" class="final-cta">BECOME A FOUNDING MEMBER — $297/MO</a>
+    </div>
+  </section>
+
+  <footer class="ko-footer" style="position: relative; z-index: 1; padding: 32px 48px; border-top: 1px solid rgba(237,234,224,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+    <div class="black" style="font-size: 13px; letter-spacing: 0.32em; color: rgba(201,146,42,0.7)">KNIGHT OPS</div>
+    <div class="mono" style="font-size: 12px; color: rgba(237,234,224,0.4)">© 2026 · <a href="https://knightops.biz" style="color: rgba(201,146,42,0.7); text-decoration: none">knightops.biz</a></div>
+  </footer>
+</div>
+
+<script>
+// ============ PARTICLE NETWORK ============
+(function () {
+  var canvas = document.getElementById('ko-particles');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = 0, h = 0;
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var COUNT = Math.max(40, Math.min(110, Math.floor((w * h) / 16000)));
+  var parts = [];
+  for (var i = 0; i < COUNT; i++) {
+    parts.push({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.24, vy: (Math.random() - 0.5) * 0.24,
+      r: 0.8 + Math.random() * 2.4,
+      teal: Math.random() < 0.18
+    });
+  }
+  var LINK = 150;
+  function tick() {
+    ctx.clearRect(0, 0, w, h);
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -12) p.x = w + 12; else if (p.x > w + 12) p.x = -12;
+      if (p.y < -12) p.y = h + 12; else if (p.y > h + 12) p.y = -12;
+    }
+    for (var a1 = 0; a1 < parts.length; a1++) {
+      for (var b1 = a1 + 1; b1 < parts.length; b1++) {
+        var a = parts[a1], b = parts[b1];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < LINK * LINK) {
+          var t = 1 - Math.sqrt(d2) / LINK;
+          ctx.strokeStyle = 'rgba(201,146,42,' + (t * 0.32).toFixed(3) + ')';
+          ctx.lineWidth = 0.5 + t * 1.1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    for (var m = 0; m < parts.length; m++) {
+      var q = parts[m];
+      ctx.fillStyle = q.teal ? 'rgba(0,212,200,0.55)' : 'rgba(201,146,42,0.5)';
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ============ BILLING TOGGLE ============
+(function () {
+  var LINKS = {
+    monthly: 'https://buy.stripe.com/dRm4gy9dRd1w1l3evk8g00Z',
+    annual:  'https://buy.stripe.com/3cI14mgGj1iOfbTbj88g010'
+  };
+  var btnM = document.getElementById('bill-monthly');
+  var btnA = document.getElementById('bill-annual');
+  var amount = document.getElementById('price-amount');
+  var period = document.getElementById('price-period');
+  var retail = document.getElementById('price-retail');
+  var checkout = document.getElementById('checkout-btn');
+  var note = document.getElementById('price-note');
+
+  function setMode(mode) {
+    var isM = mode === 'monthly';
+    btnM.classList.toggle('on', isM);
+    btnA.classList.toggle('on', !isM);
+    amount.textContent = isM ? '$297' : '$2,970';
+    period.textContent = isM ? '/month' : '/year';
+    retail.textContent = isM ? 'Retail $497/mo' : 'Retail $5,964/yr';
+    checkout.href = isM ? LINKS.monthly : LINKS.annual;
+    checkout.textContent = isM ? 'LOCK IN $297/MO — FOR LIFE' : 'LOCK IN $2,970/YR — 2 MONTHS FREE';
+    note.textContent = isM
+      ? 'Secure checkout via Stripe · Cancel anytime · Your rate never increases while you’re a member'
+      : 'Secure checkout via Stripe · 12 months for the price of 10 at the founding rate · Cancel anytime';
+  }
+  btnM.addEventListener('click', function () { setMode('monthly'); });
+  btnA.addEventListener('click', function () { setMode('annual'); });
+})();
+
+// ============ LIVE FOUNDING SEAT COUNT (honest scarcity) ============
+(function () {
+  var API = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/orchestrate-stripe-webhook?seats=1';
+  fetch(API).then(function (r) { return r.json(); }).then(function (d) {
+    if (typeof d.remaining !== 'number' || typeof d.cap !== 'number') return;
+    var pill = document.querySelector('[data-seat-pill]');
+    var lines = document.querySelectorAll('[data-seats-line]');
+    if (d.remaining <= 0) {
+      if (pill) pill.textContent = 'FOUNDING CAP REACHED — 30/30 SEATS CLAIMED';
+      for (var i = 0; i < lines.length; i++) lines[i].textContent = 'All 30 founding seats are claimed';
+      return;
+    }
+    if (pill) pill.textContent = d.remaining + ' OF ' + d.cap + ' FOUNDING SEATS REMAINING';
+    for (var j = 0; j < lines.length; j++) lines[j].textContent = d.remaining + ' of ' + d.cap + ' founding seats remaining · rate locked for life';
+  }).catch(function () { /* keep honest static copy on failure */ });
+})();
+</script>
+
+</body>
+</html>
