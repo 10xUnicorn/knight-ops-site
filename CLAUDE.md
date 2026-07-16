@@ -7,6 +7,11 @@
 
 ---
 
+## Changelog — 2026-07-16b (/prompt lead-capture page)
+- Added prompt.html — live-demo prompt builder at /prompt (progressive form: offer/website first, then name, then email; phone optional; consent + yes/no gate before copy unlocks)
+- Leads insert via Supabase edge function prompt-lead into table prompt_leads (Knight Ops project trpnlkntvulkjerevngm, RLS service-role only)
+- Generated prompt personalizes to their site brand and/or offer description; copy-to-clipboard + Open Claude CTA
+
 ## Changelog — 2026-07-16 (Orchestrate membership funnel)
 
 - **New pages:** `/orchestrate` (Build-With-You Membership landing: Harmony Method layers, proof stack, founding pricing card w/ monthly↔annual toggle + LIVE seat counter) + `/orchestrate-confirmed` (Stripe redirect target: what-happens-next). No vercel.json changes (`/:path`→`.html` rewrite covers both).

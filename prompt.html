@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Your Build Prompt | Knight Ops</title>
+<meta name="description" content="Get the exact prompt from the live demo, personalized to your business. Copy it, paste it into Claude, and watch your offer page build itself.">
+<meta property="og:title" content="Your First Build Starts Right Now | Knight Ops">
+<meta property="og:description" content="The exact prompt from the live demo, shaped around YOUR business. Copy, paste, build.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/prompt">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #05061a;
+    --gold: #C9922A;
+    --gold-bright: #E8B54A;
+    --teal: #00D4C8;
+    --white: #F5F6FA;
+    --muted: #9BA0C0;
+    --dim: #6A6F94;
+    --card: rgba(12, 14, 48, 0.72);
+    --card-line: rgba(43, 48, 110, 0.55);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--void);
+    color: var(--white);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .glow-a, .glow-b {
+    position: fixed; border-radius: 50%; filter: blur(120px); z-index: 0; pointer-events: none; opacity: .35;
+  }
+  .glow-a { width: 520px; height: 520px; background: rgba(0, 212, 200, 0.14); top: -180px; right: -140px; }
+  .glow-b { width: 560px; height: 560px; background: rgba(123, 47, 255, 0.12); bottom: -220px; left: -180px; }
+
+  .wrap { position: relative; z-index: 1; max-width: 660px; margin: 0 auto; padding: 26px 20px 70px; }
+
+  header { display: flex; justify-content: center; padding-bottom: 8px; }
+  .logo { font-weight: 900; letter-spacing: .34em; color: var(--gold); font-size: 15px; text-decoration: none; }
+
+  .fade { opacity: 0; transform: translateY(16px); animation: rise .7s ease forwards; }
+  .d1 { animation-delay: .05s } .d2 { animation-delay: .15s } .d3 { animation-delay: .25s } .d4 { animation-delay: .35s }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .kicker {
+    text-align: center; color: var(--teal); font-size: 12px; font-weight: 800;
+    letter-spacing: .3em; margin: 26px 0 14px;
+  }
+  h1 {
+    text-align: center; font-weight: 900; font-size: clamp(30px, 6.4vw, 44px);
+    line-height: 1.12; letter-spacing: -0.01em;
+  }
+  h1 .gold { color: var(--gold); }
+  .sub {
+    text-align: center; color: var(--muted); font-size: 17px; line-height: 1.55;
+    max-width: 520px; margin: 16px auto 0;
+  }
+  .sub em { font-family: 'Playfair Display', serif; color: var(--white); }
+
+  .steps { display: flex; gap: 10px; justify-content: center; margin: 28px 0 6px; flex-wrap: wrap; }
+  .step {
+    display: flex; align-items: center; gap: 8px; background: var(--card);
+    border: 1px solid var(--card-line); border-radius: 999px; padding: 8px 15px;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+  }
+  .step b { color: var(--teal); font-size: 14px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--card-line); border-radius: 18px;
+    padding: 26px 22px; margin-top: 26px; backdrop-filter: blur(8px);
+    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+
+  label { display: block; font-size: 13.5px; font-weight: 800; margin: 18px 0 7px; letter-spacing: .02em; }
+  label .opt { color: var(--dim); font-weight: 600; }
+  .hint { font-size: 13px; color: var(--muted); line-height: 1.5; margin: -2px 0 8px; }
+  input[type=text], input[type=email], input[type=tel], textarea {
+    width: 100%; background: rgba(5, 6, 26, 0.8); border: 1px solid var(--card-line);
+    border-radius: 11px; color: var(--white); font-family: inherit; font-size: 16px;
+    padding: 13px 14px; outline: none; transition: border-color .2s, box-shadow .2s;
+  }
+  input:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,212,200,.12); }
+  textarea { min-height: 92px; resize: vertical; }
+
+  .consent { display: flex; gap: 11px; align-items: flex-start; margin-top: 20px; cursor: pointer; }
+  .consent input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--gold); cursor: pointer; flex: none; }
+  .consent span { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .yn-label { margin-top: 22px; }
+  .yn { display: flex; gap: 10px; margin-top: 4px; }
+  .yn button {
+    flex: 1; padding: 13px 10px; border-radius: 11px; border: 1px solid var(--card-line);
+    background: rgba(5, 6, 26, 0.8); color: var(--muted); font-family: inherit;
+    font-size: 14.5px; font-weight: 800; cursor: pointer; transition: all .18s;
+  }
+  .yn button.on-yes { border-color: var(--teal); color: var(--void); background: var(--teal); }
+  .yn button.on-no { border-color: var(--dim); color: var(--white); background: rgba(106,111,148,.25); }
+
+  .cta {
+    display: block; width: 100%; margin-top: 24px; padding: 17px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--void); border: none; border-radius: 999px; font-family: inherit;
+    font-size: 17px; font-weight: 900; letter-spacing: .04em; cursor: pointer;
+    transition: transform .15s, box-shadow .2s; box-shadow: 0 10px 34px rgba(201,146,42,.35);
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 10px 34px rgba(201,146,42,.30); }
+    50% { box-shadow: 0 10px 46px rgba(201,146,42,.55); }
+  }
+  .cta:hover { transform: translateY(-2px); }
+  .cta:disabled { opacity: .55; cursor: wait; animation: none; }
+  .err { color: #ff8f7d; font-size: 13.5px; margin-top: 12px; text-align: center; min-height: 18px; font-weight: 700; }
+
+  /* result state */
+  #result { display: none; }
+  .ready-name { text-align: center; font-family: 'Playfair Display', serif; font-style: italic; font-size: 22px; color: var(--teal); margin-top: 8px; }
+  .promptbox {
+    position: relative; background: #070818; border: 2px solid var(--teal); border-radius: 14px;
+    padding: 20px 18px; margin-top: 18px; font-family: 'Courier New', monospace;
+    font-size: 15px; line-height: 1.6; color: var(--white); word-break: break-word;
+    box-shadow: 0 0 40px rgba(0,212,200,.14);
+    animation: unlockGlow 1.2s ease;
+  }
+  @keyframes unlockGlow {
+    0% { box-shadow: 0 0 0 rgba(0,212,200,0); transform: scale(.98); opacity: 0; }
+    100% { box-shadow: 0 0 40px rgba(0,212,200,.14); transform: scale(1); opacity: 1; }
+  }
+  .copybtn {
+    display: block; width: 100%; margin-top: 18px; padding: 18px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: var(--void);
+    border: none; border-radius: 999px; font-family: inherit; font-size: 18px; font-weight: 900;
+    letter-spacing: .04em; cursor: pointer; transition: transform .15s;
+    box-shadow: 0 10px 34px rgba(201,146,42,.4);
+  }
+  .copybtn:hover { transform: translateY(-2px); }
+  .copybtn.copied { background: linear-gradient(135deg, #0aa89e, var(--teal)); color: var(--void); }
+  .openclaude {
+    display: block; text-align: center; margin-top: 14px; padding: 15px;
+    border: 1.5px solid var(--teal); border-radius: 999px; color: var(--teal);
+    font-weight: 800; font-size: 15.5px; text-decoration: none; transition: all .18s;
+  }
+  .openclaude:hover { background: rgba(0,212,200,.1); }
+  .aftertip { text-align: center; color: var(--muted); font-size: 14px; line-height: 1.6; margin-top: 18px; }
+  .aftertip b { color: var(--white); }
+
+  footer { text-align: center; margin-top: 46px; color: var(--dim); font-size: 12.5px; line-height: 1.7; position: relative; z-index: 1; }
+  footer a { color: var(--dim); }
+
+  .spark { position: fixed; width: 7px; height: 7px; border-radius: 50%; pointer-events: none; z-index: 50; }
+  .hp { position: absolute; left: -6000px; opacity: 0; height: 0; overflow: hidden; }
+
+  /* progressive reveal */
+  .reveal { max-height: 0; opacity: 0; overflow: hidden; transform: translateY(10px); transition: max-height .55s ease, opacity .45s ease .1s, transform .45s ease .1s; }
+  .reveal.shown { max-height: 900px; opacity: 1; transform: translateY(0); overflow: visible; }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="glow-a"></div><div class="glow-b"></div>
+
+<div class="wrap">
+  <header class="fade d1"><a class="logo" href="https://knightops.biz">KNIGHT OPS</a></header>
+
+  <!-- FORM STATE -->
+  <div id="gate">
+    <p class="kicker fade d1">THE LIVE BUILD PROMPT</p>
+    <h1 class="fade d2">You're 60 seconds away from <span class="gold">your first build.</span></h1>
+    <p class="sub fade d3">This is the exact prompt from the live demo, and in a moment it will be <em>shaped around your business</em>, so the second you paste it, it's ready to build.</p>
+
+    <div class="steps fade d3">
+      <div class="step"><b>1</b> Fill this in</div>
+      <div class="step"><b>2</b> Copy your prompt</div>
+      <div class="step"><b>3</b> Paste it &amp; watch it build</div>
+    </div>
+
+    <form class="card fade d4" id="leadform" novalidate>
+      <!-- STEP 1: the offer / website (first on purpose: investment before info) -->
+      <div class="reveal shown" id="step-offer">
+        <label for="f-offer">Start here: your website, or your offer</label>
+        <p class="hint">Easiest way: paste your website link (like <b>yoursite.com</b>) and we'll tell Claude to match your brand. No website yet? No problem. Just tell us in a sentence or two what you sell and who it's for.</p>
+        <textarea id="f-offer" placeholder="yoursite.com  or  &quot;I coach busy moms to run their first 10K in 12 weeks.&quot;"></textarea>
+      </div>
+
+      <!-- STEP 2: name -->
+      <div class="reveal" id="step-name">
+        <label for="f-name">Perfect. Who's this prompt for?</label>
+        <input type="text" id="f-name" autocomplete="name" placeholder="First and last name">
+      </div>
+
+      <!-- STEP 3: email -->
+      <div class="reveal" id="step-email">
+        <label for="f-email">And where should we send your copy?</label>
+        <input type="email" id="f-email" autocomplete="email" placeholder="you@yourbusiness.com">
+      </div>
+
+      <!-- STEP 4: phone (optional) + consent + yes/no + unlock -->
+      <div class="reveal" id="step-final">
+        <label for="f-phone">Phone <span class="opt">(optional)</span></label>
+        <input type="tel" id="f-phone" autocomplete="tel" placeholder="(555) 555-5555">
+
+        <label class="consent">
+          <input type="checkbox" id="f-consent">
+          <span id="consent-text">Yes, Knight Ops can contact me by email, phone, or text with workshop invitations, event announcements, new tools, and other marketing and promotional messages. I can opt out anytime.</span>
+        </label>
+
+        <label class="yn-label">Want more info on how Knight Ops can automate your business?</label>
+        <div class="yn">
+          <button type="button" id="yn-yes">YES, SHOW ME</button>
+          <button type="button" id="yn-no">NOT RIGHT NOW</button>
+        </div>
+
+        <button type="submit" class="cta" id="unlock">UNLOCK MY PROMPT →</button>
+      </div>
+
+      <!-- honeypot -->
+      <div class="hp"><label>Company</label><input type="text" id="f-company" tabindex="-1" autocomplete="off"></div>
+      <p class="err" id="err"></p>
+    </form>
+  </div>
+
+  <!-- RESULT STATE -->
+  <div id="result">
+    <p class="kicker">✓ UNLOCKED</p>
+    <h1>Your prompt is <span class="gold">ready.</span></h1>
+    <p class="ready-name" id="ready-name"></p>
+    <p class="sub">Here it is, built around your business. Copy it, open Claude, paste it, and hit send. That's the whole job.</p>
+
+    <div class="promptbox" id="promptbox"></div>
+
+    <button class="copybtn" id="copybtn">COPY MY PROMPT</button>
+    <a class="openclaude" href="https://claude.ai/new" target="_blank" rel="noopener">OPEN CLAUDE →</a>
+
+    <p class="aftertip">When your page appears, notice how fast that was. <b>That's one prompt.</b> Imagine what two build sessions a month does to a whole business.<br><br><a href="https://knightops.biz/orchestrate" style="color: var(--gold); font-weight: 800;">See how we build the rest, together →</a></p>
+  </div>
+
+  <footer>
+    © 2026 Knight Ops · <a href="https://knightops.biz">knightops.biz</a><br>
+    We only send things worth opening. Opt out anytime.
+  </footer>
+</div>
+
+<script>
+(function () {
+  /* ---------- starfield ---------- */
+  const cv = document.getElementById('stars'), cx = cv.getContext('2d');
+  let W, H, stars = [];
+  function size() {
+    W = cv.width = innerWidth; H = cv.height = innerHeight;
+    stars = Array.from({ length: Math.min(130, W / 9) }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.3, s: Math.random() * 0.16 + 0.03,
+      tw: Math.random() * Math.PI * 2,
+      gold: Math.random() < 0.09
+    }));
+  }
+  size(); addEventListener('resize', size);
+  (function draw(t) {
+    cx.clearRect(0, 0, W, H);
+    for (const st of stars) {
+      st.y -= st.s; if (st.y < -2) { st.y = H + 2; st.x = Math.random() * W; }
+      const a = 0.35 + 0.55 * Math.abs(Math.sin(t / 1600 + st.tw));
+      cx.beginPath(); cx.arc(st.x, st.y, st.r, 0, 7);
+      cx.fillStyle = st.gold ? 'rgba(201,146,42,' + a + ')' : 'rgba(210,220,255,' + (a * 0.8) + ')';
+      cx.fill();
+    }
+    requestAnimationFrame(draw);
+  })(0);
+
+  /* ---------- progressive reveal: offer -> name -> email -> the rest ---------- */
+  const offerEl = document.getElementById('f-offer');
+  const nameEl = document.getElementById('f-name');
+  const emailEl = document.getElementById('f-email');
+  function show(id) {
+    const el = document.getElementById(id);
+    if (!el.classList.contains('shown')) el.classList.add('shown');
+  }
+  offerEl.addEventListener('input', () => { if (offerEl.value.trim().length >= 4) show('step-name'); });
+  nameEl.addEventListener('input', () => { if (nameEl.value.trim().length >= 2) show('step-email'); });
+  emailEl.addEventListener('input', () => {
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailEl.value.trim())) show('step-final');
+  });
+
+  /* ---------- yes / no ---------- */
+  let wantsInfo = null;
+  const yesB = document.getElementById('yn-yes'), noB = document.getElementById('yn-no');
+  yesB.onclick = () => { wantsInfo = true; yesB.classList.add('on-yes'); noB.classList.remove('on-no'); };
+  noB.onclick = () => { wantsInfo = false; noB.classList.add('on-no'); yesB.classList.remove('on-yes'); };
+
+  /* ---------- prompt building ---------- */
+  const URL_RE = /(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/\S*)?/i;
+  function looksLikeUrl(v) { return URL_RE.test(v.trim()); }
+  function buildPrompt(input) {
+    input = (input || "").trim();
+    const urlMatch = input.match(URL_RE);
+    const url = urlMatch ? urlMatch[0] : null;
+    const desc = url ? input.replace(urlMatch[0], "").replace(/\s+/g, " ").trim() : input;
+
+    let p = "Build me a high-converting offer page for my business. It needs a powerful headline, three clear benefits, and a checkout button that links to my payment page.";
+
+    if (url && desc.length > 3) {
+      p += " Use the offer information, brand colors, fonts, and overall look and feel from my website: " + url + ". Also use this description of my offer: " + desc + ".";
+    } else if (url) {
+      p += " Use the offer information, brand colors, fonts, and overall look and feel from my website: " + url + ".";
+    } else if (desc) {
+      p += " Here is my offer: " + desc + ". Use this description for the page content, and create a brand look and feel that fits it.";
+    } else {
+      p += " Ask me for my offer details and my brand colors before you start.";
+    }
+
+    p += " Make the page simple, clear, and so easy to understand that a fifth grader could follow it. Write the copy with proven direct-response and neuro-linguistic programming techniques to maximize conversions. Make the design visually stunning and high quality, with smooth animations. Follow my information and my branding unless I tell you otherwise.";
+    return p;
+  }
+
+  /* ---------- submit ---------- */
+  const ENDPOINT = "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/prompt-lead";
+  const form = document.getElementById('leadform');
+  const err = document.getElementById('err');
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    err.textContent = "";
+    const name = document.getElementById('f-name').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const offer = document.getElementById('f-offer').value.trim();
+    const consent = document.getElementById('f-consent').checked;
+
+    if (!offer) return err.textContent = "Start with your website or a quick description, so your prompt fits YOUR business.";
+    if (!name) return err.textContent = "Quick one: add your name above.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err.textContent = "That email doesn't look right. One more look?";
+    if (!consent) return err.textContent = "Check the consent box and your prompt unlocks.";
+    if (wantsInfo === null) return err.textContent = "One tap left: yes or no on more info.";
+
+    const btn = document.getElementById('unlock');
+    btn.disabled = true; btn.textContent = "UNLOCKING...";
+
+    const payload = {
+      name, email, phone,
+      website_or_offer: offer,
+      input_type: looksLikeUrl(offer) ? "website" : "description",
+      consent: true,
+      consent_text: document.getElementById('consent-text').textContent.trim(),
+      wants_automation_info: wantsInfo,
+      company: document.getElementById('f-company').value
+    };
+
+    try {
+      await Promise.race([
+        fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }),
+        new Promise((_, rej) => setTimeout(rej, 5000))
+      ]);
+    } catch (_) { /* never block the room on a network hiccup */ }
+
+    /* reveal */
+    const prompt = buildPrompt(offer);
+    document.getElementById('promptbox').textContent = prompt;
+    document.getElementById('ready-name').textContent = "Nice work, " + name.split(" ")[0] + ".";
+    document.getElementById('gate').style.display = "none";
+    document.getElementById('result').style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    /* copy handler */
+    const copyBtn = document.getElementById('copybtn');
+    copyBtn.onclick = async function () {
+      let ok = false;
+      try { await navigator.clipboard.writeText(prompt); ok = true; }
+      catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = prompt; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch (_) {}
+        ta.remove();
+      }
+      if (ok) {
+        copyBtn.classList.add('copied');
+        copyBtn.textContent = "COPIED ✓ NOW PASTE IT INTO CLAUDE";
+        sparks(copyBtn);
+      } else {
+        copyBtn.textContent = "PRESS AND HOLD THE PROMPT TO COPY";
+      }
+    };
+  });
+
+  /* ---------- gold sparks on copy ---------- */
+  function sparks(el) {
+    const r = el.getBoundingClientRect();
+    for (let i = 0; i < 22; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.left = (r.left + r.width / 2) + 'px';
+      s.style.top = (r.top + r.height / 2) + 'px';
+      s.style.background = Math.random() < 0.5 ? '#C9922A' : '#00D4C8';
+      document.body.appendChild(s);
+      const ang = Math.random() * Math.PI * 2, v = 60 + Math.random() * 130;
+      s.animate([
+        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+        { transform: 'translate(' + Math.cos(ang) * v + 'px,' + (Math.sin(ang) * v - 40) + 'px) scale(0)', opacity: 0 }
+      ], { duration: 750 + Math.random() * 350, easing: 'cubic-bezier(.1,.7,.4,1)' });
+      setTimeout(() => s.remove(), 1150);
+    }
+  }
+})();
+</script>
+</body>
+</html>
