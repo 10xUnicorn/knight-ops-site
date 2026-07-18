@@ -163,6 +163,8 @@ label.f{display:block;font-size:12px;letter-spacing:.22em;text-transform:upperca
 }
 .iconbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
 .iconbtn.on{border-color:var(--gold);color:var(--gold-hi);box-shadow:0 0 18px rgba(201,146,42,.3)}
+.iconbtn.muted{border-color:rgba(234,232,246,.14);color:#5f5d7a;box-shadow:none}
+.iconbtn.muted:hover{border-color:var(--dim);color:var(--dim)}
 #topbar .right{display:flex;gap:10px;align-items:center}
 
 /* ---------- Save state + gate ---------- */
@@ -201,6 +203,11 @@ label.f{display:block;font-size:12px;letter-spacing:.22em;text-transform:upperca
 }
 #gateBtn:hover{background:var(--gold-hi)}
 #gateBtn:disabled{opacity:.5;cursor:not-allowed}
+#gateSkip{
+  display:block;width:100%;margin-top:14px;padding:10px;color:var(--dim);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:color .25s;
+}
+#gateSkip:hover{color:var(--text)}
 #gateMsg{font-size:14px;margin-top:14px;line-height:1.6;display:none}
 #gateMsg.show{display:block}
 #gateMsg.ok{color:var(--gold-hi)}
@@ -629,6 +636,7 @@ canvas#wkChart{max-width:100%;height:auto;margin:10px 0}
              onkeydown="if(event.key==='Enter')SHIFT.submitGate()">
       <button id="gateBtn" onclick="SHIFT.submitGate()">Save my journey</button>
       <div id="gateMsg"></div>
+      <button id="gateSkip" onclick="SHIFT.skipGate()">Continue without saving</button>
       <p class="gfine">We send one email with your private link back in. No list, no pitch, nothing shared.
         You can erase everything you have written at any time.</p>
     </div>
@@ -1207,6 +1215,7 @@ const SHIFT = (function(){
   const KEY  = 'theShiftToken';
 
   let token = null, email = null, timer = null, dirty = false, nudged = false, booting = true;
+  let after = null;   // action to run once the gate is satisfied or skipped
 
   async function call(fn, payload){
     const r = await fetch(FN + fn, {
@@ -1299,19 +1308,45 @@ const SHIFT = (function(){
       booting = false;
     },
 
-    openGate(){
+    openGate(opts){
+      opts = opts || {};
+      after = typeof opts.onDone === 'function' ? opts.onDone : null;
+
       const o = document.getElementById('gateOverlay');
       document.getElementById('gateForm').style.display    = token ? 'none'  : 'block';
       document.getElementById('gateAccount').style.display = token ? 'block' : 'none';
       document.getElementById('gateBlurb').style.display   = token ? 'none'  : 'block';
+
+      const msg = document.getElementById('gateMsg');
+      msg.className = ''; msg.textContent = '';
+
       if(token){
         document.getElementById('gateTitle').innerHTML = 'Your journey is <em>held</em>';
         document.getElementById('gateWho').textContent = email || 'your email';
+      }else{
+        document.getElementById('gateTitle').innerHTML = opts.title || 'Save your <em>journey</em>';
+        document.getElementById('gateBlurb').textContent = opts.blurb ||
+          'What you write here is yours. Leave your email and everything you have written is held safely, so you can close this page and come back to exactly where you stopped.';
+        const btn = document.getElementById('gateBtn');
+        btn.textContent = opts.cta || 'Save my journey';
+        btn.disabled = false;
+        // Skip is always available. This experience should never be paywalled behind an email.
+        document.getElementById('gateSkip').style.display = opts.skippable === false ? 'none' : 'block';
+        document.getElementById('gateSkip').textContent   = opts.skipText || 'Continue without saving';
       }
       o.classList.add('show');
-      if(!token) setTimeout(()=>document.getElementById('gateEmail').focus(), 120);
+      if(!token) setTimeout(()=>document.getElementById('gateName').focus(), 120);
     },
-    closeGate(){ document.getElementById('gateOverlay').classList.remove('show'); },
+    closeGate(){
+      document.getElementById('gateOverlay').classList.remove('show');
+      after = null;   // dismissing without choosing does not trigger the follow-on
+    },
+    // Used by the skip link: proceed with whatever the gate was blocking.
+    skipGate(){
+      const go = after; after = null;
+      document.getElementById('gateOverlay').classList.remove('show');
+      if(go) go();
+    },
 
     async submitGate(){
       const em  = document.getElementById('gateEmail').value.trim();
@@ -1332,7 +1367,11 @@ const SHIFT = (function(){
           dirty = true; await flush();
           show('Saved. We sent your private link to ' + em + ' so you can always get back in.','ok');
           document.getElementById('gateForm').style.display = 'none';
-          setTimeout(()=>SHIFT.closeGate(), 2600);
+          setTimeout(()=>{
+            const go = after; after = null;
+            document.getElementById('gateOverlay').classList.remove('show');
+            if(go) go();
+          }, 2200);
 
         } else if(res.status === 'returning'){
           // Deliberate: we do not hand back a token to whoever typed the address.
@@ -1386,11 +1425,58 @@ window.SHIFT = SHIFT;
 
 /* ---------- Audio (Web Audio, generated live) ---------- */
 let AC=null, droneOn=false, droneNodes=[];
+/* Master mute. The ♪ button controls EVERY sound the app makes,
+   not just the ambient drone: chimes, pulses and the grip tone all check this. */
+let soundMuted=false;
+try{ soundMuted = localStorage.getItem('theShiftMuted')==='1'; }catch(e){}
+function sfxOn(){ return !soundMuted; }
 function audio(){ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); } if(AC.state==='suspended')AC.resume(); return AC; }
+
+function stopDrone(){
+  droneNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect()}catch(e){}});
+  droneNodes=[]; droneOn=false;
+  const btn=document.getElementById('soundBtn'); if(btn) btn.classList.remove('on');
+}
+
+/* Reflects mute state so the button always tells the truth about what it does next. */
+function paintSoundBtn(){
+  const btn=document.getElementById('soundBtn'); if(!btn) return;
+  btn.classList.toggle('muted', soundMuted);
+  btn.classList.toggle('on', droneOn);
+  btn.textContent = soundMuted ? '♪̸' : '♪';
+  btn.title = soundMuted
+    ? 'Sound off. Click to turn sound on.'
+    : (droneOn ? 'Sound on with ambient tone. Click to turn all sound off.'
+               : 'Sound on. Click to turn all sound off.');
+  btn.setAttribute('aria-pressed', String(!soundMuted));
+}
+
+/* One control for all audio.
+   ON  -> unmuted, ambient tone playing, chimes audible
+   OFF -> muted, drone stopped, chimes silent */
+function toggleSound(){
+  if(!soundMuted){
+    soundMuted = true;
+    stopDrone();
+    try{ localStorage.setItem('theShiftMuted','1'); }catch(e){}
+    paintSoundBtn();
+    return;
+  }
+  soundMuted = false;
+  try{ localStorage.setItem('theShiftMuted','0'); }catch(e){}
+  startDrone();
+  paintSoundBtn();
+}
 
 function toggleDrone(){
   const btn=document.getElementById('soundBtn');
-  if(droneOn){ droneNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect()}catch(e){}}); droneNodes=[]; droneOn=false; btn.classList.remove('on'); return; }
+  if(droneOn){ stopDrone(); return; }
+  startDrone();
+}
+
+function startDrone(){
+  if(droneOn || soundMuted) return;
+  const btn=document.getElementById('soundBtn');
   const ctx=audio();
   const master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
   master.gain.linearRampToValueAtTime(.05, ctx.currentTime+3);
@@ -1409,6 +1495,7 @@ function toggleDrone(){
 }
 
 function chime(){
+  if(!sfxOn()) return;
   try{
     const ctx=audio(), t=ctx.currentTime;
     [523.25,659.25,783.99].forEach((f,i)=>{
@@ -1423,6 +1510,7 @@ function chime(){
   }catch(e){}
 }
 function pulseTone(){
+  if(!sfxOn()) return;
   try{
     const ctx=audio(), t=ctx.currentTime;
     const o=ctx.createOscillator(), g=ctx.createGain();
@@ -1435,6 +1523,7 @@ function pulseTone(){
 }
 let gripOsc=null;
 function gripToneStart(){
+  if(!sfxOn()) return;
   try{
     const ctx=audio();
     gripOsc={o:ctx.createOscillator(),g:ctx.createGain()};
@@ -1574,7 +1663,27 @@ function unlockNext(doneId,nextId){
   document.getElementById(nextId).scrollIntoView({behavior:'smooth'});
   if(nextId==='s8'){ document.getElementById('interruptFab').classList.add('show'); }
 }
-function beginJourney(){ markDone('s-hero'); unlock('s0'); document.getElementById('s0').scrollIntoView({behavior:'smooth'}); typeLion(); }
+function enterJourney(){
+  markDone('s-hero'); unlock('s0');
+  document.getElementById('s0').scrollIntoView({behavior:'smooth'});
+  typeLion();
+}
+
+/* Offer to save at the threshold, where the intent to begin is highest.
+   Always skippable: nobody should hit a wall before they have written a word. */
+function beginJourney(){
+  if(window.SHIFT && !SHIFT.token){
+    SHIFT.openGate({
+      title:'Before you <em>begin</em>',
+      blurb:'Enter your name and email so you can save it and come back later. This work takes more than one sitting, and everything you write stays exactly where you left it.',
+      cta:'Save and begin',
+      skipText:'Begin without saving',
+      onDone:enterJourney
+    });
+    return;
+  }
+  enterJourney();
+}
 
 /* ---------- Typewriter ---------- */
 function typewrite(el,text,speed=34){
@@ -2107,7 +2216,8 @@ async function sendChat(){
 /* ---------- Utils & boot ---------- */
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
-document.getElementById('soundBtn').onclick=toggleDrone;
+document.getElementById('soundBtn').onclick=toggleSound;
+paintSoundBtn();
 
 function boot(){
   buildNav(); buildDrift();
