@@ -3,22 +3,18 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-07-16
+> **Last Updated:** 2026-07-09
 
 ---
 
-## Changelog — 2026-07-16b (/prompt lead-capture page)
-- Added prompt.html — live-demo prompt builder at /prompt (progressive form: offer/website first, then name, then email; phone optional; consent + yes/no gate before copy unlocks)
-- Leads insert via Supabase edge function prompt-lead into table prompt_leads (Knight Ops project trpnlkntvulkjerevngm, RLS service-role only)
-- Generated prompt personalizes to their site brand and/or offer description; copy-to-clipboard + Open Claude CTA
+## Changelog — 2026-07-17 (Continuity & Team system)
 
-## Changelog — 2026-07-16 (Orchestrate membership funnel)
-
-- **New pages:** `/orchestrate` (Build-With-You Membership landing: Harmony Method layers, proof stack, founding pricing card w/ monthly↔annual toggle + LIVE seat counter) + `/orchestrate-confirmed` (Stripe redirect target: what-happens-next). No vercel.json changes (`/:path`→`.html` rewrite covers both).
-- **Pricing displayed:** Founding $297/mo LOCKED FOR LIFE (cap 30, retail anchor $497 crossed out) + annual $2,970/yr (2 months free). The $197 private-invite rate is NEVER displayed (invitation-only).
-- **Stripe (LIVE, KNIGHT OPS acct `acct_1TjiAc3cMVgmMIuj` — NOT 10xUnicorn; moved per Daniel 2026-07-16):** product `prod_UtTbtNTi39JLj6`; payment links (each capped 30 completed sessions, created via dashboard so NO metadata — webhook filters by payment_link ID): monthly https://buy.stripe.com/fZueV6d3h9r4fTE86S2B205 (`plink_1Ttgf93cMVgmMIujFN2rexDL`) · annual https://buy.stripe.com/cNi5kwgft0Uy4aW9aW2B206 (`plink_1Ttgj03cMVgmMIujWqr5HGkA`). Both redirect `/orchestrate-confirmed?session_id={CHECKOUT_SESSION_ID}&plan=...`. The first-draft 10xUnicorn-acct product `prod_UtSxseg96CZXCk` + its 2 payment links were deactivated/archived — never reuse.
-- **Backend:** Stripe webhook endpoint `we_1TtgkU3cMVgmMIujBBL7bSA3` (orchestrate-membership-emails, checkout.session.completed) → edge fn **`orchestrate-stripe-webhook`** v2 (mirror of workshop v2: verify_jwt=false, HMAC signature verify, idempotent by stripe_session_id, filters by PLINK_PLANS payment_link map) → new table `membership_registrations` (RLS service-role only), member welcome email (from daniel@mail.knightops.biz) + owner N/30 founding alert; `GET ?seats=1` = live seat count consumed by the landing page.
-- **NOTE:** the Knight Ops Stripe acct shows an "Action required — provide information to keep capabilities enabled" banner — Daniel must complete it or Stripe may pause payments.
+- **Backend (already deployed):** migrations `continuity_team_system` + `team_role_policies` — new tables `team_members` (role: admin/developer/sales/marketing/successor/backup_support, system_access, profile_id), `project_resources` (per-project resource visibility overrides), `system_settings` (jsonb KV: `successor`, `eden`), `eden_responses`; `projects` continuity columns (supabase_ref, supabase_org, build_folder, env_manifest jsonb, compliance_tier standard/hipaa/soc2/iso27001, domain_notes, spec_doc_url, continuity_override, brief_sent_at); `project_members` extended (team_member_id, client_visible, client_title); `resources` extended (category, is_global, client_visible_default, sort_order); role-scoped RLS for `profiles.role` developer/sales/marketing.
+- **Edge fns:** `hub-data` v3 (new actions `continuity` — full ownership payload for the client hub — and `export_code` — streams the project repo as a ZIP; needs **GITHUB_TOKEN** Supabase secret for private repos), `team-access` v1 (verify_jwt=true; grant_access/revoke_access/resend_invite → creates auth user + profile role + invite email), `eden-respond` v1 + pg_cron `eden-respond-5min` (AI answers client emails to eden@knightops.biz with live project visibility).
+- **Storage/content:** `resources` bucket made public; 7 branded continuity/security PDFs seeded in `resources` (`library/` path, is_global=true): ownership guide, backups, MFA, HIPAA/SOC2/ISO 27001 outlines, continuity plan.
+- **client-hub.html:** new 🛡 Ownership tab — "You Own This Project" (repo/Vercel/Supabase/domain/live/spec + env-key manifest), Export Everything (ZIP codebase download via export_code), Team & Contacts (client-visible project members + Eden + successor block), collapsible Developer Handoff Prompt with copy, Resources & Security Docs list.
+- **admin.html:** System Settings gains 👥 Team tab (team_members CRUD, role select, grant/revoke/resend via team-access, active toggle) and 🛡 Continuity tab (global successor form → system_settings upsert, Eden read-only info, global Resource Library default-visibility toggles). Project detail gains 🛡 Continuity & Ownership card: status checklist (repo/Vercel/Supabase/contact/brief), editable continuity fields + env-manifest editor, team assignment (project_members ↔ team_members with client_visible/client_title), per-project resource visibility (project_resources upsert), Mark Continuity Brief Sent.
+- **Role-gated nav:** admin auth now reads `profiles.role` — admin/super_admin full; developer → Projects/Tasks/Features & Bugs; sales → Leads/Deals/Clients/Bookings/Forms; marketing → Blog/Resources/Education/KPIs; anything else → /portal. `roleGateNav()` hides nav + guards `activateView()`; RLS enforces the data layer.
 
 ---
 

@@ -1336,6 +1336,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="table-card" style="padding:0">
           <div class="email-settings-tabs" id="sysSettingsTabs">
             <div class="email-settings-tab active" data-sstab="templates" onclick="switchSysSettingsTab('templates')">Message Templates</div>
+            <div class="email-settings-tab" data-sstab="team" onclick="switchSysSettingsTab('team')">👥 Team</div>
+            <div class="email-settings-tab" data-sstab="continuity" onclick="switchSysSettingsTab('continuity')">🛡 Continuity</div>
           </div>
           <div class="email-settings-body" id="sysSettingsBody"></div>
         </div>
@@ -1406,7 +1408,14 @@ let resourceQuill=null,selectedFile=null,currentUser=null;
 (async function(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='/auth';return;}
-  if(session.user.user_metadata?.role!=='admin'){window.location.href='/portal';return;}
+  // Role gate: profiles.role is the source of truth (RLS enforces data server-side; this is the UX layer)
+  let _role=null;
+  try{const{data:prof}=await sb.from('profiles').select('role').eq('id',session.user.id).maybeSingle();_role=prof&&prof.role;}catch(e){}
+  if(!_role)_role=session.user.user_metadata?.role;
+  const STAFF_ROLES={admin:1,super_admin:1,developer:1,sales:1,marketing:1};
+  if(!STAFF_ROLES[_role]){window.location.href='/portal';return;}
+  window._userRole=_role;
+  roleGateNav(_role);
   currentUser=session.user;
   document.getElementById('userEmail').textContent=session.user.email;
   await Promise.all([loadLeads(),loadClients(),loadProjects(),loadTasks(),loadApps(),loadEvents(),loadResources(),loadNotifLog(),loadApplications(),loadCareerRoles(),loadJobPostings(),loadJobApplications(),loadCourses(),loadTrainingResources(),loadEmployees(),loadDeals(),loadInvoices(),loadReviews(),loadReviewSettings(),loadPartners(),loadAffiliateLeads(),loadCommissions(),loadAssessments(),loadBlogPosts(),loadBlogTopics(),loadAgents(),loadCCBuilds(),loadTimeEntries(),loadMsgTemplates()]);
@@ -1439,7 +1448,30 @@ function toggleMore(el){
   el.classList.toggle('expanded');
   document.getElementById('moreSection').classList.toggle('open');
 }
+// ─── Role-gated navigation (UX layer; RLS enforces data server-side) ───
+var ROLE_VIEWS={developer:['projects','tasks','featbugs'],sales:['leads','deals','clients','bookings','forms'],marketing:['blog','resources','education','kpis']};
+function roleGateNav(role){
+  if(role==='admin'||role==='super_admin')return;
+  var views=ROLE_VIEWS[role];if(!views)return;
+  var allowed={};views.forEach(function(v){allowed[v]=1;});
+  window._allowedViews=allowed;
+  // Hide every nav item/child not in the allowed set
+  document.querySelectorAll('.nav-item[data-view],.nav-child[data-view]').forEach(function(el){
+    if(!allowed[el.dataset.view])el.style.display='none';
+  });
+  // Hide groups whose children are all hidden
+  document.querySelectorAll('.nav-children').forEach(function(nc){
+    var any=Array.prototype.some.call(nc.querySelectorAll('.nav-child[data-view]'),function(c){return c.style.display!=='none';});
+    if(!any){nc.style.display='none';var g=nc.id.replace('nav-','');var pi=document.querySelector('.nav-item[data-group="'+g+'"]');if(pi)pi.style.display='none';}
+  });
+  // Non-admins don't get System Settings
+  var sbtn=document.querySelector('.settings-btn');if(sbtn)sbtn.style.display='none';
+  // Land on the first allowed view
+  setTimeout(function(){var h=(window.location.hash||'').replace('#','').split('/')[0];if(!allowed[h])activateView(views[0]);},0);
+}
 function activateView(v,skipHash){
+  // Role guard — redirect blocked views to the first allowed one
+  if(window._allowedViews&&!window._allowedViews[v]){v=Object.keys(window._allowedViews)[0];}
   // Update URL hash for navigation persistence
   if(!skipHash&&!_ROUTING&&v!=='dashboard'){window.history.pushState(null,null,'#'+v);_lastRouteHash=v;}
   else if(!skipHash&&!_ROUTING&&v==='dashboard'){window.history.pushState(null,null,window.location.pathname);_lastRouteHash=null;}
@@ -2392,6 +2424,8 @@ const MSG_MODULE_OPTS=[{v:'leads',l:'Leads'},{v:'deals',l:'Deals'},{v:'projects'
 function switchSysSettingsTab(tab){
   document.querySelectorAll('#sysSettingsTabs .email-settings-tab').forEach(t=>{t.classList.toggle('active',t.dataset.sstab===tab);});
   if(tab==='templates')loadMessageTemplates();
+  if(tab==='team')loadTeamTab();
+  if(tab==='continuity')loadContinuityTab();
 }
 async function loadMessageTemplates(){
   await loadMsgTemplates();
@@ -2450,6 +2484,104 @@ async function setDefaultTemplate(id){
   await sb.from('message_templates').update({is_default:false}).eq('channel',t.channel);
   await sb.from('message_templates').update({is_default:true}).eq('id',id);
   showToast('Default set!');loadMessageTemplates();
+}
+
+// ─── System Settings: Team ───
+const TEAM_ROLE_OPTS=[{v:'admin',l:'Admin'},{v:'developer',l:'Developer'},{v:'sales',l:'Sales'},{v:'marketing',l:'Marketing'},{v:'successor',l:'Successor'},{v:'backup_support',l:'Backup Support'}];
+let S_TEAM=[];
+async function teamAccessCall(action,team_member_id,access){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){showToast('No session','error');return{ok:false,reason:'no_session'};}
+  try{
+    const r=await fetch(SUPABASE_URL+'/functions/v1/team-access',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action,team_member_id,access})});
+    return await r.json().catch(()=>({ok:r.ok}));
+  }catch(e){return{ok:false,reason:String(e)};}
+}
+async function loadTeamTab(){
+  const body=document.getElementById('sysSettingsBody');
+  body.innerHTML='<p style="color:var(--text-muted);padding:1rem">Loading team…</p>';
+  const{data,error}=await sb.from('team_members').select('*').order('created_at');
+  if(error){body.innerHTML='<p style="color:#ef4444;padding:1rem">Could not load team: '+esc(error.message)+'</p>';return;}
+  S_TEAM=data||[];
+  const rows=S_TEAM.map(m=>{
+    const roleSel='<select onchange="updateTeamField(\''+m.id+'\',\'role\',this.value)" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px;font-size:.75rem">'+TEAM_ROLE_OPTS.map(o=>'<option value="'+o.v+'"'+(m.role===o.v?' selected':'')+'>'+o.l+'</option>').join('')+'</select>';
+    const accBadge=m.system_access&&m.system_access!=='none'?'<span class="badge badge-success" style="font-size:.62rem">'+esc(m.system_access)+'</span>':'<span class="badge" style="font-size:.62rem;background:var(--surface-2);color:var(--text-muted)">no access</span>';
+    return '<tr'+(m.is_active===false?' style="opacity:.5"':'')+'><td><b>'+esc(m.name||'—')+'</b>'+(m.notes?'<div style="font-size:.68rem;color:var(--text-muted)">'+esc(m.notes)+'</div>':'')+'</td><td style="font-size:.78rem">'+esc(m.email||'—')+(m.phone?'<div style="color:var(--text-muted);font-size:.7rem">'+esc(m.phone)+'</div>':'')+'</td><td>'+roleSel+'</td><td><span class="inline-edit" onclick="const v=prompt(\'Title:\',this.textContent.trim()==\'—\'?\'\':this.textContent.trim());if(v!==null)updateTeamField(\''+m.id+'\',\'title\',v)">'+esc(m.title||'—')+'</span></td><td>'+accBadge+'</td><td><label style="display:flex;align-items:center;gap:4px;font-size:.72rem;cursor:pointer"><input type="checkbox" style="width:auto"'+(m.is_active!==false?' checked':'')+' onchange="updateTeamField(\''+m.id+'\',\'is_active\',this.checked)"> active</label></td>'+
+      '<td style="white-space:nowrap"><button class="btn btn-sm btn-primary" style="font-size:.64rem" onclick="teamGrant(\''+m.id+'\')" title="Grant system access">🔑 Grant</button> '+(m.system_access&&m.system_access!=='none'?'<button class="btn btn-sm btn-secondary" style="font-size:.64rem" onclick="teamRevoke(\''+m.id+'\')">Revoke</button> <button class="btn btn-sm btn-secondary" style="font-size:.64rem" onclick="teamResend(\''+m.id+'\')" title="Resend invite email">✉ Resend</button> ':'')+'<button class="btn btn-sm btn-danger" style="font-size:.64rem" onclick="deleteTeamMember(\''+m.id+'\')">🗑</button></td></tr>';
+  }).join('');
+  body.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><div><h3 style="font-size:.95rem;margin:0">Team Members</h3><p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0">People who work with Knight Ops. Grant access to give them a role-scoped admin login (RLS enforces what they can see).</p></div><button class="btn btn-sm btn-primary" onclick="teamAddForm()">+ Add Team Member</button></div>'+
+    '<div id="teamAddBox" style="display:none;border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;background:var(--surface)"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px"><div class="form-group" style="margin:0"><label>Name</label><input id="tm_name"></div><div class="form-group" style="margin:0"><label>Email</label><input id="tm_email" type="email"></div><div class="form-group" style="margin:0"><label>Phone</label><input id="tm_phone"></div><div class="form-group" style="margin:0"><label>Role</label><select id="tm_role">'+TEAM_ROLE_OPTS.map(o=>'<option value="'+o.v+'">'+o.l+'</option>').join('')+'</select></div><div class="form-group" style="margin:0"><label>Title</label><input id="tm_title" placeholder="e.g. Lead Developer"></div></div><div class="form-group" style="margin:10px 0 0"><label>Notes</label><input id="tm_notes" placeholder="Optional"></div><div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="saveTeamMember()">Save</button><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'teamAddBox\').style.display=\'none\'">Cancel</button></div></div>'+
+    (S_TEAM.length?'<table><thead><tr><th>Name</th><th>Contact</th><th>Role</th><th>Title</th><th>System Access</th><th>Active</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table>':'<p style="color:var(--text-muted)">No team members yet — add your first (successor, developer, backup support…).</p>');
+}
+function teamAddForm(){document.getElementById('teamAddBox').style.display='';}
+async function saveTeamMember(){
+  const name=document.getElementById('tm_name').value.trim(),email=document.getElementById('tm_email').value.trim();
+  if(!name||!email){showToast('Name and email are required','error');return;}
+  const{error}=await sb.from('team_members').insert({name,email,phone:document.getElementById('tm_phone').value.trim()||null,role:document.getElementById('tm_role').value,title:document.getElementById('tm_title').value.trim()||null,notes:document.getElementById('tm_notes').value.trim()||null,system_access:'none',is_active:true});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Team member added');loadTeamTab();
+}
+async function updateTeamField(id,field,val){
+  const obj={};obj[field]=(val===''?null:val);
+  const{error}=await sb.from('team_members').update(obj).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Saved');loadTeamTab();
+}
+async function teamGrant(id){
+  const acc=prompt('Grant which access level? (admin / developer / sales)','developer');
+  if(!acc)return;
+  const a=acc.trim().toLowerCase();
+  if(['admin','developer','sales'].indexOf(a)<0){showToast('Access must be admin, developer, or sales','error');return;}
+  showToast('Granting access…');
+  const r=await teamAccessCall('grant_access',id,a);
+  if(r&&r.ok){showToast('Access granted — invite sent');loadTeamTab();}
+  else showToast('Could not grant: '+((r&&(r.reason||r.error))||'error'),'error');
+}
+async function teamRevoke(id){
+  if(!confirm('Revoke this person\'s system access? They stay on the team list.'))return;
+  const r=await teamAccessCall('revoke_access',id);
+  if(r&&r.ok){showToast('Access revoked');loadTeamTab();}
+  else showToast('Could not revoke: '+((r&&(r.reason||r.error))||'error'),'error');
+}
+async function teamResend(id){
+  const r=await teamAccessCall('resend_invite',id);
+  if(r&&r.ok)showToast('Invite re-sent');
+  else showToast('Could not resend: '+((r&&(r.reason||r.error))||'error'),'error');
+}
+async function deleteTeamMember(id){
+  const m=S_TEAM.find(x=>x.id===id);
+  if(!confirm('Delete '+((m&&m.name)||'this team member')+'? If they have system access, revoke it first.'))return;
+  const{error}=await sb.from('team_members').delete().eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Deleted');loadTeamTab();
+}
+
+// ─── System Settings: Continuity ───
+async function loadContinuityTab(){
+  const body=document.getElementById('sysSettingsBody');
+  body.innerHTML='<p style="color:var(--text-muted);padding:1rem">Loading…</p>';
+  let succ={},eden={};
+  try{const{data}=await sb.from('system_settings').select('key,value').in('key',['successor','eden']);(data||[]).forEach(r=>{if(r.key==='successor')succ=r.value||{};if(r.key==='eden')eden=r.value||{};});}catch(e){}
+  let globalRes=[];
+  try{const{data}=await sb.from('resources').select('id,title,category,client_visible_default,url,file_url,sort_order').eq('is_global',true).order('sort_order');globalRes=data||[];}catch(e){}
+  body.innerHTML='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:10px"><h3 style="font-size:.95rem;color:var(--accent);margin-bottom:.4rem">🛡 Global Successor (continuity partner)</h3><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.8rem">Shown to every client in their hub as the contact if Daniel is unreachable for 14+ days. Leave name blank to show "Continuity partner on file with Knight Ops".</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px"><div class="form-group" style="margin:0"><label>Name</label><input id="sc_name" value="'+esc(succ.name||'')+'"></div><div class="form-group" style="margin:0"><label>Email</label><input id="sc_email" value="'+esc(succ.email||'')+'"></div><div class="form-group" style="margin:0"><label>Phone</label><input id="sc_phone" value="'+esc(succ.phone||'')+'"></div></div>'+
+    '<div class="form-group" style="margin:10px 0 0"><label>Activation (when + how they step in)</label><textarea id="sc_activation" rows="2" placeholder="e.g. Activates if Daniel is unreachable 14+ days. Has emergency access via password manager.">'+esc(succ.activation||'')+'</textarea></div>'+
+    '<div style="margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveSuccessor()">Save Successor</button></div></div>'+
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:10px"><h3 style="font-size:.95rem;color:var(--accent);margin-bottom:.4rem">🤖 Eden (AI client assistant)</h3><p style="font-size:.78rem;color:var(--text-muted);margin:0">Inbox: <b style="color:var(--text)">'+esc(eden.email||'eden@knightops.biz')+'</b> · '+(eden.enabled===false?'<span style="color:#ef4444">disabled</span>':'<span style="color:#4CAF50">enabled</span>')+(eden.escalate_to?' · escalates to '+esc(eden.escalate_to):'')+'</p><p style="font-size:.72rem;color:var(--text-muted);margin:6px 0 0">Client emails to Eden are answered automatically by the <code>eden-respond</code> edge function (pg_cron, every 5 min) with live project visibility. Edit settings via the <code>system_settings</code> key <code>eden</code>.</p></div>'+
+    '<div class="table-card" style="padding:1.25rem;border:1px solid var(--border);border-radius:10px"><h3 style="font-size:.95rem;color:var(--accent);margin-bottom:.4rem">📚 Resource Library (global)</h3><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.8rem">Branded PDFs shown in every client hub\'s Ownership tab by default. Toggle default visibility here; override per-project from the project\'s Continuity card.</p>'+
+    (globalRes.length?globalRes.map(r=>{const u=r.url||r.file_url||'';return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border-subtle)"><div style="min-width:0"><b style="font-size:.84rem">'+esc(r.title)+'</b>'+(r.category?' <span class="badge" style="font-size:.6rem;background:var(--surface-2);color:var(--text-muted)">'+esc(r.category)+'</span>':'')+'</div><div style="display:flex;gap:8px;align-items:center;flex-shrink:0"><label style="display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" style="width:auto"'+(r.client_visible_default!==false?' checked':'')+' onchange="toggleResDefault(\''+r.id+'\',this.checked)"> visible by default</label>'+(u?'<a class="btn btn-sm btn-secondary" style="font-size:.66rem" href="'+esc(u)+'" target="_blank">Open</a>':'')+'</div></div>';}).join(''):'<p style="color:var(--text-muted);font-size:.8rem">No global resources found.</p>')+'</div>';
+}
+async function saveSuccessor(){
+  const value={name:document.getElementById('sc_name').value.trim(),email:document.getElementById('sc_email').value.trim(),phone:document.getElementById('sc_phone').value.trim(),activation:document.getElementById('sc_activation').value.trim()};
+  const{error}=await sb.from('system_settings').upsert({key:'successor',value},{onConflict:'key'});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Successor saved — live in every client hub');
+}
+async function toggleResDefault(id,val){
+  const{error}=await sb.from('resources').update({client_visible_default:!!val}).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(val?'Visible to clients by default':'Hidden by default');
 }
 
 // ─── Lead Activity Logging ───
@@ -3081,6 +3213,7 @@ async function showProjectDetail(id){
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Project Details</h3><a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank" style="font-size:.72rem">+ New / Edit Mockups</a></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Send your client the voting link. They see every saved mockup variation for this project and pick the one they want built.</p><div id="buildTarget_'+id+'" style="margin-bottom:.9rem"><p style="color:var(--text-muted);font-size:.8rem">Loading build target…</p></div><div id="dashMockup_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">➕ Add a Module (injection prompt)</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Generate a project-tailored prompt to inject any module into this client\'s existing dashboard, wired into everything already built. Paste it into Claude Code.</p><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.55rem"><select id="miMod_'+id+'" style="flex:1;min-width:170px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:.82rem"><option value="">Loading…</option></select><button class="btn btn-sm btn-primary" onclick="genModuleInjection(\''+id+'\')">Generate</button></div><input id="miNotes_'+id+'" placeholder="Optional specifics (else it assumes best from project data)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.82rem;margin-bottom:.5rem"><div id="miOut_'+id+'"></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #4CAF50"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🛡 Continuity &amp; Ownership</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">The client-facing ownership record: infrastructure, env keys, team, resources, and the continuity brief. Everything here feeds the client hub\'s Ownership tab.</p><div id="projContinuity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Permanent Client Links</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Permanent links to send the client: bugs &amp; features, files, an <b>all-in-one hub</b>, credentials &amp; access, proposal &amp; invoices, and portal access. They never expire unless you set an expiry or revoke. Hit <b>📧 Draft email</b> on any link to send it from daniel@knightops.biz.</p><div id="projLinks_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔧 Recent Fixes &amp; Builds</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-fixed bugs and built features, newest first, with commit links.</p><div id="projActivity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">✨ Feature Requests</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Approve → builds in Claude Code (you can add build details on approve). Or request revisions with notes.</p><div id="projFeatures_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
@@ -3102,6 +3235,7 @@ async function showProjectDetail(id){
   loadIntakeTokens(id);
   loadProjectLinks(id);
   loadBuildTarget(id);
+  loadProjContinuity(id);
   loadModuleInjector(id);
   loadProjectActivity(id);
   loadProjectFeatures(id);
@@ -4366,6 +4500,104 @@ async function loadBuildTarget(id){
     +rowset('Working folder (Mac)',folder,'No build folder yet — set once a build exists','',null)
     +'</div>';
 }
+// ─── Continuity & Ownership card (project detail) ───
+var _envMan={};
+var COMPLIANCE_TIERS=['standard','hipaa','soc2','iso27001'];
+function contInput(id,field,label,val,ph){
+  return '<div class="form-group" style="margin:0"><label style="font-size:.68rem">'+label+'</label><input id="ct_'+field+'_'+id+'" value="'+esc(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'" style="font-size:.78rem;padding:7px 9px"></div>';
+}
+async function loadProjContinuity(id){
+  var el=document.getElementById('projContinuity_'+id); if(!el) return;
+  var p=null,members=[],team=[],globalRes=[],overrides=[];
+  try{p=(await sb.from('projects').select('supabase_ref,supabase_org,build_folder,domain_notes,spec_doc_url,compliance_tier,env_manifest,brief_sent_at,repo_url,vercel_project_id').eq('id',id).maybeSingle()).data||{};}catch(e){p={};}
+  try{members=(await sb.from('project_members').select('id,team_member_id,client_visible,client_title,email,full_name,team_members(id,name,email,title,role)').eq('project_id',id)).data||[];}catch(e){}
+  try{team=(await sb.from('team_members').select('id,name,email,role,title').eq('is_active',true).order('name')).data||[];}catch(e){}
+  try{globalRes=(await sb.from('resources').select('id,title,category,client_visible_default').eq('is_global',true).order('sort_order')).data||[];}catch(e){}
+  try{overrides=(await sb.from('project_resources').select('resource_id,visible').eq('project_id',id)).data||[];}catch(e){}
+  _envMan[id]=Array.isArray(p.env_manifest)?p.env_manifest.slice():[];
+  var ovMap={};overrides.forEach(function(o){ovMap[o.resource_id]=o.visible;});
+  // Status checklist
+  var linked=members.filter(function(m){return m.team_member_id;});
+  var hasContact=members.some(function(m){return m.client_visible;});
+  function chk(ok,label){return '<span style="font-size:.7rem;padding:3px 9px;border-radius:100px;border:1px solid '+(ok?'#4CAF50':'var(--border)')+';color:'+(ok?'#4CAF50':'var(--text-muted)')+'">'+(ok?'✓':'✗')+' '+label+'</span>';}
+  var checklist='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem">'+chk(!!p.repo_url,'Repo linked')+chk(!!p.vercel_project_id,'Vercel ID')+chk(!!p.supabase_ref,'Supabase ref')+chk(hasContact,'Client-visible contact')+chk(!!p.brief_sent_at,'Brief sent')+'</div>';
+  // Editable fields
+  var fields='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:.6rem">'
+    +contInput(id,'supabase_ref','Supabase project ref',p.supabase_ref,'abcdefghij…')
+    +contInput(id,'supabase_org','Supabase org',p.supabase_org,'org name / email')
+    +contInput(id,'build_folder','Build folder (Mac)',p.build_folder,'/Users/…')
+    +contInput(id,'domain_notes','Domain (registrar + who owns it)',p.domain_notes,'e.g. client.com — GoDaddy, client-owned')
+    +contInput(id,'spec_doc_url','Spec doc URL',p.spec_doc_url,'https://…')
+    +'<div class="form-group" style="margin:0"><label style="font-size:.68rem">Compliance tier</label><select id="ct_compliance_tier_'+id+'" style="font-size:.78rem;padding:7px 9px">'+COMPLIANCE_TIERS.map(function(t){return '<option value="'+t+'"'+((p.compliance_tier||'standard')===t?' selected':'')+'>'+t.toUpperCase()+'</option>';}).join('')+'</select></div></div>'
+    +'<div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.6rem">Read-only (set in Build target above): repo <b style="color:var(--text)">'+esc(p.repo_url||'—')+'</b> · Vercel <b style="color:var(--text)">'+esc(p.vercel_project_id||'—')+'</b></div>';
+  // Env manifest
+  var envHtml='<div style="border:1px solid var(--border-subtle);border-radius:8px;padding:.7rem .85rem;margin-bottom:.7rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem"><b style="font-size:.8rem">🔐 Env manifest (key name → where it lives — never the value)</b><button class="btn btn-sm btn-secondary" style="font-size:.64rem" onclick="envManAdd(\''+id+'\')">+ Add key</button></div><div id="envMan_'+id+'"></div></div>';
+  // Team assignment
+  var assignedIds={};linked.forEach(function(m){assignedIds[m.team_member_id]=1;});
+  var avail=team.filter(function(t){return !assignedIds[t.id];});
+  var teamRows=linked.length?linked.map(function(m){var tm=m.team_members||{};return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border-subtle)"><div style="min-width:0"><b style="font-size:.8rem">'+esc(tm.name||m.full_name||m.email||'—')+'</b> <span style="font-size:.68rem;color:var(--text-muted)">'+esc(tm.role||'')+'</span><div style="font-size:.7rem;color:var(--text-muted)">'+esc(tm.email||m.email||'')+(m.client_title?' · shown to client as “'+esc(m.client_title)+'”':'')+'</div></div><div style="display:flex;gap:6px;align-items:center;flex-shrink:0"><label style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" style="width:auto"'+(m.client_visible?' checked':'')+' onchange="pmSetVisible(\''+m.id+'\',\''+id+'\',this.checked)"> client-visible</label><button class="btn btn-sm btn-danger" style="font-size:.62rem" onclick="pmRemove(\''+m.id+'\',\''+id+'\')">✕</button></div></div>';}).join(''):'<p style="font-size:.74rem;color:var(--text-muted);margin:.3rem 0">No team members assigned yet.</p>';
+  var teamHtml='<div style="border:1px solid var(--border-subtle);border-radius:8px;padding:.7rem .85rem;margin-bottom:.7rem"><b style="font-size:.8rem">👥 Team on this project</b>'+teamRows
+    +(avail.length?'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--border-subtle)"><select id="pmSel_'+id+'" style="flex:1;min-width:140px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:.74rem">'+avail.map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+' ('+esc(t.role||'')+')</option>';}).join('')+'</select><input id="pmTitle_'+id+'" placeholder="Client-facing title (optional)" style="flex:1;min-width:140px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:.74rem"><label style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="pmVis_'+id+'" style="width:auto" checked> client-visible</label><button class="btn btn-sm btn-primary" style="font-size:.66rem" onclick="pmAssign(\''+id+'\')">Assign</button></div>':'<p style="font-size:.68rem;color:var(--text-muted);margin:.4rem 0 0">All active team members are assigned. Add more in Settings → 👥 Team.</p>')+'</div>';
+  // Resource visibility
+  var resHtml='<div style="border:1px solid var(--border-subtle);border-radius:8px;padding:.7rem .85rem;margin-bottom:.7rem"><b style="font-size:.8rem">📚 Resource visibility (this client\'s hub)</b>'
+    +(globalRes.length?globalRes.map(function(r){var vis=(ovMap[r.id]!==undefined)?ovMap[r.id]:(r.client_visible_default!==false);return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border-subtle)"><span style="font-size:.76rem">'+esc(r.title)+(r.category?' <span style="font-size:.62rem;color:var(--text-muted)">('+esc(r.category)+')</span>':'')+'</span><label style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-muted);cursor:pointer;flex-shrink:0"><input type="checkbox" style="width:auto"'+(vis?' checked':'')+' onchange="prSetVisible(\''+id+'\',\''+r.id+'\',this.checked)"> visible</label></div>';}).join(''):'<p style="font-size:.72rem;color:var(--text-muted);margin:.3rem 0 0">No global resources.</p>')+'</div>';
+  // Brief sent + save
+  var briefBtn=p.brief_sent_at?'<span class="badge badge-success" style="font-size:.66rem">📨 Brief sent '+new Date(p.brief_sent_at).toLocaleDateString()+'</span> <button class="btn btn-sm btn-secondary" style="font-size:.62rem" onclick="markBriefSent(\''+id+'\')" title="Re-stamp with today">Re-mark</button>':'<button class="btn btn-sm btn-secondary" style="font-size:.66rem" onclick="markBriefSent(\''+id+'\')">📨 Mark Continuity Brief Sent</button>';
+  el.innerHTML=checklist+fields+envHtml+teamHtml+resHtml+'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div>'+briefBtn+'</div><button class="btn btn-sm btn-primary" onclick="saveProjContinuity(\''+id+'\')">💾 Save Continuity Fields</button></div>';
+  renderEnvMan(id);
+}
+function renderEnvMan(id){
+  var box=document.getElementById('envMan_'+id); if(!box) return;
+  var rows=_envMan[id]||[];
+  box.innerHTML=(rows.length?rows.map(function(e,i){
+    return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:5px"><input value="'+esc(e.name||'').replace(/"/g,'&quot;')+'" placeholder="KEY_NAME" onchange="_envMan[\''+id+'\']['+i+'].name=this.value" style="flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:.72rem;font-family:ui-monospace,monospace"><input value="'+esc(e.location||'').replace(/"/g,'&quot;')+'" placeholder="where it lives (Vercel env, Supabase secrets…)" onchange="_envMan[\''+id+'\']['+i+'].location=this.value" style="flex:1.4;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:.72rem"><button class="btn btn-sm btn-danger" style="font-size:.6rem;padding:3px 7px" onclick="envManRemove(\''+id+'\','+i+')">✕</button></div>';
+  }).join(''):'<p style="font-size:.7rem;color:var(--text-muted);margin:0">No keys listed. Add each env var name + where it\'s stored so a successor can find them.</p>');
+}
+function envManAdd(id){(_envMan[id]=_envMan[id]||[]).push({name:'',location:''});renderEnvMan(id);}
+function envManRemove(id,i){_envMan[id].splice(i,1);renderEnvMan(id);}
+async function saveProjContinuity(id){
+  var obj={
+    supabase_ref:document.getElementById('ct_supabase_ref_'+id).value.trim()||null,
+    supabase_org:document.getElementById('ct_supabase_org_'+id).value.trim()||null,
+    build_folder:document.getElementById('ct_build_folder_'+id).value.trim()||null,
+    domain_notes:document.getElementById('ct_domain_notes_'+id).value.trim()||null,
+    spec_doc_url:document.getElementById('ct_spec_doc_url_'+id).value.trim()||null,
+    compliance_tier:document.getElementById('ct_compliance_tier_'+id).value,
+    env_manifest:(_envMan[id]||[]).filter(function(e){return (e.name||'').trim();}).map(function(e){return{name:e.name.trim(),location:(e.location||'').trim()};})
+  };
+  var r=await sb.from('projects').update(obj).eq('id',id);
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast('Continuity fields saved');loadProjContinuity(id);
+}
+async function markBriefSent(id){
+  var r=await sb.from('projects').update({brief_sent_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast('Continuity brief marked sent');loadProjContinuity(id);
+}
+async function pmAssign(id){
+  var tmId=document.getElementById('pmSel_'+id).value; if(!tmId){showToast('Pick a team member','error');return;}
+  var tm=null;try{tm=(await sb.from('team_members').select('name,email,role').eq('id',tmId).maybeSingle()).data;}catch(e){}
+  var r=await sb.from('project_members').insert({id:crypto.randomUUID(),project_id:id,team_member_id:tmId,client_visible:document.getElementById('pmVis_'+id).checked,client_title:document.getElementById('pmTitle_'+id).value.trim()||null,email:(tm&&tm.email)||null,full_name:(tm&&tm.name)||null,role:(tm&&tm.role)||'member',status:'active'});
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast('Assigned to project');loadProjContinuity(id);
+}
+async function pmSetVisible(memberId,projId,val){
+  var r=await sb.from('project_members').update({client_visible:!!val}).eq('id',memberId);
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast(val?'Now shown in the client hub':'Hidden from the client hub');loadProjContinuity(projId);
+}
+async function pmRemove(memberId,projId){
+  if(!confirm('Remove this team member from the project?'))return;
+  var r=await sb.from('project_members').delete().eq('id',memberId);
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast('Removed');loadProjContinuity(projId);
+}
+async function prSetVisible(projId,resId,val){
+  var r=await sb.from('project_resources').upsert({project_id:projId,resource_id:resId,visible:!!val},{onConflict:'project_id,resource_id'});
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  showToast(val?'Resource visible to this client':'Resource hidden for this client');
+}
+
 var _MODCACHE=null;
 async function loadModuleInjector(id){
   var sel=document.getElementById('miMod_'+id); if(!sel) return;

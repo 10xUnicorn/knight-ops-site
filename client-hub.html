@@ -51,6 +51,7 @@
       <div class="tab" data-tab="files" onclick="showTab('files')">📁 Files</div>
       <div class="tab" data-tab="credentials" onclick="showTab('credentials')">🔑 Credentials &amp; Access</div>
       <div class="tab" data-tab="billing" onclick="showTab('billing')">🧾 Proposal &amp; Invoices</div>
+      <div class="tab" data-tab="ownership" onclick="showTab('ownership')">🛡 Ownership</div>
     </div>
 
     <!-- FEEDBACK -->
@@ -100,6 +101,11 @@
       <div class="card"><b>Proposals</b><div id="propList" style="margin-top:.5rem"><div class="muted">Loading…</div></div></div>
       <div class="card"><b>Invoices</b><div id="invList" style="margin-top:.5rem"><div class="muted">Loading…</div></div></div>
     </div>
+
+    <!-- OWNERSHIP & CONTINUITY -->
+    <div id="tab-ownership" class="tabc hide">
+      <div id="ownBody"><div class="card"><div class="muted">Loading…</div></div></div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -134,6 +140,7 @@
     var el=document.getElementById('tab-'+name); if(el)el.classList.remove('hide');
     if(name==='files')loadFiles();
     if(name==='billing')loadBilling();
+    if(name==='ownership')loadOwnership();
   }
   function segFb(k){document.getElementById('segBug').classList.toggle('on',k==='bug');document.getElementById('segFeat').classList.toggle('on',k==='feature');document.getElementById('fbBug').classList.toggle('hide',k!=='bug');document.getElementById('fbFeat').classList.toggle('hide',k!=='feature');}
 
@@ -197,6 +204,63 @@
     var props=(r&&r.proposals)||[];var invs=(r&&r.invoices)||[];
     document.getElementById('propList').innerHTML=props.length?props.map(function(p){return '<div class="item"><div>'+esc(p.company||'Proposal')+' <span class="pill">'+esc(p.status||'')+'</span></div>'+(p.url?'<a href="'+p.url+'" target="_blank">View →</a>':'')+'</div>';}).join(''):'<div class="muted">No proposals yet.</div>';
     document.getElementById('invList').innerHTML=invs.length?invs.map(function(i){var amt=(i.total!=null)?((i.currency||'USD')+' '+Number(i.total).toLocaleString()):'';return '<div class="item"><div>'+esc(i.title||i.invoice_number||'Invoice')+' <span class="pill">'+esc(i.status||'')+'</span><div class="muted">'+amt+(i.due_date?(' · due '+i.due_date):'')+'</div></div>'+(i.pay_url&&i.status!=='paid'?'<a href="'+i.pay_url+'" target="_blank">Pay →</a>':'')+'</div>';}).join(''):'<div class="muted">No invoices yet.</div>';
+  }
+
+  // ── Ownership & Continuity ──
+  var OWN=null;
+  function ownRow(label,val,url){
+    var v=url?('<a href="'+esc(url)+'" target="_blank">'+esc(val||url)+'</a>'):(val?esc(val):'<span class="muted">—</span>');
+    return '<div class="item"><div class="muted" style="flex:0 0 140px">'+label+'</div><div style="min-width:0;word-break:break-all;text-align:right">'+v+'</div></div>';
+  }
+  async function loadOwnership(){
+    var box=document.getElementById('ownBody');
+    if(OWN){renderOwnership();return;}
+    box.innerHTML='<div class="card"><div class="muted">Loading…</div></div>';
+    var r=await fn('hub-data',{token:TOKEN,action:'continuity'});
+    if(!r||!r.ok){box.innerHTML='<div class="card"><div class="muted">Could not load ownership info right now. Try again in a moment.</div></div>';return;}
+    OWN=r;renderOwnership();
+  }
+  function renderOwnership(){
+    var p=OWN.project||{},sc=OWN.successor||{},eden=OWN.eden||{},contacts=OWN.contacts||[],res=OWN.resources||[];
+    var supa=p.supabase_ref?(p.supabase_ref+(p.supabase_org?(' ('+p.supabase_org+')'):'')):'';
+    var envRows=(p.env_manifest&&p.env_manifest.length)?('<div class="muted" style="margin-top:.6rem"><b style="color:var(--text)">Environment keys &amp; where they live:</b></div>'+p.env_manifest.map(function(e){return '<div class="item"><div>'+esc(e.name)+'</div><div class="muted">'+esc(e.location||'')+'</div></div>';}).join('')):'';
+    var h='<div class="card"><b style="color:var(--gold)">🛡 You Own This Project</b><div class="muted" style="margin:.3rem 0 .5rem">Everything below belongs to you — the code, the accounts, the domain. This page is your proof and your map.</div>'
+      +ownRow('GitHub repo',p.repo_url,p.repo_url)
+      +ownRow('Vercel project',p.vercel_project_id)
+      +ownRow('Supabase project',supa)
+      +ownRow('Domain',p.domain_notes)
+      +ownRow('Live site',p.live_url,p.live_url)
+      +ownRow('Spec doc',p.spec_doc_url?'Open spec →':null,p.spec_doc_url)
+      +(p.compliance_tier&&p.compliance_tier!=='standard'?ownRow('Compliance tier',(p.compliance_tier||'').toUpperCase()):'')
+      +envRows+'</div>';
+    h+='<div class="card"><b>⬇ Export Everything</b><div class="muted" style="margin:.3rem 0 .6rem">Your full codebase, on demand. Database exports are available anytime in your Supabase dashboard (Backups), and uploaded files live in Supabase Storage.</div>'
+      +(OWN.can_export?'<button class="btn" id="exportBtn" onclick="exportCode()">⬇ Download complete codebase</button>':'<div class="muted">Codebase export isn’t wired up for this project yet — ask Daniel and it will be enabled.</div>')+'</div>';
+    h+='<div class="card"><b>👥 Your Team &amp; Contacts</b>'
+      +(contacts.length?contacts.map(function(c){return '<div class="item"><div><b>'+esc(c.name)+'</b>'+(c.title?' <span class="pill">'+esc(c.title)+'</span>':'')+'<div class="muted">'+esc(c.email||'')+(c.phone?(' · '+esc(c.phone)):'')+'</div></div></div>';}).join(''):'<div class="muted" style="margin-top:.4rem">Your Knight Ops team contacts will appear here.</div>')
+      +'<div class="item"><div><b>💬 General questions, any time</b><div class="muted"><a href="mailto:'+esc(eden.email||'eden@knightops.biz')+'">'+esc(eden.email||'eden@knightops.biz')+'</a> — our AI assistant with live visibility into your project</div></div></div>'
+      +'<div class="item" style="border-bottom:none"><div><b>🕯 If Daniel is unreachable (14+ days)</b><div class="muted">'+(sc.name?(esc(sc.name)+(sc.email?(' · <a href="mailto:'+esc(sc.email)+'">'+esc(sc.email)+'</a>'):'')+(sc.phone?(' · '+esc(sc.phone)):'')):'Continuity partner on file with Knight Ops')+'</div></div></div></div>';
+    h+='<div class="card"><details><summary style="cursor:pointer;font-weight:700">🧑‍💻 Developer Handoff Prompt</summary><div class="muted" style="margin:.5rem 0">Give this to any competent developer (or paste into Claude) and they can pick up your project exactly where it stands.</div><textarea id="handoffTa" readonly style="min-height:180px;font-family:ui-monospace,monospace;font-size:.78rem">'+esc(OWN.handoff_prompt||'')+'</textarea><div style="margin-top:.6rem"><button class="btn sec" onclick="copyHandoff()">📋 Copy</button></div></details></div>';
+    h+='<div class="card"><b>📚 Resources &amp; Security Docs</b><div class="muted" style="margin:.3rem 0 .4rem">Guides on ownership, security, backups, and compliance — yours to keep.</div>'
+      +(res.length?res.map(function(x){return '<div class="item"><div style="min-width:0"><a href="'+esc(x.url)+'" target="_blank">'+esc(x.title)+'</a>'+(x.description?'<div class="muted">'+esc(x.description)+'</div>':'')+'</div></div>';}).join(''):'<div class="muted">No documents yet.</div>')+'</div>';
+    document.getElementById('ownBody').innerHTML=h;
+  }
+  function copyHandoff(){var ta=document.getElementById('handoffTa');ta.select();navigator.clipboard.writeText(ta.value);toast('Handoff prompt copied');}
+  async function exportCode(){
+    var b=document.getElementById('exportBtn');if(b){b.disabled=true;b.textContent='Preparing your codebase…';}
+    toast('Preparing your codebase — this can take a minute…');
+    try{
+      var r=await fetch(SUPABASE_URL+'/functions/v1/hub-data',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({token:TOKEN,action:'export_code'})});
+      var ct=r.headers.get('content-type')||'';
+      if(r.ok&&ct.indexOf('zip')>=0){
+        var blob=await r.blob();var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+        a.download=(PROJECT_NAME||'project').replace(/[^a-zA-Z0-9-_ ]/g,'').trim().replace(/\s+/g,'-').toLowerCase()+'-codebase.zip';
+        a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);toast('Download started — your full codebase.');
+      }else{
+        var j=await r.json().catch(function(){return{};});
+        toast('Export not available: '+(j.reason||'please try again or ask Daniel'));
+      }
+    }catch(e){toast('Export failed — please try again.');}
+    if(b){b.disabled=false;b.textContent='⬇ Download complete codebase';}
   }
 
   init();
