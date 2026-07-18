@@ -661,7 +661,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           </div>
         </div>
       </div>
-      <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div id="resourcesTable"></div></div></div>
+      <div class="view" id="v-resources"><div class="table-card"><div class="table-header"><h2>Resources</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editResource()">+ Add Resource</button></div></div><div style="padding:.35rem 1.25rem .6rem;font-size:.72rem;color:var(--text-muted)">Files: upload the PDF to the resources bucket (library/ path) or paste any URL.</div><div id="resourcesTable"></div></div></div>
 
       <!-- ═══ CAREERS VIEW ═══ -->
       <div class="view" id="v-careers">
@@ -5273,25 +5273,31 @@ async function saveEvent(id){
 }
 
 // ═══ RESOURCES ═══
+const RES_CAT_OPTS=[{v:'',l:'— None —'},{v:'continuity',l:'Business Continuity & Ownership'},{v:'security',l:'Security & Access'},{v:'support',l:'Support & Delivery'},{v:'pricing',l:'Hosting & Pricing'},{v:'compliance',l:'Compliance Readiness'},{v:'administrative',l:'Administrative'},{v:'general',l:'General'}];
+function resCatLabel(v){const o=RES_CAT_OPTS.find(x=>x.v===(v||''));return o&&o.v?o.l:(v||'—');}
 async function loadResources(){const{data}=await sb.from('resources').select('*').order('created_at',{ascending:false});S.resources=data||[];renderResources();}
 function renderResources(){
-  document.getElementById('resourcesTable').innerHTML='<table><thead><tr><th>Title</th><th>Type</th><th>Client</th><th>Description</th><th>Created</th><th>Actions</th></tr></thead><tbody>'+(S.resources.length?S.resources.map(r=>{
-    var href=r.url||r.file_url||'';
-    var libBadge=r.is_global?' <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:.65rem;background:rgba(200,164,86,.15);color:var(--accent);font-weight:600;vertical-align:middle">Library</span>'+(r.category?' <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:.65rem;background:var(--surface-2);color:var(--text-muted);vertical-align:middle">'+r.category+'</span>':''):'';
-    var fileBtns=href?'<button class="btn btn-sm btn-secondary" onclick="window.open(\''+href.replace(/'/g,"\\'")+'\',\'_blank\')" title="View">👁 View</button> <button class="btn btn-sm btn-secondary" onclick="dlResource(\''+href.replace(/'/g,"\\'")+'\',\''+(r.file_name||r.title||'resource').replace(/'/g,"\\'")+'\')" title="Download">⬇ Download</button> ':'';
-    return '<tr><td>'+(href?'<a href="'+href+'" target="_blank">'+r.title+'</a>':r.title)+libBadge+'</td><td>'+B(r.type)+'</td><td>'+(r.client_id?clientName(r.client_id):'Global')+'</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis">'+(r.description?r.description.replace(/<[^>]*>/g,'').substring(0,80):'—')+'</td><td>'+fmtDate(r.created_at)+'</td><td onclick="event.stopPropagation()">'+fileBtns+'<button class="btn btn-sm btn-secondary" onclick="editResource(\''+r.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'resources\',\''+r.id+'\',\'Resource\',loadResources)">🗑</button></td></tr>';
-  }).join(''):'<tr><td colspan="6" class="table-empty">No resources</td></tr>')+'</tbody></table>';
+  document.getElementById('resourcesTable').innerHTML='<table><thead><tr><th>Title</th><th>Type</th><th>Category</th><th>Client</th><th>Visibility</th><th>Sort</th><th>Created</th><th>Actions</th></tr></thead><tbody>'+(S.resources.length?S.resources.map(r=>{
+    const badges=(r.is_global?'<span class="badge badge-gold">Library</span>':'')+(r.public_visible?' <span class="badge badge-success">Public</span>':'')||'—';
+    const viewDl=r.url?'<a class="btn btn-sm btn-secondary" href="'+r.url+'" target="_blank" title="View">👁</a> <button class="btn btn-sm btn-secondary" title="Download" onclick="adminResDownload(\''+r.id+'\')">⬇</button> ':'';
+    return '<tr><td>'+(r.url?'<a href="'+r.url+'" target="_blank">'+r.title+'</a>':r.title)+'</td><td>'+B(r.type)+'</td><td style="font-size:.78rem">'+resCatLabel(r.category)+'</td><td>'+(r.client_id?clientName(r.client_id):'Global')+'</td><td>'+badges+'</td><td>'+(r.sort_order??'—')+'</td><td>'+fmtDate(r.created_at)+'</td><td onclick="event.stopPropagation()" style="white-space:nowrap">'+viewDl+'<button class="btn btn-sm btn-secondary" onclick="editResource(\''+r.id+'\')">✏️ Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'resources\',\''+r.id+'\',\'Resource\',loadResources)">🗑 Delete</button></td></tr>';
+  }).join(''):'<tr><td colspan="8" class="table-empty">No resources</td></tr>')+'</tbody></table>';
 }
-function dlResource(url,name){
-  var fname=name||'resource';
-  if(!/\.[a-z0-9]{2,5}$/i.test(fname)){var m=(url.split('?')[0].split('/').pop()||'').match(/\.[a-z0-9]{2,5}$/i);if(m)fname+=m[0];}
-  fetch(url).then(function(r){if(!r.ok)throw new Error('fetch failed');return r.blob();}).then(function(b){
-    var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
-  }).catch(function(){var a=document.createElement('a');a.href=url;a.download=fname;a.target='_blank';a.click();});
+async function adminResDownload(id){
+  const r=S.resources.find(x=>x.id===id);if(!r||!r.url)return;
+  try{
+    const res=await fetch(r.url);if(!res.ok)throw new Error('fetch failed');
+    const blob=await res.blob();
+    let name=r.file_name||(r.url.split('/').pop()||'download').split('?')[0];
+    try{name=decodeURIComponent(name)}catch(e){}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  }catch(e){window.open(r.url,'_blank');}
 }
 function editResource(id){
   const r=id?S.resources.find(x=>x.id===id):null;
-  const body=FG('Title *','e_title','text',r?.title)+'<div class="form-group"><label>Client (optional)</label><select id="e_client"><option value="">Global (All Clients)</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===r?.client_id?' selected':'')+'>'+(c.profiles?.full_name||'Client')+'</option>').join('')+'</select></div>'+FG('Type','e_type','select',r?.type||'file',[{v:'file',l:'File Upload'},{v:'url',l:'URL / Link'}])+'<div id="res_file_section"'+(r?.type==='url'?' style="display:none"':'')+'><div class="form-group"><label>Upload File</label><div class="file-upload-area" id="fileDropArea" onclick="document.getElementById(\'res_file_input\').click()"><div style="font-size:2rem;margin-bottom:0.5rem;color:var(--text-muted)">&#128206;</div><div style="font-size:0.85rem;color:var(--text-muted)">Click or drag a file here</div><div style="font-size:0.85rem;color:var(--accent);margin-top:0.5rem" id="selectedFileName">'+(r?.file_name||'')+'</div><input type="file" id="res_file_input" style="display:none" onchange="handleFileSelect(this)"></div></div></div><div id="res_url_section"'+(r?.type!=='url'?' style="display:none"':'')+'>'+ FG('URL','e_url','url',r?.url)+'</div><div class="form-group"><label>Description (Rich Text)</label><div id="res_editor"></div></div>';
+  const body=FG('Title *','e_title','text',r?.title)+'<div class="form-group"><label>Client (optional)</label><select id="e_client"><option value="">Global (All Clients)</option>'+S.clients.map(c=>'<option value="'+c.id+'"'+(c.id===r?.client_id?' selected':'')+'>'+(c.profiles?.full_name||'Client')+'</option>').join('')+'</select></div>'+FG('Type','e_type','select',r?.type||'file',[{v:'file',l:'File Upload'},{v:'url',l:'URL / Link'}])+'<div id="res_file_section"'+(r?.type==='url'?' style="display:none"':'')+'><div class="form-group"><label>Upload File</label><div class="file-upload-area" id="fileDropArea" onclick="document.getElementById(\'res_file_input\').click()"><div style="font-size:2rem;margin-bottom:0.5rem;color:var(--text-muted)">&#128206;</div><div style="font-size:0.85rem;color:var(--text-muted)">Click or drag a file here</div><div style="font-size:0.85rem;color:var(--accent);margin-top:0.5rem" id="selectedFileName">'+(r?.file_name||'')+'</div><input type="file" id="res_file_input" style="display:none" onchange="handleFileSelect(this)"></div></div></div><div id="res_url_section"'+(r?.type!=='url'?' style="display:none"':'')+'>'+ FG('URL','e_url','url',r?.url)+'</div>'+FR(FG('Category','e_category','select',r?.category||'',RES_CAT_OPTS),FG('Sort order','e_sort','number',(r?.sort_order??100)))+FG('Library resource (global)','e_res_global','checkbox',r?.is_global)+FG('Visible to clients by default','e_res_cvd','checkbox',r?r.client_visible_default:true)+FG('Show on public /resources page','e_res_public','checkbox',r?.public_visible)+'<div style="font-size:.72rem;color:var(--text-muted);margin:-.3rem 0 .6rem">Files: upload the PDF to the resources bucket (library/ path) or paste any URL.</div><div class="form-group"><label>Description (Rich Text)</label><div id="res_editor"></div></div>';
   openEditModal(r?'Edit Resource':'Add Resource',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveResource('+(id?"'"+id+"'":'')+')">Save</button>');
   // Init Quill
   setTimeout(()=>{
@@ -5325,6 +5331,11 @@ async function saveResource(id){
   const desc=resourceQuill?resourceQuill.root.innerHTML:'';
   const clientId=document.getElementById('e_client').value||null;
   const obj={title:title,client_id:clientId,type:type,description:desc||null};
+  obj.category=document.getElementById('e_category').value||null;
+  const so=parseInt(document.getElementById('e_sort').value);obj.sort_order=isNaN(so)?100:so;
+  obj.is_global=document.getElementById('e_res_global').checked;
+  obj.client_visible_default=document.getElementById('e_res_cvd').checked;
+  obj.public_visible=document.getElementById('e_res_public').checked;
   if(url)obj.url=url;if(fileName)obj.file_name=fileName;if(fileSize)obj.file_size=fileSize;
   if(!id)obj.uploaded_by=currentUser?.id||null;
   let err;
