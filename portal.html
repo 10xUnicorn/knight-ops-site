@@ -559,7 +559,7 @@ async function loadOverview(){
   }
 
   const[{data:projects},{data:apps},{data:events},{data:myTasks}]=await Promise.all([
-    sb.from('projects').select('id,name,status,tier,start_date,due_date').eq('client_id',clientId).order('created_at',{ascending:false}),
+    sb.from('projects').select('id,name,status,tier,start_date,due_date,client_id').eq('client_id',clientId).order('created_at',{ascending:false}),
     sb.from('client_apps').select('*,app_library(name,tagline,primary_button_url,primary_button_text)').eq('client_id',clientId),
     sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId),
     sb.from('tasks').select('id,title,status,due_date,project_id').eq('assigned_to',currentUser.id).neq('status','done').order('due_date').limit(5)
@@ -650,11 +650,23 @@ async function loadOwnership(projects){
   const el=document.getElementById('ownershipBody');
   if(!el)return;
   if(!projects||!projects.length){el.innerHTML='<div class="empty">Your projects will appear here once created.</div>';return}
+  // UI gate: only the client OWNER of a project sees the download button (server enforces this too).
+  let ownedIds={};
+  try{
+    if(clientId){
+      projects.forEach(p=>{if(p.client_id&&p.client_id===clientId)ownedIds[p.id]=true});
+      const{data:links}=await sb.from('project_clients').select('project_id').eq('client_id',clientId);
+      (links||[]).forEach(l=>{ownedIds[l.project_id]=true});
+    }
+  }catch(e){}
   let h='<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">You own this project — full continuity details are in your project hub. Download a complete copy of your codebase anytime below.</p>';
   projects.forEach(p=>{
+    const action=ownedIds[p.id]
+      ?`<button class="btn btn-sm btn-secondary" id="exp-${p.id}" onclick="exportCodebase('${p.id}','${(p.name||'project').replace(/[^a-zA-Z0-9-_ ]/g,'')}')">&#11015; Download complete codebase</button>`
+      :`<span style="font-size:.8rem;color:var(--text-muted)">Codebase export is available to the project owner.</span>`;
     h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
       <div><strong>${p.name}</strong></div>
-      <button class="btn btn-sm btn-secondary" id="exp-${p.id}" onclick="exportCodebase('${p.id}','${(p.name||'project').replace(/[^a-zA-Z0-9-_ ]/g,'')}')">&#11015; Download complete codebase</button>
+      ${action}
     </div>`;
   });
   el.innerHTML=h;

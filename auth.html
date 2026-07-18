@@ -102,6 +102,7 @@ body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(
       <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
       <div class="divider">or</div>
       <button type="button" class="magic-btn" onclick="sendMagicLink('login')">&#9889; Send Magic Link</button>
+      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem">First time here? Enter your email above and use "Send Magic Link" to activate your account.</p>
     </form>
 
     <!-- Signup Form -->
@@ -154,8 +155,19 @@ function clearStatus() {
   el.textContent = '';
 }
 
+// ── Redirect param support (?redirect=/portal — same-origin paths only) ──
+function getRedirectPath() {
+  try {
+    var r = new URLSearchParams(window.location.search).get('redirect');
+    if (r && /^\/(?!\/)[A-Za-z0-9\-_/.?=&#%]*$/.test(r)) return r;
+  } catch(e) {}
+  return null;
+}
+
 // ── Role-based redirect ──
 async function redirectByRole(userId) {
+  var target = getRedirectPath();
+  if (target) { window.location.href = target; return; }
   try {
     const { data: profile } = await sb.from('profiles').select('role').eq('id', userId).single();
     if (profile && profile.role === 'admin') {
@@ -272,9 +284,10 @@ async function sendMagicLink(context) {
   }
 
   clearStatus();
+  var target = getRedirectPath();
   var { error } = await sb.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.origin + '/auth' }
+    options: { emailRedirectTo: window.location.origin + '/auth' + (target ? '?redirect=' + encodeURIComponent(target) : '') }
   });
 
   if (error) {

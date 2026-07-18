@@ -234,7 +234,8 @@
       +(p.compliance_tier&&p.compliance_tier!=='standard'?ownRow('Compliance tier',(p.compliance_tier||'').toUpperCase()):'')
       +envRows+'</div>';
     h+='<div class="card"><b>🔐 Full Codebase Export</b><div class="muted" style="margin:.3rem 0 .6rem">For your security, downloading the complete codebase requires signing in to your client portal. Database exports are available anytime in your Supabase dashboard (Backups), and uploaded files live in Supabase Storage.</div>'
-      +'<a class="btn" href="'+esc(OWN.portal_url||'https://knightops.biz/portal')+'" target="_blank" style="text-decoration:none;display:inline-block">🔑 Sign in to your portal</a></div>';
+      +'<a class="btn" href="https://knightops.biz/auth?redirect=/portal" target="_blank" style="text-decoration:none;display:inline-block">🔑 Sign in to your portal</a>'
+      +'<div class="muted" style="margin-top:.5rem;font-size:.75rem">First time here? On the sign-in page, enter your email and use "Send Magic Link" to activate your account.</div></div>';
     h+='<div class="card"><b>👥 Your Team &amp; Contacts</b>'
       +(contacts.length?contacts.map(function(c){return '<div class="item"><div><b>'+esc(c.name)+'</b>'+(c.title?' <span class="pill">'+esc(c.title)+'</span>':'')+'<div class="muted">'+esc(c.email||'')+(c.phone?(' · '+esc(c.phone)):'')+'</div></div></div>';}).join(''):'<div class="muted" style="margin-top:.4rem">Your Knight Ops team contacts will appear here.</div>')
       +'<div class="item"><div><b>💬 General questions, any time</b><div class="muted"><a href="mailto:'+esc(eden.email||'eden@knightops.biz')+'">'+esc(eden.email||'eden@knightops.biz')+'</a> — our AI assistant with live visibility into your project</div></div></div>'
