@@ -559,7 +559,7 @@ async function loadOverview(){
   }
 
   const[{data:projects},{data:apps},{data:events},{data:myTasks}]=await Promise.all([
-    sb.from('projects').select('id,name,status,tier,start_date,due_date,client_id').eq('client_id',clientId).order('created_at',{ascending:false}),
+    sb.from('projects').select('id,name,status,tier,start_date,due_date').eq('client_id',clientId).order('created_at',{ascending:false}),
     sb.from('client_apps').select('*,app_library(name,tagline,primary_button_url,primary_button_text)').eq('client_id',clientId),
     sb.from('client_events').select('*,events(title,start_time,location)').eq('client_id',clientId),
     sb.from('tasks').select('id,title,status,due_date,project_id').eq('assigned_to',currentUser.id).neq('status','done').order('due_date').limit(5)
@@ -650,23 +650,11 @@ async function loadOwnership(projects){
   const el=document.getElementById('ownershipBody');
   if(!el)return;
   if(!projects||!projects.length){el.innerHTML='<div class="empty">Your projects will appear here once created.</div>';return}
-  // UI gate: only the client OWNER of a project sees the download button (server enforces this too).
-  let ownedIds={};
-  try{
-    if(clientId){
-      projects.forEach(p=>{if(p.client_id&&p.client_id===clientId)ownedIds[p.id]=true});
-      const{data:links}=await sb.from('project_clients').select('project_id').eq('client_id',clientId);
-      (links||[]).forEach(l=>{ownedIds[l.project_id]=true});
-    }
-  }catch(e){}
   let h='<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">You own this project — full continuity details are in your project hub. Download a complete copy of your codebase anytime below.</p>';
   projects.forEach(p=>{
-    const action=ownedIds[p.id]
-      ?`<button class="btn btn-sm btn-secondary" id="exp-${p.id}" onclick="exportCodebase('${p.id}','${(p.name||'project').replace(/[^a-zA-Z0-9-_ ]/g,'')}')">&#11015; Download complete codebase</button>`
-      :`<span style="font-size:.8rem;color:var(--text-muted)">Codebase export is available to the project owner.</span>`;
     h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
       <div><strong>${p.name}</strong></div>
-      ${action}
+      <button class="btn btn-sm btn-secondary" id="exp-${p.id}" onclick="exportCodebase('${p.id}','${(p.name||'project').replace(/[^a-zA-Z0-9-_ ]/g,'')}')">&#11015; Download complete codebase</button>
     </div>`;
   });
   el.innerHTML=h;
@@ -1177,6 +1165,7 @@ async function loadResources(){
         <span class="badge badge-info">${typeLabel}</span>
       </div>
       <div class="res-desc">${descPreview}</div>
+      ${resBtns(r)}
     </div>`;
   });
   document.getElementById('resourcesGrid').innerHTML=h;
@@ -1193,23 +1182,10 @@ async function openResourceDetail(id){
 
   const typeLabel=(resource.type||'general').replace(/_/g,' ');
 
-  // Build file download section
+  // Build action section — 👁 View + ⬇ Download whenever the resource has a URL
   let fileSection='';
-  if(resource.type==='file'&&resource.file_url){
-    fileSection=`<div style="margin-bottom:1.5rem">
-      <a href="${resource.file_url}" target="_blank" class="btn btn-primary" download>Download File</a>
-    </div>`;
-  } else if(resource.type==='url'&&resource.url){
-    fileSection=`<div style="margin-bottom:1.5rem">
-      <a href="${resource.url}" target="_blank" class="btn btn-primary">Open Link</a>
-    </div>`;
-  }
-
-  // If there's a file_url regardless of type
-  if(resource.file_url&&resource.type!=='file'){
-    fileSection+=`<div style="margin-bottom:1.5rem">
-      <a href="${resource.file_url}" target="_blank" class="btn btn-secondary">Download Attachment</a>
-    </div>`;
+  if(resource.url||resource.file_url){
+    fileSection=`<div style="margin-bottom:1.5rem">${resBtns(resource,true)}</div>`;
   }
 
   d.innerHTML=`
@@ -1227,6 +1203,28 @@ async function openResourceDetail(id){
 function backToResources(){
   document.getElementById('resourceDetail').style.display='none';
   document.getElementById('resourcesListView').style.display='';
+}
+
+// 👁 View + ⬇ Download buttons for a resource (list cards + detail view)
+function resBtns(r,big){
+  const u=r.url||r.file_url;if(!u)return'';
+  const esc=String(u).replace(/'/g,'%27');
+  const s=big?'padding:9px 22px;font-size:.85rem;border-radius:7px':'padding:5px 13px;font-size:.72rem;border-radius:6px';
+  return `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+    <button style="${s};background:linear-gradient(135deg,var(--accent),#A08636);color:var(--bg);border:none;font-weight:700;cursor:pointer" onclick="event.stopPropagation();window.open('${esc}','_blank')">&#128065; View</button>
+    <button style="${s};background:transparent;color:var(--accent);border:1px solid var(--border);font-weight:700;cursor:pointer" onclick="event.stopPropagation();resDownload('${esc}')">&#11015; Download</button>
+  </div>`;
+}
+async function resDownload(url){
+  try{
+    const res=await fetch(url);if(!res.ok)throw new Error('fetch failed');
+    const blob=await res.blob();
+    let name=url.split('/').pop().split('?')[0]||'download';
+    try{name=decodeURIComponent(name)}catch(e){}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  }catch(e){window.open(url,'_blank');}
 }
 
 // ══════════════════════════════════
