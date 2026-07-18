@@ -7,6 +7,23 @@
 
 ---
 
+## Changelog — 2026-07-17b (The Shift — /shift guided breakthrough experience)
+
+- **New page `/shift` (shift.html):** guided breakthrough experience (12 sections, 38 inputs, Journey + Mirror + Progress views). Served by the existing catch-all `/:path` → `/:path.html` rewrite — **vercel.json unchanged**.
+- **Auth model — deliberately NOT Supabase Auth.** Token links only (same pattern as `project_intake_tokens`/`resolve-link`), so Shift participants never enter `auth.users` and never collide with admin/developer/sales/marketing/client roles or `roleGateNav()`. No passwords, no reset flow.
+- **Anti-hijack rule:** `start` with a NEW email returns the token inline (frictionless first run, nothing to steal yet). `start` with an EXISTING email returns `{status:'returning'}` and emails the resume link instead — typing someone else's address never yields their journey.
+- **Tables (migration `create_shift_system`):** `shift_users` (email, token, lead_id soft link, guide_calls/guide_day rate limit), `shift_sessions` (one row per user, full client state as `jsonb`), `shift_events`, `shift_deletions` (hashed audit surviving cascade). RLS enabled with **zero policies** — anon and authenticated fully denied, service role only. Verified: rows present, anon REST returns `[]`.
+- **Portability by design:** all tables prefixed `shift_`, and `shift_users.lead_id` is intentionally **not** a foreign key. Spinning The Shift out to its own project later is a dump of 4 tables, not schema surgery.
+- **Edge fns (both verify_jwt=false):** `shift-data` v2 — start/load/save/event/resend_link/delete_all; 400KB state cap; Resend branded resume email from daniel@knightops.biz. `shift-guide` v1 — server-side Anthropic proxy (claude-sonnet-4-6) using the existing **ANTHROPIC_API_KEY** secret so the key never reaches the browser; **40 messages/user/day** cap; crisis-safety instruction (988 / 741741) added to the system prompt.
+- **Client sync:** `save()` still writes localStorage first (instant), then debounces a cloud save at 1.2s so the app's 36 `save()` call sites collapse into one request. `boot()`/`boot2()` are now invoked by an async initializer after `SHIFT.init()` pulls cloud state. Works fully offline and fully logged out; badge in the topbar shows Not saved / Saving / Saved.
+- **Privacy:** plain-language notice in the save gate, and a self-service double-confirm **Erase everything** that hard-deletes (cascade) — this content is personal reflective writing, not lead-form data.
+- **Lead capture (Rule 2 safe):** first save creates/updates a lead with `source='website'`, `lead_type='inbound'`, tag `the-shift`, `added_by='the-shift'`. Verified 0 prospect-typed rows. Existing leads are tagged rather than duplicated.
+- **Verified:** 4 script blocks parse; jsdom boot suite 10/10 on both the token path and the fresh-visitor path with zero runtime errors; live `/shift` byte-identical to source (164,440 bytes); full E2E start → save → resume → delete; RLS denial proven; all test rows removed.
+- **Cost note:** a complete journey serialises to ~574 bytes, so this rides on the existing Knight Ops project rather than a new $10/mo Supabase project.
+- **Open:** if The Shift gets its own brand, alias a domain to the SAME Vercel project (no new infra). `shift.knightops.biz` or a bought domain both work.
+
+---
+
 ## Changelog — 2026-07-17 (Continuity & Team system)
 
 - **Backend (already deployed):** migrations `continuity_team_system` + `team_role_policies` — new tables `team_members` (role: admin/developer/sales/marketing/successor/backup_support, system_access, profile_id), `project_resources` (per-project resource visibility overrides), `system_settings` (jsonb KV: `successor`, `eden`), `eden_responses`; `projects` continuity columns (supabase_ref, supabase_org, build_folder, env_manifest jsonb, compliance_tier standard/hipaa/soc2/iso27001, domain_notes, spec_doc_url, continuity_override, brief_sent_at); `project_members` extended (team_member_id, client_visible, client_title); `resources` extended (category, is_global, client_visible_default, sort_order); role-scoped RLS for `profiles.role` developer/sales/marketing.
