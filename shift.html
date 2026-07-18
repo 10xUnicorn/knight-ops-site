@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Shift | A Guided Breakthrough Experience</title>
+<meta name="description" content="The Shift is a guided breakthrough experience. Name the pattern you fall back to, release what you are carrying, and decide who you are becoming.">
+<link rel="canonical" href="https://knightops.biz/shift">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knightops.biz/shift">
+<meta property="og:title" content="The Shift | A Guided Breakthrough Experience">
+<meta property="og:description" content="Name the pattern. Feel it fully. Release it. Decide who you are becoming. A guided breakthrough experience.">
+<meta property="og:image" content="https://knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#05061a;
+  --panel:#0a0c2b;
+  --panel-2:#0d1036;
+  --gold:#C9922A;
+  --gold-hi:#E8B54A;
+  --purple:#7B2FFF;
+  --purple-soft:rgba(123,47,255,.35);
+  --text:#EAE8F6;
+  --dim:#8f8dae;
+  --line:rgba(234,232,246,.12);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:17px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+::selection{background:var(--purple-soft);color:#fff}
+
+/* ---------- Starfield canvas ---------- */
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(3,4,14,.75) 100%)}
+
+/* ---------- Layout ---------- */
+main{position:relative;z-index:2}
+section.stage{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:110px 24px;
+  position:relative;
+}
+.inner{width:min(760px,100%);position:relative}
+.wide .inner{width:min(920px,100%)}
+
+section.locked .inner{
+  filter:blur(10px);opacity:.25;pointer-events:none;user-select:none;
+  transition:filter 1.1s ease,opacity 1.1s ease;
+}
+section.unlocked .inner{filter:none;opacity:1;pointer-events:auto}
+.lockmsg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:5;color:var(--dim);letter-spacing:.25em;text-transform:uppercase;font-size:12px;
+}
+section.unlocked .lockmsg{display:none}
+
+/* ---------- Typography ---------- */
+.eyebrow{
+  font-size:12px;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:22px;display:flex;align-items:center;gap:14px;
+}
+.eyebrow::after{content:"";height:1px;flex:0 0 56px;background:linear-gradient(90deg,var(--gold),transparent)}
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.08;letter-spacing:.01em}
+h1{font-size:clamp(46px,7.5vw,88px)}
+h2{font-size:clamp(34px,5vw,56px);margin-bottom:26px}
+h2 em,h1 em{font-style:italic;color:var(--gold-hi)}
+h3{font-family:var(--serif);font-size:26px;font-weight:600;margin:34px 0 12px;color:var(--gold-hi)}
+p.lead{font-size:20px;color:var(--text);max-width:60ch}
+p{color:var(--dim);max-width:64ch;margin-bottom:16px}
+p strong{color:var(--text);font-weight:500}
+.quote{
+  font-family:var(--serif);font-style:italic;font-size:24px;line-height:1.5;color:var(--text);
+  border-left:2px solid var(--gold);padding:6px 0 6px 26px;margin:34px 0;
+}
+.quote cite{display:block;font-family:var(--sans);font-style:normal;font-size:12px;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-top:14px}
+.type-line{min-height:1.6em}
+.caret::after{content:"▌";color:var(--gold);animation:blink 1s steps(1) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- Controls ---------- */
+button{font-family:var(--sans);cursor:pointer;border:none;background:none;color:inherit}
+.btn{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:16px 34px;border:1px solid var(--gold);
+  color:var(--gold-hi);letter-spacing:.18em;text-transform:uppercase;font-size:13px;
+  background:linear-gradient(180deg,rgba(201,146,42,.08),rgba(201,146,42,.02));
+  transition:all .35s ease;position:relative;overflow:hidden;
+}
+.btn:hover{background:rgba(201,146,42,.16);box-shadow:0 0 34px rgba(201,146,42,.25);transform:translateY(-1px)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{border-color:var(--purple);color:var(--text);box-shadow:0 0 24px var(--purple-soft)}
+.btn.purple{border-color:var(--purple);color:#cdb2ff;background:linear-gradient(180deg,rgba(123,47,255,.12),rgba(123,47,255,.03))}
+.btn.purple:hover{box-shadow:0 0 34px var(--purple-soft)}
+
+input[type=text],textarea{
+  width:100%;background:rgba(10,12,43,.7);border:1px solid var(--line);
+  color:var(--text);font-family:var(--sans);font-size:16px;padding:15px 18px;
+  transition:border-color .3s,box-shadow .3s;border-radius:2px;
+}
+textarea{min-height:120px;resize:vertical;line-height:1.6}
+input:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 1px rgba(201,146,42,.35),0 0 30px rgba(201,146,42,.08)}
+label.f{display:block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin:22px 0 8px}
+
+.card{
+  background:linear-gradient(180deg,var(--panel),rgba(10,12,43,.55));
+  border:1px solid var(--line);padding:34px;margin:26px 0;position:relative;border-radius:3px;
+}
+.card::before{content:"";position:absolute;top:0;left:0;width:52px;height:1px;background:var(--gold)}
+
+/* ---------- Progress constellation ---------- */
+#constellation{
+  position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:20;
+  display:flex;flex-direction:column;gap:0;align-items:center;
+}
+#constellation .node{position:relative;display:flex;align-items:center;padding:13px 0;cursor:pointer}
+#constellation .dot{
+  width:9px;height:9px;border-radius:50%;background:transparent;
+  border:1px solid var(--dim);transition:all .5s ease;
+}
+#constellation .node.done .dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 12px rgba(201,146,42,.8)}
+#constellation .node.active .dot{border-color:var(--gold-hi);transform:scale(1.5)}
+#constellation .link{width:1px;height:18px;background:var(--line);transition:background .8s}
+#constellation .link.lit{background:linear-gradient(180deg,var(--gold),rgba(201,146,42,.35))}
+#constellation .tip{
+  position:absolute;left:26px;white-space:nowrap;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);opacity:0;transition:opacity .3s;pointer-events:none;
+}
+#constellation .node:hover .tip{opacity:1}
+@media(max-width:900px){#constellation{display:none}}
+
+/* ---------- Top bar ---------- */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;justify-content:center;align-items:center;
+  padding:18px 28px;
+  background:linear-gradient(180deg,rgba(5,6,26,.85),transparent);
+}
+#topbar .right{position:absolute;right:22px;top:50%;transform:translateY(-50%)}
+#topbar .mark{font-size:13px;letter-spacing:.4em;text-transform:uppercase;color:var(--text)}
+#topbar .mark b{color:var(--gold);font-weight:700}
+.iconbtn{
+  width:42px;height:42px;border:1px solid var(--line);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--dim);
+  transition:all .3s;font-size:16px;background:rgba(5,6,26,.5)
+}
+.iconbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.iconbtn.on{border-color:var(--gold);color:var(--gold-hi);box-shadow:0 0 18px rgba(201,146,42,.3)}
+#topbar .right{display:flex;gap:10px;align-items:center}
+
+/* ---------- Save state + gate ---------- */
+#saveState{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);border-radius:40px;padding:9px 16px;background:rgba(5,6,26,.5);
+  transition:all .3s;white-space:nowrap;
+}
+#saveState:hover{border-color:var(--gold);color:var(--gold-hi)}
+#saveState.saved{border-color:rgba(201,146,42,.45);color:var(--gold)}
+#saveState.saving{color:var(--gold-hi);border-color:var(--gold)}
+#saveState.nudge{border-color:var(--gold);color:var(--gold-hi);animation:pulseSave 2.4s ease-in-out infinite}
+@keyframes pulseSave{0%,100%{box-shadow:0 0 0 rgba(201,146,42,0)}50%{box-shadow:0 0 20px rgba(201,146,42,.32)}}
+
+#gateOverlay{
+  position:fixed;inset:0;z-index:70;background:rgba(3,4,14,.9);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+#gateOverlay.show{display:flex;animation:fadeIn .4s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#gateCard{
+  position:relative;width:min(520px,100%);padding:44px 40px;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);box-shadow:0 30px 90px rgba(0,0,0,.7);
+}
+#gateCard .gclose{position:absolute;top:16px;right:18px;color:var(--dim);font-size:16px}
+#gateCard .gclose:hover{color:var(--text)}
+#gateCard input{
+  width:100%;padding:14px 16px;margin-bottom:12px;background:rgba(5,6,26,.6);
+  border:1px solid var(--line);color:var(--text);font-family:var(--sans);font-size:15px;
+}
+#gateCard input:focus{outline:none;border-color:var(--gold)}
+#gateBtn{
+  width:100%;padding:15px;background:var(--gold);color:#05061a;font-weight:700;
+  font-size:14px;letter-spacing:.12em;text-transform:uppercase;transition:all .25s;
+}
+#gateBtn:hover{background:var(--gold-hi)}
+#gateBtn:disabled{opacity:.5;cursor:not-allowed}
+#gateMsg{font-size:14px;margin-top:14px;line-height:1.6;display:none}
+#gateMsg.show{display:block}
+#gateMsg.ok{color:var(--gold-hi)}
+#gateMsg.err{color:#ff8f8f}
+.gfine{font-size:12px;color:#5f5d7a;line-height:1.6;margin:16px 0 0;max-width:none}
+#gateAccount{display:none}
+#gateAccount .grow{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:13px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--dim);
+}
+#gateAccount .grow b{color:var(--text);font-weight:500;word-break:break-all;text-align:right}
+.gsecond{
+  width:100%;padding:13px;margin-top:20px;border:1px solid var(--line);color:var(--dim);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:all .25s;
+}
+.gsecond:hover{border-color:var(--gold);color:var(--gold-hi)}
+.gdanger{
+  width:100%;padding:13px;margin-top:10px;border:1px solid rgba(255,143,143,.3);color:#ff8f8f;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:all .25s;
+}
+.gdanger:hover{border-color:#ff8f8f;background:rgba(255,143,143,.08)}
+@media(max-width:600px){
+  #gateCard{padding:38px 24px}
+  #saveState{padding:8px 12px;font-size:10px;letter-spacing:.1em}
+}
+
+/* ---------- Drift gauge ---------- */
+.qrow{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding:18px 0;border-bottom:1px solid var(--line);
+}
+.qrow span{max-width:56ch;color:var(--text)}
+.toggle{display:flex;gap:8px;flex:0 0 auto}
+.toggle button{
+  padding:9px 20px;border:1px solid var(--line);font-size:12px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim);transition:all .25s;
+}
+.toggle button.sel-yes{border-color:var(--purple);color:#cdb2ff;background:rgba(123,47,255,.12)}
+.toggle button.sel-no{border-color:var(--gold);color:var(--gold-hi);background:rgba(201,146,42,.1)}
+#gaugewrap{text-align:center;margin-top:46px;display:none}
+#gaugewrap.show{display:block;animation:rise .9s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+#driftverdict{font-family:var(--serif);font-size:30px;color:var(--gold-hi);margin-top:10px}
+.gsub{max-width:46ch;margin:0 auto 18px}
+.gends{display:flex;justify-content:space-between;max-width:300px;margin:2px auto 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.keyrow{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--line)}
+.keyrow .kn{font-family:var(--serif);font-size:24px;color:var(--gold);flex:0 0 30px;text-align:center;line-height:1.2}
+.keyrow .kb{flex:1}
+.keyrow .kb b{color:var(--text);font-family:var(--serif);font-size:19px;font-weight:600}
+.keyrow .kb p{margin:4px 0 0;font-size:14.5px}
+.keytoggle{flex:0 0 auto;align-self:center;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--dim);padding:9px 14px;cursor:pointer;transition:all .3s;white-space:nowrap}
+.keytoggle.on{border-color:var(--gold);color:var(--gold-hi);background:rgba(201,146,42,.12)}
+#driftnote{max-width:52ch;margin:12px auto 0}
+
+/* ---------- Pressure vessel ---------- */
+.vessel-demo{display:flex;gap:40px;align-items:flex-end;justify-content:center;margin:40px 0;flex-wrap:wrap}
+.vessel{width:86px;height:220px;border:1px solid var(--line);border-radius:40px;
+  position:relative;overflow:hidden;background:rgba(10,12,43,.6)}
+.vessel .fill{position:absolute;bottom:0;left:0;right:0;height:12%;
+  background:linear-gradient(180deg,var(--purple),#4a1d99);transition:height .6s ease,background .6s;
+  box-shadow:0 0 26px var(--purple-soft)}
+.vessel.burst{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.vc{display:flex;flex-direction:column;align-items:center;gap:16px}
+.vc small{color:var(--dim);letter-spacing:.2em;text-transform:uppercase;font-size:11px}
+
+/* ---------- 90 second timer ---------- */
+.timerwrap{display:flex;flex-direction:column;align-items:center;gap:22px;margin:36px 0}
+.ring{position:relative;width:220px;height:220px}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:2}
+.ring .prog{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px rgba(201,146,42,.7))}
+.ring .num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:52px;color:var(--text)}
+.breath-orb{
+  position:absolute;inset:24px;border-radius:50%;
+  background:radial-gradient(circle,rgba(123,47,255,.28),transparent 70%);
+  transform:scale(.7);opacity:.5;
+}
+.breath-orb.go{animation:breathe 8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.65);opacity:.4}50%{transform:scale(1.05);opacity:.85}}
+
+/* ---------- Shadow table ---------- */
+.shadowlist{margin:30px 0}
+.srow{
+  display:grid;grid-template-columns:1.1fr 1fr .55fr 1fr 1.2fr auto;gap:12px;align-items:start;
+  padding:16px 0;border-bottom:1px solid var(--line);animation:rise .5s ease both;
+}
+.srow input{padding:11px 13px;font-size:14px}
+.srow .status{
+  align-self:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);white-space:nowrap;padding-top:4px
+}
+.srow.released{opacity:.45}
+.srow.released .status{color:var(--gold)}
+.shead{display:grid;grid-template-columns:1.1fr 1fr .55fr 1fr 1.2fr auto;gap:12px;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);padding-bottom:10px}
+@media(max-width:760px){.srow,.shead{grid-template-columns:1fr 1fr}.shead div:nth-child(n+3){display:none}}
+.pairbox{margin:20px 0;padding:26px;border:1px solid var(--line);background:rgba(10,12,43,.5);animation:rise .5s ease both}
+.addline{margin-top:18px}
+
+/* ---------- Release ritual ---------- */
+#releasedeck{display:flex;flex-wrap:wrap;gap:16px;margin:30px 0}
+.charge-card{
+  padding:20px 24px;border:1px solid var(--purple);background:rgba(123,47,255,.07);
+  cursor:pointer;transition:all .3s;min-width:200px;border-radius:3px;
+}
+.charge-card:hover{box-shadow:0 0 30px var(--purple-soft);transform:translateY(-2px)}
+.charge-card b{display:block;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--text)}
+.charge-card small{color:var(--dim);font-size:13px}
+.charge-card.dissolving{animation:dissolve 1.6s ease forwards;pointer-events:none}
+@keyframes dissolve{to{opacity:0;transform:translateY(-40px) scale(.8);filter:blur(6px)}}
+
+/* ---------- Overlays (ritual, bodyswap, interrupt, chat) ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:60;background:rgba(3,4,14,.9);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.overlay.open{display:flex;animation:fadein .5s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.ostage{width:min(680px,100%);text-align:center;position:relative}
+.ostage h3{margin-top:0;font-size:34px}
+.ostep{display:none;animation:rise .7s ease both}
+.ostep.on{display:block}
+.ostage .close{position:absolute;top:-54px;right:0;color:var(--dim);font-size:13px;
+  letter-spacing:.2em;text-transform:uppercase}
+.ostage .close:hover{color:var(--text)}
+.stepdots{display:flex;gap:8px;justify-content:center;margin-top:36px}
+.stepdots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .3s}
+.stepdots i.on{background:var(--gold)}
+
+/* ---------- Body swap artifact ---------- */
+.artifact{
+  border:1px solid var(--gold);padding:44px;position:relative;margin:30px 0;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(201,146,42,.08),transparent 50%),
+    linear-gradient(180deg,var(--panel-2),var(--panel));
+  box-shadow:0 0 60px rgba(201,146,42,.12);
+}
+.artifact::before,.artifact::after{
+  content:"";position:absolute;width:22px;height:22px;border-color:var(--gold);border-style:solid}
+.artifact::before{top:8px;left:8px;border-width:1px 0 0 1px}
+.artifact::after{bottom:8px;right:8px;border-width:0 1px 1px 0}
+.artifact .atitle{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+.artifact .abody{font-family:var(--serif);font-size:23px;font-style:italic;line-height:1.6;color:var(--text)}
+.artifact .asig{margin-top:26px;display:flex;justify-content:space-between;align-items:baseline;
+  font-size:13px;color:var(--dim);letter-spacing:.15em}
+.artifact .asig b{font-family:var(--serif);font-size:20px;color:var(--gold-hi);font-style:italic;font-weight:600}
+
+/* ---------- The Grip ---------- */
+.gripwrap{display:flex;flex-direction:column;align-items:center;gap:24px;margin:40px 0}
+#grip{
+  width:190px;height:190px;border-radius:50%;border:1px solid var(--purple);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#cdb2ff;
+  position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;
+  transition:box-shadow .3s;background:rgba(123,47,255,.05);
+}
+#grip svg{position:absolute;inset:-6px;transform:rotate(-90deg)}
+#grip .gt{fill:none;stroke:rgba(123,47,255,.2);stroke-width:2}
+#grip .gp{fill:none;stroke:var(--purple);stroke-width:3;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px var(--purple))}
+body.gripping{animation:tension .35s ease infinite}
+@keyframes tension{0%,100%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}75%{transform:translate(-1px,1px)}}
+#gripresult{display:none;text-align:center}
+#gripresult.show{display:block;animation:rise .9s ease both}
+
+/* ---------- Practice / interrupt ---------- */
+#interruptFab{
+  position:fixed;bottom:26px;left:26px;z-index:40;
+  padding:14px 22px;border:1px solid var(--purple);color:#cdb2ff;
+  font-size:11px;letter-spacing:.25em;text-transform:uppercase;
+  background:rgba(5,6,26,.85);backdrop-filter:blur(8px);display:none;border-radius:2px;
+}
+#interruptFab.show{display:block;animation:rise .8s ease both}
+#interruptFab:hover{box-shadow:0 0 30px var(--purple-soft)}
+.challenge-item{display:flex;gap:14px;align-items:center;margin:12px 0}
+.challenge-item .n{font-family:var(--serif);font-size:22px;color:var(--gold);flex:0 0 26px;text-align:right}
+
+/* ---------- Chat ---------- */
+#chatFab{
+  position:fixed;bottom:26px;right:26px;z-index:40;width:58px;height:58px;border-radius:50%;
+  border:1px solid var(--gold);background:rgba(5,6,26,.9);color:var(--gold-hi);font-size:22px;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);
+  box-shadow:0 0 30px rgba(201,146,42,.2);transition:transform .3s;
+}
+#chatFab:hover{transform:scale(1.07)}
+#chatPanel{
+  position:fixed;bottom:100px;right:26px;z-index:50;width:min(400px,calc(100vw - 40px));
+  height:min(560px,70vh);display:none;flex-direction:column;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);box-shadow:0 20px 70px rgba(0,0,0,.6);border-radius:4px;overflow:hidden;
+}
+#chatPanel.open{display:flex;animation:rise .4s ease both}
+#chatHead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+#chatHead b{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+#chatLog{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:88%;padding:12px 16px;font-size:14.5px;line-height:1.55;border-radius:3px;animation:rise .35s ease both}
+.msg.user{align-self:flex-end;background:rgba(201,146,42,.12);border:1px solid rgba(201,146,42,.3);color:var(--text)}
+.msg.bot{align-self:flex-start;background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.25);color:var(--text)}
+.msg.bot.thinking{color:var(--dim);font-style:italic}
+#chatForm{display:flex;border-top:1px solid var(--line)}
+#chatInput{flex:1;background:transparent;border:none;padding:16px;color:var(--text);font-size:14.5px;font-family:var(--sans)}
+#chatInput:focus{outline:none}
+#chatSend{padding:0 20px;color:var(--gold);letter-spacing:.15em;font-size:12px;text-transform:uppercase}
+
+/* ---------- Hero ---------- */
+#s-hero{text-align:center}
+#s-hero .inner{width:min(860px,100%)}
+.hero-sub{font-size:14px;letter-spacing:.45em;text-transform:uppercase;color:var(--dim);margin-top:30px}
+.scrollcue{margin-top:70px;color:var(--dim);font-size:11px;letter-spacing:.3em;text-transform:uppercase;animation:cue 2.6s ease infinite}
+@keyframes cue{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(8px)}}
+
+.finalstars{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--gold-hi);margin:20px 0}
+.exportout{white-space:pre-wrap;font-size:13px;background:rgba(5,6,26,.8);border:1px solid var(--line);
+  padding:22px;max-height:320px;overflow-y:auto;display:none;margin-top:20px;color:var(--dim)}
+.exportout.show{display:block}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+@media(max-width:640px){
+  section.stage{padding:90px 18px}
+  .card{padding:24px}
+  .qrow{flex-direction:column;align-items:flex-start}
+  .viewtoggle .vt{padding:8px 10px;font-size:10px}
+}
+/* ---------- The Mirror ---------- */
+.viewtoggle{display:flex;gap:4px;border:1px solid var(--line);padding:4px;border-radius:2px;background:rgba(5,6,26,.6)}
+.vt{padding:8px 18px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);transition:all .3s}
+.vt.on{background:rgba(201,146,42,.14);color:var(--gold-hi)}
+.scorewrap{display:flex;align-items:center;gap:30px;margin:44px 0;flex-wrap:wrap}
+.bigscore{font-family:var(--serif);font-size:96px;line-height:1;color:var(--gold-hi);
+  text-shadow:0 0 50px rgba(201,146,42,.35)}
+.bigscore small{font-size:34px;color:var(--gold)}
+.scorelabel{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+.radarwrap{display:flex;flex-direction:column;align-items:center;margin:20px 0 40px}
+#radar{max-width:100%;height:auto}
+.legend{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:13px;color:var(--dim)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:7px}
+.legend i.dash{background:none;border-top:2px dashed rgba(234,232,246,.5);height:0;width:18px;vertical-align:3px}
+.arearow{padding:22px 0;border-bottom:1px solid var(--line);animation:rise .5s ease both}
+.arearow .ahead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.arearow .aname{font-family:var(--serif);font-size:23px;color:var(--text);background:transparent;border:none;
+  border-bottom:1px solid transparent;padding:2px 0;min-width:200px}
+.arearow .aname:focus{outline:none;border-bottom-color:var(--gold)}
+.gaptag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.gaptag b{color:var(--gold-hi);font-weight:700}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:14px}
+@media(max-width:640px){.sliders{grid-template-columns:1fr}}
+.sl label{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.sl label b{color:var(--text);font-size:13px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:2px;
+  background:rgba(234,232,246,.15);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--purple);cursor:pointer;box-shadow:0 0 12px var(--purple-soft);transition:transform .2s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
+input[type=range].goldr::-webkit-slider-thumb{background:var(--gold);box-shadow:0 0 12px rgba(201,146,42,.6)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--purple);cursor:pointer;border:none}
+input[type=range].goldr::-moz-range-thumb{background:var(--gold)}
+.gapbar{height:5px;border-radius:3px;background:rgba(234,232,246,.08);margin-top:16px;position:relative;overflow:hidden}
+.gapbar .cur{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#4a1d99,var(--purple));transition:width .6s ease}
+.gapbar .cap{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);box-shadow:0 0 8px rgba(201,146,42,.9);transition:left .6s ease}
+.anote{margin-top:14px}
+.anote input{padding:10px 13px;font-size:13.5px}
+.hscale{display:flex;height:10px;border-radius:4px;overflow:hidden;margin-bottom:16px}
+.hscale i{flex:1;opacity:.85}
+.hreadout{margin-top:18px}
+.hreadout b{font-family:var(--serif);font-size:26px;color:var(--gold-hi)}
+.hmass{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:16px}
+.recordgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:24px}
+.rcard{border:1px solid var(--line);padding:22px;background:rgba(10,12,43,.55);border-radius:3px}
+.rcard .rk{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.rcard .rv{font-family:var(--serif);font-size:19px;line-height:1.45;color:var(--text)}
+body.mirror main{display:none}
+body.mirror #interruptFab{display:block !important}
+</style>
+<style>
+/* ---------- V2 additions ---------- */
+#gripSwirl{position:absolute;inset:8px;border-radius:50%;opacity:0;pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0 12%,rgba(123,47,255,.5) 18%,transparent 26%,
+    transparent 40%,rgba(255,80,140,.4) 48%,transparent 56%,transparent 72%,rgba(201,146,42,.35) 80%,transparent 88%);
+  filter:blur(3px);transition:opacity .4s}
+body.afterglow::after{content:"";position:fixed;inset:0;z-index:55;pointer-events:none;
+  background:radial-gradient(circle at 50% 62%,rgba(232,181,74,.3),transparent 62%);
+  animation:aglow 3.4s ease forwards}
+@keyframes aglow{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+body.altview main{display:none}
+body.altview #interruptFab{display:block !important}
+.hoopLines{font-family:var(--serif);font-style:italic;font-size:clamp(26px,4vw,38px);line-height:1.55;
+  color:var(--gold-hi);text-align:center;margin:30px 0;text-shadow:0 0 40px rgba(201,146,42,.25)}
+.hoopBtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.hoopBtns .btn.done{border-color:var(--gold);color:var(--gold-hi);background:rgba(201,146,42,.14)}
+.workAdd{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.workAdd select{background:rgba(10,12,43,.7);border:1px solid var(--line);color:var(--text);
+  padding:13px 14px;font-family:var(--sans);font-size:14px;border-radius:2px}
+.workAdd input{flex:1;min-width:180px}
+.workrow{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);animation:rise .4s ease both}
+.workrow .wcat{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--purple);
+  border:1px solid var(--purple-soft);padding:4px 9px;border-radius:2px;flex:0 0 auto}
+.workrow .wtext{flex:1;color:var(--text)}
+.workrow .wstatus{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);padding:6px 12px;cursor:pointer;transition:all .3s;white-space:nowrap}
+.workrow .wstatus.s1{color:#cdb2ff;border-color:var(--purple)}
+.workrow .wstatus.s2{color:var(--gold-hi);border-color:var(--gold)}
+.workrow .wdel{color:var(--dim);font-size:15px;padding:4px 8px}
+.workrow .wdel:hover{color:var(--text)}
+/* metrics */
+.mtoggle{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);padding:7px 14px;cursor:pointer;transition:all .3s}
+.mtoggle:hover{border-color:var(--gold);color:var(--gold-hi)}
+.metrics{display:none;margin-top:18px;padding:18px;border:1px solid var(--line);background:rgba(5,6,26,.45)}
+.metrics.open{display:block;animation:rise .4s ease both}
+.mrow{display:grid;grid-template-columns:1.4fr .7fr .7fr 1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+.mrow input,.mrow select{padding:10px 12px;font-size:13.5px;background:rgba(10,12,43,.7);
+  border:1px solid var(--line);color:var(--text);font-family:var(--sans);border-radius:2px}
+.mrow input:focus{outline:none;border-color:var(--gold)}
+.mhead{display:grid;grid-template-columns:1.4fr .7fr .7fr 1fr auto;gap:10px;font-size:10px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+@media(max-width:700px){.mrow,.mhead{grid-template-columns:1fr 1fr}}
+.computedTag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-left:10px}
+.ptschip{font-size:11px;letter-spacing:.15em;color:#cdb2ff;border:1px solid var(--purple-soft);
+  padding:4px 10px;border-radius:2px;white-space:nowrap}
+/* progress tab */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px;margin:24px 0}
+.kpibtn{border:1px solid var(--line);background:rgba(10,12,43,.55);padding:16px 18px;text-align:left;
+  transition:all .25s;border-radius:3px;position:relative;color:var(--text)}
+.kpibtn:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 26px rgba(0,0,0,.35)}
+.kpibtn small{display:block;color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+.kpibtn .pts{position:absolute;top:12px;right:14px;font-family:var(--serif);color:var(--gold-hi);font-size:19px}
+.kpibtn.flash{border-color:var(--gold);box-shadow:0 0 30px rgba(201,146,42,.4)}
+.kpibtn .kdel{position:absolute;bottom:8px;right:12px;color:var(--dim);font-size:13px;opacity:0;transition:opacity .2s}
+.kpibtn:hover .kdel{opacity:.7}
+.dotc{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.weekhead{display:flex;align-items:baseline;gap:26px;flex-wrap:wrap;margin:36px 0 8px}
+.weekhead .wknum{font-family:var(--serif);font-size:84px;line-height:1;color:var(--gold-hi);
+  text-shadow:0 0 46px rgba(201,146,42,.3)}
+.weekhead .wkdelta{font-size:13px;letter-spacing:.15em;color:var(--dim)}
+.weekhead .wkdelta b{color:var(--gold-hi)}
+.loglist{margin-top:8px}
+.logrow{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.logrow .lt{color:var(--dim);font-size:12px;flex:0 0 92px}
+.logrow .ln{flex:1;color:var(--text)}
+.logrow .lp{font-family:var(--serif);color:var(--gold-hi);font-size:17px}
+.logrow .ldel{color:var(--dim);padding:2px 8px}
+.logrow .ldel:hover{color:var(--text)}
+.areabar{margin:14px 0}
+.areabar .abh{display:flex;justify-content:space-between;font-size:12.5px;color:var(--dim);margin-bottom:6px}
+.areabar .abh b{color:var(--text);font-weight:500}
+.areabar .abtrack{height:6px;background:rgba(234,232,246,.08);border-radius:3px;overflow:hidden}
+.areabar .abfill{height:100%;background:linear-gradient(90deg,#4a1d99,var(--purple));border-radius:3px;transition:width .8s ease}
+.kadd{display:grid;grid-template-columns:1.4fr 1fr .6fr auto;gap:10px;margin-top:16px}
+.kadd input,.kadd select{padding:12px 13px;font-size:14px;background:rgba(10,12,43,.7);
+  border:1px solid var(--line);color:var(--text);font-family:var(--sans);border-radius:2px}
+@media(max-width:700px){.kadd{grid-template-columns:1fr 1fr}}
+/* record overlay */
+#recordOverlay .ostage{width:min(760px,100%);max-height:88vh;overflow-y:auto;text-align:left;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid rgba(201,146,42,.4);
+  padding:56px;position:relative;box-shadow:0 30px 100px rgba(0,0,0,.6)}
+@media(max-width:640px){#recordOverlay .ostage{padding:32px 22px}}
+.rec-title{font-family:var(--serif);font-size:40px;color:var(--gold-hi);margin-bottom:4px}
+.rec-date{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:38px}
+.rec-k{font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin:34px 0 10px;
+  display:flex;align-items:center;gap:14px}
+.rec-k::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(201,146,42,.4),transparent)}
+.rec-v{font-family:var(--serif);font-size:20px;line-height:1.6;color:var(--text);white-space:pre-wrap}
+.rec-v.i{font-style:italic}
+.rec-li{font-family:var(--serif);font-size:19px;color:var(--text);padding:5px 0}
+.rec-li em{color:var(--gold-hi);font-style:normal}
+.rec-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:44px;justify-content:center}
+.rec-close{position:sticky;top:0;float:right;color:var(--dim);font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;background:transparent;z-index:2}
+.rec-close:hover{color:var(--text)}
+canvas#wkChart{max-width:100%;height:auto;margin:10px 0}
+.rangebtns{display:flex;gap:8px;margin:14px 0 6px}
+.rb{padding:9px 22px;border:1px solid var(--line);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);transition:all .25s}
+.rb.on{border-color:var(--gold);color:var(--gold-hi);background:rgba(201,146,42,.1)}
+.stchip{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid;margin-left:6px}
+.st-g{color:#7ED957;border-color:rgba(126,217,87,.5);background:rgba(126,217,87,.08)}
+.st-y{color:#E8B54A;border-color:rgba(232,181,74,.5);background:rgba(232,181,74,.08)}
+.st-r{color:#FF4D4D;border-color:rgba(255,77,77,.5);background:rgba(255,77,77,.08)}
+.kpirow{display:grid;grid-template-columns:1.7fr .8fr .8fr .7fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.kpirow.hdr{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid rgba(201,146,42,.35)}
+.kpirow.area{background:rgba(201,146,42,.04)}
+.kpirow.area .kn2{font-family:var(--serif);font-size:19px;color:var(--gold-hi)}
+.kpirow .kn2{color:var(--text)}
+.kpirow .kv{color:var(--dim)}.kpirow .kv b{color:var(--text);font-weight:500}
+.kpirow .kpct{font-family:var(--serif);font-size:18px}
+@media(max-width:700px){.kpirow{grid-template-columns:1.4fr .9fr auto}.kpirow .kv:nth-child(3),.kpirow .kpct{display:none}}
+.covartifact{margin-top:6px}
+@media(max-width:760px){.srow,.shead{grid-template-columns:1fr 1fr}.shead div:nth-child(n+3){display:none}}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="vignette"></div>
+
+<div id="topbar">
+  <div class="viewtoggle">
+    <button class="vt on" id="vtJourney" onclick="setView('journey')">The Journey</button>
+    <button class="vt" id="vtMirror" onclick="setView('mirror')">The Mirror</button>
+    <button class="vt" id="vtProgress" onclick="setView('progress')">The Progress</button>
+  </div>
+  <div class="right">
+    <button id="saveState" onclick="SHIFT.openGate()" title="Save your journey">Not saved</button>
+    <button class="iconbtn" id="soundBtn" title="Ambient sound" aria-label="Toggle ambient sound">♪</button>
+  </div>
+</div>
+
+<!-- ============ SAVE GATE ============ -->
+<div id="gateOverlay" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div id="gateCard">
+    <button class="gclose" onclick="SHIFT.closeGate()" aria-label="Close">✕</button>
+    <div class="eyebrow" style="margin-bottom:16px">Keep your work</div>
+    <h2 id="gateTitle" style="font-size:34px;margin-bottom:14px">Save your <em>journey</em></h2>
+    <p id="gateBlurb">What you write here is yours. Leave your email and everything you have written is
+      held safely, so you can close this page and come back to exactly where you stopped.</p>
+
+    <div id="gateForm">
+      <input id="gateName" type="text" placeholder="First name (optional)" autocomplete="given-name">
+      <input id="gateEmail" type="email" placeholder="you@email.com" autocomplete="email"
+             onkeydown="if(event.key==='Enter')SHIFT.submitGate()">
+      <button id="gateBtn" onclick="SHIFT.submitGate()">Save my journey</button>
+      <div id="gateMsg"></div>
+      <p class="gfine">We send one email with your private link back in. No list, no pitch, nothing shared.
+        You can erase everything you have written at any time.</p>
+    </div>
+
+    <div id="gateAccount">
+      <div class="grow"><span>Saved to</span><b id="gateWho"></b></div>
+      <div class="grow"><span>Last saved</span><b id="gateWhen">just now</b></div>
+      <button class="gsecond" onclick="SHIFT.resendLink()">Email me my link again</button>
+      <button class="gdanger" onclick="SHIFT.deleteAll()">Erase everything I have written</button>
+      <p class="gfine">Erasing is immediate and permanent. Nothing is kept.</p>
+    </div>
+  </div>
+</div>
+
+<nav id="constellation" aria-label="Progress"></nav>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="stage unlocked" id="s-hero" data-name="The Shift">
+  <div class="inner">
+    <div class="eyebrow" style="justify-content:center">A guided breakthrough experience</div>
+    <h1>The <em>Shift</em></h1>
+    <p class="lead" style="margin:34px auto 0;text-align:center">
+      You have made progress before. You have also watched it slip away.
+      This is not another motivation hit. It is the sequence: feel what you buried,
+      release what you carry, and step into the self you already wrote.
+    </p>
+    <div class="hero-sub">Feel · Release · Become</div>
+    <div style="margin-top:54px"><button class="btn" onclick="beginJourney()">Begin the Shift</button></div>
+    <div class="scrollcue">↓</div>
+  </div>
+</section>
+
+<!-- ============ 0 THE LION ============ -->
+<section class="stage locked" id="s0" data-name="The Lion">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part I · The Lion</div>
+    <h2>Raised among <em>sheep</em></h2>
+    <div class="type-line" id="lionType"></div>
+    <p style="margin-top:22px">A lion cub, separated from his pride, was raised by sheep. He grazed. He bleated.
+    Some days he felt the power in his chest and ran ahead of the flock. And every time,
+    unsure what he was, he drifted back to grazing. Progress. Then the old pattern.
+    Progress. Then the pattern. Until the day another lion made him look at his reflection in the water.</p>
+    <p><strong>The lion was never a sheep. He just kept forgetting.</strong></p>
+    <label class="f">Where in your life do you make progress, then fall back?</label>
+    <textarea id="lionAnswer" placeholder="Be honest. This answer follows you through the whole experience."></textarea>
+    <div style="margin-top:26px"><button class="btn" onclick="completeLion()">Look at the reflection</button></div>
+  </div>
+</section>
+
+<!-- ============ 1 DRIFT ============ -->
+<section class="stage locked wide" id="s1" data-name="The Drift">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part II · The Drift</div>
+    <h2>Most people are not defeated. <em>They drift.</em></h2>
+    <p class="lead">In <strong>Outwitting the Devil</strong>, Napoleon Hill wrote that 98 percent of people
+    live under hypnotic rhythm: no definite purpose, decisions endlessly deferred, habits inherited instead of chosen.
+    The Devil in the book names drifting as his single greatest weapon.</p>
+    <h3>Your definite purpose</h3>
+    <p>Hill called this the master key. Write the one thing you are building your life toward.
+    If you cannot state it yet, leave it blank and be honest. A blank counts as drift, and that is useful information.</p>
+    <textarea id="purposeText" rows="3" placeholder="My definite purpose is..." oninput="state.drift.purpose=this.value;save()"></textarea>
+    <h3>The drift check</h3>
+    <p>Fourteen honest answers. Nobody sees this but you.</p>
+    <div id="driftQs"></div>
+    <div style="margin-top:34px"><button class="btn" id="driftBtn" onclick="scoreDrift()" disabled>Reveal my drift score</button></div>
+    <div id="gaugewrap">
+      <p class="gsub">Your drift score, 0 to 100. <b style="color:#7ED957">Lower is better.</b> The closer to 100, the deeper the drift.</p>
+      <svg width="300" height="170" viewBox="0 0 300 170">
+        <path d="M30 150 A120 120 0 0 1 270 150" fill="none" stroke="rgba(234,232,246,.12)" stroke-width="3"/>
+        <path id="gaugeArc" d="M30 150 A120 120 0 0 1 270 150" fill="none" stroke="#7ED957" stroke-width="4"
+          stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377" style="transition:stroke-dashoffset 1.8s cubic-bezier(.2,.8,.2,1), stroke 1.8s ease"/>
+        <line id="needle" x1="150" y1="150" x2="150" y2="46" stroke="#EAE8F6" stroke-width="2"
+          style="transform-origin:150px 150px;transform:rotate(-90deg);transition:transform 1.8s cubic-bezier(.2,.8,.2,1)"/>
+        <circle cx="150" cy="150" r="5" fill="#C9922A"/>
+      </svg>
+      <div class="gends"><span style="color:#7ED957">0 · Self-directed</span><span style="color:#FF4D4D">100 · Full drift</span></div>
+      <div id="driftverdict"></div>
+      <p id="driftnote"></p>
+      <div class="keysblock">
+        <h3 style="margin-top:44px">The seven keys</h3>
+        <p style="max-width:58ch;margin-left:auto;margin-right:auto">At the end of Outwitting the Devil, Hill names the seven principles that break hypnotic rhythm.
+        Read each one. Then answer honestly: is this key active in your life today? You will return to these.</p>
+        <div id="keysList" style="text-align:left"></div>
+        <p id="keysCount" style="color:var(--gold-hi);margin-top:16px"></p>
+      </div>
+      <div style="margin-top:32px"><button class="btn" onclick="unlockNext('s1','s2')">Continue: learn the mechanics</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 LETTING GO ============ -->
+<section class="stage locked" id="s2" data-name="Letting Go">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part III · The Mechanics of Letting Go</div>
+    <h2>A feeling fully felt lasts <em>minutes.</em> A feeling avoided lasts <em>years.</em></h2>
+    <p class="lead">David Hawkins mapped three things you can do with any feeling. Two of them keep it alive. One sets it free.</p>
+    <p><strong>The vessel below is your nervous system.</strong> Every feeling you have goes one of three ways.
+    Tap each button a few times and watch what each choice actually does to your system over time.</p>
+    <div class="vessel-demo">
+      <div class="vc"><div class="vessel" id="v1"><div class="fill"></div></div><small>Your system</small></div>
+      <div style="display:flex;flex-direction:column;gap:12px;justify-content:center">
+        <button class="btn ghost" onclick="vessel('sup')">Suppress it (push it down)</button>
+        <button class="btn ghost" onclick="vessel('exp')">Express it (vent it out)</button>
+        <button class="btn purple" onclick="vessel('rel')">Release it (feel it fully)</button>
+      </div>
+    </div>
+    <p id="vesselNote" style="text-align:center;min-height:3.2em;max-width:52ch;margin:0 auto">Tap a button above. Suppress it a few times and watch what builds.</p>
+    <blockquote class="quote">Cast all your anxiety on him because he cares for you.<cite>1 Peter 5:7</cite></blockquote>
+    <h3>The release mechanic</h3>
+    <p><strong>1. Locate it.</strong> Where is the feeling in your body? Chest, throat, gut. Find the raw sensation.<br>
+    <strong>2. Drop the story.</strong> No narrative, no who did what. The story is fuel. The sensation is just energy.<br>
+    <strong>3. Let it run.</strong> Stay with it. Do not push it away, do not feed it. Fully felt, it burns out fast.<br>
+    <strong>4. Let it leave.</strong> You do not push it out. You stop holding it in.</p>
+    <div class="card">
+      <b style="font-family:var(--serif);font-size:22px">Try it now, small.</b>
+      <p style="margin-top:10px">Think of something mildly annoying from this week. Not the heavy stuff yet.
+      Ninety seconds. Feel it without the story.</p>
+      <div class="timerwrap">
+        <div class="ring">
+          <div class="breath-orb" id="breathOrb"></div>
+          <svg width="220" height="220"><circle class="track" cx="110" cy="110" r="100"/>
+          <circle class="prog" id="timerProg" cx="110" cy="110" r="100" stroke-dasharray="628" stroke-dashoffset="628"/></svg>
+          <div class="num" id="timerNum">90</div>
+        </div>
+        <button class="btn" id="timerBtn" onclick="startTimer()">Start 90 seconds</button>
+      </div>
+      <div id="timerDone" style="display:none">
+        <p><strong>Notice what happened.</strong> Did it peak and soften? That arc is the whole practice.
+        Released does not mean gone forever. When it returns, you feel it again and release it again.
+        This is a practice, not a transaction.</p>
+        <button class="btn" onclick="unlockNext('s2','s3')">I felt it. Continue to the shadow.</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 SHADOW ============ -->
+<section class="stage locked wide" id="s3" data-name="The Shadow">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part IV · The Shadow Inventory</div>
+    <h2>What you refuse to face <em>runs you from the dark.</em></h2>
+    <p class="lead">Carl Jung called it the shadow: everything you exiled to survive. It does not disappear.
+    It steers you from behind, and it will keep steering until you turn around and name it.</p>
+    <blockquote class="quote">Until you make the unconscious conscious, it will direct your life and you will call it fate.<cite>Carl Jung</cite></blockquote>
+    <blockquote class="quote">Search me, God, and know my heart; test me and know my anxious thoughts. See if there is any offensive way in me, and lead me in the way everlasting.<cite>Psalm 139:23-24</cite></blockquote>
+    <h3>Your inventory of charges</h3>
+    <p>List the people, events, and memories that still carry an emotional charge. If your body tightens when you think of it, it belongs here.</p>
+    <p style="font-size:13.5px;color:var(--dim)"><strong style="color:var(--gold)">Example:</strong> Dad &nbsp;·&nbsp; anger &nbsp;·&nbsp; charge 8 &nbsp;·&nbsp; chest &nbsp;·&nbsp; protects me from being abandoned again</p>
+    <div class="shead"><div>Person / event</div><div>The emotion</div><div>Charge (1-10)</div><div>Where in the body</div><div>What it protects you from</div><div></div></div>
+    <div class="shadowlist" id="shadowList"></div>
+    <button class="btn ghost addline" onclick="addShadowRow()">+ Add a charge</button>
+    <h3>The two questions</h3>
+    <p>For each wound that surfaces, answer both. The second question is the one that heals.</p>
+    <div id="rejList"></div>
+    <button class="btn ghost addline" onclick="addRejPair()">+ Add another</button>
+    <div style="margin-top:38px"><button class="btn" onclick="completeShadow()">The inventory is honest. Take me to the release.</button></div>
+  </div>
+</section>
+
+<!-- ============ 4 RELEASE RITUAL ============ -->
+<section class="stage locked" id="s4" data-name="The Release">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part V · The Release Ritual</div>
+    <h2>Now put it <em>down.</em></h2>
+    <p class="lead">One charge at a time. When you release it, watch where it goes. Your pain does not vanish here.
+    It becomes light in your sky, and it stays there for the rest of this experience.</p>
+    <p><strong>Tap any card below</strong> to begin its four-step release. Take each one slowly. There is no timer and no order.</p>
+    <div id="releasedeck"></div>
+    <p id="releaseCount" style="color:var(--gold)"></p>
+    <div id="releaseDoneWrap" style="display:none;margin-top:20px">
+      <p class="finalstars" id="starsLine"></p>
+      <button class="btn" onclick="unlockNext('s4','s5')">Continue: the trade</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 BODY SWAP ============ -->
+<section class="stage locked" id="s5" data-name="The Trade">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part VI · The Trade</div>
+    <h2>Would you skip it in <em>their</em> body?</h2>
+    <p class="lead">This is the reframe that turns self-love from a feeling into a decision filter.
+    Go through it slowly. Full screen, one question at a time.</p>
+    <div style="margin-top:30px"><button class="btn" onclick="openSwap()">Enter the trade</button></div>
+    <div id="artifactWrap"></div>
+  </div>
+</section>
+
+<!-- ============ 6 FUTURE SELF ============ -->
+<section class="stage locked" id="s6" data-name="Future Self">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part VII · Be Your Future Self Now</div>
+    <h2>Your future self is a <em>different person.</em></h2>
+    <p class="lead">Dr. Benjamin Hardy's research is blunt: you are not the same person you were, and you will not
+    be the person you are now. The question is whether you are your future self's ancestor or their obstacle.
+    Identity drives behavior. Not the other way around.</p>
+    <label class="f">A letter from your future self, one year out. Present tense. Written as already done.</label>
+    <textarea id="futureLetter" rows="7" placeholder="It is one year from today. I am writing to you from a life where I am so happy and grateful. I am so happy and grateful for..."></textarea>
+    <div class="card" style="margin-top:34px">
+      <blockquote class="quote" style="margin:0 0 18px">His master replied, Well done, good and faithful servant! You have been faithful with a few things; I will put you in charge of many things. Come and share your master's happiness!<cite>Matthew 25:21</cite></blockquote>
+      <b style="font-family:var(--serif);font-size:22px">Standing before God</b>
+      <p style="margin-top:10px">Go further than one year. Imagine your future self at the end of this life, standing before God,
+      looking back at your time here on earth. Who do you want to have been? What do you want to be true of how you lived,
+      how you loved, what you built, and who you served?</p>
+      <textarea id="godReflection" rows="5" placeholder="Standing there, I want it to be true that I..."></textarea>
+    </div>
+    <label class="f">Three identity statements that are already true of that self</label>
+    <input type="text" id="ident1" placeholder="I am the kind of person who...">
+    <div style="height:10px"></div>
+    <input type="text" id="ident2" placeholder="I am the kind of person who...">
+    <div style="height:10px"></div>
+    <input type="text" id="ident3" placeholder="I am the kind of person who...">
+    <label class="f">The one decision your future self needs you to make this week</label>
+    <input type="text" id="oneDecision" placeholder="One decision. Specific. This week.">
+    <div style="margin-top:34px"><button class="btn" onclick="completeFuture()">It is written. Continue.</button></div>
+  </div>
+</section>
+
+<!-- ============ 7 NO BIG DEAL ============ -->
+<section class="stage locked" id="s7" data-name="No Big Deal">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part VIII · No Big Deal</div>
+    <h2>Gripping the outcome <em>pushes it away.</em></h2>
+    <p class="lead">Hold the goal. Drop the need. The tighter you squeeze a desired outcome,
+    the more your energy says it is missing. Detachment is not giving up. It is the only stance that leaves the door open.</p>
+    <blockquote class="quote">Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.<cite>Proverbs 3:5-6</cite></blockquote>
+    <label class="f">The outcome you grip hardest right now</label>
+    <input type="text" id="outcomeText" placeholder="The relationship, the deal, the number, the body...">
+    <div class="gripwrap">
+      <div id="grip">
+        <div id="gripSwirl"></div>
+        <svg width="202" height="202"><circle class="gt" cx="101" cy="101" r="96"/>
+        <circle class="gp" id="gripProg" cx="101" cy="101" r="96" stroke-dasharray="603" stroke-dashoffset="603"/></svg>
+        <span id="gripLabel">Press and hold<br>your grip on it</span>
+      </div>
+      <p style="text-align:center;max-width:44ch" id="gripHint">Press and hold. Feel the chaos of the grip build for as long as you need. Nothing here releases for you. When you are ready, you let go.</p>
+    </div>
+    <div id="gripresult">
+      <p class="finalstars">That release you just felt in your hand? That is the practice.</p>
+      <label class="f">Complete the sentence</label>
+      <p style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--text)" id="intendLine"></p>
+      <textarea id="nbdBecause" rows="3" placeholder="...because it all works out in the end. Because everything is a lesson. Because..."></textarea>
+      <div style="margin-top:26px"><button class="btn" onclick="completeNBD()">Stated. Released. Allowed.</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 PRACTICE ============ -->
+<section class="stage locked wide" id="s8" data-name="The Practice">
+  <div class="lockmsg">Locked</div>
+  <div class="inner">
+    <div class="eyebrow">Part IX · The Daily Practice</div>
+    <h2>The shift is real when it survives a <em>hard Tuesday.</em></h2>
+    <p class="lead">Breakthroughs fade. Practices compound. You leave with two tools: an interrupt for the hard moments,
+    and a daily challenge built from your own words.</p>
+    <div class="card">
+      <b style="font-family:var(--serif);font-size:22px">The 90-Second Interrupt</b>
+      <p style="margin-top:10px">From now on there is a button in the corner of this page. When stress hits and the old
+      pattern pulls, press it. Feel, locate, release, then one question. It works at 11pm with one thumb.</p>
+      <button class="btn purple" onclick="openInterrupt()">Try the interrupt now</button>
+    </div>
+    <div class="card">
+      <b style="font-family:var(--serif);font-size:22px">Your daily challenge</b>
+      <p style="margin-top:10px">Five items. Edit them until they are yours. Then run them daily.</p>
+      <div id="challengeList"></div>
+    </div>
+    <div class="card">
+      <b style="font-family:var(--serif);font-size:22px">The four sentences · Hoʻoponopono</b>
+      <p style="margin-top:10px">An old Hawaiian practice of reconciliation and making things right. Four sentences that clean
+      what words usually cannot. Say them out loud, slowly, three times. Once to who you are now. Once to the child you were.
+      Once to who you are becoming.</p>
+      <div class="hoopLines">I'm sorry.<br>Please forgive me.<br>Thank you.<br>I love you.</div>
+      <div class="hoopBtns">
+        <button class="btn ghost" id="hoop0" onclick="hoop(0)">Spoken to myself, now</button>
+        <button class="btn ghost" id="hoop1" onclick="hoop(1)">Spoken to my childhood self</button>
+        <button class="btn ghost" id="hoop2" onclick="hoop(2)">Spoken to my future self</button>
+      </div>
+      <p id="hoopDone" style="display:none;margin-top:18px;color:var(--gold-hi);font-family:var(--serif);font-style:italic;font-size:20px">Clean.</p>
+    </div>
+    <div class="card">
+      <b style="font-family:var(--serif);font-size:22px">The ongoing work</b>
+      <p style="margin-top:10px">The Journey stays open. Come back anytime: add new charges as they surface, run the release
+      ritual again, rewrite the letter. And keep a working list here of what you have spotted but not yet moved through:
+      patterns, habits, thoughts, environments.</p>
+      <div id="workList"></div>
+      <div class="workAdd">
+        <select id="workCat"><option>Pattern</option><option>Habit</option><option>Thought</option><option>Environment</option></select>
+        <input type="text" id="workText" placeholder="What did you spot?" onkeydown="if(event.key==='Enter')addWork()">
+        <button class="btn ghost" onclick="addWork()">Add</button>
+      </div>
+    </div>
+    <div class="card" id="covenantCard">
+      <b style="font-family:var(--serif);font-size:22px">The covenant</b>
+      <p style="margin-top:10px">One overarching commitment. Not a goal. A stance for how you live from here.
+      When you seal it, you will see your full record, and the Mirror opens.</p>
+      <div id="covenantZone">
+        <textarea id="covenantText" rows="4" placeholder="From this day, I..."></textarea>
+        <div style="margin-top:20px"><button class="btn" onclick="sealCovenant()">Seal the covenant</button></div>
+      </div>
+      <div id="covenantSealed"></div>
+    </div>
+    <div style="text-align:center;margin-top:60px">
+      <p class="finalstars" id="closingLine"></p>
+      <p style="max-width:52ch;margin:0 auto">Command it. Release it. Allow it.<br>And so it is.</p>
+      <div style="margin-top:26px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn ghost" onclick="openRecord()">View my record</button>
+        <button class="btn ghost" onclick="downloadSummary()">Download .txt</button>
+      </div>
+      <div class="exportout" id="exportOut" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ THE MIRROR (life alignment tracker) ============ -->
+<div id="mirrorView" style="display:none;position:relative;z-index:2">
+<section class="stage wide unlocked" style="min-height:auto;padding-top:130px">
+  <div class="inner">
+    <div class="eyebrow">The Mirror · Live Alignment Map</div>
+    <h2>Where you are. Where you <em>know</em> you can be.</h2>
+    <p class="lead">Two honest numbers per area of life: where you actually are today, and the level you know you are
+    capable of. Not fantasy. Capability you have evidence for. The gap between them is the mirror.</p>
+
+    <div class="card" style="margin-top:36px">
+      <b style="font-family:var(--serif);font-size:21px">How the Mirror works</b>
+      <p style="margin-top:10px;font-size:15px">
+      <strong style="color:#cdb2ff">1. Current</strong> is where you honestly are today, 0 to 100. Set it with the purple slider,
+      or open an area's <strong>Metrics</strong> and enter real numbers (your current vs your ideal) and the level calculates itself.<br>
+      <strong style="color:var(--gold-hi)">2. Capable</strong> is the level you know you could reach within 12 months. Set it with the gold slider,
+      and back it up with evidence.<br>
+      <strong>3. The gap</strong> between them is your unlived potential. The radar draws it live as you adjust.</p>
+    </div>
+    <div class="scorewrap">
+      <div class="bigscore"><span id="alignScore">0</span><small>%</small></div>
+      <div>
+        <div class="scorelabel">Alignment Score</div>
+        <p id="alignVerdict" style="margin:6px 0 0;max-width:44ch"></p>
+      </div>
+    </div>
+
+    <div class="radarwrap">
+      <canvas id="radar" width="640" height="560"></canvas>
+      <div class="legend">
+        <span><i style="background:var(--gold)"></i> Capable (what you know you can be)</span>
+        <span><i style="background:var(--purple)"></i> Current (where you are today)</span>
+        <span><i class="dash"></i> Humanity baseline</span>
+      </div>
+    </div>
+
+    <h3>The areas</h3>
+    <p>Recalibrate weekly. Honesty in both directions: no inflating the current, no shrinking the capable.</p>
+    <p style="font-size:13px;color:var(--dim)">In each bar below: <span style="color:#cdb2ff">purple fill = current</span> · <span style="color:var(--gold-hi)">gold tick = capable</span></p>
+    <div id="areaList"></div>
+    <button class="btn ghost addline" onclick="addArea()">+ Add a custom area</button>
+
+    <h3>Consciousness calibration</h3>
+    <p>David Hawkins mapped consciousness on a scale from 20 to 1000 and estimated that roughly 85 percent of humanity
+    calibrates below Courage at 200, the threshold where life stops happening to you and starts happening through you.
+    This is his framework, self-assessed, not a measurement. Place yourself honestly.</p>
+    <div class="card" id="hawkinsCard">
+      <div class="hscale" id="hscale"></div>
+      <input type="range" id="hSlider" min="0" max="16" step="1" value="8" oninput="setConsciousness(this.value)">
+      <div class="hreadout">
+        <div><b id="hName">—</b> <span id="hVal" style="color:var(--gold)"></span></div>
+        <p id="hDesc" style="margin:8px 0 0"></p>
+      </div>
+      <div class="hmass">← 85% of humanity calibrates in this zone (per Hawkins) · Courage 200 is the threshold →</div>
+    </div>
+
+    <h3>The record</h3>
+    <p>Pulled live from your journey. This is what you have already done.</p>
+    <div class="recordgrid" id="recordGrid"></div>
+
+    <div style="margin-top:50px;display:flex;gap:14px;flex-wrap:wrap">
+      <button class="btn" onclick="openRecord()">View my full record</button>
+      <button class="btn ghost" onclick="downloadSummary()">Download .txt</button>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ============ THE PROGRESS (KPI tracker) ============ -->
+<div id="progressView" style="display:none;position:relative;z-index:2">
+<section class="stage wide unlocked" style="min-height:auto;padding-top:130px">
+  <div class="inner">
+    <div class="eyebrow">The Progress · Personal KPI Tracker</div>
+    <h2>Points on the <em>board.</em></h2>
+    <p class="lead">Every rep for your future self earns points. Log the action the moment it happens.
+    The week does not care how you felt about it. It counts what you did.</p>
+
+    <div class="weekhead">
+      <div><div class="wknum" id="wkPoints">0</div>
+        <div class="scorelabel">points this week</div></div>
+      <div class="wkdelta" id="wkDelta"></div>
+    </div>
+
+    <h3>The scoreboard</h3>
+    <p>Every metric you set in the Mirror, current versus ideal, at a glance.
+    <span class="stchip st-g">On target</span> <span class="stchip st-y">Closing in</span> <span class="stchip st-r">Off track</span></p>
+    <div id="kpiReport"></div>
+
+    <h3>Log it</h3>
+    <p>Tap the moment it happens. One tap, logged, counted.</p>
+    <div class="pgrid" id="kpiGrid"></div>
+    <div class="kadd">
+      <input type="text" id="kName" placeholder="Custom action (e.g. Cold plunge)">
+      <select id="kArea"></select>
+      <input type="text" id="kPts" inputmode="numeric" placeholder="Points">
+      <button class="btn ghost" onclick="addKpi()">Add</button>
+    </div>
+
+    <h3>This week by area</h3>
+    <div id="areaReport"></div>
+
+    <h3>Progress over time</h3>
+    <p>Drill down by day, week, or month. Solid bars are logged points. Hollow dashed bars are the projection if your current trend holds.</p>
+    <div class="rangebtns">
+      <button class="rb" onclick="setChartMode('day',this)">Day</button>
+      <button class="rb on" onclick="setChartMode('week',this)">Week</button>
+      <button class="rb" onclick="setChartMode('month',this)">Month</button>
+    </div>
+    <canvas id="wkChart" width="820" height="300"></canvas>
+
+    <h3>Recent log</h3>
+    <div class="loglist" id="logList"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============ RECORD OVERLAY ============ -->
+<div class="overlay" id="recordOverlay">
+  <div class="ostage">
+    <button class="rec-close" onclick="closeOverlay('recordOverlay')">Close ✕</button>
+    <div id="recordBody"></div>
+    <div class="rec-actions">
+      <button class="btn ghost" onclick="copySummary()">Copy as text</button>
+      <button class="btn ghost" onclick="downloadSummary()">Download .txt</button>
+      <button class="btn" onclick="closeOverlay('recordOverlay');setView('mirror')">Enter the Mirror</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RELEASE OVERLAY ============ -->
+<div class="overlay" id="ritualOverlay">
+  <div class="ostage">
+    <button class="close" onclick="closeOverlay('ritualOverlay')">Close</button>
+    <div class="ostep" data-step="0">
+      <h3>Name it</h3>
+      <p class="lead" id="ritualName"></p>
+      <p>Say it plainly. This charge has been riding with you long enough to deserve a name.</p>
+      <button class="btn purple" onclick="ritualStep(1)">It is named</button>
+    </div>
+    <div class="ostep" data-step="1">
+      <h3>Feel it</h3>
+      <p id="ritualBody"></p>
+      <p>Close your eyes if you can. Find the sensation. Drop the story about who did what.
+      Just the raw energy. Breathe into it. Let it be as big as it actually is.</p>
+      <button class="btn purple" onclick="ritualStep(2)">I am with it</button>
+    </div>
+    <div class="ostep" data-step="2">
+      <h3>Thank it</h3>
+      <p id="ritualProtect"></p>
+      <p>This charge was protection. It kept a younger you safe. It is allowed to have existed.
+      And you have outgrown its job.</p>
+      <button class="btn purple" onclick="ritualStep(3)">Thank you. You are relieved of duty.</button>
+    </div>
+    <div class="ostep" data-step="3">
+      <h3>Let it go</h3>
+      <p>Do not push it out. Stop holding it in. When you press release, watch the sky.</p>
+      <button class="btn" onclick="finishRitual()">Release</button>
+    </div>
+    <div class="stepdots"><i class="on"></i><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<!-- ============ BODY SWAP OVERLAY ============ -->
+<div class="overlay" id="swapOverlay">
+  <div class="ostage" id="swapStage"></div>
+</div>
+
+<!-- ============ INTERRUPT OVERLAY ============ -->
+<div class="overlay" id="interruptOverlay">
+  <div class="ostage">
+    <button class="close" onclick="closeOverlay('interruptOverlay')">Close</button>
+    <div class="ostep on" data-istep="0">
+      <h3>Stop. Feel.</h3>
+      <p class="lead">Something is pulling you toward the old pattern. Good. It surfaced. Where is it in your body, right now?</p>
+      <button class="btn purple" onclick="interruptStep(1)">Found it</button>
+    </div>
+    <div class="ostep" data-istep="1">
+      <h3>Ninety seconds. No story.</h3>
+      <p>Just the sensation. Let it peak. It cannot hurt you. It is already here.</p>
+      <div class="timerwrap">
+        <div class="ring" style="width:170px;height:170px">
+          <svg width="170" height="170"><circle class="track" cx="85" cy="85" r="76"/>
+          <circle class="prog" id="iTimerProg" cx="85" cy="85" r="76" stroke-dasharray="477" stroke-dashoffset="477"/></svg>
+          <div class="num" id="iTimerNum" style="font-size:40px">90</div>
+        </div>
+        <button class="btn ghost" id="iTimerBtn" onclick="startITimer()">Start</button>
+      </div>
+      <button class="btn purple" onclick="interruptStep(2)">It moved through me</button>
+    </div>
+    <div class="ostep" data-istep="2">
+      <h3>The question</h3>
+      <p class="lead">If you were driving the body of someone you love, and you had to hand it back better in one year:
+      would you let them do what you were about to do?</p>
+      <button class="btn" onclick="interruptStep(3)">No. I would not.</button>
+    </div>
+    <div class="ostep" data-istep="3">
+      <h3>Then do it for you.</h3>
+      <p class="lead" id="interruptEcho"></p>
+      <button class="btn" onclick="closeOverlay('interruptOverlay')">Back to the mission</button>
+    </div>
+  </div>
+</div>
+
+<button id="interruptFab" onclick="openInterrupt()">⚡ 90-Second Interrupt</button>
+
+<!-- ============ CHAT ============ -->
+<button id="chatFab" onclick="toggleChat()" aria-label="Open guide">✦</button>
+<div id="chatPanel">
+  <div id="chatHead"><b>The Guide</b><button onclick="toggleChat()" style="color:var(--dim)">✕</button></div>
+  <div id="chatLog"></div>
+  <div id="chatForm">
+    <input id="chatInput" type="text" placeholder="Ask the guide anything..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button id="chatSend" onclick="sendChat()">Send</button>
+  </div>
+</div>
+<script>
+/* =====================================================
+   THE SHIFT - core engine
+   ===================================================== */
+
+/* ---------- State ---------- */
+const state = {
+  lion:'', drift:{answers:{},score:null},
+  charges:[], rejections:[],
+  swap:{person:'',commitment:''},
+  future:{letter:'',idents:['','',''],decision:''},
+  nbd:{outcome:'',because:''},
+  challenge:[],
+  progress:{}, releasedStars:[]
+};
+
+function save(){
+  try{ localStorage.setItem('theShift', JSON.stringify(state)); }catch(e){}
+  if(window.SHIFT) SHIFT.queueSave();
+}
+function load(){
+  try{
+    const raw = localStorage.getItem('theShift');
+    if(raw){ Object.assign(state, JSON.parse(raw)); return true; }
+  }catch(e){}
+  return false;
+}
+
+/* =====================================================
+   SHIFT SYNC - cloud persistence via token, no passwords
+   Local storage stays the fast path. The cloud is the
+   durable copy so nothing is lost when the device is.
+   ===================================================== */
+const SHIFT = (function(){
+  const FN   = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/';
+  const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+  const KEY  = 'theShiftToken';
+
+  let token = null, email = null, timer = null, dirty = false, nudged = false, booting = true;
+
+  async function call(fn, payload){
+    const r = await fetch(FN + fn, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + ANON },
+      body: JSON.stringify(payload)
+    });
+    return r.json();
+  }
+
+  function badge(text, cls){
+    const b = document.getElementById('saveState');
+    if(!b) return;
+    b.textContent = text;
+    b.className = cls || '';
+  }
+
+  function meaningful(){
+    // Only nudge once they have actually written something worth keeping.
+    return !!(state.lion || state.drift.score!=null ||
+              (state.charges||[]).some(c=>c.person && c.person.trim()) ||
+              state.future.letter || state.swap.commitment);
+  }
+
+  function nudge(){
+    if(token || nudged || !meaningful()) return;
+    nudged = true;
+    badge('Save your journey','nudge');
+  }
+
+  async function flush(){
+    if(!token || !dirty) return;
+    dirty = false;
+    badge('Saving','saving');
+    try{
+      const res = await call('shift-data', { action:'save', token, state });
+      if(res.status === 'saved'){
+        badge('Saved','saved');
+        const w = document.getElementById('gateWhen');
+        if(w) w.textContent = 'just now';
+      } else if(res.error === 'invalid_token'){
+        // Journey was erased elsewhere. Fall back to local only.
+        localStorage.removeItem(KEY); token = null; badge('Not saved','');
+      } else {
+        dirty = true; badge('Retrying','');
+      }
+    }catch(e){
+      dirty = true; badge('Offline, saved on this device','');
+    }
+  }
+
+  return {
+    get token(){ return token; },
+
+    queueSave(){
+      if(booting) return;
+      if(!token){ nudge(); return; }
+      dirty = true;
+      clearTimeout(timer);
+      timer = setTimeout(flush, 1200);   // debounce: 36 save() calls should not be 36 requests
+    },
+
+    // Pull the cloud copy into localStorage BEFORE boot() reads it.
+    async init(){
+      const url = new URL(location.href);
+      const fromUrl = url.searchParams.get('t');
+      token = fromUrl || localStorage.getItem(KEY);
+
+      if(fromUrl){
+        localStorage.setItem(KEY, fromUrl);
+        url.searchParams.delete('t');
+        history.replaceState({}, '', url.pathname + url.search + url.hash);
+      }
+      if(!token){ badge('Not saved',''); booting = false; return; }
+
+      try{
+        const res = await call('shift-data', { action:'load', token });
+        if(res.status === 'ok'){
+          email = res.email;
+          if(res.state && Object.keys(res.state).length){
+            localStorage.setItem('theShift', JSON.stringify(res.state));
+          }
+          badge('Saved','saved');
+        } else {
+          localStorage.removeItem(KEY); token = null; badge('Not saved','');
+        }
+      }catch(e){
+        badge('Saved on this device','');   // offline: local copy still boots
+      }
+      booting = false;
+    },
+
+    openGate(){
+      const o = document.getElementById('gateOverlay');
+      document.getElementById('gateForm').style.display    = token ? 'none'  : 'block';
+      document.getElementById('gateAccount').style.display = token ? 'block' : 'none';
+      document.getElementById('gateBlurb').style.display   = token ? 'none'  : 'block';
+      if(token){
+        document.getElementById('gateTitle').innerHTML = 'Your journey is <em>held</em>';
+        document.getElementById('gateWho').textContent = email || 'your email';
+      }
+      o.classList.add('show');
+      if(!token) setTimeout(()=>document.getElementById('gateEmail').focus(), 120);
+    },
+    closeGate(){ document.getElementById('gateOverlay').classList.remove('show'); },
+
+    async submitGate(){
+      const em  = document.getElementById('gateEmail').value.trim();
+      const nm  = document.getElementById('gateName').value.trim();
+      const btn = document.getElementById('gateBtn');
+      const msg = document.getElementById('gateMsg');
+      const show = (t,c)=>{ msg.textContent=t; msg.className='show '+c; };
+
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ show('That email does not look right. Check it and try again.','err'); return; }
+      btn.disabled = true; btn.textContent = 'Saving...';
+
+      try{
+        const res = await call('shift-data', { action:'start', email:em, first_name:nm });
+
+        if(res.status === 'new'){
+          token = res.token; email = em;
+          localStorage.setItem(KEY, token);
+          dirty = true; await flush();
+          show('Saved. We sent your private link to ' + em + ' so you can always get back in.','ok');
+          document.getElementById('gateForm').style.display = 'none';
+          setTimeout(()=>SHIFT.closeGate(), 2600);
+
+        } else if(res.status === 'returning'){
+          // Deliberate: we do not hand back a token to whoever typed the address.
+          show('You have been here before. We emailed your private link to ' + em + '. Open it to pick up where you left off.','ok');
+          btn.disabled = false; btn.textContent = 'Save my journey';
+
+        } else {
+          show('Something went wrong on our side. Your work is still safe on this device. Try again in a moment.','err');
+          btn.disabled = false; btn.textContent = 'Save my journey';
+        }
+      }catch(e){
+        show('We could not reach the server. Your work is still safe on this device.','err');
+        btn.disabled = false; btn.textContent = 'Save my journey';
+      }
+    },
+
+    async resendLink(){
+      if(!token) return;
+      const msg = document.getElementById('gateMsg');
+      msg.className = 'show ok'; msg.textContent = 'Sending...';
+      try{
+        await call('shift-data', { action:'resend_link', token });
+        msg.textContent = 'Sent. Check ' + (email || 'your inbox') + '.';
+      }catch(e){ msg.className='show err'; msg.textContent='Could not send right now.'; }
+    },
+
+    async deleteAll(){
+      if(!token) return;
+      if(!confirm('This erases everything you have written, permanently. There is no undo. Continue?')) return;
+      if(!confirm('Last check. Your pattern, your releases, your letter, your commitment. All of it, gone. Erase?')) return;
+      try{
+        const res = await call('shift-data', { action:'delete_all', token });
+        if(res.status === 'deleted'){
+          localStorage.removeItem(KEY);
+          localStorage.removeItem('theShift');
+          alert('Erased. Everything you wrote has been deleted.');
+          location.href = location.pathname;
+        }
+      }catch(e){ alert('Could not erase right now. Please try again.'); }
+    },
+
+    // Save immediately when the page is being closed.
+    bindUnload(){
+      addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flush(); });
+      addEventListener('pagehide', flush);
+    }
+  };
+})();
+// const at top level does not attach to window, and save() checks window.SHIFT.
+window.SHIFT = SHIFT;
+
+/* ---------- Audio (Web Audio, generated live) ---------- */
+let AC=null, droneOn=false, droneNodes=[];
+function audio(){ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); } if(AC.state==='suspended')AC.resume(); return AC; }
+
+function toggleDrone(){
+  const btn=document.getElementById('soundBtn');
+  if(droneOn){ droneNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect()}catch(e){}}); droneNodes=[]; droneOn=false; btn.classList.remove('on'); return; }
+  const ctx=audio();
+  const master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
+  master.gain.linearRampToValueAtTime(.05, ctx.currentTime+3);
+  const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=320; lp.connect(master);
+  [108,162,216.5].forEach(f=>{
+    const o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+    const g=ctx.createGain(); g.gain.value=.33;
+    const lfo=ctx.createOscillator(); lfo.frequency.value=.05+Math.random()*.06;
+    const lg=ctx.createGain(); lg.gain.value=.12;
+    lfo.connect(lg); lg.connect(g.gain);
+    o.connect(g); g.connect(lp); o.start(); lfo.start();
+    droneNodes.push(o,lfo);
+  });
+  droneNodes.push(master);
+  droneOn=true; btn.classList.add('on');
+}
+
+function chime(){
+  try{
+    const ctx=audio(), t=ctx.currentTime;
+    [523.25,659.25,783.99].forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0,t+i*.09);
+      g.gain.linearRampToValueAtTime(.14,t+i*.09+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t+i*.09+2.4);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t+i*.09); o.stop(t+i*.09+2.6);
+    });
+  }catch(e){}
+}
+function pulseTone(){
+  try{
+    const ctx=audio(), t=ctx.currentTime;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine'; o.frequency.value=196;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.05,t+1.6);
+    g.gain.linearRampToValueAtTime(.0001,t+4);
+    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+4.2);
+  }catch(e){}
+}
+let gripOsc=null;
+function gripToneStart(){
+  try{
+    const ctx=audio();
+    gripOsc={o:ctx.createOscillator(),g:ctx.createGain()};
+    gripOsc.o.type='sawtooth'; gripOsc.o.frequency.value=55;
+    gripOsc.g.gain.value=.015;
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=240;
+    gripOsc.o.connect(lp); lp.connect(gripOsc.g); gripOsc.g.connect(ctx.destination);
+    gripOsc.o.start(); gripOsc.lp=lp;
+  }catch(e){}
+}
+function gripToneUpdate(p){ if(gripOsc){ gripOsc.o.frequency.value=55+p*90; gripOsc.lp.frequency.value=240+p*900; gripOsc.g.gain.value=.015+p*.03; } }
+function gripToneEnd(){ if(gripOsc){ try{gripOsc.g.gain.linearRampToValueAtTime(.0001,audio().currentTime+.4); gripOsc.o.stop(audio().currentTime+.5);}catch(e){} gripOsc=null; chime(); } }
+
+/* ---------- Starfield ---------- */
+const sky=document.getElementById('sky'), sctx=sky.getContext('2d');
+let stars=[], W=0, H=0, mouseX=.5, mouseY=.5, nebulaHue=265, targetHue=265;
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function sizeSky(){ W=sky.width=innerWidth; H=sky.height=innerHeight; }
+function seedStars(){
+  stars=[];
+  const n=Math.min(240,Math.floor(W*H/9000));
+  for(let i=0;i<n;i++) stars.push({
+    x:Math.random()*W, y:Math.random()*H,
+    z:Math.random()*.8+.2, r:Math.random()*1.3+.3,
+    tw:Math.random()*Math.PI*2, gold:false
+  });
+  state.releasedStars.forEach(s=>stars.push({x:s.x*W,y:s.y*H,z:.9,r:2.1,tw:Math.random()*6,gold:true}));
+}
+sizeSky(); seedStars();
+addEventListener('resize',()=>{sizeSky();seedStars()});
+addEventListener('mousemove',e=>{mouseX=e.clientX/W;mouseY=e.clientY/H});
+
+let scrollY2=0;
+addEventListener('scroll',()=>{scrollY2=scrollY});
+
+function drawSky(t){
+  sctx.clearRect(0,0,W,H);
+  nebulaHue += (targetHue-nebulaHue)*.01;
+  // nebula glows
+  const g1=sctx.createRadialGradient(W*.75,H*.25,0,W*.75,H*.25,W*.55);
+  g1.addColorStop(0,`hsla(${nebulaHue},80%,45%,.10)`); g1.addColorStop(1,'transparent');
+  sctx.fillStyle=g1; sctx.fillRect(0,0,W,H);
+  const g2=sctx.createRadialGradient(W*.15,H*.8,0,W*.15,H*.8,W*.5);
+  g2.addColorStop(0,`hsla(${nebulaHue-30},70%,40%,.07)`); g2.addColorStop(1,'transparent');
+  sctx.fillStyle=g2; sctx.fillRect(0,0,W,H);
+
+  const ox=(mouseX-.5)*22, oy=(mouseY-.5)*14;
+  for(const s of stars){
+    const tw = reduceMotion ? .8 : .55+.45*Math.sin(t*.001+s.tw);
+    const px = s.x + ox*s.z, py = (s.y - scrollY2*s.z*.12*(reduceMotion?0:1) + oy*s.z + H*4)%H;
+    if(s.gold){
+      sctx.fillStyle=`rgba(232,181,74,${.75*tw})`;
+      sctx.shadowColor='rgba(232,181,74,.9)'; sctx.shadowBlur=10;
+    }else{
+      sctx.fillStyle=`rgba(220,220,255,${.6*tw*s.z})`;
+      sctx.shadowBlur=0;
+    }
+    sctx.beginPath(); sctx.arc(px,py,s.r,0,7); sctx.fill();
+    sctx.shadowBlur=0;
+  }
+  drawParticles(t);
+  requestAnimationFrame(drawSky);
+}
+requestAnimationFrame(drawSky);
+
+/* released-charge particles */
+let particles=[];
+function releaseBurst(fromX,fromY){
+  const destX=Math.random()*W*.8+W*.1, destY=Math.random()*H*.4+H*.05;
+  for(let i=0;i<26;i++){
+    particles.push({
+      x:fromX+(Math.random()-.5)*60, y:fromY+(Math.random()-.5)*30,
+      dx:destX+(Math.random()-.5)*40, dy:destY+(Math.random()-.5)*30,
+      p:0, sp:.004+Math.random()*.005, main:i===0
+    });
+  }
+  return {x:destX/W, y:destY/H};
+}
+function drawParticles(){
+  particles=particles.filter(p=>p.p<1);
+  for(const p of particles){
+    p.p+=p.sp;
+    const e=1-Math.pow(1-p.p,3);
+    const x=p.x+(p.dx-p.x)*e, y=p.y+(p.dy-p.y)*e;
+    sctx.fillStyle=`rgba(232,181,74,${(1-p.p*.4)*.9})`;
+    sctx.shadowColor='rgba(232,181,74,1)'; sctx.shadowBlur=8;
+    sctx.beginPath(); sctx.arc(x,y,p.main?2.4:1.2,0,7); sctx.fill();
+    sctx.shadowBlur=0;
+    if(p.main && p.p>=1){
+      stars.push({x:p.dx,y:p.dy,z:.9,r:2.1,tw:Math.random()*6,gold:true});
+    }
+  }
+}
+
+/* section hue shifts */
+const hues={'s-hero':265,'s0':265,'s1':280,'s2':255,'s3':270,'s4':275,'s5':48,'s6':46,'s7':262,'s8':45};
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      targetHue=hues[e.target.id]??265;
+      setActiveNode(e.target.id);
+    }
+  });
+},{threshold:.4});
+document.querySelectorAll('section.stage').forEach(s=>io.observe(s));
+
+/* ---------- Constellation nav ---------- */
+const order=['s-hero','s0','s1','s2','s3','s4','s5','s6','s7','s8'];
+function buildNav(){
+  const nav=document.getElementById('constellation');
+  nav.innerHTML='';
+  order.forEach((id,i)=>{
+    if(i>0){const l=document.createElement('div');l.className='link';l.dataset.for=id;nav.appendChild(l);}
+    const n=document.createElement('div');n.className='node';n.dataset.id=id;
+    n.innerHTML=`<div class="dot"></div><span class="tip">${document.getElementById(id).dataset.name}</span>`;
+    n.onclick=()=>{ if(document.getElementById(id).classList.contains('unlocked')) document.getElementById(id).scrollIntoView({behavior:'smooth'}); };
+    nav.appendChild(n);
+  });
+}
+function setActiveNode(id){
+  document.querySelectorAll('#constellation .node').forEach(n=>n.classList.toggle('active',n.dataset.id===id));
+}
+function markDone(id){
+  state.progress[id]=true; save();
+  document.querySelector(`#constellation .node[data-id="${id}"]`)?.classList.add('done');
+  document.querySelector(`#constellation .link[data-for="${id}"]`)?.classList.add('lit');
+}
+
+/* ---------- Flow control ---------- */
+function unlock(id){
+  const s=document.getElementById(id);
+  s.classList.remove('locked'); s.classList.add('unlocked');
+}
+function unlockNext(doneId,nextId){
+  markDone(doneId); unlock(nextId); chime();
+  document.getElementById(nextId).scrollIntoView({behavior:'smooth'});
+  if(nextId==='s8'){ document.getElementById('interruptFab').classList.add('show'); }
+}
+function beginJourney(){ markDone('s-hero'); unlock('s0'); document.getElementById('s0').scrollIntoView({behavior:'smooth'}); typeLion(); }
+
+/* ---------- Typewriter ---------- */
+function typewrite(el,text,speed=34){
+  el.textContent=''; el.classList.add('caret');
+  let i=0;
+  const iv=setInterval(()=>{
+    el.textContent=text.slice(0,++i);
+    if(i>=text.length){clearInterval(iv); setTimeout(()=>el.classList.remove('caret'),1400);}
+  },speed);
+}
+let lionTyped=false;
+function typeLion(){
+  if(lionTyped)return; lionTyped=true;
+  typewrite(document.getElementById('lionType'),
+    '"You make a little progress. Then you fall back to old patterns. Progress. Pattern. Progress. Pattern."',30);
+}
+</script>
+<script>
+/* =====================================================
+   Section logic
+   ===================================================== */
+
+/* ---------- 0: Lion ---------- */
+function completeLion(){
+  const v=document.getElementById('lionAnswer').value.trim();
+  if(!v){ document.getElementById('lionAnswer').focus(); return; }
+  state.lion=v; save();
+  unlockNext('s0','s1');
+}
+
+/* ---------- 1: Drift ---------- */
+const driftQs=[
+  {t:'I often reach the end of the day unsure where the time went.',d:true},
+  {t:'I make decisions quickly and rarely reopen them.',d:false},
+  {t:'My schedule is mostly a reaction to other people\'s demands.',d:true},
+  {t:'I have a written definite purpose I could recite right now.',d:false},
+  {t:'I scroll, snack, or numb out without deciding to.',d:true},
+  {t:'I start strong, then fall back to old patterns.',d:true},
+  {t:'My daily habits were chosen deliberately, not inherited.',d:false},
+  {t:'I delay hard conversations, hoping they resolve themselves.',d:true},
+  {t:'I know the single next action on my biggest goal.',d:false},
+  {t:'Life feels like it is happening to me more than through me.',d:true},
+  {t:'A setback usually knocks me off course for days or weeks.',d:true},
+  {t:'The five people closest to me pull me toward my best self.',d:false},
+  {t:'I control my appetites (food, substances, scrolling) more than they control me.',d:false},
+  {t:'I think plans through before acting, without using caution as an excuse to stall.',d:false},
+];
+function buildDrift(){
+  const wrap=document.getElementById('driftQs');
+  wrap.innerHTML=driftQs.map((q,i)=>`
+    <div class="qrow"><span>${q.t}</span>
+      <div class="toggle">
+        <button onclick="answerDrift(${i},true,this)">Yes</button>
+        <button onclick="answerDrift(${i},false,this)">No</button>
+      </div></div>`).join('');
+}
+function answerDrift(i,val,btn){
+  state.drift.answers[i]=val;
+  const row=btn.parentElement;
+  row.querySelectorAll('button').forEach(b=>b.classList.remove('sel-yes','sel-no'));
+  btn.classList.add(val?'sel-yes':'sel-no');
+  document.getElementById('driftBtn').disabled = Object.keys(state.drift.answers).length<driftQs.length;
+  save();
+}
+function scoreDrift(){
+  let d=0;
+  driftQs.forEach((q,i)=>{ const yes=state.drift.answers[i]; if((q.d&&yes)||(!q.d&&!yes)) d++; });
+  const purpose=(state.drift.purpose||'').trim();
+  if(purpose.length<20) d+=2; // no stated definite purpose = the deepest drift signal
+  const score=Math.round(d/(driftQs.length+2)*100);
+  state.drift.score=score; save();
+  document.getElementById('gaugewrap').classList.add('show');
+  const hue=Math.max(0,120-score*1.2);
+  const col=`hsl(${hue},80%,55%)`;
+  requestAnimationFrame(()=>{
+    const arc=document.getElementById('gaugeArc');
+    arc.style.strokeDashoffset=377-(377*score/100);
+    arc.style.stroke=col;
+    arc.style.filter=`drop-shadow(0 0 7px ${col})`;
+    document.getElementById('needle').style.transform=`rotate(${-90+180*score/100}deg)`;
+  });
+  buildKeys();
+  let v,n;
+  if(score<=20){v='Self-Directed';n='You are steering. Hill would call you the rare two percent. Keep your purpose written and in front of you, because drift recruits quietly.';}
+  else if(score<=50){v='Drifting at the Edges';n='The core is yours but the edges leak. Drift lives in the undecided hours. Name your definite purpose and the edges tighten on their own.';}
+  else if(score<=80){v='Hypnotic Rhythm Has You';n='This is what Hill warned about. Not failure, drift. The pattern runs on autopilot and calls itself circumstance. The good news: naming it is the first break in the trance.';}
+  else{v='Full Drift';n='Total honesty deserves a straight answer: the current is carrying you. Nothing here is permanent. Every exercise that follows is designed to hand the wheel back.';}
+  document.getElementById('driftverdict').textContent=`${score} / 100 · ${v}`;
+  document.getElementById('driftverdict').style.color=col;
+  document.getElementById('driftnote').textContent=n + (purpose.length<20?' And notice: no stated definite purpose. Hill would say that alone is the Devil\'s opening. Write it above, even roughly, and rescore.':'');
+  chime();
+  setTimeout(()=>document.getElementById('gaugewrap').scrollIntoView({behavior:'smooth',block:'center'}),300);
+}
+
+/* ---------- 2: Letting go ---------- */
+let vesselLevel=12;
+function vessel(mode){
+  const fill=document.querySelector('#v1 .fill'), note=document.getElementById('vesselNote'), v=document.getElementById('v1');
+  if(mode==='sup'){
+    vesselLevel=Math.min(100,vesselLevel+24);
+    fill.style.height=vesselLevel+'%';
+    if(vesselLevel>=100){ v.classList.remove('burst'); void v.offsetWidth; v.classList.add('burst');
+      note.innerHTML='<strong>Full.</strong> Suppressed feelings do not leave. They accumulate, then leak out as stress, cravings, reactivity, and the 11pm pull. This is the cost of "I\'m fine."';
+    } else note.innerHTML='<strong>Suppression stores it.</strong> Pushed down is not gone. The pressure builds and the system pays interest.';
+  }
+  if(mode==='exp'){
+    fill.style.height=Math.max(30,vesselLevel-8)+'%'; vesselLevel=Math.max(30,vesselLevel-8);
+    note.innerHTML='<strong>Expression leaks a little and spreads the rest.</strong> Venting gives the feeling a stage. It relieves pressure briefly, then recharges the story.';
+  }
+  if(mode==='rel'){
+    vesselLevel=12; fill.style.height='12%';
+    fill.style.background='linear-gradient(180deg,#E8B54A,#C9922A)';
+    setTimeout(()=>fill.style.background='',1200);
+    note.innerHTML='<strong>Release empties it.</strong> Fully felt, without the story, a feeling burns through in minutes. The vessel clears. This is the mechanic everything else builds on.';
+    chime();
+  }
+}
+
+/* 90 second timer */
+let timerIv=null;
+function startTimer(){
+  if(timerIv)return;
+  const prog=document.getElementById('timerProg'), num=document.getElementById('timerNum');
+  document.getElementById('breathOrb').classList.add('go');
+  document.getElementById('timerBtn').disabled=true;
+  let t=90; num.textContent=t;
+  pulseTone();
+  timerIv=setInterval(()=>{
+    t--; num.textContent=t;
+    prog.style.strokeDashoffset=628*(t/90);
+    if(t%8===0&&t>0)pulseTone();
+    if(t<=0){
+      clearInterval(timerIv); timerIv=null; chime();
+      document.getElementById('breathOrb').classList.remove('go');
+      document.getElementById('timerDone').style.display='block';
+      num.textContent='✦';
+    }
+  },1000);
+}
+
+/* ---------- 3: Shadow ---------- */
+function addShadowRow(data){
+  const list=document.getElementById('shadowList');
+  const idx=state.charges.length;
+  state.charges.push(data||{person:'',emotion:'',intensity:'',body:'',protect:'',released:false});
+  const row=document.createElement('div'); row.className='srow'; row.dataset.idx=idx;
+  row.innerHTML=`
+    <input type="text" placeholder="Who or what" oninput="upC(${idx},'person',this.value)">
+    <input type="text" placeholder="Anger, grief, shame..." oninput="upC(${idx},'emotion',this.value)">
+    <input type="text" inputmode="numeric" placeholder="1-10" oninput="upC(${idx},'intensity',this.value)">
+    <input type="text" placeholder="Chest, gut, throat..." oninput="upC(${idx},'body',this.value)">
+    <input type="text" placeholder="Being hurt again, rejection..." oninput="upC(${idx},'protect',this.value)">
+    <div class="status">Carried</div>`;
+  list.appendChild(row);
+  if(data){
+    const ins=row.querySelectorAll('input');
+    ins[0].value=data.person; ins[1].value=data.emotion; ins[2].value=data.intensity||''; ins[3].value=data.body; ins[4].value=data.protect;
+    if(data.released){row.classList.add('released'); row.querySelector('.status').textContent='Released ✦';}
+  }
+}
+function upC(i,k,v){ state.charges[i][k]=v; save(); }
+
+function addRejPair(data){
+  const list=document.getElementById('rejList');
+  const idx=state.rejections.length;
+  state.rejections.push(data||{where:'',love:''});
+  const box=document.createElement('div'); box.className='pairbox';
+  box.innerHTML=`
+    <label class="f" style="margin-top:0">Where have I been rejected?</label>
+    <input type="text" oninput="upR(${idx},'where',this.value)" placeholder="The moment, the person, the words">
+    <label class="f">How can I show myself love for how I handled it?</label>
+    <textarea rows="2" oninput="upR(${idx},'love',this.value)" placeholder="I am better because... I love myself for..."></textarea>`;
+  list.appendChild(box);
+  if(data){ box.querySelector('input').value=data.where; box.querySelector('textarea').value=data.love; }
+}
+function upR(i,k,v){ state.rejections[i][k]=v; save(); }
+
+function completeShadow(){
+  const named=state.charges.filter(c=>c.person.trim());
+  if(!named.length){ alert('Name at least one charge. The release needs something to work with.'); return; }
+  buildReleaseDeck();
+  unlockNext('s3','s4');
+}
+
+/* ---------- 4: Release ritual ---------- */
+let ritualIdx=null;
+function buildReleaseDeck(){
+  const deck=document.getElementById('releasedeck'); deck.innerHTML='';
+  state.charges.forEach((c,i)=>{
+    if(!c.person.trim())return;
+    const card=document.createElement('div'); card.className='charge-card'; card.dataset.idx=i;
+    if(c.released){card.classList.add('dissolving'); card.style.display='none';}
+    card.innerHTML=`<b>${esc(c.person)}</b><small>${esc(c.emotion)||'unnamed charge'}${c.intensity?' · charge '+esc(String(c.intensity)):''}</small>`;
+    card.onclick=()=>openRitual(i,card);
+    deck.appendChild(card);
+  });
+  updateReleaseCount();
+}
+function openRitual(i,card){
+  ritualIdx={i,card};
+  const c=state.charges[i];
+  document.getElementById('ritualName').textContent=`${c.person}${c.emotion?' · '+c.emotion:''}`;
+  document.getElementById('ritualBody').innerHTML=c.body?`<strong>You said it lives in your ${esc(c.body)}.</strong> Go there.`:'<strong>Find where it lives in your body.</strong>';
+  document.getElementById('ritualProtect').innerHTML=c.protect?`<strong>You said it protects you from ${esc(c.protect)}.</strong>`:'<strong>Ask what it was protecting you from.</strong>';
+  ritualStep(0);
+  document.getElementById('ritualOverlay').classList.add('open');
+}
+function ritualStep(n){
+  document.querySelectorAll('#ritualOverlay .ostep').forEach(s=>s.classList.toggle('on',+s.dataset.step===n));
+  document.querySelectorAll('#ritualOverlay .stepdots i').forEach((d,i)=>d.classList.toggle('on',i<=n));
+}
+function finishRitual(){
+  const {i,card}=ritualIdx;
+  state.charges[i].released=true;
+  closeOverlay('ritualOverlay');
+  const r=card.getBoundingClientRect();
+  const dest=releaseBurst(r.left+r.width/2, r.top+r.height/2);
+  state.releasedStars.push(dest); save();
+  card.classList.add('dissolving'); chime();
+  setTimeout(()=>{card.style.display='none'; updateReleaseCount();},1600);
+}
+function updateReleaseCount(){
+  const total=state.charges.filter(c=>c.person.trim()).length;
+  const done=state.charges.filter(c=>c.person.trim()&&c.released).length;
+  document.getElementById('releaseCount').textContent = done? `${done} of ${total} released. Look up. That light is yours now.` : '';
+  if(total>0&&done===total){
+    document.getElementById('starsLine').textContent = `${done===1?'One charge':done+' charges'}, carried for years, now permanent light in your sky.`;
+    document.getElementById('releaseDoneWrap').style.display='block';
+  }
+}
+
+/* ---------- 5: Body swap ---------- */
+const swapSteps=[
+  {h:'Think of someone you love without condition.',p:'A parent. A partner. A best friend. Your child. Someone whose life you would protect with your own.',input:{id:'swapPerson',ph:'Their name'},btn:'I have them'},
+  {h:'The trade.',p:'For one year, you live in their body. You cannot speak to them. You drive their days, their calendar, their commitments. In one year you hand it back, and they step into whatever you built.',btn:'I understand the stakes'},
+  {h:'Would you skip their training?',p:'Their body in your hands. Their energy. Their health a year from now. Would you let a stressful day cancel their session?',btn:'Not a chance'},
+  {h:'Would you skip their sales calls?',p:'Their income. Their family\'s security. Their mission funded or starved by what you do this year.',btn:'Never'},
+  {h:'Would you dodge their hard conversations?',p:'The ones you know would free them. Would you leave those unsaid in their life?',btn:'I would say every word'},
+  {h:'Would you feed them at midnight and steal their morning?',p:'Knowing what it costs them. Knowing you hand this body back.',btn:'No. I would protect their mornings'},
+  {h:'Now the turn.',p:'Trade bodies with yourself, one year from now. That future self handed you everything they have. You are driving their body right now. You told me where you fall back: ECHO. Would you allow that in their body?',btn:'No. Not anymore'},
+  {h:'Then write the commitment.',p:'How will you treat the body and the life you are now driving? Present tense. Signed.',input:{id:'swapCommit',ph:'I treat this body and this life like it belongs to someone I love, because it does. I...',area:true},btn:'Seal it'}
+];
+let swapIdx=0;
+function openSwap(){
+  swapIdx=0; renderSwap();
+  document.getElementById('swapOverlay').classList.add('open');
+}
+function renderSwap(){
+  const s=swapSteps[swapIdx];
+  const echo=state.lion?`"${esc(state.lion)}"`:'the old pattern';
+  const stage=document.getElementById('swapStage');
+  stage.innerHTML=`
+    <button class="close" onclick="closeOverlay('swapOverlay')">Close</button>
+    <div class="ostep on">
+      <h3>${s.h}</h3>
+      <p class="lead">${s.p.replace('ECHO',echo)}</p>
+      ${s.input?(s.input.area?`<textarea id="${s.input.id}" rows="4" placeholder="${s.input.ph}" style="margin-top:16px"></textarea>`:`<input type="text" id="${s.input.id}" placeholder="${s.input.ph}" style="margin-top:16px;max-width:340px">`):''}
+      <div style="margin-top:30px"><button class="btn ${swapIdx<6?'purple':''}" onclick="swapNext()">${s.btn}</button></div>
+      <div class="stepdots">${swapSteps.map((_,i)=>`<i class="${i<=swapIdx?'on':''}"></i>`).join('')}</div>
+    </div>`;
+  const f=stage.querySelector('input,textarea'); if(f)f.focus();
+}
+function swapNext(){
+  const s=swapSteps[swapIdx];
+  if(s.input){
+    const v=document.getElementById(s.input.id).value.trim();
+    if(!v)return;
+    if(s.input.id==='swapPerson')state.swap.person=v;
+    if(s.input.id==='swapCommit')state.swap.commitment=v;
+    save();
+  }
+  swapIdx++;
+  if(swapIdx>=swapSteps.length){ closeOverlay('swapOverlay'); renderArtifact(); unlockNext('s5','s6'); return; }
+  renderSwap();
+}
+function renderArtifact(){
+  const d=new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('artifactWrap').innerHTML=`
+    <div class="artifact">
+      <div class="atitle">The Commitment · Witnessed by ${esc(state.swap.person)||'the one you love'}</div>
+      <div class="abody">"${esc(state.swap.commitment)}"</div>
+      <div class="asig"><span>${d}</span><b>Sealed</b></div>
+    </div>`;
+}
+
+/* ---------- 6: Future self ---------- */
+function completeFuture(){
+  state.future.letter=document.getElementById('futureLetter').value.trim();
+  state.future.god=document.getElementById('godReflection').value.trim();
+  state.future.idents=[1,2,3].map(n=>document.getElementById('ident'+n).value.trim());
+  state.future.decision=document.getElementById('oneDecision').value.trim();
+  if(!state.future.letter||!state.future.decision){alert('The letter and the one decision are the minimum. Your future self is waiting on both.');return;}
+  save();
+  document.getElementById('intendLine').textContent='';
+  unlockNext('s6','s7');
+}
+
+/* ---------- 7: NBD + Grip ---------- */
+let gripP=0, gripChaos=0, gripHold=null, gripDone=false, swirlAng=0;
+const gripEl=document.getElementById('grip');
+const gripSwirl=document.getElementById('gripSwirl');
+function gripStart(e){
+  if(gripDone)return;
+  e.preventDefault();
+  const out=document.getElementById('outcomeText').value.trim();
+  if(!out){document.getElementById('outcomeText').focus();document.getElementById('gripHint').textContent='Name the outcome first. Then grip it.';return;}
+  state.nbd.outcome=out; save();
+  gripToneStart();
+  gripHold=setInterval(()=>{
+    gripP=Math.min(1,gripP+.011);
+    if(gripP>=1)gripChaos=Math.min(1,gripChaos+.018);
+    const it=Math.min(1.6,gripP+gripChaos*.7);
+    document.getElementById('gripProg').style.strokeDashoffset=603*(1-gripP);
+    gripToneUpdate(Math.min(1.4,it));
+    if(!reduceMotion){
+      const amp=it*it*8;
+      gripEl.style.transform=`translate(${(Math.random()-.5)*amp}px,${(Math.random()-.5)*amp}px) rotate(${(Math.random()-.5)*it*4}deg)`;
+    }
+    const h=265+it*62;
+    gripEl.style.borderColor=`hsl(${h},85%,${52+it*12}%)`;
+    gripEl.style.boxShadow=`0 0 ${18+it*70}px hsla(${h},90%,55%,${.3+it*.4})`;
+    document.getElementById('gripProg').style.stroke=`hsl(${h},85%,62%)`;
+    swirlAng+=3+it*24;
+    gripSwirl.style.opacity=Math.min(.9,it*.75);
+    gripSwirl.style.transform=`rotate(${swirlAng}deg) scale(${1+it*.3})`;
+    document.getElementById('gripLabel').innerHTML =
+      gripP<.35?'Feel the<br>tension build':
+      gripP<.75?'This is the grip.<br>This is what it costs':
+      gripChaos<.45?'Hold as long<br>as you need':
+      'Release<br>when YOU are ready';
+  },50);
+}
+function gripRelease(){
+  if(!gripHold)return;
+  clearInterval(gripHold); gripHold=null;
+  gripToneEnd();
+  gripEl.style.transform=''; gripSwirl.style.opacity=0;
+  if(gripP>=.5&&!gripDone){
+    gripDone=true;
+    const r=gripEl.getBoundingClientRect();
+    explode(r.left+r.width/2, r.top+r.height/2);
+    document.body.classList.add('afterglow');
+    setTimeout(()=>document.body.classList.remove('afterglow'),3400);
+    gripEl.style.transition='box-shadow 2.4s ease, border-color 1.4s ease';
+    gripEl.style.borderColor='var(--gold)';
+    gripEl.style.boxShadow='0 0 90px rgba(201,146,42,.5)';
+    document.getElementById('gripLabel').innerHTML='Released.<br>Still.';
+    document.getElementById('gripProg').style.stroke='#C9922A';
+    document.getElementById('intendLine').textContent=`"I fully intend: ${state.nbd.outcome}. And if it takes longer or looks different, it is no big deal, because..."`;
+    document.getElementById('gripresult').classList.add('show');
+    setTimeout(()=>document.getElementById('gripresult').scrollIntoView({behavior:'smooth',block:'center'}),1300);
+  }else{
+    gripP=0; gripChaos=0;
+    document.getElementById('gripProg').style.strokeDashoffset=603;
+    document.getElementById('gripProg').style.stroke='';
+    gripEl.style.borderColor=''; gripEl.style.boxShadow='';
+    document.getElementById('gripLabel').innerHTML='Press and hold<br>your grip on it';
+  }
+}
+function explode(x,y){
+  for(let i=0;i<56;i++){
+    const ang=Math.random()*Math.PI*2, dist=90+Math.random()*Math.min(W,H)*.42;
+    particles.push({x,y,dx:x+Math.cos(ang)*dist,dy:y+Math.sin(ang)*dist,p:0,sp:.012+Math.random()*.02,main:false});
+  }
+  chime();
+}
+gripEl.addEventListener('pointerdown',gripStart);
+addEventListener('pointerup',gripRelease);
+gripEl.addEventListener('pointerleave',gripRelease);
+
+function completeNBD(){
+  state.nbd.because=document.getElementById('nbdBecause').value.trim();
+  if(!state.nbd.because){document.getElementById('nbdBecause').focus();return;}
+  save();
+  buildChallenge();
+  document.getElementById('closingLine').textContent=`${state.releasedStars.length||'Your'} new star${state.releasedStars.length===1?'':'s'} in the sky. A sealed commitment. A named purpose. The shift is not coming. It is here.`;
+  unlockNext('s7','s8');
+}
+
+/* ---------- 8: Practice ---------- */
+function buildChallenge(){
+  if(!state.challenge.length){
+    state.challenge=[
+      state.future.decision?`Move on: ${state.future.decision}`:'Complete your one priority',
+      'Spend five minutes as your future self before the day starts',
+      'Catch one feeling in real time. Feel it fully. Release it.',
+      'Invest in one relationship that moves the mission',
+      'Plan tomorrow before you sleep tonight'
+    ];
+  }
+  const list=document.getElementById('challengeList');
+  list.innerHTML=state.challenge.map((c,i)=>`
+    <div class="challenge-item"><div class="n">${i+1}</div>
+    <input type="text" value="${esc(c)}" oninput="state.challenge[${i}]=this.value;save()"></div>`).join('');
+}
+
+/* Interrupt */
+function openInterrupt(){
+  document.getElementById('interruptEcho').textContent=
+    state.swap.commitment?`You sealed it: "${state.swap.commitment}"`:'You already know what your future self needs right now.';
+  interruptStep(0);
+  document.getElementById('interruptOverlay').classList.add('open');
+}
+function interruptStep(n){
+  document.querySelectorAll('#interruptOverlay .ostep').forEach(s=>s.classList.toggle('on',+s.dataset.istep===n));
+}
+let iTimerIv=null;
+function startITimer(){
+  if(iTimerIv)return;
+  document.getElementById('iTimerBtn').disabled=true;
+  let t=90;
+  pulseTone();
+  iTimerIv=setInterval(()=>{
+    t--;
+    document.getElementById('iTimerNum').textContent=t;
+    document.getElementById('iTimerProg').style.strokeDashoffset=477*(t/90);
+    if(t%8===0&&t>0)pulseTone();
+    if(t<=0){clearInterval(iTimerIv);iTimerIv=null;chime();
+      document.getElementById('iTimerNum').textContent='✦';
+      document.getElementById('iTimerBtn').disabled=false;}
+  },1000);
+}
+
+/* ---------- Export ---------- */
+function summaryText(){
+  const d=new Date().toLocaleDateString();
+  const rel=state.charges.filter(c=>c.released).map(c=>`  ✦ ${c.person} (${c.emotion||'charge'}) — RELEASED`);
+  const held=state.charges.filter(c=>c.person.trim()&&!c.released).map(c=>`  · ${c.person} (${c.emotion||'charge'}) — still carried`);
+  return [
+`THE SHIFT — Personal Record · ${d}`,
+`\nWHERE I FALL BACK (the lion):\n  ${state.lion||'—'}`,
+`\nDRIFT SCORE: ${state.drift.score??'—'} / 100`,
+`\nCHARGES:`,...rel,...held,
+`\nREJECTIONS MET WITH SELF-LOVE:`,
+...state.rejections.filter(r=>r.where.trim()).map(r=>`  · ${r.where}\n    → ${r.love}`),
+`\nTHE COMMITMENT (witnessed by ${state.swap.person||'—'}):\n  "${state.swap.commitment||'—'}"`,
+`\nLETTER FROM MY FUTURE SELF:\n  ${state.future.letter||'—'}`,
+`\nIDENTITY:`,...state.future.idents.filter(Boolean).map(s=>`  · ${s}`),
+`\nTHE ONE DECISION THIS WEEK:\n  ${state.future.decision||'—'}`,
+`\nNO BIG DEAL:\n  I fully intend: ${state.nbd.outcome||'—'}\n  And if it takes longer or looks different, it is no big deal, because ${state.nbd.because||'—'}`,
+`\nDAILY CHALLENGE:`,...state.challenge.map((c,i)=>`  ${i+1}. ${c}`),
+`\nFeel it fully. Release it freely. Become it now.\nAnd so it is.`
+].join('\n');
+}
+function exportAll(copy){
+  const t=summaryText();
+  const out=document.getElementById('exportOut');
+  out.textContent=t; out.classList.add('show');
+  if(copy){ navigator.clipboard?.writeText(t).then(()=>{out.textContent='Copied to clipboard.\n\n'+t;}).catch(()=>{}); }
+}
+function downloadSummary(){
+  try{
+    const blob=new Blob([summaryText()],{type:'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='the-shift-record.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){ exportAll(false); }
+}
+
+/* ---------- Overlays ---------- */
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ---------- Chat (The Guide) ---------- */
+let chatHistory=[];
+function toggleChat(){
+  const p=document.getElementById('chatPanel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')&&!chatHistory.length){
+    addMsg('bot','I am here for the whole journey. Stuck on a question, resisting an exercise, or something surfacing that you want to talk through? Bring it.');
+  }
+}
+function addMsg(role,text,thinking){
+  const log=document.getElementById('chatLog');
+  const m=document.createElement('div');
+  m.className=`msg ${role}${thinking?' thinking':''}`;
+  m.textContent=text;
+  log.appendChild(m); log.scrollTop=log.scrollHeight;
+  return m;
+}
+function guideContext(){
+  return JSON.stringify({
+    currentAnswers:{
+      whereTheyFallBack:state.lion, driftScore:state.drift.score,
+      charges:state.charges.filter(c=>c.person).map(c=>({person:c.person,emotion:c.emotion,released:c.released})),
+      commitment:state.swap.commitment, futureDecision:state.future.decision,
+      grippedOutcome:state.nbd.outcome
+    }
+  });
+}
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim(); if(!text)return;
+  input.value='';
+  addMsg('user',text);
+  chatHistory.push({role:'user',content:text});
+  const holder=addMsg('bot','...', true);
+  // The Guide runs through our own edge function so the API key never reaches the browser
+  // and usage stays rate limited. It requires a saved journey.
+  if(!SHIFT.token){
+    holder.classList.remove('thinking');
+    holder.textContent='Save your journey first and I can walk with you. Tap the button at the top of the page, and I will have your answers in front of me when we talk.';
+    setTimeout(()=>SHIFT.openGate(), 900);
+    return;
+  }
+  try{
+    const res=await fetch('https://trpnlkntvulkjerevngm.supabase.co/functions/v1/shift-guide',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM'
+      },
+      body:JSON.stringify({
+        token:SHIFT.token,
+        context:guideContext(),
+        messages:chatHistory.slice(-12)
+      })
+    });
+    const data=await res.json();
+    const reply=(data.reply||'').trim()||'The connection wavered. Ask me again.';
+    holder.classList.remove('thinking');
+    holder.textContent=reply;
+    chatHistory.push({role:'assistant',content:reply});
+  }catch(err){
+    holder.classList.remove('thinking');
+    holder.textContent='I could not reach the guide just now. Your journey is still saved. Try me again in a moment.';
+  }
+  document.getElementById('chatLog').scrollTop=1e9;
+}
+
+/* ---------- Utils & boot ---------- */
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+document.getElementById('soundBtn').onclick=toggleDrone;
+
+function boot(){
+  buildNav(); buildDrift();
+  const had=load();
+  seedStars();
+  if(had){
+    // restore rows
+    const charges=[...state.charges]; state.charges=[];
+    charges.forEach(c=>addShadowRow(c));
+    const rejs=[...state.rejections]; state.rejections=[];
+    rejs.forEach(r=>addRejPair(r));
+    if(!charges.length)addShadowRow();
+    if(!rejs.length)addRejPair();
+    // restore fields
+    if(state.lion)document.getElementById('lionAnswer').value=state.lion;
+    if(state.future.letter)document.getElementById('futureLetter').value=state.future.letter;
+    state.future.idents.forEach((v,i)=>{if(v)document.getElementById('ident'+(i+1)).value=v});
+    if(state.future.decision)document.getElementById('oneDecision').value=state.future.decision;
+    if(state.nbd.outcome)document.getElementById('outcomeText').value=state.nbd.outcome;
+    // restore progress
+    order.forEach((id,i)=>{
+      if(state.progress[id]){
+        markDone(id);
+        if(order[i+1])unlock(order[i+1]);
+        unlock(id);
+      }
+    });
+    if(state.progress['s3'])buildReleaseDeck();
+    if(state.swap.commitment)renderArtifact();
+    if(state.progress['s7']){buildChallenge();document.getElementById('interruptFab').classList.add('show');}
+    if(state.lion)lionTyped=true, document.getElementById('lionType').textContent='"You make a little progress. Then you fall back to old patterns. Progress. Pattern. Progress. Pattern."';
+  }else{
+    addShadowRow(); addRejPair();
+  }
+}
+/* boot() is invoked by the async initializer at the end of the page,
+   after SHIFT.init() has pulled any saved cloud state into localStorage. */
+</script>
+
+<script>
+/* =====================================================
+   THE MIRROR - life alignment tracker
+   ===================================================== */
+
+/* ---------- Mirror state ---------- */
+const defaultAreas = [
+  {name:'Body & Energy',cur:40,cap:90,note:''},
+  {name:'Mission & Business',cur:45,cap:95,note:''},
+  {name:'Money & Wealth',cur:35,cap:90,note:''},
+  {name:'Relationships',cur:50,cap:90,note:''},
+  {name:'Spirit & Faith',cur:60,cap:95,note:''},
+  {name:'Mind & Growth',cur:55,cap:90,note:''},
+  {name:'Creativity & Art',cur:50,cap:90,note:''},
+  {name:'Environment & Order',cur:40,cap:85,note:''}
+];
+if(!state.mirror) state.mirror = {areas: JSON.parse(JSON.stringify(defaultAreas)), consciousness: null};
+if(!state.mirror.areas || !state.mirror.areas.length) state.mirror.areas = JSON.parse(JSON.stringify(defaultAreas));
+
+/* ---------- View switching ---------- */
+function setView(v){
+  const mirror = v==='mirror';
+  document.body.classList.toggle('mirror', mirror);
+  document.getElementById('mirrorView').style.display = mirror ? 'block' : 'none';
+  document.getElementById('vtJourney').classList.toggle('on', !mirror);
+  document.getElementById('vtMirror').classList.toggle('on', mirror);
+  if(mirror){ targetHue = 46; renderMirror(); scrollTo({top:0,behavior:'smooth'}); }
+}
+
+/* ---------- Areas UI ---------- */
+function renderAreas(){
+  const list = document.getElementById('areaList');
+  list.innerHTML = '';
+  state.mirror.areas.forEach((a,i)=>{
+    const gap = a.cap - a.cur;
+    const row = document.createElement('div');
+    row.className = 'arearow';
+    row.innerHTML = `
+      <div class="ahead">
+        <input class="aname" value="${esc(a.name)}" oninput="upA(${i},'name',this.value)">
+        <span class="gaptag">Living <b>${a.cap>0?Math.round(a.cur/a.cap*100):0}%</b> of stated capability · gap <b>${gap}</b></span>
+      </div>
+      <div class="sliders">
+        <div class="sl"><label>Current level <b>${a.cur}</b></label>
+          <input type="range" min="0" max="100" value="${a.cur}" oninput="upA(${i},'cur',+this.value)"></div>
+        <div class="sl"><label>Capable level <b>${a.cap}</b></label>
+          <input type="range" class="goldr" min="0" max="100" value="${a.cap}" oninput="upA(${i},'cap',+this.value)"></div>
+      </div>
+      <div class="gapbar"><div class="cur" style="width:${a.cur}%"></div><div class="cap" style="left:${a.cap}%"></div></div>
+      <div class="anote"><input type="text" placeholder="Evidence for the capable number (what have you already proven?)" value="${esc(a.note)}" oninput="upA(${i},'note',this.value)"></div>`;
+    list.appendChild(row);
+  });
+}
+function upA(i,k,v){
+  state.mirror.areas[i][k]=v; save();
+  if(k!=='name'&&k!=='note'){ renderAreasSoft(i); drawRadar(); updateScore(); }
+}
+function renderAreasSoft(i){
+  const a = state.mirror.areas[i];
+  const row = document.getElementById('areaList').children[i];
+  if(!row) return;
+  row.querySelector('.gaptag').innerHTML = `Living <b>${a.cap>0?Math.round(a.cur/a.cap*100):0}%</b> of stated capability · gap <b>${a.cap-a.cur}</b>`;
+  const labels = row.querySelectorAll('.sl label b');
+  labels[0].textContent=a.cur; labels[1].textContent=a.cap;
+  row.querySelector('.gapbar .cur').style.width=a.cur+'%';
+  row.querySelector('.gapbar .cap').style.left=a.cap+'%';
+}
+function addArea(){
+  state.mirror.areas.push({name:'New area',cur:30,cap:80,note:''});
+  save(); renderAreas(); drawRadar(); updateScore();
+}
+
+/* ---------- Radar ---------- */
+let radarAnim = {cur:[],cap:[]};
+function drawRadar(){
+  const cv = document.getElementById('radar');
+  if(!cv) return;
+  const ctx2 = cv.getContext('2d');
+  const areas = state.mirror.areas;
+  const n = areas.length;
+  const cx = cv.width/2, cy = cv.height/2 + 6, R = Math.min(cv.width,cv.height)/2 - 96;
+  if(radarAnim.cur.length!==n){ radarAnim.cur = areas.map(a=>a.cur); radarAnim.cap = areas.map(a=>a.cap); }
+  areas.forEach((a,i)=>{
+    radarAnim.cur[i] += (a.cur - radarAnim.cur[i]) * .18;
+    radarAnim.cap[i] += (a.cap - radarAnim.cap[i]) * .18;
+  });
+  ctx2.clearRect(0,0,cv.width,cv.height);
+  const pt=(v,i)=>{ const ang=-Math.PI/2 + i*2*Math.PI/n; const r=R*v/100;
+    return [cx+Math.cos(ang)*r, cy+Math.sin(ang)*r]; };
+  // grid
+  ctx2.strokeStyle='rgba(234,232,246,.08)';
+  for(let g=20; g<=100; g+=20){
+    ctx2.beginPath();
+    for(let i=0;i<=n;i++){ const [x,y]=pt(g,i%n); i?ctx2.lineTo(x,y):ctx2.moveTo(x,y); }
+    ctx2.stroke();
+  }
+  for(let i=0;i<n;i++){ const [x,y]=pt(100,i);
+    ctx2.beginPath(); ctx2.moveTo(cx,cy); ctx2.lineTo(x,y); ctx2.stroke(); }
+  // humanity baseline (dashed, 50)
+  ctx2.setLineDash([5,6]); ctx2.strokeStyle='rgba(234,232,246,.4)'; ctx2.lineWidth=1.5;
+  ctx2.beginPath();
+  for(let i=0;i<=n;i++){ const [x,y]=pt(50,i%n); i?ctx2.lineTo(x,y):ctx2.moveTo(x,y); }
+  ctx2.stroke(); ctx2.setLineDash([]);
+  // capable polygon (gold)
+  ctx2.beginPath();
+  for(let i=0;i<=n;i++){ const [x,y]=pt(radarAnim.cap[i%n],i%n); i?ctx2.lineTo(x,y):ctx2.moveTo(x,y); }
+  ctx2.fillStyle='rgba(201,146,42,.10)'; ctx2.fill();
+  ctx2.strokeStyle='#C9922A'; ctx2.lineWidth=2;
+  ctx2.shadowColor='rgba(201,146,42,.6)'; ctx2.shadowBlur=12; ctx2.stroke(); ctx2.shadowBlur=0;
+  // current polygon (purple)
+  ctx2.beginPath();
+  for(let i=0;i<=n;i++){ const [x,y]=pt(radarAnim.cur[i%n],i%n); i?ctx2.lineTo(x,y):ctx2.moveTo(x,y); }
+  ctx2.fillStyle='rgba(123,47,255,.16)'; ctx2.fill();
+  ctx2.strokeStyle='#7B2FFF'; ctx2.lineWidth=2;
+  ctx2.shadowColor='rgba(123,47,255,.6)'; ctx2.shadowBlur=10; ctx2.stroke(); ctx2.shadowBlur=0;
+  // vertices
+  areas.forEach((a,i)=>{
+    const [x,y]=pt(radarAnim.cur[i],i);
+    ctx2.fillStyle='#cdb2ff'; ctx2.beginPath(); ctx2.arc(x,y,3,0,7); ctx2.fill();
+    const [gx,gy]=pt(radarAnim.cap[i],i);
+    ctx2.fillStyle='#E8B54A'; ctx2.beginPath(); ctx2.arc(gx,gy,3,0,7); ctx2.fill();
+  });
+  // labels (two lines when long, clamped inside canvas so nothing clips)
+  ctx2.font='11px Space Grotesk'; ctx2.fillStyle='rgba(234,232,246,.8)';
+  areas.forEach((a,i)=>{
+    const ang=-Math.PI/2 + i*2*Math.PI/n;
+    let x=cx+Math.cos(ang)*(R+30), y=cy+Math.sin(ang)*(R+26);
+    ctx2.textAlign = Math.abs(Math.cos(ang))<.3 ? 'center' : (Math.cos(ang)>0?'left':'right');
+    const up=a.name.toUpperCase(), words=up.split(' ');
+    let l1=up,l2='';
+    if(up.length>13&&words.length>1){const mid=Math.ceil(words.length/2);l1=words.slice(0,mid).join(' ');l2=words.slice(mid).join(' ');}
+    const wmax=Math.max(ctx2.measureText(l1).width,ctx2.measureText(l2).width);
+    if(ctx2.textAlign==='left'&&x+wmax>cv.width-6)x=cv.width-6-wmax;
+    if(ctx2.textAlign==='right'&&x-wmax<6)x=6+wmax;
+    ctx2.fillText(l1,x,y+(l2?-2:4));
+    if(l2)ctx2.fillText(l2,x,y+11);
+  });
+  if(document.body.classList.contains('mirror')) requestAnimationFrame(drawRadar);
+}
+
+/* ---------- Score ---------- */
+let scoreShown=0;
+function updateScore(){
+  const areas=state.mirror.areas.filter(a=>a.cap>0);
+  const score=Math.round(areas.reduce((s,a)=>s+a.cur/a.cap,0)/areas.length*100);
+  const el=document.getElementById('alignScore');
+  const step=()=>{ scoreShown += (score-scoreShown)*.12;
+    if(Math.abs(score-scoreShown)>.5){ el.textContent=Math.round(scoreShown); requestAnimationFrame(step); }
+    else el.textContent=score; };
+  step();
+  let v;
+  if(score>=85) v='You are living at the edge of your own stated capability. Either raise the capable numbers or recognize you are in rare alignment. Both are wins.';
+  else if(score>=65) v='Strong alignment with real gaps. The gold line knows something the purple line has not caught up to yet. Pick the widest gap and make it this week\'s front.';
+  else if(score>=45) v='You are living roughly half of what you know you are capable of. Not a judgment, a map. The lion in you already knows which axis to charge first.';
+  else v='The gap between the purple and gold shapes is the honest picture. Do not fix everything. Choose one axis, close it 10 points, and watch the rest follow.';
+  document.getElementById('alignVerdict').textContent=v;
+}
+
+/* ---------- Hawkins scale ---------- */
+const hLevels=[
+  {v:20,n:'Shame',d:'Humiliation, the bottom of the scale. Life feels like a curse.'},
+  {v:30,n:'Guilt',d:'Blame and self-punishment. Energy turned against the self.'},
+  {v:50,n:'Apathy',d:'Hopelessness. The world looks impossible to affect.'},
+  {v:75,n:'Grief',d:'Loss and regret. The past outweighs the present.'},
+  {v:100,n:'Fear',d:'The world looks dangerous. Withdrawal and anxiety run the show.'},
+  {v:125,n:'Desire',d:'Craving and wanting. Driven, but by lack.'},
+  {v:150,n:'Anger',d:'Frustration as fuel. More energy than fear, still burning the vessel.'},
+  {v:175,n:'Pride',d:'Feels good, but it is defensive. Dependent on external validation.'},
+  {v:200,n:'Courage',d:'THE THRESHOLD. Life stops happening to you. Empowerment begins. Truth over comfort.'},
+  {v:250,n:'Neutrality',d:'Unattached, flexible. Outcomes stop owning you. This is where "no big deal" actually lives.'},
+  {v:310,n:'Willingness',d:'Optimistic, committed, fast-growing. Says yes to life.'},
+  {v:350,n:'Acceptance',d:'You are the source of your experience. Full responsibility, no blame.'},
+  {v:400,n:'Reason',d:'Clarity, understanding, mastery of the mind. The scientist and builder.'},
+  {v:500,n:'Love',d:'Not emotion. A state. Reveres life itself. Runs on the heart, not the position.'},
+  {v:540,n:'Joy',d:'Inner joy independent of circumstance. Compassion flows outward.'},
+  {v:600,n:'Peace',d:'Stillness, bliss, transcendence. Rare embodied states.'},
+  {v:700,n:'Enlightenment',d:'700 to 1000. The great teachers. Consciousness itself, awake.'}
+];
+function buildHawkins(){
+  const scale=document.getElementById('hscale');
+  scale.innerHTML=hLevels.map((l,i)=>{
+    const hue = i<8 ? 265 : 46;
+    const light = i<8 ? (18+i*3) : (40+ (i-8)*4);
+    return `<i style="background:hsl(${hue},70%,${light}%)"></i>`;
+  }).join('');
+  const idx = state.mirror.consciousness ?? 8;
+  document.getElementById('hSlider').value = idx;
+  setConsciousness(idx, true);
+}
+function setConsciousness(idx, silent){
+  idx=+idx;
+  state.mirror.consciousness=idx; save();
+  const l=hLevels[idx];
+  document.getElementById('hName').textContent=l.n;
+  document.getElementById('hVal').textContent='· calibrates '+l.v;
+  document.getElementById('hDesc').textContent=l.d + (idx>=8 ? ' You are above the line where Hawkins placed 85 percent of humanity.' : ' Below the Courage threshold. Not a life sentence. Every release ritual you ran moves the needle.');
+}
+
+/* ---------- The Record ---------- */
+function renderRecord(){
+  const released=state.charges.filter(c=>c.released).length;
+  const cards=[
+    {k:'The pattern I named',v:state.lion||'Not yet named. Run the Journey.'},
+    {k:'Drift score',v:state.drift.score!=null?state.drift.score+' / 100':'Not yet measured'},
+    {k:'Charges released',v:released?released+' now permanent light in the sky':'None yet. The release ritual is waiting.'},
+    {k:'The sealed commitment',v:state.swap.commitment?'"'+state.swap.commitment+'"':'Not yet sealed'},
+    {k:'The one decision this week',v:state.future.decision||'Not yet chosen'},
+    {k:'Outcome held open-handed',v:state.nbd.outcome?state.nbd.outcome+' · no big deal':'Not yet released'}
+  ];
+  document.getElementById('recordGrid').innerHTML=cards.map(c=>
+    `<div class="rcard"><div class="rk">${c.k}</div><div class="rv">${esc(c.v)}</div></div>`).join('');
+}
+
+function renderMirror(){
+  renderAreas(); buildHawkins(); renderRecord(); updateScore();
+  requestAnimationFrame(drawRadar);
+}
+
+/* ---------- Upgraded export (overrides Part 1 version) ---------- */
+function summaryText(){
+  const d=new Date().toLocaleDateString();
+  const rel=state.charges.filter(c=>c.released).map(c=>`  * ${c.person} (${c.emotion||'charge'}) - RELEASED`);
+  const held=state.charges.filter(c=>c.person.trim()&&!c.released).map(c=>`  - ${c.person} (${c.emotion||'charge'}) - still carried`);
+  const areas=state.mirror.areas.map(a=>`  ${a.name}: current ${a.cur} / capable ${a.cap} (living ${a.cap>0?Math.round(a.cur/a.cap*100):0}%)${a.note?' | evidence: '+a.note:''}`);
+  const hl=state.mirror.consciousness!=null?hLevels[state.mirror.consciousness]:null;
+  const alignAreas=state.mirror.areas.filter(a=>a.cap>0);
+  const align=Math.round(alignAreas.reduce((s,a)=>s+a.cur/a.cap,0)/alignAreas.length*100);
+  return [
+`THE SHIFT - Personal Record · ${d}`,
+`\n== THE JOURNEY ==`,
+`\nWHERE I FALL BACK (the lion):\n  ${state.lion||'-'}`,
+`\nDRIFT SCORE: ${state.drift.score??'-'} / 100`,
+`\nCHARGES:`,...rel,...held,
+`\nREJECTIONS MET WITH SELF-LOVE:`,
+...state.rejections.filter(r=>r.where.trim()).map(r=>`  - ${r.where}\n    -> ${r.love}`),
+`\nTHE COMMITMENT (witnessed by ${state.swap.person||'-'}):\n  "${state.swap.commitment||'-'}"`,
+`\nLETTER FROM MY FUTURE SELF:\n  ${state.future.letter||'-'}`,
+`\nIDENTITY:`,...state.future.idents.filter(Boolean).map(s=>`  - ${s}`),
+`\nTHE ONE DECISION THIS WEEK:\n  ${state.future.decision||'-'}`,
+`\nNO BIG DEAL:\n  I fully intend: ${state.nbd.outcome||'-'}\n  And if it takes longer or looks different, it is no big deal, because ${state.nbd.because||'-'}`,
+`\nDAILY CHALLENGE:`,...state.challenge.map((c,i)=>`  ${i+1}. ${c}`),
+`\n== THE MIRROR ==`,
+`\nALIGNMENT SCORE: ${align}% of stated capability`,
+`\nAREAS:`,...areas,
+hl?`\nCONSCIOUSNESS CALIBRATION (Hawkins framework, self-assessed):\n  ${hl.n} (${hl.v})`:'',
+`\nFeel it fully. Release it freely. Become it now.\nAnd so it is.`
+].filter(Boolean).join('\n');
+}
+</script>
+
+<script>
+/* =====================================================
+   V2 ENGINE - views, swap v2, metrics, tracker,
+   hooponopono, covenant, record
+   ===================================================== */
+
+/* ---------- 3-way view switching (overrides v1) ---------- */
+function setView(v){
+  const alt = v!=='journey';
+  document.body.classList.toggle('altview', alt);
+  document.body.classList.toggle('mirror', v==='mirror');
+  document.getElementById('mirrorView').style.display = v==='mirror'?'block':'none';
+  document.getElementById('progressView').style.display = v==='progress'?'block':'none';
+  document.querySelector('main').style.display = v==='journey'?'':'none';
+  ['Journey','Mirror','Progress'].forEach(n=>{
+    const b=document.getElementById('vt'+n); if(b)b.classList.toggle('on', v===n.toLowerCase());
+  });
+  if(v==='mirror'){ targetHue=46; renderMirror(); }
+  if(v==='progress'){ targetHue=46; renderTracker(); }
+  if(v==='journey'){ targetHue=265; }
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =====================================================
+   BODY SWAP v2 - real choices, honest reflection
+   ===================================================== */
+const swapFlow=[
+  {t:'name',h:'Think of someone you love without condition.',
+   p:'A parent. A partner. A best friend. Your child. Someone whose life you would protect with your own.'},
+  {t:'info',h:'The trade.',
+   p:'For one year, you live in their body. You cannot warn them, coach them, or explain. You drive their days. In one year you hand it back, and they step into whatever you built. Every choice below is real. Answer what you would actually do.',b:'I understand the stakes'},
+  {t:'q',h:'Day 12. You are exhausted. Their training is on the calendar.',opts:[
+    ['Skip it. One day will not hurt.',0],
+    ['Cut it to twenty minutes. Never zero.',2],
+    ['Full session. This body is a trust.',2]]},
+  {t:'q',h:'Their income depends on calls you do not feel like making today.',opts:[
+    ['Push them all to next week.',0],
+    ['Make the three that matter most.',1],
+    ['Make every one. Their family is counting on it.',2]]},
+  {t:'q',h:'One hard conversation would free them. It would also be deeply uncomfortable.',opts:[
+    ['Leave it alone. Some doors stay closed.',0],
+    ['Write out the words, wait for the moment.',1],
+    ['Have it this week, with love.',2]]},
+  {t:'q',h:'It is 11pm in their body. The pull toward numbing out shows up.',opts:[
+    ['Let them have it. Everyone needs relief.',0],
+    ['Feel what is underneath it first. Then decide.',2],
+    ['Protect their morning. Close the kitchen. Close the screen.',2]]},
+  {t:'q',h:'Their biggest dream has been sitting untouched for years.',opts:[
+    ['Dreams can wait for the right season.',0],
+    ['One small move on it this week.',1],
+    ['Build it like this year is all they get.',2]]},
+  {t:'turn'},
+  {t:'commit',h:'Write the commitment.',
+   p:'How will you treat the body and the life you are now driving? Present tense. Signed.'}
+];
+function openSwap(){
+  swapIdx=0; state.swap.answers=[];
+  renderSwap();
+  document.getElementById('swapOverlay').classList.add('open');
+}
+function renderSwap(){
+  const s=swapFlow[swapIdx];
+  const stage=document.getElementById('swapStage');
+  const dots=`<div class="stepdots">${swapFlow.map((_,i)=>`<i class="${i<=swapIdx?'on':''}"></i>`).join('')}</div>`;
+  let inner='';
+  if(s.t==='name'){
+    inner=`<h3>${s.h}</h3><p class="lead">${s.p}</p>
+      <input type="text" id="swapPerson" placeholder="Their name" style="margin-top:16px;max-width:340px">
+      <div style="margin-top:30px"><button class="btn purple" onclick="swapName()">I have them</button></div>`;
+  }else if(s.t==='info'){
+    inner=`<h3>${s.h}</h3><p class="lead">${s.p}</p>
+      <div style="margin-top:30px"><button class="btn purple" onclick="swapAdvance()">${s.b}</button></div>`;
+  }else if(s.t==='q'){
+    inner=`<h3>${esc(state.swap.person)||'Their'} body. Your hands.</h3>
+      <p class="lead">${s.h}</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:26px;align-items:stretch">
+        ${s.opts.map((o,i)=>`<button class="btn ghost" style="justify-content:flex-start;text-align:left;letter-spacing:.06em;text-transform:none;font-size:15px" onclick="swapChoose(${i})">${o[0]}</button>`).join('')}
+      </div>`;
+  }else if(s.t==='turn'){
+    const answers=state.swap.answers||[];
+    const care=answers.reduce((t,a)=>t+a.care,0);
+    const max=answers.length*2;
+    const echo=state.lion?`"${esc(state.lion)}"`:'the old pattern you named';
+    let read;
+    if(care>=max-1) read=`Look at what you just did. Five chances to go easy on someone you love, and you protected them every time. You already know how to give this level of care. The only question left is who you believe deserves it.`;
+    else if(care>=max*.6) read=`Mostly, you protected them. And a few times, even for someone you love, you softened. No judgment. That honesty matters more than a perfect score.`;
+    else read=`Be honest about what just happened. Even holding a life you love in your hands, you chose comfort more than once. Not judgment. Information. The pattern does not only run on you.`;
+    inner=`<h3>Now the turn.</h3>
+      <p class="lead">${read}</p>
+      <p class="lead" style="margin-top:18px">Trade bodies with yourself, one year from now. That future self handed you everything they have. You are driving their body right now. You told me where you fall back: ${echo}.</p>
+      <p class="lead" style="color:var(--gold-hi)">Would you allow that in their body?</p>
+      <div style="margin-top:30px"><button class="btn" onclick="swapAdvance()">No. Not anymore.</button></div>`;
+  }else if(s.t==='commit'){
+    inner=`<h3>${s.h}</h3><p class="lead">${s.p}</p>
+      <textarea id="swapCommit" rows="4" placeholder="I treat this body and this life like it belongs to someone I love, because it does. I..." style="margin-top:16px"></textarea>
+      <div style="margin-top:30px"><button class="btn" onclick="swapSeal()">Seal it</button></div>`;
+  }
+  stage.innerHTML=`<button class="close" onclick="closeOverlay('swapOverlay')">Close</button><div class="ostep on">${inner}${dots}</div>`;
+  const f=stage.querySelector('input,textarea'); if(f)f.focus();
+}
+function swapName(){
+  const v=document.getElementById('swapPerson').value.trim();
+  if(!v)return;
+  state.swap.person=v; save(); swapAdvance();
+}
+function swapChoose(i){
+  const s=swapFlow[swapIdx];
+  state.swap.answers.push({q:s.h,choice:s.opts[i][0],care:s.opts[i][1]});
+  save(); swapAdvance();
+}
+function swapAdvance(){ swapIdx++; renderSwap(); }
+function swapSeal(){
+  const v=document.getElementById('swapCommit').value.trim();
+  if(!v)return;
+  state.swap.commitment=v; save();
+  closeOverlay('swapOverlay'); renderArtifact(); unlockNext('s5','s6');
+}
+
+/* =====================================================
+   MIRROR v2 - metrics with ideals, computed levels
+   ===================================================== */
+const metricSeeds={
+ 'Body & Energy':[{name:'Weight (lbs)',dir:'low'},{name:'Body fat %',dir:'low'},{name:'Workouts per week',dir:'high'}],
+ 'Mission & Business':[{name:'Monthly revenue ($)',dir:'high'},{name:'Clients served',dir:'high'}],
+ 'Money & Wealth':[{name:'Monthly savings ($)',dir:'high'},{name:'Total debt ($)',dir:'low'}],
+ 'Relationships':[{name:'Quality hours per week',dir:'high'}],
+ 'Spirit & Faith':[{name:'Prayer or meditation days per week',dir:'high'}],
+ 'Mind & Growth':[{name:'Learning hours per week',dir:'high'}],
+ 'Creativity & Art':[{name:'Creative sessions per week',dir:'high'}],
+ 'Environment & Order':[]
+};
+function validMetrics(a){
+  return (a.metrics||[]).filter(m=>m.cur!==''&&m.ideal!==''&&!isNaN(+m.cur)&&!isNaN(+m.ideal)&&+m.ideal>=0);
+}
+function metricProgress(m){
+  const c=+m.cur, i=+m.ideal;
+  let p;
+  if(m.dir==='low') p = c<=i ? 1 : (c>0 ? i/c : 1);
+  else p = i<=0 ? (c>0?1:0) : c/i;
+  return Math.max(0,Math.min(1,p));
+}
+function computeAreaCur(a){
+  const v=validMetrics(a);
+  if(!v.length)return null;
+  return Math.round(v.reduce((s,m)=>s+metricProgress(m),0)/v.length*100);
+}
+function weekPtsFor(areaName){
+  const wk=weekKey(Date.now());
+  return (state.tracker.log||[]).filter(l=>l.area===areaName&&weekKey(l.ts)===wk)
+    .reduce((s,l)=>s+l.pts,0);
+}
+function renderAreas(){
+  const list=document.getElementById('areaList');
+  list.innerHTML='';
+  state.mirror.areas.forEach((a,i)=>{
+    const comp=computeAreaCur(a);
+    if(comp!==null)a.cur=comp;
+    const gap=a.cap-a.cur;
+    const pts=weekPtsFor(a.name);
+    const row=document.createElement('div');
+    row.className='arearow';
+    row.innerHTML=`
+      <div class="ahead">
+        <input class="aname" value="${esc(a.name)}" oninput="upA(${i},'name',this.value)">
+        <span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          ${pts>0?`<span class="ptschip">+${pts} pts this week</span>`:''}
+          <span class="gaptag">Living <b>${a.cap>0?Math.round(a.cur/a.cap*100):0}%</b> of capability · gap <b>${gap}</b></span>
+        </span>
+      </div>
+      <div class="sliders">
+        <div class="sl">
+          ${comp!==null
+            ?`<label>Current level <b class="curval">${a.cur}</b><span class="computedTag">auto-calculated from your metrics ↓</span></label>
+              <div class="gapbar" style="margin-top:10px"><div class="cur" style="width:${a.cur}%"></div></div>`
+            :`<label>Current level · where you are today <b class="curval">${a.cur}</b></label>
+              <input type="range" min="0" max="100" value="${a.cur}" oninput="upA(${i},'cur',+this.value)">`}
+        </div>
+        <div class="sl"><label>Capable · your 12-month ceiling <b class="capval">${a.cap}</b></label>
+          <input type="range" class="goldr" min="0" max="100" value="${a.cap}" oninput="upA(${i},'cap',+this.value)"></div>
+      </div>
+      <div class="gapbar"><div class="cur" style="width:${a.cur}%"></div><div class="cap" style="left:${a.cap}%"></div></div>
+      <div style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="mtoggle" onclick="toggleMetrics(${i},this)">${validMetrics(a).length?'✦ ':''}Metrics (${(a.metrics||[]).length}) · track real numbers</button>
+        ${(a.metrics||[]).length&&!validMetrics(a).length?'<span style="font-size:12px;color:var(--dim)">Fill in Current + Ideal below and this area calculates itself</span>':''}
+      </div>
+      <div class="metrics" id="metrics-${i}">
+        <p style="font-size:13px;margin-bottom:14px">Real numbers beat feelings. <strong>Current</strong> = the number today. <strong>Ideal</strong> = the number you are aiming for. Choose whether higher or lower is better, and the area level auto-calculates.</p>
+        <div class="mhead"><div>Metric</div><div>Current (today)</div><div>Ideal (target)</div><div>Direction</div><div></div></div>
+        <div class="mlist">${(a.metrics||[]).map((m,mi)=>metricRowHTML(i,mi,m)).join('')}</div>
+        <button class="btn ghost" style="padding:10px 20px;font-size:11px" onclick="addMetric(${i})">+ Add metric</button>
+      </div>
+      <div class="anote"><input type="text" placeholder="Evidence for the capable number (what have you already proven?)" value="${esc(a.note)}" oninput="upA(${i},'note',this.value)"></div>`;
+    list.appendChild(row);
+  });
+}
+function metricRowHTML(i,mi,m){
+  return `<div class="mrow">
+    <input type="text" value="${esc(m.name)}" placeholder="e.g. Body fat %" oninput="upM(${i},${mi},'name',this.value)">
+    <input type="text" inputmode="decimal" value="${esc(String(m.cur))}" placeholder="now" oninput="upM(${i},${mi},'cur',this.value)">
+    <input type="text" inputmode="decimal" value="${esc(String(m.ideal))}" placeholder="ideal" oninput="upM(${i},${mi},'ideal',this.value)">
+    <select onchange="upM(${i},${mi},'dir',this.value)">
+      <option value="high" ${m.dir!=='low'?'selected':''}>Higher is better</option>
+      <option value="low" ${m.dir==='low'?'selected':''}>Lower is better</option>
+    </select>
+    <button class="wdel" onclick="delMetric(${i},${mi})">✕</button>
+  </div>`;
+}
+function toggleMetrics(i,btn){ document.getElementById('metrics-'+i).classList.toggle('open'); }
+function addMetric(i){
+  state.mirror.areas[i].metrics=state.mirror.areas[i].metrics||[];
+  state.mirror.areas[i].metrics.push({name:'',cur:'',ideal:'',dir:'high'});
+  save(); renderAreas(); updateScore();
+  document.getElementById('metrics-'+i).classList.add('open');
+}
+function delMetric(i,mi){
+  state.mirror.areas[i].metrics.splice(mi,1);
+  const c=computeAreaCur(state.mirror.areas[i]);
+  if(c!==null)state.mirror.areas[i].cur=c;
+  save(); renderAreas(); updateScore();
+  document.getElementById('metrics-'+i).classList.add('open');
+}
+function upM(i,mi,k,v){
+  const a=state.mirror.areas[i];
+  a.metrics[mi][k]=v;
+  const c=computeAreaCur(a);
+  if(c!==null)a.cur=c;
+  save();
+  const row=document.getElementById('areaList').children[i];
+  if(row){
+    row.querySelector('.curval').textContent=a.cur;
+    row.querySelectorAll('.gapbar .cur').forEach(el=>el.style.width=a.cur+'%');
+    const cap=row.querySelector('.gapbar .cap'); if(cap)cap.style.left=a.cap+'%';
+    row.querySelector('.gaptag').innerHTML=`Living <b>${a.cap>0?Math.round(a.cur/a.cap*100):0}%</b> of capability · gap <b>${a.cap-a.cur}</b>`;
+  }
+  updateScore();
+}
+function upA(i,k,v){
+  state.mirror.areas[i][k]=v; save();
+  if(k==='cur'||k==='cap'){
+    const a=state.mirror.areas[i];
+    const row=document.getElementById('areaList').children[i];
+    if(row){
+      row.querySelector('.curval').textContent=a.cur;
+      const cv=row.querySelector('.capval'); if(cv)cv.textContent=a.cap;
+      row.querySelectorAll('.gapbar .cur').forEach(el=>el.style.width=a.cur+'%');
+      const cap=row.querySelector('.gapbar .cap'); if(cap)cap.style.left=a.cap+'%';
+      row.querySelector('.gaptag').innerHTML=`Living <b>${a.cap>0?Math.round(a.cur/a.cap*100):0}%</b> of capability · gap <b>${a.cap-a.cur}</b>`;
+    }
+    updateScore();
+  }
+}
+function addArea(){
+  state.mirror.areas.push({name:'New area',cur:30,cap:80,note:'',metrics:[]});
+  save(); renderAreas(); updateScore();
+}
+
+/* =====================================================
+   THE PROGRESS - weekly points KPI tracker
+   ===================================================== */
+const kpiSeeds=[
+ ['Workout completed','Body & Energy',10],['Slept 7+ hours','Body & Energy',5],['Clean eating day','Body & Energy',5],['10k steps','Body & Energy',5],
+ ['Sales call made','Mission & Business',3],['Sale closed','Mission & Business',20],['Deep work session','Mission & Business',8],['Client delivered','Mission & Business',10],
+ ['Reviewed finances','Money & Wealth',5],['Saved or invested','Money & Wealth',8],['New income created','Money & Wealth',15],
+ ['Quality time given','Relationships',8],['Faced a fear for a relationship','Relationships',15],['Reached out first','Relationships',5],
+ ['Prayer or meditation','Spirit & Faith',5],['Church or community','Spirit & Faith',10],['Scripture or study','Spirit & Faith',5],['Gratitude practice','Spirit & Faith',3],
+ ['Read 20+ minutes','Mind & Growth',5],['Journaled','Mind & Growth',5],['Course or learning','Mind & Growth',5],
+ ['Created something','Creativity & Art',8],['Shared or released work','Creativity & Art',15],
+ ['Cleaned or organized space','Environment & Order',5],['Upgraded environment','Environment & Order',8]
+];
+function weekKey(ts){
+  const d=new Date(ts); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.getTime();
+}
+function areaColor(name){
+  const idx=Math.max(0,state.mirror.areas.findIndex(a=>a.name===name));
+  const n=Math.max(1,state.mirror.areas.length-1);
+  const h=265-(265-46)*(idx/n);
+  return `hsl(${h},70%,58%)`;
+}
+function logKpi(ti,btn){
+  const t=state.tracker.templates[ti];
+  state.tracker.log.unshift({ts:Date.now(),name:t.name,area:t.area,pts:t.pts});
+  save(); chime();
+  if(btn){btn.classList.add('flash');setTimeout(()=>btn.classList.remove('flash'),700);}
+  renderTracker(true);
+}
+function delLog(i){ state.tracker.log.splice(i,1); save(); renderTracker(); }
+function addKpi(){
+  const name=document.getElementById('kName').value.trim();
+  const area=document.getElementById('kArea').value;
+  const pts=parseInt(document.getElementById('kPts').value)||5;
+  if(!name)return;
+  state.tracker.templates.push({name,area,pts});
+  document.getElementById('kName').value=''; document.getElementById('kPts').value='';
+  save(); renderTracker();
+}
+function delKpi(i,ev){ ev.stopPropagation(); state.tracker.templates.splice(i,1); save(); renderTracker(); }
+function renderTracker(soft){
+  const wkNow=weekKey(Date.now());
+  const byWeek={};
+  state.tracker.log.forEach(l=>{ const k=weekKey(l.ts); byWeek[k]=(byWeek[k]||0)+l.pts; });
+  const thisWk=byWeek[wkNow]||0;
+  const lastWk=byWeek[wkNow-7*864e5]||0;
+  document.getElementById('wkPoints').textContent=thisWk;
+  const d=thisWk-lastWk;
+  document.getElementById('wkDelta').innerHTML=
+    lastWk||thisWk?`<b>${d>=0?'+':''}${d}</b> vs last week (${lastWk})<br>All time: <b>${state.tracker.log.reduce((s,l)=>s+l.pts,0)}</b> points · ${state.tracker.log.length} actions logged`:'First week. Every point from here is new ground.';
+  if(!soft){
+    document.getElementById('kpiGrid').innerHTML=state.tracker.templates.map((t,i)=>
+      `<button class="kpibtn" onclick="logKpi(${i},this)">
+        <span class="dotc" style="background:${areaColor(t.area)}"></span>${esc(t.name)}
+        <span class="pts">+${t.pts}</span><small>${esc(t.area)}</small>
+        <span class="kdel" onclick="delKpi(${i},event)">remove</span>
+      </button>`).join('');
+    const sel=document.getElementById('kArea');
+    sel.innerHTML=state.mirror.areas.map(a=>`<option>${esc(a.name)}</option>`).join('');
+  }
+  // area report (this week)
+  const areaPts={};
+  state.tracker.log.forEach(l=>{ if(weekKey(l.ts)===wkNow) areaPts[l.area]=(areaPts[l.area]||0)+l.pts; });
+  const maxA=Math.max(1,...Object.values(areaPts));
+  document.getElementById('areaReport').innerHTML=state.mirror.areas.map(a=>{
+    const p=areaPts[a.name]||0;
+    const all=state.tracker.log.filter(l=>l.area===a.name).reduce((s,l)=>s+l.pts,0);
+    return `<div class="areabar"><div class="abh"><b>${esc(a.name)}</b><span>${p} this week · ${all} all time</span></div>
+      <div class="abtrack"><div class="abfill" style="width:${p/maxA*100}%;background:linear-gradient(90deg,${areaColor(a.name)}66,${areaColor(a.name)})"></div></div></div>`;
+  }).join('');
+  // log list
+  document.getElementById('logList').innerHTML=state.tracker.log.slice(0,14).map((l,i)=>{
+    const dt=new Date(l.ts);
+    return `<div class="logrow"><span class="lt">${dt.toLocaleDateString(undefined,{month:'short',day:'numeric'})} ${dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}</span>
+      <span class="ln"><span class="dotc" style="background:${areaColor(l.area)}"></span>${esc(l.name)}</span>
+      <span class="lp">+${l.pts}</span><button class="ldel" onclick="delLog(${i})">✕</button></div>`;
+  }).join('')||'<p>Nothing logged yet. The first tap starts the record.</p>';
+  renderKpiReport();
+  drawWkChart();
+}
+let chartMode='week';
+function setChartMode(m,btn){
+  chartMode=m;
+  document.querySelectorAll('.rangebtns .rb').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  drawWkChart();
+}
+function dayKey(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
+function monthKey(ts){const d=new Date(ts);return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
+function drawWkChart(){
+  const cv=document.getElementById('wkChart'); if(!cv)return;
+  const c=cv.getContext('2d');
+  c.clearRect(0,0,cv.width,cv.height);
+  const log=state.tracker.log||[];
+  let buckets=[];
+  if(chartMode==='day'){
+    const today=dayKey(Date.now());
+    const sums={}; log.forEach(l=>{const k=dayKey(l.ts);sums[k]=(sums[k]||0)+l.pts;});
+    for(let i=13;i>=0;i--){
+      const k=today-i*864e5;
+      buckets.push({v:sums[k]||0,lbl:i===0?'today':new Date(k).toLocaleDateString(undefined,{month:'short',day:'numeric'}),type:i===0?'now':'past'});
+    }
+  }else if(chartMode==='week'){
+    const wkNow=weekKey(Date.now());
+    const sums={}; log.forEach(l=>{const k=weekKey(l.ts);sums[k]=(sums[k]||0)+l.pts;});
+    const vals=[];
+    for(let i=7;i>=0;i--){const k=wkNow-i*7*864e5;vals.push(sums[k]||0);
+      buckets.push({v:sums[k]||0,lbl:i===0?'now':new Date(k).toLocaleDateString(undefined,{month:'short',day:'numeric'}),type:i===0?'now':'past'});}
+    const nz=vals.slice(-4,-1);let slope=0;
+    if(nz.length>=2){const df=[];for(let i=1;i<nz.length;i++)df.push(nz[i]-nz[i-1]);slope=df.reduce((s,x)=>s+x,0)/df.length;}
+    const base=Math.max(vals[vals.length-1],vals[vals.length-2]||0);
+    const p1=Math.max(0,Math.round(base+slope)), p2=Math.max(0,Math.round(p1+slope));
+    buckets.push({v:p1,lbl:'next',type:'proj'},{v:p2,lbl:'+2',type:'proj'});
+  }else{
+    const mNow=monthKey(Date.now());
+    const sums={}; log.forEach(l=>{const k=monthKey(l.ts);sums[k]=(sums[k]||0)+l.pts;});
+    const keys=[];
+    for(let i=5;i>=0;i--){const d=new Date(mNow);d.setMonth(d.getMonth()-i);keys.push(d.getTime());}
+    const vals=keys.map(k=>sums[k]||0);
+    keys.forEach((k,i)=>buckets.push({v:vals[i],lbl:i===keys.length-1?'now':new Date(k).toLocaleDateString(undefined,{month:'short'}),type:i===keys.length-1?'now':'past'}));
+    const nz=vals.slice(-4,-1);let slope=0;
+    if(nz.length>=2){const df=[];for(let i=1;i<nz.length;i++)df.push(nz[i]-nz[i-1]);slope=df.reduce((s,x)=>s+x,0)/df.length;}
+    const p1=Math.max(0,Math.round(Math.max(vals[vals.length-1],vals[vals.length-2]||0)+slope));
+    buckets.push({v:p1,lbl:'next',type:'proj'});
+  }
+  const maxV=Math.max(10,...buckets.map(b=>b.v));
+  const n=buckets.length, pad=40, gap=(cv.width-pad*2)/n, bw=gap*.6;
+  c.font='11.5px Space Grotesk'; c.textAlign='center';
+  buckets.forEach((b,i)=>{
+    const x=pad+gap*i+gap/2, h=(cv.height-70)*(b.v/maxV), y=cv.height-40-h;
+    if(b.type==='proj'){
+      c.setLineDash([5,5]); c.strokeStyle='rgba(201,146,42,.7)'; c.lineWidth=1.5;
+      c.strokeRect(x-bw/2,y,bw,Math.max(1,h)); c.setLineDash([]);
+    }else{
+      const g=c.createLinearGradient(0,y,0,cv.height-40);
+      if(b.type==='now'){g.addColorStop(0,'#7B2FFF');g.addColorStop(1,'#3a1580');}
+      else{g.addColorStop(0,'#E8B54A');g.addColorStop(1,'#8a6117');}
+      c.fillStyle=g;
+      c.shadowColor=b.type==='now'?'rgba(123,47,255,.5)':'rgba(201,146,42,.35)'; c.shadowBlur=10;
+      c.fillRect(x-bw/2,y,bw,Math.max(1,h)); c.shadowBlur=0;
+    }
+    c.fillStyle='rgba(234,232,246,.85)';
+    if(b.v>0)c.fillText(b.v,x,y-8);
+    c.fillStyle='rgba(143,141,174,.9)';
+    c.fillText(b.lbl,x,cv.height-16);
+  });
+}
+
+/* ---------- KPI scoreboard (red / yellow / green) ---------- */
+function stChip(p){
+  const cls=p>=85?'st-g':p>=55?'st-y':'st-r';
+  const lbl=p>=85?'On target':p>=55?'Closing in':'Off track';
+  return `<span class="stchip ${cls}">${lbl}</span>`;
+}
+function fmtN(x){const n=+x;return isNaN(n)?esc(String(x)):n.toLocaleString();}
+function renderKpiReport(){
+  const el=document.getElementById('kpiReport'); if(!el)return;
+  let rows=`<div class="kpirow hdr"><div>Metric</div><div>Current</div><div>Ideal / Capable</div><div>%</div><div>Status</div></div>`;
+  state.mirror.areas.forEach(a=>{
+    const pct=a.cap>0?Math.round(a.cur/a.cap*100):0;
+    rows+=`<div class="kpirow area"><div class="kn2">${esc(a.name)}</div>
+      <div class="kv"><b>${a.cur}</b> level</div><div class="kv"><b>${a.cap}</b> capable</div>
+      <div class="kpct" style="color:${pct>=85?'#7ED957':pct>=55?'#E8B54A':'#FF4D4D'}">${pct}%</div><div>${stChip(pct)}</div></div>`;
+    validMetrics(a).forEach(m=>{
+      const p=Math.round(metricProgress(m)*100);
+      rows+=`<div class="kpirow"><div class="kn2" style="padding-left:18px">${esc(m.name)}</div>
+        <div class="kv"><b>${fmtN(m.cur)}</b></div><div class="kv"><b>${fmtN(m.ideal)}</b> ideal ${m.dir==='low'?'↓':'↑'}</div>
+        <div class="kpct" style="color:${p>=85?'#7ED957':p>=55?'#E8B54A':'#FF4D4D'}">${p}%</div><div>${stChip(p)}</div></div>`;
+    });
+  });
+  const any=state.mirror.areas.some(a=>validMetrics(a).length);
+  el.innerHTML=rows+(any?'':'<p style="margin-top:14px">No metrics set yet. Open The Mirror, expand an area\'s Metrics, and enter your Current and Ideal numbers. They will report here automatically.</p>');
+}
+
+/* =====================================================
+   THE SEVEN KEYS (Outwitting the Devil)
+   ===================================================== */
+const sevenKeys=[
+  {n:'Definiteness of Purpose',d:'Know exactly what you want and reaffirm it daily. The master key. Drift cannot grip a made-up mind.'},
+  {n:'Mastery Over Self',d:'Your appetites and habits take orders from you, not the other way around. Self-discipline is the price of self-ownership.'},
+  {n:'Learning From Adversity',d:'Every failure and heartbreak carries the seed of an equal or greater benefit. Mine it, or it mined you for nothing.'},
+  {n:'Controlling Environmental Influence',d:'People, media, rooms. You become what surrounds you, so curate it ruthlessly.'},
+  {n:'Time',d:'Time hardens habits into nature. Give permanency to the positive ones and time becomes your ally instead of the drift\'s.'},
+  {n:'Harmony',d:'Act in harmony with your definite purpose until you become the dominating influence in your own environment.'},
+  {n:'Caution',d:'Think the plan through before you act. Look before you leap. Then leap.'}
+];
+function buildKeys(){
+  if(!state.keys)state.keys=Array(7).fill(false);
+  const el=document.getElementById('keysList'); if(!el)return;
+  el.innerHTML=sevenKeys.map((k,i)=>`
+    <div class="keyrow">
+      <div class="kn">${'I II III IV V VI VII'.split(' ')[i]}</div>
+      <div class="kb"><b>${k.n}</b><p>${k.d}</p></div>
+      <button class="keytoggle ${state.keys[i]?'on':''}" onclick="toggleKey(${i},this)">${state.keys[i]?'✦ Active in my life':'Not yet active'}</button>
+    </div>`).join('');
+  keysCount();
+}
+function toggleKey(i,btn){
+  state.keys[i]=!state.keys[i]; save();
+  btn.classList.toggle('on',state.keys[i]);
+  btn.textContent=state.keys[i]?'✦ Active in my life':'Not yet active';
+  if(state.keys[i])chime();
+  keysCount();
+}
+function keysCount(){
+  const c=state.keys.filter(Boolean).length;
+  document.getElementById('keysCount').textContent=
+    c===7?'All seven keys active. Hill would call you unrecruitable.':`${c} of 7 keys active in your life. Each one you activate closes a door the drift walks through.`;
+}
+
+/* =====================================================
+   HOOPONOPONO / ONGOING WORK / COVENANT / RECORD
+   ===================================================== */
+function hoop(i){
+  state.hoop[i]=true; save();
+  const b=document.getElementById('hoop'+i);
+  b.classList.add('done'); b.textContent='✦ '+b.textContent.replace('✦ ','');
+  if(state.hoop.every(Boolean)){ document.getElementById('hoopDone').style.display='block'; chime(); }
+}
+function renderWork(){
+  const labels=['Identified','In the work','Integrated'];
+  document.getElementById('workList').innerHTML=(state.work||[]).map((w,i)=>`
+    <div class="workrow">
+      <span class="wcat">${esc(w.cat)}</span>
+      <span class="wtext">${esc(w.text)}</span>
+      <button class="wstatus ${w.status===1?'s1':w.status===2?'s2':''}" onclick="cycleWork(${i})">${labels[w.status]}${w.status===2?' ✦':''}</button>
+      <button class="wdel" onclick="delWork(${i})">✕</button>
+    </div>`).join('');
+}
+function addWork(){
+  const text=document.getElementById('workText').value.trim();
+  if(!text)return;
+  state.work.push({cat:document.getElementById('workCat').value,text,status:0});
+  document.getElementById('workText').value='';
+  save(); renderWork();
+}
+function cycleWork(i){
+  state.work[i].status=(state.work[i].status+1)%3;
+  if(state.work[i].status===2)chime();
+  save(); renderWork();
+}
+function delWork(i){ state.work.splice(i,1); save(); renderWork(); }
+
+function sealCovenant(){
+  const t=document.getElementById('covenantText').value.trim();
+  if(!t){document.getElementById('covenantText').focus();return;}
+  state.covenant={text:t,date:new Date().toISOString()};
+  save(); renderCovenant(); chime(); markDone('s8');
+  openRecord();
+}
+function renderCovenant(){
+  if(!state.covenant)return;
+  document.getElementById('covenantZone').style.display='none';
+  const d=new Date(state.covenant.date).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('covenantSealed').innerHTML=`
+    <div class="artifact covartifact">
+      <div class="atitle">The Covenant</div>
+      <div class="abody">"${esc(state.covenant.text)}"</div>
+      <div class="asig"><span>${d}</span><b>Sealed</b></div>
+    </div>`;
+}
+
+/* ---------- The Record (clean, designed) ---------- */
+function openRecord(){
+  const d=new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  const rel=state.charges.filter(c=>c.released);
+  const held=state.charges.filter(c=>c.person&&c.person.trim()&&!c.released);
+  const sec=(k,v,italic)=>v?`<div class="rec-k">${k}</div><div class="rec-v${italic?' i':''}">${v}</div>`:'';
+  let chargesHtml='';
+  if(rel.length||held.length){
+    chargesHtml=`<div class="rec-k">The charges</div>`+
+      rel.map(c=>`<div class="rec-li"><em>✦</em> ${esc(c.person)}${c.emotion?' · '+esc(c.emotion):''}${c.intensity?' · charge '+esc(String(c.intensity)):''} <em>released</em></div>`).join('')+
+      held.map(c=>`<div class="rec-li">· ${esc(c.person)}${c.emotion?' · '+esc(c.emotion):''}${c.intensity?' · charge '+esc(String(c.intensity)):''} — still in the work</div>`).join('');
+  }
+  const idents=state.future.idents.filter(Boolean);
+  document.getElementById('recordBody').innerHTML=`
+    <div class="rec-title">The Record</div>
+    <div class="rec-date">${d}</div>
+    ${sec('The pattern I named', esc(state.lion), true)}
+    ${sec('My definite purpose', esc(state.drift.purpose||''), true)}
+    ${state.drift.score!=null?`<div class="rec-k">Drift</div><div class="rec-v">${state.drift.score} / 100 at the start of this work.${state.keys&&state.keys.some(Boolean)?' '+state.keys.filter(Boolean).length+' of the seven keys active: '+sevenKeys.filter((k,i)=>state.keys[i]).map(k=>k.n).join(', ')+'.':''}</div>`:''}
+    ${chargesHtml}
+    ${sec('The commitment · witnessed by '+esc(state.swap.person||'the one I love'), esc(state.swap.commitment), true)}
+    ${sec('From my future self', esc(state.future.letter))}
+    ${idents.length?`<div class="rec-k">Who I am</div>`+idents.map(x=>`<div class="rec-li">· ${esc(x)}</div>`).join(''):''}
+    ${sec('The one decision this week', esc(state.future.decision))}
+    ${sec('Standing before God', esc(state.future.god||''), true)}
+    ${state.nbd.outcome?`<div class="rec-k">Held open-handed</div><div class="rec-v i">"I fully intend: ${esc(state.nbd.outcome)}. And if it takes longer or looks different, it is no big deal, because ${esc(state.nbd.because||'it all works out in the end')}."</div>`:''}
+    ${state.covenant?`<div class="rec-k">The covenant</div><div class="rec-v i">"${esc(state.covenant.text)}"</div>`:''}
+    ${state.challenge.length?`<div class="rec-k">The daily challenge</div>`+state.challenge.map((c,i)=>`<div class="rec-li">${i+1}. ${esc(c)}</div>`).join(''):''}
+    <div class="rec-k">The word</div>
+    <div class="rec-v i">Feel it fully. Release it freely. Become it now.<br>And so it is.</div>`;
+  document.getElementById('recordOverlay').classList.add('open');
+}
+function copySummary(){
+  navigator.clipboard?.writeText(summaryText()).catch(()=>{});
+}
+
+/* ---------- Final export text (overrides all) ---------- */
+function summaryText(){
+  const d=new Date().toLocaleDateString();
+  const line='----------------------------------------';
+  const out=[`THE SHIFT | Personal Record | ${d}`,line];
+  const add=(k,v)=>{ if(v)out.push('',k.toUpperCase(),'  '+String(v).split('\n').join('\n  ')); };
+  add('The pattern I named',state.lion);
+  add('My definite purpose',state.drift.purpose);
+  if(state.drift.score!=null)add('Drift score',state.drift.score+' / 100 (lower is better)');
+  if(state.keys&&state.keys.some(Boolean)){out.push('','THE SEVEN KEYS (Outwitting the Devil)');sevenKeys.forEach((k,i)=>out.push(`  [${state.keys[i]?'ACTIVE':'not yet'}] ${k.n}`));}
+  const rel=state.charges.filter(c=>c.released).map(c=>`* ${c.person}${c.emotion?' ('+c.emotion+')':''}${c.intensity?' charge '+c.intensity:''} - RELEASED`);
+  const held=state.charges.filter(c=>c.person&&c.person.trim()&&!c.released).map(c=>`- ${c.person}${c.emotion?' ('+c.emotion+')':''}${c.intensity?' charge '+c.intensity:''} - in the work`);
+  if(rel.length||held.length){out.push('','THE CHARGES');[...rel,...held].forEach(x=>out.push('  '+x));}
+  const rejs=state.rejections.filter(r=>r.where&&r.where.trim());
+  if(rejs.length){out.push('','REJECTIONS MET WITH SELF-LOVE');rejs.forEach(r=>out.push('  - '+r.where,'    -> '+r.love));}
+  add('The commitment (witnessed by '+(state.swap.person||'-')+')','"'+(state.swap.commitment||'')+'"');
+  add('From my future self',state.future.letter);
+  const idents=state.future.idents.filter(Boolean);
+  if(idents.length){out.push('','WHO I AM');idents.forEach(x=>out.push('  - '+x));}
+  add('The one decision this week',state.future.decision);
+  add('Standing before God',state.future.god);
+  if(state.nbd.outcome)add('Held open-handed',`I fully intend: ${state.nbd.outcome}. And if it takes longer or looks different, it is no big deal, because ${state.nbd.because||''}`);
+  if(state.covenant)add('The covenant','"'+state.covenant.text+'"');
+  if(state.challenge.length){out.push('','DAILY CHALLENGE');state.challenge.forEach((c,i)=>out.push(`  ${i+1}. ${c}`));}
+  if((state.work||[]).length){out.push('','THE ONGOING WORK');state.work.forEach(w=>out.push(`  [${['identified','in the work','integrated'][w.status]}] ${w.cat}: ${w.text}`));}
+  // mirror
+  out.push('',line,'THE MIRROR');
+  const areas=state.mirror.areas.filter(a=>a.cap>0);
+  const align=Math.round(areas.reduce((s,a)=>s+a.cur/a.cap,0)/areas.length*100);
+  out.push(`  Alignment: living ${align}% of stated capability`);
+  state.mirror.areas.forEach(a=>{
+    out.push(`  ${a.name}: ${a.cur} now / ${a.cap} capable`);
+    validMetrics(a).forEach(m=>out.push(`      ${m.name}: ${m.cur} -> ideal ${m.ideal}`));
+  });
+  if(state.mirror.consciousness!=null){const h=hLevels[state.mirror.consciousness];out.push(`  Consciousness (Hawkins, self-assessed): ${h.n} (${h.v})`);}
+  // progress
+  const wk=weekKey(Date.now());
+  const wkPts=(state.tracker.log||[]).filter(l=>weekKey(l.ts)===wk).reduce((s,l)=>s+l.pts,0);
+  const allPts=(state.tracker.log||[]).reduce((s,l)=>s+l.pts,0);
+  out.push('',line,'THE PROGRESS',`  This week: ${wkPts} points | All time: ${allPts} points | ${(state.tracker.log||[]).length} actions`);
+  out.push('',line,'Feel it fully. Release it freely. Become it now.','And so it is.');
+  return out.join('\n');
+}
+
+/* ---------- V2 boot: migrate + restore ---------- */
+function boot2(){
+  // mirror metric migration + seeds
+  state.mirror.areas.forEach(a=>{
+    if(!a.metrics) a.metrics=(metricSeeds[a.name]||[]).map(m=>({name:m.name,cur:'',ideal:'',dir:m.dir}));
+    if(a.note===undefined)a.note='';
+  });
+  // tracker
+  if(!state.tracker||!state.tracker.templates) state.tracker={templates:kpiSeeds.map(k=>({name:k[0],area:k[1],pts:k[2]})),log:[]};
+  if(!state.hoop)state.hoop=[false,false,false];
+  if(!state.work)state.work=[];
+  if(!state.keys)state.keys=Array(7).fill(false);
+  if(state.drift&&state.drift.purpose)document.getElementById('purposeText').value=state.drift.purpose;
+  if(state.progress&&state.progress['s1'])buildKeys();
+  // restore UI
+  state.hoop.forEach((v,i)=>{ if(v){const b=document.getElementById('hoop'+i);b.classList.add('done');b.textContent='✦ '+b.textContent;} });
+  if(state.hoop.every(Boolean))document.getElementById('hoopDone').style.display='block';
+  renderWork();
+  if(state.future&&state.future.god)document.getElementById('godReflection').value=state.future.god;
+  renderCovenant();
+  save();
+}
+
+/* =====================================================
+   BOOT - cloud state first, then render
+   ===================================================== */
+(async function(){
+  try{ await SHIFT.init(); }catch(e){ /* offline: localStorage still boots the app */ }
+  boot();
+  boot2();
+  SHIFT.bindUnload();
+  // Close the gate on Escape or backdrop click.
+  const ov = document.getElementById('gateOverlay');
+  ov.addEventListener('click', e=>{ if(e.target===ov) SHIFT.closeGate(); });
+  addEventListener('keydown', e=>{ if(e.key==='Escape') SHIFT.closeGate(); });
+})();
+</script>
+</body>
+</html>
