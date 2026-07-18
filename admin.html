@@ -4543,7 +4543,8 @@ async function loadProjContinuity(id){
     +(globalRes.length?globalRes.map(function(r){var vis=(ovMap[r.id]!==undefined)?ovMap[r.id]:(r.client_visible_default!==false);return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border-subtle)"><span style="font-size:.76rem">'+esc(r.title)+(r.category?' <span style="font-size:.62rem;color:var(--text-muted)">('+esc(r.category)+')</span>':'')+'</span><label style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-muted);cursor:pointer;flex-shrink:0"><input type="checkbox" style="width:auto"'+(vis?' checked':'')+' onchange="prSetVisible(\''+id+'\',\''+r.id+'\',this.checked)"> visible</label></div>';}).join(''):'<p style="font-size:.72rem;color:var(--text-muted);margin:.3rem 0 0">No global resources.</p>')+'</div>';
   // Brief sent + save
   var briefBtn=p.brief_sent_at?'<span class="badge badge-success" style="font-size:.66rem">📨 Brief sent '+new Date(p.brief_sent_at).toLocaleDateString()+'</span> <button class="btn btn-sm btn-secondary" style="font-size:.62rem" onclick="markBriefSent(\''+id+'\')" title="Re-stamp with today">Re-mark</button>':'<button class="btn btn-sm btn-secondary" style="font-size:.66rem" onclick="markBriefSent(\''+id+'\')">📨 Mark Continuity Brief Sent</button>';
-  el.innerHTML=checklist+fields+envHtml+teamHtml+resHtml+'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div>'+briefBtn+'</div><button class="btn btn-sm btn-primary" onclick="saveProjContinuity(\''+id+'\')">💾 Save Continuity Fields</button></div>';
+  var sendBriefBtn='<button class="btn btn-sm btn-primary" style="font-size:.66rem" onclick="openBriefModal(\''+id+'\')">📧 Send Continuity Brief</button>';
+  el.innerHTML=checklist+fields+envHtml+teamHtml+resHtml+'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+sendBriefBtn+briefBtn+'</div><button class="btn btn-sm btn-primary" onclick="saveProjContinuity(\''+id+'\')">💾 Save Continuity Fields</button></div>';
   renderEnvMan(id);
 }
 function renderEnvMan(id){
@@ -4573,6 +4574,68 @@ async function markBriefSent(id){
   var r=await sb.from('projects').update({brief_sent_at:new Date().toISOString()}).eq('id',id);
   if(r.error){showToast('Error: '+r.error.message,'error');return;}
   showToast('Continuity brief marked sent');loadProjContinuity(id);
+}
+// ── SEND CONTINUITY BRIEF (email preview modal) ──
+async function openBriefModal(id){
+  showToast('Preparing brief…');
+  var proj={},client={},clientEmail='';
+  try{proj=(await sb.from('projects').select('id,name,client_id').eq('id',id).maybeSingle()).data||{};}catch(e){}
+  if(proj.client_id){
+    try{client=(await sb.from('clients').select('id,name,email,profile_id').eq('id',proj.client_id).maybeSingle()).data||{};}catch(e){client={};}
+    clientEmail=client.email||'';
+    if(client.profile_id){try{var pr=(await sb.from('profiles').select('email,full_name').eq('id',client.profile_id).maybeSingle()).data;if(pr&&pr.email)clientEmail=pr.email;if(pr&&pr.full_name&&!client.name)client.name=pr.full_name;}catch(e){}}
+  }
+  var firstName=((client.name||'').trim().split(' ')[0])||'there';
+  // Resources currently visible for this project (global defaults + per-project overrides)
+  var globalRes=[],overrides=[];
+  try{globalRes=(await sb.from('resources').select('id,title,description,url,client_visible_default').eq('is_global',true).order('sort_order')).data||[];}catch(e){}
+  try{overrides=(await sb.from('project_resources').select('resource_id,visible').eq('project_id',id)).data||[];}catch(e){}
+  var ovMap={};overrides.forEach(function(o){ovMap[o.resource_id]=o.visible;});
+  var visible=globalRes.filter(function(r){return (r.id in ovMap)?ovMap[r.id]:r.client_visible_default;});
+  // Continuity partner (successor) from system settings, with fallback
+  var succ={name:'Tim Wolfe',email:'tim@timwolf.com',phone:'405-505-6221'};
+  try{var ss=(await sb.from('system_settings').select('value').eq('key','successor').maybeSingle()).data;if(ss&&ss.value&&ss.value.name)succ=ss.value;}catch(e){}
+  var pname=proj.name||'Your project';
+  var resItems=visible.length?visible.map(function(r){return '<li style="margin-bottom:6px"><a href="'+esc(r.url||'#')+'" style="color:#C9922A;font-weight:600">'+esc(r.title||'Resource')+'</a>'+(r.description?' — '+esc(r.description):'')+'</li>';}).join(''):'<li>Your resource library is available inside your client hub.</li>';
+  var bodyHtml='<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65;color:#111;max-width:640px">'
+    +'<p>Hi '+esc(firstName)+',</p>'
+    +'<p><b>You own your project — here is everything that proves it.</b> Below is your ownership &amp; continuity brief for <b>'+esc(pname)+'</b>: the guides that document what you own, how it is protected, and exactly what happens no matter what.</p>'
+    +'<p style="margin-bottom:6px"><b>📚 Your ownership &amp; security guides</b></p>'
+    +'<ul style="margin-top:0">'+resItems+'</ul>'
+    +'<p style="margin-bottom:6px"><b>🔑 Your secure client portal</b></p>'
+    +'<p style="margin-top:0">Log in at <a href="https://knightops.biz/portal" style="color:#C9922A;font-weight:600">knightops.biz/portal</a> to view your project, download your full codebase anytime, and see all of your continuity details in one place.</p>'
+    +'<p style="margin-bottom:6px"><b>🛡 Who to reach, always</b></p>'
+    +'<ul style="margin-top:0">'
+    +'<li style="margin-bottom:6px"><b>Daniel Knight</b> — <a href="mailto:daniel@knightops.biz" style="color:#C9922A">daniel@knightops.biz</a> — your builder and first call.</li>'
+    +'<li style="margin-bottom:6px"><b>Eden</b> — <a href="mailto:eden@knightops.biz" style="color:#C9922A">eden@knightops.biz</a> — our AI assistant with live visibility into your project. General questions, any time.</li>'
+    +'<li style="margin-bottom:6px"><b>'+esc(succ.name||'Tim Wolfe')+'</b> — <a href="mailto:'+esc(succ.email||'tim@timwolf.com')+'" style="color:#C9922A">'+esc(succ.email||'tim@timwolf.com')+'</a> · '+esc(succ.phone||'405-505-6221')+' — our continuity partner. If Daniel is ever unreachable for 14+ days, '+esc((succ.name||'Tim Wolfe').split(' ')[0])+' activates with full access to keep your project supported without interruption.</li>'
+    +'</ul>'
+    +'<p>Nothing about your project depends on any one person — that is the whole point. If you have any questions at all, just hit reply.</p>'
+    +'<p>To your success,<br><b>Daniel Knight</b><br>Knight Ops</p>'
+    +'</div>';
+  var body='<div class="form-group"><label>To</label><input id="cbTo" value="'+esc(clientEmail)+'" placeholder="client@email.com"></div>'
+    +'<div class="form-group"><label>Subject</label><input id="cbSubj" value="'+esc('Your ownership & continuity brief — '+pname)+'"></div>'
+    +'<div class="form-group"><label>Email body (editable preview)</label><div id="cbBody" contenteditable="true" style="background:#fff;color:#111;border:1px solid var(--border);border-radius:8px;padding:14px;max-height:340px;overflow:auto;font-size:.85rem">'+bodyHtml+'</div></div>'
+    +'<div style="font-size:.7rem;color:var(--text-muted)">Sends from daniel@knightops.biz · BCC daniel@knightops.biz · stamps "Brief sent" on success.</div>';
+  var foot='<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" id="cbSendBtn" onclick="sendContinuityBrief(\''+id+'\')">📨 Send Brief</button>';
+  openEditModal('📧 Send Continuity Brief — '+pname,body,foot);
+}
+async function sendContinuityBrief(id){
+  var to=((document.getElementById('cbTo')||{}).value||'').trim();
+  var subject=((document.getElementById('cbSubj')||{}).value||'').trim()||'Your ownership & continuity brief';
+  var bodyEl=document.getElementById('cbBody');
+  var html=bodyEl?bodyEl.innerHTML:'';
+  if(!to){showToast('Add a recipient email','error');return;}
+  var btn=document.getElementById('cbSendBtn');if(btn){btn.disabled=true;btn.textContent='Sending…';}
+  showToast('Sending…');
+  var plain=html.replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|li|div)>/gi,'\n').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+  try{
+    var r=await sb.functions.invoke('send-plain-email',{body:{to:to,bcc:'daniel@knightops.biz',subject:subject,body:plain,html:html,from_name:'Daniel Knight',from_email:'daniel@knightops.biz'}});
+    if(r.error){var em=r.error.message||'send failed';try{if(r.error.context&&r.error.context.json){var j=await r.error.context.json();if(j&&j.error)em=(typeof j.error==='string')?j.error:JSON.stringify(j.error);}}catch(_e){}throw new Error(em);}
+    if(r.data&&r.data.success===false)throw new Error(r.data.error||'send failed');
+    await sb.from('projects').update({brief_sent_at:new Date().toISOString()}).eq('id',id);
+    showToast('Continuity brief sent');closeEditModal();loadProjContinuity(id);
+  }catch(e){showToast('Could not send: '+(e&&e.message||e),'error');if(btn){btn.disabled=false;btn.textContent='📨 Send Brief';}}
 }
 async function pmAssign(id){
   var tmId=document.getElementById('pmSel_'+id).value; if(!tmId){showToast('Pick a team member','error');return;}

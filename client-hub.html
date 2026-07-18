@@ -233,8 +233,8 @@
       +ownRow('Spec doc',p.spec_doc_url?'Open spec →':null,p.spec_doc_url)
       +(p.compliance_tier&&p.compliance_tier!=='standard'?ownRow('Compliance tier',(p.compliance_tier||'').toUpperCase()):'')
       +envRows+'</div>';
-    h+='<div class="card"><b>⬇ Export Everything</b><div class="muted" style="margin:.3rem 0 .6rem">Your full codebase, on demand. Database exports are available anytime in your Supabase dashboard (Backups), and uploaded files live in Supabase Storage.</div>'
-      +(OWN.can_export?'<button class="btn" id="exportBtn" onclick="exportCode()">⬇ Download complete codebase</button>':'<div class="muted">Codebase export isn’t wired up for this project yet — ask Daniel and it will be enabled.</div>')+'</div>';
+    h+='<div class="card"><b>🔐 Full Codebase Export</b><div class="muted" style="margin:.3rem 0 .6rem">For your security, downloading the complete codebase requires signing in to your client portal. Database exports are available anytime in your Supabase dashboard (Backups), and uploaded files live in Supabase Storage.</div>'
+      +'<a class="btn" href="'+esc(OWN.portal_url||'https://knightops.biz/portal')+'" target="_blank" style="text-decoration:none;display:inline-block">🔑 Sign in to your portal</a></div>';
     h+='<div class="card"><b>👥 Your Team &amp; Contacts</b>'
       +(contacts.length?contacts.map(function(c){return '<div class="item"><div><b>'+esc(c.name)+'</b>'+(c.title?' <span class="pill">'+esc(c.title)+'</span>':'')+'<div class="muted">'+esc(c.email||'')+(c.phone?(' · '+esc(c.phone)):'')+'</div></div></div>';}).join(''):'<div class="muted" style="margin-top:.4rem">Your Knight Ops team contacts will appear here.</div>')
       +'<div class="item"><div><b>💬 General questions, any time</b><div class="muted"><a href="mailto:'+esc(eden.email||'eden@knightops.biz')+'">'+esc(eden.email||'eden@knightops.biz')+'</a> — our AI assistant with live visibility into your project</div></div></div>'
@@ -245,24 +245,6 @@
     document.getElementById('ownBody').innerHTML=h;
   }
   function copyHandoff(){var ta=document.getElementById('handoffTa');ta.select();navigator.clipboard.writeText(ta.value);toast('Handoff prompt copied');}
-  async function exportCode(){
-    var b=document.getElementById('exportBtn');if(b){b.disabled=true;b.textContent='Preparing your codebase…';}
-    toast('Preparing your codebase — this can take a minute…');
-    try{
-      var r=await fetch(SUPABASE_URL+'/functions/v1/hub-data',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({token:TOKEN,action:'export_code'})});
-      var ct=r.headers.get('content-type')||'';
-      if(r.ok&&ct.indexOf('zip')>=0){
-        var blob=await r.blob();var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-        a.download=(PROJECT_NAME||'project').replace(/[^a-zA-Z0-9-_ ]/g,'').trim().replace(/\s+/g,'-').toLowerCase()+'-codebase.zip';
-        a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);toast('Download started — your full codebase.');
-      }else{
-        var j=await r.json().catch(function(){return{};});
-        toast('Export not available: '+(j.reason||'please try again or ask Daniel'));
-      }
-    }catch(e){toast('Export failed — please try again.');}
-    if(b){b.disabled=false;b.textContent='⬇ Download complete codebase';}
-  }
-
   init();
 </script>
 </body>

@@ -283,6 +283,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
         <div class="card-body" id="overviewEvents"></div>
       </div>
     </div>
+    <div class="card" style="margin-top:1.5rem">
+      <div class="card-head"><h3>&#128737; Ownership &amp; Continuity</h3></div>
+      <div class="card-body" id="ownershipBody"><div class="empty">Loading…</div></div>
+    </div>
   </div>
 
   <!-- ONBOARDING -->
@@ -637,6 +641,52 @@ async function loadOverview(){
   } else {
     document.getElementById('overviewEvents').innerHTML='<div class="empty">No upcoming events</div>';
   }
+
+  loadOwnership(projects||[]);
+}
+
+// ── Ownership & Continuity (authenticated codebase export) ──
+async function loadOwnership(projects){
+  const el=document.getElementById('ownershipBody');
+  if(!el)return;
+  if(!projects||!projects.length){el.innerHTML='<div class="empty">Your projects will appear here once created.</div>';return}
+  let h='<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">You own this project — full continuity details are in your project hub. Download a complete copy of your codebase anytime below.</p>';
+  projects.forEach(p=>{
+    h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
+      <div><strong>${p.name}</strong></div>
+      <button class="btn btn-sm btn-secondary" id="exp-${p.id}" onclick="exportCodebase('${p.id}','${(p.name||'project').replace(/[^a-zA-Z0-9-_ ]/g,'')}')">&#11015; Download complete codebase</button>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+async function exportCodebase(projectId,projName){
+  const btn=document.getElementById('exp-'+projectId);
+  if(btn){btn.disabled=true;btn.textContent='Preparing your codebase…'}
+  toast('Preparing your codebase — this can take a minute…');
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(!session){window.location.href='/auth';return}
+    const r=await fetch(SUPABASE_URL+'/functions/v1/hub-data',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({action:'export_code',project_id:projectId})
+    });
+    const ct=r.headers.get('content-type')||'';
+    if(r.ok&&ct.indexOf('zip')>=0){
+      const blob=await r.blob();
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=(projName||'project').trim().replace(/\s+/g,'-').toLowerCase()+'-codebase.zip';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      toast('Download started — your full codebase.');
+    }else{
+      const j=await r.json().catch(()=>({}));
+      toast('Export not available: '+(j.reason||j.message||'please try again or contact Daniel'));
+    }
+  }catch(e){toast('Export failed — please try again.')}
+  if(btn){btn.disabled=false;btn.innerHTML='&#11015; Download complete codebase'}
 }
 
 function switchToView(view){
