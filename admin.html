@@ -2381,8 +2381,8 @@ async function showLeadDetail(id){
   const actLabels={text_sent:'Text Sent',phone_call:'Phone Call',voicemail:'Voicemail Left',email_sent:'Email Sent'};
   const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
 
-  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> <button class="btn btn-sm" onclick="enrichLeadById(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.08);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Enrich lead data via web search">🔍 Enrich</button> <button class="btn btn-sm" onclick="apolloEnrichLead(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:#4A54E1;color:#fff;border:1px solid #5C64F4;border-radius:6px;font-weight:600" title="Enrich via Apollo (1 credit)">⚡ Apollo</button> '+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" class="btn btn-sm" style="padding:4px 10px;font-size:.75rem;background:rgba(10,102,194,.12);color:#0a66c2;border:1px solid rgba(10,102,194,.3);border-radius:6px;text-decoration:none" title="View LinkedIn profile">in LinkedIn</a> ':'')+'<button class="btn btn-sm btn-primary" onclick="createProjectFromLead(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">+ Project</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Job Title</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.job_title||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'job_title\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.job_title||'—')+'</span></div></div><div><div class="dg-label">Website</div><div class="dg-value">'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" style="color:var(--accent)">'+esc(l.website)+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'website\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">LinkedIn</div><div class="dg-value">'+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" style="color:#0a66c2">'+esc(l.linkedin_url.replace(/https?:\/\/(?:www\.)?linkedin\.com\/in\//,''))+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'linkedin_url\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.location||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'location\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.location||'—')+'</span></div></div>'+(l.enriched_at?'<div><div class="dg-label">Enriched</div><div class="dg-value" style="font-size:.8rem;color:var(--text-muted)">'+fmtDateTime(l.enriched_at)+'</div></div>':'')+' <div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+auditCardHtml+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+linkedAppsHtml;
-  setTimeout(updateOutreachPreview,0);
+  document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> <button class="btn btn-sm" onclick="enrichLeadById(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.08);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Enrich lead data via web search">🔍 Enrich</button> <button class="btn btn-sm" onclick="apolloEnrichLead(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:#4A54E1;color:#fff;border:1px solid #5C64F4;border-radius:6px;font-weight:600" title="Enrich via Apollo (1 credit)">⚡ Apollo</button> '+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" class="btn btn-sm" style="padding:4px 10px;font-size:.75rem;background:rgba(10,102,194,.12);color:#0a66c2;border:1px solid rgba(10,102,194,.3);border-radius:6px;text-decoration:none" title="View LinkedIn profile">in LinkedIn</a> ':'')+'<button class="btn btn-sm btn-primary" onclick="createProjectFromLead(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">+ Project</button> <button class="btn btn-sm btn-primary" onclick="createAppFromLead(\''+l.id+'\')" style="background:rgba(33,150,243,0.15);color:var(--info);border:1px solid rgba(33,150,243,0.3);font-weight:600">+ Application</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Job Title</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.job_title||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'job_title\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.job_title||'—')+'</span></div></div><div><div class="dg-label">Website</div><div class="dg-value">'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" style="color:var(--accent)">'+esc(l.website)+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'website\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">LinkedIn</div><div class="dg-value">'+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" style="color:#0a66c2">'+esc(l.linkedin_url.replace(/https?:\/\/(?:www\.)?linkedin\.com\/in\//,''))+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'linkedin_url\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.location||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'location\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.location||'—')+'</span></div></div>'+(l.enriched_at?'<div><div class="dg-label">Enriched</div><div class="dg-value" style="font-size:.8rem;color:var(--text-muted)">'+fmtDateTime(l.enriched_at)+'</div></div>':'')+' <div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+auditCardHtml+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+buildLeadPromptUI(l.id)+linkedAppsHtml;
+  setTimeout(()=>{updateOutreachPreview();refreshLeadPromptPreview(l.id);},0);
 }
 function editLead(id){
   const l=id?S.leads.find(x=>x.id===id):null;
@@ -7289,6 +7289,233 @@ async function copyBuildPrompt(id){
   });
 }
 
+// ─── Lead Build Prompt (proposal from lead without an application) ───
+function generateLeadBuildPrompt(l,opts){
+  opts=opts||{};
+  const fullName=leadName(l);
+  const firstName=l.first_name||l.name?.split(' ')[0]||'Client';
+  const lastName=l.last_name||l.name?.split(' ').slice(1).join(' ')||'';
+  const projectDesc=l.service_interest?SL(l.service_interest):'Not specified';
+  const notesText=l.notes||'';
+
+  // Infer primary outcome from notes + service
+  let primaryOutcome='';
+  const desc=(projectDesc+' '+notesText).toLowerCase();
+  if(desc.includes('revenue')||desc.includes('money')||desc.includes('sell')||desc.includes('pay')||desc.includes('ecommerce')||desc.includes('marketplace'))primaryOutcome='Generate revenue through a digital product/platform';
+  else if(desc.includes('automate')||desc.includes('save time')||desc.includes('streamline')||desc.includes('efficiency'))primaryOutcome='Automate operations and reduce manual workload';
+  else if(desc.includes('community')||desc.includes('members')||desc.includes('social')||desc.includes('connect'))primaryOutcome='Build and engage a community or audience';
+  else if(desc.includes('booking')||desc.includes('schedule')||desc.includes('appointment'))primaryOutcome='Streamline booking/scheduling to increase conversions';
+  else if(desc.includes('course')||desc.includes('learn')||desc.includes('education')||desc.includes('training'))primaryOutcome='Deliver educational content and monetize expertise';
+  else if(desc.includes('track')||desc.includes('dashboard')||desc.includes('analytics')||desc.includes('data'))primaryOutcome='Centralize data and gain actionable insights';
+  else primaryOutcome='Launch a custom digital product that solves a specific market problem';
+
+  // Infer recommended tier
+  let recTier='';
+  if(l.budget_range==='under_1k')recTier='Night Launch ($1,497) — Multi-page conversion site';
+  else if(l.budget_range==='1k_5k'||l.budget_range==='5k_15k')recTier='Night Build ($9,997) — Full-stack web or mobile app';
+  else if(l.budget_range==='15k_25k'||l.budget_range==='over_25k')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
+  else if(l.service_interest==='night_launch')recTier='Night Launch ($1,497) — Multi-page conversion site';
+  else if(l.service_interest==='night_build')recTier='Night Build ($9,997) — Full-stack web or mobile app';
+  else if(l.service_interest==='night_build_pro')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
+  else recTier='To be determined after discovery call';
+
+  // Fetch lead notes
+  const leadNotesArr=(window._leadNotesCache||[]);
+  const notesBlock=leadNotesArr.length?'\n\nLEAD NOTES:\n==============================\n'+leadNotesArr.map(n=>fmtDateTime(n.created_at)+': '+n.content).join('\n'):'';
+
+  const block=`
+==============================
+CLIENT PROFILE (from Lead record)
+==============================
+Name: ${fullName}
+Email: ${l.email||'Not provided'}
+Phone: ${l.phone||'Not provided'}
+Company: ${l.company||'Not provided'}
+Job Title: ${l.job_title||'Not provided'}
+Service Interest: ${SL(l.service_interest)}
+Budget Range: ${(l.budget_range||'Not specified').replace(/_/g,' ')}
+Timeline: ${(l.timeline||'Not specified').replace(/_/g,' ')}
+Source: ${l.source||'Not specified'}
+Where We Met: ${l.where_we_met||'Not specified'}
+Website: ${l.website||'Not provided'}
+LinkedIn: ${l.linkedin_url||'Not provided'}
+Location: ${l.location||'Not provided'}
+Status: ${l.status||'new'}
+Lead Score: ${l.lead_score||'Not scored'}
+Created: ${fmtDateTime(l.created_at)}${l.notes?'\n\nLead Notes: '+l.notes:''}${notesBlock}`;
+
+  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium overnight development firm founded by Daniel Knight.
+
+BRAND CONTEXT — KNIGHT OPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
+Tagline: "Built Overnight. Scaled Forever."
+Founder: Daniel Knight
+Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
+Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
+Font: 'Segoe UI', system-ui, -apple-system, sans-serif
+Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
+
+Service Tiers:
+• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions. No backend.
+• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
+• Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
+• Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
+
+${block}
+
+INFERRED PRIMARY OUTCOME: ${primaryOutcome}
+RECOMMENDED TIER: ${recTier}
+
+NOTE: This lead has NOT submitted a full application/intake form. Some details may be sparse. Use what's available, make reasonable inferences, and flag assumptions. Recommend they book a discovery call to flesh out the project scope.
+
+${opts.stripeUrl?`
+STRIPE PAYMENT LINK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Payment URL: ${opts.stripeUrl}
+Include this Stripe payment link prominently in the proposal wherever pricing / payment CTAs appear.
+`:''}${opts.stripeCreate?`
+STRIPE PRODUCT INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Before generating the proposal, search for an existing Stripe product matching this client/project. If one exists, use that product's payment link. If none exists, create a new Stripe product with:
+- Product name: "Knight Ops — ${fullName}${l.company?' ('+l.company+')':''}"
+- Description: Based on the recommended tier and project scope
+- Price: Based on the recommended tier
+- Create a payment link for the product
+Then embed the payment link in the proposal.
+`:''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR TASK — PRODUCE ${opts.format==='both'?'3':opts.format==='pdf'?'2':'2'} OUTPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔═══════════════════════════════════════════════╗
+║  OUTPUT 1: IN-CHAT BRIEF (for Daniel)          ║
+║  Respond directly in the conversation.         ║
+╚═══════════════════════════════════════════════╝
+
+Give me a concise strategic brief IN CHAT. Not a document — just talk to me. Cover:
+
+- What they actually need (cut through what they said vs. what they mean)
+- The primary outcome this build must achieve. If they didn't state it, state it for me with reasoning.
+- MVP features — 6-8 max, listed fast
+- Recommended tier + why
+- Revenue model for their product
+- 2-3 10x expansion plays post-MVP
+- Risks / gotchas I should know
+- Discovery call strategy: key questions, objection handlers for their budget/timeline, the one-liner "aha" pitch
+- Upsell path if applicable
+
+Keep it tight. Bullets and short paragraphs. This is my internal cheat sheet.
+${opts.stripeUrl?'\n- Include the Stripe payment link in your recommendations: '+opts.stripeUrl:''}
+${opts.format==='pdf'||opts.format==='both'?`
+╔═══════════════════════════════════════════════╗
+║  OUTPUT ${opts.format==='html'?'—':'2'}: FORMAL PDF PROPOSAL                 ║
+║  Create as a .pdf file. Branded. Send-ready.   ║
+╚═══════════════════════════════════════════════╝
+
+Generate a formal, branded PDF proposal for ${fullName}. This goes directly to the client. It must feel premium, confident, and personal — like we already understand exactly what they need.
+
+Structure:
+
+COVER:
+- "KNIGHT OPS" logo text (bold, gold #C8A456)
+- "Built Overnight. Scaled Forever." tagline
+- "Project Proposal for ${fullName}${l.company?' — '+l.company:''}"
+- "Prepared by Daniel Knight, Founder"
+- Today's date
+
+SECTIONS:
+1. UNDERSTANDING YOUR VISION — 2-3 paragraphs restating their idea. Mirror their language, elevate it.
+2. WHAT WE'LL BUILD — Feature list in plain language.
+3. HOW IT WORKS — Walk through the user journey.
+4. PLATFORM & TECHNOLOGY — Benefits-focused. 3-4 sentences.
+5. RECOMMENDED PACKAGE — State the tier, what's included, pricing (full + split).
+6. TIMELINE & DELIVERY — Phase breakdown.
+7. AFTER LAUNCH — Post-launch support. 2-3 growth opportunities.
+8. NEXT STEPS — CTA: "Book your Discovery Call: https://knightops.biz/book"
+9. WHY KNIGHT OPS — 3-4 outcome-focused bullet points.
+
+FOOTER: Daniel Knight | Founder, Knight Ops | team@knightops.biz | knightops.biz
+${opts.stripeUrl?'Include a prominent "Pay Now" button linking to: '+opts.stripeUrl:''}`:
+'(PDF OUTPUT SKIPPED — format set to HTML only)'}
+${opts.format==='html'||opts.format==='both'?`
+╔═══════════════════════════════════════════════════════════╗
+║  OUTPUT ${opts.format==='both'?'3':'2'}: INTERACTIVE HTML PROPOSAL                       ║
+║  Create as a single .html file. Self-contained. No deps.   ║
+╚═══════════════════════════════════════════════════════════╝
+
+Create a single, self-contained HTML file (no external dependencies) that is an interactive proposal ${firstName} can open in their browser. This is the key deliverable.
+
+DESIGN: Dark theme (#0A0A0B bg, #C8A456 gold accent, #F5F5F5 text). Responsive. Smooth animations. NO external CDN links.
+
+Include: Header with logo, Vision section, Feature cards, interactive Package Selector (all 3 tiers clickable with gold glow on selection), Feature matrix by tier, Timeline, Next Steps with mailto decision email button (to: team@knightops.biz, subject: "Project Decision — ${fullName} — [Tier]", pre-filled body with selection details), Why Knight Ops, Footer.
+${opts.stripeUrl?'Include a "Pay & Get Started" button linking to: '+opts.stripeUrl:''}`:
+'(HTML OUTPUT SKIPPED — format set to PDF only)'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GLOBAL RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Every recommendation must reference the lead's ACTUAL details. Zero generic content.
+- The in-chat brief should be brutally honest. The PDF and HTML should be confidently optimistic.
+- If something is vague or missing, make your best inference and flag it as "Assumption: [X] — confirm on discovery call."
+- The PDF and HTML should be ready to send with no manual edits needed.
+- Name the PDF: knight-ops-proposal-${firstName.toLowerCase()}-${(lastName||'client').toLowerCase()}.pdf
+- Name the HTML: knight-ops-proposal-${firstName.toLowerCase()}-${(lastName||'client').toLowerCase()}.html`;
+}
+
+function getLeadPromptOptions(leadId){
+  const stripeUrl=(document.getElementById('leadPromptStripeUrl-'+leadId)||{}).value||'';
+  const stripeCreate=(document.getElementById('leadPromptStripeCreate-'+leadId)||{}).checked||false;
+  const formatRadios=document.querySelectorAll('input[name="leadPromptFormat-'+leadId+'"]');
+  let format='both';
+  formatRadios.forEach(r=>{if(r.checked)format=r.value;});
+  return{stripeUrl,stripeCreate,format};
+}
+
+function refreshLeadPromptPreview(leadId){
+  const l=S.leads.find(x=>x.id===leadId);if(!l)return;
+  const opts=getLeadPromptOptions(leadId);
+  const el=document.getElementById('leadPromptPreview-'+leadId);
+  if(el)el.textContent=generateLeadBuildPrompt(l,opts);
+}
+
+async function copyLeadBuildPrompt(leadId){
+  const l=S.leads.find(x=>x.id===leadId);if(!l)return;
+  // Cache lead notes for prompt
+  const{data:notes}=await sb.from('lead_notes').select('*').eq('lead_id',leadId).order('created_at',{ascending:false});
+  window._leadNotesCache=notes||[];
+  const opts=getLeadPromptOptions(leadId);
+  const prompt=generateLeadBuildPrompt(l,opts);
+  navigator.clipboard.writeText(prompt).then(()=>showToast('Build prompt copied to clipboard!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Build prompt copied to clipboard!');
+  });
+}
+
+function buildLeadPromptUI(leadId){
+  return '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(200,164,86,0.3);border-radius:14px">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.95rem;color:var(--accent)">&#128230; Proposal Builder</h3><button class="btn btn-sm btn-primary" onclick="copyLeadBuildPrompt(\''+leadId+'\')">&#128203; Copy Build Prompt</button></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;font-weight:600;color:var(--accent);margin-bottom:8px">Stripe Payment Link</div>'+
+        '<input type="text" id="leadPromptStripeUrl-'+leadId+'" placeholder="https://buy.stripe.com/... or leave blank" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.8rem;margin-bottom:8px" oninput="refreshLeadPromptPreview(\''+leadId+'\')">'+
+        '<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);cursor:pointer">'+
+          '<input type="checkbox" id="leadPromptStripeCreate-'+leadId+'" onchange="refreshLeadPromptPreview(\''+leadId+'\')"> Auto-create Stripe product in prompt'+
+        '</label>'+
+      '</div>'+
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem">'+
+        '<div style="font-size:0.8rem;font-weight:600;color:var(--accent);margin-bottom:8px">Output Format</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="leadPromptFormat-'+leadId+'" value="both" checked onchange="refreshLeadPromptPreview(\''+leadId+'\')"> PDF + HTML</label>'+
+          '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="leadPromptFormat-'+leadId+'" value="pdf" onchange="refreshLeadPromptPreview(\''+leadId+'\')"> PDF Only</label>'+
+          '<label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg)"><input type="radio" name="leadPromptFormat-'+leadId+'" value="html" onchange="refreshLeadPromptPreview(\''+leadId+'\')"> HTML Only</label>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<pre id="leadPromptPreview-'+leadId+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
+  '</div>';
+}
+
 // Helper: build all-fields data block shared by both prompt generators
 function buildAllFieldsBlock(a){
   const fullName=((a.first_name||'')+' '+(a.last_name||'')).trim()||'Unknown Client';
@@ -8269,6 +8496,32 @@ async function createDealFromApp(appId){
   showToast('Deal created!');await loadDeals();navTo('deals');showDealDetail(deal.id);
 }
 
+async function createAppFromLead(leadId){
+  const l=S.leads.find(x=>x.id===leadId);if(!l)return;
+  if(!confirm('Create an application from this lead? This will create an intake submission linked to '+leadName(l)+'.'))return;
+  const obj={
+    first_name:l.first_name||l.name?.split(' ')[0]||null,
+    last_name:l.last_name||l.name?.split(' ').slice(1).join(' ')||null,
+    email:l.email||null,
+    phone:l.phone||null,
+    company:l.company||null,
+    title:l.job_title||null,
+    budget:l.budget_range||null,
+    timeline:l.timeline||null,
+    source:l.source||'manual',
+    status:'new',
+    form_type:'blueprint',
+    lead_id:leadId,
+    q4_core_outcome:l.service_interest?SL(l.service_interest):null,
+    admin_notes:l.notes||null,
+    referral_source:l.where_we_met||null
+  };
+  const{data,error}=await sb.from('intake_submissions').insert([obj]).select();
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Application created!');
+  await loadApplications();
+  if(data&&data[0])showAppDetail(data[0].id);
+}
 function createProjectFromLead(leadId){
   const l=S.leads.find(x=>x.id===leadId);if(!l)return;
   const nm=(l.company||leadName(l))+' Project';
