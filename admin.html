@@ -7010,10 +7010,13 @@ async function showAppDetail(id){
 }
 
 async function refreshPromptPreview(intakeId){
-  const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
-  await enrichAppWithRelatedData(a);
-  const opts=getPromptOptions(intakeId);
-  document.getElementById('promptPreview-'+intakeId).textContent=generateBuildPrompt(a,opts);
+  try{
+    const a=(S.applications||[]).find(x=>x.id===intakeId);if(!a)return;
+    await enrichAppWithRelatedData(a);
+    const opts=getPromptOptions(intakeId);
+    const el=document.getElementById('promptPreview-'+intakeId);
+    if(el)el.textContent=generateBuildPrompt(a,opts);
+  }catch(e){console.error('refreshPromptPreview error',e);}
 }
 
 function getPromptOptions(intakeId){
@@ -7274,8 +7277,8 @@ GLOBAL RULES
 - The in-chat brief should be brutally honest. The PDF and HTML should be confidently optimistic.
 - If something is vague or missing, make your best inference and flag it as "Assumption: [X] — confirm on discovery call."
 - The PDF and HTML should be ready to send with no manual edits needed.
-- Name the PDF: knight-ops-proposal-${firstName.toLowerCase()}-${a.last_name.toLowerCase()}.pdf
-- Name the HTML: knight-ops-proposal-${firstName.toLowerCase()}-${a.last_name.toLowerCase()}.html`;
+- Name the PDF: knight-ops-proposal-${firstName.toLowerCase()}-${(a.last_name||'client').toLowerCase()}.pdf
+- Name the HTML: knight-ops-proposal-${firstName.toLowerCase()}-${(a.last_name||'client').toLowerCase()}.html`;
 }
 
 async function copyBuildPrompt(id){
