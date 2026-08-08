@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog - 2026-08-07 (Diamond Crafts live application asset repair)
+
+- **Scoped static application:** `/app/index-msjnuuz6` now rewrites to the tracked `diamond-crafts-flooring-live.html`, leaving every other `/app/:file` upload on the existing Supabase `serve-app` path.
+- **Deployment-safe assets:** the Diamond Crafts logo, eight used portfolio images and downloadable project guide are stored under `/diamond-crafts-assets/` and referenced with root-absolute URLs.
+- **Root cause:** the uploaded HTML used relative `assets/...` paths, which resolved under `/app/assets/...`; the flat `app_files` slug service cannot resolve that nested local directory structure.
+- **Scope guard:** do not broaden this rewrite or replace the generic app-file proxy. Future uploaded multi-asset HTML should either use hosted root-absolute asset URLs or be deployed as a scoped static application using this pattern.
+- **Required verification:** confirm all page images have non-zero natural dimensions, the guide returns a PDF, desktop/mobile have no horizontal overflow and the console is clean.
+
+---
+
 ## Changelog — 2026-07-17b (The Shift — /shift guided breakthrough experience)
 
 - **New page `/shift` (shift.html):** guided breakthrough experience (12 sections, 38 inputs, Journey + Mirror + Progress views). Served by the existing catch-all `/:path` → `/:path.html` rewrite — **vercel.json unchanged**.

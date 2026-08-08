@@ -31,6 +31,10 @@
       "destination": "/map.html"
     },
     {
+      "source": "/app/index-msjnuuz6",
+      "destination": "/diamond-crafts-flooring-live.html"
+    },
+    {
       "source": "/app/:file",
       "destination": "/api/app?file=:file"
     },
