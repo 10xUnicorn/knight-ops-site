@@ -626,3 +626,8 @@ Knight Ops is Daniel Knight's AI/tech consulting & development company. Key offe
 - **AI Marketing Machine** ($99/mo) — Marketing automation
 
 Daniel is also a public speaker and music artist. Communities: Unicorn Universe, Future Self Universe, 10xUnicorn Mastermind.
+## Changelog — 2026-08-09 (Scale with Systems Live event offers)
+- Added /engine + /engine-confirmed: Automation Engine checkout ($5,000 PIF or $1,500 deposit, Stripe payment links, Knight Ops Stripe acct)
+- Added /scale-dashboard + /scale-confirmed: Scale Dashboard checkout ($15,000 PIF or $1,500 deposit)
+- Deposit flow: confirmed pages read ?opt= and surface balance completion options
+
