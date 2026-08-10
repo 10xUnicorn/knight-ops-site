@@ -104,6 +104,15 @@
           "value": "text/html; charset=utf-8"
         }
       ]
+    },
+    {
+      "source": "/(.*)\\.png",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
     }
   ]
 }
