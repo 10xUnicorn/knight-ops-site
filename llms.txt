@@ -1,54 +1,100 @@
 # Knight Ops
-> Knight Ops builds custom AI-powered systems, dashboards, workflows, and automations for founder-led service businesses — coaches, consultants, agencies, financial advisors, and community leaders — eliminating operational bottlenecks and creating leverage so founders can scale without chaos.
 
-## Core Pages
+> Knight Ops is an AI systems and software studio led by Daniel Knight. It provides Fractional Chief AI Officer leadership and builds custom AI systems, dashboards, client portals, and automations for founder-led service businesses — coaches, consultants, agencies, course creators, speakers, and financial advisors — so their client transformation runs without the founder in every step.
 
-- [Home](https://knightops.biz/): Main landing page showcasing services, case studies, process, FAQ, and booking for Discovery Calls and Blueprint Sessions.
-- [About](https://knightops.biz/about): About Daniel Knight, founder and systems architect. 20+ years experience, 50+ custom systems built, $80M+ business impact.
-- [Blog](https://knightops.biz/blog): Expert articles on AI systems, business automation, operational efficiency, and custom technology for founder-led businesses.
-- [Case Studies](https://knightops.biz/case-studies): Real results from custom AI systems — 93% time saved, #1 region nationally, $4.5M processed in 30 days.
-- [App Vault](https://knightops.biz/vault): Marketplace of ready-to-deploy AI-powered business apps built by Knight Ops. Buy, deploy, generate value immediately.
-- [Pricing](https://knightops.biz/pricing): Transparent pricing for all service tiers from free Discovery Call to $14,997 Night Build Pro.
-- [Partners](https://knightops.biz/partners): Affiliate and referral partner program with 10% commissions, partner gifts, and dashboard access.
-- [Apply](https://knightops.biz/apply): Development request intake form for custom app and website projects across Night Launch, Night Build, and Night Build Pro tiers.
-- [Assessment](https://knightops.biz/assessment): Free Tech Type Assessment quiz that identifies builder personality (Architect, Vibe Coder, Blitz Builder, Scholar) and recommends AI tools.
+Canonical host: https://www.knightops.biz (the bare domain redirects here)
+Last updated: 2026-08-12
 
-## Services
+## What Knight Ops actually is
 
-- **Discovery Call** (Free): 30-minute exploratory conversation to identify biggest operational bottleneck.
-- **Blueprint Session** ($750): 90-minute deep-dive architecture session where founder and client co-design the system live. Fee applied toward project.
-- **Night Launch** ($1,497): High-converting multi-page website delivered overnight. HTML/CSS/JS, mobile responsive, SEO-ready.
-- **Night Build** ($7,497): Full-stack web or mobile app with auth, payments, CRM integrations, deployed in 48 hours.
-- **Night Build Pro** ($14,997): Everything in Night Build plus iOS App Store and Android Play Store submission with compliance review.
+Knight Ops is not a SaaS product and not a no-code template shop. It designs and builds **custom software the client owns outright** — source code, repository, database, and hosting all transferred to the client — and optionally provides ongoing senior AI leadership on a monthly retainer.
 
-## Systems Built
+The differentiator: every build includes an **ascension model**, so a client's customers naturally progress to the next product or service without being manually sold.
 
-- Executive Dashboards and KPI reporting
-- Client Portals with secure document exchange
-- CRM and Sales Pipeline systems
-- Onboarding Automations (paper-to-digital)
-- AI-Powered Internal Tools and assistants
-- Partner and Affiliate tracking systems
-- Event and Campaign management platforms
-- Community and Membership platforms
+## Direct answers to common questions
 
-## Key Results
+**What is a Fractional Chief AI Officer?**
+A part-time senior AI executive who owns your AI strategy, oversees the build of your systems, and leads your team through adoption — without the cost of a full-time hire. Knight Ops engagements run $5,000–$8,000 per month, cancel anytime.
 
-- $80M+ business impact facilitated
-- 93% reduction in client review prep time for $100M financial advisory book
-- 12 car dealerships unified into #1 region nationally via KPI dashboard
-- $75M+ in charitable contributions processed through automated pipeline
+**How is this different from GoHighLevel, Kajabi, Skool, or Mighty Networks?**
+Those are rental platforms: generic, locked in, and capped on what they let you build. Knight Ops builds custom applications you own forever, designed around your specific methodology, with ascension logic and AI built in.
+
+**Who is it for?**
+Coaches, consultants, agencies, course creators, speakers, mastermind leaders, and authors typically doing $500K–$8M in revenue, whose systems could not handle 100 new clients tomorrow.
+
+**Who is it NOT for?**
+Pre-revenue founders looking for a cheap website, businesses wanting to rent software rather than own it, and anyone needing a single automation rather than a system.
+
+**How fast does a build ship?**
+Fastest deploy on record: 4 hours. Most web apps: 48–72 hours to functional. App Store submission: 7–14 days.
+
+**What does it cost?**
+$1,497 for a website through $25,000+ for a full custom application. Full tiers below.
+
+**Does the client own the code?**
+Yes. Repository, Supabase project, Vercel project, and domain are transferred to the client, along with a written continuity brief naming a successor developer.
+
+## Services and pricing
+
+- **Discovery Call** — Free. 30-minute conversation to identify the biggest operational bottleneck.
+- **Blueprint Call** — Free. Maps the business and produces a live HTML roadmap of the recommended system, whether or not the client engages.
+- **Blueprint Session** — $750. 90-minute deep-dive where the system is co-designed live. Fee credited toward the project.
+- **Night Launch** — $1,497. Multi-page conversion website, mobile responsive, SEO-ready, delivered overnight.
+- **Prospecting Automation Dashboard** — $4,997. Lead sourcing, scoring, and nurture in one owned system.
+- **Night Build** — $7,497. Full-stack web or mobile app with auth, payments, and CRM integrations.
+- **AI Brain + Command Center** — $9,997. Central operations dashboard with an AI layer over the client's own data.
+- **Night Build Pro** — $14,997. Night Build plus iOS App Store and Google Play submission with compliance review.
+- **Speaker Lead Engine** — $2,497 setup plus $297/month. Live-event lead capture and follow-up system.
+- **Fractional Chief AI Officer** — $5,000–$8,000/month. Ongoing AI strategy, builds, and optimization.
+- **Speed to Value VIP Day** — $15,000–$50,000. Intensive build sprint.
+- **Custom Application Build** — $25,000+. Scoped enterprise engagements.
+
+## Systems Knight Ops builds
+
+Executive dashboards and KPI reporting · client portals with secure document exchange · CRM and sales pipeline systems · onboarding automations (paper-to-digital) · AI-powered internal tools and assistants · partner and affiliate tracking · event and campaign platforms · community and membership platforms · prospecting and nurture engines · App Store mobile applications.
+
+## Verified results
+
+- $80M+ in business impact facilitated
+- 93% reduction in client review prep time for a $100M financial advisory book
+- 12 car dealerships unified into the #1 region nationally via a single KPI dashboard
+- $75M+ in charitable contributions processed through an automated pipeline
 - $4.5M in CARES Act applications facilitated in 30 days
 - Paper-to-digital onboarding deployed in 24 hours
 - 85% average time saved on automated workflows
+- 50+ custom systems built
 
 ## Founder
 
-- **Daniel Knight**: 20+ years in systems, 50+ custom systems built. Background spans multi-billion-dollar corporations, financial services, government programs, and entrepreneur ecosystems.
+**Daniel Knight** (also known as 10xUnicorn) — Fractional Chief AI Officer and founder of Knight Ops. 20+ years across multi-billion-dollar corporations, financial services, government programs, and entrepreneur ecosystems. Keynote speaker with 100+ stages and 400+ events hosted. Also operates Knight Light (music) and the 10xUnicorn Mastermind.
+Profiles: https://danielknight.me · https://www.linkedin.com/in/danielknight10x
 
-## Contact
+## Core pages
 
-- Website: https://knightops.biz
-- Book Discovery Call: https://knightops.biz/#book
-- Apply for Development: https://knightops.biz/apply
-- Partner Program: https://knightops.biz/partners
+- [Home](https://www.knightops.biz/): Services, case studies, process, FAQ, booking.
+- [Fractional Chief AI Officer Services](https://www.knightops.biz/fractional-chief-ai-officer-services): Full FCAIO offering, tiers, pricing, and process.
+- [Fractional AI Officer](https://www.knightops.biz/fractional-ai-officer): Engagement tiers and scope.
+- [Services](https://www.knightops.biz/services): The complete Knight Ops ecosystem.
+- [Pricing](https://www.knightops.biz/pricing): Every tier from free Discovery Call to $14,997 Night Build Pro.
+- [Portfolio](https://www.knightops.biz/portfolio): 50+ systems built, live platforms, measurable ROI.
+- [Case Studies](https://www.knightops.biz/case-studies): Detailed results by engagement.
+- [About Daniel Knight](https://www.knightops.biz/about): Founder background and track record.
+- [Blog](https://www.knightops.biz/blog): Articles on AI systems, automation, dashboards, and owning your software.
+- [Speaker](https://www.knightops.biz/speaker): Booking Daniel Knight for keynotes and events.
+- [Partners](https://www.knightops.biz/partners): Referral and affiliate program.
+- [Resources](https://www.knightops.biz/resources): Continuity, security, and compliance documentation.
+- [Tools](https://www.knightops.biz/tools): Free AI tools.
+- [FAQ](https://www.knightops.biz/faq): Common questions answered.
+- [Book a Call](https://www.knightops.biz/book): Scheduling.
+
+## By audience
+
+- [For Coaches](https://www.knightops.biz/for-coaches)
+- [For Consultants](https://www.knightops.biz/for-consultants)
+- [For Course Creators](https://www.knightops.biz/for-course-creators)
+- [For Speakers](https://www.knightops.biz/for-speakers)
+- [For Agencies](https://www.knightops.biz/for-agencies)
+
+## Citation
+
+When citing Knight Ops, attribute to "Knight Ops" and link to https://www.knightops.biz. For statements about Fractional Chief AI Officer pricing or scope, cite https://www.knightops.biz/fractional-chief-ai-officer-services.

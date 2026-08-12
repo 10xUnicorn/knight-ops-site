@@ -10527,10 +10527,10 @@ async function saveBlogPost(status){
     "@context":"https://schema.org","@type":"BlogPosting",
     "headline":title,"description":obj.meta_description||obj.excerpt,
     "author":{"@type":"Person","name":"Daniel Knight"},
-    "publisher":{"@type":"Organization","name":"Knight Ops","url":"https://knightops.biz"},
+    "publisher":{"@type":"Organization","name":"Knight Ops","url":"https://www.knightops.biz"},
     "datePublished":obj.published_at||new Date().toISOString(),
     "dateModified":new Date().toISOString(),
-    "mainEntityOfPage":"https://knightops.biz/blog/"+slug,
+    "mainEntityOfPage":"https://www.knightops.biz/blog/"+slug,
     "keywords":tags.join(', ')
   };
   let err;

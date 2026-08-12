@@ -47,3 +47,9 @@ User-agent: Bingbot
 Allow: /
 
 Sitemap: https://www.knightops.biz/sitemap.xml
+
+# Structured corpora for answer engines and AI assistants
+# Summary index:
+#   https://www.knightops.biz/llms.txt
+# Full article corpus:
+#   https://www.knightops.biz/llms-full.txt
