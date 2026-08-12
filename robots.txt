@@ -46,4 +46,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://knightops.biz/sitemap.xml
+Sitemap: https://www.knightops.biz/sitemap.xml

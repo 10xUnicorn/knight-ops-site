@@ -6,9 +6,9 @@
 <title id="pageTitle">Blog — Knight Ops | AI Systems, Automation & Business Growth</title>
 <meta id="metaDesc" name="description" content="Expert insights on custom AI systems, business automation, dashboards, and operational efficiency for coaches, consultants, agencies, and founder-led businesses.">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
-<link rel="canonical" id="canonical" href="https://knightops.biz/blog">
+<link rel="canonical" id="canonical" href="https://www.knightops.biz/blog">
 <meta property="og:type" content="website">
-<meta property="og:url" id="ogUrl" content="https://knightops.biz/blog">
+<meta property="og:url" id="ogUrl" content="https://www.knightops.biz/blog">
 <meta property="og:title" id="ogTitle" content="Blog — Knight Ops">
 <meta property="og:description" id="ogDesc" content="Expert insights on custom AI systems, business automation, and operational efficiency.">
 <meta property="og:image" id="ogImage" content="">
@@ -330,7 +330,7 @@ footer .footer-nav a{color:var(--muted);font-size:.8rem}
 </footer>
 
 <script id="postSchema" type="application/ld+json">
-{"@context":"https://schema.org","@type":"Blog","@id":"https://knightops.biz/blog#blog","name":"Knight Ops Blog","description":"Expert insights on custom AI systems, business automation, and operational efficiency for founder-led businesses.","url":"https://knightops.biz/blog","publisher":{"@type":"Organization","@id":"https://knightops.biz/#organization","name":"Knight Ops"}}
+{"@context":"https://schema.org","@type":"Blog","@id":"https://www.knightops.biz/blog#blog","name":"Knight Ops Blog","description":"Expert insights on custom AI systems, business automation, and operational efficiency for founder-led businesses.","url":"https://www.knightops.biz/blog","publisher":{"@type":"Organization","@id":"https://www.knightops.biz/#organization","name":"Knight Ops"}}
 </script>
 
 <script>
@@ -428,7 +428,7 @@ async function loadPost(slug){
   fetch(`${SB_URL}/rest/v1/blog_posts?id=eq.${p.id}`,{method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({view_count:(p.view_count||0)+1})});
 
   // Update meta tags
-  const postUrl='https://knightops.biz/blog/'+p.slug;
+  const postUrl='https://www.knightops.biz/blog/'+p.slug;
   document.getElementById('pageTitle').textContent=p.title+' — Knight Ops Blog';
   document.getElementById('metaDesc').content=p.meta_description||p.excerpt||'';
   document.getElementById('canonical').href=postUrl;
@@ -528,7 +528,7 @@ async function loadRelated(current){
 }
 
 function copyPostUrl(){
-  const url='https://knightops.biz/blog/'+(currentPost?currentPost.slug:'');
+  const url='https://www.knightops.biz/blog/'+(currentPost?currentPost.slug:'');
   navigator.clipboard.writeText(url).then(()=>{
     const btn=document.getElementById('shareCopy');
     btn.classList.add('copied');
@@ -543,7 +543,7 @@ function showIndex(){
   document.getElementById('readingProgress').style.width='0';
   document.getElementById('pageTitle').textContent='Blog — Knight Ops | AI Systems, Automation & Business Growth';
   document.getElementById('metaDesc').content='Expert insights on custom AI systems, business automation, dashboards, and operational efficiency for founder-led businesses.';
-  document.getElementById('canonical').href='https://knightops.biz/blog';
+  document.getElementById('canonical').href='https://www.knightops.biz/blog';
   if(!posts.length)init();
 }
 

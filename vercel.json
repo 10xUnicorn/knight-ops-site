@@ -3,6 +3,17 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "knightops.biz"
+        }
+      ],
+      "destination": "https://www.knightops.biz/:path*",
+      "permanent": true
+    },
+    {
       "source": "/assessment",
       "destination": "/assess",
       "permanent": true
@@ -10,6 +21,16 @@
     {
       "source": "/:path((?!api/).+)\\.html",
       "destination": "/:path",
+      "permanent": true
+    },
+    {
+      "source": "/lander",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/apps-for-agencies",
+      "destination": "/for-agencies",
       "permanent": true
     }
   ],
@@ -24,7 +45,7 @@
     },
     {
       "source": "/blog/:slug",
-      "destination": "/blog.html"
+      "destination": "/api/blog?slug=:slug"
     },
     {
       "source": "/map/:slug",
