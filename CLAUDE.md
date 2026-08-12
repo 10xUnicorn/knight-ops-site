@@ -184,12 +184,29 @@ Before ANY database write, migration, or deployment, run the `project-selector` 
 ### Rule 4: NEVER deploy via Vercel CLI — git push ONLY
 Deployments MUST go through git push → GitHub → Vercel auto-deploy. NEVER use `vercel deploy`, `vercel --prod`, or any Vercel CLI deployment. Dirty CLI deploys (`gitDirty: "1"`) have caused pages to go missing in production because they deploy from an incomplete local copy instead of the full git repo. This has happened multiple times and wiped 9+ pages from production.
 
-### Rule 5: Git push requires fresh /tmp clone
-The mounted filesystem has an immutable `.git/index.lock`. To push changes:
-1. Clone to `/tmp/<fresh-unique-dir>` using the GitHub PAT
-2. Copy changed files from the mounted workspace
-3. Commit and push from the /tmp clone
-4. Git config: `git -c user.name="Daniel Knight" -c user.email="dknightunicorn@gmail.com"`
+### Rule 5: Run git on the Mac, never from the sandbox mount — use `ko`
+**Superseded 2026-08-12.** The old rule said to clone to `/tmp` and push from there, because the
+sandbox mount reports an immutable `.git/index.lock`. That lock is a *sandbox artifact only* —
+git writes fine natively on the Mac (verified). But every /tmp-clone push left
+`~/knight-ops-site` stale, so it drifted further from origin each session. On 2026-08-12 it had
+reached **253 commits ahead / 112 behind** after a `git pull --rebase` was aborted mid-conflict,
+leaving an orphaned `.git/AUTO_MERGE`. Local content was 130 files / 25k lines behind production.
+
+**Do this instead.** Run git through the Mac shell (osascript `do shell script`, or ask Daniel to
+run it in Terminal) against `~/knight-ops-site`. Never `git commit`/`push` from `/sessions/...`.
+
+A helper is installed at `~/bin/ko`:
+- `ko status` — ahead/behind/uncommitted at a glance
+- `ko sync` — safe fast-forward; auto-stashes, refuses if you'd lose commits
+- `ko deploy "message"` — blocks if behind origin, shows the diff, confirms, commits, pushes, then curls production
+- `ko rescue` — for a diverged repo: archives commits to `archive/pre-sync-<date>`, stashes the working tree, clears rebase residue, resets to origin. Nothing is destroyed.
+
+**Start every session touching this repo with `ko status`.** If it isn't `IN SYNC`, fix that before
+editing anything. Reading/editing files through the mount is fine — only git operations must run
+on the Mac.
+
+Recovery from 2026-08-12: old commits are on branch `archive/pre-sync-2026-08-12`; the old working
+tree is in `git stash list`.
 
 ### Rule 6: Verify every change
 After making a change (SQL, deployment, code edit):
