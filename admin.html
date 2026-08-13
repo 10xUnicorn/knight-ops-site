@@ -2392,7 +2392,7 @@ async function showLeadDetail(id){
   const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
 
   document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> <button class="btn btn-sm" onclick="enrichLeadById(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.08);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Enrich lead data via web search">🔍 Enrich</button> <button class="btn btn-sm" onclick="apolloEnrichLead(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:#4A54E1;color:#fff;border:1px solid #5C64F4;border-radius:6px;font-weight:600" title="Enrich via Apollo (1 credit)">⚡ Apollo</button> '+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" class="btn btn-sm" style="padding:4px 10px;font-size:.75rem;background:rgba(10,102,194,.12);color:#0a66c2;border:1px solid rgba(10,102,194,.3);border-radius:6px;text-decoration:none" title="View LinkedIn profile">in LinkedIn</a> ':'')+'<button class="btn btn-sm btn-primary" onclick="createProjectFromLead(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">+ Project</button> <button class="btn btn-sm btn-primary" onclick="createAppFromLead(\''+l.id+'\')" style="background:rgba(33,150,243,0.15);color:var(--info);border:1px solid rgba(33,150,243,0.3);font-weight:600">+ Application</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Job Title</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.job_title||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'job_title\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.job_title||'—')+'</span></div></div><div><div class="dg-label">Website</div><div class="dg-value">'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" style="color:var(--accent)">'+esc(l.website)+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'website\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">LinkedIn</div><div class="dg-value">'+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" style="color:#0a66c2">'+esc(l.linkedin_url.replace(/https?:\/\/(?:www\.)?linkedin\.com\/in\//,''))+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'linkedin_url\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.location||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'location\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.location||'—')+'</span></div></div>'+(l.enriched_at?'<div><div class="dg-label">Enriched</div><div class="dg-value" style="font-size:.8rem;color:var(--text-muted)">'+fmtDateTime(l.enriched_at)+'</div></div>':'')+' <div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+auditCardHtml+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+buildLeadPromptUI(l.id)+linkedAppsHtml;
-  setTimeout(()=>{updateOutreachPreview();refreshLeadPromptPreview(l.id);},0);
+  setTimeout(()=>{updateOutreachPreview();refreshLeadPromptPreview(l.id);refreshContractPreview(l.id,true);},0);
 }
 function editLead(id){
   const l=id?S.leads.find(x=>x.id===id):null;
@@ -3431,6 +3431,65 @@ async function dashMockPreview(buildId,mid){
   var w=window.open('','_blank'); if(!w){showToast('Allow popups to preview');return;} w.document.open(); w.document.write(html); w.document.close();
 }
 
+// ═══ SHARED PROMPT BLOCKS ═══
+const KO_LANGUAGE_RULES=`LANGUAGE RULES (NON-NEGOTIABLE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- NEVER use "built overnight", "overnight delivery", "48 hours", "48hr", "24 hours", "rush", "fast turnaround", or any speed-of-delivery claim anywhere in any output.
+- Delivery timelines come from the scope and phasing defined in this engagement. State real phases and milestones, never speed promises.
+- Lead with outcome, ownership, and autopilot. The promise is that their impact runs without them in every step.
+- Tagline to use anywhere a tagline appears: "Create Your Impact on Autopilot."`;
+
+const KO_BRAND_PRIORITY=`BRAND PRIORITY — USE THE CLIENT'S BRAND FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This document is for the CLIENT, so it must look like it belongs to THEIR brand, not ours.
+
+1. If a website URL is present in the client data, visit it and extract their real brand system: primary color, secondary color, accent color, background treatment, heading font family, body font family, button shape and radius, logo, and overall tone (light or dark, minimal or bold, corporate or playful).
+2. If a screenshot, logo, brand guide, or brand asset has been provided in this conversation, extract the palette and typography from that instead. Provided assets outrank the website.
+3. Build the entire document on THAT palette and typography. Their colors carry the headings, section dividers, buttons, cards, and highlights.
+4. Knight Ops branding stays subtle and secondary: deep black (#0A0A0B) and gold (#C8A456) tones used only where the Knight Ops mark, footer, "Prepared by Knight Ops" line, or a divider accent appears. Do not let gold take over the document.
+5. If NO website, screenshot, or brand asset is available, fall back to the full Knight Ops dark and gold system and say in the in-chat brief that you used the fallback because no client brand source was found.
+6. Never invent a logo. Use a clean text lockup of their company name in their brand typography if no logo file is available.
+7. Contrast and readability outrank brand matching. If their palette produces unreadable text, adjust tint or shade and note it.`;
+
+const KO_CONTINUITY_TERMS=`KNIGHT OPS CONTINUITY & SUPPORT STANDARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INCLUDED WITH EVERY BUILD (no extra charge):
+- Six (6) months of Included Continuity beginning on the launch date (the date the system is deployed to the client's satisfaction against the agreed scope).
+- Included Continuity covers: hosting and deployment integrity, bug fixes and defect resolution on delivered scope, security and dependency patching, uptime monitoring, and the Client Continuity Brief plus Developer Handoff Package so the client is never stranded.
+- The client may submit questions, feedback, and support requests at any time during this window through the agreed support channel.
+
+FOR FRACTIONAL CHIEF AI OFFICER / AI OPS ENGAGEMENTS:
+- Included Continuity runs concurrently for the full duration of the engagement, and does not begin only after the engagement ends.
+- Every system delivered inside the engagement carries the same six (6) month Included Continuity window from its own launch date.
+
+WHAT IS NOT INCLUDED (requires the Continuity Plan):
+- New features, new modules, or scope beyond what is defined in this agreement
+- Ongoing enhancement work and iteration after launch
+- Quarterly feature pushes
+- Quarterly strategy sessions
+- Priority response and standing roadmap ownership
+
+CONTINUITY PLAN — $1,000/month:
+- Ongoing updates and enhancements to the delivered system
+- Feature requests reviewed, scoped, and queued
+- One quarterly feature push (a batched release of approved enhancements)
+- One quarterly strategy session with Daniel Knight
+- Priority support response ahead of non-plan clients
+- Month-to-month, cancel with 30 days written notice
+- Optional. Declining it does not affect the six months of Included Continuity.`;
+
+const KO_PHASING_LANGUAGE=`PHASED / EXTENDED ENGAGEMENT LANGUAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Some engagements are structured across three months, six months, or twelve months. The contract must make the following unmistakably clear, in plain, warm, client-facing language:
+
+- A longer engagement window describes the DELIVERY SCHEDULE of the agreed scope, not a requirement for standing meetings or continuous weekly build sessions.
+- Knight Ops is NOT obligated to hold recurring meetings or to build continuously across every week of the term unless a meeting cadence is explicitly listed in the Deliverables and Schedule section.
+- Knight Ops IS obligated to deliver and deploy the full agreed system to the client's satisfaction against the scope defined in the proposal and this agreement.
+- The client CAN, at any point during the term, submit questions, request updates, share feedback, and request revisions within the agreed revision allowance. Access is not gated by a meeting schedule.
+- Communication happens through the agreed channel with a defined response window (state it explicitly, e.g. two business days).
+- Work continues in defined phases with milestone acceptance rather than a fixed weekly rhythm, so the schedule flexes around both parties without the client losing access or momentum.
+- Never phrase this as a limitation on the client. Phrase it as flexibility: the system gets built and deployed properly, and they keep a direct line the entire time.`;
+
 // ═══ PROMPT GENERATORS ═══
 function generateWebsitePrompt(p){
   const d=p.intake_data||{};
@@ -4367,7 +4426,7 @@ function showCCPrompt(projectId){
   var brandSecondary=sColor||'[HEX]';
   var brandMode=theme||'[dark / light]';
 
-  var prompt='/project-selector\n\nBuild a Command Center for '+clientName+' at '+companyName+'.\n\n## Context\n- Tier: '+tierLabel+'\n- Core outcome: "'+coreOutcome+'"\n- Morning screen: "'+morningScreen+'"\n- Biggest time sink to automate: "'+automateWish+'"\n\n## Brand\n- Primary: '+brandPrimary+'\n- Secondary: '+brandSecondary+'\n- Mode: '+brandMode+'\n- Logo: [uploaded or path]\n- Font: [if specified, else system stack]\n\n## Integrations (Day 1)\n'+toolList+'\n\n## Phase 1: MVP (Deploy within 24 hours)\n\nCreate a Cowork artifact with ID: '+slug+'-command-center\n\n### Required Sections:\n1. **KPI Gauges** (4 animated SVG circular gauges with glow)\n   - Total Leads\n   - Revenue (won deals)\n   - Pipeline Value (active deals)\n   - Active Clients\n\n2. **Smart Calendar** (today\'s meetings from Google Calendar MCP)\n   - Time, title, attendees\n   - Join link buttons\n   - Conflict highlighting\n\n3. **Message Center** (Gmail MCP, unread inbox)\n   - AI-categorized tabs: Need Reply | Revenue | Action | All\n   - Thread preview with sender, subject, snippet\n   - Quick draft button per thread\n\n4. **Active Pipeline** (Supabase deals table)\n   - Deal cards with client name, value, stage\n   - Progress bars\n   - Inactivity alerts (7+ days no activity)\n\n5. **Task Manager** (Supabase tasks table)\n   - Priority sorted: critical > high > medium > low\n   - Checkboxes for completion\n   - Due date indicators\n   - Color-coded priority badges\n\n6. **Neural Command Terminal**\n   - Text input for natural language commands\n   - 6-8 quick command buttons relevant to client\'s business\n   - Commands: [CUSTOMIZE BASED ON CLIENT]\n\n### Supabase Setup:\n- Project: [PROJECT_ID from project-selector]\n- Create tables: leads, deals, tasks, meetings, action_items, automations_log, kpis\n- Set up RLS for client auth\n- Populate with any existing data client provided\n\n### Design:\n- Use the futuristic cyberpunk style (scanlines, glassmorphism, glow effects)\n- Replace Knight Ops gold with client\'s brand colors\n- [CLIENT_LOGO] in header\n\n### Data Fetching Pattern:\n```javascript\n// Use parseRows() for all Supabase responses\nfunction parseRows(res){\n  if(!res)return[];\n  if(Array.isArray(res))return res;\n  if(res.rows&&Array.isArray(res.rows))return res.rows;\n  if(res.result&&Array.isArray(res.result))return res.result;\n  if(res.result&&typeof res.result===\'string\'){\n    var m=res.result.match(/\\[[\\s\\S]*\\]/);\n    if(m){try{var p=JSON.parse(m[0]);if(Array.isArray(p))return p}catch(e){}}\n    try{var j=JSON.parse(res.result);if(Array.isArray(j))return j;if(j&&j.rows)return j.rows}catch(e){}\n  }\n  if(typeof res===\'string\'){\n    var m2=res.match(/\\[[\\s\\S]*\\]/);\n    if(m2){try{return JSON.parse(m2[0])}catch(e){}}\n  }\n  return[];\n}\n```\n\n### Critical Build Rules:\n1. Never use external fonts (Cowork sandbox blocks them)\n2. All data via window.cowork.callMcpTool (never raw fetch)\n3. Single-file HTML architecture\n4. All SVG filters inline\n5. sendPrompt() available globally for command terminal\n6. No localStorage\n7. All MCP calls wrapped in try/catch with fallback UI\n8. Chart.js v4.5.0 from CDN only external dependency allowed\n\nDeploy MVP and confirm all sections loading with real data.\n\n---\n\n## Phase 2 (Days 3-7)\n\nContinue building '+clientName+'\'s Command Center.\nMVP is live. Now add Phase 2 features:\n\n### 2A: AI Intelligence Layer\n- Revenue Intelligence (3 AI insight cards via window.cowork.sample)\n- Predictive Focus (top 3 priorities for today, AI-ranked)\n- Recommendations engine with executable prompts\n\n### 2B: Client-Specific Features\n'+featureList+'\n\n### 2C: Business Context\n- Offers: '+offerList+'\n- Client Acquisition: '+acqList+'\n\n### 2D: Automations\nSet up scheduled tasks:\n- Daily: [BASED ON CLIENT NEEDS]\n- Weekly: [BASED ON CLIENT NEEDS]\n- On trigger: [BASED ON CLIENT NEEDS]\n\nUpdate the artifact with all new sections.\nVerify all data loading correctly.\n\n---\n\n## Dashboard Build (If Brain+Dashboard or Full Suite Tier)\n\n/project-selector\n\nBuild a Vercel-hosted web dashboard for '+clientName+'.\n\n### Stack\n- Next.js 14+ (App Router)\n- Supabase Auth (magic link)\n- Same Supabase project as Command Center: [PROJECT_ID]\n- Tailwind CSS\n- Chart.js for visualizations\n- Deploy to Vercel\n\n### Pages Required:\n1. /login - Magic link auth\n2. /dashboard - Main KPI overview (mirrors Command Center gauges)\n3. /pipeline - Kanban board (drag deals between stages)\n4. /tasks - Task board with filters\n5. /calendar - Week view\n6. /settings - Profile, notification preferences\n\n### Role-Based Access:\n- Admin: Full access\n- Manager: Team tasks + pipeline + calendar\n- Member: Own tasks + shared views\n- Viewer: Read-only dashboard\n\n### Design:\n- Brand colors: '+brandPrimary+', '+brandSecondary+'\n- Mode: '+brandMode+'\n- Responsive (mobile-first)\n- Same data as Command Center artifact\n\n### Real-time:\n- Supabase Realtime subscriptions for:\n  - New tasks assigned\n  - Deal stage changes\n  - KPI updates\n\nBuild and deploy. Provide Vercel URL when complete.\n\n---\n\n## Mobile App (If Full Suite Tier)\n\nBuild a mobile app for '+clientName+'\'s Command Center.\n\n### Stack\n- React Native (Expo)\n- Same Supabase project: [PROJECT_ID]\n- Supabase Auth + biometric unlock\n- Expo Push Notifications\n\n### Screens:\n1. Home - KPI cards + today\'s top 3 priorities\n2. Pipeline - Swipeable deal cards with stage filter\n3. Tasks - Priority list with swipe-to-complete\n4. Calendar - Day/week toggle with meeting details\n5. Notifications - Push alert history\n6. Settings - Profile, notification preferences, logout\n\n### Push Notifications:\n- New deal created\n- Task assigned to you\n- Task overdue\n- Meeting in 15 minutes\n- Revenue milestone hit\n\n### App Store Assets Needed:\n- App icon (1024x1024)\n- Screenshots (iPhone 15 Pro Max + iPhone SE)\n- App name: [CLIENT_APP_NAME]\n- Subtitle: [SHORT DESCRIPTION]\n- Keywords: [COMMA SEPARATED]\n- Privacy policy URL: [URL]\n\n### Deploy:\n- TestFlight for iOS testing\n- Google Play internal track for Android testing\n- Submit to both stores once approved by client\n\nBuild, test locally, then prepare store submission.';
+  var prompt='/project-selector\n\nBuild a Command Center for '+clientName+' at '+companyName+'.\n\n## Context\n- Tier: '+tierLabel+'\n- Core outcome: "'+coreOutcome+'"\n- Morning screen: "'+morningScreen+'"\n- Biggest time sink to automate: "'+automateWish+'"\n\n## Brand\n- Primary: '+brandPrimary+'\n- Secondary: '+brandSecondary+'\n- Mode: '+brandMode+'\n- Logo: [uploaded or path]\n- Font: [if specified, else system stack]\n\n## Integrations (Day 1)\n'+toolList+'\n\n## Phase 1: MVP (first deployable milestone)\n\nCreate a Cowork artifact with ID: '+slug+'-command-center\n\n### Required Sections:\n1. **KPI Gauges** (4 animated SVG circular gauges with glow)\n   - Total Leads\n   - Revenue (won deals)\n   - Pipeline Value (active deals)\n   - Active Clients\n\n2. **Smart Calendar** (today\'s meetings from Google Calendar MCP)\n   - Time, title, attendees\n   - Join link buttons\n   - Conflict highlighting\n\n3. **Message Center** (Gmail MCP, unread inbox)\n   - AI-categorized tabs: Need Reply | Revenue | Action | All\n   - Thread preview with sender, subject, snippet\n   - Quick draft button per thread\n\n4. **Active Pipeline** (Supabase deals table)\n   - Deal cards with client name, value, stage\n   - Progress bars\n   - Inactivity alerts (7+ days no activity)\n\n5. **Task Manager** (Supabase tasks table)\n   - Priority sorted: critical > high > medium > low\n   - Checkboxes for completion\n   - Due date indicators\n   - Color-coded priority badges\n\n6. **Neural Command Terminal**\n   - Text input for natural language commands\n   - 6-8 quick command buttons relevant to client\'s business\n   - Commands: [CUSTOMIZE BASED ON CLIENT]\n\n### Supabase Setup:\n- Project: [PROJECT_ID from project-selector]\n- Create tables: leads, deals, tasks, meetings, action_items, automations_log, kpis\n- Set up RLS for client auth\n- Populate with any existing data client provided\n\n### Design:\n- Use the futuristic cyberpunk style (scanlines, glassmorphism, glow effects)\n- Replace Knight Ops gold with client\'s brand colors\n- [CLIENT_LOGO] in header\n\n### Data Fetching Pattern:\n```javascript\n// Use parseRows() for all Supabase responses\nfunction parseRows(res){\n  if(!res)return[];\n  if(Array.isArray(res))return res;\n  if(res.rows&&Array.isArray(res.rows))return res.rows;\n  if(res.result&&Array.isArray(res.result))return res.result;\n  if(res.result&&typeof res.result===\'string\'){\n    var m=res.result.match(/\\[[\\s\\S]*\\]/);\n    if(m){try{var p=JSON.parse(m[0]);if(Array.isArray(p))return p}catch(e){}}\n    try{var j=JSON.parse(res.result);if(Array.isArray(j))return j;if(j&&j.rows)return j.rows}catch(e){}\n  }\n  if(typeof res===\'string\'){\n    var m2=res.match(/\\[[\\s\\S]*\\]/);\n    if(m2){try{return JSON.parse(m2[0])}catch(e){}}\n  }\n  return[];\n}\n```\n\n### Critical Build Rules:\n1. Never use external fonts (Cowork sandbox blocks them)\n2. All data via window.cowork.callMcpTool (never raw fetch)\n3. Single-file HTML architecture\n4. All SVG filters inline\n5. sendPrompt() available globally for command terminal\n6. No localStorage\n7. All MCP calls wrapped in try/catch with fallback UI\n8. Chart.js v4.5.0 from CDN only external dependency allowed\n\nDeploy MVP and confirm all sections loading with real data.\n\n---\n\n## Phase 2 (post-MVP milestone)\n\nContinue building '+clientName+'\'s Command Center.\nMVP is live. Now add Phase 2 features:\n\n### 2A: AI Intelligence Layer\n- Revenue Intelligence (3 AI insight cards via window.cowork.sample)\n- Predictive Focus (top 3 priorities for today, AI-ranked)\n- Recommendations engine with executable prompts\n\n### 2B: Client-Specific Features\n'+featureList+'\n\n### 2C: Business Context\n- Offers: '+offerList+'\n- Client Acquisition: '+acqList+'\n\n### 2D: Automations\nSet up scheduled tasks:\n- Daily: [BASED ON CLIENT NEEDS]\n- Weekly: [BASED ON CLIENT NEEDS]\n- On trigger: [BASED ON CLIENT NEEDS]\n\nUpdate the artifact with all new sections.\nVerify all data loading correctly.\n\n---\n\n## Dashboard Build (If Brain+Dashboard or Full Suite Tier)\n\n/project-selector\n\nBuild a Vercel-hosted web dashboard for '+clientName+'.\n\n### Stack\n- Next.js 14+ (App Router)\n- Supabase Auth (magic link)\n- Same Supabase project as Command Center: [PROJECT_ID]\n- Tailwind CSS\n- Chart.js for visualizations\n- Deploy to Vercel\n\n### Pages Required:\n1. /login - Magic link auth\n2. /dashboard - Main KPI overview (mirrors Command Center gauges)\n3. /pipeline - Kanban board (drag deals between stages)\n4. /tasks - Task board with filters\n5. /calendar - Week view\n6. /settings - Profile, notification preferences\n\n### Role-Based Access:\n- Admin: Full access\n- Manager: Team tasks + pipeline + calendar\n- Member: Own tasks + shared views\n- Viewer: Read-only dashboard\n\n### Design:\n- Brand colors: '+brandPrimary+', '+brandSecondary+'\n- Mode: '+brandMode+'\n- Responsive (mobile-first)\n- Same data as Command Center artifact\n\n### Real-time:\n- Supabase Realtime subscriptions for:\n  - New tasks assigned\n  - Deal stage changes\n  - KPI updates\n\nBuild and deploy. Provide Vercel URL when complete.\n\n---\n\n## Mobile App (If Full Suite Tier)\n\nBuild a mobile app for '+clientName+'\'s Command Center.\n\n### Stack\n- React Native (Expo)\n- Same Supabase project: [PROJECT_ID]\n- Supabase Auth + biometric unlock\n- Expo Push Notifications\n\n### Screens:\n1. Home - KPI cards + today\'s top 3 priorities\n2. Pipeline - Swipeable deal cards with stage filter\n3. Tasks - Priority list with swipe-to-complete\n4. Calendar - Day/week toggle with meeting details\n5. Notifications - Push alert history\n6. Settings - Profile, notification preferences, logout\n\n### Push Notifications:\n- New deal created\n- Task assigned to you\n- Task overdue\n- Meeting in 15 minutes\n- Revenue milestone hit\n\n### App Store Assets Needed:\n- App icon (1024x1024)\n- Screenshots (iPhone 15 Pro Max + iPhone SE)\n- App name: [CLIENT_APP_NAME]\n- Subtitle: [SHORT DESCRIPTION]\n- Keywords: [COMMA SEPARATED]\n- Privacy policy URL: [URL]\n\n### Deploy:\n- TestFlight for iOS testing\n- Google Play internal track for Android testing\n- Submit to both stores once approved by client\n\nBuild, test locally, then prepare store submission.';
 
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
@@ -6921,6 +6980,7 @@ async function showAppDetail(id){
       '<button class="btn btn-sm btn-primary" onclick="saveAllAppFields(\''+a.id+'\')" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none">💾 Save All Changes</button>'+
       '<button class="btn btn-sm btn-primary" onclick="copyBuildPrompt(\''+a.id+'\')">&#128203; Build Prompt</button>'+
       '<button class="btn btn-sm btn-primary" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);border:none">&#128218; Blueprint</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyContractPrompt(\''+a.id+'\',false)" style="background:linear-gradient(135deg,#C8A456,#8a6f2f);color:#0A0A0B;border:none;font-weight:600">&#128220; Contract</button>'+
       '<button class="btn btn-sm btn-secondary" onclick="updateAppStatus(\''+a.id+'\',\'reviewed\')">Reviewed</button>'+
       '<button class="btn btn-sm btn-secondary" style="background:rgba(33,150,243,0.1);color:var(--info);border-color:rgba(33,150,243,0.3)" onclick="updateAppStatus(\''+a.id+'\',\'proposal_sent\')">Proposal Sent</button>'+
       '<button class="btn btn-sm btn-primary" onclick="createDealFromApp(\''+a.id+'\')">Create Deal</button>'+
@@ -7010,10 +7070,14 @@ async function showAppDetail(id){
     '<div style="margin-top:1.5rem;padding:1.5rem;background:var(--surface);border:1px solid rgba(139,92,246,0.2);border-radius:14px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><h3 style="font-size:0.9rem;color:#8B5CF6">&#128218; 10x Blueprint Prompt</h3><button class="btn btn-sm" onclick="copyBlueprintPrompt(\''+a.id+'\')" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none">&#128203; Copy</button></div>'+
       '<pre id="blueprintPreview-'+a.id+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid rgba(139,92,246,0.15);line-height:1.5"></pre>'+
-    '</div>';
+    '</div>'+
+
+    // ═══ CONTRACT PROMPT ═══
+    contractPromptUI(a.id,false);
 
   refreshPromptPreview(a.id);
   refreshBlueprintPreview(a.id);
+  refreshContractPreview(a.id,false);
   loadProposalSection(a);
   loadAppFilesSection(a);
   renderMockupCard('mockCardApp_'+a.id,{appId:a.id,leadId:a.lead_id,businessName:(a.company||fullName)});
@@ -7064,23 +7128,27 @@ function generateBuildPrompt(a,opts){
   else if(platform==='mobile'||platform==='both')recTier='Night Build ($9,997) or Night Build Pro ($14,997) for App Store deployment';
   else recTier='To be determined after discovery call';
 
-  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium overnight development firm founded by Daniel Knight.
+  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium custom systems and application development firm founded by Daniel Knight.
 
 BRAND CONTEXT — KNIGHT OPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
-Tagline: "Built Overnight. Scaled Forever."
+Tagline: "Create Your Impact on Autopilot."
 Founder: Daniel Knight
-Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
-Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
+Core Promise: We architect the systems that carry your client's transformation, so your impact runs without you in every step.
+Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
 Font: 'Segoe UI', system-ui, -apple-system, sans-serif
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
 Service Tiers:
-• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions. No backend.
-• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
+• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions. No backend.
+• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
 • Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 • Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
+
+${KO_LANGUAGE_RULES}
+
+${KO_BRAND_PRIORITY}
 
 ${block}
 
@@ -7138,7 +7206,7 @@ Structure:
 
 COVER:
 - "KNIGHT OPS" logo text (bold, gold #C8A456)
-- "Built Overnight. Scaled Forever." tagline
+- "Create Your Impact on Autopilot." tagline
 - "Project Proposal for ${fullName}${a.company?' — '+a.company:''}"
 - "Prepared by Daniel Knight, Founder"
 - Today's date
@@ -7151,12 +7219,12 @@ SECTIONS:
 5. RECOMMENDED PACKAGE — State the tier, what's included, pricing (full + split), and what they'd miss without the full build.
 6. TIMELINE & DELIVERY — Phase breakdown. When they see each milestone.
 7. AFTER LAUNCH — Post-launch support. 2-3 growth opportunities framed as revenue multipliers.
-8. NEXT STEPS — CTA: "Book your Discovery Call: https://knightops.biz/book" + "Once confirmed, we start building. You'll have a working prototype within 48 hours."
+8. NEXT STEPS — CTA: "Book your Discovery Call: https://knightops.biz/book" + "Once confirmed, we lock the scope, set the phase schedule, and start building against it."
 9. WHY KNIGHT OPS — 3-4 outcome-focused bullet points.
 
 FOOTER: Daniel Knight | Founder, Knight Ops | team@knightops.biz | knightops.biz
 
-Use the Knight Ops brand colors: dark background feel, gold accents. Professional typography. Make it look like a $15K agency produced it.
+Apply the BRAND PRIORITY rules above: build this on the client's brand palette and typography, with Knight Ops black and gold used only as subtle accent where our mark appears. Professional typography. Make it look like a $15K agency produced it.
 ${opts.stripeUrl?`Include a prominent "Pay Now" button linking to: ${opts.stripeUrl}`:''}
 ${opts.format==='html'||opts.format==='both'?`
 ╔═══════════════════════════════════════════════════════════╗
@@ -7168,8 +7236,10 @@ Create a single, self-contained HTML file (no external dependencies) that is an 
 (HTML OUTPUT SKIPPED — format set to PDF only)`}
 
 DESIGN SPECS:
-- Dark theme matching Knight Ops brand: background #0A0A0B, surfaces #111113 / #1A1A1F, gold accent #C8A456, text #F5F5F5, muted #999
-- Font: 'Segoe UI', system-ui, -apple-system, sans-serif
+- Follow the BRAND PRIORITY rules above. The client's palette and typography drive the document.
+- Knight Ops fallback only (used if no client brand source exists): background #0A0A0B, surfaces #111113 / #1A1A1F, gold accent #C8A456, text #F5F5F5, muted #999
+- Even when the client's brand leads, keep subtle black and gold tones where the Knight Ops mark, footer, and section dividers appear
+- Font: the client's brand fonts via safe system stacks, otherwise 'Segoe UI', system-ui, -apple-system, sans-serif
 - Smooth scroll, fade-in animations, polished micro-interactions
 - Fully responsive (mobile-first)
 - NO external CDN links. Everything inline. Pure HTML/CSS/JS.
@@ -7178,7 +7248,7 @@ STRUCTURE OF THE HTML FILE:
 
 HEADER:
 - "KNIGHT OPS" text logo (styled, not an image)
-- "Built Overnight. Scaled Forever."
+- "Create Your Impact on Autopilot."
 - "Project Proposal for ${fullName}"
 
 SECTION 1 — YOUR VISION
@@ -7199,7 +7269,6 @@ SECTION 3 — CHOOSE YOUR PACKAGE (this is the interactive core)
   • Mobile responsive
   • SEO-ready structure
   • Embedded forms, Calendly, Stripe links
-  • Overnight delivery
   • 2 revisions included
   • Full code ownership
   ✗ No backend / auth / database
@@ -7209,7 +7278,6 @@ SECTION 3 — CHOOSE YOUR PACKAGE (this is the interactive core)
   NIGHT BUILD — $9,997 (mark as "RECOMMENDED" if that's the recommended tier)
   • Full-stack web or mobile app
   • Auth, payments, CRM hooks, API integrations
-  • Prototype in 48hrs
   • 3 revisions included
   • 5-day post-launch support
   • Full code + repo ownership
@@ -7264,7 +7332,7 @@ The mailto body must be URL-encoded and work in all browsers/email clients.
 
 SECTION 7 — WHY KNIGHT OPS
 - 3-4 outcome-focused points
-- Closing: "Built Overnight. Scaled Forever."
+- Closing: "Create Your Impact on Autopilot."
 
 FOOTER:
 - Daniel Knight | Founder, Knight Ops
@@ -7357,23 +7425,27 @@ Status: ${l.status||'new'}
 Lead Score: ${l.lead_score||'Not scored'}
 Created: ${fmtDateTime(l.created_at)}${l.notes?'\n\nLead Notes: '+l.notes:''}${notesBlock}`;
 
-  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium overnight development firm founded by Daniel Knight.
+  return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium custom systems and application development firm founded by Daniel Knight.
 
 BRAND CONTEXT — KNIGHT OPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
-Tagline: "Built Overnight. Scaled Forever."
+Tagline: "Create Your Impact on Autopilot."
 Founder: Daniel Knight
-Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
-Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
+Core Promise: We architect the systems that carry your client's transformation, so your impact runs without you in every step.
+Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5, Muted #999
 Font: 'Segoe UI', system-ui, -apple-system, sans-serif
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
 Service Tiers:
-• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions. No backend.
-• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
+• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions. No backend.
+• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
 • Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 • Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
+
+${KO_LANGUAGE_RULES}
+
+${KO_BRAND_PRIORITY}
 
 ${block}
 
@@ -7432,7 +7504,7 @@ Structure:
 
 COVER:
 - "KNIGHT OPS" logo text (bold, gold #C8A456)
-- "Built Overnight. Scaled Forever." tagline
+- "Create Your Impact on Autopilot." tagline
 - "Project Proposal for ${fullName}${l.company?' — '+l.company:''}"
 - "Prepared by Daniel Knight, Founder"
 - Today's date
@@ -7459,7 +7531,7 @@ ${opts.format==='html'||opts.format==='both'?`
 
 Create a single, self-contained HTML file (no external dependencies) that is an interactive proposal ${firstName} can open in their browser. This is the key deliverable.
 
-DESIGN: Dark theme (#0A0A0B bg, #C8A456 gold accent, #F5F5F5 text). Responsive. Smooth animations. NO external CDN links.
+DESIGN: Follow the BRAND PRIORITY rules above. Build on the client's palette and typography pulled from their website or any provided screenshot or brand asset, with subtle black (#0A0A0B) and gold (#C8A456) only where the Knight Ops mark and footer appear. Fall back to the full Knight Ops dark and gold system only if no client brand source exists. Responsive. Smooth animations. NO external CDN links.
 
 Include: Header with logo, Vision section, Feature cards, interactive Package Selector (all 3 tiers clickable with gold glow on selection), Feature matrix by tier, Timeline, Next Steps with mailto decision email button (to: team@knightops.biz, subject: "Project Decision — ${fullName} — [Tier]", pre-filled body with selection details), Why Knight Ops, Footer.
 ${opts.stripeUrl?'Include a "Pay & Get Started" button linking to: '+opts.stripeUrl:''}`:
@@ -7526,7 +7598,8 @@ function buildLeadPromptUI(leadId){
       '</div>'+
     '</div>'+
     '<pre id="leadPromptPreview-'+leadId+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
-  '</div>';
+  '</div>'+
+  contractPromptUI(leadId,true);
 }
 
 // Helper: build all-fields data block shared by both prompt generators
@@ -7698,22 +7771,26 @@ function generateBlueprintPrompt(a){
   const{block,fullName,coreOutcome}=buildAllFieldsBlock(a);
   const firstName=a.first_name||'Client';
 
-  return `You are a world-class business systems architect and strategic growth consultant for Knight Ops, a premium overnight development firm founded by Daniel Knight. You specialize in creating 10x Systems Blueprints that transform how entrepreneurs and business owners operate.
+  return `You are a world-class business systems architect and strategic growth consultant for Knight Ops, a premium custom systems and application development firm founded by Daniel Knight. You specialize in creating 10x Systems Blueprints that transform how entrepreneurs and business owners operate.
 
 BRAND CONTEXT -- KNIGHT OPS
 ==============================
 Brand Voice: Bold, direct, confident, premium. We speak like operators who ship, not agencies that deck.
-Tagline: "Built Overnight. Scaled Forever."
+Tagline: "Create Your Impact on Autopilot."
 Founder: Daniel Knight
-Core Promise: We architect revenue machines, deploy fast, and hand you the keys.
-Colors: Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5
+Core Promise: We architect the systems that carry your client's transformation, so your impact runs without you in every step.
+Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
 Service Tiers:
-- Night Launch -- $1,497 (split: $749 x2) -- High-converting multi-page website. HTML/CSS/JS. Overnight delivery. Up to 5 pages. 2 revisions.
-- Night Build -- $9,997 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 48hr deploy. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
+- Night Launch -- $1,497 (split: $749 x2) -- High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions.
+- Night Build -- $9,997 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
 - Night Build Pro -- $14,997 (split: $7,499 x2) -- Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
 - Workshop -- $1,000 -- 2-day, 4-hour hands-on workshop. Build your own app.
+
+${KO_LANGUAGE_RULES}
+
+${KO_BRAND_PRIORITY}
 
 ${block}
 
@@ -7773,8 +7850,10 @@ SECTION 8: NEXT STEPS & CALL TO ACTION
 
 CRITICAL FORMATTING RULES:
 - Output as a single, self-contained HTML file
-- Use Knight Ops brand colors: Background #0A0A0B, Gold #C8A456, Surface #111113, Text #F5F5F5
-- Premium, modern design with subtle gold accents
+- Apply the BRAND PRIORITY rules above. The client's palette and typography from their website, screenshot, or provided brand assets drive this document
+- Knight Ops fallback only if no client brand source exists: Background #0A0A0B, Gold #C8A456, Surface #111113, Text #F5F5F5
+- Keep subtle black and gold tones where the Knight Ops mark, footer, and section dividers sit
+- Premium, modern design with subtle accent treatment
 - Mobile responsive
 - Include the Knight Ops shield logo (CSS-only, no external images)
 - Professional typography using system fonts
@@ -7801,6 +7880,158 @@ async function refreshBlueprintPreview(intakeId){
   await enrichAppWithRelatedData(a);
   const el=document.getElementById('blueprintPreview-'+intakeId);
   if(el)el.textContent=generateBlueprintPrompt(a);
+}
+
+// ═══ CONTRACT PROMPT (run in the SAME conversation as the proposal) ═══
+function getContractOptions(key){
+  const g=id=>document.getElementById(id+'-'+key);
+  const gov=(g('ctState')||{}).value||'Nevada';
+  const term=(g('ctTerm')||{}).value||'';
+  const dep=(g('ctDeposit')||{}).value||'';
+  const cont=(g('ctContinuity')||{}).checked;
+  const frac=(g('ctFractional')||{}).checked;
+  const esign=(g('ctEsign')||{}).value||'DocuSign';
+  return{gov,term,dep,cont,frac,esign};
+}
+
+function generateContractPrompt(who,opts){
+  opts=opts||{};
+  const isLead=!who.first_name||!!who.service_interest&&!who.q4_core_outcome&&!who.bp_core_outcome;
+  const fullName=(((who.first_name||'')+' '+(who.last_name||'')).trim())||who.name||'Client';
+  const company=who.company||'';
+  const email=who.email||'';
+  const phone=who.phone||'';
+  const website=who.website||'';
+  const state=opts.gov||'Nevada';
+  const esign=opts.esign||'DocuSign';
+  const termLine=opts.term?opts.term:'as defined by the phase schedule in the proposal';
+  const depLine=opts.dep?opts.dep:'per the payment structure selected in the proposal';
+
+  return `CONTINUE IN THIS SAME CONVERSATION.
+
+You just produced the proposal for ${fullName}${company?' at '+company:''}. Now produce the SERVICES AGREEMENT that turns that exact proposal into a signable contract.
+
+Do NOT re-scope, re-price, or invent new deliverables. Every deliverable, phase, milestone, timeline, revision count, and dollar figure in this contract must match what you already put in the proposal. If the client selected a specific package or feature set, contract to THAT selection. If anything is ambiguous, list it in an "OPEN ITEMS — CONFIRM BEFORE SIGNATURE" block at the end rather than guessing.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PARTIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Provider: Knight Ops, founded by Daniel Knight | team@knightops.biz | knightops.biz
+Client: ${fullName}${company?' — '+company:''}${email?'\nClient Email: '+email:''}${phone?'\nClient Phone: '+phone:''}${website?'\nClient Website: '+website:''}
+Governing Law / Venue: ${state}
+Signature Method: ${esign}
+Engagement Term: ${termLine}
+Deposit / First Payment: ${depLine}
+
+${KO_LANGUAGE_RULES}
+
+${KO_BRAND_PRIORITY}
+
+${KO_PHASING_LANGUAGE}
+
+${KO_CONTINUITY_TERMS}
+${opts.frac?'\nTHIS IS A FRACTIONAL CHIEF AI OFFICER / AI OPS ENGAGEMENT. Apply the fractional variant of the continuity standard: Included Continuity runs concurrently with the engagement and each delivered system carries its own six month window from its launch date.':''}${opts.cont?'\nTHE CLIENT IS ENROLLING IN THE $1,000/MONTH CONTINUITY PLAN. Include it as an active, billed service in the payment schedule with its start date, billing cadence, and 30-day cancellation terms.':'\nTHE CLIENT IS NOT CURRENTLY ENROLLED IN THE CONTINUITY PLAN. Present it as a clearly marked optional add-on with its own signature or initial line so they can elect it now or later.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REQUIRED CONTRACT SECTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Produce every section below, numbered, in this order.
+
+1. PARTIES AND EFFECTIVE DATE — legal names, entity types, addresses (use [PLACEHOLDER] where unknown), effective date.
+2. BACKGROUND AND PURPOSE — one short paragraph naming the system being built and the outcome it produces.
+3. SCOPE OF WORK AND DELIVERABLES — itemized table pulled directly from the proposal. Each row: Deliverable | Description | Included In | Acceptance Criteria. Nothing vague. If the proposal named a module, name it here.
+4. OUT OF SCOPE — explicit list of what is NOT included, so there is no assumed scope. Include third party subscription costs, content and copy the client must supply, and anything the proposal excluded.
+5. PROJECT SCHEDULE AND DELIVERY TIMELINE — phases and milestones taken from the proposal. State the delivery timeline exactly as the proposal defines it. Include the phased engagement language above verbatim in substance: an extended term is a delivery schedule, not a promise of recurring meetings or continuous weekly building, and Knight Ops remains obligated to deliver and deploy the full agreed system to the client's satisfaction against scope.
+6. CLIENT ACCESS, COMMUNICATION, AND FEEDBACK — the client may submit questions, feedback, and update requests at any time during the term through the agreed channel. State the channel and the response window. Make it warm and reassuring, not restrictive.
+7. REVISIONS AND CHANGE REQUESTS — revision allowance from the proposal, what counts as a revision versus a change order, how change orders get priced and approved in writing, and how they affect the schedule.
+8. CLIENT RESPONSIBILITIES AND DEPENDENCIES — assets, access, credentials, approvals, review turnaround time, and what happens to the schedule if the client is delayed.
+9. FEES AND PAYMENT TERMS — total investment, payment structure (full pay or split, with exact amounts and due dates), accepted methods, invoicing cadence, late payment terms, and any full-pay bonus from the proposal. If the engagement is spread across months, lay out the payment schedule month by month in a table.
+10. ACCEPTANCE AND LAUNCH — how a milestone is accepted, the review window, what constitutes deemed acceptance, and the definition of the Launch Date used to start the continuity window.
+11. INCLUDED CONTINUITY — the six month post-launch window, exactly as defined in the continuity standard above, with its start trigger and what it covers.
+12. CONTINUITY PLAN (ONGOING SUPPORT) — the $1,000/month plan, what it includes, quarterly feature push, quarterly strategy session, priority response, month-to-month with 30 days written notice, and its optional nature.
+13. INTELLECTUAL PROPERTY AND OWNERSHIP — client owns the delivered application, code, and content upon final payment. Knight Ops retains its pre-existing tools, frameworks, libraries, and general know-how, with a perpetual license to the client for anything embedded in the deliverable.
+14. THIRD PARTY SERVICES AND ACCOUNTS — hosting, database, payment, AI, and API providers are billed to and owned by the client. Knight Ops is not liable for third party outages, pricing changes, or policy changes.
+15. DATA, PRIVACY, AND SECURITY — data handling, client data ownership, security practices, and breach notification.
+16. CONFIDENTIALITY — mutual, with standard carve-outs and a survival period.
+17. WARRANTIES AND DISCLAIMER — Knight Ops warrants professional, workmanlike delivery against scope. Disclaim implied warranties. No guarantee of specific revenue or business results.
+18. LIMITATION OF LIABILITY — capped at fees paid under this agreement, no consequential or indirect damages.
+19. INDEMNIFICATION — mutual, standard.
+20. TERMINATION — for convenience with notice, for cause with a cure period, payment for work completed through the termination date, and what the client receives on termination (code, assets, handoff).
+21. BUSINESS CONTINUITY AND SUCCESSION — the Client Continuity Brief and Developer Handoff Package are delivered as part of the engagement so the client can continue operating and hand the system to any qualified developer if Knight Ops becomes unavailable for any reason. This is a Knight Ops standard, include it in every agreement.
+22. PORTFOLIO AND REFERENCE RIGHTS — Knight Ops may reference the engagement and display non-confidential work, with an opt-out checkbox.
+23. INDEPENDENT CONTRACTOR RELATIONSHIP — no employment, partnership, or joint venture.
+24. FORCE MAJEURE.
+25. DISPUTE RESOLUTION — good-faith negotiation, then mediation, then binding arbitration or courts in ${state}.
+26. GENERAL PROVISIONS — entire agreement, amendments in writing, assignment, severability, notices, counterparts, and electronic signature validity.
+27. SIGNATURE BLOCK — name, title, signature, date for both parties, plus a separate initial line for the optional Continuity Plan election.
+28. EXHIBIT A — DELIVERABLES AND ACCEPTANCE CRITERIA (full table).
+29. EXHIBIT B — PAYMENT SCHEDULE (full table with dates and amounts).
+30. EXHIBIT C — SUPPORT AND CONTINUITY SUMMARY (side-by-side of Included Continuity versus the Continuity Plan).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT 1 — IN-CHAT SUMMARY for Daniel: the deal terms in a short table (scope, total, payment schedule, term, continuity status), plus any risk flags, missing information, or terms he should confirm before sending. Be blunt.
+
+OUTPUT 2 — THE AGREEMENT as a formatted .docx file, clean and signature-ready, named knight-ops-agreement-${(who.first_name||fullName.split(' ')[0]||'client').toLowerCase()}-${(who.last_name||'client').toLowerCase()}.docx
+
+OUTPUT 3 — A matching single self-contained .html version of the same agreement, styled per the BRAND PRIORITY rules, named knight-ops-agreement-${(who.first_name||fullName.split(' ')[0]||'client').toLowerCase()}-${(who.last_name||'client').toLowerCase()}.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DRAFTING RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Plain, confident, human English. Enforceable but readable. No dense legalese walls.
+- Use tables for deliverables, schedule, and payments. Use numbered clauses everywhere else.
+- Mark every unknown as [PLACEHOLDER: description] so Daniel can fill it in fast. Never invent addresses, entity names, or dates.
+- Do not use em dashes in the contract copy.
+- Every dollar figure and deliverable must trace back to the proposal in this conversation.
+- End with the OPEN ITEMS block listing anything that needs Daniel's confirmation before signature.
+- Close with this reminder to Daniel, outside the document: this is a drafted agreement, not legal advice, and it should be reviewed by a licensed attorney in ${state} before it becomes a standard template.`;
+}
+
+function contractOptionsUI(key,onchange){
+  const s='style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:0.8rem"';
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem">'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Governing State</div><input type="text" id="ctState-'+key+'" value="Nevada" '+s+' oninput="'+onchange+'"></div>'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Engagement Term</div><select id="ctTerm-'+key+'" '+s+' onchange="'+onchange+'"><option value="">Per proposal phases</option><option>3 months</option><option>6 months</option><option>12 months</option></select></div>'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Deposit / First Payment</div><input type="text" id="ctDeposit-'+key+'" placeholder="e.g. 50% on signature" '+s+' oninput="'+onchange+'"></div>'+
+    '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Signature Method</div><select id="ctEsign-'+key+'" '+s+' onchange="'+onchange+'"><option>DocuSign</option><option>Stripe / contract link</option><option>PDF countersign</option></select></div>'+
+    '<div style="display:flex;flex-direction:column;gap:6px;justify-content:flex-end">'+
+      '<label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="ctContinuity-'+key+'" style="width:auto" onchange="'+onchange+'"> Enrolling in $1,000/mo Continuity Plan</label>'+
+      '<label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="ctFractional-'+key+'" style="width:auto" onchange="'+onchange+'"> Fractional Chief AI Officer engagement</label>'+
+    '</div>'+
+  '</div>';
+}
+
+function refreshContractPreview(key,isLead){
+  const src=isLead?(S.leads||[]):(S.applications||[]);
+  const who=src.find(x=>x.id===key);if(!who)return;
+  const el=document.getElementById('contractPreview-'+key);
+  if(el)el.textContent=generateContractPrompt(who,getContractOptions(key));
+}
+
+async function copyContractPrompt(key,isLead){
+  const src=isLead?(S.leads||[]):(S.applications||[]);
+  const who=src.find(x=>x.id===key);if(!who)return;
+  if(!isLead&&typeof enrichAppWithRelatedData==='function')await enrichAppWithRelatedData(who);
+  const prompt=generateContractPrompt(who,getContractOptions(key));
+  navigator.clipboard.writeText(prompt).then(()=>showToast('Contract prompt copied — paste it into the same chat as the proposal','success')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Contract prompt copied!','success');
+  });
+}
+
+function contractPromptUI(key,isLead){
+  const oc='refreshContractPreview(\''+key+'\','+(isLead?'true':'false')+')';
+  return '<div class="table-card" style="padding:1.5rem;margin-top:1.25rem;border-left:3px solid #C8A456">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;flex-wrap:wrap;gap:8px">'+
+      '<h3 style="font-size:0.95rem;color:var(--accent);margin:0">&#128220; Contract Prompt</h3>'+
+      '<button class="btn btn-sm btn-primary" onclick="copyContractPrompt(\''+key+'\','+(isLead?'true':'false')+')">&#128203; Copy Contract Prompt</button>'+
+    '</div>'+
+    '<p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.9rem">Run this in the <b>same conversation</b> right after the proposal. It turns that exact proposal into a signature-ready agreement with deliverables, phase timelines, payment schedule, the 6 months of included continuity, and the optional $1,000/mo Continuity Plan.</p>'+
+    contractOptionsUI(key,oc)+
+    '<pre id="contractPreview-'+key+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.78rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
+  '</div>';
 }
 
 async function updateAppStatus(id,status){
@@ -11606,7 +11837,7 @@ Build a Command Center for ${fn} at ${c.company||'[COMPANY]'}.
 ## Integrations (Day 1)
 ${toolList}
 
-## Phase 1: MVP (Deploy within 24 hours)
+## Phase 1: MVP (first deployable milestone)
 
 Create a Cowork artifact with ID: ${slug}-command-center
 

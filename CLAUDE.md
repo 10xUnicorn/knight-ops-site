@@ -7,6 +7,14 @@
 
 ---
 
+## Changelog — 2026-08-13 (Contract prompt + positioning shift)
+
+- **New Contract Prompt generator** in `admin.html` (`generateContractPrompt`, `contractPromptUI`, `copyContractPrompt`). Available on Application detail and Lead detail. Designed to run in the SAME chat as the proposal so the agreement inherits that exact scope, pricing, and phase schedule.
+- **Shared prompt constants** added above `// ═══ PROMPT GENERATORS ═══`: `KO_LANGUAGE_RULES`, `KO_BRAND_PRIORITY`, `KO_CONTINUITY_TERMS`, `KO_PHASING_LANGUAGE`. Edit these to change proposal, blueprint, and contract behavior in one place.
+- **Continuity standard codified:** 6 months Included Continuity from launch on every build (concurrent for Fractional AI Ops engagements). Ongoing updates, feature requests, quarterly feature push, and quarterly strategy session require the $1,000/mo Continuity Plan.
+- **Tagline changed** to "Create Your Impact on Autopilot." All "Built Overnight. Scaled Forever.", overnight, 48hr, and 24hr delivery claims removed from prompts and public pages.
+- **Brand priority rule:** proposals and blueprints now pull the client's palette and typography from their website or a provided screenshot first; Knight Ops black/gold is subtle accent only, full fallback only if no client brand source exists.
+
 ## Changelog - 2026-08-07 (Diamond Crafts live application asset repair)
 
 - **Scoped static application:** `/app/index-msjnuuz6` now rewrites to the tracked `diamond-crafts-flooring-live.html`, leaving every other `/app/:file` upload on the existing Supabase `serve-app` path.
@@ -634,7 +642,7 @@ All 4 key pages now have: FAQPage JSON-LD schema, og:image + twitter:image (`kni
 
 Knight Ops is Daniel Knight's AI/tech consulting & development company. Key offerings:
 
-- **Night Launch** ($1,497) — Overnight website delivery
+- **Night Launch** ($1,497) — Multi-page conversion website
 - **Night Build** ($7,497) — Full-stack web/mobile app
 - **Night Build Pro** ($14,997) — Full app store deployment
 - **Unicorn Universe Premium** ($99/mo) — Entrepreneur community

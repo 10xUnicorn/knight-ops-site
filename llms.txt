@@ -39,7 +39,7 @@ Yes. Repository, Supabase project, Vercel project, and domain are transferred to
 - **Discovery Call** — Free. 30-minute conversation to identify the biggest operational bottleneck.
 - **Blueprint Call** — Free. Maps the business and produces a live HTML roadmap of the recommended system, whether or not the client engages.
 - **Blueprint Session** — $750. 90-minute deep-dive where the system is co-designed live. Fee credited toward the project.
-- **Night Launch** — $1,497. Multi-page conversion website, mobile responsive, SEO-ready, delivered overnight.
+- **Night Launch** — $1,497. Multi-page conversion website, mobile responsive, SEO-ready, delivered on a defined schedule.
 - **Prospecting Automation Dashboard** — $4,997. Lead sourcing, scoring, and nurture in one owned system.
 - **Night Build** — $7,497. Full-stack web or mobile app with auth, payments, and CRM integrations.
 - **AI Brain + Command Center** — $9,997. Central operations dashboard with an AI layer over the client's own data.
