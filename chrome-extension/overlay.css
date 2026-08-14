@@ -1,0 +1,8 @@
+/* Host element only — everything else lives inside the shadow root so the
+   page's own CSS can never touch the recorder controls, and vice versa. */
+#ko-recorder-host {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+}

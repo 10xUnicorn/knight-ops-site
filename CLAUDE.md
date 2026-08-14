@@ -7,6 +7,19 @@
 
 ---
 
+## Changelog — 2026-08-14 (Knight Ops Recorder — Loom replacement)
+
+- **Chrome extension** `chrome-extension/` (MV3): records screen / window / tab / camera, mic + system audio mixed via AudioContext, draggable camera bubble, draw-on-screen, countdown, pause/resume, screenshots (full tab + area crop). MediaRecorder runs in an **offscreen document** (service workers can't hold media). Uploads **stream during recording** as 8MB R2 multipart parts, so stopping is near-instant. Auth = `KO_VIDEO_SECRET` bearer, stored in `chrome.storage.local` via `options.html`.
+- **Storage** = Cloudflare **R2 bucket `knight-ops-videos`** behind Worker `ko-video-worker/` (R2 binding, so no S3 keys exist to leak). Routes: `/upload/init|part|complete|abort|simple` (bearer-gated) and `GET /f/<key>` with full **Range-request** support for scrubbing. Deploy with `npx wrangler deploy` — **not** the site's git-push flow.
+- **Tables** (migration `create_video_system`): `videos`, `video_transcripts`, `video_comments`, `video_reactions`, `video_views`. RLS on all five: staff roles read/write, **anon fully denied** (verified: anon SELECT `[]`, anon INSERT 401). Every public read goes through `video-api`, which enforces visibility / expiry / password server-side.
+- **Edge fns** (all verify_jwt=false): `video-manage` v1 (create/finalize/update/delete/list/detail/retry_transcript/config — accepts EITHER the extension secret OR a staff session JWT), `video-api` v1 (watch/captions/comment/react/view — public, rate-limited comments, emails Daniel on each comment), `video-transcribe` v1 (Deepgram **nova-3** → words/paragraphs/VTT/SRT, then Claude sonnet writes title/summary/chapters/action_items), `video-serve` v1 (injects real OG tags into the static player shell so Slack/iMessage previews work).
+- **Pages:** `watch.html` → `/v/:slug` (speed 0.25–4×, chapter markers on the scrubber, click-to-seek transcript with search + live highlight, captions, timestamped threaded comments, emoji reactions, PiP, download, embed builder, view analytics, password gate); `embed.html` → `/embed/:slug`; `videos.html` → `/videos`; **admin.html → Content → Videos** (grid, detail with visibility/password/expiry/embed controls, engagement stats, transcript, deep-link `#videos/{id}`).
+- **vercel.json**: surgical additions only — two rewrites (`/v/:slug`, `/embed/:slug` → `/api/v`) above the catch-all, plus Content-Type and `frame-ancestors *` headers for embeds.
+- **Setup still required by Daniel:** `wrangler login && wrangler deploy && wrangler secret put UPLOAD_SECRET`, then Supabase secrets `KO_VIDEO_SECRET`, `KO_VIDEO_WORKER`, `DEEPGRAM_API_KEY`. Full runbook: `ko-video-worker/DEPLOY.md`.
+- **Cost:** R2 is $0.015/GB/mo with zero egress; Deepgram ~$0.26/hour of video. Replaces Loom Business at $17/seat/mo.
+
+---
+
 ## Changelog — 2026-08-13 (Contract prompt + positioning shift)
 
 - **New Contract Prompt generator** in `admin.html` (`generateContractPrompt`, `contractPromptUI`, `copyContractPrompt`). Available on Application detail and Lead detail. Designed to run in the SAME chat as the proposal so the agreement inherits that exact scope, pricing, and phase schedule.

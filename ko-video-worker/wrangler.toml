@@ -1,0 +1,17 @@
+name = "ko-video"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# R2 bucket that holds every recording, screenshot, thumbnail and poster.
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "knight-ops-videos"
+
+[vars]
+# Origins allowed to upload / read cross-origin.
+ALLOWED_ORIGINS = "https://knightops.biz,https://www.knightops.biz,http://localhost:3000"
+
+# Secrets (set with `wrangler secret put <NAME>`):
+#   UPLOAD_SECRET        - shared bearer token the Chrome extension uses to upload
+#   SUPABASE_URL         - https://trpnlkntvulkjerevngm.supabase.co
+#   SUPABASE_SERVICE_KEY - service_role key (used only to flip a video row to ready)

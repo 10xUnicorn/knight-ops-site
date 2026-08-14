@@ -80,6 +80,14 @@
       "destination": "/api/le?slug=:slug"
     },
     {
+      "source": "/v/:slug",
+      "destination": "/api/v?slug=:slug"
+    },
+    {
+      "source": "/embed/:slug",
+      "destination": "/api/v?slug=:slug&mode=embed"
+    },
+    {
       "source": "/:path",
       "destination": "/:path.html"
     }
@@ -127,6 +135,32 @@
         {
           "key": "Content-Type",
           "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/v/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/embed/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "ALLOWALL"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors *"
         }
       ]
     }

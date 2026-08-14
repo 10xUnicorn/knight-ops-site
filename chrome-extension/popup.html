@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root{
+    --void:#05061a; --gold:#C9922A; --teal:#00D4C8; --purple:#7B2FFF;
+    --ink:#e9e9f2; --dim:#8a8aa4; --line:rgba(255,255,255,.09); --rec:#e5484d;
+  }
+  *{box-sizing:border-box}
+  body{
+    width:330px; margin:0; padding:0; background:var(--void); color:var(--ink);
+    font:14px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    background-image:radial-gradient(circle at 20% 0%,rgba(123,47,255,.18),transparent 55%),
+                     radial-gradient(circle at 90% 100%,rgba(0,212,200,.12),transparent 50%);
+  }
+  header{display:flex;align-items:center;gap:9px;padding:15px 16px 12px;border-bottom:1px solid var(--line)}
+  .mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--gold),#8d5f14);
+        display:grid;place-items:center;font-weight:800;color:var(--void);font-size:12px;letter-spacing:-.5px}
+  h1{font-size:13.5px;margin:0;font-weight:700;letter-spacing:.2px}
+  header small{display:block;color:var(--dim);font-size:11px;font-weight:400;letter-spacing:.3px}
+  .body{padding:14px 16px 16px}
+  .label{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--dim);margin:0 0 8px;font-weight:600}
+  .sources{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:15px}
+  .src{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:9px 4px 7px;
+       text-align:center;cursor:pointer;transition:.14s;color:var(--dim)}
+  .src:hover{background:rgba(255,255,255,.08);color:var(--ink)}
+  .src.on{border-color:var(--gold);background:rgba(201,146,42,.15);color:var(--gold)}
+  .src svg{width:19px;height:19px;display:block;margin:0 auto 4px}
+  .src span{font-size:10.5px;font-weight:600;letter-spacing:.1px}
+  .opts{display:flex;flex-direction:column;gap:1px;background:rgba(255,255,255,.03);
+        border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:14px}
+  .opt{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:6px}
+  .opt:hover{background:rgba(255,255,255,.04)}
+  .opt span{font-size:12.5px}
+  .sw{position:relative;width:34px;height:19px;flex:0 0 34px}
+  .sw input{opacity:0;width:0;height:0;position:absolute}
+  .sw i{position:absolute;inset:0;background:rgba(255,255,255,.14);border-radius:19px;transition:.18s;cursor:pointer}
+  .sw i:before{content:'';position:absolute;width:15px;height:15px;left:2px;top:2px;background:#fff;
+               border-radius:50%;transition:.18s}
+  .sw input:checked + i{background:var(--gold)}
+  .sw input:checked + i:before{transform:translateX(15px)}
+  select{width:100%;background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line);
+         border-radius:8px;padding:8px 9px;font-size:12.5px;margin-bottom:10px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--gold)}
+  .row{display:flex;gap:8px}
+  button{font-family:inherit;font-weight:700;border:none;border-radius:9px;cursor:pointer;transition:.14s}
+  .go{width:100%;background:linear-gradient(135deg,var(--gold),#a8761d);color:var(--void);padding:12px;
+      font-size:14px;letter-spacing:.2px}
+  .go:hover{filter:brightness(1.1)}
+  .go:disabled{opacity:.45;cursor:not-allowed}
+  .ghost{flex:1;background:rgba(255,255,255,.07);color:var(--ink);padding:10px;font-size:12.5px}
+  .ghost:hover{background:rgba(255,255,255,.13)}
+  .danger{background:rgba(229,72,77,.16);color:#ff8b8e}
+  .danger:hover{background:rgba(229,72,77,.28)}
+  .shot{width:100%;background:transparent;color:var(--teal);border:1px solid rgba(0,212,200,.35);
+        padding:9px;font-size:12.5px;margin-top:8px}
+  .shot:hover{background:rgba(0,212,200,.1)}
+  /* live panel */
+  .live{text-align:center;padding:6px 0 2px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--rec);display:inline-block;margin-right:7px;
+       animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .timer{font-size:30px;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums;margin:4px 0 3px}
+  .stat{color:var(--dim);font-size:11.5px;margin-bottom:14px;letter-spacing:.3px}
+  .bar{height:4px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin:10px 0 14px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));
+         width:0;transition:width .3s}
+  .link{display:flex;gap:6px;align-items:center;background:rgba(0,212,200,.09);
+        border:1px solid rgba(0,212,200,.3);border-radius:8px;padding:9px 10px;margin-bottom:10px}
+  .link input{flex:1;background:none;border:none;color:var(--teal);font-size:11.5px;outline:none;
+              font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .link button{background:var(--teal);color:var(--void);padding:5px 10px;font-size:11px;border-radius:6px}
+  .err{background:rgba(229,72,77,.13);border:1px solid rgba(229,72,77,.32);color:#ff9b9e;
+       padding:9px 11px;border-radius:8px;font-size:12px;margin-bottom:12px;line-height:1.4}
+  .foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;
+        border-top:1px solid var(--line);font-size:11px}
+  .foot a{color:var(--dim);text-decoration:none}
+  .foot a:hover{color:var(--gold)}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+  <header>
+    <div class="mark">KO</div>
+    <div><h1>Knight Ops Recorder</h1><small>Record · Transcribe · Share</small></div>
+  </header>
+
+  <div class="body">
+    <div id="err" class="err hide"></div>
+
+    <!-- IDLE -->
+    <div id="idle">
+      <p class="label">What are you recording?</p>
+      <div class="sources">
+        <div class="src on" data-src="screen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <span>Screen</span>
+        </div>
+        <div class="src" data-src="window">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+          <span>Window</span>
+        </div>
+        <div class="src" data-src="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V6a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span>Tab</span>
+        </div>
+        <div class="src" data-src="camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M6.4 19a6.5 6.5 0 0 1 11.2 0"/></svg>
+          <span>Camera</span>
+        </div>
+      </div>
+
+      <div class="opts">
+        <label class="opt"><span>🎙 Microphone</span>
+          <span class="sw"><input type="checkbox" id="mic" checked><i></i></span></label>
+        <label class="opt"><span>🔊 System audio</span>
+          <span class="sw"><input type="checkbox" id="sys" checked><i></i></span></label>
+        <label class="opt"><span>🎥 Camera bubble</span>
+          <span class="sw"><input type="checkbox" id="cam"><i></i></span></label>
+        <label class="opt"><span>⏱ 3-second countdown</span>
+          <span class="sw"><input type="checkbox" id="cd" checked><i></i></span></label>
+      </div>
+
+      <select id="quality">
+        <option value="high" selected>Quality — High (1080p, recommended)</option>
+        <option value="max">Quality — Max (crisp text, larger files)</option>
+        <option value="medium">Quality — Medium (smaller files)</option>
+        <option value="low">Quality — Low (fastest upload)</option>
+      </select>
+
+      <select id="visibility">
+        <option value="unlisted" selected>Anyone with the link can watch</option>
+        <option value="private">Private — only me</option>
+        <option value="public">Public — indexable</option>
+      </select>
+
+      <button class="go" id="start">Start recording</button>
+      <button class="shot" id="snap">📸 Screenshot this tab</button>
+    </div>
+
+    <!-- RECORDING -->
+    <div id="live" class="hide">
+      <div class="live">
+        <div><span class="dot"></span><span id="lblState">Recording</span></div>
+        <div class="timer" id="timer">0:00</div>
+        <div class="stat" id="srcLbl">Screen · mic on</div>
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <button class="ghost" id="pause">⏸ Pause</button>
+        <button class="ghost" id="stop" style="background:var(--gold);color:var(--void)">⏹ Stop &amp; share</button>
+      </div>
+      <button class="ghost danger" id="cancel" style="width:100%">Discard recording</button>
+    </div>
+
+    <!-- UPLOADING -->
+    <div id="up" class="hide">
+      <p class="label" id="upLbl">Uploading…</p>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="stat">Most of this already uploaded while you were recording.</div>
+    </div>
+
+    <!-- DONE -->
+    <div id="done" class="hide">
+      <p class="label">✅ Ready — link copied to your clipboard</p>
+      <div class="link"><input id="shareUrl" readonly><button id="copy">Copy</button></div>
+      <div class="stat">Transcript and AI summary are generating now. They'll appear on the page in under a minute.</div>
+      <div class="row">
+        <button class="ghost" id="openVid">Open video</button>
+        <button class="ghost" id="again">Record another</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="#" id="library">📚 My library</a>
+    <a href="#" id="settings">⚙ Settings</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--KO_OG-->
+<!--KO_DATA-->
+<style>
+:root{--void:#05061a;--gold:#C9922A;--teal:#00D4C8;--ink:#ececf4;--dim:#8b8ba6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000}
+body{font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--ink)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+.wrap{position:relative;width:100%;height:100%;background:#000}
+video,img{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+
+.big{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,6,26,.32);
+  transition:.2s;cursor:pointer}
+.big.hide{opacity:0;pointer-events:none}
+.big i{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(201,146,42,.95);box-shadow:0 8px 34px rgba(201,146,42,.45);transition:.2s}
+.big:hover i{transform:scale(1.08)}
+.big svg{width:26px;height:26px;fill:var(--void);margin-left:3px}
+
+.c{position:absolute;left:0;right:0;bottom:0;padding:28px 10px 8px;
+  background:linear-gradient(transparent,rgba(0,0,0,.5) 30%,rgba(0,0,0,.88));
+  opacity:0;transition:.2s}
+.wrap:hover .c,.wrap.paused .c{opacity:1}
+.scrub{height:14px;display:flex;align-items:center;cursor:pointer;margin-bottom:3px}
+.track{position:relative;height:3.5px;width:100%;background:rgba(255,255,255,.24);border-radius:4px;transition:height .13s}
+.scrub:hover .track{height:6px}
+.fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--gold),#e0ad48);border-radius:4px;width:0}
+.row{display:flex;align-items:center;gap:2px}
+.b{width:32px;height:30px;display:grid;place-items:center;border-radius:6px;transition:.12s;color:#fff}
+.b:hover{background:rgba(255,255,255,.16)}
+.b svg{width:16px;height:16px;fill:currentColor}
+.b.w{width:auto;padding:0 9px;font-size:11.5px;font-weight:700}
+.t{font-size:11.5px;font-variant-numeric:tabular-nums;padding:0 8px;color:rgba(255,255,255,.88);white-space:nowrap}
+.sp{flex:1}
+.menu{position:absolute;bottom:38px;right:44px;background:rgba(5,6,26,.97);border:1px solid rgba(255,255,255,.1);
+  border-radius:9px;padding:4px;display:none;min-width:84px}
+.menu.open{display:block}
+.menu button{display:block;width:100%;text-align:left;padding:6px 11px;border-radius:5px;font-size:12px;font-weight:600}
+.menu button:hover{background:rgba(255,255,255,.1)}
+.menu button.on{color:var(--gold)}
+
+.brand{position:absolute;top:11px;right:11px;display:flex;align-items:center;gap:6px;
+  background:rgba(5,6,26,.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.11);
+  border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;letter-spacing:.3px;
+  opacity:0;transition:.2s;text-decoration:none;color:var(--ink)}
+.wrap:hover .brand{opacity:1}
+.brand:hover{background:rgba(5,6,26,.9)}
+.brand .mk{width:17px;height:17px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#8d6a1f);
+  display:grid;place-items:center;font-size:8px;color:var(--void);font-weight:800}
+
+.msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
+  background:var(--void);color:var(--dim);font-size:13.5px}
+.msg a{color:var(--gold);text-decoration:none;font-weight:600}
+.spin{width:28px;height:28px;border:3px solid rgba(255,255,255,.14);border-top-color:var(--gold);
+  border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap paused" id="wrap">
+  <div class="msg" id="msg"><div><div class="spin"></div>Loading…</div></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const BOOT = window.__KO_VIDEO__ || {};
+const API  = BOOT.api || 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1/video-api';
+const SLUG = BOOT.slug || location.pathname.split('/').filter(Boolean).pop();
+const SITE = 'https://www.knightops.biz';
+const RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3];
+const $ = s => document.querySelector(s);
+const fmt = t => { t = Math.max(0, Math.floor(t||0)); const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60;
+  return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; };
+
+function dead(text) {
+  $('#msg').innerHTML = `<div>${text}<br><a href="${SITE}/v/${SLUG}" target="_blank" rel="noopener">Open on Knight Ops →</a></div>`;
+}
+
+async function boot() {
+  let d;
+  try {
+    const r = await fetch(API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'watch', slug: SLUG }),
+    });
+    d = await r.json();
+    if (!r.ok || !d.video) {
+      return dead(d.needs_password ? 'This video is password protected.'
+        : d.pending ? 'This recording is still processing.' : 'This video is unavailable.');
+    }
+  } catch (_) { return dead('Could not load this video.'); }
+
+  const V = d.video;
+  const wrap = $('#wrap');
+
+  if (V.kind === 'screenshot') {
+    wrap.innerHTML = `<img src="${V.media_url}" alt="">
+      <a class="brand" href="${SITE}/v/${SLUG}" target="_blank" rel="noopener"><span class="mk">KO</span>Knight Ops</a>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <video id="v" playsinline preload="metadata" crossorigin="anonymous"
+           ${V.poster_url || V.thumb_url ? `poster="${V.poster_url || V.thumb_url}"` : ''}></video>
+    <div class="big" id="big"><i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i></div>
+    <a class="brand" href="${SITE}/v/${SLUG}" target="_blank" rel="noopener"><span class="mk">KO</span>Knight Ops</a>
+    <div class="menu" id="menu">${RATES.map(r => `<button data-r="${r}" class="${r===1?'on':''}">${r}×</button>`).join('')}</div>
+    <div class="c">
+      <div class="scrub" id="scrub"><div class="track"><div class="fill" id="fill"></div></div></div>
+      <div class="row">
+        <button class="b" id="play"><svg id="pi" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="b" id="mute"><svg id="vi" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>
+        <span class="t"><span id="cur">0:00</span> / <span id="dur">${fmt(V.duration_sec)}</span></span>
+        <span class="sp"></span>
+        <button class="b w" id="rate">1×</button>
+        <button class="b" id="cap" title="Captions"><svg viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm3.5 5.5a2.5 2.5 0 1 0 0 3h1.8a4.3 4.3 0 1 1 0-3H6.5zm8 0a2.5 2.5 0 1 0 0 3h1.8a4.3 4.3 0 1 1 0-3h-1.8z"/></svg></button>
+        <button class="b" id="fs"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg></button>
+      </div>
+    </div>`;
+
+  const v = $('#v');
+  v.src = V.media_url;
+
+  if (V.transcript_status === 'ready') {
+    const tr = document.createElement('track');
+    tr.kind = 'captions'; tr.label = 'English'; tr.srclang = 'en';
+    tr.src = `${API}?action=captions&slug=${SLUG}&format=vtt`;
+    v.appendChild(tr);
+  }
+
+  const toggle = () => v.paused ? v.play() : v.pause();
+  $('#big').onclick = toggle; $('#play').onclick = toggle; v.onclick = toggle;
+  v.onplay = () => { wrap.classList.remove('paused'); $('#big').classList.add('hide');
+    $('#pi').innerHTML = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'; };
+  v.onpause = () => { wrap.classList.add('paused'); $('#big').classList.remove('hide');
+    $('#pi').innerHTML = '<path d="M8 5v14l11-7z"/>'; };
+  v.onloadedmetadata = () => { if (isFinite(v.duration) && v.duration > 0) $('#dur').textContent = fmt(v.duration); };
+  v.ontimeupdate = () => {
+    const dur = isFinite(v.duration) && v.duration > 0 ? v.duration : V.duration_sec || 1;
+    $('#fill').style.width = (v.currentTime / dur) * 100 + '%';
+    $('#cur').textContent = fmt(v.currentTime);
+  };
+
+  const seek = e => {
+    const r = $('#scrub').getBoundingClientRect();
+    const dur = isFinite(v.duration) && v.duration > 0 ? v.duration : V.duration_sec || 1;
+    v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur;
+  };
+  let down = false;
+  $('#scrub').addEventListener('pointerdown', e => { down = true; seek(e); $('#scrub').setPointerCapture(e.pointerId); });
+  $('#scrub').addEventListener('pointermove', e => down && seek(e));
+  $('#scrub').addEventListener('pointerup', e => { down = false; $('#scrub').releasePointerCapture(e.pointerId); });
+
+  $('#mute').onclick = () => {
+    v.muted = !v.muted;
+    $('#vi').innerHTML = v.muted
+      ? '<path d="M4 9v6h4l5 5V4L8 9H4zm15.5 3l2.5 2.5-1.4 1.4L18 13.4 15.4 16 14 14.6 16.6 12 14 9.4 15.4 8 18 10.6 20.6 8 22 9.4z"/>'
+      : '<path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>';
+  };
+  $('#rate').onclick = e => { e.stopPropagation(); $('#menu').classList.toggle('open'); };
+  $('#menu').onclick = e => {
+    const b = e.target.closest('[data-r]'); if (!b) return;
+    v.playbackRate = +b.dataset.r; $('#rate').textContent = `${b.dataset.r}×`;
+    [...$('#menu').children].forEach(x => x.classList.toggle('on', x === b));
+    $('#menu').classList.remove('open');
+  };
+  document.addEventListener('click', () => $('#menu').classList.remove('open'));
+  $('#cap').onclick = () => {
+    const tt = v.textTracks[0]; if (!tt) return;
+    tt.mode = tt.mode === 'showing' ? 'hidden' : 'showing';
+    $('#cap').style.color = tt.mode === 'showing' ? '#00D4C8' : '';
+  };
+  $('#fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : wrap.requestFullscreen?.();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key.toLowerCase() === 'k') { e.preventDefault(); toggle(); }
+    if (e.key === 'ArrowLeft') v.currentTime -= 5;
+    if (e.key === 'ArrowRight') v.currentTime += 5;
+    if (e.key.toLowerCase() === 'f') $('#fs').click();
+  });
+
+  fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'view', slug: SLUG, watched_sec: 0, referrer: document.referrer }) }).catch(() => {});
+}
+boot();
+})();
+</script>
+</body>
+</html>

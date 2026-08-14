@@ -415,6 +415,27 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .es-card-actions button{font-size:.72rem;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-muted);cursor:pointer}
 .es-card-actions button:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:900px){.email-container{flex-direction:column;height:auto}.email-folder-sidebar{width:100%;min-width:auto;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border)}.email-folder-item{white-space:nowrap}.email-list-panel{width:100%;min-width:auto;border-right:none;border-bottom:1px solid var(--border);max-height:300px}.email-reading-pane{min-height:300px}.email-compose-overlay{width:calc(100vw - 20px);right:10px;left:10px}}
+/* ─── Video library ─── */
+.ko-vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.ko-vcard{position:relative;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;
+  overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s}
+.ko-vcard:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.ko-vthumb{position:relative;aspect-ratio:16/9;background:#05061a;display:grid;place-items:center;overflow:hidden}
+.ko-vthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ko-vthumb span{font-size:2rem;opacity:.4}
+.ko-vthumb em{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.82);color:#fff;font-style:normal;
+  font-size:.68rem;font-weight:600;padding:2px 7px;border-radius:4px;font-variant-numeric:tabular-nums}
+.ko-vmeta{padding:.75rem .85rem .85rem}
+.ko-vtitle{font-size:.88rem;font-weight:600;line-height:1.4;margin-bottom:.3rem;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ko-vsum{font-size:.76rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ko-vfoot{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;font-size:.7rem;color:var(--text-muted)}
+.ko-vacts{position:absolute;top:7px;right:7px;display:flex;gap:4px;opacity:0;transition:opacity .16s}
+.ko-vcard:hover .ko-vacts{opacity:1}
+.ko-vacts button{padding:4px 9px;font-size:.75rem;backdrop-filter:blur(8px);background:rgba(0,0,0,.6);border-color:rgba(255,255,255,.18)}
+.ko-vdetail{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:1rem;align-items:start}
+@media(max-width:1000px){.ko-vdetail{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -470,6 +491,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="nav-item has-children" data-group="content" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="nav-label">Content</span><span class="expand-arrow">&#9654;</span></div>
         <div class="nav-children" id="nav-content">
           <div class="nav-child" data-view="blog">Blog</div>
+          <div class="nav-child" data-view="videos">Videos</div>
           <div class="nav-child" data-view="resources">Resources</div>
           <div class="nav-child" data-view="education">Education</div>
           <div class="nav-child" data-view="reviews">Reviews</div>
@@ -561,6 +583,26 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           </div>
           <div id="featbugsBody" style="padding:1rem"></div>
         </div>
+      </div>
+      <!-- ═══ VIDEOS VIEW (Loom replacement library) ═══ -->
+      <div class="view" id="v-videos">
+        <div id="vidListView">
+          <div class="kpi-grid" id="vidKpis"></div>
+          <div class="table-card">
+            <div class="table-header">
+              <h2>Video Library</h2>
+              <div class="table-filters">
+                <input type="text" placeholder="Search titles, summaries…" id="vidSearch" oninput="VID.q=this.value;VID.debounce()">
+                <select id="vidKind" onchange="VID.kind=this.value;loadVideos()"><option value="">All types</option><option value="video">Recordings</option><option value="screenshot">Screenshots</option></select>
+                <select id="vidVis" onchange="VID.visibility=this.value;loadVideos()"><option value="">All visibility</option><option value="unlisted">Link only</option><option value="public">Public</option><option value="private">Private</option></select>
+                <button class="btn btn-sm btn-secondary" onclick="loadVideos()">↻ Refresh</button>
+                <button class="btn btn-sm btn-primary" onclick="VID.showSetup()">🎥 Get the recorder</button>
+              </div>
+            </div>
+            <div id="vidBody" style="padding:1rem"></div>
+          </div>
+        </div>
+        <div id="vidDetailView" style="display:none"></div>
       </div>
       <!-- ═══ DEALS VIEW ═══ -->
       <div class="view" id="v-deals">
@@ -1471,7 +1513,7 @@ function toggleMore(el){
   document.getElementById('moreSection').classList.toggle('open');
 }
 // ─── Role-gated navigation (UX layer; RLS enforces data server-side) ───
-var ROLE_VIEWS={developer:['projects','tasks','featbugs'],sales:['leads','deals','clients','bookings','forms'],marketing:['blog','resources','education','kpis']};
+var ROLE_VIEWS={developer:['projects','tasks','featbugs','videos'],sales:['leads','deals','clients','bookings','forms','videos'],marketing:['blog','resources','education','kpis','videos']};
 function roleGateNav(role){
   if(role==='admin'||role==='super_admin')return;
   var views=ROLE_VIEWS[role];if(!views)return;
@@ -1543,7 +1585,7 @@ function activateView(v,skipHash){
   var ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
   var alv=document.getElementById('appsListView');if(alv)alv.style.display='';
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();
   // Email sub-views
   if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
@@ -1594,6 +1636,7 @@ function routeFromHash(){
       else if(view==='clients'&&parts[1]){activateView('clients',true);showClientDetail(decodeURIComponent(parts[1]));}
       else if(view==='deals'&&parts[1]){activateView('deals',true);showDealDetail(decodeURIComponent(parts[1]));}
       else if(view==='tasks'&&parts[1]){activateView('tasks',true);showTaskDetail(decodeURIComponent(parts[1]));}
+      else if(view==='videos'&&parts[1]){activateView('videos',true);showVideoDetail(decodeURIComponent(parts[1]));}
       else{activateView(view,true);}
     }
   }catch(e){}
@@ -5229,6 +5272,257 @@ async function saveProject(id){
   if(err){showToast('Error: '+err.message,'error');return;}
   showToast(id?'Project updated!':'Project saved!');closeEditModal();await loadProjects();loadDashboard();
 }
+
+// ═══ VIDEO LIBRARY (Knight Ops Recorder — Loom replacement) ═══
+var VID={items:[],count:0,q:'',kind:'',visibility:'',worker:'',offset:0,limit:60,_t:null,
+  debounce:function(){clearTimeout(VID._t);VID._t=setTimeout(function(){VID.offset=0;loadVideos();},350);}};
+
+async function vidApi(action,payload){
+  var s=(await sb.auth.getSession()).data.session;
+  if(!s)throw new Error('Not signed in');
+  var r=await fetch(SUPABASE_URL+'/functions/v1/video-manage',{
+    method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+s.access_token},
+    body:JSON.stringify(Object.assign({action:action},payload||{}))});
+  var d=await r.json().catch(function(){return{};});
+  if(!r.ok)throw new Error(d.error||('video-manage '+r.status));
+  return d;
+}
+function vidFmt(t){t=Math.max(0,Math.floor(t||0));var h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60;
+  return h?h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'):m+':'+String(s).padStart(2,'0');}
+function vidSize(n){if(!n)return '—';var u=['B','KB','MB','GB'],i=0;while(n>=1024&&i<3){n/=1024;i++}return n.toFixed(i?1:0)+' '+u[i];}
+function vidUrl(slug){return 'https://www.knightops.biz/v/'+slug;}
+function vidThumb(v){return v.thumb_key?VID.worker+'/f/'+v.thumb_key:(v.poster_key?VID.worker+'/f/'+v.poster_key:'');}
+
+async function loadVideos(){
+  var body=document.getElementById('vidBody');if(!body)return;
+  body.innerHTML='<div style="padding:2.5rem;text-align:center;color:var(--text-muted)">Loading library…</div>';
+  try{
+    var d=await vidApi('list',{q:VID.q||undefined,kind:VID.kind||undefined,visibility:VID.visibility||undefined,offset:VID.offset,limit:VID.limit});
+    VID.items=d.videos||[];VID.count=d.count||0;VID.worker=d.worker||'';
+    renderVideoKpis();renderVideos();
+  }catch(e){
+    body.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">Could not load videos: '+e.message+
+      '<br><br><button class="btn btn-sm btn-primary" onclick="VID.showSetup()">Set up the recorder</button></div>';
+  }
+}
+
+function renderVideoKpis(){
+  var el=document.getElementById('vidKpis');if(!el)return;
+  var vids=VID.items,secs=0,bytes=0,views=0,pending=0;
+  vids.forEach(function(v){secs+=Number(v.duration_sec)||0;bytes+=Number(v.size_bytes)||0;views+=v.view_count||0;
+    if(v.transcript_status==='pending'||v.transcript_status==='processing')pending++;});
+  var hrs=(secs/3600).toFixed(1);
+  var loomCost=17; // Loom Business, per seat, per month
+  el.innerHTML=
+    '<div class="kpi-card"><div class="kpi-label">Recordings</div><div class="kpi-value">'+VID.count+'</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Total runtime</div><div class="kpi-value">'+hrs+'h</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Views</div><div class="kpi-value">'+views+'</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Storage · est. cost</div><div class="kpi-value">'+vidSize(bytes)+
+      '</div><div class="kpi-sub">~$'+((bytes/1073741824)*0.015).toFixed(2)+'/mo vs $'+loomCost+' Loom</div></div>'+
+    (pending?'<div class="kpi-card"><div class="kpi-label">Transcribing</div><div class="kpi-value">'+pending+'</div></div>':'');
+}
+
+function renderVideos(){
+  var body=document.getElementById('vidBody');
+  if(!VID.items.length){
+    body.innerHTML='<div style="padding:3rem 1rem;text-align:center;color:var(--text-muted)">'+
+      '<div style="font-size:2.4rem;margin-bottom:.75rem">🎥</div>'+
+      '<div style="font-size:1rem;margin-bottom:.4rem;color:var(--text)">No recordings yet</div>'+
+      '<div style="margin-bottom:1.25rem">Install the Knight Ops Recorder extension and hit record. Videos land here automatically, transcribed and ready to share.</div>'+
+      '<button class="btn btn-primary btn-sm" onclick="VID.showSetup()">🎥 Get the recorder</button></div>';
+    return;
+  }
+  var cards=VID.items.map(function(v){
+    var title=v.title||v.ai_title||'Untitled recording';
+    var thumb=vidThumb(v);
+    var badge=v.transcript_status==='processing'||v.transcript_status==='pending'
+      ? '<span class="badge" style="background:rgba(0,212,200,.15);color:#00D4C8">✦ Transcribing</span>'
+      : v.transcript_status==='failed' ? '<span class="badge badge-danger">Transcript failed</span>'
+      : v.transcript_status==='ready' ? '<span class="badge" style="background:rgba(48,164,108,.15);color:#3ecf8e">✓ Transcript</span>' : '';
+    var vis=v.visibility==='public'?'🌐 Public':v.visibility==='private'?'🔒 Private':'🔗 Link only';
+    var lock=v.password_hash?' · 🔑 Password':'';
+    return '<div class="ko-vcard" onclick="showVideoDetail(\''+v.id+'\')">'+
+      '<div class="ko-vthumb">'+(thumb?'<img src="'+thumb+'" loading="lazy" alt="">':'<span>'+(v.kind==='screenshot'?'📸':'🎬')+'</span>')+
+        (v.duration_sec?'<em>'+vidFmt(v.duration_sec)+'</em>':'')+'</div>'+
+      '<div class="ko-vmeta">'+
+        '<div class="ko-vtitle">'+esc(title)+'</div>'+
+        (v.ai_summary?'<div class="ko-vsum">'+esc(v.ai_summary.slice(0,120))+(v.ai_summary.length>120?'…':'')+'</div>':'')+
+        '<div class="ko-vfoot">'+badge+'<span>'+vis+lock+'</span><span>'+(v.view_count||0)+' views</span>'+
+          '<span>'+new Date(v.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})+'</span></div>'+
+      '</div>'+
+      '<div class="ko-vacts" onclick="event.stopPropagation()">'+
+        '<button class="btn btn-sm btn-secondary" onclick="VID.copy(\''+v.slug+'\')" title="Copy share link">🔗</button>'+
+        '<button class="btn btn-sm btn-secondary" onclick="window.open(\''+vidUrl(v.slug)+'\',\'_blank\')" title="Open">↗</button>'+
+      '</div></div>';
+  }).join('');
+  body.innerHTML='<div class="ko-vgrid">'+cards+'</div>'+
+    (VID.count>VID.items.length+VID.offset
+      ? '<div style="text-align:center;padding:1.25rem"><button class="btn btn-sm btn-secondary" onclick="VID.offset+=VID.limit;loadVideos()">Load more ('+(VID.count-VID.items.length-VID.offset)+' left)</button></div>'
+      : '');
+}
+
+VID.copy=function(slug){
+  var u=vidUrl(slug);
+  navigator.clipboard.writeText(u).then(function(){showToast('Share link copied');},function(){prompt('Copy this link:',u);});
+};
+
+async function showVideoDetail(id){
+  setRecordHash('videos',id);
+  var wrap=document.getElementById('vidDetailView');
+  document.getElementById('vidListView').style.display='none';
+  wrap.style.display='';
+  wrap.innerHTML='<div style="padding:2.5rem;text-align:center;color:var(--text-muted)">Loading…</div>';
+  var d;
+  try{d=await vidApi('detail',{id:id});}catch(e){wrap.innerHTML='<div style="padding:2rem;color:var(--text-muted)">'+e.message+'</div>';return;}
+  var v=d.video,tr=d.transcript,cm=d.comments||[],views=d.views||[];
+  VID.worker=d.worker||VID.worker;
+  var media=VID.worker+'/f/'+v.storage_key;
+  var title=v.title||v.ai_title||'Untitled recording';
+  var completes=views.filter(function(x){return x.completed;}).length;
+  var avgPct=views.length?Math.round(views.reduce(function(a,x){return a+Number(x.percent_watched||0);},0)/views.length):0;
+
+  wrap.innerHTML=
+  '<div style="margin-bottom:1rem"><button class="btn btn-sm btn-secondary" onclick="closeVideoDetail()">← Back to library</button></div>'+
+  '<div class="ko-vdetail">'+
+    '<div>'+
+      '<div style="background:#000;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)">'+
+        (v.kind==='screenshot'
+          ? '<img src="'+media+'" style="width:100%;display:block">'
+          : '<video src="'+media+'" controls playsinline preload="metadata" '+(v.thumb_key?'poster="'+VID.worker+'/f/'+v.thumb_key+'"':'')+' style="width:100%;display:block;max-height:56vh"></video>')+
+      '</div>'+
+      '<div class="table-card" style="margin-top:1rem">'+
+        '<div style="padding:1.1rem">'+
+          '<label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Title</label>'+
+          '<input id="vdTitle" value="'+esc(title).replace(/"/g,'&quot;')+'" style="width:100%;margin:.35rem 0 .9rem">'+
+          '<label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Description</label>'+
+          '<textarea id="vdDesc" rows="2" style="width:100%;margin:.35rem 0 .9rem">'+esc(v.description||'')+'</textarea>'+
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem;margin-bottom:.9rem">'+
+            '<div><label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Who can watch</label>'+
+              '<select id="vdVis" style="width:100%;margin-top:.35rem">'+
+                ['unlisted|Anyone with the link','public|Public (indexable)','private|Private — only me']
+                  .map(function(o){var p=o.split('|');return '<option value="'+p[0]+'"'+(v.visibility===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+
+              '</select></div>'+
+            '<div><label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Password</label>'+
+              '<input id="vdPw" type="text" placeholder="'+(v.password_hash?'•••••• (set — type to change)':'none')+'" style="width:100%;margin-top:.35rem"></div>'+
+            '<div><label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Expires</label>'+
+              '<input id="vdExp" type="date" value="'+(v.expires_at?String(v.expires_at).slice(0,10):'')+'" style="width:100%;margin-top:.35rem"></div>'+
+            '<div><label style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600">Folder</label>'+
+              '<input id="vdFolder" value="'+esc(v.folder||'')+'" placeholder="e.g. client-updates" style="width:100%;margin-top:.35rem"></div>'+
+          '</div>'+
+          '<div style="display:flex;gap:1.1rem;flex-wrap:wrap;margin-bottom:1rem;font-size:.82rem">'+
+            '<label style="display:flex;align-items:center;gap:.4rem"><input type="checkbox" id="vdCom"'+(v.allow_comments?' checked':'')+'> Allow comments</label>'+
+            '<label style="display:flex;align-items:center;gap:.4rem"><input type="checkbox" id="vdDl"'+(v.allow_download?' checked':'')+'> Allow download</label>'+
+            '<label style="display:flex;align-items:center;gap:.4rem"><input type="checkbox" id="vdEmb"'+(v.allow_embed?' checked':'')+'> Allow embedding</label>'+
+          '</div>'+
+          '<div style="display:flex;gap:.5rem;flex-wrap:wrap">'+
+            '<button class="btn btn-sm btn-primary" onclick="saveVideo(\''+v.id+'\')">Save changes</button>'+
+            '<button class="btn btn-sm btn-secondary" onclick="VID.copy(\''+v.slug+'\')">🔗 Copy link</button>'+
+            '<button class="btn btn-sm btn-secondary" onclick="window.open(\''+vidUrl(v.slug)+'\',\'_blank\')">↗ Open public page</button>'+
+            '<button class="btn btn-sm btn-secondary" onclick="VID.copyEmbed(\''+v.slug+'\')">&lt;/&gt; Copy embed</button>'+
+            (v.transcript_status!=='ready'&&v.kind!=='screenshot'?'<button class="btn btn-sm btn-secondary" onclick="VID.retry(\''+v.id+'\')">✦ Retry transcript</button>':'')+
+            '<button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="deleteVideo(\''+v.id+'\')">Delete</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div>'+
+      '<div class="table-card" style="margin-bottom:1rem"><div style="padding:1rem">'+
+        '<h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.7rem">Engagement</h3>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;font-size:.85rem">'+
+          '<div><b style="font-size:1.35rem;display:block">'+(v.view_count||0)+'</b><span style="color:var(--text-muted)">views</span></div>'+
+          '<div><b style="font-size:1.35rem;display:block">'+avgPct+'%</b><span style="color:var(--text-muted)">avg watched</span></div>'+
+          '<div><b style="font-size:1.35rem;display:block">'+completes+'</b><span style="color:var(--text-muted)">watched to end</span></div>'+
+          '<div><b style="font-size:1.35rem;display:block">'+cm.length+'</b><span style="color:var(--text-muted)">comments</span></div>'+
+        '</div>'+
+        '<div style="margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-muted);line-height:1.7">'+
+          'Duration '+vidFmt(v.duration_sec)+' · '+vidSize(v.size_bytes)+(v.width?' · '+v.width+'×'+v.height:'')+'<br>'+
+          'Recorded '+new Date(v.created_at).toLocaleString()+
+          (v.source_url?'<br>From <a href="'+esc(v.source_url)+'" target="_blank" style="color:var(--accent)">'+esc((v.source_title||v.source_url).slice(0,50))+'</a>':'')+
+        '</div>'+
+      '</div></div>'+
+      (v.ai_summary?'<div class="table-card" style="margin-bottom:1rem"><div style="padding:1rem">'+
+        '<h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.6rem">AI summary</h3>'+
+        '<p style="font-size:.86rem;line-height:1.65;color:var(--text-muted)">'+esc(v.ai_summary)+'</p>'+
+        ((v.ai_action_items||[]).length?'<ul style="margin:.8rem 0 0;padding-left:1.1rem;font-size:.83rem;color:var(--text-muted)">'+
+          v.ai_action_items.map(function(a){return '<li style="margin-bottom:.3rem">'+esc(a)+'</li>';}).join('')+'</ul>':'')+
+        '</div></div>':'')+
+      ((v.ai_chapters||[]).length?'<div class="table-card" style="margin-bottom:1rem"><div style="padding:1rem">'+
+        '<h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.6rem">Chapters</h3>'+
+        v.ai_chapters.map(function(c){return '<div style="display:flex;gap:.7rem;padding:.32rem 0;font-size:.84rem">'+
+          '<span style="color:var(--accent);font-weight:600;min-width:44px">'+vidFmt(c.start)+'</span><span>'+esc(c.title)+'</span></div>';}).join('')+
+        '</div></div>':'')+
+      (cm.length?'<div class="table-card"><div style="padding:1rem">'+
+        '<h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.7rem">Comments</h3>'+
+        cm.map(function(c){return '<div style="padding:.55rem 0;border-bottom:1px solid var(--border)">'+
+          '<div style="font-size:.8rem;margin-bottom:.2rem"><b>'+esc(c.author_name)+'</b>'+
+          (c.timestamp_sec!=null?' <span style="color:#00D4C8">@'+vidFmt(c.timestamp_sec)+'</span>':'')+
+          ' <span style="color:var(--text-muted);float:right">'+new Date(c.created_at).toLocaleDateString()+'</span></div>'+
+          '<div style="font-size:.85rem;color:var(--text-muted);line-height:1.55">'+esc(c.body)+'</div></div>';}).join('')+
+        '</div></div>':'')+
+      (tr&&tr.text?'<div class="table-card" style="margin-top:1rem"><div style="padding:1rem">'+
+        '<h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.6rem">Transcript</h3>'+
+        '<div style="max-height:280px;overflow-y:auto;font-size:.83rem;line-height:1.7;color:var(--text-muted);white-space:pre-wrap">'+esc(tr.text)+'</div>'+
+        '<button class="btn btn-sm btn-secondary" style="margin-top:.7rem" onclick="VID.copyText('+JSON.stringify(JSON.stringify(tr.text))+')">Copy transcript</button>'+
+        '</div></div>':'')+
+    '</div>'+
+  '</div>';
+}
+
+function closeVideoDetail(){
+  document.getElementById('vidDetailView').style.display='none';
+  document.getElementById('vidListView').style.display='';
+  window.history.pushState(null,null,'#videos');
+}
+
+async function saveVideo(id){
+  var pw=document.getElementById('vdPw').value;
+  var patch={id:id,
+    title:document.getElementById('vdTitle').value.trim()||null,
+    description:document.getElementById('vdDesc').value.trim()||null,
+    visibility:document.getElementById('vdVis').value,
+    folder:document.getElementById('vdFolder').value.trim()||null,
+    expires_at:document.getElementById('vdExp').value?new Date(document.getElementById('vdExp').value+'T23:59:59').toISOString():null,
+    allow_comments:document.getElementById('vdCom').checked,
+    allow_download:document.getElementById('vdDl').checked,
+    allow_embed:document.getElementById('vdEmb').checked};
+  if(pw)patch.password=pw;
+  try{await vidApi('update',patch);showToast('Video updated');loadVideos();}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function deleteVideo(id){
+  if(!confirm('Delete this recording permanently? The file is removed from storage and every share link stops working.'))return;
+  try{await vidApi('delete',{id:id});showToast('Video deleted');closeVideoDetail();loadVideos();}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+
+VID.retry=async function(id){
+  try{await vidApi('retry_transcript',{id:id});showToast('Transcription restarted — check back in a minute');}
+  catch(e){showToast('Error: '+e.message,'error');}
+};
+VID.copyText=function(t){navigator.clipboard.writeText(JSON.parse(t)).then(function(){showToast('Copied');});};
+VID.copyEmbed=function(slug){
+  var code='<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">\n'+
+    '  <iframe src="https://www.knightops.biz/embed/'+slug+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen allow="autoplay; picture-in-picture"></iframe>\n</div>';
+  navigator.clipboard.writeText(code).then(function(){showToast('Embed code copied');},function(){prompt('Copy this embed code:',code);});
+};
+
+VID.showSetup=function(){
+  var m=document.getElementById('editModal')||null;
+  var html='<div style="max-width:560px">'+
+    '<p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1.1rem">Your own Loom. Records screen, window, tab or camera, uploads while you record, transcribes with Deepgram, and writes the summary with Claude.</p>'+
+    '<ol style="font-size:.87rem;line-height:1.9;color:var(--text-muted);padding-left:1.15rem;margin-bottom:1.1rem">'+
+      '<li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>'+
+      '<li>Click <b>Load unpacked</b> and choose the <code>chrome-extension</code> folder in your knight-ops-site repo.</li>'+
+      '<li>Open the extension\'s <b>Options</b> and paste your recorder token.</li>'+
+      '<li>Pin it to the toolbar. <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> starts a recording from anywhere.</li>'+
+    '</ol>'+
+    '<div style="background:var(--surface-2);border-radius:8px;padding:.85rem 1rem;font-size:.82rem;color:var(--text-muted);line-height:1.7">'+
+      '<b style="color:var(--text)">Storage worker:</b> '+(VID.worker||'not configured')+'<br>'+
+      '<b style="color:var(--text)">Cost:</b> roughly $0.015 per GB per month on Cloudflare R2, with no egress charges.'+
+    '</div></div>';
+  openEditModal('Set up the recorder',html,'<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');
+};
 
 // ═══ TASKS ═══
 async function loadTasks(){const{data}=await sb.from('tasks').select('*,projects(name),leads(name,first_name,last_name,email,company)').order('created_at',{ascending:false});S.tasks=data||[];renderTasks();const lf=document.getElementById('taskLeadFilter');if(lf){const leads=[...new Map(S.tasks.filter(t=>t.lead_id&&t.leads).map(t=>[t.lead_id,leadName(t.leads)])).entries()];lf.innerHTML='<option value="">All Leads</option>'+leads.map(([id,n])=>'<option value="'+id+'">'+n+'</option>').join('');}}
