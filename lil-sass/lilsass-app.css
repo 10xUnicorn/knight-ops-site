@@ -15,9 +15,20 @@
   width:120px; height:26px; background:#1B2036; border-radius:0 0 17px 17px; z-index:6; }
 .ls-mobile .ls-screen { border-radius:35px; }
 
+.ls-desktop { width:100%; max-width:100%; overflow:hidden; }
 .ls-desktop .ls-frame {
-  width:100%; max-width:1000px; background:#1B2036; border-radius:16px; padding:12px 12px 22px;
-  position:relative; box-shadow:0 26px 50px rgba(40,48,74,.26);
+  width:100%; max-width:1000px; min-width:0; background:#1B2036; border-radius:16px;
+  padding:12px 12px 22px; position:relative; box-shadow:0 26px 50px rgba(40,48,74,.26);
+}
+/* If the container is narrower than the frame needs, scale the whole thing down
+   instead of letting it overflow and collide with neighbours. */
+@media(max-width:1000px){
+  .ls-desktop .ls-frame { max-width:100%; }
+  .ls-desktop .ls-rail { width:58px; flex-basis:58px; }
+  .ls-desktop .ls-topbar { padding:0 16px; }
+  .ls-desktop .ls-view { padding:20px 24px; }
+  .ls-splitart { flex-basis:190px; }
+  .ls-splitbody { min-width:220px; }
 }
 .ls-desktop .ls-frame::after {
   content:''; position:absolute; left:50%; bottom:8px; transform:translateX(-50%);

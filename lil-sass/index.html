@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Lil' Sass — Choose the Look</title>
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608150958">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151032">
 <style>
 :root{--page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;--brand:#E8442A;
   --plum:#5B3FA8;--plum-deep:#3F2A78;--ok:#2E9E68;--card:#fff;--shadow:0 10px 28px rgba(27,33,56,.08)}
@@ -77,6 +77,12 @@ h2{font-size:26px;letter-spacing:-.01em}
 .shr i::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
   background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .shr.on{color:var(--ok)}.shr.on i{background:var(--ok)}.shr.on i::after{left:16px}
+
+.deskwrap{margin-top:34px;padding-top:26px;border-top:1px solid var(--line)}
+.deskhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.deskhead b{font-size:16px}
+.deskhead span{font-size:13px;color:var(--soft);font-weight:700}
+#deskstage{display:flex;justify-content:center;overflow:hidden}
 
 /* dashboard */
 .dashwrap,.dash{margin-top:18px}
@@ -214,10 +220,7 @@ footer .ko span{color:var(--brand)}
         <div class="stagecard">
           <div class="nowshow" id="nowshow"></div>
           <div class="stagebar">
-            <div class="seg" id="devseg">
-              <button data-dev="mobile" class="on">📱 Phone</button>
-              <button data-dev="desktop">💻 Computer</button>
-            </div>
+            <span style="font-size:12.5px;font-weight:900;color:var(--soft)">📱 On a phone</span>
             <button class="reset" id="resetbtn">↻ Restart</button>
           </div>
           <div id="stage"></div>
@@ -225,6 +228,16 @@ footer .ko span{color:var(--brand)}
           <div class="jumphint">Jump to any screen, or just tap through it like a child would.</div>
         </div>
       </div>
+    </div>
+
+    <div class="deskwrap">
+      <div class="deskhead">
+        <b>💻 The same app on a computer</b>
+        <span id="deskname"></span>
+      </div>
+      <p class="sub" style="margin-bottom:14px">Christie, this is the one most grown-ups will actually use —
+      you said yourself you'd rather create on a laptop.</p>
+      <div id="deskstage"></div>
     </div>
   </section>
 
@@ -267,8 +280,8 @@ footer .ko span{color:var(--brand)}
     Daniel Knight · team@knightops.biz · knightops.biz<br>Create Your Impact on Autopilot</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608150958"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608150958"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608150958"></script>
-<script src="/lil-sass/lilsass-preview.js?v=202608150958"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608151032"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608151032"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608151032"></script>
+<script src="/lil-sass/lilsass-preview.js?v=202608151032"></script>
 </body></html>

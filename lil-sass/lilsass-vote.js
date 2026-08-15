@@ -18,7 +18,6 @@ const qs = new URLSearchParams(location.search);
 const PUB_DIRS = (qs.get('d') || 'picture,deck,calm').split(',').filter(c => L.DIRECTIONS[c]);
 
 const vote = { direction:null, id:null };
-let device = 'mobile';
 
 function fingerprint() {
   let f = localStorage.getItem('ls_fp');
@@ -91,14 +90,39 @@ function buildDirections() {
         x.querySelector('.pick').lastChild.textContent =
           x.dataset.dir === code ? 'This is my pick' : 'Pick this one';
       });
+      renderDesktop(code);
       $('#n1').disabled = false;
     });
     g.appendChild(card);
   });
   PUB_DIRS.forEach(code => {
-    window.LILSASS_APP.createApp($('#stage-' + code), { direction: code, device, art: ART });
+    window.LILSASS_APP.createApp($('#stage-' + code), { direction: code, device: 'mobile', art: ART });
     $('#stage-' + code).addEventListener('click', e => e.stopPropagation());
   });
+  renderDesktop(vote.direction || PUB_DIRS[0]);
+}
+
+/* ONE full-width desktop preview underneath, following the current pick */
+let deskApp = null, deskScreen = 'grownup';
+const SCREENS = [
+  ['grownup','Grown-up'], ['profiles','Our rink'], ['childHome','A child'],
+  ['guide','Pick a guide'], ['chat','Talking'], ['mooIntro','Mrs. Moo'],
+  ['cape','The cape'], ['book','The book'], ['delivered','Finished']
+];
+function renderDesktop(code) {
+  const d = L.DIRECTIONS[code]; if (!d) return;
+  $('#deskname').textContent = 'Showing ' + d.name;
+  deskApp = window.LILSASS_APP.createApp($('#deskstage'), { direction: code, device: 'desktop', art: ART });
+  if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(deskScreen);
+  const nav = $('#desknav'); if (!nav) return;
+  nav.innerHTML = SCREENS.map(([id, label]) =>
+    `<button class="scrbtn${id===deskScreen?' on':''}" data-screen="${id}">${label}</button>`).join('');
+  nav.querySelectorAll('[data-screen]').forEach(b =>
+    b.addEventListener('click', () => {
+      deskScreen = b.dataset.screen;
+      nav.querySelectorAll('.scrbtn').forEach(x => x.classList.toggle('on', x === b));
+      if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(deskScreen);
+    }));
 }
 
 /* ---------- navigation ---------- */
@@ -111,12 +135,6 @@ function show(n) {
 /* submit on the single step */
 document.querySelectorAll('[data-back]').forEach(b =>
   b.addEventListener('click', () => show(+b.dataset.back)));
-
-document.querySelectorAll('#dev1 button').forEach(b =>
-  b.addEventListener('click', () => {
-    document.querySelectorAll('#dev1 button').forEach(x => x.classList.remove('on'));
-    b.classList.add('on'); device = b.dataset.dev; buildDirections();
-  }));
 
 /* ---------- submit vote ---------- */
 $('#n1').addEventListener('click', async function () {

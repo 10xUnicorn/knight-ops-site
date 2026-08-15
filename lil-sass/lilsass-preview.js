@@ -20,7 +20,7 @@ const state = {
   decisions: {},
   pub: new Set(['picture','deck','calm'])
 };
-let app = null;
+let app = null, deskApp = null;
 
 /* ---------- the build (not a choice) ---------- */
 function renderBuild() {
@@ -54,6 +54,7 @@ function renderDirections() {
       state.direction = b.dataset.dir;
       renderDirections(); renderDash(); renderShare();
       if (app) app.setDirection(state.direction);
+      mountDesktop();
       syncNow();
     }));
 
@@ -75,10 +76,22 @@ const SCREENS = [
 
 function mountApp() {
   app = window.LILSASS_APP.createApp($('#stage'), {
-    direction: state.direction, device: state.device, art: ART
+    direction: state.direction, device: 'mobile', art: ART
   });
   // defensive: never let a stale cached renderer blank the page
   if (state.screen && app && typeof app.goTo === 'function') app.goTo(state.screen);
+  mountDesktop();
+}
+
+/* full-width desktop preview, below the choices - never overlapping them */
+function mountDesktop() {
+  const d = L.DIRECTIONS[state.direction];
+  const el = $('#deskname'); if (el) el.textContent = 'Showing ' + d.name;
+  const stage = $('#deskstage'); if (!stage) return;
+  deskApp = window.LILSASS_APP.createApp(stage, {
+    direction: state.direction, device: 'desktop', art: ART
+  });
+  if (state.screen && deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(state.screen);
 }
 
 function renderScreenNav() {
@@ -89,6 +102,7 @@ function renderScreenNav() {
       state.screen = b.dataset.screen;
       renderScreenNav();
       if (app) app.goTo(state.screen);
+      if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(state.screen);
     }));
 }
 
@@ -364,12 +378,10 @@ $('#finalbtn').addEventListener('click', async function () {
 });
 
 /* ---------- device toggle + boot ---------- */
-document.querySelectorAll('#devseg button').forEach(b =>
-  b.addEventListener('click', () => {
-    document.querySelectorAll('#devseg button').forEach(x => x.classList.remove('on'));
-    b.classList.add('on'); state.device = b.dataset.dev; mountApp();
-  }));
-$('#resetbtn').addEventListener('click', () => { state.screen = 'grownup'; renderScreenNav(); app && app.reset(); });
+$('#resetbtn').addEventListener('click', () => {
+  state.screen = 'grownup'; renderScreenNav();
+  if (app) app.reset(); if (deskApp) deskApp.reset();
+});
 
 renderBuild(); renderDirections(); mountApp(); renderScreenNav();
 renderDash(); renderPricing(); renderDecisions(); renderShare(); renderVotes(); syncNow();

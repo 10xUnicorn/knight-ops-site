@@ -146,25 +146,28 @@ const DASHBOARD = {
    --------------------------------------------------------------- */
 const PRICING = {
   headline: 'First book free. Families subscribe. Classrooms buy seats.',
-  reasoning: 'Because a grown-up account can hold several children, the same build earns three ways: a family ' +
-             'plan worth more than a single-child plan, printed keepsakes, and classroom seats. That third one ' +
-             'is the highest revenue per relationship and the lowest support load.',
+  reasoning: 'Every book costs real money to make (about $0.92 in AI), so nothing here is unlimited — each ' +
+             'tier includes a generous allowance and extra adventures are a small add-on. That keeps the ' +
+             'margin healthy no matter how enthusiastic a family gets. The classroom tier is priced against ' +
+             'what it actually costs to serve 30 children for a year, not plucked from the air.',
   costPerBook: 0.92,
   tiers: [
     { name:'First Adventure', price:'Free', unit:'', detail:'One complete personalised book. No card asked for.',
-      margin:'Costs you ~$0.92 — this is the marketing', hero:true },
+      margin:'Costs ~$0.92 — this is the marketing', hero:true },
     { name:'Story Club', price:'$12.99', unit:'/mo', detail:'One child · 2 adventures a month · full library',
-      margin:'$10.47 net' },
-    { name:'Family Plan', price:'$19.99', unit:'/mo', detail:'Up to 4 children · 2 adventures each · shared shelf',
-      margin:'$15.28 net', hero:true },
-    { name:'Unlimited Family', price:'$29.99', unit:'/mo', detail:'Unlimited adventures · gift a story to a friend',
-      margin:'$19.86 net at 10 books' },
+      margin:'$10.70 net after AI + fees' },
+    { name:'Family Plan', price:'$24.99', unit:'/mo', detail:'Up to 4 children · 2 adventures each · shared shelf',
+      margin:'$16.40 net', hero:true },
+    { name:'Extra adventure', price:'$4.99', unit:'each', detail:'Any plan, any time, no commitment',
+      margin:'$3.90 net' },
     { name:'Printed keepsake', price:'$34.99', unit:'each', detail:'Hardcover of their own book, shipped',
       margin:'~$18 net · zero inventory' },
-    { name:'Classroom', price:'$349', unit:'/yr', detail:'Up to 30 children · teacher view · bulk invites',
-      margin:'$310 net', hero:true },
-    { name:'Practitioner', price:'$29', unit:'/mo', detail:'Therapists, counsellors, play therapists',
-      margin:'$24 net' }
+    { name:'Classroom', price:'$899', unit:'/yr', detail:'Up to 30 children · 12 adventures each a year · teacher view',
+      margin:'$540 net after 360 books', hero:true },
+    { name:'School', price:'$2,990', unit:'/yr', detail:'Up to 6 classrooms · 180 children',
+      margin:'$1,800 net' },
+    { name:'Practitioner', price:'$39', unit:'/mo', detail:'Therapists and counsellors · up to 15 active children',
+      margin:'$27 net' }
   ],
   affiliate: {
     rate: '30% for 12 months, then 10% for as long as they stay',
@@ -173,9 +176,10 @@ const PRICING = {
          'for retention, and stops permanently giving away a third of your best customers. Printed books excluded.'
   },
   notes: [
-    'The Family Plan is the one to push. It earns 54% more than a single-child plan and costs barely more to serve.',
+    'The Family Plan is the one to push: 92% more revenue than a single child, for about $5 more cost to serve.',
+    'Nothing is sold as "unlimited". At $0.92 a book, an unlimited tier would earn LESS per family than the tier below it.',
     'Do not publish classroom pricing at launch. Sell the first five by conversation, then put it on the site.',
-    'Annual options ($129 family, $99 single) capture the gift-giver and cut churn.'
+    'Annual options ($249 family, $129 single) capture the gift-giver and cut churn.'
   ]
 };
 
