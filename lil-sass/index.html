@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Lil' Sass — Choose Your Build</title>
+<link rel="stylesheet" href="lilsass-app.css">
+<style>
+:root{
+  --page:#F7FAFF; --ink:#1B2138; --soft:#5A648A; --line:#E3EBF7;
+  --brand:#E8442A; --plum:#5B3FA8; --plum-deep:#3F2A78; --ok:#2E9E68;
+  --card:#fff; --shadow:0 10px 28px rgba(27,33,56,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--page);
+  color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:34px 22px 90px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;
+  font-size:11.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.bar .ko span{color:var(--brand)}
+h1{font-size:clamp(28px,4.6vw,42px);line-height:1.1;margin:18px 0 10px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--brand)}
+.lede{font-size:16.5px;line-height:1.62;color:var(--soft);max-width:70ch}
+.hint{margin-top:16px;background:#F4F0FE;border-left:4px solid var(--plum);border-radius:0 14px 14px 0;
+  padding:12px 16px;font-size:14px;line-height:1.5;color:var(--plum-deep);max-width:74ch;font-weight:700}
+
+section{margin-top:52px}
+.sechead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.step{background:var(--plum);color:#fff;font-size:11px;font-weight:900;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 12px;border-radius:999px}
+h2{font-size:26px;letter-spacing:-.01em}
+.sub{font-size:14.5px;color:var(--soft);line-height:1.55;max-width:72ch;margin-top:6px}
+
+/* pickers */
+.picker{display:grid;gap:12px;margin-top:20px}
+.picker.three{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.opt{background:var(--card);border-radius:18px;padding:17px;box-shadow:var(--shadow);
+  border:2px solid transparent;cursor:pointer;text-align:left;transition:.16s;font-family:inherit}
+.opt:hover{transform:translateY(-2px)}
+.opt.on{border-color:var(--brand);box-shadow:0 10px 30px rgba(232,68,42,.2)}
+.opt .code{font-size:10.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--plum)}
+.opt h3{font-size:17px;margin:5px 0 2px}
+.opt .tag{font-size:12.5px;font-weight:800;color:var(--brand);margin-bottom:7px}
+.opt p{font-size:13px;line-height:1.5;color:var(--soft)}
+.opt .best{margin-top:8px;font-size:12px;line-height:1.45;color:var(--ink);font-weight:700}
+.opt .trade{margin-top:6px;font-size:11.5px;line-height:1.45;color:var(--soft);font-style:italic}
+.opt .phase{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:900;
+  background:#EDF7F1;color:var(--ok);padding:3px 9px;border-radius:999px}
+.sw{display:flex;gap:6px;margin-bottom:9px}
+.sw i{width:22px;height:22px;border-radius:6px;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+
+/* stage */
+.stage{margin-top:26px;background:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+.stagebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.seg{display:flex;background:#F1F6FD;border-radius:999px;padding:4px;gap:3px}
+.seg button{border:0;background:none;font-size:13px;font-weight:900;color:var(--soft);
+  padding:8px 18px;border-radius:999px;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--plum);color:#fff}
+.reset{border:0;background:#F1F6FD;color:var(--plum);font-weight:900;font-size:12.5px;
+  padding:9px 16px;border-radius:999px;cursor:pointer;font-family:inherit}
+.nowshow{font-size:13px;color:var(--soft);font-weight:700}
+.nowshow b{color:var(--ink)}
+#devicestage{display:flex;justify-content:center}
+
+/* dashboards — themed with the SELECTED Lil' Sass style, not Knight Ops navy */
+.dashwrap{margin-top:18px}
+.dash{background:var(--d-screen,#EAF6FF);border-radius:18px;overflow:hidden;
+  box-shadow:var(--shadow);border:1px solid var(--d-line,#E5EDF8)}
+.dashtop{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:var(--d-card,#fff);border-bottom:1px solid var(--d-line,#E5EDF8)}
+.dashtop .dot{width:10px;height:10px;border-radius:50%}
+.dashtop .durl{color:var(--d-soft,#5A648A);font-size:12px;margin-left:8px;
+  background:var(--d-chip,#F1F6FD);padding:4px 14px;border-radius:999px;font-weight:700}
+.dashbody{display:flex;min-height:440px}
+.dashnav{width:196px;background:var(--d-card,#fff);padding:16px 10px;
+  border-right:1px solid var(--d-line,#E5EDF8);flex:0 0 auto}
+.dashbrand{display:flex;align-items:center;gap:9px;padding:0 6px 13px;margin-bottom:10px;
+  border-bottom:1px solid var(--d-line,#E5EDF8)}
+.dashbrand img{width:30px;height:36px;object-fit:contain}
+.dashbrand b{font-size:14px;color:var(--d-ink,#28304A)}
+.dashnav button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;
+  border:0;color:var(--d-soft,#5A648A);font-size:13px;font-weight:800;padding:10px 12px;
+  border-radius:11px;cursor:pointer;font-family:inherit;transition:.14s}
+.dashnav button:hover{background:var(--d-chip,#F1F6FD)}
+.dashnav button.on{background:var(--d-accent,#E8442A);color:var(--d-onaccent,#fff)}
+.dashmain{flex:1;padding:22px;min-width:0}
+.dashmain h4{color:var(--d-ink,#28304A);font-size:18px;margin-bottom:3px}
+.dashmain .dsub{color:var(--d-soft,#5A648A);font-size:12.5px;margin-bottom:16px;line-height:1.5}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--d-card,#fff);border-radius:15px;padding:13px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+.kpi .n{font-size:21px;font-weight:900;color:var(--d-accent,#E8442A);line-height:1}
+.kpi .l{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--d-soft,#9AA5C4);margin-top:4px}
+.kpi .d{font-size:10px;font-weight:900;color:#2E9E68;margin-top:3px}
+.panel{background:var(--d-card,#fff);border-radius:15px;padding:15px;margin-bottom:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.05)}
+.panel h5{color:var(--d-ink,#28304A);font-size:13.5px;margin-bottom:9px}
+.prow{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--d-line,#F0F5FC);font-size:12px;color:var(--d-ink,#28304A)}
+.prow:last-child{border-bottom:0}
+.prow .pav{width:24px;height:24px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:900;color:#fff}
+.prow .ptag{margin-left:auto;font-size:9.5px;font-weight:900;padding:3px 8px;border-radius:999px;
+  background:#EAF7F0;color:#2E9E68}
+.prow .pwarn{margin-left:auto;font-size:9.5px;font-weight:900;padding:3px 8px;border-radius:999px;
+  background:#FFF3E2;color:#B87514}
+.bar2{height:7px;border-radius:4px;background:var(--d-chip,#EDF3FB);overflow:hidden;margin-top:5px}
+.bar2 i{display:block;height:100%;
+  background:linear-gradient(90deg,var(--d-accent,#E8442A),var(--d-support,#5B3FA8))}
+.dashnote{margin-top:10px;font-size:12.5px;color:var(--soft);line-height:1.55}
+
+/* pricing */
+.models{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-top:20px}
+.model{background:#fff;border-radius:20px;padding:20px;box-shadow:var(--shadow);
+  border-top:5px solid var(--line)}
+.model.rec{border-top-color:var(--brand)}
+.model .badge{display:inline-block;font-size:10.5px;font-weight:900;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--brand);color:#fff;padding:4px 10px;border-radius:999px;margin-bottom:9px}
+.model .badge.alt{background:var(--plum)}
+.model h3{font-size:18px;margin-bottom:6px}
+.model .pitch{font-size:13.5px;line-height:1.55;color:var(--ink);font-weight:700;margin-bottom:9px}
+.model .why{font-size:12.5px;line-height:1.55;color:var(--soft);margin-bottom:12px}
+.tier{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.tier:last-of-type{border-bottom:0}
+.tier .tn{font-weight:800}
+.tier .td{font-size:11px;color:var(--soft);display:block;margin-top:2px}
+.tier .tp{font-weight:900;color:var(--brand);white-space:nowrap;text-align:right}
+.tier .tm{font-size:10.5px;color:var(--ok);font-weight:800;display:block;margin-top:2px}
+.model .note{margin-top:11px;font-size:11.5px;line-height:1.5;color:var(--plum-deep);
+  background:#F4F0FE;border-radius:10px;padding:9px 11px;font-weight:700}
+
+/* decisions */
+.dec{background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
+.dec .q{font-size:15px;font-weight:900;margin-bottom:3px}
+.dec .ctx{font-size:12.5px;color:var(--soft);line-height:1.5;margin-bottom:10px}
+.decopts{display:flex;flex-wrap:wrap;gap:7px}
+.decopt{border:2px solid var(--line);background:#fff;font-size:12.5px;font-weight:800;
+  padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--soft);font-family:inherit;transition:.14s}
+.decopt:hover{border-color:var(--plum);color:var(--plum)}
+.decopt.on{background:var(--plum);border-color:var(--plum);color:#fff}
+.decgroup{margin-bottom:26px}
+.decgroup > h3{font-size:16px;color:var(--plum-deep);margin-bottom:10px;
+  padding-bottom:7px;border-bottom:2px solid var(--line)}
+.rec{display:inline-block;font-size:10px;font-weight:900;background:#EDF7F1;color:var(--ok);
+  padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.shr{display:flex;align-items:center;gap:7px;margin-top:12px;padding-top:11px;
+  border-top:1px dashed var(--line);font-size:11.5px;font-weight:800;color:var(--soft);cursor:pointer}
+.shr i{width:32px;height:18px;border-radius:999px;background:#DCE5F3;position:relative;
+  flex:0 0 auto;transition:.18s}
+.shr i::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.shr.on{color:var(--ok)}
+.shr.on i{background:var(--ok)}
+.shr.on i::after{left:16px}
+
+/* votes */
+.votes{background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.vrow{display:flex;align-items:center;gap:12px;padding:9px 0}
+.vrow .vname{width:170px;font-size:13px;font-weight:800}
+.vbar{flex:1;height:12px;border-radius:6px;background:#F1F6FD;overflow:hidden}
+.vbar i{display:block;height:100%;background:linear-gradient(90deg,var(--plum),var(--brand))}
+.vn{font-size:12.5px;font-weight:900;color:var(--soft);width:74px;text-align:right}
+
+.finalize{margin-top:26px;background:linear-gradient(135deg,#EDF7F1,#F6FCF9);
+  border-radius:20px;padding:22px;border-left:5px solid var(--ok)}
+.finalize h3{font-size:19px;color:#1F7A4D;margin-bottom:6px}
+.finalize p{font-size:13.5px;line-height:1.6;color:var(--soft);margin-bottom:14px}
+.fbtn{background:var(--ok);color:#fff;border:0;font-size:15px;font-weight:900;padding:15px 30px;
+  border-radius:16px;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(46,158,104,.3)}
+.fbtn:hover{transform:translateY(-1px)}
+.summary{margin-top:14px;font-size:13px;line-height:1.7;color:var(--ink)}
+.summary b{color:var(--plum-deep)}
+footer{margin-top:56px;text-align:center;font-size:13px;color:var(--soft);line-height:1.7}
+footer .ko{font-weight:900;letter-spacing:.1em;color:var(--ink);display:block;margin-bottom:6px}
+footer .ko span{color:var(--brand)}
+</style></head>
+<body>
+<div class="wrap">
+
+  <div class="bar">
+    <div class="ko">KNIGHT <span>OPS</span> · CREATE YOUR IMPACT ON AUTOPILOT</div>
+    <div>Private preview for Christie Mann</div>
+  </div>
+
+  <h1>Three ways to build it. <em>You pick.</em></h1>
+  <p class="lede">Everything here is real and clickable. Try the structures, switch the styles, and see how
+  the same story feels different in each one. Nothing is locked in until you say so at the bottom.</p>
+  <div class="hint">Start by tapping through <b>Structure A</b> below. Then switch to B and C and notice
+  what changes. The style buttons restyle whichever structure you're looking at.</div>
+
+  <!-- STRUCTURE -->
+  <section>
+    <div class="sechead"><span class="step">Step 1</span><h2>How the app is structured</h2></div>
+    <p class="sub">This is the bigger decision. It shapes what gets built and who the app can reach.</p>
+    <div class="picker three" id="structpick"></div>
+  </section>
+
+  <!-- STYLE -->
+  <section>
+    <div class="sechead"><span class="step">Step 2</span><h2>How it looks and feels</h2></div>
+    <p class="sub">Any style works with any structure. Switch between them and watch the prototype change.</p>
+    <div class="picker three" id="stylepick"></div>
+  </section>
+
+  <!-- LIVE PROTOTYPE -->
+  <section>
+    <div class="sechead"><span class="step">Step 3</span><h2>Try it</h2></div>
+    <p class="sub">A real working prototype. Talk with the guide, choose a cape, watch the book get written, turn the pages.</p>
+    <div class="stage">
+      <div class="stagebar">
+        <div class="seg" id="devseg">
+          <button data-dev="mobile" class="on">📱 Phone</button>
+          <button data-dev="desktop">💻 Computer</button>
+        </div>
+        <div class="nowshow" id="nowshow"></div>
+        <button class="reset" id="resetbtn">↻ Start over</button>
+      </div>
+      <div id="devicestage"></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section>
+    <div class="sechead"><span class="step">Step 4</span><h2>Your dashboard</h2></div>
+    <p class="sub">This one is yours alone, so it isn't part of the public vote. Each version pairs naturally
+    with a structure, but you can have any of them.</p>
+    <div class="picker three" id="dashpick"></div>
+    <div id="dashstage"></div>
+  </section>
+
+  <!-- PRICING -->
+  <section>
+    <div class="sechead"><span class="step">Step 5</span><h2>How it makes money</h2></div>
+    <p class="sub">You said pricing isn't something you want to worry about, so here's our straight
+    recommendation and the reasoning behind it. All figures are net of AI cost and payment fees.</p>
+    <div class="hint" style="margin-top:14px">
+      <b>Our recommendation: The Story Club Ladder.</b> It earns the most over time, it's the simplest to
+      launch, and we can turn it on in Phase 1 with nothing but Stripe. Everything else is a later test.
+    </div>
+    <div class="models" id="models"></div>
+  </section>
+
+  <!-- DECISIONS -->
+  <section>
+    <div class="sechead"><span class="step">Step 6</span><h2>A few things only you can answer</h2></div>
+    <p class="sub">Most of these came straight out of our call. Where we have a strong view we've marked it,
+    and you can just take the recommendation.</p>
+    <div id="decisions"></div>
+  </section>
+
+  <!-- SHARE CONTROL -->
+  <section>
+    <div class="sechead"><span class="step">Step 7</span><h2>What you want people to vote on</h2></div>
+    <p class="sub">You don't have to show everyone everything. Use the <b>Voters see this</b> toggle on any
+    structure or style card above to decide what appears on the shared link. Hide anything you've already
+    ruled out and people will only weigh in on the options you're genuinely torn between.</p>
+    <div class="votes" style="margin-top:16px">
+      <h5 style="font-size:13px;margin-bottom:8px;color:var(--plum-deep)">Your shared link will show</h5>
+      <div id="publicsummary" style="font-size:13.5px;line-height:1.8"></div>
+    </div>
+  </section>
+
+  <!-- VOTES -->
+  <section>
+    <div class="sechead"><span class="step">Step 8</span><h2>What everyone else said</h2></div>
+    <p class="sub">Results from the link you shared. Voters never see these numbers, so nobody was
+    influenced by anyone else.</p>
+    <div class="votes" id="votes"></div>
+  </section>
+
+  <div class="finalize">
+    <h3>Ready when you are</h3>
+    <p>Locking this in tells our build system exactly what to make. Nothing is charged and nothing is
+    final-final — if you change your mind next week, we change it.</p>
+    <button class="fbtn" id="finalbtn">Lock in my choices →</button>
+    <div class="summary" id="summary"></div>
+  </div>
+
+  <footer>
+    <span class="ko">KNIGHT <span>OPS</span></span>
+    Daniel Knight · team@knightops.biz · knightops.biz<br>Create Your Impact on Autopilot
+  </footer>
+</div>
+
+<script src="lilsass-art.js"></script>
+<script src="lilsass-core.js"></script>
+<script src="lilsass-render.js"></script>
+<script src="lilsass-preview.js"></script>
+</body></html>
