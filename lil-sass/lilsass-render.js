@@ -490,20 +490,21 @@ function createApp(mount, opts) {
 }
 
 /* A 1000px desktop frame squashed into a phone stops looking like a desktop, so we
-   render it full size and scale it down. Because transform:scale() does NOT change
-   layout size, the host's height has to be set by hand — and it must be RE-set every
-   time the frame's real height changes (images finishing, screen swaps, rotation),
-   or the preview collapses to nothing. Hence the ResizeObserver. */
+   render it full size and scale it down. transform:scale() does NOT change layout
+   size, so the host's height must be set by hand — and re-set whenever the real
+   height changes (images loading, screen swaps, rotation) or the preview collapses.
+   NB: every goTo rebuilds the frame, so nothing here may capture a frame reference —
+   a stale one leaves the live frame unsized and the whole preview disappears. */
 function fitDesktop(host) {
   if (!host) return;
-  const frame = host.querySelector('.ls-desktop');
-  if (!frame) return;
   const DESIGN = 1000;
-  frame.classList.add('ls-scaled');
 
   const apply = () => {
+    const frame = host.querySelector('.ls-desktop');   // always the CURRENT frame
+    if (!frame) return false;
+    frame.classList.add('ls-scaled');
     const avail = host.clientWidth || (host.parentNode && host.parentNode.clientWidth) || 0;
-    if (avail < 40) return false;                 // not laid out yet — try again later
+    if (avail < 40) return false;
     const scale = Math.min(1, avail / DESIGN);
     frame.style.transform = 'scale(' + scale + ')';
     frame.style.marginLeft = Math.max(0, (avail - DESIGN * scale) / 2) + 'px';
@@ -516,20 +517,27 @@ function fitDesktop(host) {
   requestAnimationFrame(apply);
   [60, 200, 500, 1000].forEach(ms => setTimeout(apply, ms));
 
+  const frame = host.querySelector('.ls-desktop');
   if (host.__fitRO) host.__fitRO.disconnect();
-  if (window.ResizeObserver) {
+  if (window.ResizeObserver && frame) {
     host.__fitRO = new ResizeObserver(() => apply());
     host.__fitRO.observe(frame);
+    host.__fitRO.observe(host);
   }
   host.querySelectorAll('img').forEach(img => {
     if (!img.complete) img.addEventListener('load', apply, { once: true });
   });
+
+  /* Bind the window listeners once, but keep the LATEST apply on the element so the
+     handler can never call into a closure holding a detached frame. */
+  host.__fitApply = apply;
   if (!host.__fitBound) {
     host.__fitBound = true;
     let t;
-    const onResize = () => { clearTimeout(t); t = setTimeout(() => {
-      const f = host.querySelector('.ls-desktop'); if (f) apply();
-    }, 120); };
+    const onResize = () => {
+      clearTimeout(t);
+      t = setTimeout(() => { if (host.__fitApply) host.__fitApply(); }, 120);
+    };
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
   }
