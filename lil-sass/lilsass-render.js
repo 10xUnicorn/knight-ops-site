@@ -1,7 +1,7 @@
 /* =====================================================================
    Lil' Sass — Interactive prototype renderer
    Real state, real navigation, real typing, real page turns.
-   createApp(mount, {structure, style, device, art}) -> control object
+   createApp(mount, {direction, device, art}) -> control object
    ===================================================================== */
 (function (global) {
 'use strict';
@@ -18,12 +18,12 @@ function el(tag, cls, html) {
 function createApp(mount, opts) {
   const art = opts.art || {};
   const device = opts.device || 'mobile';
-  let structure = L.STRUCTURES[opts.structure] || L.STRUCTURES.A;
-  let style = L.STYLES[opts.style] || L.STYLES['1'];
+  const build = L.BUILD;
+  let dir = L.DIRECTIONS[opts.direction] || L.DIRECTIONS.picture;
 
   // ---- session state -------------------------------------------------
   const S = {
-    view: structure.screens[0],
+    view: build.screens[0],
     name: 'Amina',
     guide: L.GUIDES[0],
     cape: L.CAPES[0],
@@ -43,10 +43,10 @@ function createApp(mount, opts) {
   mount.innerHTML = '';
   mount.appendChild(root);
 
-  function applyStyle() {
-    Object.entries(style.vars).forEach(([k, v]) => root.style.setProperty(k, v));
-    root.setAttribute('data-atmos', style.atmosphere);
-    root.setAttribute('data-style', style.code);
+  function applyDirection() {
+    Object.entries(dir.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+    root.setAttribute('data-atmos', dir.atmosphere);
+    root.setAttribute('data-layout', dir.code);
   }
 
   // ---- screen builders ----------------------------------------------
@@ -59,7 +59,7 @@ function createApp(mount, opts) {
       <div class="ls-h1">Hi! I'm <em>Lil’ Sass</em>.</div>
       <p class="ls-p">Every big feeling deserves a story. Let's make one where <b>you</b> are the hero — right here at the Venice Beach roller rink.</p>
       <div class="ls-bottom">
-        <button class="ls-btn" data-go="${structure.screens[1]}">Start my adventure &nbsp;→</button>
+        <button class="ls-btn" data-go="profiles">Start my adventure &nbsp;→</button>
         <div class="ls-mini">About 5 minutes · Your first book is free</div>
       </div>`;
     return v;
@@ -104,6 +104,11 @@ function createApp(mount, opts) {
       <button class="ls-back" data-go="profiles">‹</button>
       <div class="ls-art" style="margin-top:20px"><img src="${art.cape[c.cape] || art.cape.red}" alt=""></div>
       <div class="ls-h1">Hi <em>${c.name}</em>!</div>
+      <div class="ls-streak">🔥 <b>${c.books}</b> adventures · 3 in a row this week</div>
+      <div class="ls-badges">
+        <span class="ls-badge">💛 Anger</span><span class="ls-badge">💧 Sadness</span>
+        <span class="ls-badge">✨ Joy</span><span class="ls-badge locked">🔒 Worry</span>
+      </div>
       <p class="ls-p">You have ${c.books} adventures on your shelf. Want to make another one?</p>
       <div class="ls-shelfrow">
         ${[0,1,2].map(i => `<div class="ls-mini-book"><img src="${art.pose[['B','C','D'][i]]}" alt=""></div>`).join('')}
@@ -118,7 +123,7 @@ function createApp(mount, opts) {
   V.identity = () => {
     const v = el('div', 'ls-view');
     v.innerHTML = `
-      <button class="ls-back" data-go="${structure.screens[0]}">‹</button>
+      <button class="ls-back" data-go="grownup">‹</button>
       <div class="ls-h1" style="margin-top:22px">Tell me about <em>you</em></div>
       <p class="ls-p" style="margin-bottom:10px">So the hero looks and sounds like you.</p>
       <div class="ls-field"><label>My name</label><div class="ls-val">${esc(S.name)}</div></div>
@@ -129,7 +134,7 @@ function createApp(mount, opts) {
       <div class="ls-chips" id="withchips">
         ${['Just me','A grown-up','My class'].map(x => `<button class="ls-chip${x===S.with?' on':''}">${x}</button>`).join('')}
       </div>
-      <div class="ls-bottom"><button class="ls-btn" data-go="${structure.code==='B'?'guide':'chat'}">Next &nbsp;→</button></div>`;
+      <div class="ls-bottom"><button class="ls-btn" data-go="guide">Next &nbsp;→</button></div>`;
     v.querySelectorAll('#withchips .ls-chip').forEach(c =>
       c.addEventListener('click', () => {
         v.querySelectorAll('#withchips .ls-chip').forEach(x => x.classList.remove('on'));
@@ -141,7 +146,7 @@ function createApp(mount, opts) {
   V.guide = () => {
     const v = el('div', 'ls-view');
     v.innerHTML = `
-      <button class="ls-back" data-go="identity">‹</button>
+      <button class="ls-back" data-go="childHome">‹</button>
       <div class="ls-h1" style="margin-top:22px">Who's making it <em>with you</em>?</div>
       <p class="ls-p" style="margin-bottom:10px">Everyone tells a story a little differently.</p>
       <div class="ls-guides">
@@ -165,10 +170,10 @@ function createApp(mount, opts) {
 
   V.chat = () => {
     const v = el('div', 'ls-view ls-chatview');
-    const g = structure.code === 'B' ? S.guide : L.GUIDES[0];
+    const g = S.guide;
     const avatar = g.id==='moo'?art.moo:(g.id==='og'?art.crew:art.pose[g.id==='artie'?'C':'B']);
     v.innerHTML = `
-      <button class="ls-back" data-go="${structure.code==='B'?'guide':(structure.code==='C'?'childHome':'identity')}">‹</button>
+      <button class="ls-back" data-go="guide">‹</button>
       <div class="ls-who" style="margin-top:22px">
         <img src="${avatar}" alt=""><span>${g.name}</span><small>● here with you</small>
       </div>
@@ -297,7 +302,7 @@ function createApp(mount, opts) {
       if (e.target.id === 'pprev' && S.page > 0) { S.page--; renderPage(v); }
       if (e.target.id === 'pnext') {
         if (S.page < L.PAGES.length - 1) { S.page++; renderPage(v); }
-        else go(structure.code === 'C' ? 'shelf' : 'delivered');
+        else go('delivered');
       }
     });
     return v;
@@ -359,7 +364,7 @@ function createApp(mount, opts) {
   }
 
   function render() {
-    applyStyle();
+    applyDirection();
     root.innerHTML = '';
 
     const frame = el('div', 'ls-frame');
@@ -377,9 +382,8 @@ function createApp(mount, opts) {
         : `<span class="ls-url">🔒 lilsass.com/create</span>`);
     screen.appendChild(bar);
 
-    const navItems = structure.code === 'C'
-      ? [['profiles','👨‍👩‍👧','Our rink'],['shelf','📚','Shelves'],['chat','💬','Create'],['grownup','⚙️','Grown-up']]
-      : [[structure.screens[0],'★','Home'],['book','📚','My Books'],['chat','💬','Sass'],['delivered','👤','Me']];
+    const navItems = [['profiles','👨‍👩‍👧','Our rink'],['childHome','📚','Shelf'],
+                      ['guide','💬','Create'],['grownup','⚙️','Grown-up']];
 
     if (device === 'desktop') {
       /* Genuine desktop app: thin icon rail + top bar + wide canvas.
@@ -396,7 +400,7 @@ function createApp(mount, opts) {
         rail.appendChild(t);
       });
       const rf = el('div', 'ls-railfoot');
-      rf.appendChild(el('div', 'ls-railav', structure.code === 'C' ? 'C' : (S.name[0] || 'A')));
+      rf.appendChild(el('div', 'ls-railav', 'C'));
       rail.appendChild(rf);
       shell.appendChild(rail);
 
@@ -409,9 +413,9 @@ function createApp(mount, opts) {
       };
       main.appendChild(el('div', 'ls-topbar',
         `<span class="ls-topttl">${TITLES[S.view] || 'Lil’ Sass'}</span>
-         <span class="ls-topcrumb">Lil’ Sass ${structure.code === 'C' ? '· ' + CHILDREN[S.child].name : ''}</span>
+         <span class="ls-topcrumb">Lil’ Sass · ${CHILDREN[S.child].name}</span>
          <span class="ls-topspacer">
-           <span class="ls-toppill">${structure.code === 'C' ? CHILDREN[S.child].books + ' adventures' : '3 adventures'}</span>
+           <span class="ls-toppill">${CHILDREN[S.child].books} adventures</span>
            <span class="ls-toppill">Story Club</span>
          </span>`));
 
@@ -471,13 +475,9 @@ function createApp(mount, opts) {
   render();
 
   return {
-    setStructure(code) {
-      structure = L.STRUCTURES[code] || structure;
-      S.view = structure.screens[0]; S.chatStep = 0; S.page = 0;
-      render();
-    },
-    setStyle(code) { style = L.STYLES[code] || style; render(); },
-    reset() { S.view = structure.screens[0]; S.chatStep = 0; S.page = 0; render(); },
+    setDirection(code) { dir = L.DIRECTIONS[code] || dir; render(); },
+    goTo(view) { if (V[view]) go(view); },
+    reset() { S.view = build.screens[0]; S.chatStep = 0; S.page = 0; S.child = 0; render(); },
     get state() { return S; }
   };
 }

@@ -15,11 +15,9 @@ const CFG = {
 /* Which options are public. Overridable via ?s=A,B&y=1,3 so Christie's
    "Voters see this" toggles can drive the shared link. */
 const qs = new URLSearchParams(location.search);
-const PUB_STRUCT = (qs.get('s') || 'A,B,C').split(',').filter(c => L.STRUCTURES[c]);
-const PUB_STYLE  = (qs.get('y') || '1,2,3').split(',').filter(c => L.STYLES[c]);
+const PUB_DIRS = (qs.get('d') || 'picture,deck,calm').split(',').filter(c => L.DIRECTIONS[c]);
 
-const vote = { structure:null, style:null, device:null, id:null };
-const apps = {};
+const vote = { direction:null, id:null };
 let device = 'mobile';
 
 function fingerprint() {
@@ -71,74 +69,35 @@ async function patchRow(table, filter, row) {
   return 'updated';
 }
 
-/* ---------- step 1: structures ---------- */
-function buildStructures() {
+/* ---------- pick a direction ---------- */
+function buildDirections() {
   const g = $('#structgrid'); g.innerHTML = '';
-  PUB_STRUCT.forEach(code => {
-    const s = L.STRUCTURES[code];
+  PUB_DIRS.forEach(code => {
+    const d = L.DIRECTIONS[code];
     const card = document.createElement('button');
-    card.className = 'vopt' + (vote.structure === code ? ' on' : '');
-    card.dataset.struct = code;
+    card.className = 'vopt' + (vote.direction === code ? ' on' : '');
+    card.dataset.dir = code;
     card.innerHTML = `
-      <h3>${s.name}</h3>
-      <div class="tag">${s.tagline}</div>
-      <p>${s.blurb}</p>
+      <div class="sw">${d.swatch.map(c => `<i style="background:${c}"></i>`).join('')}</div>
+      <h3>${d.name}</h3>
+      <div class="tag">${d.tagline}</div>
+      <p>${d.blurb}</p>
       <div class="stagebox" id="stage-${code}"></div>
-      <div class="pick"><i></i>${vote.structure === code ? 'This is my pick' : 'Pick this one'}</div>`;
+      <div class="pick"><i></i>${vote.direction === code ? 'This is my pick' : 'Pick this one'}</div>`;
     card.addEventListener('click', () => {
-      vote.structure = code;
+      vote.direction = code;
       g.querySelectorAll('.vopt').forEach(x => {
-        x.classList.toggle('on', x.dataset.struct === code);
+        x.classList.toggle('on', x.dataset.dir === code);
         x.querySelector('.pick').lastChild.textContent =
-          x.dataset.struct === code ? 'This is my pick' : 'Pick this one';
+          x.dataset.dir === code ? 'This is my pick' : 'Pick this one';
       });
       $('#n1').disabled = false;
     });
     g.appendChild(card);
   });
-  PUB_STRUCT.forEach(code => {
-    apps[code] = window.LILSASS_APP.createApp($('#stage-' + code), {
-      structure: code, style: vote.style || PUB_STYLE[0], device, art: ART
-    });
-    // let people actually play inside the frame
-    const box = $('#stage-' + code);
-    box.style.pointerEvents = 'auto';
-    box.addEventListener('click', e => e.stopPropagation());
-  });
-}
-
-/* ---------- step 2: styles ---------- */
-function buildStyles() {
-  const g = $('#stylegrid'); g.innerHTML = '';
-  PUB_STYLE.forEach(code => {
-    const s = L.STYLES[code];
-    const card = document.createElement('button');
-    card.className = 'vopt' + (vote.style === code ? ' on' : '');
-    card.dataset.style = code;
-    card.innerHTML = `
-      <div class="sw">${s.swatch.map(c => `<i style="background:${c}"></i>`).join('')}</div>
-      <h3>${s.name}</h3>
-      <div class="tag">${s.tagline}</div>
-      <p>${s.blurb}</p>
-      <div class="stagebox" id="sstage-${code}"></div>
-      <div class="pick"><i></i>${vote.style === code ? 'This is my pick' : 'Pick this one'}</div>`;
-    card.addEventListener('click', () => {
-      vote.style = code;
-      g.querySelectorAll('.vopt').forEach(x => {
-        x.classList.toggle('on', x.dataset.style === code);
-        x.querySelector('.pick').lastChild.textContent =
-          x.dataset.style === code ? 'This is my pick' : 'Pick this one';
-      });
-      $('#n2').disabled = false;
-    });
-    g.appendChild(card);
-  });
-  PUB_STYLE.forEach(code => {
-    window.LILSASS_APP.createApp($('#sstage-' + code), {
-      structure: vote.structure || PUB_STRUCT[0], style: code, device:'mobile', art: ART
-    });
-    const box = $('#sstage-' + code);
-    box.addEventListener('click', e => e.stopPropagation());
+  PUB_DIRS.forEach(code => {
+    window.LILSASS_APP.createApp($('#stage-' + code), { direction: code, device, art: ART });
+    $('#stage-' + code).addEventListener('click', e => e.stopPropagation());
   });
 }
 
@@ -149,25 +108,22 @@ function show(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-$('#n1').addEventListener('click', () => { buildStyles(); show(2); });
+/* submit on the single step */
 document.querySelectorAll('[data-back]').forEach(b =>
   b.addEventListener('click', () => show(+b.dataset.back)));
 
 document.querySelectorAll('#dev1 button').forEach(b =>
   b.addEventListener('click', () => {
     document.querySelectorAll('#dev1 button').forEach(x => x.classList.remove('on'));
-    b.classList.add('on'); device = b.dataset.dev; buildStructures();
+    b.classList.add('on'); device = b.dataset.dev; buildDirections();
   }));
 
 /* ---------- submit vote ---------- */
-$('#n2').addEventListener('click', async function () {
+$('#n1').addEventListener('click', async function () {
   this.disabled = true; this.textContent = 'Sending…';
   vote.id = uuid();
   const fp = fingerprint();
-  const payload = {
-    structure_code: vote.structure,
-    style_code: vote.style
-  };
+  const payload = { style_code: vote.direction };
   try {
     const r = await insertRow('preview_votes',
       Object.assign({ id: vote.id, preview_id: CFG.previewId, voter_fingerprint: fp }, payload));
@@ -239,5 +195,5 @@ $('#sharelink').addEventListener('click', function () {
 });
 
 /* boot */
-buildStructures();
+buildDirections();
 })();

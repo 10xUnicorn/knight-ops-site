@@ -173,6 +173,61 @@
 }
 .ls-root[data-atmos="sun"] .ls-cloud { opacity:.8; }
 
+/* =====================================================================
+   LAYOUT DIRECTIONS — genuinely different arrangements, not recolours
+   ===================================================================== */
+
+/* PICTURE BOOK — art dominates, few words, very large tap targets */
+[data-layout="picture"] .ls-art img { width:190px; }
+[data-layout="picture"] .ls-view { padding:14px 20px 0; }
+[data-layout="picture"] .ls-h1 { font-size:23px; }
+[data-layout="picture"] .ls-p { font-size:14px; line-height:1.55; }
+[data-layout="picture"] .ls-btn { padding:18px; font-size:16px; border-radius:22px; }
+[data-layout="picture"] .ls-kid { padding:16px 15px; }
+[data-layout="picture"] .ls-av { width:44px; height:44px; font-size:18px; }
+[data-layout="picture"] .ls-swatch { width:42px; height:42px; }
+[data-layout="picture"] .ls-guide img { width:66px; height:74px; }
+[data-layout="picture"] .ls-chip { padding:10px 16px; font-size:12.5px; }
+[data-layout="picture"] .ls-mini-book img { width:62px; height:76px; }
+
+/* ADVENTURE DECK — everything on cards, badges, progress, denser */
+[data-layout="deck"] .ls-view { padding:12px 14px 0; }
+[data-layout="deck"] .ls-art { background:var(--card); border-radius:var(--radius);
+  padding:10px; box-shadow:var(--shadow); margin-bottom:10px; }
+[data-layout="deck"] .ls-art img { width:132px; }
+[data-layout="deck"] .ls-h1 { font-size:19px; }
+[data-layout="deck"] .ls-p { font-size:12.5px; background:var(--card); border-radius:var(--radius);
+  padding:11px 13px; box-shadow:var(--shadow); }
+[data-layout="deck"] .ls-btn { border-radius:12px; }
+[data-layout="deck"] .ls-kid { border-left:4px solid var(--accent); }
+[data-layout="deck"] .ls-guide { border:2px solid var(--line); }
+[data-layout="deck"] .ls-guide.on { border-color:var(--accent); }
+/* badge strip only exists in this direction */
+[data-layout="deck"] .ls-badges { display:flex; gap:6px; margin:8px 0 4px; flex-wrap:wrap; }
+[data-layout="deck"] .ls-badge { font-size:10px; font-weight:900; padding:5px 10px; border-radius:999px;
+  background:var(--support-soft); color:var(--support); display:flex; align-items:center; gap:4px; }
+[data-layout="deck"] .ls-badge.locked { opacity:.42; }
+[data-layout="deck"] .ls-streak { display:flex; align-items:center; gap:7px; background:var(--card);
+  border-radius:var(--radius); padding:9px 12px; box-shadow:var(--shadow); margin-bottom:8px;
+  font-size:11.5px; font-weight:800; color:var(--ink); }
+[data-layout="deck"] .ls-streak b { color:var(--accent); font-size:15px; }
+:not([data-layout="deck"]) .ls-badges,
+:not([data-layout="deck"]) .ls-streak { display:none !important; }
+
+/* BEDTIME CALM — conversation leads, art recedes, low stimulation */
+[data-layout="calm"] .ls-view { padding:16px 22px 0; }
+[data-layout="calm"] .ls-art img { width:130px; opacity:.96; }
+[data-layout="calm"] .ls-h1 { font-size:20px; font-weight:800; letter-spacing:-.01em; }
+[data-layout="calm"] .ls-p { font-size:13.5px; line-height:1.68; }
+[data-layout="calm"] .ls-btn { box-shadow:none; border:1px solid rgba(255,255,255,.14); }
+[data-layout="calm"] .ls-chat { gap:11px; }
+[data-layout="calm"] .ls-bub { font-size:13.5px; line-height:1.6; padding:12px 15px; }
+[data-layout="calm"] .ls-kid { background:transparent; box-shadow:none;
+  border:1px solid var(--line); }
+[data-layout="calm"] .ls-guide { background:transparent; border:1px solid var(--line); box-shadow:none; }
+[data-layout="calm"] .ls-guide.on { background:var(--support-soft); }
+[data-layout="calm"] .ls-shelfrow { opacity:.85; }
+
 /* ---------- shared app UI ---------- */
 .ls-h1 { font-size:20px; font-weight:900; line-height:1.2; margin-bottom:5px; }
 .ls-desktop .ls-h1 { font-size:30px; }

@@ -1,117 +1,110 @@
 /* =====================================================================
-   Lil' Sass — Build Preview Engine
-   Drives 3 structures x 3 styles x {mobile, desktop} + 3 dashboards
-   from config. Shared by the private preview page and the public vote page.
+   Lil' Sass — Build Preview config
+   ONE build (adult account + child profiles + choose-your-guide).
+   Christie's only real choice is the DESIGN DIRECTION.
    ===================================================================== */
 (function (global) {
 'use strict';
 
 /* ---------------------------------------------------------------
-   STYLES — genuinely different moods, not recolours
+   THE BUILD — decided, not a menu.
    --------------------------------------------------------------- */
-const STYLES = {
-  '1': {
-    code: '1', name: 'Storybook Sky', tagline: 'Bright, open, hopeful',
-    blurb: 'Soft daylight blues, drifting clouds, generous rounded shapes. Closest to the books you already have on the shelf.',
-    bestFor: 'Feels like Lil’ Sass already does. The safest, most on-brand choice.',
-    swatch: ['#EAF4FE', '#E8442A', '#5B3FA8'],
-    vars: {
-      '--bg': 'linear-gradient(180deg,#F4FAFF 0%,#E4F1FD 46%,#EFF7FF 100%)',
-      '--screen': 'linear-gradient(180deg,#EAF6FF 0%,#D8ECFD 100%)',
-      '--ink': '#28304A', '--ink-soft': '#5A648A', '--card': '#FFFFFF',
-      '--accent': '#E8442A', '--accent-2': '#F26430', '--support': '#5B3FA8',
-      '--support-soft': '#EDE7FA', '--line': '#E5EDF8', '--chip': '#FFFFFF',
-      '--radius': '18px', '--radius-lg': '32px', '--bubble': '#FFFFFF',
-      '--shadow': '0 6px 18px rgba(40,48,74,.10)',
-      '--font': "'Nunito','Baloo 2','Segoe UI',system-ui,sans-serif",
-      '--tab': 'rgba(255,255,255,.94)', '--onaccent': '#FFFFFF'
-    },
-    atmosphere: 'clouds'
-  },
-  '2': {
-    code: '2', name: 'Venice Beach Rink', tagline: 'Sunset, motion, energy',
-    blurb: 'Boardwalk sunset palette, badge and sticker motifs, a little skate-culture movement in the layout.',
-    bestFor: 'Reads a bit older and more energetic. Strongest for 8–12s and for sharing.',
-    swatch: ['#FFF3E8', '#FF6B35', '#00A6A6'],
-    vars: {
-      '--bg': 'linear-gradient(180deg,#FFF6EC 0%,#FFE8D6 50%,#FFF1E4 100%)',
-      '--screen': 'linear-gradient(180deg,#FFF0E0 0%,#FFD9BC 100%)',
-      '--ink': '#3A2318', '--ink-soft': '#8A6A55', '--card': '#FFFDFB',
-      '--accent': '#FF6B35', '--accent-2': '#FF9142', '--support': '#00A6A6',
-      '--support-soft': '#DDF5F4', '--line': '#F4DFCC', '--chip': '#FFFDFB',
-      '--radius': '14px', '--radius-lg': '26px', '--bubble': '#FFFDFB',
-      '--shadow': '0 6px 18px rgba(120,70,40,.14)',
-      '--font': "'Nunito','Baloo 2','Segoe UI',system-ui,sans-serif",
-      '--tab': 'rgba(255,253,251,.96)', '--onaccent': '#FFFFFF'
-    },
-    atmosphere: 'sun'
-  },
-  '3': {
-    code: '3', name: 'Cozy Bedtime', tagline: 'Calm, safe, close',
-    blurb: 'Deep dusk indigo and plum with warm lamplight, soft stars and cream cards. Quiet rather than busy.',
-    bestFor: 'The gentlest fit for hard feelings, and the most natural for reading with a grown-up at night.',
-    swatch: ['#1B1734', '#FFB55C', '#8B6BD9'],
-    vars: {
-      '--bg': 'linear-gradient(180deg,#191531 0%,#241D45 55%,#1B1734 100%)',
-      '--screen': 'linear-gradient(180deg,#2A2250 0%,#1E1940 100%)',
-      '--ink': '#F4EFFF', '--ink-soft': '#B6ABD6', '--card': '#332A5E',
-      '--accent': '#FFB55C', '--accent-2': '#FFC97E', '--support': '#8B6BD9',
-      '--support-soft': '#3D3370', '--line': '#443A78', '--chip': '#3D3370',
-      '--radius': '20px', '--radius-lg': '34px', '--bubble': '#3D3370',
-      '--shadow': '0 8px 24px rgba(0,0,0,.35)',
-      '--font': "'Nunito','Baloo 2','Segoe UI',system-ui,sans-serif",
-      '--tab': 'rgba(42,34,80,.96)', '--onaccent': '#2A2250'
-    },
-    atmosphere: 'stars'
-  }
+const BUILD = {
+  name: 'The Lil’ Sass Platform',
+  summary: 'A grown-up holds the account. Each child has their own profile, own shelf and own cape. ' +
+           'Every child picks who they create with — Lil’ Sass, Lil’ Artie, Mrs. Moo or Mr. OG — and ' +
+           'Sass always makes the introduction to Mrs. Moo, so she stays the through-line in every story.',
+  why: [
+    ['Reaches every child, not just young girls',
+     'Four guides with their own voices means boys, older kids and quieter kids all have someone who feels like theirs.'],
+    ['Families and classrooms work from day one',
+     'One grown-up with several children is the same shape a teacher needs. It unlocks family plans and the school tier without a rebuild.'],
+    ['It is the only version that is legally correct anyway',
+     'An adult-held account with child profiles underneath is required for kids-privacy rules and Apple’s Kids Category. Building it any other way means redoing it later.']
+  ],
+  screens: ['grownup','profiles','childHome','guide','chat','mooIntro','cape','generating','book','delivered']
 };
 
 /* ---------------------------------------------------------------
-   STRUCTURES
+   DESIGN DIRECTIONS — layout + palette + type together.
+   One choice, three complete directions.
    --------------------------------------------------------------- */
-const STRUCTURES = {
-  A: {
-    code: 'A', name: 'The Guided Journey', tagline: 'One path, start to finish',
-    blurb: 'Lil’ Sass walks every child down the same warm path: arrive at the rink, share who you are, talk about the feeling, meet Mrs. Moo, choose your cape, watch your book get written, keep it forever.',
-    bestFor: 'Fastest to launch and the least to explain. Best for the youngest readers with a grown-up alongside.',
-    tradeoff: 'Every child gets the same experience. Less room for older kids or boys to feel it was made for them.',
-    phase: 'Ships in Phase 1',
-    screens: ['welcome','identity','chat','mooIntro','cape','generating','book','delivered']
+const DIRECTIONS = {
+  picture: {
+    code:'picture', name:'Picture Book', tagline:'The art does the talking',
+    blurb:'Illustration fills the screen, words stay few, and every button is big enough for small hands. ' +
+          'The closest thing to holding one of your books.',
+    bestFor:'Ages 5–8, pre-readers, and a grown-up reading alongside.',
+    layoutNote:'Full-bleed art · very large tap targets · minimal text',
+    swatch:['#EAF4FE','#E8442A','#5B3FA8'],
+    atmosphere:'clouds',
+    vars:{
+      '--bg':'linear-gradient(180deg,#F4FAFF 0%,#E4F1FD 46%,#EFF7FF 100%)',
+      '--screen':'linear-gradient(180deg,#EAF6FF 0%,#D8ECFD 100%)',
+      '--ink':'#28304A','--ink-soft':'#5A648A','--card':'#FFFFFF',
+      '--accent':'#E8442A','--accent-2':'#F26430','--support':'#5B3FA8',
+      '--support-soft':'#EDE7FA','--line':'#E5EDF8','--chip':'#FFFFFF',
+      '--radius':'22px','--radius-lg':'34px','--bubble':'#FFFFFF',
+      '--shadow':'0 6px 18px rgba(40,48,74,.10)',
+      '--tab':'rgba(255,255,255,.94)','--onaccent':'#FFFFFF',
+      '--artscale':'1.22','--btnpad':'17px','--basefont':'14px','--h1':'22px'
+    }
   },
-  B: {
-    code: 'B', name: 'Choose Your Guide', tagline: 'Every child picks their buddy',
-    blurb: 'The child chooses who co-creates with them — Lil’ Sass, Lil’ Artie, Mrs. Moo or Mr. OG — and each guide has their own voice. Sass still makes the introduction to Mrs. Moo, so she stays the through-line in every story.',
-    bestFor: 'Widens the audience well beyond young girls. This is the structure you asked for on our call.',
-    tradeoff: 'A little more to build and four voices to write, but it is the same engine underneath.',
-    phase: 'Ships in Phase 1',
-    screens: ['welcome','identity','guide','chat','mooIntro','cape','generating','book','delivered']
+  deck: {
+    code:'deck', name:'Adventure Deck', tagline:'Collect, unlock, come back',
+    blurb:'Everything sits on cards you can flick through, with badges for the emotions you have befriended ' +
+          'and a shelf that visibly fills up. More energy, more reason to return.',
+    bestFor:'Ages 8–12 using it on their own, and the strongest for sharing.',
+    layoutNote:'Card decks · badges and streaks · sunset palette',
+    swatch:['#FFF3E8','#FF6B35','#00A6A6'],
+    atmosphere:'sun',
+    vars:{
+      '--bg':'linear-gradient(180deg,#FFF6EC 0%,#FFE8D6 50%,#FFF1E4 100%)',
+      '--screen':'linear-gradient(180deg,#FFF0E0 0%,#FFD9BC 100%)',
+      '--ink':'#3A2318','--ink-soft':'#8A6A55','--card':'#FFFDFB',
+      '--accent':'#FF6B35','--accent-2':'#FF9142','--support':'#00A6A6',
+      '--support-soft':'#DDF5F4','--line':'#F4DFCC','--chip':'#FFFDFB',
+      '--radius':'14px','--radius-lg':'22px','--bubble':'#FFFDFB',
+      '--shadow':'0 6px 18px rgba(120,70,40,.14)',
+      '--tab':'rgba(255,253,251,.96)','--onaccent':'#FFFFFF',
+      '--artscale':'0.92','--btnpad':'13px','--basefont':'13px','--h1':'19px'
+    }
   },
-  C: {
-    code: 'C', name: 'The Family Rink', tagline: 'One grown-up, many children',
-    blurb: 'A parent, teacher or practitioner holds the account and each child has their own profile, shelf, cape and emotional history. Grown-ups can start a session together and revisit any child’s journey.',
-    bestFor: 'Unlocks schools and practitioners, and supports the parent-and-child-together moment you described.',
-    tradeoff: 'The biggest build of the three. Best introduced once the core journey is proven.',
-    phase: 'Phase 1 core + Phase 2 classrooms',
-    screens: ['grownup','profiles','childHome','chat','mooIntro','cape','generating','book','shelf']
+  calm: {
+    code:'calm', name:'Bedtime Calm', tagline:'Quiet, close, unhurried',
+    blurb:'The conversation leads and the room dims around it. Warm lamplight, soft stars, nothing competing ' +
+          'for attention while a child says something hard out loud.',
+    bestFor:'The bedtime ritual, heavier emotions, and reading together at the end of the day.',
+    layoutNote:'Conversation-forward · dusk palette · low stimulation',
+    swatch:['#1B1734','#FFB55C','#8B6BD9'],
+    atmosphere:'stars',
+    vars:{
+      '--bg':'linear-gradient(180deg,#191531 0%,#241D45 55%,#1B1734 100%)',
+      '--screen':'linear-gradient(180deg,#2A2250 0%,#1E1940 100%)',
+      '--ink':'#F4EFFF','--ink-soft':'#B6ABD6','--card':'#332A5E',
+      '--accent':'#FFB55C','--accent-2':'#FFC97E','--support':'#8B6BD9',
+      '--support-soft':'#3D3370','--line':'#443A78','--chip':'#3D3370',
+      '--radius':'20px','--radius-lg':'30px','--bubble':'#3D3370',
+      '--shadow':'0 8px 24px rgba(0,0,0,.35)',
+      '--tab':'rgba(42,34,80,.96)','--onaccent':'#2A2250',
+      '--artscale':'1.0','--btnpad':'15px','--basefont':'13.5px','--h1':'20px'
+    }
   }
 };
 
 const GUIDES = [
-  { id:'sass',  name:'Lil’ Sass',  role:'The brave one',   line:'Big feelings deserve big adventures.',        tone:'playful, bold' },
-  { id:'artie', name:'Lil’ Artie', role:'The quiet one',   line:'Sometimes it helps to say it out loud.',      tone:'gentle, thoughtful' },
-  { id:'moo',   name:'Mrs. Moo',   role:'The healer',      line:'It’s your birthright to feel.',               tone:'warm, grandmotherly' },
-  { id:'og',    name:'Mr. OG',     role:'The mentor',      line:'You don’t get rid of it. You give it somewhere to go.', tone:'wise, steady' }
+  { id:'sass',  name:'Lil’ Sass',  role:'The brave one', line:'Big feelings deserve big adventures.' },
+  { id:'artie', name:'Lil’ Artie', role:'The quiet one', line:'Sometimes it helps to say it out loud.' },
+  { id:'moo',   name:'Mrs. Moo',   role:'The healer',    line:'It’s your birthright to feel.' },
+  { id:'og',    name:'Mr. OG',     role:'The mentor',    line:'You don’t get rid of it. You give it somewhere to go.' }
 ];
 
 const CAPES = [
-  { k:'red',    hex:'#E8442A', label:'Red' },
-  { k:'purple', hex:'#5B3FA8', label:'Purple' },
-  { k:'teal',   hex:'#0FA3A3', label:'Teal' },
-  { k:'gold',   hex:'#F5B301', label:'Gold' },
-  { k:'pink',   hex:'#E64A8D', label:'Pink' }
+  { k:'red', hex:'#E8442A', label:'Red' }, { k:'purple', hex:'#5B3FA8', label:'Purple' },
+  { k:'teal', hex:'#0FA3A3', label:'Teal' }, { k:'gold', hex:'#F5B301', label:'Gold' },
+  { k:'pink', hex:'#E64A8D', label:'Pink' }
 ];
 
-/* Conversation script — shared, guide name swapped in */
 const SCRIPT = [
   { from:'guide', t:'{NAME}! Okay — what feeling has been the loudest lately?', chips:['Angry','Sad','Lonely'] },
   { from:'me',    t:'Kind of angry. My best friend moved away.' },
@@ -132,108 +125,59 @@ const PAGES = [
 ];
 
 /* ---------------------------------------------------------------
-   DASHBOARDS (private to Christie)
+   ONE dashboard, blended. Colour follows the chosen direction.
    --------------------------------------------------------------- */
-const DASHBOARDS = {
-  A: {
-    code:'A', name:'Creator Command', tagline:'Simple and clear',
-    blurb:'Everything on one screen, nothing to learn. Pairs with The Guided Journey.',
-    nav:['Overview','Readers','Books','Settings'],
-    kpis:[
-      {n:'312',   l:'Total users',      d:'▲ 48 this month'},
-      {n:'$1,247',l:'Monthly recurring',d:'▲ $221 this month'},
-      {n:'96',    l:'Story Club members'},
-      {n:'486',   l:'Books created'},
-      {n:'41',    l:'Copies ordered'},
-      {n:'Anger', l:'Top emotion'}
-    ],
-    panels:['recent','flags','affiliate']
-  },
-  B: {
-    code:'B', name:'Story Intelligence', tagline:'Insight, not just numbers',
-    blurb:'Shows which guide actually drives retention, how emotions trend, and what each book costs you. Pairs with Choose Your Guide.',
-    nav:['Overview','Guides','Emotions','Readers','Settings'],
-    kpis:[
-      {n:'312',   l:'Total users',      d:'▲ 48 this month'},
-      {n:'$1,247',l:'Monthly recurring',d:'▲ $221 this month'},
-      {n:'$0.92', l:'AI cost / book',   d:'▼ $0.11 vs last mo'},
-      {n:'93%',   l:'Gross margin'},
-      {n:'96',    l:'Story Club members'},
-      {n:'5.1%',  l:'Monthly churn'}
-    ],
-    panels:['guides','emotions','signals','flags']
-  },
-  C: {
-    code:'C', name:'Community & Classrooms', tagline:'Built for seats and schools',
-    blurb:'Licences, rosters, educators and families. Runs the school and practitioner tier. Pairs with The Family Rink.',
-    nav:['Overview','Classrooms','Families','Seats','Settings'],
-    kpis:[
-      {n:'312',  l:'Total users',   d:'▲ 48 this month'},
-      {n:'$3,890',l:'Monthly recurring',d:'▲ $612 this month'},
-      {n:'14',   l:'Classrooms',    d:'▲ 3 this month'},
-      {n:'418',  l:'Seats in use'},
-      {n:'2',    l:'Renewals due',  d:'next 30 days'},
-      {n:'Grief',l:'Top emotion'}
-    ],
-    panels:['classrooms','seats','flags']
-  }
-};
-
-/* ---------------------------------------------------------------
-   PRICING — recommendation, revenue-maximising
-   --------------------------------------------------------------- */
-const PRICING = {
-  recommended: 'ladder',
-  costPerBook: 0.92,
-  models: [
-    {
-      id:'ladder', name:'The Story Club Ladder', badge:'Recommended',
-      pitch:'First book free, then three tiers. Recurring revenue, natural ascension, and it can ship in Phase 1 with nothing but Stripe.',
-      why:'Highest lifetime value of the four. The free book creates emotional investment before any ask, and the tiers let a family self-select instead of being sold.',
-      tiers:[
-        {name:'First Adventure', price:0,     unit:'free',  detail:'One complete personalised book. No card.', margin:'−$0.92 (acquisition cost)'},
-        {name:'Story Club',      price:12.99, unit:'/mo',   detail:'2 new adventures a month + full library', margin:'$10.47 net after AI + Stripe'},
-        {name:'Story Club Plus', price:17.99, unit:'/mo',   detail:'5 adventures + share a story with a friend', margin:'$12.87 net'},
-        {name:'Unlimited',       price:24.99, unit:'/mo',   detail:'Unlimited adventures + gift books', margin:'$16.66 net at 8 books'}
-      ],
-      note:'Annual at $99 (Story Club) captures the gift-giver and cuts churn.'
-    },
-    {
-      id:'packs', name:'Adventure Packs', badge:null,
-      pitch:'No subscription. Buy books in bundles: 1 for $9.99, 3 for $24.99, 10 for $69.99.',
-      why:'Lower resistance for people allergic to subscriptions, and grandparents buy packs as gifts. But revenue is lumpy and lifetime value is roughly a third of the ladder.',
-      tiers:[
-        {name:'Single book',  price:9.99,  unit:'once', detail:'One personalised adventure', margin:'$8.78 net'},
-        {name:'3-pack',       price:24.99, unit:'once', detail:'Three adventures',           margin:'$21.48 net'},
-        {name:'10-pack',      price:69.99, unit:'once', detail:'Ten adventures, best value', margin:'$58.55 net'}
-      ],
-      note:'Best used as a fallback offer at cancellation, not as the primary model.'
-    },
-    {
-      id:'hybrid', name:'Free Book, Then Choose', badge:'Highest conversion',
-      pitch:'Free first book, then the family picks: subscribe, or buy a pack. Both offers on one screen.',
-      why:'Converts the widest slice of people because nobody is forced into a commitment. Slightly more to build and it softens subscription take-up, so total revenue lands just under the pure ladder.',
-      tiers:[
-        {name:'First Adventure', price:0,     unit:'free', detail:'One complete book, no card', margin:'−$0.92'},
-        {name:'Story Club',      price:12.99, unit:'/mo',  detail:'Recurring, best value',      margin:'$10.47 net'},
-        {name:'Or a 3-pack',     price:24.99, unit:'once', detail:'No commitment',              margin:'$21.48 net'}
-      ],
-      note:'Recommended as a month-3 test against the pure ladder, not at launch.'
-    },
-    {
-      id:'seats', name:'Classrooms & Practitioners', badge:'Highest per-relationship',
-      pitch:'$349/yr per classroom (up to 30 children) and $29/mo for therapists and counsellors.',
-      why:'Most revenue per relationship and the lowest support load. Needs Structure C and a small admin layer, so it is a Phase 2 unlock — but it is the tier that turns this into an institution.',
-      tiers:[
-        {name:'Classroom',    price:349, unit:'/yr',  detail:'Up to 30 children, teacher dashboard', margin:'$310 net'},
-        {name:'Practitioner', price:29,  unit:'/mo',  detail:'Therapists, counsellors, coaches',     margin:'$24 net'},
-        {name:'School',       price:1490,unit:'/yr',  detail:'Up to 6 classrooms',                   margin:'$1,340 net'}
-      ],
-      note:'Do not price this publicly at launch. Sell the first five by conversation, then publish.'
-    }
+const DASHBOARD = {
+  name: 'Your Creator Dashboard',
+  blurb: 'Everything that matters on one screen, and only five things in the sidebar so it never gets heavy.',
+  nav: ['Overview','Children','Adventures','Classrooms','Settings'],
+  kpis: [
+    { n:'312',   l:'Children creating', d:'▲ 48 this month' },
+    { n:'$1,247',l:'Monthly recurring', d:'▲ $221 this month' },
+    { n:'96',    l:'Story Club families' },
+    { n:'486',   l:'Books created' },
+    { n:'14',    l:'Classrooms',        d:'▲ 3 this month' },
+    { n:'$0.92', l:'AI cost per book',  d:'▼ $0.11' }
   ]
 };
 
-global.LILSASS = { STYLES, STRUCTURES, GUIDES, CAPES, SCRIPT, PAGES, DASHBOARDS, PRICING };
+/* ---------------------------------------------------------------
+   PRICING — rebuilt for the family + classroom build
+   --------------------------------------------------------------- */
+const PRICING = {
+  headline: 'First book free. Families subscribe. Classrooms buy seats.',
+  reasoning: 'Because a grown-up account can hold several children, the same build earns three ways: a family ' +
+             'plan worth more than a single-child plan, printed keepsakes, and classroom seats. That third one ' +
+             'is the highest revenue per relationship and the lowest support load.',
+  costPerBook: 0.92,
+  tiers: [
+    { name:'First Adventure', price:'Free', unit:'', detail:'One complete personalised book. No card asked for.',
+      margin:'Costs you ~$0.92 — this is the marketing', hero:true },
+    { name:'Story Club', price:'$12.99', unit:'/mo', detail:'One child · 2 adventures a month · full library',
+      margin:'$10.47 net' },
+    { name:'Family Plan', price:'$19.99', unit:'/mo', detail:'Up to 4 children · 2 adventures each · shared shelf',
+      margin:'$15.28 net', hero:true },
+    { name:'Unlimited Family', price:'$29.99', unit:'/mo', detail:'Unlimited adventures · gift a story to a friend',
+      margin:'$19.86 net at 10 books' },
+    { name:'Printed keepsake', price:'$34.99', unit:'each', detail:'Hardcover of their own book, shipped',
+      margin:'~$18 net · zero inventory' },
+    { name:'Classroom', price:'$349', unit:'/yr', detail:'Up to 30 children · teacher view · bulk invites',
+      margin:'$310 net', hero:true },
+    { name:'Practitioner', price:'$29', unit:'/mo', detail:'Therapists, counsellors, play therapists',
+      margin:'$24 net' }
+  ],
+  affiliate: {
+    rate: '30% for 12 months, then 10% for as long as they stay',
+    why: 'Market standard for a consumer app is 20–30% for the first year, and the few programs that pay ' +
+         'lifetime drop to 10–20%. This is generous enough to attract real partners, keeps rewarding them ' +
+         'for retention, and stops permanently giving away a third of your best customers. Printed books excluded.'
+  },
+  notes: [
+    'The Family Plan is the one to push. It earns 54% more than a single-child plan and costs barely more to serve.',
+    'Do not publish classroom pricing at launch. Sell the first five by conversation, then put it on the site.',
+    'Annual options ($129 family, $99 single) capture the gift-giver and cut churn.'
+  ]
+};
 
+global.LILSASS = { BUILD, DIRECTIONS, GUIDES, CAPES, SCRIPT, PAGES, DASHBOARD, PRICING };
 })(window);
