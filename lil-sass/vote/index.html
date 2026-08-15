@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Help shape the Lil' Sass app</title>
 <meta name="description" content="Christie Mann is building an app where every child becomes the hero of their own story. Tell her which version you like best.">
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151640">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151710">
 <style>
 :root{
   --page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;
@@ -87,6 +87,12 @@ h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .promise b{color:#1F7A4D}
 .err{color:var(--brand);font-size:13px;font-weight:800;margin-top:10px;display:none}
 
+.donein{text-align:center;padding:8px 0 4px}
+.donein .big{font-size:46px;margin-bottom:8px}
+.donein h3{font-size:22px;margin-bottom:8px}
+.donein p{font-size:15px;line-height:1.6;color:var(--soft);max-width:50ch;margin:0 auto 8px}
+.donein .sharep{font-size:13.5px;margin-top:14px}
+.donein #sharelink{color:var(--plum);cursor:pointer;text-decoration:underline}
 .done{text-align:center;padding:40px 20px}
 .done .big{font-size:52px;margin-bottom:12px}
 .done h2{margin-bottom:10px}
@@ -123,8 +129,6 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
     <div class="byline">Takes about two minutes · <b>No sign-up needed to vote</b></div>
   </div>
 
-  <div class="progress"><i class="on"></i><i></i></div>
-
   <!-- STEP 1: structure -->
   <div class="card" id="s1">
     <h2>Which one feels most like Lil' Sass?</h2>
@@ -153,48 +157,48 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
         <button class="btn" id="fbsend">Submit feedback →</button>
       </div>
     </div>
-  </div>
 
-  <!-- STEP 4: waitlist -->
-  <div class="card hide" id="s3">
-    <h2>Thank you — your vote is in 🎉</h2>
-    <p class="sub">That's genuinely helpful. One last optional thing.</p>
-    <div class="wl">
-      <label class="wlcheck">
-        <input type="checkbox" id="wlopt">
-        <span>Keep me posted about the Lil’ Sass app</span>
-      </label>
-      <div class="wlfields hide" id="wlfields">
-        <input type="text" id="wlname" placeholder="Your first name" autocomplete="given-name">
-        <input type="email" id="wlemail" placeholder="you@email.com" autocomplete="email">
+    <div class="feedback hide" id="wlblock">
+      <div class="fbdone" id="fbthanks">✓ Got it. Thank you.</div>
+      <h3>Want to know when it's ready?</h3>
+      <div class="wl">
+        <label class="wlcheck">
+          <input type="checkbox" id="wlopt">
+          <span>Keep me posted about the Lil’ Sass app</span>
+        </label>
+        <div class="wlfields hide" id="wlfields">
+          <input type="text" id="wlname" placeholder="Your first name" autocomplete="given-name">
+          <input type="email" id="wlemail" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="promise">
+          <b>Our promise:</b> we'll only ever email you about updates to this app. Nothing else, ever.
+          No newsletters, no other products, no passing your details to anyone.
+        </div>
+        <div class="err" id="wlerr"></div>
       </div>
-      <div class="promise">
-        <b>Our promise:</b> we'll only ever email you about updates to this app. Nothing else, ever.
-        No newsletters, no other products, no passing your details to anyone.
+      <div class="nav">
+        <button class="btn ghost" id="skip">No thanks, I'm done</button>
+        <button class="btn" id="n4">Join the list →</button>
       </div>
-      <div class="err" id="wlerr"></div>
     </div>
-    <div class="nav">
-      <button class="btn ghost" id="skip">No thanks, I'm done</button>
-      <button class="btn" id="n4">Join the list →</button>
-    </div>
-  </div>
 
-  <!-- STEP 5: done -->
-  <div class="card hide done" id="s4">
-    <div class="big">💛</div>
-    <h2>You're all set</h2>
-    <p id="donemsg">Thank you for helping shape this. Christie reads every single response.</p>
-    <p style="font-size:13.5px;margin-top:14px">Know someone with kids who'd have an opinion?<br>
-      <b id="sharelink" style="color:var(--plum);cursor:pointer;text-decoration:underline">Copy the link to share</b></p>
+    <div class="feedback hide" id="doneblock">
+      <div class="donein">
+        <div class="big">💛</div>
+        <h3 id="donehead">You're all set</h3>
+        <p id="donemsg">Thank you for helping shape this. Christie reads every single response.</p>
+        <p class="sharep">Know someone with kids who'd have an opinion?<br>
+          <b id="sharelink">Copy the link to share</b></p>
+      </div>
+    </div>
   </div>
 
   <footer>Built by Knight Ops for The Adventures of Lil’ Sass<br>
     Your answers are only used to shape this app.</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608151640"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608151640"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608151640"></script>
-<script src="/lil-sass/lilsass-vote.js?v=202608151640"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608151710"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608151710"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608151710"></script>
+<script src="/lil-sass/lilsass-vote.js?v=202608151710"></script>
 </body></html>

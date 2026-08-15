@@ -127,16 +127,12 @@ function renderDesktop(code) {
     }));
 }
 
-/* ---------- navigation ---------- */
-function show(n) {
-  [1,2,3,4,5].forEach(i => { const e = $('#s' + i); if (e) e.classList.toggle('hide', i !== n); });
-  document.querySelectorAll('.progress i').forEach((d, i) => d.classList.toggle('on', i < Math.min(n,3)));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+/* ---------- reveal, don't navigate ---------- */
+function reveal(id) {
+  const e = $(id); if (!e) return;
+  e.classList.remove('hide');
+  e.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-
-/* submit on the single step */
-document.querySelectorAll('[data-back]').forEach(b =>
-  b.addEventListener('click', () => show(+b.dataset.back)));
 
 /* ---------- submit vote ---------- */
 /* The vote is committed on its own. Feedback is a second, optional step that
@@ -161,10 +157,8 @@ $('#n1').addEventListener('click', async function () {
     vote.id = null;
   }
   this.textContent = '✓ Vote sent';
-  const fb = $('#fbblock');
-  fb.classList.remove('hide');
-  fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(() => $('#fbText').focus({ preventScroll: true }), 400);
+  reveal('#fbblock');
+  setTimeout(() => $('#fbText').focus({ preventScroll: true }), 450);
 });
 
 async function sendFeedback(text) {
@@ -180,10 +174,18 @@ $('#fbsend').addEventListener('click', async function () {
   const text = $('#fbText').value.trim();
   this.disabled = true; this.textContent = 'Sending…';
   await sendFeedback(text);
-  show(3);
+  this.textContent = '✓ Sent';
+  $('#fbthanks').textContent = text ? '✓ Got it. Thank you.' : '✓ Your vote is counted.';
+  $('#fbskip').disabled = true;
+  $('#fbText').readOnly = true;
+  reveal('#wlblock');
 });
 
-$('#fbskip').addEventListener('click', () => show(3));
+$('#fbskip').addEventListener('click', function () {
+  this.disabled = true; $('#fbsend').disabled = true;
+  $('#fbthanks').textContent = '✓ Your vote is counted.';
+  reveal('#wlblock');
+});
 
 /* ---------- waitlist ---------- */
 $('#wlopt').addEventListener('change', function () {
@@ -191,9 +193,10 @@ $('#wlopt').addEventListener('change', function () {
   if (this.checked) setTimeout(() => $('#wlname').focus(), 60);
 });
 
-$('#skip').addEventListener('click', () => {
+$('#skip').addEventListener('click', function () {
+  this.disabled = true; $('#n4').disabled = true;
   $('#donemsg').textContent = 'Thank you for helping shape this. Christie reads every single response.';
-  show(4);
+  reveal('#doneblock');
 });
 
 $('#n4').addEventListener('click', async function () {
@@ -225,7 +228,9 @@ $('#n4').addEventListener('click', async function () {
     }
     $('#donemsg').innerHTML = 'You’re on the list, ' + name.replace(/[<>&]/g, '') +
       '. We’ll email you when there’s real news about the app — and nothing else.';
-    show(4);
+    $('#skip').disabled = true;
+    this.textContent = '✓ You’re on the list';
+    reveal('#doneblock');
   } catch (e) {
     err.textContent = 'Something went wrong saving that. Your vote was still counted.';
     err.style.display = 'block';
