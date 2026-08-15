@@ -171,6 +171,7 @@ function renderDash() {
     <div class="dashnote">One dashboard, and it wears whichever direction you pick above. Five things in the
     sidebar, everything else lives inside them, so it never gets heavy.</div>`;
 
+  window.LILSASS_APP.fitBox($('#dashstage'), '.dash', 900);
   $('#dashstage').querySelectorAll('.dashnav button').forEach(b =>
     b.addEventListener('click', () => {
       $('#dashstage').querySelectorAll('.dashnav button').forEach(x => x.classList.remove('on'));

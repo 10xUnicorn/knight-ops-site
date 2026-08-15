@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Lil' Sass — Choose the Look</title>
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608152140">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608152230">
 <style>
 :root{--page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;--brand:#E8442A;
   --plum:#5B3FA8;--plum-deep:#3F2A78;--ok:#2E9E68;--card:#fff;--shadow:0 10px 28px rgba(27,33,56,.08)}
@@ -94,6 +94,7 @@ h2{font-size:26px;letter-spacing:-.01em}
 .durl{color:var(--d-soft,#5A648A);font-size:12px;margin-left:8px;background:var(--d-chip,#F1F6FD);
   padding:4px 14px;border-radius:999px;font-weight:700}
 .dashbody{display:flex;min-height:460px}
+.dash.ls-scaled{transform-origin:top left}
 .dashnav{width:186px;background:var(--d-card,#fff);padding:16px 10px;
   border-right:1px solid var(--d-line,#E5EDF8);flex:0 0 auto}
 .dashbrand{display:flex;align-items:center;gap:9px;padding:0 6px 13px;margin-bottom:10px;
@@ -115,7 +116,7 @@ h2{font-size:26px;letter-spacing:-.01em}
   color:var(--d-soft,#9AA5C4);margin-top:4px}
 .kpi .d{font-size:10px;font-weight:900;color:#2E9E68;margin-top:3px}
 .panelrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-@media(max-width:760px){.panelrow{grid-template-columns:1fr}}
+
 .panel{background:var(--d-card,#fff);border-radius:15px;padding:15px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
 .panel h5{color:var(--d-ink,#28304A);font-size:13px;margin-bottom:9px}
 .prow{display:flex;align-items:center;gap:10px;padding:8px 0;
@@ -263,7 +264,7 @@ footer .ko span{color:var(--brand)}
   <section>
     <div class="sechead"><h2>Your dashboard</h2></div>
     <p class="sub">One dashboard that follows whichever direction you choose.</p>
-    <div id="dashstage"></div>
+    <div id="dashstage" style="display:block;overflow:hidden;min-height:120px"></div>
   </section>
 
   <section>
@@ -308,8 +309,8 @@ footer .ko span{color:var(--brand)}
     Knight Ops · knightops.biz<br>Create Your Impact on Autopilot</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608152140"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608152140"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608152140"></script>
-<script src="/lil-sass/lilsass-preview.js?v=202608152140"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608152230"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608152230"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608152230"></script>
+<script src="/lil-sass/lilsass-preview.js?v=202608152230"></script>
 </body></html>

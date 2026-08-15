@@ -497,14 +497,17 @@ function createApp(mount, opts) {
    height changes (images loading, screen swaps, rotation) or the preview collapses.
    NB: every goTo rebuilds the frame, so nothing here may capture a frame reference —
    a stale one leaves the live frame unsized and the whole preview disappears. */
-function fitDesktop(host) {
+function fitDesktop(host) { return fitBox(host, '.ls-desktop', 1000); }
+
+function fitBox(host, sel, DESIGN) {
   if (!host) return;
-  const DESIGN = 1000;
 
   const apply = () => {
-    const frame = host.querySelector('.ls-desktop');   // always the CURRENT frame
+    const frame = host.querySelector(sel);            // always the CURRENT frame
     if (!frame) return false;
     frame.classList.add('ls-scaled');
+    frame.style.width = DESIGN + 'px';
+    frame.style.maxWidth = 'none';
     const avail = host.clientWidth || (host.parentNode && host.parentNode.clientWidth) || 0;
     if (avail < 40) return false;
     const scale = Math.min(1, avail / DESIGN);
@@ -519,7 +522,7 @@ function fitDesktop(host) {
   requestAnimationFrame(apply);
   [60, 200, 500, 1000].forEach(ms => setTimeout(apply, ms));
 
-  const frame = host.querySelector('.ls-desktop');
+  const frame = host.querySelector(sel);
   if (host.__fitRO) host.__fitRO.disconnect();
   if (window.ResizeObserver && frame) {
     host.__fitRO = new ResizeObserver(() => apply());
@@ -545,5 +548,5 @@ function fitDesktop(host) {
   }
 }
 
-global.LILSASS_APP = { createApp, fitDesktop };
+global.LILSASS_APP = { createApp, fitDesktop, fitBox };
 })(window);
