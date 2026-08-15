@@ -44,6 +44,18 @@ const HEAD = {
   'Prefer': 'return=minimal'
 };
 
+async function rpc(fn, args) {
+  const res = await fetch(CFG.url + '/rest/v1/rpc/' + fn, {
+    method: 'POST', headers: HEAD, body: JSON.stringify(args)
+  });
+  if (!res.ok) {
+    let msg = 'HTTP ' + res.status;
+    try { const j = JSON.parse(await res.text()); msg = j.message || j.hint || msg; } catch (e) {}
+    throw new Error(msg);
+  }
+  return true;
+}
+
 async function insertRow(table, row) {
   const res = await fetch(CFG.url + '/rest/v1/' + table, {
     method: 'POST', headers: HEAD, body: JSON.stringify([row])
@@ -141,20 +153,12 @@ let voteFp = null;
 
 $('#n1').addEventListener('click', async function () {
   this.disabled = true; this.textContent = 'Sending…';
-  vote.id = uuid();
   voteFp = fingerprint();
   try {
-    const r = await insertRow('preview_votes',
-      { id: vote.id, preview_id: CFG.previewId, voter_fingerprint: voteFp, style_code: vote.direction });
-    if (r === 'conflict') {
-      vote.id = null;
-      await patchRow('preview_votes',
-        'preview_id=eq.' + CFG.previewId + '&voter_fingerprint=eq.' + encodeURIComponent(voteFp),
-        { style_code: vote.direction });
-    }
+    await rpc('save_preview_vote',
+      { pid: CFG.previewId, fp: voteFp, dir: vote.direction, fb: null });
   } catch (e) {
     console.warn('vote save failed:', e.message);
-    vote.id = null;
   }
   this.textContent = '✓ Vote sent';
   reveal('#fbblock');
@@ -164,9 +168,8 @@ $('#n1').addEventListener('click', async function () {
 async function sendFeedback(text) {
   if (!text || !voteFp) return;
   try {
-    await patchRow('preview_votes',
-      'preview_id=eq.' + CFG.previewId + '&voter_fingerprint=eq.' + encodeURIComponent(voteFp),
-      { feedback: text.slice(0, 2000) });
+    await rpc('save_preview_vote',
+      { pid: CFG.previewId, fp: voteFp, dir: null, fb: text });
   } catch (e) { console.warn('feedback save failed:', e.message); }
 }
 
@@ -216,7 +219,6 @@ $('#n4').addEventListener('click', async function () {
       marketing_opt_in: false,
       suppressed_from_knight_ops: true,
       audience: 'client_app_waitlist',
-      vote_id: vote.id,
       source_page: 'lil-sass-vote',
       user_agent: navigator.userAgent.slice(0, 250)
     };
