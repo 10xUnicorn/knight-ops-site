@@ -25,9 +25,17 @@ let uploadChain = Promise.resolve();
 let cancelled = false;
 
 const send = (type, extra = {}) => chrome.runtime.sendMessage({ type, ...extra }).catch(() => {});
+
+/** Route a diagnostic through the service worker, which posts it to the dashboard. */
+const note = (stage, message, detail = {}, level = 'info') =>
+  send('ko-report', { stage, message: String(message), detail, level });
+
+let stage = 'init';
 const fail = (e) => {
-  console.error('[ko]', e);
-  send('ko-recording-error', { error: String(e?.message || e) });
+  const msg = String(e?.name === 'NotAllowedError' ? 'Permission denied: ' + e.message : (e?.message || e));
+  console.error('[ko]', stage, e);
+  note(stage, msg, { name: e?.name || null, stack: String(e?.stack || '').slice(0, 600) }, 'error');
+  send('ko-recording-error', { error: msg });
   cleanup();
 };
 
@@ -208,13 +216,27 @@ async function start(p) {
       width: null, height: null, thumbKey: null,
     };
 
+    stage = 'build_stream';
     stream = await buildStream(p);
+    const vt = stream.getVideoTracks(), at = stream.getAudioTracks();
+    if (!vt.length) throw new Error('No video track was produced by the capture.');
+    note('build_stream', 'stream ready', {
+      source: p.source, captureSource: p.captureSource,
+      videoTracks: vt.length, audioTracks: at.length,
+      settings: vt[0] ? vt[0].getSettings() : null,
+    });
+
+    stage = 'pick_mime';
     const mime = pickMime();
+
+    stage = 'init_upload';
     await initUpload(mime);
 
+    stage = 'countdown';
     if (p.countdown) await new Promise(r => setTimeout(r, p.countdown * 1000));
     if (cancelled) return;
 
+    stage = 'recorder';
     rec = new MediaRecorder(stream, {
       mimeType: mime,
       videoBitsPerSecond: bitrate(p.quality),
@@ -236,11 +258,12 @@ async function start(p) {
     });
 
     rec.start(2000); // 2s timeslice keeps memory flat and upload steady
+    stage = 'recording';
     startedAt = Date.now();
     send('ko-recording-started');
+    note('recording', 'recorder started', { mime, state: rec.state });
     capturePoster(stream.getVideoTracks()[0]);
   } catch (e) {
-    if (String(e?.name) === 'NotAllowedError') return fail(new Error('Screen capture permission was denied.'));
     fail(e);
   }
 }
@@ -334,8 +357,11 @@ function copyText(text) {
 }
 
 // ── router ─────────────────────────────────────────────────
-chrome.runtime.onMessage.addListener((msg) => {
+chrome.runtime.onMessage.addListener((msg, sender, respond) => {
   switch (msg.type) {
+    // Handshake so the service worker knows this listener is live before it
+    // sends the start payload.
+    case 'ko-offscreen-ping':       respond({ ready: true }); return true;
     case 'ko-offscreen-start':      start(msg.payload); break;
     case 'ko-offscreen-stop':       if (rec && rec.state !== 'inactive') rec.stop(); break;
     case 'ko-offscreen-pause':

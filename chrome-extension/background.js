@@ -76,15 +76,52 @@ async function api(action, payload) {
   return data;
 }
 
+// ── remote diagnostics ─────────────────────────────────────
+// The service worker and offscreen document have no console we can reach, so
+// anything that goes wrong is posted to the dashboard where it can be read.
+async function report(stage, message, detail = {}, level = 'error') {
+  try {
+    const { token } = await getConfig();
+    if (!token) return;
+    await fetch(`${FN}/video-debug`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        action: 'log', level, stage,
+        message: String(message || '').slice(0, 2000),
+        detail, video_id: state.videoId || null,
+        version: chrome.runtime.getManifest().version,
+      }),
+    });
+  } catch (_) { /* diagnostics must never break the recording */ }
+}
+
 // ── offscreen document ─────────────────────────────────────
 async function ensureOffscreen() {
   const existing = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
-  if (existing.length) return;
-  await chrome.offscreen.createDocument({
-    url: 'offscreen.html',
-    reasons: ['USER_MEDIA', 'DISPLAY_MEDIA'],
-    justification: 'Record screen, tab, window, camera and microphone audio.',
-  });
+  if (!existing.length) {
+    try {
+      await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['USER_MEDIA', 'DISPLAY_MEDIA'],
+        justification: 'Record screen, tab, window, camera and microphone audio.',
+      });
+    } catch (e) {
+      // Two starts in quick succession can race on creation; an existing doc is fine.
+      if (!/single offscreen|already/i.test(String(e?.message))) throw e;
+    }
+  }
+  // createDocument resolves when the document exists — not when offscreen.js has
+  // registered its message listener. Sending before then drops the start message
+  // silently and the recording never begins. Wait for it to answer a ping.
+  for (let i = 0; i < 60; i++) {
+    try {
+      const pong = await chrome.runtime.sendMessage({ type: 'ko-offscreen-ping' });
+      if (pong?.ready) return true;
+    } catch (_) { /* not listening yet */ }
+    await new Promise(r => setTimeout(r, 50));
+  }
+  throw new Error('The recorder background page did not start. Reload the extension and try again.');
 }
 
 async function closeOffscreen() {
@@ -167,6 +204,7 @@ async function startRecording(opts) {
   } catch (e) {
     const raw = String(e?.message || e);
     if (raw === 'cancelled') { setState({ status: 'idle', error: null }); return; }
+    report('get_stream', raw, { source: opts.source, url: tab?.url || null });
     setState({
       status: 'error',
       error: /tab capture/i.test(raw)
@@ -195,7 +233,15 @@ async function startRecording(opts) {
     injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
   }
 
-  await ensureOffscreen();
+  try {
+    await ensureOffscreen();
+  } catch (e) {
+    report('offscreen', String(e?.message || e));
+    setState({ status: 'error', error: String(e?.message || e) });
+    await removeOverlay(tab?.id);
+    return;
+  }
+
   chrome.runtime.sendMessage({
     type: 'ko-offscreen-start',
     payload: {
@@ -340,11 +386,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       case 'ko-screenshot': await takeScreenshot(msg.opts || {}); sendResponse({ ok: true }); break;
 
       // ── from the offscreen recorder ──
+      case 'ko-report': report(msg.stage, msg.message, msg.detail, msg.level); break;
       case 'ko-recording-started': setState({ status: 'recording', startedAt: Date.now() }); break;
       case 'ko-upload-progress':   setState({ status: 'uploading', progress: msg.progress }); break;
       case 'ko-recording-done':    await finish(msg.payload); break;
       case 'ko-recording-error':
         setState({ status: 'error', error: msg.error });
+        report('recording', msg.error, {}, 'error');
         if (state.videoId) api('fail', { id: state.videoId, error: msg.error }).catch(() => {});
         await removeOverlay(state.tabId);
         break;

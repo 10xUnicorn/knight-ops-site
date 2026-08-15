@@ -78,6 +78,7 @@ h1{font-size:25px;font-weight:700;letter-spacing:-.3px;margin-bottom:5px}
 .acts button{width:31px;height:31px;border-radius:8px;background:rgba(5,6,26,.85);backdrop-filter:blur(8px);
   border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;font-size:13px;transition:.13s}
 .acts button:hover{background:var(--gold);color:var(--void)}
+.acts button.del:hover{background:#e5484d;color:#fff;border-color:#e5484d}
 
 .empty{grid-column:1/-1;text-align:center;padding:66px 20px;color:var(--dim)}
 .empty i{display:block;font-size:44px;margin-bottom:16px;font-style:normal;opacity:.45}
@@ -208,6 +209,7 @@ function render() {
       <div class="acts" onclick="event.preventDefault();event.stopPropagation()">
         <button title="Copy link" data-copy="${v.slug}">🔗</button>
         <button title="Manage" data-manage="${v.id}">⚙</button>
+        <button title="Delete" class="del" data-del="${v.id}">🗑</button>
       </div>
       <div class="th">
         ${thumb ? `<img src="${thumb}" loading="lazy" alt="">` : `<span class="ph">${v.kind === 'screenshot' ? '📸' : '🎬'}</span>`}
@@ -226,13 +228,34 @@ function render() {
   }).join('');
 }
 
-$('#grid').addEventListener('click', e => {
+$('#grid').addEventListener('click', async e => {
   const c = e.target.closest('[data-copy]');
   if (c) { e.preventDefault();
     navigator.clipboard.writeText(`${SITE}/v/${c.dataset.copy}`).then(() => toast('Share link copied'));
     return; }
+
   const m = e.target.closest('[data-manage]');
-  if (m) { e.preventDefault(); location.href = `/admin#videos/${m.dataset.manage}`; }
+  if (m) { e.preventDefault(); location.href = `/admin#videos/${m.dataset.manage}`; return; }
+
+  const d = e.target.closest('[data-del]');
+  if (d) {
+    e.preventDefault();
+    const id = d.dataset.del;
+    const v = items.find(x => x.id === id) || {};
+    const name = v.title || v.ai_title || 'this recording';
+    if (!confirm(`Delete "${name}"?\n\nThe video file is removed from storage and every share link and embed stops working. This cannot be undone.`)) return;
+    d.disabled = true; d.textContent = '…';
+    try {
+      await api('delete', { id });
+      const card = d.closest('.card');
+      if (card) { card.style.transition = 'opacity .2s, transform .2s'; card.style.opacity = '0'; card.style.transform = 'scale(.95)'; }
+      toast('Recording deleted');
+      setTimeout(load, 220);
+    } catch (err) {
+      toast('Delete failed: ' + err.message);
+      d.disabled = false; d.textContent = '🗑';
+    }
+  }
 });
 
 const debounce = () => { clearTimeout(t); t = setTimeout(load, 350); };

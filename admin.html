@@ -596,6 +596,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
                 <select id="vidKind" onchange="VID.kind=this.value;loadVideos()"><option value="">All types</option><option value="video">Recordings</option><option value="screenshot">Screenshots</option></select>
                 <select id="vidVis" onchange="VID.visibility=this.value;loadVideos()"><option value="">All visibility</option><option value="unlisted">Link only</option><option value="public">Public</option><option value="private">Private</option></select>
                 <button class="btn btn-sm btn-secondary" onclick="loadVideos()">↻ Refresh</button>
+                <button class="btn btn-sm btn-secondary" onclick="VID.deleteAllVisible()" title="Delete every recording currently listed">🗑 Delete listed</button>
+                <button class="btn btn-sm btn-secondary" onclick="VID.showDebug()" title="Recorder diagnostics">🩺 Diagnostics</button>
                 <button class="btn btn-sm btn-primary" onclick="VID.showSetup()">🎥 Get the recorder</button>
               </div>
             </div>
@@ -5353,6 +5355,7 @@ function renderVideos(){
       '<div class="ko-vacts" onclick="event.stopPropagation()">'+
         '<button class="btn btn-sm btn-secondary" onclick="VID.copy(\''+v.slug+'\')" title="Copy share link">🔗</button>'+
         '<button class="btn btn-sm btn-secondary" onclick="window.open(\''+vidUrl(v.slug)+'\',\'_blank\')" title="Open">↗</button>'+
+        '<button class="btn btn-sm btn-secondary ko-vdel" onclick="VID.quickDelete(\''+v.id+'\',this)" title="Delete">🗑</button>'+
       '</div></div>';
   }).join('');
   body.innerHTML='<div class="ko-vgrid">'+cards+'</div>'+
@@ -5364,6 +5367,39 @@ function renderVideos(){
 VID.copy=function(slug){
   var u=vidUrl(slug);
   navigator.clipboard.writeText(u).then(function(){showToast('Share link copied');},function(){prompt('Copy this link:',u);});
+};
+
+// Delete straight from a card. Purges the R2 object too, so storage is actually freed.
+VID.quickDelete=async function(id,btn){
+  var v=(VID.items||[]).find(function(x){return x.id===id;})||{};
+  var name=v.title||v.ai_title||'this recording';
+  if(!confirm('Delete "'+name+'"?\n\nThe video file is removed from storage and every share link and embed stops working. This cannot be undone.'))return;
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  try{
+    await vidApi('delete',{id:id});
+    var card=btn&&btn.closest('.ko-vcard');
+    if(card){card.style.transition='opacity .2s,transform .2s';card.style.opacity='0';card.style.transform='scale(.95)';
+      setTimeout(function(){loadVideos();},200);}
+    else loadVideos();
+    showToast('Recording deleted');
+  }catch(e){
+    showToast('Delete failed: '+e.message,'error');
+    if(btn){btn.disabled=false;btn.textContent='🗑';}
+  }
+};
+
+// Bulk delete for clearing out test recordings quickly.
+VID.deleteAllVisible=async function(){
+  var n=(VID.items||[]).length;
+  if(!n)return;
+  if(!confirm('Delete all '+n+' recording'+(n===1?'':'s')+' currently listed?\n\nEvery file is purged from storage and every share link stops working. This cannot be undone.'))return;
+  if(!confirm('Last check — permanently delete '+n+' recording'+(n===1?'':'s')+'?'))return;
+  var ok=0,failed=0;
+  for(var i=0;i<VID.items.length;i++){
+    try{await vidApi('delete',{id:VID.items[i].id});ok++;}catch(e){failed++;}
+  }
+  showToast('Deleted '+ok+(failed?' · '+failed+' failed':''),failed?'error':'success');
+  loadVideos();
 };
 
 async function showVideoDetail(id){
@@ -5505,6 +5541,41 @@ VID.copyEmbed=function(slug){
   var code='<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">\n'+
     '  <iframe src="https://www.knightops.biz/embed/'+slug+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen allow="autoplay; picture-in-picture"></iframe>\n</div>';
   navigator.clipboard.writeText(code).then(function(){showToast('Embed code copied');},function(){prompt('Copy this embed code:',code);});
+};
+
+// Recorder diagnostics — the extension posts failures here because a Chrome
+// service worker and offscreen document have no console anyone can reach.
+VID.showDebug=async function(){
+  openEditModal('Recorder diagnostics','<div id="vdbg" style="max-height:60vh;overflow:auto">Loading…</div>',
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');
+  try{
+    var s=(await sb.auth.getSession()).data.session;
+    var r=await fetch(SUPABASE_URL+'/functions/v1/video-debug',{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+s.access_token},
+      body:JSON.stringify({action:'recent',limit:60})});
+    var d=await r.json();
+    if(!r.ok)throw new Error(d.error||r.status);
+    var ev=d.events||[];
+    if(!ev.length){
+      document.getElementById('vdbg').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">'+
+        'No events logged yet.<br><br>Reload the extension, try a recording, then reopen this panel — every step reports here.</div>';
+      return;
+    }
+    var C={error:'#e5484d',warn:'#C9922A',info:'#00D4C8'};
+    document.getElementById('vdbg').innerHTML=ev.map(function(e){
+      return '<div style="padding:.6rem .75rem;border-left:3px solid '+(C[e.level]||'#666')+
+        ';background:var(--surface-2);border-radius:6px;margin-bottom:.5rem">'+
+        '<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:.25rem">'+
+          new Date(e.created_at).toLocaleString()+' · <b style="color:'+(C[e.level]||'#666')+'">'+e.level+'</b>'+
+          (e.stage?' · stage: <code>'+esc(e.stage)+'</code>':'')+(e.extension_version?' · v'+esc(e.extension_version):'')+'</div>'+
+        '<div style="font-size:.85rem;line-height:1.5">'+esc(e.message||'')+'</div>'+
+        (e.detail&&Object.keys(e.detail).length?'<pre style="margin:.45rem 0 0;font-size:.7rem;color:var(--text-muted);white-space:pre-wrap;word-break:break-word">'+
+          esc(JSON.stringify(e.detail,null,1))+'</pre>':'')+
+      '</div>';
+    }).join('');
+  }catch(e){
+    document.getElementById('vdbg').innerHTML='<div style="color:var(--text-muted);padding:1rem">Could not load diagnostics: '+esc(e.message)+'</div>';
+  }
 };
 
 VID.showSetup=function(){
