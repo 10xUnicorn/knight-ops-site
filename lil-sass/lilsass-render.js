@@ -91,7 +91,7 @@ function createApp(mount, opts) {
       <p class="ls-p" style="margin-bottom:12px">Tap a child to start their adventure.</p>
       <div class="ls-kids">${cards}</div>
       <button class="ls-add">+ Add a child</button>
-      <div class="ls-bottom"><div class="ls-mini">Grown-up: christie@lilsass.com</div></div>`;
+      <div class="ls-bottom"><div class="ls-mini">Grown-up account · 3 children</div></div>`;
     v.querySelectorAll('[data-child]').forEach(b =>
       b.addEventListener('click', () => { S.child = +b.dataset.child; S.name = CHILDREN[S.child].name; go('childHome'); }));
     return v;
@@ -185,7 +185,7 @@ function createApp(mount, opts) {
 
   function runChat(v, g) {
     const box = v.querySelector('#chat'), chips = v.querySelector('#chatchips');
-    S.chatStep = 0; box.innerHTML = ''; chips.innerHTML = '';
+    S.chatStep = 0; S.script = L.SCRIPT; box.innerHTML = ''; chips.innerHTML = '';
     // Bubbles animate in and the typing dots get removed, so the height keeps
     // changing after append. One rAF is not enough — nudge it a few times.
     const toBottom = () => {
@@ -208,13 +208,15 @@ function createApp(mount, opts) {
         b.addEventListener('click', () => {
           chips.innerHTML = ''; toBottom();
           if (goId) { go(goId); return; }
+          // picking a happy feeling takes a different, equally real path
+          if (L.BRANCHES && L.BRANCHES[label]) { S.script = L.BRANCHES[label]; S.chatStep = 0; }
           advance();
         });
         chips.appendChild(b);
       });
     }
     function advance() {
-      const step = L.SCRIPT[S.chatStep];
+      const step = (S.script || L.SCRIPT)[S.chatStep];
       if (!step) return;
       if (step.from === 'me') {
         bubble('me', esc(step.t)); S.chatStep++;

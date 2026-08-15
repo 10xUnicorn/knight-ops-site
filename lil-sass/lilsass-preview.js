@@ -352,6 +352,83 @@ async function renderVotes() {
      </div>${bars}${cbox}`;
 }
 
+/* ---------- save progress (no commitment) ----------
+   Answers are written as category 'draft' so they never look like a final sign-off,
+   and read back through the token-gated RPC so a refresh can't lose her work. */
+async function saveProgress(btn, note) {
+  const answered = Object.entries(state.decisions);
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const now = new Date().toISOString();
+  let saved = 0, failed = 0;
+  const rows = answered.map(([k, v]) => ({
+    preview_id: SB.previewId, project_id: SB.projectId, category: 'draft',
+    decision_key: k, decision_value: v, decided_at: now, decided_by: 'Christie Mann'
+  }));
+  rows.push({
+    preview_id: SB.previewId, project_id: SB.projectId, category: 'draft',
+    decision_key: 'direction_draft', question: 'Design direction (not final)',
+    decision_value: L.DIRECTIONS[state.direction].name, decided_at: now, decided_by: 'Christie Mann'
+  });
+  for (const r of rows) {
+    try { await saveDecision(r); saved++; } catch (e) { failed++; }
+  }
+  try { localStorage.setItem('lilsass_draft', JSON.stringify(
+    { direction: state.direction, decisions: state.decisions, at: now })); } catch (e) {}
+
+  btn.disabled = false;
+  btn.textContent = failed ? 'Save my progress' : '✓ Saved';
+  btn.classList.toggle('done', !failed);
+  if (note) {
+    const t = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    note.textContent = failed
+      ? 'Saved on this device, but the server did not confirm. Your answers are still here.'
+      : 'Saved at ' + t + ' · ' + answered.length + ' answered · you can change anything later.';
+  }
+  setTimeout(() => { btn.textContent = 'Save my progress'; btn.classList.remove('done'); }, 3000);
+}
+
+/* Pull any saved draft back so a refresh never costs her the work. */
+async function restoreProgress() {
+  let restored = false;
+  try {
+    const res = await fetch(SB.url + '/rest/v1/rpc/get_preview_decisions', {
+      method: 'POST', headers: SBH,
+      body: JSON.stringify({ pid: SB.previewId, tok: RESULTS_TOKEN })
+    });
+    if (res.ok) {
+      const rows = await res.json();
+      const keys = new Set();
+      DECISIONS.forEach(g => g.items.forEach(d => keys.add(d.key)));
+      rows.forEach(r => {
+        if (keys.has(r.decision_key) && r.decision_value) {
+          state.decisions[r.decision_key] = r.decision_value; restored = true;
+        }
+        if (r.decision_key === 'direction_draft' || r.decision_key === 'direction') {
+          const hit = Object.values(L.DIRECTIONS).find(d => d.name === r.decision_value);
+          if (hit) { state.direction = hit.code; restored = true; }
+        }
+      });
+    }
+  } catch (e) { /* fall through to the local copy */ }
+
+  if (!restored) {
+    try {
+      const raw = localStorage.getItem('lilsass_draft');
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d && d.decisions) { Object.assign(state.decisions, d.decisions); restored = true; }
+        if (d && d.direction && L.DIRECTIONS[d.direction]) state.direction = d.direction;
+      }
+    } catch (e) {}
+  }
+  if (restored) {
+    renderDirections(); mountApp(); renderDecisions(); renderSummary();
+    const n = $('#savenote');
+    if (n) n.textContent = 'Picked up where you left off — ' +
+      Object.keys(state.decisions).length + ' answers restored.';
+  }
+}
+
 /* ---------- finalize ---------- */
 function buildSpec() {
   const d = L.DIRECTIONS[state.direction];
@@ -440,4 +517,18 @@ $('#resetbtn').addEventListener('click', () => {
 
 renderBuild(); renderDirections(); mountApp(); renderScreenNav();
 renderDash(); renderPricing(); renderDecisions(); renderShare(); renderVotes(); syncNow();
+
+$('#savebtn2').addEventListener('click', function () { saveProgress(this, $('#savenote')); });
+$('#savebtn').addEventListener('click', function () { saveProgress(this, $('#savenote')); });
+/* autosave so a closed tab never costs her anything */
+let autosave;
+document.addEventListener('click', e => {
+  if (!e.target.closest('.decopt')) return;
+  clearTimeout(autosave);
+  autosave = setTimeout(() => {
+    try { localStorage.setItem('lilsass_draft', JSON.stringify(
+      { direction: state.direction, decisions: state.decisions, at: new Date().toISOString() })); } catch (e) {}
+  }, 400);
+});
+restoreProgress();
 })();

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Help shape the Lil' Sass app</title>
 <meta name="description" content="Christie Mann is building an app where every child becomes the hero of their own story. Tell her which version you like best.">
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608152030">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608152140">
 <style>
 :root{
   --page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;
@@ -13,10 +13,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--page);
   color:var(--ink);-webkit-font-smoothing:antialiased}
-.wrap{max-width:1080px;margin:0 auto;padding:34px 20px 80px}
-.hero{text-align:center;margin-bottom:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 22px 80px}
+.hero{text-align:center;margin-bottom:8px;padding:0 4px}
 .kicker{font-size:11.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--plum)}
-h1{font-size:clamp(28px,5vw,42px);line-height:1.12;margin:14px 0 12px;letter-spacing:-.02em}
+h1{font-size:clamp(26px,5vw,42px);line-height:1.14;margin:14px 0 12px;letter-spacing:-.02em;
+  padding:0 6px;text-wrap:balance}
 h1 em{font-style:normal;color:var(--brand)}
 .lede{font-size:16.5px;line-height:1.62;color:var(--soft);max-width:62ch;margin:0 auto}
 .byline{margin-top:14px;font-size:13.5px;color:var(--soft)}
@@ -27,6 +28,12 @@ h1 em{font-style:normal;color:var(--brand)}
 .progress i.on{background:var(--brand)}
 
 .card{background:#fff;border-radius:24px;padding:26px;box-shadow:var(--shadow);margin-top:22px}
+@media(max-width:560px){
+  .wrap{padding:26px 18px 70px}
+  .card{padding:20px 16px;border-radius:20px}
+  h2{font-size:21px}
+  .lede{font-size:15.5px}
+}
 h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .sub{font-size:14.5px;color:var(--soft);line-height:1.55;max-width:64ch}
 
@@ -202,8 +209,8 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
     Your answers are only used to shape this app.</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608152030"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608152030"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608152030"></script>
-<script src="/lil-sass/lilsass-vote.js?v=202608152030"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608152140"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608152140"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608152140"></script>
+<script src="/lil-sass/lilsass-vote.js?v=202608152140"></script>
 </body></html>

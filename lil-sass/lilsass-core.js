@@ -106,7 +106,7 @@ const CAPES = [
 ];
 
 const SCRIPT = [
-  { from:'guide', t:'{NAME}! Okay — what feeling has been the loudest lately?', chips:['Angry','Sad','Lonely'] },
+  { from:'guide', t:'{NAME}! Okay — what feeling has been the loudest lately?', chips:['Angry','Sad','Lonely','Joyful'] },
   { from:'me',    t:'Kind of angry. My best friend moved away.' },
   { from:'guide', t:'Oof. That’s a big one. Where do you feel the angry — hot in your chest, or buzzy in your hands?', chips:['Hot in my chest','Buzzy hands','I don’t know'] },
   { from:'me',    t:'Hot in my chest. And I don’t want to talk to anybody.' },
@@ -114,6 +114,19 @@ const SCRIPT = [
   { from:'me',    t:'Yeah… she did.' },
   { from:'guide', t:'Then let’s put that in a story where you’re the hero. Ready to meet someone?', chips:['Yes! ✨'], go:'mooIntro' }
 ];
+
+/* Not every big feeling is a hard one. Picking "Joyful" runs its own thread and
+   rejoins at the cape ceremony, so the app never reads as only-for-bad-days. */
+const BRANCHES = {
+  Joyful: [
+    { from:'me',    t:'Joyful! I got picked first for the game today.' },
+    { from:'guide', t:'YES. Okay, where do you feel the joyful — fizzy in your tummy, or big in your chest?', chips:['Fizzy tummy','Big in my chest','Everywhere!'] },
+    { from:'me',    t:'Fizzy in my tummy. I couldn’t stop smiling.' },
+    { from:'guide', t:'That’s the good stuff. Joy gets bigger when you tell someone about it — and bigger still when you keep it somewhere.', chips:['I want to keep this one','Tell me more'] },
+    { from:'me',    t:'I want to keep this one.' },
+    { from:'guide', t:'Then let’s put it in a story where you’re the hero. Ready to meet someone?', chips:['Yes! ✨'], go:'mooIntro' }
+  ]
+};
 
 const PAGES = [
   { txt:'{NAME}’s chest was hot as a summer sidewalk. Her best friend’s house was empty now, and nobody seemed to notice but her.' },
@@ -190,5 +203,5 @@ const PRICING = {
   ]
 };
 
-global.LILSASS = { BUILD, DIRECTIONS, GUIDES, CAPES, SCRIPT, PAGES, DASHBOARD, PRICING };
+global.LILSASS = { BUILD, DIRECTIONS, GUIDES, CAPES, SCRIPT, BRANCHES, PAGES, DASHBOARD, PRICING };
 })(window);
