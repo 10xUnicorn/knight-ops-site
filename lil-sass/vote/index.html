@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Help shape the Lil' Sass app</title>
 <meta name="description" content="Christie Mann is building an app where every child becomes the hero of their own story. Tell her which version you like best.">
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151034">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151530">
 <style>
 :root{
   --page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;
@@ -43,7 +43,7 @@ h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .vopt h3{font-size:18px}
 .vopt .tag{font-size:12.5px;font-weight:800;color:var(--brand)}
 .vopt p{font-size:13px;line-height:1.5;color:var(--soft)}
-.vopt .stagebox{display:flex;justify-content:center;pointer-events:none}
+.vopt .stagebox{display:flex;justify-content:center}
 .vopt .pick{margin-top:auto;font-size:12.5px;font-weight:900;color:var(--soft);
   display:flex;align-items:center;gap:8px}
 .vopt .pick i{width:20px;height:20px;border-radius:50%;border:2px solid #C9D8EE;display:block;flex:0 0 auto}
@@ -91,6 +91,13 @@ h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .done .big{font-size:52px;margin-bottom:12px}
 .done h2{margin-bottom:10px}
 .done p{font-size:15.5px;line-height:1.6;color:var(--soft);max-width:52ch;margin:0 auto 8px}
+.feedback{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.feedback h3{font-size:17px;margin-bottom:3px}
+.fsub{font-size:13px;color:var(--soft);margin-bottom:14px}
+.flab{display:block;font-size:12.5px;font-weight:900;color:var(--ink);margin:12px 0 5px}
+.feedback textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:13px;
+  font-family:inherit;font-size:14px;resize:vertical;background:#FBFDFF;color:var(--ink)}
+.feedback textarea:focus{outline:none;border-color:var(--plum);background:#fff}
 .deskwrap{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
 .deskhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .deskhead b{font-size:15px}
@@ -133,6 +140,16 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
       <div class="screennav" id="desknav"></div>
       <div class="tryhint" style="margin-top:10px">Jump to any screen, or just click through it.</div>
     </div>
+    <div class="feedback">
+      <h3>Anything you want to tell Christie?</h3>
+      <p class="fsub">All optional — but the specific stuff is the most useful.</p>
+      <label class="flab">What did you like?</label>
+      <textarea id="fLikes" rows="2" placeholder="The bit that made you smile…"></textarea>
+      <label class="flab">What didn't you like?</label>
+      <textarea id="fDislikes" rows="2" placeholder="Be honest, it genuinely helps…"></textarea>
+      <label class="flab">Any other ideas?</label>
+      <textarea id="fIdeas" rows="2" placeholder="Something you wish it did…"></textarea>
+    </div>
     <div class="nav"><span></span><button class="btn" id="n1" disabled>Send my vote →</button></div>
   </div>
 
@@ -174,8 +191,8 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
     Your answers are only used to shape this app.</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608151034"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608151034"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608151034"></script>
-<script src="/lil-sass/lilsass-vote.js?v=202608151034"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608151530"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608151530"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608151530"></script>
+<script src="/lil-sass/lilsass-vote.js?v=202608151530"></script>
 </body></html>

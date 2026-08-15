@@ -97,7 +97,9 @@ function buildDirections() {
   });
   PUB_DIRS.forEach(code => {
     window.LILSASS_APP.createApp($('#stage-' + code), { direction: code, device: 'mobile', art: ART });
+    // let the prototype be used; just don't let it double as "select this card"
     $('#stage-' + code).addEventListener('click', e => e.stopPropagation());
+    $('#stage-' + code).style.pointerEvents = 'auto';
   });
   renderDesktop(vote.direction || PUB_DIRS[0]);
 }
@@ -141,7 +143,11 @@ $('#n1').addEventListener('click', async function () {
   this.disabled = true; this.textContent = 'Sending…';
   vote.id = uuid();
   const fp = fingerprint();
-  const payload = { style_code: vote.direction };
+  const val = id => { const e = $(id); return e && e.value.trim() ? e.value.trim().slice(0, 800) : null; };
+  const payload = {
+    style_code: vote.direction,
+    likes: val('#fLikes'), dislikes: val('#fDislikes'), ideas: val('#fIdeas')
+  };
   try {
     const r = await insertRow('preview_votes',
       Object.assign({ id: vote.id, preview_id: CFG.previewId, voter_fingerprint: fp }, payload));

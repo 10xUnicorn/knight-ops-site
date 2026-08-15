@@ -283,18 +283,76 @@ function renderShare() {
   });
 }
 
-/* ---------- votes (private) ---------- */
-const DEMO_VOTES = { picture: 9, deck: 5, calm: 7 };
-function renderVotes() {
-  const total = Object.values(DEMO_VOTES).reduce((a,b) => a+b, 0) || 1;
-  $('#votes').innerHTML =
-    `<div style="font-size:13px;color:var(--soft);margin-bottom:8px">21 people have voted so far.</div>` +
-    Object.entries(DEMO_VOTES).sort((a,b) => b[1]-a[1]).map(([k,v]) => `
+/* ---------- votes (private) ----------
+   Voters hold INSERT only. Results come back through a SECURITY DEFINER RPC
+   gated on a secret token that lives only on this page. */
+const RESULTS_TOKEN = 'f86eb7b074861d0ec2688e74';
+const esc = t => String(t == null ? '' : t).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+async function renderVotes() {
+  const box = $('#votes');
+  box.innerHTML = '<div style="font-size:13px;color:var(--soft)">Loading votes…</div>';
+  let rows = [];
+  try {
+    const res = await fetch(SB.url + '/rest/v1/rpc/get_preview_results', {
+      method: 'POST', headers: SBH,
+      body: JSON.stringify({ pid: SB.previewId, tok: RESULTS_TOKEN })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    rows = await res.json();
+  } catch (e) {
+    box.innerHTML = '<div style="font-size:13px;color:var(--soft)">Could not load votes just now. ' +
+                    'Refresh the page to try again.</div>';
+    return;
+  }
+
+  const counts = {}, comments = [];
+  rows.forEach(r => {
+    counts[r.direction] = Number(r.votes) || 0;
+    (r.comments || []).forEach(c => comments.push(Object.assign({ direction: r.direction }, c)));
+  });
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+  if (!total) {
+    box.innerHTML = '<div style="font-size:13.5px;color:var(--soft);line-height:1.6">' +
+      'No votes yet. Share your link and they will show up here — ' +
+      'the people voting never see these numbers, so nobody gets swayed by who is winning.</div>';
+    return;
+  }
+
+  const bars = Object.keys(L.DIRECTIONS).map(k => [k, counts[k] || 0])
+    .sort((a, b) => b[1] - a[1]).map(([k, v]) => `
       <div class="vrow">
         <span class="vname">${L.DIRECTIONS[k].name}</span>
-        <span class="vbar"><i style="width:${Math.round(v/total*100)}%"></i></span>
-        <span class="vn">${v} · ${Math.round(v/total*100)}%</span>
+        <span class="vbar"><i style="width:${Math.round(v / total * 100)}%"></i></span>
+        <span class="vn">${v} · ${Math.round(v / total * 100)}%</span>
       </div>`).join('');
+
+  comments.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  const field = (label, val, cls) => val
+    ? `<div class="cline ${cls}"><b>${label}</b><span>${esc(val)}</span></div>` : '';
+
+  const cbox = comments.length ? `
+    <div class="commentwrap">
+      <div class="chead">💬 ${comments.length} ${comments.length === 1 ? 'person' : 'people'} left
+        comments <span>Only the ones who wrote something are shown</span></div>
+      ${comments.map(c => `
+        <div class="cnote">
+          <div class="cvote">Voted ${esc((L.DIRECTIONS[c.direction] || {}).name || c.direction)}
+            <time>${c.at ? new Date(c.at).toLocaleDateString(undefined,
+              { month:'short', day:'numeric' }) : ''}</time></div>
+          ${field('Liked', c.likes, 'good')}
+          ${field('Didn’t like', c.dislikes, 'bad')}
+          ${field('Idea', c.ideas, 'idea')}
+        </div>`).join('')}
+    </div>` : `
+    <div style="font-size:12.5px;color:var(--soft);margin-top:14px">
+      No written comments yet — just votes so far.</div>`;
+
+  box.innerHTML =
+    `<div style="font-size:13px;color:var(--soft);margin-bottom:10px">
+       <b style="color:var(--ink)">${total}</b> ${total === 1 ? 'person has' : 'people have'} voted so far.
+     </div>${bars}${cbox}`;
 }
 
 /* ---------- finalize ---------- */
