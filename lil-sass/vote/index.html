@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Help shape the Lil' Sass app</title>
 <meta name="description" content="Christie Mann is building an app where every child becomes the hero of their own story. Tell her which version you like best.">
-<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151740">
+<link rel="stylesheet" href="/lil-sass/lilsass-app.css?v=202608151830">
 <style>
 :root{
   --page:#F7FAFF;--ink:#1B2138;--soft:#5A648A;--line:#E3EBF7;
@@ -92,7 +92,11 @@ h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .donein h3{font-size:22px;margin-bottom:8px}
 .donein p{font-size:15px;line-height:1.6;color:var(--soft);max-width:50ch;margin:0 auto 8px}
 .donein .sharep{font-size:13.5px;margin-top:14px}
-.donein #sharelink{color:var(--plum);cursor:pointer;text-decoration:underline}
+.copybtn{border:2px solid var(--line);background:#fff;color:var(--plum);font-family:inherit;
+  font-size:14px;font-weight:900;padding:12px 22px;border-radius:14px;cursor:pointer;
+  margin-top:10px;transition:.15s}
+.copybtn:hover{border-color:var(--plum);transform:translateY(-1px)}
+.copybtn.copied{background:#EDF7F1;border-color:var(--ok);color:#1F7A4D}
 .done{text-align:center;padding:40px 20px}
 .done .big{font-size:52px;margin-bottom:12px}
 .done h2{margin-bottom:10px}
@@ -102,14 +106,15 @@ h2{font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
 .fbdone{display:inline-block;background:#EDF7F1;color:#1F7A4D;font-size:12.5px;font-weight:900;
   padding:7px 14px;border-radius:999px;margin-bottom:12px}
 .fsub{font-size:13px;color:var(--soft);margin-bottom:14px}
-.feedback textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:13px;
-  font-family:inherit;font-size:14px;resize:vertical;background:#FBFDFF;color:var(--ink)}
+.feedback textarea{width:100%;padding:13px 15px;border:2px solid var(--line);border-radius:13px;
+  font-family:inherit;font-size:14.5px;line-height:1.7;resize:vertical;background:#FBFDFF;color:var(--ink)}
+.feedback textarea::placeholder{color:#9AA5C4;line-height:1.7}
 .feedback textarea:focus{outline:none;border-color:var(--plum);background:#fff}
 .deskwrap{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
 .deskhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .deskhead b{font-size:15px}
 .deskhead span{font-size:13px;color:var(--soft);font-weight:700}
-#deskstage{display:flex;justify-content:center;overflow:hidden}
+#deskstage{display:block;overflow:hidden;transition:height .18s ease}
 .screennav{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px;justify-content:center}
 .scrbtn{border:0;background:#F1F6FD;color:var(--soft);font-size:11px;font-weight:800;
   padding:6px 11px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.14s}
@@ -151,7 +156,7 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
       <div class="fbdone">✓ Your vote is in. Thank you.</div>
       <h3>Tell us anything you want to tell us</h3>
       <p class="fsub">Anything at all — what you loved, what felt off, what you'd add. Optional.</p>
-      <textarea id="fbText" rows="4" placeholder="Type whatever comes to mind…"></textarea>
+      <textarea id="fbText" rows="4" placeholder="What did you love?&#10;What felt off?&#10;What else would you like to see?"></textarea>
       <div class="nav">
         <button class="btn ghost" id="fbskip">Skip this</button>
         <button class="btn" id="fbsend">Submit feedback →</button>
@@ -187,8 +192,8 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
         <div class="big">💛</div>
         <h3 id="donehead">You're all set</h3>
         <p id="donemsg">Thank you for helping shape this. Christie reads every single response.</p>
-        <p class="sharep">Know someone with kids who'd have an opinion?<br>
-          <b id="sharelink">Copy the link to share</b></p>
+        <p class="sharep">Know someone with kids who'd have an opinion?</p>
+        <button class="copybtn" id="sharelink">🔗 Copy the link</button>
       </div>
     </div>
   </div>
@@ -197,8 +202,8 @@ footer{margin-top:44px;text-align:center;font-size:12.5px;color:var(--soft);line
     Your answers are only used to shape this app.</footer>
 </div>
 
-<script src="/lil-sass/lilsass-art.js?v=202608151740"></script>
-<script src="/lil-sass/lilsass-core.js?v=202608151740"></script>
-<script src="/lil-sass/lilsass-render.js?v=202608151740"></script>
-<script src="/lil-sass/lilsass-vote.js?v=202608151740"></script>
+<script src="/lil-sass/lilsass-art.js?v=202608151830"></script>
+<script src="/lil-sass/lilsass-core.js?v=202608151830"></script>
+<script src="/lil-sass/lilsass-render.js?v=202608151830"></script>
+<script src="/lil-sass/lilsass-vote.js?v=202608151830"></script>
 </body></html>

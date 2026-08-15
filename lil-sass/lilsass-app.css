@@ -16,6 +16,7 @@
 .ls-mobile .ls-screen { border-radius:35px; }
 
 .ls-desktop { width:100%; max-width:100%; overflow:hidden; }
+.ls-desktop.ls-scaled { width:1000px; max-width:none; transform-origin:top left; }
 .ls-desktop .ls-frame {
   width:100%; max-width:1000px; min-width:0; background:#1B2036; border-radius:16px;
   padding:12px 12px 22px; position:relative; box-shadow:0 26px 50px rgba(40,48,74,.26);
@@ -295,15 +296,15 @@
 .ls-gline { font-size:10.5px; line-height:1.35; color:var(--ink-soft); font-style:italic; }
 
 /* chat */
-.ls-chatview { padding-bottom:0; min-height:0; }
-.ls-desktop .ls-view.ls-chatview { justify-content:flex-start; padding-bottom:14px; }
+.ls-chatview { padding-bottom:8px; min-height:0; overflow:hidden; }
+.ls-desktop .ls-view.ls-chatview { justify-content:flex-start; padding-bottom:16px; }
 .ls-desktop .ls-chatview .ls-chat { width:100%; margin:0 auto; }
 .ls-who { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex:0 0 auto; }
 .ls-who img { width:32px; height:32px; border-radius:50%; object-fit:cover; object-position:50% 16%;
   background:var(--card); border:2px solid var(--card); }
 .ls-who span { font-size:12px; font-weight:900; }
 .ls-who small { font-size:10px; color:#54C08A; font-weight:800; }
-.ls-chat { flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column;
+.ls-chat { flex:1 1 0; min-height:0; overflow-y:auto; display:flex; flex-direction:column;
   gap:8px; padding:4px 2px 6px; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
 .ls-desktop .ls-chat { max-width:620px; }
 .ls-bub { max-width:84%; font-size:13px; line-height:1.45; padding:10px 13px;

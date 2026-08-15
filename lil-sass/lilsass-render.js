@@ -486,5 +486,30 @@ function createApp(mount, opts) {
   };
 }
 
-global.LILSASS_APP = { createApp };
+/* A 1000px desktop frame squashed into a phone stops looking like a desktop.
+   Render it at full size and scale it down instead. */
+function fitDesktop(host) {
+  if (!host) return;
+  const frame = host.querySelector('.ls-desktop');
+  if (!frame) return;
+  const DESIGN = 1000;
+  frame.classList.add('ls-scaled');
+  const apply = () => {
+    const avail = host.clientWidth || (host.parentNode && host.parentNode.clientWidth);
+    if (!avail) return;
+    const scale = Math.min(1, avail / DESIGN);
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.style.marginLeft = Math.max(0, (avail - DESIGN * scale) / 2) + 'px';
+    host.style.height = (frame.offsetHeight * scale) + 'px';
+  };
+  apply();
+  requestAnimationFrame(apply);
+  if (!host.__fitBound) {
+    host.__fitBound = true;
+    let t;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(apply, 120); });
+  }
+}
+
+global.LILSASS_APP = { createApp, fitDesktop };
 })(window);

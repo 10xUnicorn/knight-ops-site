@@ -128,6 +128,7 @@ function renderDesktop(code) {
   $('#deskname').textContent = 'Showing ' + d.name;
   deskApp = window.LILSASS_APP.createApp($('#deskstage'), { direction: code, device: 'desktop', art: ART });
   if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(deskScreen);
+  window.LILSASS_APP.fitDesktop($('#deskstage'));
   const nav = $('#desknav'); if (!nav) return;
   nav.innerHTML = SCREENS.map(([id, label]) =>
     `<button class="scrbtn${id===deskScreen?' on':''}" data-screen="${id}">${label}</button>`).join('');
@@ -136,6 +137,7 @@ function renderDesktop(code) {
       deskScreen = b.dataset.screen;
       nav.querySelectorAll('.scrbtn').forEach(x => x.classList.toggle('on', x === b));
       if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(deskScreen);
+      window.LILSASS_APP.fitDesktop($('#deskstage'));
     }));
 }
 
@@ -241,8 +243,11 @@ $('#n4').addEventListener('click', async function () {
 });
 
 $('#sharelink').addEventListener('click', function () {
-  navigator.clipboard && navigator.clipboard.writeText(location.href);
-  this.textContent = '✓ Link copied';
+  const btn = this;
+  const done = () => { btn.textContent = '✓ Copied'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '🔗 Copy the link'; btn.classList.remove('copied'); }, 2400); };
+  if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(done, done);
+  else done();
 });
 
 /* boot */

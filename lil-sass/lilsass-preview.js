@@ -92,6 +92,7 @@ function mountDesktop() {
     direction: state.direction, device: 'desktop', art: ART
   });
   if (state.screen && deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(state.screen);
+  window.LILSASS_APP.fitDesktop(stage);
 }
 
 function renderScreenNav() {
@@ -103,6 +104,7 @@ function renderScreenNav() {
       renderScreenNav();
       if (app) app.goTo(state.screen);
       if (deskApp && typeof deskApp.goTo === 'function') deskApp.goTo(state.screen);
+      window.LILSASS_APP.fitDesktop($('#deskstage'));
     }));
 }
 
