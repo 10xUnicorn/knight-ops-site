@@ -608,10 +608,25 @@ function setupPlayer() {
     $('#bigplay').classList.remove('hide');
     $('#playIc').innerHTML = '<path d="M8 5v14l11-7z"/>';
   };
+  // Show the known duration immediately — MediaRecorder webm files carry no
+  // duration in the container, so v.duration is Infinity until we force it.
+  $('#dur').textContent = fmt(V.duration_sec);
+  drawChapterMarks(V.duration_sec);
+
   v.onloadedmetadata = () => {
-    const d = isFinite(v.duration) && v.duration > 0 ? v.duration : V.duration_sec;
-    $('#dur').textContent = fmt(d);
-    drawChapterMarks(d);
+    if (!isFinite(v.duration)) {
+      // Classic MediaRecorder fix: seeking past the end makes Chrome scan the
+      // file and compute a real duration, which is what makes the scrubber work.
+      const restore = () => {
+        v.removeEventListener('timeupdate', restore);
+        v.currentTime = 0;
+        if (isFinite(v.duration) && v.duration > 0) $('#dur').textContent = fmt(v.duration);
+      };
+      v.addEventListener('timeupdate', restore);
+      v.currentTime = 1e101;
+      return;
+    }
+    if (v.duration > 0) $('#dur').textContent = fmt(v.duration);
   };
   v.ontimeupdate = () => {
     const d = isFinite(v.duration) && v.duration > 0 ? v.duration : V.duration_sec || 1;

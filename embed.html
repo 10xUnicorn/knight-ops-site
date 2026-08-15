@@ -141,7 +141,20 @@ async function boot() {
     $('#pi').innerHTML = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'; };
   v.onpause = () => { wrap.classList.add('paused'); $('#big').classList.remove('hide');
     $('#pi').innerHTML = '<path d="M8 5v14l11-7z"/>'; };
-  v.onloadedmetadata = () => { if (isFinite(v.duration) && v.duration > 0) $('#dur').textContent = fmt(v.duration); };
+  v.onloadedmetadata = () => {
+    // MediaRecorder webm carries no duration — force Chrome to compute it so seeking works.
+    if (!isFinite(v.duration)) {
+      const restore = () => {
+        v.removeEventListener('timeupdate', restore);
+        v.currentTime = 0;
+        if (isFinite(v.duration) && v.duration > 0) $('#dur').textContent = fmt(v.duration);
+      };
+      v.addEventListener('timeupdate', restore);
+      v.currentTime = 1e101;
+      return;
+    }
+    if (v.duration > 0) $('#dur').textContent = fmt(v.duration);
+  };
   v.ontimeupdate = () => {
     const dur = isFinite(v.duration) && v.duration > 0 ? v.duration : V.duration_sec || 1;
     $('#fill').style.width = (v.currentTime / dur) * 100 + '%';
