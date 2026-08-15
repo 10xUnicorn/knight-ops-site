@@ -296,7 +296,7 @@
 .ls-gline { font-size:10.5px; line-height:1.35; color:var(--ink-soft); font-style:italic; }
 
 /* chat */
-.ls-chatview { padding-bottom:8px; min-height:0; overflow:hidden; }
+.ls-chatview { padding-bottom:8px; min-height:0; overflow:hidden; height:100%; }
 .ls-desktop .ls-view.ls-chatview { justify-content:flex-start; padding-bottom:16px; }
 .ls-desktop .ls-chatview .ls-chat { width:100%; margin:0 auto; }
 .ls-who { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex:0 0 auto; }

@@ -489,28 +489,49 @@ function createApp(mount, opts) {
   };
 }
 
-/* A 1000px desktop frame squashed into a phone stops looking like a desktop.
-   Render it at full size and scale it down instead. */
+/* A 1000px desktop frame squashed into a phone stops looking like a desktop, so we
+   render it full size and scale it down. Because transform:scale() does NOT change
+   layout size, the host's height has to be set by hand — and it must be RE-set every
+   time the frame's real height changes (images finishing, screen swaps, rotation),
+   or the preview collapses to nothing. Hence the ResizeObserver. */
 function fitDesktop(host) {
   if (!host) return;
   const frame = host.querySelector('.ls-desktop');
   if (!frame) return;
   const DESIGN = 1000;
   frame.classList.add('ls-scaled');
+
   const apply = () => {
-    const avail = host.clientWidth || (host.parentNode && host.parentNode.clientWidth);
-    if (!avail) return;
+    const avail = host.clientWidth || (host.parentNode && host.parentNode.clientWidth) || 0;
+    if (avail < 40) return false;                 // not laid out yet — try again later
     const scale = Math.min(1, avail / DESIGN);
     frame.style.transform = 'scale(' + scale + ')';
     frame.style.marginLeft = Math.max(0, (avail - DESIGN * scale) / 2) + 'px';
-    host.style.height = (frame.offsetHeight * scale) + 'px';
+    const h = Math.round(frame.offsetHeight * scale);
+    if (h > 40) { host.style.height = h + 'px'; return true; }
+    return false;
   };
+
   apply();
   requestAnimationFrame(apply);
+  [60, 200, 500, 1000].forEach(ms => setTimeout(apply, ms));
+
+  if (host.__fitRO) host.__fitRO.disconnect();
+  if (window.ResizeObserver) {
+    host.__fitRO = new ResizeObserver(() => apply());
+    host.__fitRO.observe(frame);
+  }
+  host.querySelectorAll('img').forEach(img => {
+    if (!img.complete) img.addEventListener('load', apply, { once: true });
+  });
   if (!host.__fitBound) {
     host.__fitBound = true;
     let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(apply, 120); });
+    const onResize = () => { clearTimeout(t); t = setTimeout(() => {
+      const f = host.querySelector('.ls-desktop'); if (f) apply();
+    }, 120); };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
   }
 }
 
