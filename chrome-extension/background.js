@@ -325,6 +325,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     switch (msg.type) {
       case 'ko-get-state': sendResponse({ state }); break;
+      case 'ko-reset':
+        // Clear a finished or failed run so the next popup opens clean.
+        if (state.status === 'error' || state.status === 'done') {
+          setState({ status: 'idle', error: null, progress: 0, videoId: null, slug: null, shareUrl: null });
+        }
+        sendResponse({ ok: true });
+        break;
       case 'ko-start':     await startRecording(msg.opts); sendResponse({ ok: true }); break;
       case 'ko-stop':      await stopRecording(); sendResponse({ ok: true }); break;
       case 'ko-pause':     await pauseRecording(); sendResponse({ ok: true }); break;

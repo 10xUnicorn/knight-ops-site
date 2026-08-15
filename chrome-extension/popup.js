@@ -121,17 +121,24 @@ function fmt(ms) {
 
 function render(state) {
   const st = state.status;
-  show($('idle'), st === 'idle' || st === 'starting');
-  show($('live'), st === 'recording' || st === 'paused');
-  show($('up'),   st === 'uploading');
-  show($('done'), st === 'done');
+  const live = st === 'recording' || st === 'paused';
+  const up   = st === 'uploading';
+  const done = st === 'done';
+  // Anything that isn't an active run falls back to the idle panel — including
+  // 'error' and any unknown/missing status. The popup must never render empty.
+  const idleish = !live && !up && !done;
+  show($('idle'), idleish);
+  show($('live'), live);
+  show($('up'),   up);
+  show($('done'), done);
 
   if (state.error) { $('err').textContent = state.error; show($('err'), true); }
   else show($('err'), false);
 
-  if (st === 'idle') {
+  if (idleish) {
     $('start').disabled = false;
     $('start').textContent = 'Start recording';
+    checkTabCapturable();
   }
 
   if (st === 'recording' || st === 'paused') {
@@ -153,10 +160,23 @@ function render(state) {
 }
 
 chrome.runtime.onMessage.addListener((msg) => { if (msg.type === 'state') render(msg.state); });
+
+// Opening the popup clears a finished-or-failed run, so a stale error from
+// earlier can never leave the UI stuck. Safety net: if the service worker is
+// asleep or never answers, fall back to a usable idle screen.
+let answered = false;
 chrome.runtime.sendMessage({ type: 'ko-get-state' }, (res) => {
-  if (res?.state) render(res.state);
-  if (!res?.state || res.state.status === 'idle') checkTabCapturable();
+  answered = true;
+  const s = res?.state;
+  if (!s) { render({ status: 'idle' }); return; }
+  if (s.status === 'error' || s.status === 'done') {
+    chrome.runtime.sendMessage({ type: 'ko-reset' }).catch(() => {});
+    render({ ...s, status: 'idle' });      // keep the message, restore the controls
+    return;
+  }
+  render(s);
 });
+setTimeout(() => { if (!answered) render({ status: 'idle' }); }, 1200);
 
 // Nudge the user to set a token if they never have.
 // Checks saved settings first, then the gitignored local-config.json that lets
