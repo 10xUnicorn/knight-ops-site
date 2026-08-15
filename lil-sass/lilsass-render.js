@@ -186,10 +186,13 @@ function createApp(mount, opts) {
   function runChat(v, g) {
     const box = v.querySelector('#chat'), chips = v.querySelector('#chatchips');
     S.chatStep = 0; box.innerHTML = ''; chips.innerHTML = '';
-    // scroll AFTER layout, or scrollHeight is still the pre-append value
-    const toBottom = () => requestAnimationFrame(() => {
-      requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
-    });
+    // Bubbles animate in and the typing dots get removed, so the height keeps
+    // changing after append. One rAF is not enough — nudge it a few times.
+    const toBottom = () => {
+      const hit = () => { box.scrollTop = box.scrollHeight; };
+      requestAnimationFrame(() => { requestAnimationFrame(hit); });
+      [90, 260, 520].forEach(ms => setTimeout(hit, ms));
+    };
     const bubble = (who, html) => {
       const b = el('div', 'ls-bub ls-' + who, html);
       box.appendChild(b); toBottom(); return b;
