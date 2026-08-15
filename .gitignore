@@ -17,3 +17,6 @@ articles/
 PROSPECTING-SPEC.md
 *.docx
 ai-audit-sample-result.png
+
+# Recorder credentials — stays on this machine, never in the public repo
+chrome-extension/local-config.json

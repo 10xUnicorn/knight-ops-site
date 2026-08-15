@@ -45,7 +45,22 @@ function paintBadge() {
 
 async function getConfig() {
   const { koToken, koWorker } = await chrome.storage.local.get(['koToken', 'koWorker']);
-  return { token: koToken || '', worker: koWorker || '' };
+  if (koToken) return { token: koToken, worker: koWorker || '' };
+
+  // Nothing saved yet — fall back to the gitignored local-config.json that ships
+  // alongside the extension on this machine, and persist it so this only runs once.
+  try {
+    const r = await fetch(chrome.runtime.getURL('local-config.json'));
+    if (r.ok) {
+      const c = await r.json();
+      if (c && c.token) {
+        await chrome.storage.local.set({ koToken: c.token, koWorker: c.worker || '' });
+        return { token: c.token, worker: c.worker || '' };
+      }
+    }
+  } catch (_) { /* no local config — the options page will ask */ }
+
+  return { token: '', worker: '' };
 }
 
 async function api(action, payload) {

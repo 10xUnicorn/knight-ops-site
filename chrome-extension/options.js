@@ -1,10 +1,34 @@
 const FN = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1';
 const $ = (id) => document.getElementById(id);
 
-chrome.storage.local.get(['koToken', 'koWorker'], ({ koToken, koWorker }) => {
-  if (koToken) $('token').value = koToken;
-  if (koWorker) $('worker').value = koWorker;
-});
+/**
+ * Load order: saved settings first, then local-config.json if nothing is saved yet.
+ * local-config.json is gitignored, so credentials live on this machine only —
+ * but it means a fresh install configures itself instead of asking you to paste.
+ */
+async function localConfig() {
+  try {
+    const r = await fetch(chrome.runtime.getURL('local-config.json'));
+    if (!r.ok) return null;
+    const c = await r.json();
+    return c && c.token ? c : null;
+  } catch (_) { return null; }
+}
+
+(async () => {
+  const { koToken, koWorker } = await chrome.storage.local.get(['koToken', 'koWorker']);
+  if (koToken) {
+    $('token').value = koToken;
+    if (koWorker) $('worker').value = koWorker;
+    return;
+  }
+  const cfg = await localConfig();
+  if (!cfg) return;
+  $('token').value = cfg.token;
+  if (cfg.worker) $('worker').value = cfg.worker;
+  msg('Found local-config.json — connecting automatically…', true);
+  $('save').click();   // self-configure: saves and runs the connection test
+})();
 
 function msg(text, ok) {
   const el = $('msg');

@@ -130,11 +130,24 @@ chrome.runtime.onMessage.addListener((msg) => { if (msg.type === 'state') render
 chrome.runtime.sendMessage({ type: 'ko-get-state' }, (res) => { if (res?.state) render(res.state); });
 
 // Nudge the user to set a token if they never have.
-chrome.storage.local.get('koToken', ({ koToken }) => {
-  if (!koToken) {
-    $('err').innerHTML = 'No recorder token set. <a href="#" id="goOpt" style="color:#C9922A">Open settings</a> and paste it.';
-    show($('err'), true);
-    $('goOpt')?.addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
-    $('start').disabled = true;
-  }
-});
+// Checks saved settings first, then the gitignored local-config.json that lets
+// the extension configure itself on this machine.
+(async () => {
+  const { koToken } = await chrome.storage.local.get('koToken');
+  if (koToken) return;
+  try {
+    const r = await fetch(chrome.runtime.getURL('local-config.json'));
+    if (r.ok) {
+      const c = await r.json();
+      if (c && c.token) {
+        await chrome.storage.local.set({ koToken: c.token, koWorker: c.worker || '' });
+        return;
+      }
+    }
+  } catch (_) { /* fall through to the prompt */ }
+
+  $('err').innerHTML = 'No recorder token set. <a href="#" id="goOpt" style="color:#C9922A">Open settings</a> and paste it.';
+  show($('err'), true);
+  $('goOpt')?.addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
+  $('start').disabled = true;
+})();
