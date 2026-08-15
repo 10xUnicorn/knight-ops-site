@@ -6,6 +6,31 @@ let source = 'screen';
 let tick = null;
 let startedAt = 0;
 
+// Pages Chrome refuses to capture — warn before the user hits record, rather
+// than letting them hit an opaque "Error starting tab capture".
+const UNCAPTURABLE = /^(chrome|chrome-extension|devtools|edge|about|view-source):|^https:\/\/chromewebstore\.google\.com|^https:\/\/chrome\.google\.com\/webstore/i;
+let activeTabUrl = '';
+
+async function checkTabCapturable() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  activeTabUrl = tab?.url || '';
+  const blocked = !activeTabUrl || UNCAPTURABLE.test(activeTabUrl);
+  const tabTile = document.querySelector('.src[data-src="tab"]');
+  if (tabTile) {
+    tabTile.style.opacity = blocked ? '.4' : '';
+    tabTile.title = blocked ? 'Chrome does not allow recording this page' : 'Record just this browser tab';
+  }
+  if (source === 'tab' && blocked) {
+    $('err').textContent = 'Chrome will not record this page (browser and extension pages are off limits). Pick Screen or Window, or switch to a normal website tab.';
+    show($('err'), true);
+    $('start').disabled = true;
+    return false;
+  }
+  show($('err'), false);
+  $('start').disabled = false;
+  return true;
+}
+
 // ── source picker ──────────────────────────────────────────
 document.querySelectorAll('.src').forEach(el => {
   el.addEventListener('click', () => {
@@ -18,6 +43,7 @@ document.querySelectorAll('.src').forEach(el => {
     $('cam').disabled = cameraOnly;
     if (cameraOnly) { $('sys').checked = false; $('cam').checked = false; }
     chrome.storage.local.set({ koSource: source });
+    checkTabCapturable();
   });
 });
 
@@ -127,7 +153,10 @@ function render(state) {
 }
 
 chrome.runtime.onMessage.addListener((msg) => { if (msg.type === 'state') render(msg.state); });
-chrome.runtime.sendMessage({ type: 'ko-get-state' }, (res) => { if (res?.state) render(res.state); });
+chrome.runtime.sendMessage({ type: 'ko-get-state' }, (res) => {
+  if (res?.state) render(res.state);
+  if (!res?.state || res.state.status === 'idle') checkTabCapturable();
+});
 
 // Nudge the user to set a token if they never have.
 // Checks saved settings first, then the gitignored local-config.json that lets

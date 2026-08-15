@@ -122,26 +122,38 @@ function chooseDesktop(sources, tab) {
   });
 }
 
+// Chrome physically cannot capture these pages — no extension can. Catching it
+// here turns an opaque "Error starting tab capture" into something actionable.
+const UNCAPTURABLE = /^(chrome|chrome-extension|devtools|edge|about|view-source):|^https:\/\/chromewebstore\.google\.com|^https:\/\/chrome\.google\.com\/webstore/i;
+
+function tabCaptureBlockedReason(tab) {
+  if (!tab || !tab.url) return 'Chrome will not report this tab. Click into a normal website tab and try again.';
+  if (UNCAPTURABLE.test(tab.url)) {
+    return 'Chrome blocks recording of browser pages like this one (settings, extension pages, the Web Store). ' +
+           'Switch to a normal website tab, or record the Screen or a Window instead.';
+  }
+  return null;
+}
+
 // ── START ──────────────────────────────────────────────────
 async function startRecording(opts) {
+  // 1. Config comes from local storage only — no network here. Anything slow at
+  //    this point costs us the activeTab grant that tabCapture depends on.
   const { token, worker } = await getConfig();
-  if (!token) { setState({ status: 'error', error: 'No token. Open extension options.' }); return; }
-
-  let workerUrl = worker;
-  if (!workerUrl) {
-    const cfg = await api('config', {});
-    workerUrl = cfg.worker;
-    await chrome.storage.local.set({ koWorker: workerUrl });
-  }
-  if (!workerUrl) { setState({ status: 'error', error: 'Storage worker URL not configured.' }); return; }
+  if (!token) { setState({ status: 'error', error: 'No recorder token yet. Open the extension options.' }); return; }
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   setState({ status: 'starting', tabId: tab?.id || null, sourceType: opts.source, error: null, shareUrl: null, progress: 0 });
 
+  // 2. Grab the capture handle FIRST. getMediaStreamId must run while the
+  //    activeTab grant from the user's click is still alive, and the streamId it
+  //    returns is short-lived — so nothing slow may happen before we consume it.
   let streamId = null;
   let captureSource = 'desktop';
   try {
     if (opts.source === 'tab') {
+      const blocked = tabCaptureBlockedReason(tab);
+      if (blocked) { setState({ status: 'error', error: blocked }); return; }
       streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
       captureSource = 'tab';
     } else if (opts.source === 'camera') {
@@ -153,34 +165,34 @@ async function startRecording(opts) {
       streamId = res.streamId;
     }
   } catch (e) {
-    setState({ status: 'idle', error: e.message === 'cancelled' ? null : e.message });
-    return;
-  }
-
-  // Create the DB row up front so the share link exists before the upload finishes.
-  let created;
-  try {
-    created = await api('create', {
-      kind: 'video',
-      title: opts.title || null,
-      mime: 'video/webm',
-      source_type: opts.source,
-      source_url: tab?.url || null,
-      source_title: tab?.title || null,
-      has_audio: !!(opts.mic || opts.systemAudio),
-      has_camera: !!opts.camera,
-      visibility: opts.visibility || 'unlisted',
-      folder: opts.folder || null,
+    const raw = String(e?.message || e);
+    if (raw === 'cancelled') { setState({ status: 'idle', error: null }); return; }
+    setState({
+      status: 'error',
+      error: /tab capture/i.test(raw)
+        ? (tabCaptureBlockedReason(tab) ||
+           'Chrome refused to capture this tab. Reload the page and try again, or record the Screen instead.')
+        : raw,
     });
-  } catch (e) {
-    setState({ status: 'error', error: e.message });
     return;
   }
 
-  setState({ videoId: created.id, slug: created.slug });
+  // 3. Worker URL: cached value preferred, network lookup only as a last resort
+  //    and only now that the stream handle is already in hand.
+  let workerUrl = worker;
+  if (!workerUrl) {
+    try {
+      const cfg = await api('config', {});
+      workerUrl = cfg.worker;
+      if (workerUrl) await chrome.storage.local.set({ koWorker: workerUrl });
+    } catch (_) { /* reported below */ }
+  }
+  if (!workerUrl) { setState({ status: 'error', error: 'Storage worker URL not configured.' }); return; }
 
-  if (tab?.id && opts.source !== 'camera') {
-    await injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
+  // 4. Start capturing immediately. The offscreen document only needs the worker
+  //    and token to begin — it does not wait on the database.
+  if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
+    injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
   }
 
   await ensureOffscreen();
@@ -194,11 +206,31 @@ async function startRecording(opts) {
       camera: !!opts.camera && opts.source === 'camera',
       worker: workerUrl,
       token,
-      videoId: created.id,
       countdown: opts.countdown !== false ? 3 : 0,
       quality: opts.quality || 'high',
     },
   }).catch(() => {});
+
+  // 5. Create the database row in parallel with the countdown, so a slow network
+  //    never delays the capture or expires the stream handle.
+  try {
+    const created = await api('create', {
+      kind: 'video',
+      title: opts.title || null,
+      mime: 'video/webm',
+      source_type: opts.source,
+      source_url: tab?.url || null,
+      source_title: tab?.title || null,
+      has_audio: !!(opts.mic || opts.systemAudio),
+      has_camera: !!opts.camera,
+      visibility: opts.visibility || 'unlisted',
+      folder: opts.folder || null,
+    });
+    setState({ videoId: created.id, slug: created.slug });
+  } catch (e) {
+    setState({ status: 'error', error: `Could not create the recording: ${e.message}` });
+    relay('ko-offscreen-cancel');
+  }
 }
 
 // ── STOP / PAUSE / RESUME / CANCEL ─────────────────────────
@@ -259,6 +291,13 @@ async function takeScreenshot(opts = {}) {
 // ── finish ─────────────────────────────────────────────────
 async function finish(payload) {
   try {
+    // The row is created in parallel with the countdown. On a very short
+    // recording over a slow connection it may not exist yet — wait for it.
+    for (let i = 0; i < 40 && !state.videoId; i++) {
+      await new Promise(r => setTimeout(r, 250));
+    }
+    if (!state.videoId) throw new Error('The recording never registered. Check your connection and try again.');
+
     const res = await api('finalize', { id: state.videoId, ...payload });
     const shareUrl = res.url || `${SITE}/v/${state.slug}`;
     setState({ status: 'done', shareUrl, progress: 100 });
