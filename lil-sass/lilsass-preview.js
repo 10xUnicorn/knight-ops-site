@@ -77,7 +77,8 @@ function mountApp() {
   app = window.LILSASS_APP.createApp($('#stage'), {
     direction: state.direction, device: state.device, art: ART
   });
-  if (state.screen) app.goTo(state.screen);
+  // defensive: never let a stale cached renderer blank the page
+  if (state.screen && app && typeof app.goTo === 'function') app.goTo(state.screen);
 }
 
 function renderScreenNav() {
