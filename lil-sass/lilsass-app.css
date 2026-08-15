@@ -34,7 +34,7 @@
   content:''; position:absolute; left:50%; bottom:8px; transform:translateX(-50%);
   width:110px; height:5px; border-radius:3px; background:#3A4058;
 }
-.ls-desktop .ls-screen { border-radius:10px; height:700px; }
+.ls-desktop .ls-screen { border-radius:10px; height:560px; }
 
 /* ---------- real desktop app shell: thin icon rail + top bar ---------- */
 .ls-shell { flex:1; display:flex; min-height:0; }
@@ -74,6 +74,7 @@
    Art in one panel, everything else in the other. */
 .ls-desktop .ls-view.ls-split {
   flex-direction:row; align-items:center; gap:40px; justify-content:center;
+  height:100%;
 }
 .ls-splitart { flex:0 0 240px; display:flex; justify-content:center; align-items:center; }
 .ls-splitart .ls-art, .ls-splitart .ls-capewrap, .ls-splitart .ls-mooart { margin:0; width:100%; }
@@ -91,7 +92,7 @@
 .ls-desktop .ls-view.ls-split { padding:24px 34px; gap:28px; }
 
 /* keep tall screens comfortable rather than clipped */
-.ls-desktop .ls-chat { max-height:400px; }
+.ls-desktop .ls-chat { max-height:none; flex:1; }
 .ls-desktop .ls-page img { height:300px; }
 .ls-desktop .ls-art img { max-height:260px; width:auto; }
 .ls-desktop .ls-view { justify-content:center; }
