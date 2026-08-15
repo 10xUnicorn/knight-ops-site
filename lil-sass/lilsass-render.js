@@ -366,6 +366,11 @@ function createApp(mount, opts) {
     if (device === 'mobile') frame.appendChild(el('div', 'ls-notch'));
 
     const screen = el('div', 'ls-screen');
+    // drifting clouds / stars behind everything
+    const sky = el('div', 'ls-sky');
+    sky.innerHTML = '<div class="ls-cloud c1"></div><div class="ls-cloud c2"></div>' +
+                    '<div class="ls-cloud c3"></div><div class="ls-cloud c4"></div>';
+    screen.appendChild(sky);
     const bar = el('div', 'ls-status',
       device === 'mobile'
         ? '<span>9:41</span><span>●●● ⏻</span>'
@@ -377,26 +382,39 @@ function createApp(mount, opts) {
       : [[structure.screens[0],'★','Home'],['book','📚','My Books'],['chat','💬','Sass'],['delivered','👤','Me']];
 
     if (device === 'desktop') {
-      /* Genuine desktop app shell: persistent sidebar + wide content area.
-         Not the phone layout stretched. */
+      /* Genuine desktop app: thin icon rail + top bar + wide canvas.
+         Deliberately NOT the phone layout stretched. */
       const shell = el('div', 'ls-shell');
 
-      const side = el('div', 'ls-side');
-      side.appendChild(el('div', 'ls-brand', `<img src="${art.cape[S.cape.k] || art.cape.red}" alt=""><span>Lil’ Sass</span>`));
-      const nav = el('div', 'ls-sidenav');
+      const rail = el('div', 'ls-rail');
+      rail.appendChild(el('img', 'ls-raillogo')).src = art.cape[S.cape.k] || art.cape.red;
       navItems.forEach(([id, ic, label]) => {
-        const t = el('button', 'ls-sidebtn' + (id === S.view ? ' on' : ''), `<i>${ic}</i><span>${label}</span>`);
+        const t = el('button', 'ls-railbtn' + (id === S.view ? ' on' : ''),
+                     `<i>${ic}</i><span>${label.split(' ')[0]}</span>`);
+        t.title = label;
         t.addEventListener('click', () => go(id));
-        nav.appendChild(t);
+        rail.appendChild(t);
       });
-      side.appendChild(nav);
-      side.appendChild(el('div', 'ls-sidefoot',
-        structure.code === 'C'
-          ? `<div class="ls-sidecard"><b>${CHILDREN[S.child].name}</b><small>${CHILDREN[S.child].books} adventures</small></div>`
-          : `<div class="ls-sidecard"><b>Your shelf</b><small>3 adventures</small></div>`));
-      shell.appendChild(side);
+      const rf = el('div', 'ls-railfoot');
+      rf.appendChild(el('div', 'ls-railav', structure.code === 'C' ? 'C' : (S.name[0] || 'A')));
+      rail.appendChild(rf);
+      shell.appendChild(rail);
 
       const main = el('div', 'ls-main');
+      const TITLES = {
+        welcome:'Start a new adventure', identity:'About you', guide:'Choose your guide',
+        chat:'Your conversation', mooIntro:'Meet Mrs. Moo', cape:'The cape ceremony',
+        generating:'Writing your book', book:'Your book', delivered:'All done',
+        grownup:'Grown-up home', profiles:'Our rink', childHome:'Adventures', shelf:'The shelf'
+      };
+      main.appendChild(el('div', 'ls-topbar',
+        `<span class="ls-topttl">${TITLES[S.view] || 'Lil’ Sass'}</span>
+         <span class="ls-topcrumb">Lil’ Sass ${structure.code === 'C' ? '· ' + CHILDREN[S.child].name : ''}</span>
+         <span class="ls-topspacer">
+           <span class="ls-toppill">${structure.code === 'C' ? CHILDREN[S.child].books + ' adventures' : '3 adventures'}</span>
+           <span class="ls-toppill">Story Club</span>
+         </span>`));
+
       const port = el('div', 'ls-port');
       const dv = V[S.view] ? V[S.view]() : el('div', 'ls-view', 'Screen');
       // Hero screens become genuinely two-column on desktop: art in one panel,

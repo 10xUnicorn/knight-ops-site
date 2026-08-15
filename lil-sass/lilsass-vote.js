@@ -144,23 +144,14 @@ function buildStyles() {
 
 /* ---------- navigation ---------- */
 function show(n) {
-  [1,2,3,4,5].forEach(i => $('#s' + i).classList.toggle('hide', i !== n));
-  document.querySelectorAll('.progress i').forEach((d, i) => d.classList.toggle('on', i < Math.min(n,4)));
+  [1,2,3,4,5].forEach(i => { const e = $('#s' + i); if (e) e.classList.toggle('hide', i !== n); });
+  document.querySelectorAll('.progress i').forEach((d, i) => d.classList.toggle('on', i < Math.min(n,3)));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 $('#n1').addEventListener('click', () => { buildStyles(); show(2); });
-$('#n2').addEventListener('click', () => show(3));
 document.querySelectorAll('[data-back]').forEach(b =>
   b.addEventListener('click', () => show(+b.dataset.back)));
-
-document.querySelectorAll('[data-devpref]').forEach(b =>
-  b.addEventListener('click', () => {
-    vote.device = b.dataset.devpref;
-    document.querySelectorAll('.devopt').forEach(x => x.classList.remove('on'));
-    b.classList.add('on');
-    $('#n3').disabled = false;
-  }));
 
 document.querySelectorAll('#dev1 button').forEach(b =>
   b.addEventListener('click', () => {
@@ -169,14 +160,13 @@ document.querySelectorAll('#dev1 button').forEach(b =>
   }));
 
 /* ---------- submit vote ---------- */
-$('#n3').addEventListener('click', async function () {
+$('#n2').addEventListener('click', async function () {
   this.disabled = true; this.textContent = 'Sending…';
   vote.id = uuid();
   const fp = fingerprint();
   const payload = {
     structure_code: vote.structure,
-    style_code: vote.style,
-    device_pref: vote.device
+    style_code: vote.style
   };
   try {
     const r = await insertRow('preview_votes',
@@ -192,7 +182,7 @@ $('#n3').addEventListener('click', async function () {
     vote.id = null;
   }
   this.disabled = false; this.textContent = 'Send my vote →';
-  show(4);
+  show(3);
 });
 
 /* ---------- waitlist ---------- */
@@ -203,7 +193,7 @@ $('#wlopt').addEventListener('change', function () {
 
 $('#skip').addEventListener('click', () => {
   $('#donemsg').textContent = 'Thank you for helping shape this. Christie reads every single response.';
-  show(5);
+  show(4);
 });
 
 $('#n4').addEventListener('click', async function () {
@@ -235,7 +225,7 @@ $('#n4').addEventListener('click', async function () {
     }
     $('#donemsg').innerHTML = 'You’re on the list, ' + name.replace(/[<>&]/g, '') +
       '. We’ll email you when there’s real news about the app — and nothing else.';
-    show(5);
+    show(4);
   } catch (e) {
     err.textContent = 'Something went wrong saving that. Your vote was still counted.';
     err.style.display = 'block';
