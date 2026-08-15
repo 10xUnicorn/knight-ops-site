@@ -97,8 +97,8 @@ function buildDirections() {
   });
   PUB_DIRS.forEach(code => {
     window.LILSASS_APP.createApp($('#stage-' + code), { direction: code, device: 'mobile', art: ART });
-    // let the prototype be used; just don't let it double as "select this card"
-    $('#stage-' + code).addEventListener('click', e => e.stopPropagation());
+    // Using the prototype ALSO counts as picking it — the click bubbles to the
+    // card on purpose. Only thing we swallow is the phone's own scroll chrome.
     $('#stage-' + code).style.pointerEvents = 'auto';
   });
   renderDesktop(vote.direction || PUB_DIRS[0]);
