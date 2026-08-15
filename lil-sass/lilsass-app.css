@@ -274,7 +274,7 @@
   text-transform:uppercase; color:var(--ink-soft); margin-bottom:3px; }
 .ls-val { font-size:13.5px; font-weight:800; }
 
-.ls-chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+.ls-chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; flex:0 0 auto; }
 .ls-chip { font-size:11.5px; font-weight:800; padding:7px 12px; border-radius:999px;
   background:var(--chip); color:var(--support); box-shadow:var(--shadow); transition:.14s; }
 .ls-chip:hover { transform:translateY(-1px); }
@@ -295,13 +295,16 @@
 .ls-gline { font-size:10.5px; line-height:1.35; color:var(--ink-soft); font-style:italic; }
 
 /* chat */
-.ls-chatview { padding-bottom:0; }
+.ls-chatview { padding-bottom:0; min-height:0; }
+.ls-desktop .ls-view.ls-chatview { justify-content:flex-start; padding-bottom:14px; }
+.ls-desktop .ls-chatview .ls-chat { width:100%; margin:0 auto; }
 .ls-who { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex:0 0 auto; }
 .ls-who img { width:32px; height:32px; border-radius:50%; object-fit:cover; object-position:50% 16%;
   background:var(--card); border:2px solid var(--card); }
 .ls-who span { font-size:12px; font-weight:900; }
 .ls-who small { font-size:10px; color:#54C08A; font-weight:800; }
-.ls-chat { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px 6px; }
+.ls-chat { flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column;
+  gap:8px; padding:4px 2px 6px; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
 .ls-desktop .ls-chat { max-width:620px; }
 .ls-bub { max-width:84%; font-size:13px; line-height:1.45; padding:10px 13px;
   border-radius:var(--radius); animation:lspop .24s ease; }

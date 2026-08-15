@@ -186,20 +186,24 @@ function createApp(mount, opts) {
   function runChat(v, g) {
     const box = v.querySelector('#chat'), chips = v.querySelector('#chatchips');
     S.chatStep = 0; box.innerHTML = ''; chips.innerHTML = '';
+    // scroll AFTER layout, or scrollHeight is still the pre-append value
+    const toBottom = () => requestAnimationFrame(() => {
+      requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+    });
     const bubble = (who, html) => {
       const b = el('div', 'ls-bub ls-' + who, html);
-      box.appendChild(b); box.scrollTop = box.scrollHeight; return b;
+      box.appendChild(b); toBottom(); return b;
     };
     const typing = () => {
       const t = el('div', 'ls-bub ls-guide ls-typing', '<i></i><i></i><i></i>');
-      box.appendChild(t); box.scrollTop = box.scrollHeight; return t;
+      box.appendChild(t); toBottom(); return t;
     };
     function showChips(list, goId) {
       chips.innerHTML = '';
       (list || []).forEach(label => {
         const b = el('button', 'ls-chip', label);
         b.addEventListener('click', () => {
-          chips.innerHTML = '';
+          chips.innerHTML = ''; toBottom();
           if (goId) { go(goId); return; }
           advance();
         });
@@ -215,7 +219,7 @@ function createApp(mount, opts) {
         setTimeout(() => { t.remove(); advance(); }, 800);
       } else {
         bubble('guide', step.t.replace('{NAME}', esc(S.name))); S.chatStep++;
-        showChips(step.chips, step.go);
+        showChips(step.chips, step.go); toBottom();
       }
     }
     advance();

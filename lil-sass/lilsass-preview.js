@@ -329,9 +329,6 @@ async function renderVotes() {
       </div>`).join('');
 
   comments.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  const field = (label, val, cls) => val
-    ? `<div class="cline ${cls}"><b>${label}</b><span>${esc(val)}</span></div>` : '';
-
   const cbox = comments.length ? `
     <div class="commentwrap">
       <div class="chead">💬 ${comments.length} ${comments.length === 1 ? 'person' : 'people'} left
@@ -341,9 +338,7 @@ async function renderVotes() {
           <div class="cvote">Voted ${esc((L.DIRECTIONS[c.direction] || {}).name || c.direction)}
             <time>${c.at ? new Date(c.at).toLocaleDateString(undefined,
               { month:'short', day:'numeric' }) : ''}</time></div>
-          ${field('Liked', c.likes, 'good')}
-          ${field('Didn’t like', c.dislikes, 'bad')}
-          ${field('Idea', c.ideas, 'idea')}
+          <div class="ctext">${esc(c.feedback).replace(/\n+/g, '<br>')}</div>
         </div>`).join('')}
     </div>` : `
     <div style="font-size:12.5px;color:var(--soft);margin-top:14px">

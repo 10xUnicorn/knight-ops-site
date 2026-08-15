@@ -139,31 +139,51 @@ document.querySelectorAll('[data-back]').forEach(b =>
   b.addEventListener('click', () => show(+b.dataset.back)));
 
 /* ---------- submit vote ---------- */
+/* The vote is committed on its own. Feedback is a second, optional step that
+   PATCHes the same row — so we never lose a vote to someone abandoning a textarea. */
+let voteFp = null;
+
 $('#n1').addEventListener('click', async function () {
   this.disabled = true; this.textContent = 'Sending…';
   vote.id = uuid();
-  const fp = fingerprint();
-  const val = id => { const e = $(id); return e && e.value.trim() ? e.value.trim().slice(0, 800) : null; };
-  const payload = {
-    style_code: vote.direction,
-    likes: val('#fLikes'), dislikes: val('#fDislikes'), ideas: val('#fIdeas')
-  };
+  voteFp = fingerprint();
   try {
     const r = await insertRow('preview_votes',
-      Object.assign({ id: vote.id, preview_id: CFG.previewId, voter_fingerprint: fp }, payload));
+      { id: vote.id, preview_id: CFG.previewId, voter_fingerprint: voteFp, style_code: vote.direction });
     if (r === 'conflict') {
-      // they already voted from this browser — update their answer instead
       vote.id = null;
       await patchRow('preview_votes',
-        'preview_id=eq.' + CFG.previewId + '&voter_fingerprint=eq.' + encodeURIComponent(fp), payload);
+        'preview_id=eq.' + CFG.previewId + '&voter_fingerprint=eq.' + encodeURIComponent(voteFp),
+        { style_code: vote.direction });
     }
   } catch (e) {
-    console.warn('vote save failed:', e.message); // still thank them
+    console.warn('vote save failed:', e.message);
     vote.id = null;
   }
-  this.disabled = false; this.textContent = 'Send my vote →';
+  this.textContent = '✓ Vote sent';
+  const fb = $('#fbblock');
+  fb.classList.remove('hide');
+  fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => $('#fbText').focus({ preventScroll: true }), 400);
+});
+
+async function sendFeedback(text) {
+  if (!text || !voteFp) return;
+  try {
+    await patchRow('preview_votes',
+      'preview_id=eq.' + CFG.previewId + '&voter_fingerprint=eq.' + encodeURIComponent(voteFp),
+      { feedback: text.slice(0, 2000) });
+  } catch (e) { console.warn('feedback save failed:', e.message); }
+}
+
+$('#fbsend').addEventListener('click', async function () {
+  const text = $('#fbText').value.trim();
+  this.disabled = true; this.textContent = 'Sending…';
+  await sendFeedback(text);
   show(3);
 });
+
+$('#fbskip').addEventListener('click', () => show(3));
 
 /* ---------- waitlist ---------- */
 $('#wlopt').addEventListener('change', function () {

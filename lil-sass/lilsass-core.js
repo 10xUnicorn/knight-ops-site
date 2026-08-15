@@ -162,8 +162,8 @@ const PRICING = {
       margin:'$3.90 net' },
     { name:'Printed keepsake', price:'$34.99', unit:'each', detail:'Hardcover of their own book, shipped',
       margin:'~$18 net · zero inventory' },
-    { name:'Classroom monthly', price:'$89', unit:'/mo', detail:'Up to 30 children · 1 adventure each a month · teacher view',
-      margin:'$54 net · $1,068/yr if they stay', hero:true },
+    { name:'Classroom monthly', price:'$97', unit:'/mo', detail:'Up to 30 children · 1 adventure each a month · teacher view',
+      margin:'$62 net · $1,164/yr if they stay', hero:true },
     { name:'Classroom annual', price:'$899', unit:'/yr', detail:'Same thing paid up front · two months free',
       margin:'$540 net after 360 books' },
     { name:'School', price:'$2,990', unit:'/yr', detail:'Up to 6 classrooms · 180 children',
@@ -182,10 +182,11 @@ const PRICING = {
     'Nothing is sold as "unlimited". At $0.92 a book, an unlimited tier would earn LESS per family than the tier below it.',
     'Do not publish classroom pricing at launch. Sell the first five by conversation, then put it on the site.',
     'Annual options ($249 family, $129 single) capture the gift-giver and cut churn.',
-    'Offer classrooms $89/mo as the default and $899/yr as the discount. Most teachers cannot get a lump ' +
-      'sum past a school budget, but $89 sits under the discretionary limit — and a classroom that stays ' +
-      'all year on monthly pays $1,068 instead of $899. Monthly is both easier to sell AND worth 19% more; ' +
-      'the annual price is what you offer when they ask for a deal.'
+    'Offer classrooms $97/mo as the default and $899/yr as the discount. Most teachers cannot get a lump ' +
+      'sum past a school budget, but $97 still sits under the usual discretionary limit — and a classroom ' +
+      'that stays all year on monthly pays $1,164 instead of $899. Monthly is easier to sell AND worth 29% ' +
+      'more; the annual price is what you offer when they ask for a deal. $97 also makes the annual look ' +
+      'like a much stronger deal (over three months free instead of two).'
   ]
 };
 
