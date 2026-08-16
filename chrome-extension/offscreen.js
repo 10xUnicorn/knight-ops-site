@@ -263,8 +263,16 @@ async function start(p) {
     send('ko-recording-started');
     note('recording', 'recorder started', { mime, state: rec.state });
     capturePoster(stream.getVideoTracks()[0]);
+    return { ok: true };
   } catch (e) {
-    fail(e);
+    const failedAt = stage;
+    // Don't mark the whole run failed yet — the service worker may retry with a
+    // fresh capture handle or fall back to screen capture.
+    const msg = String(e?.name === 'NotAllowedError' ? 'Permission denied: ' + e.message : (e?.message || e));
+    console.error('[ko]', failedAt, e);
+    note(failedAt, msg, { name: e?.name || null, source: p.source, captureSource: p.captureSource }, 'error');
+    cleanup();
+    return { ok: false, stage: failedAt, error: msg, name: e?.name || null };
   }
 }
 
@@ -362,7 +370,12 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
     // Handshake so the service worker knows this listener is live before it
     // sends the start payload.
     case 'ko-offscreen-ping':       respond({ ready: true }); return true;
-    case 'ko-offscreen-start':      start(msg.payload); break;
+    // Report the outcome back so the service worker can retry or fall back
+    // instead of the run dying silently.
+    case 'ko-offscreen-start':
+      start(msg.payload).then(respond, (e) =>
+        respond({ ok: false, stage: 'unknown', error: String(e?.message || e) }));
+      return true;
     case 'ko-offscreen-stop':       if (rec && rec.state !== 'inactive') rec.stop(); break;
     case 'ko-offscreen-pause':
       if (rec?.state === 'recording') { rec.pause(); pausedAt = Date.now(); } break;

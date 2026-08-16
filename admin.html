@@ -10855,14 +10855,34 @@ async function koMarkGroupPaid(ids){
 }
 
 // ── Stripe Connect onboarding (admin-initiated) ───────────────────────────
+// Stripe account links are single-use and expire within minutes — that is Stripe's
+// design and cannot be extended. So the link you SEND a partner is their portal link
+// (which never expires); the portal mints a fresh Stripe link when they click through.
 async function koPartnerStripeLink(partnerId){
-  try{const r=await koCall('partner-stripe-connect','admin_onboard_link',{partner_id:partnerId});
-    await loadPartners();
-    openEditModal('Stripe onboarding link',
-      '<p style="font-size:.85rem">Send this to the partner. It expires in a few minutes — regenerate if needed.</p>'+
-      '<input class="form-input" style="width:100%;font-size:.75rem" value="'+r.url+'" readonly onclick="this.select()">'+
-      '<p style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem">Account: '+r.stripe_account_id+'</p>',
-      '<button class="btn btn-secondary" onclick="closeEditModal()">Close</button><button class="btn btn-primary" onclick="navigator.clipboard.writeText(\''+r.url+'\');showToast(\'Copied\',\'success\')">Copy link</button>');
+  const p=S.partners.find(x=>x.id===partnerId);if(!p)return;
+  let r=null;
+  try{r=await koCall('partner-stripe-connect','admin_onboard_link',{partner_id:partnerId});await loadPartners();}catch(e){return;}
+  const portalUrl='https://knightops.biz/partner-portal#token='+(p.magic_link_token||'');
+  openEditModal('Send Stripe setup to '+p.name,
+    '<div style="background:rgba(201,146,42,.08);border:1px solid rgba(201,146,42,.25);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem">'+
+      '<div style="font-weight:600;font-size:.85rem;margin-bottom:.25rem">Send this link — it never expires</div>'+
+      '<div style="font-size:.78rem;color:var(--text-muted);line-height:1.5">Their portal link. When they click "Set up payouts" it generates a fresh Stripe session, so they can take as long as they need.</div>'+
+      '<input class="form-input" style="width:100%;font-size:.72rem;margin-top:.6rem" value="'+portalUrl+'" readonly onclick="this.select()">'+
+    '</div>'+
+    '<div style="font-size:.8rem;font-weight:600;margin-bottom:.25rem">Direct Stripe link (expires in minutes)</div>'+
+    '<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.5rem">Only useful if they are sitting with you right now. Stripe expires these deliberately and the window cannot be extended.</div>'+
+    '<input class="form-input" style="width:100%;font-size:.72rem" value="'+r.url+'" readonly onclick="this.select()">'+
+    '<p style="font-size:.72rem;color:var(--text-muted);margin-top:.6rem">Account: '+r.stripe_account_id+'</p>',
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>'+
+    '<button class="btn btn-secondary" onclick="navigator.clipboard.writeText(\''+portalUrl+'\');showToast(\'Portal link copied\',\'success\')">Copy portal link</button>'+
+    '<button class="btn btn-primary" onclick="koEmailStripeSetup(\''+partnerId+'\')">&#9993; Email setup invite</button>');
+}
+
+async function koEmailStripeSetup(partnerId){
+  const p=S.partners.find(x=>x.id===partnerId);if(!p)return;
+  try{
+    await koCall('partner-invite','invite',{name:p.name,email:p.email,company:p.company||null});
+    closeEditModal();showToast('Setup invite emailed to '+p.email,'success');
   }catch(e){}
 }
 async function koRefreshPartnerStripe(partnerId){
@@ -11150,18 +11170,61 @@ async function koRefundPayment(paymentId,dealId,amount,already){
 // ── Invite a partner from an existing lead or client ────────────────────────
 function koInvitePartner(){
   const existing=new Set(S.partners.map(p=>(p.email||'').toLowerCase()));
-  const leads=(S.leads||[]).filter(l=>l.lead_type!=='prospect'&&l.email&&!existing.has(l.email.toLowerCase()));
-  const clients=(S.clients||[]).filter(c=>c.profiles?.email&&!existing.has(c.profiles.email.toLowerCase()));
-  const opts=[{v:'',l:'— choose someone —'}]
-    .concat(clients.map(c=>({v:'client:'+c.id,l:'[Client] '+(c.profiles.full_name||c.profiles.email)})))
-    .concat(leads.map(l=>({v:'lead:'+l.id,l:'[Lead] '+(l.name||l.email)+(l.company?' · '+l.company:'')})));
-  if(opts.length===1){showToast('Everyone already has a partner record','error');return;}
-  const body=FG('Invite','e_invwho','select','',opts)+
-    FG('Or enter manually — name','e_invname','text','')+
-    FR(FG('Email','e_invemail','email',''),FG('Company','e_invcompany','text',''))+
-    '<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">They are created as an <b>active</b> partner on the standard sliding schedule and emailed an activation link to set up payouts.</div>';
+  // De-duplicate by email so the same person doesn't appear as both lead and client.
+  const seen=new Set(); S.koInvitePool=[];
+  (S.clients||[]).forEach(c=>{
+    const em=(c.profiles?.email||'').toLowerCase();
+    if(!em||existing.has(em)||seen.has(em))return; seen.add(em);
+    S.koInvitePool.push({kind:'client',id:c.id,name:c.profiles.full_name||em,email:c.profiles.email,company:c.profiles.company||''});
+  });
+  (S.leads||[]).forEach(l=>{
+    const em=(l.email||'').toLowerCase();
+    if(!em||existing.has(em)||seen.has(em)||l.lead_type==='prospect')return; seen.add(em);
+    S.koInvitePool.push({kind:'lead',id:l.id,name:l.name||em,email:l.email,company:l.company||''});
+  });
+  S.koInvitePool.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const rate=(S.koRates&&S.koRates.brackets&&S.koRates.brackets[0]?.rate)||S.koRates?.default_rate||10;
+  const body=
+    '<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.6rem">Search your clients and leads, or just type someone in. They are created as an <b>active</b> partner earning <b>up to '+rate+'%</b> and emailed an activation link to connect Stripe.</div>'+
+    '<div class="form-group"><label>Search clients &amp; leads</label>'+
+      '<input id="e_invsearch" type="text" placeholder="Name, email, or company…" oninput="koInviteSearch()" autocomplete="off">'+
+      '<div id="e_invresults" style="max-height:210px;overflow:auto;margin-top:.4rem;border:1px solid var(--border);border-radius:8px;display:none"></div>'+
+    '</div>'+
+    '<div id="e_invchosen" style="display:none;background:rgba(201,146,42,.08);border:1px solid rgba(201,146,42,.25);border-radius:8px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:.82rem"></div>'+
+    FG('Name *','e_invname','text','')+
+    FR(FG('Email *','e_invemail','email',''),FG('Company','e_invcompany','text',''));
   openEditModal('Invite a partner',body,
     '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSendPartnerInvite()">Send invite</button>');
+  koInviteSearch();
+}
+
+function koInviteSearch(){
+  const q=(document.getElementById('e_invsearch')?.value||'').toLowerCase().trim();
+  const box=document.getElementById('e_invresults');if(!box)return;
+  let pool=S.koInvitePool||[];
+  if(q) pool=pool.filter(p=>(p.name+' '+p.email+' '+p.company).toLowerCase().includes(q));
+  pool=pool.slice(0,40);
+  if(!pool.length){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML=pool.map((p,i)=>
+    '<div onclick="koInvitePick('+(S.koInvitePool.indexOf(p))+')" style="padding:.5rem .7rem;cursor:pointer;border-bottom:1px solid var(--border-subtle,rgba(255,255,255,.05))" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'\'">'+
+      '<div style="font-size:.85rem;font-weight:500">'+p.name+' <span style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase">'+p.kind+'</span></div>'+
+      '<div style="font-size:.75rem;color:var(--text-muted)">'+p.email+(p.company?' · '+p.company:'')+'</div>'+
+    '</div>').join('');
+}
+
+function koInvitePick(idx){
+  const p=(S.koInvitePool||[])[idx];if(!p)return;
+  document.getElementById('e_invname').value=p.name;
+  document.getElementById('e_invemail').value=p.email;
+  document.getElementById('e_invcompany').value=p.company||'';
+  const chosen=document.getElementById('e_invchosen');
+  chosen.style.display='block';
+  chosen.innerHTML='Inviting <b>'+p.name+'</b> ('+p.email+') — existing '+p.kind+', will be linked to this partner.';
+  S.koInviteChosen=p;
+  document.getElementById('e_invresults').style.display='none';
+  document.getElementById('e_invsearch').value='';
 }
 
 async function koSendPartnerInvite(){

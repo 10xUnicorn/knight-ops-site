@@ -48,11 +48,16 @@ document.querySelectorAll('.src').forEach(el => {
 });
 
 // ── restore preferences ────────────────────────────────────
-chrome.storage.local.get(['koSource', 'koPrefs'], ({ koSource, koPrefs }) => {
-  if (koSource) {
-    const el = document.querySelector(`.src[data-src="${koSource}"]`);
-    if (el) el.click();
+chrome.storage.local.get(['koSource', 'koPrefs'], async ({ koSource, koPrefs }) => {
+  // Restore the last source — but never land on Tab when the current page can't
+  // be captured, which would otherwise leave the picker stuck on a broken choice.
+  let want = koSource || 'screen';
+  if (want === 'tab') {
+    const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!t?.url || UNCAPTURABLE.test(t.url)) want = 'screen';
   }
+  const el = document.querySelector(`.src[data-src="${want}"]`);
+  if (el) el.click();
   if (koPrefs) {
     $('mic').checked = koPrefs.mic !== false;
     $('sys').checked = koPrefs.systemAudio !== false;
