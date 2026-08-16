@@ -207,182 +207,209 @@ function tabCaptureBlockedReason(tab) {
 }
 
 // ── START ──────────────────────────────────────────────────
+/**
+ * Every exit from this function reports. A silent return here is a bug: it
+ * leaves the user with a dead popup and leaves no trace in diagnostics, which
+ * is precisely what made this so slow to track down.
+ */
 async function startRecording(opts) {
-  // 1. Config comes from local storage only — no network here. Anything slow at
-  //    this point costs us the activeTab grant that tabCapture depends on.
-  const { token, worker } = await getConfig();
-  if (!token) { setState({ status: 'error', error: 'No recorder token yet. Open the extension options.' }); return; }
-
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  setState({ status: 'starting', tabId: tab?.id || null, sourceType: opts.source, error: null, shareUrl: null, progress: 0 });
-
-  // Heartbeat: proves the popup's message reached the service worker. Without
-  // this, a failure before the first network call leaves no trace at all.
-  report('start', 'recording requested', {
-    source: opts.source, mic: !!opts.mic, systemAudio: !!opts.systemAudio,
-    quality: opts.quality, countdown: opts.countdown !== false,
-  }, 'info');
-
-  // 2. Resolve the storage worker BEFORE minting a capture handle.
-  let workerUrl = worker;
-  if (!workerUrl) {
-    try {
-      const cfg = await api('config', {});
-      workerUrl = cfg.worker;
-      if (workerUrl) await chrome.storage.local.set({ koWorker: workerUrl });
-    } catch (_) { /* reported below */ }
-  }
-  if (!workerUrl) { setState({ status: 'error', error: 'Storage worker URL not configured.' }); return; }
-
-  // 3. Warm the offscreen recorder BEFORE asking Chrome for a capture handle.
-  //    This is the whole ballgame: capture stream IDs are single-use and expire
-  //    within moments of being minted. Creating the offscreen document costs a
-  //    few hundred milliseconds on a cold start, and doing that AFTER minting
-  //    burned the handle every time — Chrome then rejects it at getUserMedia
-  //    with a bare AbortError whose message misleadingly says "tab capture",
-  //    regardless of whether you picked Screen, Window or Tab.
-  try {
-    await ensureOffscreen();
-  } catch (e) {
-    report('offscreen', String(e?.message || e));
-    setState({ status: 'error', error: String(e?.message || e) });
-    return;
-  }
-
-  // 4. Now mint the handle and consume it immediately.
-  let streamId = null;
-  let captureSource = 'desktop';
-  try {
-    if (opts.source === 'tab') {
-      const blocked = tabCaptureBlockedReason(tab);
-      if (blocked) { setState({ status: 'error', error: blocked }); return; }
-      streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
-      captureSource = 'tab';
-    } else if (opts.source === 'camera') {
-      streamId = null;
-    } else {
-      const sources = opts.source === 'window' ? ['window'] : ['screen', 'window'];
-      if (opts.systemAudio) sources.push('audio');
-      const res = await chooseDesktop(sources);
-      streamId = res.streamId;
-    }
-  } catch (e) {
-    const raw = String(e?.message || e);
-    if (raw === 'cancelled') { setState({ status: 'idle', error: null }); return; }
-    report('get_stream', raw, { source: opts.source, url: tab?.url || null });
-    setState({
-      status: 'error',
-      error: /tab capture/i.test(raw)
-        ? (tabCaptureBlockedReason(tab) ||
-           'Chrome refused to capture this tab. Reload the page and try again, or record the Screen instead.')
-        : raw,
-    });
-    return;
-  }
-
-  const basePayload = {
-    source: opts.source,
-    mic: !!opts.mic,
-    systemAudio: !!opts.systemAudio,
-    camera: !!opts.camera && opts.source === 'camera',
-    worker: workerUrl,
-    token,
-    countdown: opts.countdown !== false ? 3 : 0,
-    quality: opts.quality || 'high',
+  // Always reports, then stops the run.
+  const bail = (stage, logMsg, userMsg, detail = {}) => {
+    report(stage, logMsg, detail);
+    setState({ status: 'error', error: userMsg || logMsg });
+    return false;
   };
+  const step = (name, detail = {}) => report('step', name, detail, 'info');
 
-  const attempt = (sid, cs, countdown) =>
-    chrome.runtime.sendMessage({
-      type: 'ko-offscreen-start',
-      payload: { ...basePayload, streamId: sid, captureSource: cs, countdown },
-    }).catch(e => ({ ok: false, stage: 'transport', error: String(e?.message || e) }));
-
-  let res = await attempt(streamId, captureSource, basePayload.countdown);
-
-  // Tab capture hands back a handle that can go stale between minting and use —
-  // Chrome reports that as a bare AbortError "Error starting tab capture".
-  // Mint a fresh one and try again immediately before giving up.
-  if (!res?.ok && opts.source === 'tab' && res?.stage === 'build_stream') {
-    report('retry', 'tab capture failed, retrying with a fresh handle', { first: res.error }, 'warn');
-    try {
-      const fresh = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
-      res = await attempt(fresh, 'tab', 0);   // no second countdown
-    } catch (e) {
-      res = { ok: false, stage: 'build_stream', error: String(e?.message || e) };
+  try {
+    // 1. Config comes from local storage only — no network here.
+    const { token, worker } = await getConfig();
+    if (!token) {
+      return bail('config', 'no token in storage or local-config.json',
+        'No recorder token yet. Open the extension options.');
     }
-  }
 
-  // Still no good: fall back to the screen picker so the recording still happens.
-  if (!res?.ok && opts.source === 'tab') {
-    report('fallback', 'tab capture unavailable, offering screen capture', { last: res?.error }, 'warn');
-    try {
-      const sources = ['screen', 'window'];
-      if (opts.systemAudio) sources.push('audio');
-      const picked = await chooseDesktop(sources);
-      basePayload.source = 'screen';
-      setState({ sourceType: 'screen' });
-      await chrome.storage.local.set({ koSource: 'screen' });  // stop it sticking on a broken choice
-      res = await attempt(picked.streamId, 'desktop', 0);
-    } catch (e) {
-      if (String(e?.message) !== 'cancelled') {
-        res = { ok: false, stage: 'fallback', error: String(e?.message || e) };
-      } else {
-        setState({ status: 'idle', error: 'Chrome could not record that tab. Pick Screen or Window instead.' });
-        await removeOverlay(tab?.id);
-        return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    setState({ status: 'starting', tabId: tab?.id || null, sourceType: opts.source, error: null, shareUrl: null, progress: 0 });
+
+    report('start', 'recording requested', {
+      source: opts.source, mic: !!opts.mic, systemAudio: !!opts.systemAudio,
+      quality: opts.quality, countdown: opts.countdown !== false,
+      tabUrl: (tab?.url || '').slice(0, 120),
+    }, 'info');
+
+    // 2. Resolve the storage worker BEFORE minting a capture handle.
+    let workerUrl = worker;
+    if (!workerUrl) {
+      try {
+        const cfg = await api('config', {});
+        workerUrl = cfg.worker;
+        if (workerUrl) await chrome.storage.local.set({ koWorker: workerUrl });
+      } catch (e) {
+        return bail('config', `worker lookup failed: ${e.message}`,
+          'Could not reach your dashboard. Check your connection and try again.');
       }
     }
-  }
+    if (!workerUrl) {
+      return bail('config', 'no worker URL configured', 'Storage worker URL not configured.');
+    }
+    step('worker resolved', { worker: workerUrl });
 
-  if (!res?.ok) {
-    // This branch used to return silently, which is how several failures reached
-    // the user with nothing in the diagnostics. It always reports now.
-    const noReply = !res || res.ok === undefined;
-    report('start_failed', noReply ? 'recorder returned no result' : (res.error || 'unknown'), {
-      source: opts.source, stage: res?.stage || null, name: res?.name || null, raw: res || null,
-    });
+    // 3. Rebuild the offscreen recorder BEFORE asking Chrome for a capture
+    //    handle — handles are single-use and expire almost immediately.
+    try {
+      await ensureOffscreen();
+    } catch (e) {
+      return bail('offscreen', String(e?.message || e), String(e?.message || e));
+    }
+    step('offscreen ready');
 
-    // Chrome says "Error starting tab capture" for every capture failure — Screen
-    // and Window included. Never repeat that wording back to the user.
-    const friendly = noReply
-      ? 'The recorder did not respond. Reload the extension at chrome://extensions and try again.'
-      : res.name === 'NotAllowedError'
-        ? 'Permission was denied. Allow screen recording for Chrome in System Settings → Privacy & Security → Screen Recording, then try again.'
-        : /tab capture|aborterror/i.test(res.error || '')
-          ? 'Chrome dropped the screen-capture handle before recording could start. Try again — this usually works on the second attempt.'
-          : (res.error || 'The recording could not start.');
-    setState({ status: 'error', error: friendly });
-    await removeOverlay(tab?.id);
-    return;
-  }
+    // 4. Now mint the handle and consume it immediately.
+    let streamId = null;
+    let captureSource = 'desktop';
+    try {
+      if (opts.source === 'tab') {
+        const blocked = tabCaptureBlockedReason(tab);
+        if (blocked) return bail('get_stream', 'tab not capturable', blocked, { url: tab?.url });
+        streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
+        captureSource = 'tab';
+      } else if (opts.source === 'camera') {
+        streamId = null;
+      } else {
+        const sources = opts.source === 'window' ? ['window'] : ['screen', 'window'];
+        if (opts.systemAudio) sources.push('audio');
+        step('opening screen picker', { sources });
+        const picked = await chooseDesktop(sources);
+        streamId = picked.streamId;
+        step('picker returned a handle', { canAudio: !!picked.options?.canRequestAudioTrack });
+      }
+    } catch (e) {
+      const raw = String(e?.message || e);
+      if (raw === 'cancelled') {
+        // Reported deliberately: "the picker never appeared" and "the user hit
+        // cancel" look identical from here, and only the log tells them apart.
+        report('get_stream', 'picker returned no handle (cancelled or never shown)',
+          { source: opts.source }, 'warn');
+        setState({ status: 'idle', error: null });
+        return false;
+      }
+      return bail('get_stream', raw,
+        /tab capture/i.test(raw)
+          ? (tabCaptureBlockedReason(tab) || 'Chrome refused to capture this tab. Record the Screen instead.')
+          : raw,
+        { source: opts.source, url: tab?.url || null });
+    }
+    step('handle acquired', { captureSource, hasHandle: !!streamId });
 
-  // Capture is genuinely running now. The overlay shows the countdown, then waits
-  // for the 'recording' state before the timer bar appears — showing the bar any
-  // earlier is what made failed attempts look like live recordings.
-  if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
-    injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
-  }
-  setState({ status: 'recording', startedAt: Date.now() });
+    const basePayload = {
+      source: opts.source,
+      mic: !!opts.mic,
+      systemAudio: !!opts.systemAudio,
+      camera: !!opts.camera && opts.source === 'camera',
+      worker: workerUrl,
+      token,
+      countdown: opts.countdown !== false ? 3 : 0,
+      quality: opts.quality || 'high',
+    };
 
-  // 5. Create the database row in parallel with the countdown, so a slow network
-  //    never delays the capture or expires the stream handle.
-  try {
-    const created = await api('create', {
-      kind: 'video',
-      title: opts.title || null,
-      mime: 'video/webm',
-      source_type: opts.source,
-      source_url: tab?.url || null,
-      source_title: tab?.title || null,
-      has_audio: !!(opts.mic || opts.systemAudio),
-      has_camera: !!opts.camera,
-      visibility: opts.visibility || 'unlisted',
-      folder: opts.folder || null,
-    });
-    setState({ videoId: created.id, slug: created.slug });
+    const attempt = (sid, cs, countdown) =>
+      chrome.runtime.sendMessage({
+        type: 'ko-offscreen-start',
+        payload: { ...basePayload, streamId: sid, captureSource: cs, countdown },
+      }).catch(e => ({ ok: false, stage: 'transport', error: String(e?.message || e) }));
+
+    step('handing off to recorder');
+    let res = await attempt(streamId, captureSource, basePayload.countdown);
+
+    // Tab capture handles can go stale between minting and use — mint a fresh
+    // one and try again before giving up.
+    if (!res?.ok && opts.source === 'tab' && res?.stage === 'build_stream') {
+      report('retry', 'tab capture failed, retrying with a fresh handle', { first: res.error }, 'warn');
+      try {
+        const fresh = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
+        res = await attempt(fresh, 'tab', 0);   // no second countdown
+      } catch (e) {
+        res = { ok: false, stage: 'build_stream', error: String(e?.message || e) };
+      }
+    }
+
+    // Still no good: fall back to the screen picker so the recording still happens.
+    if (!res?.ok && opts.source === 'tab') {
+      report('fallback', 'tab capture unavailable, offering screen capture', { last: res?.error }, 'warn');
+      try {
+        const sources = ['screen', 'window'];
+        if (opts.systemAudio) sources.push('audio');
+        const picked = await chooseDesktop(sources);
+        basePayload.source = 'screen';
+        setState({ sourceType: 'screen' });
+        await chrome.storage.local.set({ koSource: 'screen' });
+        res = await attempt(picked.streamId, 'desktop', 0);
+      } catch (e) {
+        if (String(e?.message) !== 'cancelled') {
+          res = { ok: false, stage: 'fallback', error: String(e?.message || e) };
+        } else {
+          report('fallback', 'screen fallback cancelled', {}, 'warn');
+          setState({ status: 'idle', error: 'Chrome could not record that tab. Pick Screen or Window instead.' });
+          await removeOverlay(tab?.id);
+          return false;
+        }
+      }
+    }
+
+    if (!res?.ok) {
+      const noReply = !res || res.ok === undefined;
+      await removeOverlay(tab?.id);
+      // Chrome says "Error starting tab capture" for every capture failure —
+      // Screen and Window included. Never repeat that wording to the user.
+      return bail('start_failed',
+        noReply ? 'recorder returned no result' : (res.error || 'unknown'),
+        noReply
+          ? 'The recorder did not respond. Reload the extension at chrome://extensions and try again.'
+          : res.name === 'NotAllowedError'
+            ? 'Permission was denied. Allow screen recording for Chrome in System Settings → Privacy & Security → Screen Recording, then try again.'
+            : /tab capture|aborterror/i.test(res.error || '')
+              ? 'Chrome dropped the screen-capture handle before recording could start. Try again.'
+              : (res.error || 'The recording could not start.'),
+        { source: opts.source, stage: res?.stage || null, name: res?.name || null, raw: res || null });
+    }
+
+    step('capture running');
+
+    // Capture is genuinely running. The overlay shows the countdown, then waits
+    // for the 'recording' state before the timer bar appears.
+    if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
+      injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
+    }
+    setState({ status: 'recording', startedAt: Date.now() });
+
+    // 5. Create the database row in parallel with the countdown.
+    try {
+      const created = await api('create', {
+        kind: 'video',
+        title: opts.title || null,
+        mime: 'video/webm',
+        source_type: opts.source,
+        source_url: tab?.url || null,
+        source_title: tab?.title || null,
+        has_audio: !!(opts.mic || opts.systemAudio),
+        has_camera: !!opts.camera,
+        visibility: opts.visibility || 'unlisted',
+        folder: opts.folder || null,
+      });
+      setState({ videoId: created.id, slug: created.slug });
+      step('row created', { slug: created.slug });
+    } catch (e) {
+      report('create', `row insert failed: ${e.message}`);
+      setState({ status: 'error', error: `Could not create the recording: ${e.message}` });
+      relay('ko-offscreen-cancel');
+      return false;
+    }
+    return true;
   } catch (e) {
-    setState({ status: 'error', error: `Could not create the recording: ${e.message}` });
-    relay('ko-offscreen-cancel');
+    // Nothing may escape this function unreported.
+    report('unhandled', String(e?.message || e), { stack: String(e?.stack || '').slice(0, 700) });
+    setState({ status: 'error', error: String(e?.message || e) });
+    return false;
   }
 }
 
