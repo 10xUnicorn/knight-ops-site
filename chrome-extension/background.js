@@ -148,11 +148,24 @@ async function removeOverlay(tabId) {
 }
 
 // ── capture source ─────────────────────────────────────────
-function chooseDesktop(sources, tab) {
+/**
+ * NEVER pass a targetTab here.
+ *
+ * chooseDesktopMedia(sources, targetTab, cb) binds the resulting stream to the
+ * SECURITY ORIGIN OF THAT TAB — only frames on that page's origin may consume
+ * it. Our MediaRecorder lives in the offscreen document, which runs on
+ * chrome-extension://<id>, so a tab-bound handle is rejected at getUserMedia
+ * with a bare AbortError. Chrome then reports it as "Error starting tab
+ * capture" even for Screen and Window captures, which is deeply misleading.
+ *
+ * Omitting targetTab returns an extension-scoped handle, which the offscreen
+ * document is allowed to use. That is the only correct form for this design.
+ */
+function chooseDesktop(sources) {
   return new Promise((resolve, reject) => {
-    const reqId = chrome.desktopCapture.chooseDesktopMedia(sources, tab, (streamId, options) => {
+    const reqId = chrome.desktopCapture.chooseDesktopMedia(sources, (streamId, options) => {
       if (!streamId) return reject(new Error('cancelled'));
-      resolve({ streamId, options });
+      resolve({ streamId, options: options || {} });
     });
     // If the picker never returns we don't want a dangling request.
     setTimeout(() => { try { chrome.desktopCapture.cancelChooseDesktopMedia(reqId); } catch (_) {} }, 120000);
@@ -222,7 +235,7 @@ async function startRecording(opts) {
     } else {
       const sources = opts.source === 'window' ? ['window'] : ['screen', 'window'];
       if (opts.systemAudio) sources.push('audio');
-      const res = await chooseDesktop(sources, tab);
+      const res = await chooseDesktop(sources);
       streamId = res.streamId;
     }
   } catch (e) {
@@ -277,7 +290,7 @@ async function startRecording(opts) {
     try {
       const sources = ['screen', 'window'];
       if (opts.systemAudio) sources.push('audio');
-      const picked = await chooseDesktop(sources, tab);
+      const picked = await chooseDesktop(sources);
       basePayload.source = 'screen';
       setState({ sourceType: 'screen' });
       await chrome.storage.local.set({ koSource: 'screen' });  // stop it sticking on a broken choice
