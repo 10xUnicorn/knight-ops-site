@@ -11228,26 +11228,38 @@ function koInvitePick(idx){
 }
 
 async function koSendPartnerInvite(){
-  const who=document.getElementById('e_invwho').value;
-  let name=document.getElementById('e_invname').value.trim();
-  let email=document.getElementById('e_invemail').value.trim();
-  let company=document.getElementById('e_invcompany').value.trim();
-  let leadId=null,clientId=null;
-
-  if(who){
-    const[kind,id]=who.split(':');
-    if(kind==='lead'){const l=S.leads.find(x=>x.id===id);if(l){name=name||l.name||'';email=email||l.email||'';company=company||l.company||'';leadId=l.id;}}
-    else{const c=S.clients.find(x=>x.id===id);if(c){name=name||c.profiles?.full_name||'';email=email||c.profiles?.email||'';company=company||c.profiles?.company||'';clientId=c.id;}}
-  }
+  // Read the typed fields directly. The picker (koInvitePick) fills them in and
+  // records the source record in S.koInviteChosen; typing by hand is equally valid.
+  const name=(document.getElementById('e_invname')?.value||'').trim();
+  const email=(document.getElementById('e_invemail')?.value||'').trim();
+  const company=(document.getElementById('e_invcompany')?.value||'').trim();
   if(!name||!email){showToast('Name and email are required','error');return;}
 
+  const pick=S.koInviteChosen;
+  // Only carry the link through if it still matches what is in the form.
+  const matches=pick&&pick.email&&pick.email.toLowerCase()===email.toLowerCase();
+  const leadId=matches&&pick.kind==='lead'?pick.id:null;
+  const clientId=matches&&pick.kind==='client'?pick.id:null;
+
+  const btn=event&&event.target;if(btn){btn.disabled=true;btn.textContent='Sending…';}
   try{
     const r=await koCall('partner-invite','invite',
       {name,email,company:company||null,lead_id:leadId,client_id:clientId});
-    closeEditModal();await loadPartners();await loadAffiliateLeads();
-    showToast('Invite sent to '+email,'success');
+    closeEditModal();S.koInviteChosen=null;
+    await loadPartners();await loadAffiliateLeads();
+    if(r.emailed===false){
+      showToast('Partner created, but the email failed: '+(r.email_error||'unknown'),'error');
+    }else{
+      showToast((r.reused_existing?'Re-invited ':'Invite sent to ')+email,'success');
+    }
     if(r.partner_id)showPartnerDetail(r.partner_id);
-  }catch(e){}
+  }catch(e){
+    // koCall already toasts API errors; this catches anything unexpected so a
+    // failure can never be silent again.
+    if(btn){btn.disabled=false;btn.textContent='Send invite';}
+    console.error('invite failed',e);
+    if(!/Request failed|error/i.test(String(e&&e.message))) showToast('Invite failed: '+(e&&e.message||e),'error');
+  }
 }
 
 // ── Client record: every deal, every payment, reconciled to lifetime value ──
