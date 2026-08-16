@@ -1567,7 +1567,8 @@
       let statusHtml;
       if (p.stripe_payouts_enabled) {
         statusHtml = `<div style="color:#22c55e;font-weight:600">&#10003; Connected — you're set up to receive payouts</div>
-          <button class="btn-secondary" style="margin-top:12px" onclick="koOpenStripeDashboard()">Open Stripe dashboard</button>`;
+          <p style="color:var(--text-secondary);font-size:13px;margin:8px 0 12px">Payouts go straight to the bank account you gave Stripe. Your earnings and payout dates are tracked here.</p>
+          <button class="btn-secondary" onclick="koOpenStripeDashboard()">Update bank or tax details</button>`;
       } else if (p.stripe_account_id) {
         statusHtml = `<div style="color:#f59e0b;font-weight:600">Onboarding started but not finished</div>
           <p style="color:var(--text-secondary);font-size:13px;margin:8px 0 12px">Stripe still needs a few details before it can pay you.</p>
@@ -1590,6 +1591,7 @@
         window.location.href = r.url;
       } catch (e) { alert('Could not start Stripe setup: ' + e.message); }
     }
+    // Opens a Stripe-hosted account-update page (these accounts have no Express dashboard).
     async function koOpenStripeDashboard() {
       try { const r = await koStripe('dashboard_link', {}); window.open(r.url, '_blank'); }
       catch (e) { alert('Could not open Stripe: ' + e.message); }
