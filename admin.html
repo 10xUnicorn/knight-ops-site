@@ -1080,6 +1080,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           </div>
           <div class="table-card" style="margin-top:1.5rem">
             <div class="table-header">
+              <h2>Commission Rates</h2>
+              <div class="table-filters"><button class="btn btn-primary btn-sm" onclick="koSaveCommissionSettings()">Save Rates</button></div>
+            </div>
+            <div id="koRatesCard" style="padding:1.25rem"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
               <h2>Referral Pipeline</h2>
               <div class="table-filters" style="font-size:.75rem;color:var(--text-muted)">Lead &rsaquo; Discovery &rsaquo; Blueprint App &rsaquo; Proposal &rsaquo; Closed &rsaquo; Paid</div>
             </div>
@@ -10949,10 +10956,99 @@ async function koAttributePayment(paymentId,dealId,partnerId){
     showToast('Attributed + commission created','success');}catch(e){}
 }
 
+// ── Master commission schedule ─────────────────────────────────────────────
+// Sliding brackets apply MARGINALLY against cash already collected on a deal, so
+// installments total the same as a lump sum. Per-partner overrides live on the
+// partner record (rate_mode='flat' pins commission_rate; tier 'active_partner'
+// earns the premium flat rate instead of the schedule).
+S.koRates=null;
+
+async function koLoadCommissionSettings(){
+  const{data}=await sb.from('system_settings').select('value').eq('key','commissions').maybeSingle();
+  S.koRates=data?.value||{default_rate:10,active_partner_rate:15,use_brackets:true,brackets:[],recurring_term_months:12};
+  koRenderRatesCard();
+}
+
+function koRenderRatesCard(){
+  const el=document.getElementById('koRatesCard');if(!el)return;
+  const r=S.koRates||{};const br=r.brackets||[];
+  const row=(i,b)=>'<tr><td><input id="koBrUpto'+i+'" type="number" value="'+(b.upto==null?'':b.upto)+'" placeholder="no cap" style="width:130px"></td>'+
+    '<td><input id="koBrRate'+i+'" type="number" step="0.25" value="'+b.rate+'" style="width:90px"> %</td>'+
+    '<td><button class="btn btn-sm btn-danger" onclick="koRemoveBracket('+i+')">&#128465;</button></td></tr>';
+  el.innerHTML=
+    '<div class="form-row">'+
+      '<div class="form-group"><label>Default rate (new partners)</label><input id="koDefaultRate" type="number" step="0.5" value="'+(r.default_rate??10)+'"></div>'+
+      '<div class="form-group"><label>Active partner rate</label><input id="koActiveRate" type="number" step="0.5" value="'+(r.active_partner_rate??15)+'"></div>'+
+      '<div class="form-group"><label>Recurring term (months, 0 = forever)</label><input id="koTermMonths" type="number" value="'+(r.recurring_term_months??12)+'"></div>'+
+    '</div>'+
+    '<label style="display:flex;align-items:center;gap:8px;margin:.5rem 0 1rem;font-size:.85rem">'+
+      '<input id="koUseBrackets" type="checkbox" '+(r.use_brackets?'checked':'')+' style="width:auto"> Use sliding scale (uncheck to pay the default rate on everything)</label>'+
+    '<table style="max-width:460px"><thead><tr><th>Up to (collected)</th><th>Rate</th><th></th></tr></thead><tbody>'+
+      br.map((b,i)=>row(i,b)).join('')+'</tbody></table>'+
+    '<button class="btn btn-sm btn-secondary" style="margin-top:.6rem" onclick="koAddBracket()">+ Add bracket</button>'+
+    '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)">'+
+      '<label style="font-size:.8rem;color:var(--text-muted)">Preview — commission on a single deal</label>'+
+      '<div style="display:flex;gap:8px;align-items:center;margin-top:.4rem">'+
+        '<input id="koPreviewAmt" type="number" value="8500" style="width:140px" oninput="koPreviewRate()">'+
+        '<span id="koPreviewOut" style="font-size:.9rem"></span></div></div>';
+  koPreviewRate();
+}
+
+function koCollectBrackets(){
+  const out=[];
+  for(let i=0;i<50;i++){
+    const u=document.getElementById('koBrUpto'+i),rt=document.getElementById('koBrRate'+i);
+    if(!u||!rt)continue;
+    out.push({upto:u.value===''?null:parseFloat(u.value),rate:parseFloat(rt.value)||0});
+  }
+  // A null cap means "everything above" and must sort last.
+  out.sort((a,b)=>(a.upto==null?Infinity:a.upto)-(b.upto==null?Infinity:b.upto));
+  return out;
+}
+function koAddBracket(){S.koRates.brackets=koCollectBrackets().concat([{upto:null,rate:2.5}]);koRenderRatesCard();}
+function koRemoveBracket(i){const b=koCollectBrackets();b.splice(i,1);S.koRates.brackets=b;koRenderRatesCard();}
+
+// Mirrors ko_bracket_total() in Postgres so the preview matches what actually gets charged.
+function koBracketTotal(amount,brackets){
+  if(!amount||amount<=0)return 0;
+  let total=0,prev=0;
+  for(const b of brackets){
+    const cap=b.upto==null?null:Number(b.upto);
+    const slice=cap==null?Math.max(amount-prev,0):Math.max(Math.min(amount,cap)-prev,0);
+    total+=slice*Number(b.rate)/100;
+    if(cap!=null)prev=cap;
+    if(cap!=null&&amount<=cap)break;
+  }
+  return Math.round(total*100)/100;
+}
+
+function koPreviewRate(){
+  const out=document.getElementById('koPreviewOut');if(!out)return;
+  const amt=parseFloat(document.getElementById('koPreviewAmt')?.value)||0;
+  const useBr=document.getElementById('koUseBrackets')?.checked;
+  const def=parseFloat(document.getElementById('koDefaultRate')?.value)||0;
+  const total=useBr?koBracketTotal(amt,koCollectBrackets()):Math.round(amt*def)/100;
+  const eff=amt>0?(total/amt*100).toFixed(2):'0';
+  out.innerHTML='&rarr; <b style="color:var(--accent)">'+koMoney(total)+'</b> <span style="color:var(--text-muted)">('+eff+'% effective)</span>';
+}
+
+async function koSaveCommissionSettings(){
+  const v={
+    default_rate:parseFloat(document.getElementById('koDefaultRate').value)||10,
+    active_partner_rate:parseFloat(document.getElementById('koActiveRate').value)||15,
+    recurring_term_months:parseInt(document.getElementById('koTermMonths').value)||0,
+    use_brackets:document.getElementById('koUseBrackets').checked,
+    brackets:koCollectBrackets()
+  };
+  const{error}=await sb.from('system_settings').upsert({key:'commissions',value:v},{onConflict:'key'});
+  if(error){showToast('Error: '+error.message,'error');return;}
+  S.koRates=v;showToast('Commission rates saved','success');koRenderRatesCard();
+}
+
 async function loadPartners(){
   const{data}=await sb.from('partners').select('*').order('created_at',{ascending:false});
   S.partners=data||[];renderPartners();
-  koLoadReferralPipeline();koLoadUnmatchedPayments();
+  koLoadCommissionSettings();koLoadReferralPipeline();koLoadUnmatchedPayments();
 }
 async function loadAffiliateLeads(){
   const{data}=await sb.from('affiliate_leads').select('*').order('created_at',{ascending:false});
@@ -10986,7 +11082,7 @@ function renderPartners(){
   document.getElementById('partnersTable').innerHTML='<table><thead><tr><th>Name</th><th>Company</th><th>Slug</th><th>Status</th><th>Leads</th><th>Rate</th><th>Earned</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(p=>{
     const leads=S.affiliateLeads.filter(l=>l.partner_id===p.id).length;
     const earned=S.commissions.filter(c=>c.partner_id===p.id&&(c.status==='approved'||c.status==='paid')).reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
-    return '<tr class="clickable" onclick="showPartnerDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.company||'—')+'</td><td style="font-family:JetBrains Mono;font-size:.8rem;color:var(--accent)">/'+p.slug+'</td><td>'+B(p.status)+'</td><td>'+leads+'</td><td>'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</td><td>$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editPartner(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'partners\',\''+p.id+'\',\'Partner\',loadPartners)">&#128465;</button></td></tr>';
+    return '<tr class="clickable" onclick="showPartnerDetail(\''+p.id+'\')"><td>'+p.name+'</td><td>'+(p.company||'—')+'</td><td style="font-family:JetBrains Mono;font-size:.8rem;color:var(--accent)">/'+p.slug+'</td><td>'+B(p.status)+'</td><td>'+leads+'</td><td>'+(p.rate_mode==='flat'?(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+' <span style="font-size:.68rem;color:var(--text-muted)">flat</span>':p.commission_tier==='active_partner'?'<span style="color:var(--accent)">active partner</span>':'<span style="color:var(--text-muted)">sliding</span>')+'</td><td>$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-secondary" onclick="editPartner(\''+p.id+'\')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'partners\',\''+p.id+'\',\'Partner\',loadPartners)">&#128465;</button></td></tr>';
   }).join(''):'<tr><td colspan="8" class="table-empty">No partners</td></tr>')+'</tbody></table>';
 }
 
@@ -11056,13 +11152,15 @@ function showPartnerDetail(id){
 function editPartner(id){
   const p=id?S.partners.find(x=>x.id===id):null;
   const body=FG('Name *','e_pname','text',p?.name||'')+FG('Email *','e_pemail','email',p?.email||'')+FG('Phone','e_pphone','tel',p?.phone||'')+FG('Company','e_pcompany','text',p?.company||'')+FG('Slug *','e_pslug','text',p?.slug||'')+FG('PayPal Email','e_ppaypal','email',p?.paypal_email||'')+
-  FG('Commission Rate','e_prate','number',p?.commission_rate||10)+FG('Commission Type','e_pctype','select',p?.commission_type||'percentage',[{v:'percentage',l:'Percentage'},{v:'flat',l:'Flat Amount'}])+
+  FG('Rate mode','e_pratemode','select',p?.rate_mode||'default',[{v:'default',l:'Follow master schedule (sliding scale)'},{v:'flat',l:'Flat override — use the rate below'}])+
+  FG('Tier','e_ptier','select',p?.commission_tier||'referral',[{v:'referral',l:'Referral (warm intro, you sell)'},{v:'active_partner',l:'Active partner (pre-sold, joins calls)'}])+
+  FG('Flat rate % (only used when mode = flat)','e_prate','number',p?.commission_rate||10)+FG('Commission Type','e_pctype','select',p?.commission_type||'percentage',[{v:'percentage',l:'Percentage'},{v:'flat',l:'Flat Amount'}])+
   FG('Status','e_pstatus','select',p?.status||'pending',[{v:'pending',l:'Pending'},{v:'active',l:'Active'},{v:'paused',l:'Paused'},{v:'removed',l:'Removed'}])+
   FG('Website','e_pwebsite','text',p?.website||'')+FG('Bio','e_pbio','textarea',p?.bio||'')+FG('Notes (Admin)','e_pnotes','textarea',p?.notes||'');
   openEditModal((p?'Edit':'Add')+' Partner',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="savePartner(\''+( id||'')+'\')">Save</button>');
 }
 async function savePartner(id){
-  const d={name:document.getElementById('e_pname').value,email:document.getElementById('e_pemail').value,phone:document.getElementById('e_pphone').value,company:document.getElementById('e_pcompany').value,slug:document.getElementById('e_pslug').value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''),paypal_email:document.getElementById('e_ppaypal').value,commission_rate:parseFloat(document.getElementById('e_prate').value)||10,commission_type:document.getElementById('e_pctype').value,status:document.getElementById('e_pstatus').value,website:document.getElementById('e_pwebsite').value,bio:document.getElementById('e_pbio').value,notes:document.getElementById('e_pnotes').value,updated_at:new Date().toISOString()};
+  const d={name:document.getElementById('e_pname').value,email:document.getElementById('e_pemail').value,phone:document.getElementById('e_pphone').value,company:document.getElementById('e_pcompany').value,slug:document.getElementById('e_pslug').value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''),paypal_email:document.getElementById('e_ppaypal').value,commission_rate:parseFloat(document.getElementById('e_prate').value)||10,commission_type:document.getElementById('e_pctype').value,rate_mode:document.getElementById('e_pratemode').value,commission_tier:document.getElementById('e_ptier').value,status:document.getElementById('e_pstatus').value,website:document.getElementById('e_pwebsite').value,bio:document.getElementById('e_pbio').value,notes:document.getElementById('e_pnotes').value,updated_at:new Date().toISOString()};
   if(!d.name||!d.email||!d.slug){showToast('Name, email, and slug are required','error');return;}
   if(id){
     // Check if status changed to active (send welcome email)

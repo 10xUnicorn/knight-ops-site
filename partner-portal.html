@@ -1398,6 +1398,27 @@
           <h3 style="margin:0 0 10px;font-size:15px">Getting Paid</h3>
           <div id="payoutSetup"></div>
         </div>
+
+        <div style="background:var(--bg-card,rgba(255,255,255,.03));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:12px;padding:18px;margin:18px 0">
+          <h3 style="margin:0 0 4px;font-size:15px">How your commission is calculated</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin:0 0 16px;line-height:1.6">You earn on <strong>cash actually collected</strong>, not on contract value. Rates step down as a deal grows, and each rate applies only to the portion inside that band &mdash; so a bigger deal always pays you more in total.</p>
+          <div id="rateTiers" style="margin-bottom:18px"></div>
+          <div style="border-top:1px solid var(--border,rgba(255,255,255,.08));padding-top:16px">
+            <label for="calcAmount" style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:8px">Estimate a referral</label>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+              <div style="position:relative;flex:1;min-width:170px">
+                <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px">$</span>
+                <input id="calcAmount" type="number" min="0" step="500" value="8500" style="width:100%;padding:10px 12px 10px 26px;font-size:15px" oninput="renderCalc()">
+              </div>
+              <div style="text-align:right;min-width:150px">
+                <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">You earn</div>
+                <div id="calcOut" style="font-size:26px;font-weight:600;color:var(--accent);line-height:1.2">&mdash;</div>
+                <div id="calcEff" style="font-size:12px;color:var(--text-muted)"></div>
+              </div>
+            </div>
+            <div id="calcBreakdown" style="margin-top:12px;font-size:12px;color:var(--text-muted);line-height:1.7"></div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <div class="filter-bar">
             <div class="filter-group">
@@ -1544,6 +1565,81 @@
     }
     function koMoney(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     let koNextPayoutDate = null;
+
+    // ── Commission schedule + calculator ───────────────────────────────────
+    // Schedule comes from the server (system_settings), never hardcoded here, so the
+    // displayed tiers can't drift from what actually pays.
+    let koSchedule = null;
+
+    function koFmtBand(from, to) {
+      var f = '$' + Number(from).toLocaleString();
+      if (to == null) return f + '+';
+      return f + ' – $' + Number(to).toLocaleString();
+    }
+
+    // Mirrors ko_bracket_total() in Postgres.
+    function koBracketTotal(amount, brackets) {
+      if (!amount || amount <= 0) return 0;
+      var total = 0, prev = 0;
+      for (var i = 0; i < brackets.length; i++) {
+        var cap = brackets[i].upto == null ? null : Number(brackets[i].upto);
+        var slice = cap == null ? Math.max(amount - prev, 0) : Math.max(Math.min(amount, cap) - prev, 0);
+        total += slice * Number(brackets[i].rate) / 100;
+        if (cap != null) prev = cap;
+        if (cap != null && amount <= cap) break;
+      }
+      return Math.round(total * 100) / 100;
+    }
+
+    function renderRateTiers() {
+      var el = document.getElementById('rateTiers');
+      if (!el || !koSchedule) return;
+      if (koSchedule.mode === 'flat') {
+        el.innerHTML = '<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:14px;text-align:center">'
+          + '<div style="font-size:26px;font-weight:600;color:var(--accent)">' + koSchedule.flat_rate + '%</div>'
+          + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">on all cash collected</div></div>';
+        return;
+      }
+      var from = 0;
+      el.innerHTML = koSchedule.brackets.map(function (b) {
+        var band = koFmtBand(from, b.upto);
+        from = b.upto == null ? from : Number(b.upto);
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:6px">'
+          + '<span style="font-size:13px;color:var(--text-secondary)">' + band + '</span>'
+          + '<span style="font-size:15px;font-weight:600;color:var(--accent)">' + b.rate + '%</span></div>';
+      }).join('');
+    }
+
+    function renderCalc() {
+      var out = document.getElementById('calcOut');
+      if (!out || !koSchedule) return;
+      var amt = parseFloat(document.getElementById('calcAmount').value) || 0;
+      var total, lines = [];
+
+      if (koSchedule.mode === 'flat') {
+        total = Math.round(amt * koSchedule.flat_rate) / 100;
+      } else {
+        total = koBracketTotal(amt, koSchedule.brackets);
+        var prev = 0;
+        for (var i = 0; i < koSchedule.brackets.length; i++) {
+          var b = koSchedule.brackets[i];
+          var cap = b.upto == null ? null : Number(b.upto);
+          var slice = cap == null ? Math.max(amt - prev, 0) : Math.max(Math.min(amt, cap) - prev, 0);
+          if (slice > 0) {
+            lines.push('$' + slice.toLocaleString(undefined, { maximumFractionDigits: 0 })
+              + ' &times; ' + b.rate + '% = <strong style="color:var(--text-secondary)">'
+              + koMoney(Math.round(slice * b.rate) / 100) + '</strong>');
+          }
+          if (cap != null) prev = cap;
+          if (cap != null && amt <= cap) break;
+        }
+      }
+
+      out.textContent = koMoney(total);
+      document.getElementById('calcEff').textContent =
+        (amt > 0 ? (total / amt * 100).toFixed(2) : '0.00') + '% effective';
+      document.getElementById('calcBreakdown').innerHTML = lines.join(' &nbsp;+&nbsp; ');
+    }
 
     // Stage counter strip above the referral table.
     function renderStageStrip(counts) {
@@ -2222,7 +2318,9 @@
       container.innerHTML = '<div class="loading-spinner"></div>';
 
       try {
-        const t = (await koPortal('commissions', {})).totals || {};
+        const cj = await koPortal('commissions', {});
+        if (cj.rate_schedule) { koSchedule = cj.rate_schedule; renderRateTiers(); renderCalc(); }
+        const t = cj.totals || {};
         const totalEarned = t.lifetime || 0;
         const pendingTotal = t.outstanding || 0;
         const paidTotal = t.paid || 0;

@@ -7,6 +7,19 @@
 
 ---
 
+## Changelog — 2026-08-15b (Sliding commission schedule + master rate)
+
+- **Commission is no longer a flat rate.** Master schedule lives in `system_settings.commissions`: `default_rate` 10, `active_partner_rate` 15, `recurring_term_months` 12, `use_brackets` true, and **brackets 10% ≤ $50K · 7.5% ≤ $250K · 3.5% ≤ $750K · 3% above**. Edit from admin → Partners → **Commission Rates** (live preview included).
+- **Brackets are MARGINAL and applied against cash already collected on the deal**, so installments total the same as a lump sum — verified 3 × $25K = one $75K payment. `ko_bracket_total(amount, brackets)` + `ko_commission_for_payment(partner, deal, amount, prior)` return `{amount, rate, bracket_from, bracket_to, mode}`. Verified: $8.5K→$850 · $50K→$5,000 · $75K→$6,875 · $250K→$20,000 · $350K→$23,500 · $750K→$37,500 · $1M→$45,000.
+- **Per-partner overrides:** `partners.rate_mode` (`default` follows the schedule, `flat` pins `commission_rate`) and `partners.commission_tier` (`referral` | `active_partner`, the latter earning the flat premium rate). Both verified live.
+- **Recurring cutoff:** `ko_within_commission_term()` stops commissions on payments more than `recurring_term_months` after the referral's FIRST commissioned payment. 0 = unlimited.
+- **`stripe-revenue-webhook` v2** calls both functions instead of `partner.commission_rate * amount`, and stamps `effective_rate` / `bracket_from` / `bracket_to` on each commission for audit.
+- **`partner-portal-data` v3** returns `rate_schedule` (respecting flat/active-partner overrides). The portal renders the tier ladder + a live calculator from that payload — **never hardcode rates in the portal**, or displayed rates will drift from what pays. Browser `koBracketTotal()` mirrors `ko_bracket_total()`; both verified identical across 7 amounts.
+- **Public `/partners` page says "up to 10%"** and no longer exposes the ladder or claims PayPal payment. Full breakdown + calculator live in the portal.
+- **Decision: cash only, no retainer credit.** Credit and cash are identical on taxable profit, but cash defers outflow to the 15th of the following month (2–6 weeks of float) and keeps top-line revenue higher for borrowing.
+
+---
+
 ## Changelog — 2026-08-15 (Partner commissions, Stripe Connect payouts, partner RLS lockdown)
 
 - **SECURITY FIX (was live).** `partners` had anon `SELECT` (`status='active'`) + anon `UPDATE` (`USING true`), so the public anon key could read every partner's **`magic_link_token` and `password_hash`** (= log into any partner portal) and rewrite any partner's `commission_rate`/`paypal_email`. `commissions`, `affiliate_leads`, `partner_notifications` were fully anon-readable. All anon SELECT/UPDATE policies dropped. Public referral links still work via **column-level grants**: `GRANT SELECT (id,slug,name,company,avatar_url,bio,website,status) ON partners TO anon` + policy `status='active'` — RLS can't filter columns, column privileges can. Signup keeps `INSERT` but only on non-privileged columns, so a browser can no longer self-activate a partner at any rate. **Rotate all partner magic links.**
