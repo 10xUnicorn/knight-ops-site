@@ -7,6 +7,18 @@
 
 ---
 
+## Changelog — 2026-08-15c (Stripe import, client links, partner notifications)
+
+- **Deals now link to clients.** Root cause: deals carried `lead_id` (163) but almost never `client_id` (3), and clients only resolve through `profiles.email`. Backfilled lead email → profile → client (**3 → 34 linked**). `trg_link_deal_client` (BEFORE insert/update on deals) keeps it resolved going forward and also inherits `partner_id` from the lead.
+- **`stripe-backfill` edge fn** (admin JWT, **dry run unless `apply:true`**) pages `/v1/charges`, upserts `stripe_payments`, matches lead/client by email, creates `closed_won` deals, and accrues commissions through the sliding schedule. Platform charges only — Headliner tenant sales live on connected accounts and are never returned. Admin → Partners → **Import from Stripe** (with a days selector + preview table).
+- **Imported 2026-08-15:** 6 charges scanned, 4 deals created + 1 matched to an existing deal, $17,494 tracked. The $2 "Subscription creation" test charge was imported then removed and its payment marked `ignored` — **the backfill has no minimum-amount filter, so review the preview before applying.**
+- **`partner_events` queue + DB triggers** emit `new_lead` (affiliate_leads insert), `stage_change` (leads.status), `deal_closed` (deals.stage → closed_won), `commission_earned` (commissions insert), `commission_paid` (status → paid). Triggers mean notifications don't depend on any code path remembering to fire them.
+- **`partner-notify` edge fn** drains the queue, writes a `partner_notifications` row, and sends a branded Resend email per event type. pg_cron **`partner-notify-5min`** (`*/5 * * * *`). Verified live: all 5 event types fired and all 5 emails delivered. Inactive/emailless partners are marked handled so the queue can't stall.
+- **Admin attribution is now bidirectional from every record:** partner detail gains **+ Commission** and **+ Attach Referral** (lead or client); client detail gains **Referred By**; lead and deal detail already had pickers. All routes go through `partner-commissions` so the triggers stay authoritative.
+- **Portal:** Stripe-branded gradient CTA, an overview banner that persists until `stripe_payouts_enabled`, and earning tiers changed to **Night Build $10K · Night Build Pro $15K · Enterprise Build $50K+ · Fractional AI Ops $5–8K/mo** (Night Launch removed). Tier payouts are computed from the live schedule via `koBracketTotal()` — never hardcode them or they will contradict the calculator.
+
+---
+
 ## Changelog — 2026-08-15b (Sliding commission schedule + master rate)
 
 - **Commission is no longer a flat rate.** Master schedule lives in `system_settings.commissions`: `default_rate` 10, `active_partner_rate` 15, `recurring_term_months` 12, `use_brackets` true, and **brackets 10% ≤ $50K · 7.5% ≤ $250K · 3.5% ≤ $750K · 3% above**. Edit from admin → Partners → **Commission Rates** (live preview included).
