@@ -234,7 +234,7 @@ async function start(p) {
 
     stage = 'countdown';
     if (p.countdown) await new Promise(r => setTimeout(r, p.countdown * 1000));
-    if (cancelled) return;
+    if (cancelled) return { ok: false, stage: 'cancelled', error: 'cancelled' };
 
     stage = 'recorder';
     rec = new MediaRecorder(stream, {

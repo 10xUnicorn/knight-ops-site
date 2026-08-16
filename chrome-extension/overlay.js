@@ -307,7 +307,7 @@
       mount();
       (async () => {
         if (msg.opts?.countdown) await countdown(3);
-        buildBar();
+        if (!bar) buildBar();
         if (msg.opts?.camera) startCamera();
       })();
       respond?.({ ok: true });

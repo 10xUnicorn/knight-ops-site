@@ -182,9 +182,33 @@ async function startRecording(opts) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   setState({ status: 'starting', tabId: tab?.id || null, sourceType: opts.source, error: null, shareUrl: null, progress: 0 });
 
-  // 2. Grab the capture handle FIRST. getMediaStreamId must run while the
-  //    activeTab grant from the user's click is still alive, and the streamId it
-  //    returns is short-lived — so nothing slow may happen before we consume it.
+  // 2. Resolve the storage worker BEFORE minting a capture handle.
+  let workerUrl = worker;
+  if (!workerUrl) {
+    try {
+      const cfg = await api('config', {});
+      workerUrl = cfg.worker;
+      if (workerUrl) await chrome.storage.local.set({ koWorker: workerUrl });
+    } catch (_) { /* reported below */ }
+  }
+  if (!workerUrl) { setState({ status: 'error', error: 'Storage worker URL not configured.' }); return; }
+
+  // 3. Warm the offscreen recorder BEFORE asking Chrome for a capture handle.
+  //    This is the whole ballgame: capture stream IDs are single-use and expire
+  //    within moments of being minted. Creating the offscreen document costs a
+  //    few hundred milliseconds on a cold start, and doing that AFTER minting
+  //    burned the handle every time — Chrome then rejects it at getUserMedia
+  //    with a bare AbortError whose message misleadingly says "tab capture",
+  //    regardless of whether you picked Screen, Window or Tab.
+  try {
+    await ensureOffscreen();
+  } catch (e) {
+    report('offscreen', String(e?.message || e));
+    setState({ status: 'error', error: String(e?.message || e) });
+    return;
+  }
+
+  // 4. Now mint the handle and consume it immediately.
   let streamId = null;
   let captureSource = 'desktop';
   try {
@@ -212,33 +236,6 @@ async function startRecording(opts) {
            'Chrome refused to capture this tab. Reload the page and try again, or record the Screen instead.')
         : raw,
     });
-    return;
-  }
-
-  // 3. Worker URL: cached value preferred, network lookup only as a last resort
-  //    and only now that the stream handle is already in hand.
-  let workerUrl = worker;
-  if (!workerUrl) {
-    try {
-      const cfg = await api('config', {});
-      workerUrl = cfg.worker;
-      if (workerUrl) await chrome.storage.local.set({ koWorker: workerUrl });
-    } catch (_) { /* reported below */ }
-  }
-  if (!workerUrl) { setState({ status: 'error', error: 'Storage worker URL not configured.' }); return; }
-
-  // 4. Start capturing immediately. The offscreen document only needs the worker
-  //    and token to begin — it does not wait on the database.
-  if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
-    injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
-  }
-
-  try {
-    await ensureOffscreen();
-  } catch (e) {
-    report('offscreen', String(e?.message || e));
-    setState({ status: 'error', error: String(e?.message || e) });
-    await removeOverlay(tab?.id);
     return;
   }
 
@@ -297,15 +294,25 @@ async function startRecording(opts) {
   }
 
   if (!res?.ok) {
+    // Chrome says "Error starting tab capture" for every capture failure — Screen
+    // and Window included. Never repeat that wording back to the user.
     const friendly = res?.name === 'NotAllowedError'
       ? 'Permission was denied. Allow screen recording for Chrome in System Settings → Privacy & Security → Screen Recording, then try again.'
-      : /tab capture/i.test(res?.error || '')
-        ? 'Chrome refused to capture that tab. Reload the page, or record the Screen instead.'
+      : /tab capture|aborterror/i.test(res?.error || '')
+        ? 'Chrome dropped the screen-capture handle before recording could start. Try again — this usually works on the second attempt.'
         : (res?.error || 'The recording could not start.');
     setState({ status: 'error', error: friendly });
     await removeOverlay(tab?.id);
     return;
   }
+
+  // Capture is genuinely running now. The overlay shows the countdown, then waits
+  // for the 'recording' state before the timer bar appears — showing the bar any
+  // earlier is what made failed attempts look like live recordings.
+  if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
+    injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
+  }
+  setState({ status: 'recording', startedAt: Date.now() });
 
   // 5. Create the database row in parallel with the countdown, so a slow network
   //    never delays the capture or expires the stream handle.
