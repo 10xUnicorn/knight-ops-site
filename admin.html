@@ -1095,7 +1095,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <div class="table-card" style="margin-top:1.5rem">
             <div class="table-header">
               <h2>Cleared Stripe Payments &mdash; Needs Attribution</h2>
-              <div class="table-filters"><button class="btn btn-secondary btn-sm" onclick="koLoadUnmatchedPayments()">Refresh</button></div>
+              <div class="table-filters">
+                <label style="font-size:.75rem;color:var(--text-muted)">Last <input id="koBfDays" type="number" value="365" style="width:70px"> days</label>
+                <button class="btn btn-secondary btn-sm" onclick="koStripeBackfill(false)">&#128229; Import from Stripe</button>
+                <button class="btn btn-secondary btn-sm" onclick="koLoadUnmatchedPayments()">Refresh</button>
+              </div>
             </div>
             <div id="koUnmatchedTable"></div>
           </div>
@@ -3157,6 +3161,7 @@ async function showClientDetail(id){
   html+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Project Details</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.7rem">Voting links for this client&apos;s dashboard projects.</p><div id="mockCardClient_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>';
   html+=getOutreachHtml({name:p.full_name||'',email:p.email||'',phone:p.phone||''},'clients');
   document.getElementById('clientDetailView').innerHTML=html;
+  koRenderClientPartner(c);
   updateOutreachPreview();
   renderMockupCard('mockCardClient_'+id,{clientId:id,businessName:(p.full_name||'')});
 }
@@ -11045,6 +11050,82 @@ async function koSaveCommissionSettings(){
   S.koRates=v;showToast('Commission rates saved','success');koRenderRatesCard();
 }
 
+// ── Attach an existing lead or client to a partner, from the partner record ──
+function koAttachToPartner(partnerId){
+  const leads=(S.leads||[]).filter(l=>l.lead_type!=='prospect'&&l.partner_id!==partnerId);
+  const clients=(S.clients||[]).filter(c=>c.partner_id!==partnerId);
+  const cname=c=>c.profiles?.full_name||c.name||c.profiles?.email||'Client';
+  const body=
+    '<div style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem">Attaching a lead also creates the referral record, so it shows in the partner\'s tracker.</div>'+
+    FG('Attach a lead','e_atlead','select','',[{v:'',l:'— choose a lead —'}].concat(leads.map(l=>({v:l.id,l:(l.name||l.email||'Lead')+(l.company?' · '+l.company:'')}))))+
+    FG('Attach a client','e_atclient','select','',[{v:'',l:'— choose a client —'}].concat(clients.map(c=>({v:c.id,l:cname(c)}))));
+  openEditModal('Attach a referral',body,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSaveAttach(\''+partnerId+'\')">Attach</button>');
+}
+
+async function koSaveAttach(partnerId){
+  const leadId=document.getElementById('e_atlead').value;
+  const clientId=document.getElementById('e_atclient').value;
+  if(!leadId&&!clientId){showToast('Pick a lead or a client','error');return;}
+  try{
+    if(leadId) await koCall('partner-commissions','assign_lead_partner',{lead_id:leadId,partner_id:partnerId});
+    if(clientId){
+      const{error}=await sb.from('clients').update({partner_id:partnerId}).eq('id',clientId);
+      if(error)throw error;
+    }
+    closeEditModal();
+    await loadPartners();await loadLeads();await loadClients();await loadAffiliateLeads();
+    showToast('Referral attached','success');showPartnerDetail(partnerId);
+  }catch(e){showToast('Error: '+(e.message||e),'error');}
+}
+
+// Commission editor pre-filled for one partner (used from the partner record).
+function koCommissionForPartner(partnerId){
+  koCommissionEditor();
+  setTimeout(()=>{const s=document.getElementById('e_cpartner');if(s){s.value=partnerId;}},0);
+}
+
+// Referred-by picker on the client record.
+function koRenderClientPartner(c){
+  const host=document.getElementById('clientDetailView');if(!host)return;
+  const p=S.partners.find(x=>x.id===c.partner_id);
+  const comms=(S.commissions||[]).filter(x=>x.client_id===c.id&&x.status!=='void');
+  const total=comms.reduce((s,x)=>s+Number(x.commission_amount||0),0);
+  const div=document.createElement('div');
+  div.className='table-card';div.style.marginTop='1rem';
+  div.innerHTML='<div class="table-header"><h2>Referred By</h2><div style="display:flex;gap:8px;align-items:center">'+
+    koPartnerSelect('clientPartnerSel',c.partner_id,'koSetClientPartner(\''+c.id+'\',this.value)')+'</div></div>'+
+    '<div style="padding:1rem 1.25rem;font-size:.85rem">'+(p?
+      ('<div style="display:flex;gap:2rem;flex-wrap:wrap"><div><div class="dg-label">Partner</div><div class="dg-value">'+p.name+'</div></div>'+
+       '<div><div class="dg-label">Commissions on this client</div><div class="dg-value" style="color:var(--accent)">'+koMoney(total)+'</div></div></div>')
+      :'<span style="color:var(--text-muted)">Organic — no partner referral.</span>')+'</div>';
+  host.appendChild(div);
+}
+
+async function koSetClientPartner(clientId,partnerId){
+  const{error}=await sb.from('clients').update({partner_id:partnerId||null}).eq('id',clientId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  await loadClients();await loadPartners();
+  showToast(partnerId?'Referral attributed':'Referral removed','success');
+  showClientDetail(clientId);
+}
+
+// ── Stripe backfill (dry run first) ────────────────────────────────────────
+async function koStripeBackfill(apply){
+  if(apply&&!confirm('Import these Stripe payments as closed deals? This writes to your CRM.'))return;
+  showToast(apply?'Importing…':'Scanning Stripe…');
+  let r;try{r=await koCall('stripe-backfill','',{apply:!!apply,since_days:parseInt(document.getElementById('koBfDays')?.value)||365});}catch(e){return;}
+  const rows=(r.created||[]).map(x=>'<tr><td>'+(x.date||'')+'</td><td>'+(x.name||x.email||'—')+'</td><td style="font-size:.78rem">'+(x.description||'—')+'</td><td style="font-weight:600">'+koMoney(x.amount)+'</td><td>'+(x.lead?'✓ '+x.lead:'<span style="color:var(--text-muted)">no lead</span>')+'</td><td>'+(x.client_matched?'✓':'—')+'</td></tr>').join('');
+  const html='<div style="font-size:.85rem;margin-bottom:.75rem">Scanned <b>'+r.scanned+'</b> charges · already imported <b>'+r.already_imported+'</b> · '+
+    (r.dry_run?'would create <b>'+r.would_create_deal+'</b> deals':'created <b>'+r.would_create_deal+'</b> deals, <b>'+r.commissions+'</b> commissions')+
+    ' · matched to <b>'+r.matched_lead+'</b> leads / <b>'+r.matched_client+'</b> clients</div>'+
+    '<div style="max-height:340px;overflow:auto"><table><thead><tr><th>Date</th><th>Customer</th><th>Description</th><th>Amount</th><th>Lead</th><th>Client</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6" class="table-empty">Nothing new to import</td></tr>')+'</tbody></table></div>';
+  openEditModal(r.dry_run?'Stripe import preview':'Stripe import complete',html,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>'+
+    (r.dry_run&&r.would_create_deal>0?'<button class="btn btn-primary" onclick="closeEditModal();koStripeBackfill(true)">Import '+r.would_create_deal+' deals</button>':''));
+  if(apply){await loadDeals();await loadCommissions();await loadPartners();}
+}
+
 async function loadPartners(){
   const{data}=await sb.from('partners').select('*').order('created_at',{ascending:false});
   S.partners=data||[];renderPartners();
@@ -11141,7 +11222,7 @@ function showPartnerDetail(id){
   const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
   document.getElementById('partnersListView').style.display='none';
   document.getElementById('partnerDetailView').style.display='block';
-  document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button><button class="btn btn-sm btn-secondary" onclick="koPartnerStripeLink(\''+p.id+'\')">'+(p.stripe_account_id?'Stripe Onboarding Link':'Set Up Stripe Payouts')+'</button>'+(p.stripe_account_id?'<button class="btn btn-sm btn-secondary" onclick="koRefreshPartnerStripe(\''+p.id+'\')">Refresh Stripe</button>':'')+'</div>'+
+  document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="koCommissionForPartner(\''+p.id+'\')">+ Commission</button><button class="btn btn-sm btn-primary" onclick="koAttachToPartner(\''+p.id+'\')">+ Attach Referral</button><button class="btn btn-sm btn-secondary" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button><button class="btn btn-sm btn-secondary" onclick="koPartnerStripeLink(\''+p.id+'\')">'+(p.stripe_account_id?'Stripe Onboarding Link':'Set Up Stripe Payouts')+'</button>'+(p.stripe_account_id?'<button class="btn btn-sm btn-secondary" onclick="koRefreshPartnerStripe(\''+p.id+'\')">Refresh Stripe</button>':'')+'</div>'+
   '<div class="kpi-grid"><div class="kpi"><div class="label">Total Leads</div><div class="value">'+leads.length+'</div></div><div class="kpi"><div class="label">Conversions</div><div class="value">'+converted+'</div></div><div class="kpi"><div class="label">Commission Rate</div><div class="value">'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</div></div><div class="kpi"><div class="label">Total Earned</div><div class="value">$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</div></div></div>'+
   '<div class="table-card" style="margin-top:1.5rem"><div style="padding:1.25rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+p.email+'</div></div><div class="form-group"><label>Phone</label><div>'+(p.phone||'—')+'</div></div><div class="form-group"><label>Company</label><div>'+(p.company||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Slug</label><div style="font-family:JetBrains Mono;color:var(--accent)">knightops.biz/'+p.slug+'</div></div><div class="form-group"><label>PayPal (fallback)</label><div>'+(p.paypal_email||'—')+'</div></div><div class="form-group"><label>Website</label><div>'+(p.website||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Payout Method</label><div>'+(p.payout_method||'stripe_connect').replace(/_/g,' ')+'</div></div><div class="form-group"><label>Stripe Connect</label><div>'+(p.stripe_payouts_enabled?'<span style="color:#22c55e;font-weight:600">Ready for payouts</span>':p.stripe_account_id?'<span style="color:#f59e0b">Onboarding incomplete</span>':'<span style="color:var(--text-muted)">Not connected</span>')+'</div></div><div class="form-group"><label>Stripe Account</label><div style="font-family:JetBrains Mono;font-size:.75rem">'+(p.stripe_account_id||'—')+'</div></div></div>'+(p.bio?'<div class="form-group"><label>Bio</label><div>'+p.bio+'</div></div>':'')+(p.notes?'<div class="form-group"><label>Notes</label><div>'+p.notes+'</div></div>':'')+'</div></div>'+
   '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Leads from '+p.name+'</h3></div><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(leads.length?leads.map(l=>'<tr><td>'+(l.first_name?leadName(l):l.name)+'</td><td>'+l.email+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No leads yet</td></tr>')+'</tbody></table></div>'+

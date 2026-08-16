@@ -1283,6 +1283,7 @@
 
       <!-- OVERVIEW TAB -->
       <div id="overview" class="tab-content active">
+        <div id="setupBanner"></div>
         <div class="stat-cards" id="statCards"></div>
 
         <div class="activity-section">
@@ -1340,7 +1341,7 @@
 
         <!-- What You're Earning On -->
         <h2 class="overview-section-title">&#128176; What You're Earning On</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">10% commission on every closed deal. No cap.</p>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:-0.5rem 0 1rem;">Up to 10% of cash collected, paid on the 15th of the month after it clears. No cap on referrals. <a href="#" onclick="switchTab('commissions');return false;" style="color:var(--accent)">See the full rate breakdown &amp; calculator &rarr;</a></p>
         <div class="tier-grid" id="tierGrid"></div>
 
         <!-- Intro Scripts -->
@@ -1656,22 +1657,53 @@
     }
 
     // ── Stripe Connect onboarding (partner-initiated) ──────────────────────
+    const KO_STRIPE_BTN = 'display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#635BFF 0%,#8A83FF 100%);color:#fff;border:none;border-radius:10px;padding:13px 22px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(99,91,255,.35);transition:transform .15s ease,box-shadow .15s ease';
+    const KO_STRIPE_MARK = '<svg width="15" height="15" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M14.7 11.6c0-1 .8-1.4 2-1.4 1.8 0 4.1.6 5.9 1.6V6.2c-2-.8-4-1.1-5.9-1.1-4.8 0-8 2.5-8 6.7 0 6.5 9 5.5 9 8.3 0 1.2-1 1.6-2.3 1.6-2 0-4.5-.8-6.5-1.9v5.7c2.2 1 4.5 1.4 6.5 1.4 4.9 0 8.3-2.4 8.3-6.7 0-7-9-5.8-9-8.6z" fill="currentColor"/></svg>';
+
+    function koStripeBtn(label, onclick) {
+      return '<button onclick="' + onclick + '" style="' + KO_STRIPE_BTN + '" '
+        + 'onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(99,91,255,.45)\'" '
+        + 'onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 4px 14px rgba(99,91,255,.35)\'">'
+        + KO_STRIPE_MARK + '<span>' + label + '</span></button>';
+    }
+
+    // Banner on the overview tab until payouts are actually enabled.
+    function koRenderSetupBanner() {
+      const el = document.getElementById('setupBanner');
+      if (!el) return;
+      const p = currentPartnerData || {};
+      if (p.stripe_payouts_enabled) { el.innerHTML = ''; return; }
+      const started = !!p.stripe_account_id;
+      el.innerHTML =
+        '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,rgba(99,91,255,.14),rgba(201,146,42,.10));border:1px solid rgba(99,91,255,.35);border-radius:12px;padding:18px 20px;margin-bottom:20px">'
+        + '<div style="flex:1;min-width:240px">'
+        + '<div style="font-size:15px;font-weight:600;color:var(--text-primary,#fff);margin-bottom:4px">'
+        + (started ? 'Finish your payout setup' : 'Set up payouts to get paid') + '</div>'
+        + '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6">'
+        + (started
+            ? 'Stripe still needs a few details before money can reach your bank. Your commissions keep accruing in the meantime.'
+            : 'You still earn commissions without this, but we can\'t send them until Stripe has your bank details. Takes about two minutes.')
+        + '</div></div>'
+        + koStripeBtn(started ? 'Finish setup' : 'Set up payouts', 'koStartStripeOnboarding()')
+        + '</div>';
+    }
+
     async function koRenderPayoutSetup() {
       const el = document.getElementById('payoutSetup');
       if (!el) return;
       const p = currentPartnerData || {};
       let statusHtml;
       if (p.stripe_payouts_enabled) {
-        statusHtml = `<div style="color:#22c55e;font-weight:600">&#10003; Connected — you're set up to receive payouts</div>
-          <p style="color:var(--text-secondary);font-size:13px;margin:8px 0 12px">Payouts go straight to the bank account you gave Stripe. Your earnings and payout dates are tracked here.</p>
-          <button class="btn-secondary" onclick="koOpenStripeDashboard()">Update bank or tax details</button>`;
+        statusHtml = `<div style="display:flex;align-items:center;gap:8px;color:#22c55e;font-weight:600;font-size:14px"><span style="display:inline-flex;width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,.15);align-items:center;justify-content:center">&#10003;</span> Connected and ready to receive payouts</div>
+          <p style="color:var(--text-secondary);font-size:13px;margin:10px 0 14px">Payouts go straight to the bank account you gave Stripe. Knight Ops never sees your bank or tax details.</p>
+          ` + koStripeBtn('Update bank or tax details', 'koOpenStripeDashboard()');
       } else if (p.stripe_account_id) {
-        statusHtml = `<div style="color:#f59e0b;font-weight:600">Onboarding started but not finished</div>
-          <p style="color:var(--text-secondary);font-size:13px;margin:8px 0 12px">Stripe still needs a few details before it can pay you.</p>
-          <button class="btn-primary" onclick="koStartStripeOnboarding()">Finish setup</button>`;
+        statusHtml = `<div style="color:#f59e0b;font-weight:600;font-size:14px">Onboarding started but not finished</div>
+          <p style="color:var(--text-secondary);font-size:13px;margin:10px 0 14px">Stripe still needs a few details before it can pay you. Your commissions keep accruing in the meantime.</p>
+          ` + koStripeBtn('Finish setup', 'koStartStripeOnboarding()');
       } else {
-        statusHtml = `<p style="color:var(--text-secondary);font-size:13px;margin:0 0 12px">Connect a Stripe account to get paid automatically. Stripe collects your bank details and tax info directly — Knight Ops never sees them.</p>
-          <button class="btn-primary" onclick="koStartStripeOnboarding()">Set up payouts with Stripe</button>`;
+        statusHtml = `<p style="color:var(--text-secondary);font-size:13px;margin:0 0 14px">Connect Stripe to get paid automatically. Stripe collects your bank details and tax info directly &mdash; Knight Ops never sees them.</p>
+          ` + koStripeBtn('Set up payouts with Stripe', 'koStartStripeOnboarding()');
       }
       const nextLine = koNextPayoutDate
         ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border,rgba(255,255,255,.08));font-size:13px;color:var(--text-secondary)">
@@ -1700,6 +1732,7 @@
         const j = await koPortal('me', {});
         currentPartnerData = j.partner || currentPartnerData;
         koRenderPayoutSetup();
+        koRenderSetupBanner();
       } catch (e) { /* not connected yet */ }
       if (window.history && window.history.replaceState)
         window.history.replaceState(null, '', window.location.pathname);
@@ -1743,6 +1776,7 @@
         if (partners && partners.length > 0) {
           currentPartnerId = partners[0].id;
           currentPartnerData = partners[0];
+          try { const rs = await koPortal('rate_schedule', {}); if (rs.rate_schedule) koSchedule = rs.rate_schedule; } catch (e) {}
           localStorage.setItem('ko_partner_id', currentPartnerId);
           localStorage.setItem('ko_partner_token', token);
           await loadDashboard();
@@ -1805,6 +1839,7 @@
         try {
           const j = await koPortal('me', {});
           if (j.partner) currentPartnerData = j.partner;
+          if (j.rate_schedule) koSchedule = j.rate_schedule;
         } catch (error) {
           console.error('Error loading partner data:', error);
         }
@@ -1812,6 +1847,7 @@
 
       document.getElementById('partnerNameDisplay').textContent = currentPartnerData?.name || 'Partner';
 
+      koRenderSetupBanner();
       koSyncStripeOnReturn();
       loadTabContent('overview');
     }
@@ -1990,12 +2026,26 @@
     }
 
     function loadTierGrid() {
+      // Earn figures are computed from the live schedule so they can never
+      // contradict the calculator or what actually pays.
+      const earnFor = function (amount) {
+        if (!koSchedule) return '';
+        var t = koSchedule.mode === 'flat'
+          ? Math.round(amount * koSchedule.flat_rate) / 100
+          : koBracketTotal(amount, koSchedule.brackets);
+        return 'You earn: ' + koMoney(t);
+      };
       const tiers = [
-        { tag: 'Tier 1 — Website', name: 'Night Launch', price: '$1,497', earn: 'You earn: ~$150' },
-        { tag: 'Tier 2 — Web App', name: 'Night Build', price: '$7,497', earn: 'You earn: ~$750' },
-        { tag: 'Tier 3 — Mobile App', name: 'Night Build Pro', price: '$14,997', earn: 'You earn: ~$1,500' },
-        { tag: 'Tier 4 — Custom', name: 'Enterprise Build', price: '$25,000+', earn: 'You earn: $2,500+' }
-      ];
+        { tag: 'Web App', name: 'Night Build', price: '$10,000', amt: 10000 },
+        { tag: 'Mobile App', name: 'Night Build Pro', price: '$15,000', amt: 15000 },
+        { tag: 'Custom', name: 'Enterprise Build', price: '$50,000+', amt: 50000, plus: true },
+        { tag: 'Retainer', name: 'Fractional AI Ops', price: '$5,000–8,000/mo', amt: 5000, recurring: true }
+      ].map(function (t) {
+        var e = earnFor(t.amt);
+        if (t.plus) e = e.replace('You earn: ', 'You earn: ') + '+';
+        if (t.recurring) e = e + '/mo';
+        return { tag: t.tag, name: t.name, price: t.price, earn: e };
+      });
 
       document.getElementById('tierGrid').innerHTML = tiers.map(t => `
         <div class="tier-card">
