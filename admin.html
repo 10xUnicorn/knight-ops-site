@@ -1097,6 +1097,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               <h2>Cleared Stripe Payments &mdash; Needs Attribution</h2>
               <div class="table-filters">
                 <label style="font-size:.75rem;color:var(--text-muted)">Last <input id="koBfDays" type="number" value="365" style="width:70px"> days</label>
+                <label style="font-size:.75rem;color:var(--text-muted)">Min $<input id="koBfMin" type="number" value="5" style="width:60px"></label>
                 <button class="btn btn-secondary btn-sm" onclick="koStripeBackfill(false)">&#128229; Import from Stripe</button>
                 <button class="btn btn-secondary btn-sm" onclick="koLoadUnmatchedPayments()">Refresh</button>
               </div>
@@ -11114,7 +11115,9 @@ async function koSetClientPartner(clientId,partnerId){
 async function koStripeBackfill(apply){
   if(apply&&!confirm('Import these Stripe payments as closed deals? This writes to your CRM.'))return;
   showToast(apply?'Importing…':'Scanning Stripe…');
-  let r;try{r=await koCall('stripe-backfill','',{apply:!!apply,since_days:parseInt(document.getElementById('koBfDays')?.value)||365});}catch(e){return;}
+  let r;try{r=await koCall('stripe-backfill','',{apply:!!apply,
+    since_days:parseInt(document.getElementById('koBfDays')?.value)||365,
+    min_amount:parseFloat(document.getElementById('koBfMin')?.value)||5});}catch(e){return;}
   const rows=(r.created||[]).map(x=>'<tr><td>'+(x.date||'')+'</td><td>'+(x.name||x.email||'—')+'</td><td style="font-size:.78rem">'+(x.description||'—')+'</td><td style="font-weight:600">'+koMoney(x.amount)+'</td><td>'+(x.lead?'✓ '+x.lead:'<span style="color:var(--text-muted)">no lead</span>')+'</td><td>'+(x.client_matched?'✓':'—')+'</td></tr>').join('');
   const html='<div style="font-size:.85rem;margin-bottom:.75rem">Scanned <b>'+r.scanned+'</b> charges · already imported <b>'+r.already_imported+'</b> · '+
     (r.dry_run?'would create <b>'+r.would_create_deal+'</b> deals':'created <b>'+r.would_create_deal+'</b> deals, <b>'+r.commissions+'</b> commissions')+
