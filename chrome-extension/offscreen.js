@@ -163,18 +163,39 @@ async function buildStream(p) {
       ctx.createMediaStreamSource(new MediaStream(display.getAudioTracks())).connect(ctx.destination);
     }
   } else {
-    display = await navigator.mediaDevices.getUserMedia({
-      audio: p.systemAudio
-        ? { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: p.streamId } }
-        : false,
-      video: {
-        mandatory: {
-          chromeMediaSource: 'desktop',
-          chromeMediaSourceId: p.streamId,
-          maxWidth: 2560, maxHeight: 1440, maxFrameRate: 30,
-        },
+    // System audio is only available if the picker granted it. On macOS Chrome
+    // CANNOT capture system audio for screen or window sources at all — and
+    // because these legacy constraints are `mandatory`, asking for an audio
+    // track that cannot exist makes Chrome reject the WHOLE request with a bare
+    // AbortError, losing the video too. So: ask only when granted, and if it
+    // still fails, fall back to video-only rather than losing the recording.
+    const videoConstraint = {
+      mandatory: {
+        chromeMediaSource: 'desktop',
+        chromeMediaSourceId: p.streamId,
+        maxWidth: 2560, maxHeight: 1440, maxFrameRate: 30,
       },
-    });
+    };
+    const wantAudio = p.systemAudio && p.canAudio;
+
+    if (wantAudio) {
+      try {
+        display = await navigator.mediaDevices.getUserMedia({
+          audio: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: p.streamId } },
+          video: videoConstraint,
+        });
+      } catch (e) {
+        note('build_stream', 'system audio unavailable, capturing video only',
+          { name: e?.name || null, error: String(e?.message || e) }, 'warn');
+        display = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
+      }
+    } else {
+      if (p.systemAudio) {
+        note('build_stream', 'picker did not grant system audio — video only (normal on macOS for screen/window)',
+          {}, 'warn');
+      }
+      display = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
+    }
   }
 
   // Mic gets mixed into whatever audio the capture already has.

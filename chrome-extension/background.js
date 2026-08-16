@@ -170,23 +170,25 @@ async function removeOverlay(tabId) {
 
 // ── capture source ─────────────────────────────────────────
 /**
- * NEVER pass a targetTab here.
+ * The targetTab argument IS required here.
  *
- * chooseDesktopMedia(sources, targetTab, cb) binds the resulting stream to the
- * SECURITY ORIGIN OF THAT TAB — only frames on that page's origin may consume
- * it. Our MediaRecorder lives in the offscreen document, which runs on
- * chrome-extension://<id>, so a tab-bound handle is rejected at getUserMedia
- * with a bare AbortError. Chrome then reports it as "Error starting tab
- * capture" even for Screen and Window captures, which is deeply misleading.
+ * Called from a service worker without a targetTab, Chrome has no window to
+ * anchor the picker to and fires the callback immediately with an empty
+ * streamId — the picker simply never appears. Passing the active tab is what
+ * Chrome's own screen-recording sample does.
  *
- * Omitting targetTab returns an extension-scoped handle, which the offscreen
- * document is allowed to use. That is the only correct form for this design.
+ * `options.canRequestAudioTrack` tells us whether the user actually granted
+ * audio. It matters enormously: on macOS, Chrome cannot capture system audio
+ * for screen or window sources at all (only for tabs). Demanding a mandatory
+ * audio track that the platform cannot supply makes getUserMedia reject the
+ * ENTIRE stream with a bare AbortError — which Chrome then mislabels as
+ * "Error starting tab capture".
  */
-function chooseDesktop(sources) {
+function chooseDesktop(sources, tab) {
   return new Promise((resolve, reject) => {
-    const reqId = chrome.desktopCapture.chooseDesktopMedia(sources, (streamId, options) => {
+    const reqId = chrome.desktopCapture.chooseDesktopMedia(sources, tab, (streamId, options) => {
       if (!streamId) return reject(new Error('cancelled'));
-      resolve({ streamId, options: options || {} });
+      resolve({ streamId, canAudio: !!(options && options.canRequestAudioTrack) });
     });
     // If the picker never returns we don't want a dangling request.
     setTimeout(() => { try { chrome.desktopCapture.cancelChooseDesktopMedia(reqId); } catch (_) {} }, 120000);
@@ -267,6 +269,7 @@ async function startRecording(opts) {
     // 4. Now mint the handle and consume it immediately.
     let streamId = null;
     let captureSource = 'desktop';
+    let canAudio = false;
     try {
       if (opts.source === 'tab') {
         const blocked = tabCaptureBlockedReason(tab);
@@ -279,9 +282,11 @@ async function startRecording(opts) {
         const sources = opts.source === 'window' ? ['window'] : ['screen', 'window'];
         if (opts.systemAudio) sources.push('audio');
         step('opening screen picker', { sources });
-        const picked = await chooseDesktop(sources);
+        const picked = await chooseDesktop(sources, tab);
         streamId = picked.streamId;
-        step('picker returned a handle', { canAudio: !!picked.options?.canRequestAudioTrack });
+        // Only ask for desktop audio if the picker says it is actually available.
+        canAudio = picked.canAudio;
+        step('picker returned a handle', { canAudio });
       }
     } catch (e) {
       const raw = String(e?.message || e);
@@ -305,6 +310,7 @@ async function startRecording(opts) {
       source: opts.source,
       mic: !!opts.mic,
       systemAudio: !!opts.systemAudio,
+      canAudio,
       camera: !!opts.camera && opts.source === 'camera',
       worker: workerUrl,
       token,
@@ -339,7 +345,7 @@ async function startRecording(opts) {
       try {
         const sources = ['screen', 'window'];
         if (opts.systemAudio) sources.push('audio');
-        const picked = await chooseDesktop(sources);
+        const picked = await chooseDesktop(sources, tab);
         basePayload.source = 'screen';
         setState({ sourceType: 'screen' });
         await chrome.storage.local.set({ koSource: 'screen' });
