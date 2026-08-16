@@ -163,38 +163,46 @@ async function buildStream(p) {
       ctx.createMediaStreamSource(new MediaStream(display.getAudioTracks())).connect(ctx.destination);
     }
   } else {
-    // System audio is only available if the picker granted it. On macOS Chrome
-    // CANNOT capture system audio for screen or window sources at all — and
-    // because these legacy constraints are `mandatory`, asking for an audio
-    // track that cannot exist makes Chrome reject the WHOLE request with a bare
-    // AbortError, losing the video too. So: ask only when granted, and if it
-    // still fails, fall back to video-only rather than losing the recording.
-    const videoConstraint = {
-      mandatory: {
-        chromeMediaSource: 'desktop',
-        chromeMediaSourceId: p.streamId,
-        maxWidth: 2560, maxHeight: 1440, maxFrameRate: 30,
-      },
-    };
-    const wantAudio = p.systemAudio && p.canAudio;
-
-    if (wantAudio) {
-      try {
-        display = await navigator.mediaDevices.getUserMedia({
-          audio: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: p.streamId } },
-          video: videoConstraint,
-        });
-      } catch (e) {
-        note('build_stream', 'system audio unavailable, capturing video only',
-          { name: e?.name || null, error: String(e?.message || e) }, 'warn');
-        display = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
+    /**
+     * Screen and window capture use getDisplayMedia() directly, NOT
+     * chrome.desktopCapture.
+     *
+     * desktopCapture is a trap in this architecture:
+     *   - with a targetTab, the picker opens but the handle is bound to that
+     *     page's security origin, so this offscreen document (which runs on
+     *     chrome-extension://) is refused at getUserMedia with a bare AbortError
+     *   - without a targetTab the handle would be usable, but a service worker
+     *     has no window to anchor the picker to, so it never opens at all
+     *
+     * There is no setting that satisfies both. getDisplayMedia sidesteps the
+     * whole problem: Chrome draws its own picker, the stream belongs to this
+     * document, and there is no handle to expire or mis-scope. The offscreen
+     * document is created with the DISPLAY_MEDIA reason precisely for this.
+     */
+    const surface = p.source === 'window' ? 'window' : 'monitor';
+    try {
+      display = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: surface,
+          frameRate: { ideal: 30 },
+          width: { max: 2560 },
+          height: { max: 1440 },
+        },
+        // Chrome only offers system audio for tab sources on macOS. Asking is
+        // harmless here — unlike the old mandatory constraints, an unavailable
+        // audio track no longer takes the video down with it.
+        audio: !!p.systemAudio,
+        systemAudio: p.systemAudio ? 'include' : 'exclude',
+        selfBrowserSurface: 'exclude',
+        surfaceSwitching: 'include',
+      });
+    } catch (e) {
+      const name = String(e?.name || '');
+      if (name === 'NotAllowedError') {
+        // User dismissed Chrome's picker, or macOS is withholding the permission.
+        throw new Error('Screen recording was not allowed. If Chrome never showed a picker, enable it in System Settings → Privacy & Security → Screen Recording.');
       }
-    } else {
-      if (p.systemAudio) {
-        note('build_stream', 'picker did not grant system audio — video only (normal on macOS for screen/window)',
-          {}, 'warn');
-      }
-      display = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
+      throw e;
     }
   }
 

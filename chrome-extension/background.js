@@ -279,14 +279,12 @@ async function startRecording(opts) {
       } else if (opts.source === 'camera') {
         streamId = null;
       } else {
-        const sources = opts.source === 'window' ? ['window'] : ['screen', 'window'];
-        if (opts.systemAudio) sources.push('audio');
-        step('opening screen picker', { sources });
-        const picked = await chooseDesktop(sources, tab);
-        streamId = picked.streamId;
-        // Only ask for desktop audio if the picker says it is actually available.
-        canAudio = picked.canAudio;
-        step('picker returned a handle', { canAudio });
+        // Screen and window go through getDisplayMedia inside the offscreen
+        // document — Chrome draws its own picker there, so nothing is minted
+        // here and there is no handle to expire or mis-scope. See offscreen.js.
+        streamId = null;
+        captureSource = 'display';
+        step('using getDisplayMedia (Chrome draws the picker)', { surface: opts.source });
       }
     } catch (e) {
       const raw = String(e?.message || e);
@@ -339,27 +337,14 @@ async function startRecording(opts) {
       }
     }
 
-    // Still no good: fall back to the screen picker so the recording still happens.
+    // Still no good: fall back to screen capture, which now goes through
+    // getDisplayMedia in the offscreen document rather than desktopCapture.
     if (!res?.ok && opts.source === 'tab') {
-      report('fallback', 'tab capture unavailable, offering screen capture', { last: res?.error }, 'warn');
-      try {
-        const sources = ['screen', 'window'];
-        if (opts.systemAudio) sources.push('audio');
-        const picked = await chooseDesktop(sources, tab);
-        basePayload.source = 'screen';
-        setState({ sourceType: 'screen' });
-        await chrome.storage.local.set({ koSource: 'screen' });
-        res = await attempt(picked.streamId, 'desktop', 0);
-      } catch (e) {
-        if (String(e?.message) !== 'cancelled') {
-          res = { ok: false, stage: 'fallback', error: String(e?.message || e) };
-        } else {
-          report('fallback', 'screen fallback cancelled', {}, 'warn');
-          setState({ status: 'idle', error: 'Chrome could not record that tab. Pick Screen or Window instead.' });
-          await removeOverlay(tab?.id);
-          return false;
-        }
-      }
+      report('fallback', 'tab capture unavailable, falling back to screen', { last: res?.error }, 'warn');
+      basePayload.source = 'screen';
+      setState({ sourceType: 'screen' });
+      await chrome.storage.local.set({ koSource: 'screen' });
+      res = await attempt(null, 'display', 0);
     }
 
     if (!res?.ok) {
