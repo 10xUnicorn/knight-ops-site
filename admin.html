@@ -1049,6 +1049,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               <div class="table-filters">
                 <input type="text" placeholder="Search..." id="partnerSearch" oninput="renderPartners()">
                 <select id="partnerStatusFilter" onchange="renderPartners()"><option value="">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="removed">Removed</option></select>
+                <button class="btn btn-secondary btn-sm" onclick="koInvitePartner()">&#9993; Invite from Leads</button>
                 <button class="btn btn-primary btn-sm" onclick="editPartner()">+ Add Partner</button>
               </div>
             </div>
@@ -3162,6 +3163,7 @@ async function showClientDetail(id){
   html+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Project Details</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.7rem">Voting links for this client&apos;s dashboard projects.</p><div id="mockCardClient_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>';
   html+=getOutreachHtml({name:p.full_name||'',email:p.email||'',phone:p.phone||''},'clients');
   document.getElementById('clientDetailView').innerHTML=html;
+  koRenderClientDeals(c);
   koRenderClientPartner(c);
   updateOutreachPreview();
   renderMockupCard('mockCardClient_'+id,{clientId:id,businessName:(p.full_name||'')});
@@ -9311,6 +9313,11 @@ async function showDealDetail(id){
   html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Value</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.deal_value||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'deal_value\',\'number\',null,()=>showDealDetail(\''+d.id+'\'))">'+fmtMoney(d.deal_value)+'</span></div></div><div><div class="dg-label">Stage</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\',DEAL_STAGE_OPTS,()=>showDealDetail(\''+d.id+'\'))" style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Probability</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.probability||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'probability\',\'number\',null,()=>showDealDetail(\''+d.id+'\'))">'+d.probability+'%</span></div></div><div><div class="dg-label">Priority</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.priority||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'priority\',\'select\',DEAL_PRIORITY_OPTS,()=>showDealDetail(\''+d.id+'\'))">'+B(d.priority)+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\',DEAL_STATUS_OPTS2,()=>showDealDetail(\''+d.id+'\'))">'+B(d.status)+'</span></div></div><div><div class="dg-label">Expected Close</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.expected_close_date||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'expected_close_date\',\'date\',null,()=>showDealDetail(\''+d.id+'\'))">'+fmtDate(d.expected_close_date)+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.source||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'source\',\'text\',null,()=>showDealDetail(\''+d.id+'\'))">'+(d.source||'—')+'</span></div></div><div><div class="dg-label">Sales Channel</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.sales_channel||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'sales_channel\',\'select\',SALES_CHANNEL_OPTS,()=>showDealDetail(\''+d.id+'\'))">'+(d.sales_channel||'—')+'</span></div></div></div>';
   if(d.description)html+='<p style="margin:1rem 0;font-size:.9rem;color:var(--text-muted)">'+d.description+'</p>';
 
+  // Payments collected against this deal
+  html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Payments Received</h2>'+
+    '<button class="btn btn-sm btn-primary" onclick="koAddPayment(\''+d.id+'\')">+ Record Payment</button></div>'+
+    '<div style="padding:1.25rem" id="koPayCard_'+d.id+'"><div style="color:var(--text-muted);font-size:.85rem">Loading…</div></div></div>';
+
   // Partner attribution + commissions for this deal
   html+=koDealPartnerCard(d);
 
@@ -9355,6 +9362,7 @@ async function showDealDetail(id){
   const dealEntity={name:d.leads?leadName(d.leads):(d.clients?.profiles?.full_name||d.title||''),first_name:d.leads?.first_name||d.clients?.profiles?.full_name?.split(' ')[0]||'',email:d.leads?.email||d.clients?.profiles?.email||'',phone:d.leads?.phone||d.clients?.profiles?.phone||''};
   html+=getOutreachHtml(dealEntity,'deals');
   document.getElementById('dealDetailView').innerHTML=html;
+  koLoadDealPayments(d.id);
   updateOutreachPreview();
 }
 
@@ -11049,6 +11057,170 @@ async function koSaveCommissionSettings(){
   const{error}=await sb.from('system_settings').upsert({key:'commissions',value:v},{onConflict:'key'});
   if(error){showToast('Error: '+error.message,'error');return;}
   S.koRates=v;showToast('Commission rates saved','success');koRenderRatesCard();
+}
+
+// ══ PAYMENTS LEDGER ════════════════════════════════════════════════════════
+// A deal is one contracted arrangement. Payments stack against it, so a retainer
+// that bills monthly stays a single deal instead of inflating the pipeline.
+S.koPayments={};
+
+async function koLoadDealPayments(dealId){
+  const[{data:pays},{data:sum}]=await Promise.all([
+    sb.from('stripe_payments').select('*').eq('deal_id',dealId).order('paid_at',{ascending:false}),
+    sb.from('deal_payment_summary').select('*').eq('deal_id',dealId).maybeSingle()
+  ]);
+  S.koPayments[dealId]=pays||[];
+  koRenderDealPayments(dealId,sum);
+}
+
+function koRenderDealPayments(dealId,sum){
+  const el=document.getElementById('koPayCard_'+dealId);if(!el)return;
+  const pays=S.koPayments[dealId]||[];
+  const s=sum||{contracted_value:0,net_collected:0,refunded:0,remaining:0};
+  const over=Number(s.net_collected)>Number(s.contracted_value||0);
+  el.innerHTML=
+    '<div style="display:flex;gap:2rem;flex-wrap:wrap;padding:0 0 1rem">'+
+      '<div><div class="dg-label">Contracted</div><div class="dg-value">'+koMoney(s.contracted_value)+'</div></div>'+
+      '<div><div class="dg-label">Collected</div><div class="dg-value" style="color:var(--accent)">'+koMoney(s.net_collected)+'</div></div>'+
+      (Number(s.refunded)>0?'<div><div class="dg-label">Refunded</div><div class="dg-value" style="color:#ef4444">-'+koMoney(s.refunded)+'</div></div>':'')+
+      '<div><div class="dg-label">'+(over?'Collected over contract':'Remaining')+'</div><div class="dg-value" style="color:'+(over?'#22c55e':'var(--text)')+'">'+
+        (over?'+'+koMoney(Number(s.net_collected)-Number(s.contracted_value||0)):koMoney(s.remaining))+'</div></div>'+
+    '</div>'+
+    '<table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    (pays.length?pays.map(p=>{
+      const refunded=Number(p.refunded_amount||0);
+      const badge=p.match_status==='ignored'?'<span class="badge badge-error">ignored</span>'
+        :refunded>=Number(p.amount)?'<span class="badge badge-error">refunded</span>'
+        :refunded>0?'<span class="badge badge-warning">partial refund</span>'
+        :'<span class="badge badge-success">received</span>';
+      return '<tr><td>'+fmtDate(p.paid_at)+'</td><td style="font-weight:600">'+koMoney(p.amount)+
+        (refunded>0?'<div style="font-size:.7rem;color:#ef4444">-'+koMoney(refunded)+' refunded</div>':'')+'</td>'+
+        '<td style="font-size:.8rem">'+(p.payment_method_label||p.payment_source||'stripe')+'</td>'+
+        '<td style="font-family:JetBrains Mono;font-size:.7rem;color:var(--text-muted)">'+(p.stripe_charge_id||p.notes||'—')+'</td>'+
+        '<td>'+badge+'</td><td>'+
+        (refunded<Number(p.amount)&&p.match_status!=='ignored'?'<button class="btn btn-sm btn-danger" onclick="koRefundPayment(\''+p.id+'\',\''+dealId+'\','+p.amount+','+refunded+')">Refund</button>':'')+
+        '</td></tr>';
+    }).join(''):'<tr><td colspan="6" class="table-empty">No payments recorded</td></tr>')+'</tbody></table>';
+}
+
+function koAddPayment(dealId){
+  const body=FR(FG('Amount *','e_payamt','number',''),FG('Date received *','e_paydate','date',new Date().toISOString().slice(0,10)))+
+    FG('Method','e_paymethod','select','manual',[{v:'manual',l:'Manual / other'},{v:'ach',l:'ACH'},{v:'wire',l:'Wire'},{v:'check',l:'Check'},{v:'stripe',l:'Stripe (recorded by hand)'}])+
+    FG('Reference / note','e_paynote','text','')+
+    '<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">Stripe payments import automatically. Use this for checks, wires, or anything collected outside Stripe. Adding a payment updates the deal close date and any partner commission.</div>';
+  openEditModal('Record a payment',body,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSavePayment(\''+dealId+'\')">Save payment</button>');
+}
+
+async function koSavePayment(dealId){
+  const amt=parseFloat(document.getElementById('e_payamt').value);
+  const date=document.getElementById('e_paydate').value;
+  if(!amt||amt<=0||!date){showToast('Enter an amount and date','error');return;}
+  const d=S.deals.find(x=>x.id===dealId)||{};
+  const{error}=await sb.from('stripe_payments').insert({
+    deal_id:dealId,lead_id:d.lead_id||null,client_id:d.client_id||null,partner_id:d.partner_id||null,
+    amount:amt,currency:'usd',status:'succeeded',
+    payment_source:document.getElementById('e_paymethod').value,
+    payment_method_label:document.getElementById('e_paymethod').value,
+    notes:document.getElementById('e_paynote').value||null,
+    paid_at:new Date(date+'T12:00:00Z').toISOString(),
+    match_status:'matched',matched_by:'manual',matched_at:new Date().toISOString(),
+    created_by:'admin'
+  });
+  if(error){showToast('Error: '+error.message,'error');return;}
+  closeEditModal();await koLoadDealPayments(dealId);await loadDeals();
+  showToast('Payment recorded','success');
+}
+
+async function koRefundPayment(paymentId,dealId,amount,already){
+  const max=Number(amount)-Number(already||0);
+  const raw=prompt('Refund amount (max '+koMoney(max)+'). Any partner commission on this payment is reversed automatically.',String(max));
+  if(raw===null)return;
+  const amt=parseFloat(raw);
+  if(!amt||amt<=0||amt>max){showToast('Enter an amount up to '+koMoney(max),'error');return;}
+  const reason=prompt('Reason for the refund?')||null;
+  const{error}=await sb.from('stripe_payments').update({
+    refunded_amount:Number(already||0)+amt,refunded_at:new Date().toISOString(),refund_reason:reason
+  }).eq('id',paymentId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  await koLoadDealPayments(dealId);await loadCommissions();await loadPartners();
+  showToast('Refund recorded — commission reversed','success');
+}
+
+// ── Invite a partner from an existing lead or client ────────────────────────
+function koInvitePartner(){
+  const existing=new Set(S.partners.map(p=>(p.email||'').toLowerCase()));
+  const leads=(S.leads||[]).filter(l=>l.lead_type!=='prospect'&&l.email&&!existing.has(l.email.toLowerCase()));
+  const clients=(S.clients||[]).filter(c=>c.profiles?.email&&!existing.has(c.profiles.email.toLowerCase()));
+  const opts=[{v:'',l:'— choose someone —'}]
+    .concat(clients.map(c=>({v:'client:'+c.id,l:'[Client] '+(c.profiles.full_name||c.profiles.email)})))
+    .concat(leads.map(l=>({v:'lead:'+l.id,l:'[Lead] '+(l.name||l.email)+(l.company?' · '+l.company:'')})));
+  if(opts.length===1){showToast('Everyone already has a partner record','error');return;}
+  const body=FG('Invite','e_invwho','select','',opts)+
+    FG('Or enter manually — name','e_invname','text','')+
+    FR(FG('Email','e_invemail','email',''),FG('Company','e_invcompany','text',''))+
+    '<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">They are created as an <b>active</b> partner on the standard sliding schedule and emailed an activation link to set up payouts.</div>';
+  openEditModal('Invite a partner',body,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSendPartnerInvite()">Send invite</button>');
+}
+
+async function koSendPartnerInvite(){
+  const who=document.getElementById('e_invwho').value;
+  let name=document.getElementById('e_invname').value.trim();
+  let email=document.getElementById('e_invemail').value.trim();
+  let company=document.getElementById('e_invcompany').value.trim();
+  let leadId=null,clientId=null;
+
+  if(who){
+    const[kind,id]=who.split(':');
+    if(kind==='lead'){const l=S.leads.find(x=>x.id===id);if(l){name=name||l.name||'';email=email||l.email||'';company=company||l.company||'';leadId=l.id;}}
+    else{const c=S.clients.find(x=>x.id===id);if(c){name=name||c.profiles?.full_name||'';email=email||c.profiles?.email||'';company=company||c.profiles?.company||'';clientId=c.id;}}
+  }
+  if(!name||!email){showToast('Name and email are required','error');return;}
+
+  try{
+    const r=await koCall('partner-invite','invite',
+      {name,email,company:company||null,lead_id:leadId,client_id:clientId});
+    closeEditModal();await loadPartners();await loadAffiliateLeads();
+    showToast('Invite sent to '+email,'success');
+    if(r.partner_id)showPartnerDetail(r.partner_id);
+  }catch(e){}
+}
+
+// ── Client record: every deal, every payment, reconciled to lifetime value ──
+async function koRenderClientDeals(c){
+  const host=document.getElementById('clientDetailView');if(!host)return;
+  const div=document.createElement('div');
+  div.className='table-card';div.style.marginTop='1rem';
+  div.innerHTML='<div class="table-header"><h2>Deals &amp; Payments</h2></div><div style="padding:1.25rem" id="koClientDeals_'+c.id+'"><div style="color:var(--text-muted);font-size:.85rem">Loading…</div></div>';
+  host.appendChild(div);
+
+  const{data:sums}=await sb.from('deal_payment_summary').select('*').eq('client_id',c.id);
+  const{data:pays}=await sb.from('stripe_payments').select('*').eq('client_id',c.id).neq('match_status','ignored').order('paid_at',{ascending:false});
+  const el=document.getElementById('koClientDeals_'+c.id);if(!el)return;
+
+  const rows=sums||[];
+  const lifetime=(pays||[]).reduce((s,p)=>s+Number(p.amount||0)-Number(p.refunded_amount||0),0);
+  const contracted=rows.reduce((s,r)=>s+Number(r.contracted_value||0),0);
+
+  el.innerHTML=
+    '<div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1rem">'+
+      '<div><div class="dg-label">Lifetime collected</div><div class="dg-value" style="color:var(--accent);font-size:1.15rem">'+koMoney(lifetime)+'</div></div>'+
+      '<div><div class="dg-label">Contracted across deals</div><div class="dg-value">'+koMoney(contracted)+'</div></div>'+
+      '<div><div class="dg-label">Deals</div><div class="dg-value">'+rows.length+'</div></div>'+
+      '<div><div class="dg-label">Payments</div><div class="dg-value">'+(pays||[]).length+'</div></div>'+
+    '</div>'+
+    (rows.length?'<table><thead><tr><th>Deal</th><th>Contracted</th><th>Collected</th><th>Payments</th><th>First</th><th>Last</th></tr></thead><tbody>'+
+      rows.map(r=>'<tr class="clickable" onclick="navTo(\'deals\');showDealDetail(\''+r.deal_id+'\')"><td>'+(r.title||'—')+'</td><td>'+koMoney(r.contracted_value)+
+      '</td><td style="color:var(--accent);font-weight:600">'+koMoney(r.net_collected)+'</td><td>'+r.payment_count+'</td><td>'+fmtDate(r.first_payment_at)+'</td><td>'+fmtDate(r.last_payment_at)+'</td></tr>').join('')+
+      '</tbody></table>':'<p class="table-empty">No deals linked to this client yet</p>')+
+    ((pays||[]).length?'<h3 style="font-size:.9rem;margin:1.25rem 0 .5rem">All payments</h3>'+
+      '<table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Deal</th></tr></thead><tbody>'+
+      pays.map(p=>{const dl=rows.find(r=>r.deal_id===p.deal_id);
+        return '<tr><td>'+fmtDate(p.paid_at)+'</td><td style="font-weight:600">'+koMoney(Number(p.amount)-Number(p.refunded_amount||0))+
+        (Number(p.refunded_amount||0)>0?' <span style="color:#ef4444;font-size:.7rem">(refunded '+koMoney(p.refunded_amount)+')</span>':'')+
+        '</td><td style="font-size:.8rem">'+(p.payment_method_label||p.payment_source||'stripe')+'</td><td style="font-size:.8rem">'+(dl?dl.title:'—')+'</td></tr>';}).join('')+
+      '</tbody></table>':'');
 }
 
 // ── Attach an existing lead or client to a partner, from the partner record ──

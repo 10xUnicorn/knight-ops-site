@@ -7,6 +7,18 @@
 
 ---
 
+## Changelog — 2026-08-15d (Payments ledger, refunds/clawbacks, partner invites)
+
+- **DEAL MODEL — one deal per contracted arrangement, payments stack against it.** Never create a deal per payment; that inflates the pipeline (a monthly retainer would look like 12 wins/yr). `stripe_payments` is now the full payments ledger: `payment_source` (stripe|manual|ach|wire|check|other), `payment_method_label`, `refunded_amount`, `refunded_at`, `refund_reason`, `notes`, `created_by`. Manual payments (check/wire) are inserted with `stripe_charge_id` null.
+- **`deal_payment_summary` view** reconciles contracted_value vs gross/net collected, refunded, remaining, payment_count, first/last payment. Stephanie Frank's retainer correctly shows $2,497 contracted against $4,994 collected across 2 payments on ONE deal.
+- **LEGACY CONSTRAINT BUG (was live).** `commissions_status_check` (original, `pending|approved|paid|rejected`) still existed alongside the newer `commissions_status_chk`. Two overlapping CHECKs means the strictest wins, so **every `void` / `payable` / `failed` write silently failed** — the admin Void button could never have worked. Dropped the legacy constraint and migrated `rejected` → `void`.
+- **Refunds + clawbacks (`trg_handle_refund`).** Raising `refunded_amount` reverses commission automatically: **not yet paid → void** (or reduce pro-rata on a partial); **already paid → a NEGATIVE `clawback` commission** that nets against the partner's next payout. We never demand cash back from a partner. Both paths verified live. Industry standard, and the 15th-of-following-month payout rule already gives a 15–45 day natural holding period so most refunds land before payout.
+- **Admin deal detail** gains a Payments Received card (contracted / collected / refunded / remaining + per-payment table, Record Payment, Refund). **Client detail** gains Deals & Payments — lifetime collected, contracted across deals, every deal, and every payment.
+- **`partner-invite` edge fn + "Invite from Leads"** on the Partners view: pick an existing lead or client (or type a name/email), creates an **active** partner on the sliding schedule with a portal token, and emails a branded activation invite with their referral link. Re-invites reuse an existing partner row rather than duplicating.
+- **Payout destination clarified:** platform balance → the partner's connected account → their bank on a **daily schedule with 2-day delay**. Because the account shape is `stripe_dashboard.type=none`, partners have **no Stripe dashboard** — they see commissions in the Knight Ops portal and money in their bank, never a Stripe balance. It does NOT appear in the 10xUnicorn Stripe account. Verified live with transfer `tr_1U4xWc3cMVgmMIujMeECpGNP`.
+
+---
+
 ## Changelog — 2026-08-15c (Stripe import, client links, partner notifications)
 
 - **Deals now link to clients.** Root cause: deals carried `lead_id` (163) but almost never `client_id` (3), and clients only resolve through `profiles.email`. Backfilled lead email → profile → client (**3 → 34 linked**). `trg_link_deal_client` (BEFORE insert/update on deals) keeps it resolved going forward and also inherits `partner_id` from the lead.
