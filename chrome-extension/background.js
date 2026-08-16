@@ -7,6 +7,11 @@
 const FN = 'https://trpnlkntvulkjerevngm.supabase.co/functions/v1';
 const SITE = 'https://knightops.biz';
 
+// Bump whenever the background↔offscreen message contract changes, and keep the
+// matching number in offscreen.js. Guards against a stale offscreen document
+// answering a newer service worker.
+const OFFSCREEN_PROTOCOL = 2;
+
 // ── state ──────────────────────────────────────────────────
 let state = {
   status: 'idle',            // idle | starting | recording | paused | uploading | done | error
@@ -97,19 +102,27 @@ async function report(stage, message, detail = {}, level = 'error') {
 }
 
 // ── offscreen document ─────────────────────────────────────
+/**
+ * Always tear down and rebuild the offscreen document before a run.
+ *
+ * An offscreen document outlives the service worker. After an extension update
+ * or a service-worker restart you can end up with a NEW worker talking to an
+ * OLD offscreen document — it answers the ping, then ignores the current start
+ * protocol and returns nothing, so the run dies with no error anywhere. Cheap
+ * to recreate (a few hundred ms) and it happens before we mint a capture
+ * handle, so it costs nothing that matters.
+ */
 async function ensureOffscreen() {
-  const existing = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
-  if (!existing.length) {
-    try {
-      await chrome.offscreen.createDocument({
-        url: 'offscreen.html',
-        reasons: ['USER_MEDIA', 'DISPLAY_MEDIA'],
-        justification: 'Record screen, tab, window, camera and microphone audio.',
-      });
-    } catch (e) {
-      // Two starts in quick succession can race on creation; an existing doc is fine.
-      if (!/single offscreen|already/i.test(String(e?.message))) throw e;
-    }
+  await closeOffscreen();
+  try {
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['USER_MEDIA', 'DISPLAY_MEDIA'],
+      justification: 'Record screen, tab, window, camera and microphone audio.',
+    });
+  } catch (e) {
+    // Two starts in quick succession can race on creation; an existing doc is fine.
+    if (!/single offscreen|already/i.test(String(e?.message))) throw e;
   }
   // createDocument resolves when the document exists — not when offscreen.js has
   // registered its message listener. Sending before then drops the start message
@@ -117,8 +130,16 @@ async function ensureOffscreen() {
   for (let i = 0; i < 60; i++) {
     try {
       const pong = await chrome.runtime.sendMessage({ type: 'ko-offscreen-ping' });
-      if (pong?.ready) return true;
-    } catch (_) { /* not listening yet */ }
+      if (pong?.ready) {
+        if (pong.protocol !== OFFSCREEN_PROTOCOL) {
+          throw new Error(`Recorder version mismatch (page ${pong.protocol}, worker ${OFFSCREEN_PROTOCOL}). Reload the extension at chrome://extensions.`);
+        }
+        return true;
+      }
+    } catch (e) {
+      if (/version mismatch/i.test(String(e?.message))) throw e;
+      /* otherwise: not listening yet */
+    }
     await new Promise(r => setTimeout(r, 50));
   }
   throw new Error('The recorder background page did not start. Reload the extension and try again.');
@@ -194,6 +215,13 @@ async function startRecording(opts) {
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   setState({ status: 'starting', tabId: tab?.id || null, sourceType: opts.source, error: null, shareUrl: null, progress: 0 });
+
+  // Heartbeat: proves the popup's message reached the service worker. Without
+  // this, a failure before the first network call leaves no trace at all.
+  report('start', 'recording requested', {
+    source: opts.source, mic: !!opts.mic, systemAudio: !!opts.systemAudio,
+    quality: opts.quality, countdown: opts.countdown !== false,
+  }, 'info');
 
   // 2. Resolve the storage worker BEFORE minting a capture handle.
   let workerUrl = worker;
@@ -307,13 +335,22 @@ async function startRecording(opts) {
   }
 
   if (!res?.ok) {
+    // This branch used to return silently, which is how several failures reached
+    // the user with nothing in the diagnostics. It always reports now.
+    const noReply = !res || res.ok === undefined;
+    report('start_failed', noReply ? 'recorder returned no result' : (res.error || 'unknown'), {
+      source: opts.source, stage: res?.stage || null, name: res?.name || null, raw: res || null,
+    });
+
     // Chrome says "Error starting tab capture" for every capture failure — Screen
     // and Window included. Never repeat that wording back to the user.
-    const friendly = res?.name === 'NotAllowedError'
-      ? 'Permission was denied. Allow screen recording for Chrome in System Settings → Privacy & Security → Screen Recording, then try again.'
-      : /tab capture|aborterror/i.test(res?.error || '')
-        ? 'Chrome dropped the screen-capture handle before recording could start. Try again — this usually works on the second attempt.'
-        : (res?.error || 'The recording could not start.');
+    const friendly = noReply
+      ? 'The recorder did not respond. Reload the extension at chrome://extensions and try again.'
+      : res.name === 'NotAllowedError'
+        ? 'Permission was denied. Allow screen recording for Chrome in System Settings → Privacy & Security → Screen Recording, then try again.'
+        : /tab capture|aborterror/i.test(res.error || '')
+          ? 'Chrome dropped the screen-capture handle before recording could start. Try again — this usually works on the second attempt.'
+          : (res.error || 'The recording could not start.');
     setState({ status: 'error', error: friendly });
     await removeOverlay(tab?.id);
     return;

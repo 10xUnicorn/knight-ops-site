@@ -369,7 +369,9 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
   switch (msg.type) {
     // Handshake so the service worker knows this listener is live before it
     // sends the start payload.
-    case 'ko-offscreen-ping':       respond({ ready: true }); return true;
+    // PROTOCOL must match background.js. A mismatch means a stale offscreen
+    // document survived an update — the worker will tear it down and rebuild.
+    case 'ko-offscreen-ping':       respond({ ready: true, protocol: 2 }); return true;
     // Report the outcome back so the service worker can retry or fall back
     // instead of the run dying silently.
     case 'ko-offscreen-start':
