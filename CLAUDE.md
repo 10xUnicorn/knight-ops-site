@@ -7,6 +7,19 @@
 
 ---
 
+## Changelog — 2026-08-15e (Email bug, dedupe, invite search, rate ladder)
+
+- **PARTNER WELCOME EMAIL WAS BROKEN AND HAD BEEN FOR A LONG TIME.** `partnerWelcomeEmail()` built its commission line with string concatenation **inside a template literal**, so every welcome email literally printed `' + d.commission_rate + '%`. It also said commissions were "paid via PayPal". Now renders the real rate pulled from `system_settings.commissions` and describes the Stripe/15th-of-next-month flow. If you edit these templates, note the file mixes `${}` and `'+ +'` styles — concatenation only works inside `${...}` arguments, never in the literal body.
+- **SECURITY: the Resend API key was hardcoded in `partner-emails` source** (`re_29fo...`). Replaced with `Deno.env.get('RESEND_API_KEY')`. **Rotate that key in Resend** — it sat in plaintext in a deployed function.
+- **Stripe onboarding links cannot be extended.** Stripe `account_links` are single-use and expire in minutes by design; there is no week-long option. The admin modal now leads with the partner's **portal link (never expires)** — the portal mints a fresh Stripe session on click — and offers "Email setup invite" via `partner-invite`. The raw Stripe link is kept only for in-person setup.
+- **Invite picker is searchable**: type-ahead over clients + leads showing name, email, company; picking one autofills all three and links the record. De-duplicated by email so one person can't appear twice. Shows the current headline rate.
+- **DEDUPE (destructive, done 2026-08-15).** `ko_merge_records(table, keep, drop)` walks the FK catalog (31 tables reference leads, 21 reference clients) and repoints every reference, deleting child rows only on unique-violation. Merged 11 inbound-lead duplicate groups + 39 groups where a scraped prospect shadowed a real inbound lead + 2 client duplicate groups. Survivor chosen by most linked history, then completeness, then oldest.
+- **Duplicates now prevented:** unique `leads(lower(email)) where lead_type='inbound'` (prospects exempt — the scraper legitimately holds many, per Rule 2) and unique `clients(profile_id)`. A lead and a client MAY share an email; `clients.lead_id` links them, kept fresh by triggers from both sides.
+- **NOT auto-fixed — needs a human decision:** 4 duplicate `profiles.email` rows remain, including a client profile named **Flory Graciano attached to dknightunicorn@gmail.com** (the owner's admin email). Merging those would staple a client record onto the admin profile. No email-unique index on `profiles` because it is coupled to `auth.users`.
+- **Portal rate ladder** rebuilt as a 4-card grid with **marginal** labels (First $50K / Next $200K / Next $500K / Above $750K) instead of overlapping ranges that repeated the same number. Dark-themed calculator input, whole-dollar formatting via `koMoney0()`.
+
+---
+
 ## Changelog — 2026-08-15d (Payments ledger, refunds/clawbacks, partner invites)
 
 - **DEAL MODEL — one deal per contracted arrangement, payments stack against it.** Never create a deal per payment; that inflates the pipeline (a monthly retainer would look like 12 wins/yr). `stripe_payments` is now the full payments ledger: `payment_source` (stripe|manual|ach|wire|check|other), `payment_method_label`, `refunded_amount`, `refunded_at`, `refund_reason`, `notes`, `created_by`. Manual payments (check/wire) are inserted with `stripe_charge_id` null.
