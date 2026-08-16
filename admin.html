@@ -11225,13 +11225,20 @@ async function koRenderClientDeals(c){
 
 // ── Attach an existing lead or client to a partner, from the partner record ──
 function koAttachToPartner(partnerId){
-  const leads=(S.leads||[]).filter(l=>l.lead_type!=='prospect'&&l.partner_id!==partnerId);
-  const clients=(S.clients||[]).filter(c=>c.partner_id!==partnerId);
   const cname=c=>c.profiles?.full_name||c.name||c.profiles?.email||'Client';
+  // Show everyone, marking who is already attached, rather than silently hiding them.
+  const leads=(S.leads||[]).filter(l=>l.lead_type!=='prospect')
+    .map(l=>({id:l.id,mine:l.partner_id===partnerId,other:l.partner_id&&l.partner_id!==partnerId,
+      label:(l.name||l.email||'Lead')+(l.company?' · '+l.company:'')+(!l.email?'  (no email)':'')}))
+    .sort((a,b)=>a.label.localeCompare(b.label));
+  const clients=(S.clients||[]).map(c=>({id:c.id,mine:c.partner_id===partnerId,other:c.partner_id&&c.partner_id!==partnerId,
+      label:cname(c)}))
+    .sort((a,b)=>a.label.localeCompare(b.label));
+  const tag=o=>o.mine?' ✓ already attached':o.other?' — attached to another partner':'';
   const body=
-    '<div style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem">Attaching a lead also creates the referral record, so it shows in the partner\'s tracker.</div>'+
-    FG('Attach a lead','e_atlead','select','',[{v:'',l:'— choose a lead —'}].concat(leads.map(l=>({v:l.id,l:(l.name||l.email||'Lead')+(l.company?' · '+l.company:'')}))))+
-    FG('Attach a client','e_atclient','select','',[{v:'',l:'— choose a client —'}].concat(clients.map(c=>({v:c.id,l:cname(c)}))));
+    '<div style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem">Attaching a lead or a client creates the referral record, so it shows in the partner\'s tracker and earns commission on payments collected.</div>'+
+    FG('Attach a lead','e_atlead','select','',[{v:'',l:'— choose a lead —'}].concat(leads.map(l=>({v:l.mine?'':l.id,l:l.label+tag(l)}))))+
+    FG('Attach a client','e_atclient','select','',[{v:'',l:'— choose a client —'}].concat(clients.map(c=>({v:c.mine?'':c.id,l:c.label+tag(c)}))));
   openEditModal('Attach a referral',body,
     '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSaveAttach(\''+partnerId+'\')">Attach</button>');
 }
