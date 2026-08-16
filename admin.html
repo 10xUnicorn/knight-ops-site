@@ -1069,12 +1069,28 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div class="table-header">
               <h2>Commissions</h2>
               <div class="table-filters">
-                <select id="commStatusFilter" onchange="renderCommissions()"><option value="">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="paid">Paid</option><option value="rejected">Rejected</option></select>
+                <select id="commStatusFilter" onchange="renderCommissions()"><option value="">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="payable">Payable</option><option value="paid">Paid</option><option value="void">Void</option></select>
                 <button class="btn btn-secondary btn-sm" onclick="exportCommissions()">Export CSV</button>
                 <button class="btn btn-secondary btn-sm" onclick="bulkApproveCommissions()">Bulk Approve</button>
+                <button class="btn btn-secondary btn-sm" onclick="koPayoutRun()">&#128176; Payouts Due</button>
+                <button class="btn btn-primary btn-sm" onclick="koCommissionEditor()">+ Add Commission</button>
               </div>
             </div>
             <div id="commissionsTable"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Referral Pipeline</h2>
+              <div class="table-filters" style="font-size:.75rem;color:var(--text-muted)">Lead &rsaquo; Discovery &rsaquo; Blueprint App &rsaquo; Proposal &rsaquo; Closed &rsaquo; Paid</div>
+            </div>
+            <div id="koPipelineTable"></div>
+          </div>
+          <div class="table-card" style="margin-top:1.5rem">
+            <div class="table-header">
+              <h2>Cleared Stripe Payments &mdash; Needs Attribution</h2>
+              <div class="table-filters"><button class="btn btn-secondary btn-sm" onclick="koLoadUnmatchedPayments()">Refresh</button></div>
+            </div>
+            <div id="koUnmatchedTable"></div>
           </div>
           <div class="table-card" style="margin-top:1.5rem">
             <div class="table-header">
@@ -2437,6 +2453,7 @@ async function showLeadDetail(id){
   const activityLogHtml='<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Activity Log ('+acts.length+')</h3><button class="btn btn-sm btn-primary" onclick="logLeadActivity(\''+l.id+'\')">+ Log Activity</button></div>'+(acts.length?'<div style="display:flex;flex-direction:column;gap:8px">'+acts.map(a=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1.1rem">'+(actIcons[a.activity_type]||'📋')+'</span><div><div style="font-weight:600;color:var(--text)">'+(actLabels[a.activity_type]||a.activity_type)+'</div>'+(a.notes?'<div style="color:var(--text-muted);margin-top:2px">'+esc(a.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-muted);font-size:.8rem;white-space:nowrap">'+fmtDateTime(a.logged_at)+'</span><button class="btn btn-sm btn-secondary" onclick="editLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteLeadActivity(\''+a.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">×</button></div></div>').join('')+'</div>':'<p style="color:var(--text-muted);font-size:.85rem">No activity logged yet</p>')+'</div>';
 
   document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> <button class="btn btn-sm" onclick="enrichLeadById(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.08);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Enrich lead data via web search">🔍 Enrich</button> <button class="btn btn-sm" onclick="apolloEnrichLead(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:#4A54E1;color:#fff;border:1px solid #5C64F4;border-radius:6px;font-weight:600" title="Enrich via Apollo (1 credit)">⚡ Apollo</button> '+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" class="btn btn-sm" style="padding:4px 10px;font-size:.75rem;background:rgba(10,102,194,.12);color:#0a66c2;border:1px solid rgba(10,102,194,.3);border-radius:6px;text-decoration:none" title="View LinkedIn profile">in LinkedIn</a> ':'')+'<button class="btn btn-sm btn-primary" onclick="createProjectFromLead(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">+ Project</button> <button class="btn btn-sm btn-primary" onclick="createAppFromLead(\''+l.id+'\')" style="background:rgba(33,150,243,0.15);color:var(--info);border:1px solid rgba(33,150,243,0.3);font-weight:600">+ Application</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Job Title</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.job_title||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'job_title\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.job_title||'—')+'</span></div></div><div><div class="dg-label">Website</div><div class="dg-value">'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" style="color:var(--accent)">'+esc(l.website)+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'website\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">LinkedIn</div><div class="dg-value">'+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" style="color:#0a66c2">'+esc(l.linkedin_url.replace(/https?:\/\/(?:www\.)?linkedin\.com\/in\//,''))+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'linkedin_url\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.location||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'location\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.location||'—')+'</span></div></div>'+(l.enriched_at?'<div><div class="dg-label">Enriched</div><div class="dg-value" style="font-size:.8rem;color:var(--text-muted)">'+fmtDateTime(l.enriched_at)+'</div></div>':'')+' <div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+auditCardHtml+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+buildLeadPromptUI(l.id)+linkedAppsHtml;
+  koRenderLeadPartner(l);
   setTimeout(()=>{updateOutreachPreview();refreshLeadPromptPreview(l.id);refreshContractPreview(l.id,true);},0);
 }
 function editLead(id){
@@ -9281,6 +9298,9 @@ async function showDealDetail(id){
   html+='<div class="detail-grid"><div><div class="dg-label">Client</div><div class="dg-value">'+cname+'</div></div><div><div class="dg-label">Value</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.deal_value||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'deal_value\',\'number\',null,()=>showDealDetail(\''+d.id+'\'))">'+fmtMoney(d.deal_value)+'</span></div></div><div><div class="dg-label">Stage</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.stage||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'stage\',\'select\',DEAL_STAGE_OPTS,()=>showDealDetail(\''+d.id+'\'))" style="color:'+(STAGE_COLORS[d.stage]||'var(--text)')+'">'+d.stage.replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Probability</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.probability||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'probability\',\'number\',null,()=>showDealDetail(\''+d.id+'\'))">'+d.probability+'%</span></div></div><div><div class="dg-label">Priority</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.priority||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'priority\',\'select\',DEAL_PRIORITY_OPTS,()=>showDealDetail(\''+d.id+'\'))">'+B(d.priority)+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.status||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'status\',\'select\',DEAL_STATUS_OPTS2,()=>showDealDetail(\''+d.id+'\'))">'+B(d.status)+'</span></div></div><div><div class="dg-label">Expected Close</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.expected_close_date||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'expected_close_date\',\'date\',null,()=>showDealDetail(\''+d.id+'\'))">'+fmtDate(d.expected_close_date)+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.source||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'source\',\'text\',null,()=>showDealDetail(\''+d.id+'\'))">'+(d.source||'—')+'</span></div></div><div><div class="dg-label">Sales Channel</div><div class="dg-value"><span class="inline-edit" data-value="'+(d.sales_channel||'')+'" onclick="inlineEdit(this,\'deals\',\''+d.id+'\',\'sales_channel\',\'select\',SALES_CHANNEL_OPTS,()=>showDealDetail(\''+d.id+'\'))">'+(d.sales_channel||'—')+'</span></div></div></div>';
   if(d.description)html+='<p style="margin:1rem 0;font-size:.9rem;color:var(--text-muted)">'+d.description+'</p>';
 
+  // Partner attribution + commissions for this deal
+  html+=koDealPartnerCard(d);
+
   // Linked Projects
   html+='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Projects</h2><div style="display:flex;gap:6px;align-items:center"><select id="addProjToDeal" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:.82rem"><option value="">Link project...</option>'+S.projects.filter(p=>!(projects||[]).find(dp=>dp.project_id===p.id)).map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')+'</select><button class="btn btn-sm btn-primary" onclick="linkProjectToDeal(\''+id+'\')">Link</button></div></div>';
   if(projects?.length){
@@ -10715,9 +10735,224 @@ async function createAndCopyIntakeToken(projectId){
 // ═══════════════════════════════════════
 // PARTNERS MODULE
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// PARTNER COMMISSIONS + STRIPE CONNECT  (added 2026-08-15)
+// Writes go through the partner-commissions / partner-stripe-connect edge fns,
+// which run as service role and re-verify the caller is an admin profile.
+// ═══════════════════════════════════════════════════════════════════════════
+const KO_STAGES=[{v:'lead',l:'Lead'},{v:'discovery',l:'Discovery'},{v:'blueprint',l:'Blueprint App'},{v:'proposal',l:'Proposal'},{v:'closed',l:'Closed'},{v:'paid',l:'Paid'},{v:'lost',l:'Lost'}];
+const KO_STAGE_COLOR={lead:'#64748b',discovery:'#3b82f6',blueprint:'#a855f7',proposal:'#f59e0b',closed:'#22c55e',paid:'#C9922A',lost:'#ef4444'};
+function koStageBadge(s){const c=KO_STAGE_COLOR[s]||'#888';const l=(KO_STAGES.find(x=>x.v===s)||{}).l||s||'—';return '<span style="background:'+c+'22;color:'+c+';padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;white-space:nowrap">'+l+'</span>';}
+function koMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+async function koCall(fn,action,payload){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){showToast('Session expired — sign in again','error');throw new Error('no session');}
+  const r=await fetch(SUPABASE_URL+'/functions/v1/'+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify(Object.assign({action},payload||{}))});
+  const j=await r.json().catch(()=>({error:'Bad response'}));
+  if(!r.ok||j.error){showToast(j.error||('Request failed ('+r.status+')'),'error');throw new Error(j.error||r.status);}
+  return j;
+}
+
+// ── Manual commission editor ──────────────────────────────────────────────
+function koCommissionEditor(id){
+  const c=id?S.commissions.find(x=>x.id===id):null;
+  const partnerOpts=S.partners.map(p=>({v:p.id,l:p.name+(p.company?' ('+p.company+')':'')}));
+  if(!partnerOpts.length){showToast('Add a partner first','error');return;}
+  const dealOpts=[{v:'',l:'— none —'}].concat((S.deals||[]).map(d=>({v:d.id,l:d.title+' · '+koMoney(d.deal_value)})));
+  const leadOpts=[{v:'',l:'— none —'}].concat((S.leads||[]).filter(l=>l.lead_type!=='prospect').map(l=>({v:l.id,l:(l.name||l.email||'Lead')})));
+  const body=FG('Partner *','e_cpartner','select',c?.partner_id||partnerOpts[0].v,partnerOpts)+
+    FR(FG('Deal amount (base)','e_camount','number',c?.deal_amount??''),FG('Rate %','e_crate','number',c?.commission_rate??10))+
+    FG('Commission $ (overrides rate calc)','e_ctotal','number',c?.commission_amount??'')+
+    FR(FG('Link to deal','e_cdeal','select',c?.deal_id||'',dealOpts),FG('Link to lead','e_clead','select',c?.lead_id||'',leadOpts))+
+    FR(FG('Payment cleared on','e_ccleared','date',(c?.cleared_at||'').slice(0,10)),FG('Payable on (blank = 15th of next month)','e_cpayable','date',c?.payable_on||''))+
+    FG('Type','e_csource','select',c?.source||'manual',[{v:'manual',l:'Manual'},{v:'bonus',l:'Bonus'},{v:'adjustment',l:'Adjustment'},{v:'clawback',l:'Clawback (use a negative amount)'}])+
+    FG('Description','e_cdesc','text',c?.description||'')+
+    FG('Internal notes','e_cnotes','textarea',c?.notes||'')+
+    '<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">Leave <b>Commission $</b> blank to auto-calculate from base × rate. Payout rule: a payment that clears in a month is payable on the 15th of the following month.</div>';
+  openEditModal((c?'Edit':'Add')+' Commission',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSaveCommission('+(id?"'"+id+"'":'')+')">Save</button>');
+}
+
+async function koSaveCommission(id){
+  const g=x=>document.getElementById(x).value;
+  const p={
+    partner_id:g('e_cpartner'),
+    deal_amount:g('e_camount')===''?null:parseFloat(g('e_camount')),
+    commission_rate:g('e_crate')===''?null:parseFloat(g('e_crate')),
+    commission_amount:g('e_ctotal')===''?null:parseFloat(g('e_ctotal')),
+    deal_id:g('e_cdeal')||null,lead_id:g('e_clead')||null,
+    cleared_at:g('e_ccleared')?new Date(g('e_ccleared')+'T12:00:00Z').toISOString():null,
+    payable_on:g('e_cpayable')||null,
+    source:g('e_csource'),description:g('e_cdesc')||null,notes:g('e_cnotes')||null
+  };
+  if(p.commission_amount==null&&(p.deal_amount==null||p.commission_rate==null)){showToast('Enter a commission amount, or a base amount + rate','error');return;}
+  try{
+    await koCall('partner-commissions',id?'update_commission':'create_commission',id?Object.assign({id},p):p);
+    closeEditModal();await loadCommissions();await loadPartners();showToast('Commission saved','success');
+  }catch(e){}
+}
+
+async function koSetCommissionStatus(id,status){
+  const label={approved:'Approve',paid:'Mark paid',void:'Void',pending:'Reopen'}[status]||status;
+  let extra={};
+  if(status==='void'){const r=prompt('Reason for voiding this commission?');if(r===null)return;extra.void_reason=r;}
+  if(status==='paid'){const ref=prompt('Payment reference (check #, PayPal txn, etc.) — leave blank if none');if(ref===null)return;extra.payout_reference=ref||null;}
+  else if(!confirm(label+' this commission?'))return;
+  try{await koCall('partner-commissions','set_status',Object.assign({id,status},extra));
+    await loadCommissions();await loadPartners();showToast('Commission '+status,'success');}catch(e){}
+}
+
+// ── Payout run: everything due as of today ────────────────────────────────
+async function koPayoutRun(){
+  let res;try{res=await koCall('partner-commissions','payout_run',{});}catch(e){return;}
+  const groups=res.payouts||[];
+  if(!groups.length){openEditModal('Payouts due','<p style="padding:.5rem 0">Nothing is due yet. Commissions become payable on the 15th of the month after the payment clears.</p>','<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');return;}
+  let html='<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.75rem">Due as of '+res.as_of+'. Stripe payouts require the partner to have completed Connect onboarding.</div>';
+  html+='<table style="width:100%"><thead><tr><th>Partner</th><th>Method</th><th>Due</th><th></th></tr></thead><tbody>';
+  groups.forEach(g=>{
+    const p=g.partner||{};
+    const ready=p.stripe_payouts_enabled;
+    const method=ready?'<span style="color:#22c55e">Stripe Connect</span>':(p.paypal_email?'PayPal ('+p.paypal_email+')':'<span style="color:#f59e0b">not set up</span>');
+    html+='<tr><td>'+(p.name||'—')+'</td><td style="font-size:.8rem">'+method+'</td><td style="font-weight:600;color:var(--accent)">'+koMoney(g.total)+'</td><td>'+
+      (ready?'<button class="btn btn-sm btn-primary" onclick="koPayViaStripe(\''+p.id+'\',[\''+g.commission_ids.join("','")+'\'])">Pay via Stripe</button>':
+             '<button class="btn btn-sm btn-secondary" onclick="koMarkGroupPaid([\''+g.commission_ids.join("','")+'\'])">Mark paid manually</button>')+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  openEditModal('Payouts due',html,'<button class="btn btn-secondary" onclick="closeEditModal()">Close</button>');
+}
+
+async function koPayViaStripe(partnerId,ids){
+  if(!confirm('Send '+ids.length+' commission(s) to this partner via Stripe now? This moves real money.'))return;
+  try{const r=await koCall('partner-stripe-connect','pay_commissions',{partner_id:partnerId,commission_ids:ids});
+    closeEditModal();await loadCommissions();await loadPartners();
+    showToast('Sent '+koMoney(r.amount)+' · transfer '+r.transfer_id,'success');}catch(e){}
+}
+async function koMarkGroupPaid(ids){
+  const ref=prompt('Payment reference (optional)');if(ref===null)return;
+  try{await koCall('partner-commissions','set_status',{ids,status:'paid',payout_reference:ref||null,paid_method:'manual'});
+    closeEditModal();await loadCommissions();await loadPartners();showToast('Marked paid','success');}catch(e){}
+}
+
+// ── Stripe Connect onboarding (admin-initiated) ───────────────────────────
+async function koPartnerStripeLink(partnerId){
+  try{const r=await koCall('partner-stripe-connect','admin_onboard_link',{partner_id:partnerId});
+    await loadPartners();
+    openEditModal('Stripe onboarding link',
+      '<p style="font-size:.85rem">Send this to the partner. It expires in a few minutes — regenerate if needed.</p>'+
+      '<input class="form-input" style="width:100%;font-size:.75rem" value="'+r.url+'" readonly onclick="this.select()">'+
+      '<p style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem">Account: '+r.stripe_account_id+'</p>',
+      '<button class="btn btn-secondary" onclick="closeEditModal()">Close</button><button class="btn btn-primary" onclick="navigator.clipboard.writeText(\''+r.url+'\');showToast(\'Copied\',\'success\')">Copy link</button>');
+  }catch(e){}
+}
+async function koRefreshPartnerStripe(partnerId){
+  try{await koCall('partner-stripe-connect','refresh_partner',{partner_id:partnerId});await loadPartners();showToast('Stripe status refreshed','success');}catch(e){}
+}
+
+// ── Attribution: deal ↔ partner, lead ↔ partner ───────────────────────────
+function koPartnerSelect(sel,current,onchange){
+  return '<select id="'+sel+'" onchange="'+onchange+'" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:.82rem">'+
+    '<option value="">— no partner —</option>'+
+    S.partners.map(p=>'<option value="'+p.id+'"'+(p.id===current?' selected':'')+'>'+p.name+'</option>').join('')+'</select>';
+}
+
+function koDealPartnerCard(d){
+  const p=S.partners.find(x=>x.id===d.partner_id);
+  const comms=(S.commissions||[]).filter(c=>c.deal_id===d.id&&c.status!=='void');
+  const total=comms.reduce((s,c)=>s+Number(c.commission_amount||0),0);
+  let h='<div class="table-card" style="margin-top:1rem"><div class="table-header"><h2>Partner Attribution</h2>'+
+    '<div style="display:flex;gap:8px;align-items:center">'+koPartnerSelect('dealPartnerSel',d.partner_id,'koSetDealPartner(\''+d.id+'\',this.value)')+
+    (d.partner_id?'<button class="btn btn-sm btn-primary" onclick="koCommissionFromDeal(\''+d.id+'\')">+ Commission</button>':'')+'</div></div>'+
+    '<div style="padding:1rem 1.25rem">';
+  if(p){
+    h+='<div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:.85rem">'+
+      '<div><div class="dg-label">Partner</div><div class="dg-value">'+p.name+'</div></div>'+
+      '<div><div class="dg-label">Default rate</div><div class="dg-value">'+(p.commission_type==='flat'?koMoney(p.commission_rate):p.commission_rate+'%')+'</div></div>'+
+      '<div><div class="dg-label">Commission on this deal</div><div class="dg-value" style="color:var(--accent)">'+koMoney(total)+'</div></div>'+
+      '<div><div class="dg-label">Payout</div><div class="dg-value">'+(p.stripe_payouts_enabled?'<span style="color:#22c55e">Stripe ready</span>':'<span style="color:#f59e0b">not connected</span>')+'</div></div></div>';
+    if(comms.length){h+='<table style="margin-top:.75rem"><thead><tr><th>Commission</th><th>Status</th><th>Payable</th></tr></thead><tbody>'+
+      comms.map(c=>'<tr><td style="color:var(--accent);font-weight:600">'+koMoney(c.commission_amount)+'</td><td>'+B(c.status)+'</td><td>'+(c.payable_on||'—')+'</td></tr>').join('')+'</tbody></table>';}
+  }else{
+    h+='<p style="font-size:.85rem;color:var(--text-muted);margin:0">No partner attributed. Selecting one also tags this deal\'s lead, so it appears in that partner\'s referral tracker.</p>';
+  }
+  return h+'</div></div>';
+}
+
+async function koSetDealPartner(dealId,partnerId){
+  try{
+    await koCall('partner-commissions','assign_deal_partner',{deal_id:dealId,partner_id:partnerId||null});
+    await loadDeals();await loadPartners();await loadAffiliateLeads();
+    showToast(partnerId?'Partner attributed':'Partner removed','success');
+    showDealDetail(dealId);
+  }catch(e){}
+}
+
+async function koCommissionFromDeal(dealId){
+  const d=S.deals.find(x=>x.id===dealId);if(!d)return;
+  const p=S.partners.find(x=>x.id===d.partner_id);if(!p)return;
+  if(!confirm('Create a commission for '+p.name+' at '+p.commission_rate+(p.commission_type==='flat'?' flat':'%')+' of '+koMoney(d.deal_value)+'?'))return;
+  try{await koCall('partner-commissions','assign_deal_partner',{deal_id:dealId,partner_id:d.partner_id,create_commission:true});
+    await loadCommissions();await loadPartners();showToast('Commission created','success');showDealDetail(dealId);}catch(e){}
+}
+
+// Injected into the lead detail view after it renders.
+function koRenderLeadPartner(l){
+  const host=document.getElementById('leadDetailView');if(!host)return;
+  const p=S.partners.find(x=>x.id===l.partner_id);
+  const comms=(S.commissions||[]).filter(c=>c.lead_id===l.id&&c.status!=='void');
+  const total=comms.reduce((s,c)=>s+Number(c.commission_amount||0),0);
+  const div=document.createElement('div');
+  div.className='table-card';div.style.marginTop='1rem';
+  div.innerHTML='<div class="table-header"><h2>Referred By</h2><div style="display:flex;gap:8px;align-items:center">'+
+    koPartnerSelect('leadPartnerSel',l.partner_id,'koSetLeadPartner(\''+l.id+'\',this.value)')+'</div></div>'+
+    '<div style="padding:1rem 1.25rem;font-size:.85rem">'+(p?
+      ('<div style="display:flex;gap:2rem;flex-wrap:wrap"><div><div class="dg-label">Partner</div><div class="dg-value">'+p.name+'</div></div>'+
+       '<div><div class="dg-label">Referred</div><div class="dg-value">'+fmtDate(l.referred_at)+'</div></div>'+
+       '<div><div class="dg-label">Commissions</div><div class="dg-value" style="color:var(--accent)">'+koMoney(total)+'</div></div></div>')
+      :'<span style="color:var(--text-muted)">Organic — no partner referral.</span>')+'</div>';
+  host.appendChild(div);
+}
+
+async function koSetLeadPartner(leadId,partnerId){
+  try{
+    await koCall('partner-commissions','assign_lead_partner',{lead_id:leadId,partner_id:partnerId||null});
+    await loadLeads();await loadAffiliateLeads();await loadPartners();
+    showToast(partnerId?'Referral attributed':'Referral removed','success');
+    showLeadDetail(leadId);
+  }catch(e){}
+}
+
+// ── Referral pipeline + unmatched Stripe payments ─────────────────────────
+async function koLoadReferralPipeline(){
+  let res;try{res=await koCall('partner-commissions','referral_pipeline',{});}catch(e){return;}
+  S.koPipeline=res.referrals||[];
+  const el=document.getElementById('koPipelineTable');if(!el)return;
+  const rows=S.koPipeline;
+  el.innerHTML='<table><thead><tr><th>Referral</th><th>Partner</th><th>Stage</th><th>Deal Value</th><th>Commission</th><th>Outstanding</th><th>Referred</th></tr></thead><tbody>'+
+    (rows.length?rows.map(r=>'<tr class="clickable" onclick="'+(r.lead_id?'showLeadDetail(\''+r.lead_id+'\')':'')+'"><td>'+(r.referral_name||r.referral_email||'—')+'<div style="font-size:.72rem;color:var(--text-muted)">'+(r.referral_company||'')+'</div></td><td>'+(r.partner_name||'—')+'</td><td>'+koStageBadge(r.stage)+'</td><td>'+(r.deal_value?koMoney(r.deal_value):'—')+'</td><td style="color:var(--accent);font-weight:600">'+koMoney(r.commission_total)+'</td><td>'+koMoney(r.commission_outstanding)+'</td><td>'+fmtDate(r.referred_at)+'</td></tr>').join('')
+      :'<tr><td colspan="7" class="table-empty">No partner referrals yet</td></tr>')+'</tbody></table>';
+}
+
+async function koLoadUnmatchedPayments(){
+  let res;try{res=await koCall('partner-commissions','unmatched_payments',{});}catch(e){return;}
+  const el=document.getElementById('koUnmatchedTable');if(!el)return;
+  const rows=res.payments||[];
+  el.innerHTML='<table><thead><tr><th>Paid</th><th>Customer</th><th>Description</th><th>Amount</th><th>Deal</th><th>Attribute to partner</th></tr></thead><tbody>'+
+    (rows.length?rows.map(p=>'<tr><td>'+fmtDate(p.paid_at)+'</td><td>'+(p.customer_name||p.customer_email||'—')+'</td><td style="font-size:.8rem">'+(p.product_description||'—')+'</td><td style="font-weight:600">'+koMoney(p.amount)+'</td><td>'+(p.deal_id?'<a href="#deals/'+p.deal_id+'" style="color:var(--accent)">open</a>':'—')+'</td><td>'+koPartnerSelect('koPay_'+p.id,'','koAttributePayment(\''+p.id+'\',\''+(p.deal_id||'')+'\',this.value)')+'</td></tr>').join('')
+      :'<tr><td colspan="6" class="table-empty">Every cleared payment is attributed</td></tr>')+'</tbody></table>';
+}
+
+async function koAttributePayment(paymentId,dealId,partnerId){
+  if(!partnerId||!dealId){showToast('That payment has no deal to attribute','error');return;}
+  try{await koCall('partner-commissions','assign_deal_partner',{deal_id:dealId,partner_id:partnerId,create_commission:true});
+    await sb.from('stripe_payments').update({match_status:'matched',partner_id:partnerId}).eq('id',paymentId);
+    await loadCommissions();await loadPartners();await koLoadUnmatchedPayments();
+    showToast('Attributed + commission created','success');}catch(e){}
+}
+
 async function loadPartners(){
   const{data}=await sb.from('partners').select('*').order('created_at',{ascending:false});
   S.partners=data||[];renderPartners();
+  koLoadReferralPipeline();koLoadUnmatchedPayments();
 }
 async function loadAffiliateLeads(){
   const{data}=await sb.from('affiliate_leads').select('*').order('created_at',{ascending:false});
@@ -10777,11 +11012,15 @@ function renderCommissions(){
   const totPending=S.commissions.filter(c=>c.status==='pending').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
   const totApproved=S.commissions.filter(c=>c.status==='approved').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
   const totPaid=S.commissions.filter(c=>c.status==='paid').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
-  document.getElementById('commissionsTable').innerHTML='<div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:.85rem"><span style="color:#f59e0b">Pending: $'+totPending.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#22c55e">Approved: $'+totApproved.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#3b82f6">Paid: $'+totPaid.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div><table><thead><tr><th>Partner</th><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>{
+  document.getElementById('commissionsTable').innerHTML='<div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:.85rem"><span style="color:#f59e0b">Pending: $'+totPending.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#22c55e">Approved: $'+totApproved.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#3b82f6">Paid: $'+totPaid.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div><table><thead><tr><th>Partner</th><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Payable On</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>{
     const partner=S.partners.find(p=>p.id===c.partner_id);
     const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);
-    return '<tr><td>'+(partner?partner.name:'—')+'</td><td>'+(lead?lead.name:'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+c.commission_rate+'%</td><td style="font-weight:600;color:var(--accent)">$'+parseFloat(c.commission_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td><td>'+
-    (c.status==='pending'?'<button class="btn btn-sm btn-primary" onclick="approveCommission(\''+c.id+'\')">Approve</button> <button class="btn btn-sm btn-danger" onclick="rejectCommission(\''+c.id+'\')">Reject</button>':c.status==='approved'?'<button class="btn btn-sm btn-secondary" onclick="markCommissionPaid(\''+c.id+'\')">Mark Paid</button>':'')+'</td></tr>';
+    const srcTag=c.source&&c.source!=='manual'?'<div style="font-size:.68rem;color:var(--text-muted)">'+c.source.replace(/_/g,' ')+'</div>':'';
+    return '<tr><td>'+(partner?partner.name:'—')+srcTag+'</td><td>'+(lead?lead.name:'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+(c.commission_rate!=null?c.commission_rate+'%':'—')+'</td><td style="font-weight:600;color:var(--accent)">$'+parseFloat(c.commission_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</td><td>'+B(c.status)+'</td><td style="font-size:.8rem">'+(c.payable_on||'—')+'</td><td>'+
+    '<button class="btn btn-sm btn-secondary" onclick="koCommissionEditor(\''+c.id+'\')">Edit</button> '+
+    (c.status==='pending'?'<button class="btn btn-sm btn-primary" onclick="koSetCommissionStatus(\''+c.id+'\',\'approved\')">Approve</button> <button class="btn btn-sm btn-danger" onclick="koSetCommissionStatus(\''+c.id+'\',\'void\')">Void</button>'
+     :c.status==='approved'||c.status==='payable'?'<button class="btn btn-sm btn-secondary" onclick="koSetCommissionStatus(\''+c.id+'\',\'paid\')">Mark Paid</button> <button class="btn btn-sm btn-danger" onclick="koSetCommissionStatus(\''+c.id+'\',\'void\')">Void</button>'
+     :c.status==='void'?'<button class="btn btn-sm btn-secondary" onclick="koSetCommissionStatus(\''+c.id+'\',\'pending\')">Reopen</button>':'')+'</td></tr>';
   }).join(''):'<tr><td colspan="8" class="table-empty">No commissions</td></tr>')+'</tbody></table>';
 }
 
@@ -10806,9 +11045,9 @@ function showPartnerDetail(id){
   const techBadge=t=>{const c={architect:'#3b82f6',vibe_coder:'#a855f7',blitz_builder:'#f59e0b',scholar:'#22c55e'};return t?'<span style="background:'+(c[t]||'#888')+'22;color:'+(c[t]||'#888')+';padding:2px 8px;border-radius:4px;font-size:.75rem">'+t.replace('_',' ')+'</span>':'—';};
   document.getElementById('partnersListView').style.display='none';
   document.getElementById('partnerDetailView').style.display='block';
-  document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button></div>'+
+  document.getElementById('partnerDetailView').innerHTML='<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'partnersListView\').style.display=\'block\';document.getElementById(\'partnerDetailView\').style.display=\'none\'">&#8592; Back</button><h2>'+p.name+'</h2>'+B(p.status)+'<button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="editPartner(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-secondary" onclick="sendPartnerMagicLink(\''+p.id+'\')">Send Portal Link</button><button class="btn btn-sm btn-secondary" onclick="koPartnerStripeLink(\''+p.id+'\')">'+(p.stripe_account_id?'Stripe Onboarding Link':'Set Up Stripe Payouts')+'</button>'+(p.stripe_account_id?'<button class="btn btn-sm btn-secondary" onclick="koRefreshPartnerStripe(\''+p.id+'\')">Refresh Stripe</button>':'')+'</div>'+
   '<div class="kpi-grid"><div class="kpi"><div class="label">Total Leads</div><div class="value">'+leads.length+'</div></div><div class="kpi"><div class="label">Conversions</div><div class="value">'+converted+'</div></div><div class="kpi"><div class="label">Commission Rate</div><div class="value">'+(p.commission_type==='flat'?'$'+p.commission_rate:p.commission_rate+'%')+'</div></div><div class="kpi"><div class="label">Total Earned</div><div class="value">$'+earned.toLocaleString('en-US',{minimumFractionDigits:2})+'</div></div></div>'+
-  '<div class="table-card" style="margin-top:1.5rem"><div style="padding:1.25rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+p.email+'</div></div><div class="form-group"><label>Phone</label><div>'+(p.phone||'—')+'</div></div><div class="form-group"><label>Company</label><div>'+(p.company||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Slug</label><div style="font-family:JetBrains Mono;color:var(--accent)">knightops.biz/'+p.slug+'</div></div><div class="form-group"><label>PayPal</label><div>'+(p.paypal_email||'—')+'</div></div><div class="form-group"><label>Website</label><div>'+(p.website||'—')+'</div></div></div>'+(p.bio?'<div class="form-group"><label>Bio</label><div>'+p.bio+'</div></div>':'')+(p.notes?'<div class="form-group"><label>Notes</label><div>'+p.notes+'</div></div>':'')+'</div></div>'+
+  '<div class="table-card" style="margin-top:1.5rem"><div style="padding:1.25rem"><div class="form-row"><div class="form-group"><label>Email</label><div>'+p.email+'</div></div><div class="form-group"><label>Phone</label><div>'+(p.phone||'—')+'</div></div><div class="form-group"><label>Company</label><div>'+(p.company||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Slug</label><div style="font-family:JetBrains Mono;color:var(--accent)">knightops.biz/'+p.slug+'</div></div><div class="form-group"><label>PayPal (fallback)</label><div>'+(p.paypal_email||'—')+'</div></div><div class="form-group"><label>Website</label><div>'+(p.website||'—')+'</div></div></div><div class="form-row"><div class="form-group"><label>Payout Method</label><div>'+(p.payout_method||'stripe_connect').replace(/_/g,' ')+'</div></div><div class="form-group"><label>Stripe Connect</label><div>'+(p.stripe_payouts_enabled?'<span style="color:#22c55e;font-weight:600">Ready for payouts</span>':p.stripe_account_id?'<span style="color:#f59e0b">Onboarding incomplete</span>':'<span style="color:var(--text-muted)">Not connected</span>')+'</div></div><div class="form-group"><label>Stripe Account</label><div style="font-family:JetBrains Mono;font-size:.75rem">'+(p.stripe_account_id||'—')+'</div></div></div>'+(p.bio?'<div class="form-group"><label>Bio</label><div>'+p.bio+'</div></div>':'')+(p.notes?'<div class="form-group"><label>Notes</label><div>'+p.notes+'</div></div>':'')+'</div></div>'+
   '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Leads from '+p.name+'</h3></div><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Tech Type</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(leads.length?leads.map(l=>'<tr><td>'+(l.first_name?leadName(l):l.name)+'</td><td>'+l.email+'</td><td>'+B(l.source)+'</td><td>'+techBadge(l.tech_type)+'</td><td>'+B(l.status)+'</td><td>'+fmtDate(l.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="table-empty">No leads yet</td></tr>')+'</tbody></table></div>'+
   '<div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3>Commissions</h3></div><table><thead><tr><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Date</th></tr></thead><tbody>'+(comms.length?comms.map(c=>{const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);return '<tr><td>'+(lead?(lead.first_name?leadName(lead):lead.name):'—')+'</td><td>$'+parseFloat(c.deal_amount||0).toLocaleString()+'</td><td>'+c.commission_rate+'%</td><td style="color:var(--accent);font-weight:600">$'+parseFloat(c.commission_amount||0).toLocaleString()+'</td><td>'+B(c.status)+'</td><td>'+fmtDate(c.created_at)+'</td></tr>';}).join(''):'<tr><td colspan="6" class="table-empty">No commissions</td></tr>')+'</tbody></table></div>';
 }
@@ -10869,9 +11108,9 @@ async function approveCommission(id){
   if(c){await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_approved',title:'Commission Approved',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been approved!',metadata:{commission_id:id}});}
 }
 async function rejectCommission(id){
-  if(!confirm('Reject this commission?'))return;
-  await sb.from('commissions').update({status:'rejected'}).eq('id',id);
-  await loadCommissions();showToast('Commission rejected');
+  // 'void' (not 'rejected') — commissions_status_chk only permits
+  // pending|approved|payable|paid|void|failed.
+  return koSetCommissionStatus(id,'void');
 }
 async function markCommissionPaid(id){
   if(!confirm('Mark as paid?'))return;

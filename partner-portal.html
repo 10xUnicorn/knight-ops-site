@@ -1362,15 +1362,17 @@
 
       <!-- MY LEADS TAB -->
       <div id="leads" class="tab-content">
+        <div id="stageStrip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px"></div>
         <div class="table-wrapper">
           <div class="filter-bar">
             <div class="filter-group">
-              <button class="filter-btn active" onclick="filterLeads('all')">All Leads</button>
-              <button class="filter-btn" onclick="filterLeads('pending')">Pending</button>
-              <button class="filter-btn" onclick="filterLeads('contacted')">Contacted</button>
-              <button class="filter-btn" onclick="filterLeads('qualified')">Qualified</button>
-              <button class="filter-btn" onclick="filterLeads('converted')">Converted</button>
-              <button class="filter-btn" onclick="filterLeads('lost')">Lost</button>
+              <button class="filter-btn active" onclick="filterLeads('all')">All Referrals</button>
+              <button class="filter-btn" onclick="filterLeads('lead')">Lead</button>
+              <button class="filter-btn" onclick="filterLeads('discovery')">Discovery</button>
+              <button class="filter-btn" onclick="filterLeads('blueprint')">Blueprint App</button>
+              <button class="filter-btn" onclick="filterLeads('proposal')">Proposal</button>
+              <button class="filter-btn" onclick="filterLeads('closed')">Closed</button>
+              <button class="filter-btn" onclick="filterLeads('paid')">Paid</button>
             </div>
           </div>
           <table class="table">
@@ -1378,10 +1380,10 @@
               <tr>
                 <th>Name</th>
                 <th>Company</th>
-                <th>Source</th>
-                <th>Tech Type</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>Stage</th>
+                <th>Commission Earned</th>
+                <th>Still Owed</th>
+                <th>Referred</th>
               </tr>
             </thead>
             <tbody id="leadsTable"></tbody>
@@ -1392,6 +1394,10 @@
       <!-- MY COMMISSIONS TAB -->
       <div id="commissions" class="tab-content">
         <div class="summary-bar" id="commissionSummary"></div>
+        <div style="background:var(--bg-card,rgba(255,255,255,.03));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:12px;padding:18px;margin:18px 0">
+          <h3 style="margin:0 0 10px;font-size:15px">Getting Paid</h3>
+          <div id="payoutSetup"></div>
+        </div>
         <div class="table-wrapper">
           <div class="filter-bar">
             <div class="filter-group">
@@ -1399,18 +1405,17 @@
               <button class="filter-btn" onclick="filterCommissions('pending')">Pending</button>
               <button class="filter-btn" onclick="filterCommissions('approved')">Approved</button>
               <button class="filter-btn" onclick="filterCommissions('paid')">Paid</button>
-              <button class="filter-btn" onclick="filterCommissions('rejected')">Rejected</button>
             </div>
           </div>
           <table class="table">
             <thead>
               <tr>
-                <th>Lead Name</th>
+                <th>Description</th>
                 <th>Deal Amount</th>
                 <th>Rate</th>
                 <th>Commission</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Payable On</th>
               </tr>
             </thead>
             <tbody id="commissionsTable"></tbody>
@@ -1497,6 +1502,110 @@
 
     let currentPartnerId = null;
     let currentPartnerData = null;
+    let koToken = null;
+
+    // ── All partner data now goes through the token-gated partner-portal-data
+    //    edge function. The portal no longer reads partner tables with the anon
+    //    key, which previously exposed every partner's magic_link_token.
+    async function koPortal(action, payload) {
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/partner-portal-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify(Object.assign({ action, token: koToken || localStorage.getItem('ko_partner_token') }, payload || {}))
+      });
+      const j = await r.json().catch(() => ({ error: 'Bad response' }));
+      if (!r.ok || j.error) {
+        if (j.error === 'invalid_token') { localStorage.removeItem('ko_partner_id'); localStorage.removeItem('ko_partner_token'); }
+        throw new Error(j.error || ('Request failed ' + r.status));
+      }
+      return j;
+    }
+
+    async function koStripe(action, payload) {
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/partner-stripe-connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify(Object.assign({ action, token: koToken || localStorage.getItem('ko_partner_token') }, payload || {}))
+      });
+      const j = await r.json().catch(() => ({ error: 'Bad response' }));
+      if (!r.ok || j.error) throw new Error(j.error || ('Request failed ' + r.status));
+      return j;
+    }
+
+    const KO_STAGES = [
+      { v: 'lead', l: 'Lead' }, { v: 'discovery', l: 'Discovery' }, { v: 'blueprint', l: 'Blueprint App' },
+      { v: 'proposal', l: 'Proposal' }, { v: 'closed', l: 'Closed' }, { v: 'paid', l: 'Paid' }
+    ];
+    const KO_STAGE_COLOR = { lead: '#64748b', discovery: '#3b82f6', blueprint: '#a855f7', proposal: '#f59e0b', closed: '#22c55e', paid: '#C9922A', lost: '#ef4444' };
+    function koStageBadge(s) {
+      const c = KO_STAGE_COLOR[s] || '#888';
+      const l = (KO_STAGES.find(x => x.v === s) || {}).l || (s === 'lost' ? 'Not moving forward' : s || '—');
+      return `<span style="background:${c}22;color:${c};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap">${l}</span>`;
+    }
+    function koMoney(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    let koNextPayoutDate = null;
+
+    // Stage counter strip above the referral table.
+    function renderStageStrip(counts) {
+      const el = document.getElementById('stageStrip');
+      if (!el) return;
+      el.innerHTML = KO_STAGES.map(s => {
+        const c = KO_STAGE_COLOR[s.v];
+        const n = counts[s.v] || 0;
+        return `<div style="background:var(--bg-card,rgba(255,255,255,.03));border:1px solid ${c}33;border-radius:10px;padding:12px 10px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:${c}">${n}</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px">${s.l}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Stripe Connect onboarding (partner-initiated) ──────────────────────
+    async function koRenderPayoutSetup() {
+      const el = document.getElementById('payoutSetup');
+      if (!el) return;
+      const p = currentPartnerData || {};
+      let statusHtml;
+      if (p.stripe_payouts_enabled) {
+        statusHtml = `<div style="color:#22c55e;font-weight:600">&#10003; Connected — you're set up to receive payouts</div>
+          <button class="btn-secondary" style="margin-top:12px" onclick="koOpenStripeDashboard()">Open Stripe dashboard</button>`;
+      } else if (p.stripe_account_id) {
+        statusHtml = `<div style="color:#f59e0b;font-weight:600">Onboarding started but not finished</div>
+          <p style="color:var(--text-secondary);font-size:13px;margin:8px 0 12px">Stripe still needs a few details before it can pay you.</p>
+          <button class="btn-primary" onclick="koStartStripeOnboarding()">Finish setup</button>`;
+      } else {
+        statusHtml = `<p style="color:var(--text-secondary);font-size:13px;margin:0 0 12px">Connect a Stripe account to get paid automatically. Stripe collects your bank details and tax info directly — Knight Ops never sees them.</p>
+          <button class="btn-primary" onclick="koStartStripeOnboarding()">Set up payouts with Stripe</button>`;
+      }
+      const nextLine = koNextPayoutDate
+        ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border,rgba(255,255,255,.08));font-size:13px;color:var(--text-secondary)">
+             Next payout date: <strong style="color:var(--accent)">${formatDate(koNextPayoutDate)}</strong>
+             <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Commissions are paid on the 15th of the month after the client's payment clears.</div>
+           </div>` : '';
+      el.innerHTML = statusHtml + nextLine;
+    }
+
+    async function koStartStripeOnboarding() {
+      try {
+        const r = await koStripe('onboard_start', {});
+        window.location.href = r.url;
+      } catch (e) { alert('Could not start Stripe setup: ' + e.message); }
+    }
+    async function koOpenStripeDashboard() {
+      try { const r = await koStripe('dashboard_link', {}); window.open(r.url, '_blank'); }
+      catch (e) { alert('Could not open Stripe: ' + e.message); }
+    }
+    // Returning from Stripe onboarding — re-sync the account status.
+    async function koSyncStripeOnReturn() {
+      if (!/[?&]stripe=/.test(window.location.search)) return;
+      try {
+        await koStripe('status', {});
+        const j = await koPortal('me', {});
+        currentPartnerData = j.partner || currentPartnerData;
+        koRenderPayoutSetup();
+      } catch (e) { /* not connected yet */ }
+      if (window.history && window.history.replaceState)
+        window.history.replaceState(null, '', window.location.pathname);
+    }
     let currentTab = 'overview';
     let leadsFilterStatus = 'all';
     let commissionsFilterStatus = 'all';
@@ -1510,6 +1619,7 @@
       if (token) {
         await authenticateWithToken(token);
       } else if (storedPartnerId && storedToken) {
+        koToken = storedToken;
         currentPartnerId = storedPartnerId;
         await loadDashboard();
       } else {
@@ -1525,17 +1635,12 @@
 
     async function authenticateWithToken(token) {
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/partners?magic_link_token=eq.${encodeURIComponent(token)}&status=eq.active&select=*`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
-
-        const partners = await response.json();
+        koToken = token;
+        let partners = [];
+        try {
+          const j = await koPortal('me', {});
+          if (j.partner) partners = [j.partner];
+        } catch (e) { partners = []; }
 
         if (partners && partners.length > 0) {
           currentPartnerId = partners[0].id;
@@ -1570,34 +1675,10 @@
       const btn = document.querySelector('.login-btn');
       btn.textContent = 'Sending...'; btn.disabled = true;
       try {
-        // Look up partner by email
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/partners?email=eq.${encodeURIComponent(email)}&status=eq.active&select=id,name,email,magic_link_token`, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-        });
-        const partners = await res.json();
-        if (!partners || partners.length === 0) {
-          alert('No active partner account found for this email. Please contact us if you believe this is an error.');
-          btn.textContent = 'Send Access Link'; btn.disabled = false;
-          return;
-        }
-        const partner = partners[0];
-        // Ensure magic_link_token exists
-        let token = partner.magic_link_token;
-        if (!token) {
-          token = crypto.randomUUID();
-          await fetch(`${SUPABASE_URL}/rest/v1/partners?id=eq.${partner.id}`, {
-            method: 'PATCH',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ magic_link_token: token })
-          });
-        }
-        const portalUrl = 'https://knightops.biz/partner-portal#token=' + token;
-        // Send email via partner-emails edge function
-        await fetch(`${SUPABASE_URL}/functions/v1/partner-emails`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-          body: JSON.stringify({ type: 'partner_portal_link', to: email, data: { partner_name: partner.name, portal_url: portalUrl } })
-        });
+        // Server-side: looks up the partner, mints a token if needed, and emails the
+        // link. The token is never returned to the browser, and the response is
+        // identical whether or not an account exists (no account enumeration).
+        await koPortal('request_link', { email });
         document.getElementById('loginScreen').innerHTML = `
           <div style="text-align:center;padding:60px 20px;">
             <div style="font-size:48px;margin-bottom:20px;">&#9993;</div>
@@ -1624,19 +1705,8 @@
 
       if (!currentPartnerData) {
         try {
-          const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}&status=eq.active&select=*`,
-            {
-              headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`
-              }
-            }
-          );
-          const partners = await response.json();
-          if (partners.length > 0) {
-            currentPartnerData = partners[0];
-          }
+          const j = await koPortal('me', {});
+          if (j.partner) currentPartnerData = j.partner;
         } catch (error) {
           console.error('Error loading partner data:', error);
         }
@@ -1644,6 +1714,7 @@
 
       document.getElementById('partnerNameDisplay').textContent = currentPartnerData?.name || 'Partner';
 
+      koSyncStripeOnReturn();
       loadTabContent('overview');
     }
 
@@ -1946,36 +2017,18 @@
       container.innerHTML = '<div class="stat-card"><div class="loading-spinner"></div></div>';
 
       try {
-        const leadsResponse = await supabaseQuery(
-          'affiliate_leads',
-          'COUNT',
-          { partner_id: currentPartnerId }
-        );
-        const totalLeads = leadsResponse || 0;
-
-        const convertedResponse = await supabaseQuery(
-          'affiliate_leads',
-          'COUNT',
-          { partner_id: currentPartnerId, status: 'converted' }
-        );
-        const conversions = convertedResponse || 0;
-
-        const earnedResponse = await supabaseQuery(
-          'commissions',
-          'SUM(commission_amount)',
-          { 
-            partner_id: currentPartnerId,
-            status: ['approved', 'paid']
-          }
-        );
-        const totalEarned = earnedResponse || 0;
-
-        const pendingResponse = await supabaseQuery(
-          'commissions',
-          'SUM(commission_amount)',
-          { partner_id: currentPartnerId, status: 'pending' }
-        );
-        const pendingCommissions = pendingResponse || 0;
+        const [pipe, comm] = await Promise.all([
+          koPortal('referrals', {}),
+          koPortal('commissions', {})
+        ]);
+        const refs = pipe.referrals || [];
+        const counts = pipe.stage_counts || {};
+        const totalLeads = refs.length;
+        // A conversion = the referral reached Closed or Paid.
+        const conversions = (counts.closed || 0) + (counts.paid || 0);
+        const totalEarned = (comm.totals || {}).lifetime || 0;
+        const pendingCommissions = (comm.totals || {}).outstanding || 0;
+        koNextPayoutDate = (comm.totals || {}).next_payout_date || null;
 
         const cards = [
           { label: 'Total Leads', value: totalLeads },
@@ -2001,17 +2054,7 @@
       container.innerHTML = '<div class="loading-spinner"></div>';
 
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&order=created_at.desc&limit=10`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
-
-        const notifications = await response.json();
+        const notifications = (await koPortal('notifications', { limit: 10 })).notifications || [];
 
         if (notifications.length === 0) {
           container.innerHTML = `
@@ -2108,22 +2151,24 @@
       container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;"><div class="loading-spinner"></div></td></tr>';
 
       try {
-        let query = `${SUPABASE_URL}/rest/v1/affiliate_leads?partner_id=eq.${currentPartnerId}`;
-
-        if (leadsFilterStatus !== 'all') {
-          query += `&status=eq.${leadsFilterStatus}`;
-        }
-
-        query += '&order=created_at.desc';
-
-        const response = await fetch(query, {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          }
-        });
-
-        const leads = await response.json();
+        // Referral pipeline: derived stage per referral (Lead > Discovery >
+        // Blueprint App > Proposal > Closed > Paid) plus commission rollups.
+        const pipe = await koPortal('referrals', {});
+        let leads = (pipe.referrals || []).map(r => ({
+          id: r.affiliate_lead_id,
+          name: r.referral_name,
+          email: r.referral_email,
+          company: r.referral_company,
+          created_at: r.referred_at,
+          status: r.stage,
+          stage: r.stage,
+          deal_value: r.deal_value,
+          commission_total: r.commission_total,
+          commission_paid: r.commission_paid,
+          commission_outstanding: r.commission_outstanding
+        }));
+        if (leadsFilterStatus !== 'all') leads = leads.filter(l => l.stage === leadsFilterStatus);
+        renderStageStrip(pipe.stage_counts || {});
 
         if (leads.length === 0) {
           container.innerHTML = `
@@ -2140,11 +2185,11 @@
 
         container.innerHTML = leads.map(lead => `
           <tr>
-            <td>${lead.first_name || ''} ${lead.last_name || ''}</td>
-            <td>${lead.company_name || '-'}</td>
-            <td><span class="badge badge-${lead.source || 'direct'}">${(lead.source || 'direct').replace('_', ' ')}</span></td>
-            <td><span class="badge badge-${lead.tech_type || 'architect'}">${(lead.tech_type || 'architect').replace('_', ' ')}</span></td>
-            <td><span class="badge badge-${lead.status || 'pending'}">${lead.status || 'pending'}</span></td>
+            <td>${lead.name || '-'}</td>
+            <td>${lead.company || '-'}</td>
+            <td>${koStageBadge(lead.stage)}</td>
+            <td style="color:var(--accent);font-weight:600">${koMoney(lead.commission_total)}</td>
+            <td>${Number(lead.commission_outstanding) > 0 ? koMoney(lead.commission_outstanding) : '<span style="color:var(--text-muted)">—</span>'}</td>
             <td>${formatDate(lead.created_at)}</td>
           </tr>
         `).join('');
@@ -2167,6 +2212,7 @@
     async function loadCommissions() {
       await loadCommissionSummary();
       await loadCommissionsTable();
+      await koRenderPayoutSetup();
     }
 
     async function loadCommissionSummary() {
@@ -2174,41 +2220,11 @@
       container.innerHTML = '<div class="loading-spinner"></div>';
 
       try {
-        const allResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&select=commission_amount`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
-        const allCommissions = await allResponse.json();
-        const totalEarned = allCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
-
-        const pendingResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&status=eq.pending&select=commission_amount`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
-        const pendingCommissions = await pendingResponse.json();
-        const pendingTotal = pendingCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
-
-        const paidResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}&status=eq.paid&select=commission_amount`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
-        const paidCommissions = await paidResponse.json();
-        const paidTotal = paidCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+        const t = (await koPortal('commissions', {})).totals || {};
+        const totalEarned = t.lifetime || 0;
+        const pendingTotal = t.outstanding || 0;
+        const paidTotal = t.paid || 0;
+        koNextPayoutDate = t.next_payout_date || null;
 
         container.innerHTML = `
           <div class="summary-item">
@@ -2234,22 +2250,8 @@
       container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;"><div class="loading-spinner"></div></td></tr>';
 
       try {
-        let query = `${SUPABASE_URL}/rest/v1/commissions?partner_id=eq.${currentPartnerId}`;
-
-        if (commissionsFilterStatus !== 'all') {
-          query += `&status=eq.${commissionsFilterStatus}`;
-        }
-
-        query += '&order=created_at.desc&select=*,affiliate_leads(first_name,last_name)';
-
-        const response = await fetch(query, {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          }
-        });
-
-        const commissions = await response.json();
+        let commissions = (await koPortal('commissions', {})).commissions || [];
+        if (commissionsFilterStatus !== 'all') commissions = commissions.filter(c => c.status === commissionsFilterStatus);
 
         if (commissions.length === 0) {
           container.innerHTML = `
@@ -2265,18 +2267,16 @@
         }
 
         container.innerHTML = commissions.map(commission => {
-          const leadName = commission.affiliate_leads 
-            ? `${commission.affiliate_leads.first_name || ''} ${commission.affiliate_leads.last_name || ''}`.trim()
-            : 'Unknown';
-          
+          const label = commission.description || 'Referral commission';
+
           return `
             <tr>
-              <td>${leadName}</td>
+              <td>${label}</td>
               <td>$${formatCurrency(commission.deal_amount || 0)}</td>
-              <td>${commission.rate || 0}%</td>
+              <td>${commission.commission_rate != null ? commission.commission_rate + '%' : '—'}</td>
               <td>$${formatCurrency(commission.commission_amount || 0)}</td>
-              <td><span class="badge badge-${commission.status || 'pending'}">${commission.status || 'pending'}</span></td>
-              <td>${formatDate(commission.created_at)}</td>
+              <td><span class="badge badge-${commission.status || 'pending'}">${commission.status === 'paid' ? 'paid' : commission.status || 'pending'}</span></td>
+              <td>${commission.paid_at ? 'Paid ' + formatDate(commission.paid_at) : (commission.payable_on ? formatDate(commission.payable_on) : '—')}</td>
             </tr>
           `;
         }).join('');
@@ -2380,15 +2380,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
       container.innerHTML = '<div class="loading-spinner"></div>';
 
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&order=created_at.desc`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
-          }
-        );
+        const response = { ok: true, json: async () => (await koPortal('notifications', { limit: 200 })).notifications || [] };
 
         const notifications = await response.json();
 
@@ -2425,18 +2417,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
 
     async function markNotificationRead(notificationId) {
       try {
-        await fetch(
-          `${SUPABASE_URL}/rest/v1/partner_notifications?id=eq.${notificationId}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ is_read: true })
-          }
-        );
+        await koPortal('mark_read', { id: notificationId });
         loadNotifications();
       } catch (error) {
         console.error('Error marking notification as read:', error);
@@ -2445,18 +2426,7 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
 
     async function markAllNotificationsRead() {
       try {
-        await fetch(
-          `${SUPABASE_URL}/rest/v1/partner_notifications?partner_id=eq.${currentPartnerId}&is_read=eq.false`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ is_read: true })
-          }
-        );
+        await koPortal('mark_read', {});
         loadNotifications();
       } catch (error) {
         console.error('Error marking all notifications as read:', error);
@@ -2499,18 +2469,12 @@ Takes about 15 minutes and gives you a clear picture of opportunities.`
       };
 
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/partners?id=eq.${currentPartnerId}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updates)
-          }
-        );
+        // slug is intentionally not sent — the edge function's allow-list rejects
+        // it (and commission_rate/status) so a partner can't change their own terms.
+        let ok = true;
+        try { const j = await koPortal('update_profile', updates); currentPartnerData = j.partner || currentPartnerData; }
+        catch (e) { ok = false; }
+        const response = { ok };
 
         if (response.ok) {
           currentPartnerData = { ...currentPartnerData, ...updates };
