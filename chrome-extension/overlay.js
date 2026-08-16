@@ -32,7 +32,7 @@
     cursor:pointer;display:grid;place-items:center;color:#e9e9f2;transition:.13s;padding:0}
   .btn:hover{background:rgba(255,255,255,.17)}
   .btn.on{background:rgba(0,212,200,.24);color:#00D4C8}
-  .btn.stop{background:#C9922A;color:#05061a;width:auto;padding:0 13px;font-size:12.5px;font-weight:700}
+  .btn.stop{background:#C9922A;color:#05061a;width:auto;padding:0 15px;font-size:12.5px;font-weight:700;display:flex;align-items:center;white-space:nowrap;height:34px;box-shadow:0 0 0 2px rgba(201,146,42,.25)}
   .btn.stop:hover{filter:brightness(1.1)}
   .btn.kill:hover{background:rgba(229,72,77,.3);color:#ff9b9e}
   .btn svg{width:15px;height:15px}
@@ -135,7 +135,8 @@
       <button class="btn" data-a="pause" title="Pause (Alt+Shift+P)">${ICON.pause}</button>
       <button class="btn" data-a="draw" title="Draw on screen">${ICON.pen}</button>
       <span class="sep"></span>
-      <button class="btn stop" data-a="stop" title="Stop and share (Alt+Shift+R)">Stop</button>
+      <button class="btn stop" data-a="stop" title="Stop and share (Alt+Shift+R)">
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-right:5px"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>Stop &amp; save</button>
       <button class="btn kill" data-a="cancel" title="Discard">${ICON.trash}</button>`;
     wrap().appendChild(bar);
     timerEl = bar.querySelector('.time');
@@ -324,7 +325,7 @@
         if (pb) pb.innerHTML = paused ? ICON.play : ICON.pause;
         if (s.status === 'uploading') {
           const stop = bar.querySelector('.btn.stop');
-          if (stop) stop.textContent = `Saving ${s.progress || 0}%`;
+          if (stop) stop.textContent = `Saving ${s.progress || 0}%…`;
         }
       }
       if (s.status === 'done' || s.status === 'idle' || s.status === 'error') unmount();

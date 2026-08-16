@@ -15,6 +15,7 @@ let rec = null;
 let stream = null;
 let micStream = null;
 let audioCtx = null;
+let micFailed = null;
 
 let session = null; // { worker, token, videoId, key, uploadId, parts, partNo, buffer, bytes }
 let startedAt = 0;
@@ -92,13 +93,30 @@ function queuePart(blob) {
   return uploadChain;
 }
 
+/**
+ * R2 multipart uploads require EVERY part except the last to be exactly the
+ * same size. MediaRecorder emits chunks of arbitrary size, so accumulating them
+ * and flushing "whatever is past 8MB" produced parts of 8.1MB, 8.4MB, 8.2MB…
+ * which R2 rejects — surfacing as a Cloudflare 1101 "Worker threw exception"
+ * partway through a long recording. Short recordings fit in a single part and
+ * never hit it, which is why only long ones failed.
+ *
+ * Slice to exact PART_SIZE boundaries and carry the remainder forward.
+ */
 async function flushBuffer(force) {
   if (!session.buffer.length) return;
-  const total = session.buffer.reduce((n, b) => n + b.size, 0);
-  if (!force && total < PART_SIZE) return;
-  const blob = new Blob(session.buffer, { type: 'application/octet-stream' });
+  let blob = new Blob(session.buffer, { type: 'application/octet-stream' });
   session.buffer = [];
-  await queuePart(blob);
+
+  while (blob.size >= PART_SIZE) {
+    await queuePart(blob.slice(0, PART_SIZE));
+    blob = blob.slice(PART_SIZE);
+  }
+
+  if (blob.size) {
+    if (force) await queuePart(blob);   // final part may be any size
+    else session.buffer = [blob];       // carry the remainder into the next flush
+  }
 }
 
 // ── poster / thumbnail from the live stream ────────────────
@@ -214,7 +232,19 @@ async function buildStream(p) {
       micStream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
-    } catch (e) { console.warn('[ko] mic denied', e); }
+      note('build_stream', 'microphone captured', { tracks: micStream.getAudioTracks().length }, 'info');
+    } catch (e) {
+      // This used to be swallowed, which is why recordings came out silent with
+      // no explanation. An offscreen document cannot show a permission prompt —
+      // the grant has to be given once from the extension's options page.
+      const name = String(e?.name || '');
+      note('build_stream',
+        name === 'NotAllowedError'
+          ? 'microphone permission not granted to the extension — recording will be silent'
+          : `microphone unavailable: ${e?.message || e}`,
+        { name }, 'warn');
+      micFailed = name === 'NotAllowedError' ? 'permission' : 'error';
+    }
   }
 
   if (micStream && sysAudio.length) {
@@ -237,7 +267,7 @@ async function buildStream(p) {
 // ── start ──────────────────────────────────────────────────
 async function start(p) {
   try {
-    cancelled = false; posterDone = false; pausedTotal = 0; pausedAt = 0;
+    cancelled = false; posterDone = false; pausedTotal = 0; pausedAt = 0; micFailed = null;
     session = {
       worker: p.worker, token: p.token, videoId: p.videoId,
       key: null, uploadId: null, parts: [], partNo: 0,
@@ -292,7 +322,7 @@ async function start(p) {
     send('ko-recording-started');
     note('recording', 'recorder started', { mime, state: rec.state });
     capturePoster(stream.getVideoTracks()[0]);
-    return { ok: true };
+    return { ok: true, micFailed };
   } catch (e) {
     const failedAt = stage;
     // Don't mark the whole run failed yet — the service worker may retry with a

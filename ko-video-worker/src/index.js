@@ -77,6 +77,22 @@ function parseRange(header, size) {
 
 export default {
   async fetch(request, env, ctx) {
+    // Any uncaught throw here becomes a Cloudflare 1101 HTML error page, which
+    // tells the client nothing and poisons its logs with a page of markup.
+    // Always answer with JSON the extension can actually read.
+    try {
+      return await handle(request, env, ctx);
+    } catch (e) {
+      return json(
+        { error: 'worker_exception', message: String(e?.message || e).slice(0, 500) },
+        500, request, env
+      );
+    }
+  },
+};
+
+async function handle(request, env, ctx) {
+  {
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -176,9 +192,19 @@ export default {
       if (!safeKey(key) || !uploadId || !part) {
         return json({ error: 'bad_params' }, 400, request, env);
       }
+      // Buffer the part rather than streaming request.body straight through.
+      // R2 needs a known length, and every part except the last must be exactly
+      // the same size — streaming made both of those unverifiable here and blew
+      // up mid-upload on long recordings.
+      const bytes = new Uint8Array(await request.arrayBuffer());
+      if (!bytes.byteLength) return json({ error: 'empty_part', part }, 400, request, env);
+
       const mpu = env.VIDEOS.resumeMultipartUpload(key, uploadId);
-      const uploaded = await mpu.uploadPart(part, request.body);
-      return json({ part: uploaded.partNumber, etag: uploaded.etag }, 200, request, env);
+      const uploaded = await mpu.uploadPart(part, bytes);
+      return json(
+        { part: uploaded.partNumber, etag: uploaded.etag, size: bytes.byteLength },
+        200, request, env
+      );
     }
 
     // POST /upload/complete
@@ -228,5 +254,5 @@ export default {
     }
 
     return json({ error: 'not_found', path }, 404, request, env);
-  },
-};
+  }
+}
