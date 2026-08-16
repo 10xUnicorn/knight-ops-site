@@ -11117,8 +11117,10 @@ function koRenderDealPayments(dealId,sum){
         (refunded>0?'<div style="font-size:.7rem;color:#ef4444">-'+koMoney(refunded)+' refunded</div>':'')+'</td>'+
         '<td style="font-size:.8rem">'+(p.payment_method_label||p.payment_source||'stripe')+'</td>'+
         '<td style="font-family:JetBrains Mono;font-size:.7rem;color:var(--text-muted)">'+(p.stripe_charge_id||p.notes||'—')+'</td>'+
-        '<td>'+badge+'</td><td>'+
-        (refunded<Number(p.amount)&&p.match_status!=='ignored'?'<button class="btn btn-sm btn-danger" onclick="koRefundPayment(\''+p.id+'\',\''+dealId+'\','+p.amount+','+refunded+')">Refund</button>':'')+
+        '<td>'+badge+'</td><td onclick="event.stopPropagation()">'+
+        '<button class="btn btn-sm btn-secondary" onclick="koEditPayment(\''+p.id+'\',\''+dealId+'\')">Edit</button> '+
+        (refunded<Number(p.amount)&&p.match_status!=='ignored'?'<button class="btn btn-sm btn-secondary" onclick="koRefundPayment(\''+p.id+'\',\''+dealId+'\','+p.amount+','+refunded+')">Refund</button> ':'')+
+        '<button class="btn btn-sm btn-danger" onclick="koDeletePayment(\''+p.id+'\',\''+dealId+'\','+p.amount+')">&#128465;</button>'+
         '</td></tr>';
     }).join(''):'<tr><td colspan="6" class="table-empty">No payments recorded</td></tr>')+'</tbody></table>';
 }
@@ -11150,6 +11152,65 @@ async function koSavePayment(dealId){
   if(error){showToast('Error: '+error.message,'error');return;}
   closeEditModal();await koLoadDealPayments(dealId);await loadDeals();
   showToast('Payment recorded','success');
+}
+
+function koEditPayment(paymentId,dealId){
+  const p=(S.koPayments[dealId]||[]).find(x=>x.id===paymentId);if(!p)return;
+  const body=FR(FG('Amount *','e_pedamt','number',p.amount),FG('Date received *','e_peddate','date',(p.paid_at||'').slice(0,10)))+
+    FG('Method','e_pedmethod','select',p.payment_source||'manual',[{v:'manual',l:'Manual / other'},{v:'ach',l:'ACH'},{v:'wire',l:'Wire'},{v:'check',l:'Check'},{v:'stripe',l:'Stripe'}])+
+    FG('Reference / note','e_pednote','text',p.notes||'')+
+    (p.stripe_charge_id?'<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">Imported from Stripe charge '+p.stripe_charge_id+'. Editing the amount here will not change the charge in Stripe.</div>':'')+
+    '<div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem">Changing the amount recalculates any partner commission on this payment.</div>';
+  openEditModal('Edit payment',body,
+    '<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="koSaveEditPayment(\''+paymentId+'\',\''+dealId+'\')">Save</button>');
+}
+
+async function koSaveEditPayment(paymentId,dealId){
+  const amt=parseFloat(document.getElementById('e_pedamt').value);
+  const date=document.getElementById('e_peddate').value;
+  if(!amt||amt<=0||!date){showToast('Enter an amount and date','error');return;}
+  const{error}=await sb.from('stripe_payments').update({
+    amount:amt,
+    paid_at:new Date(date+'T12:00:00Z').toISOString(),
+    payment_source:document.getElementById('e_pedmethod').value,
+    payment_method_label:document.getElementById('e_pedmethod').value,
+    notes:document.getElementById('e_pednote').value||null,
+    updated_at:new Date().toISOString()
+  }).eq('id',paymentId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  // Commission is derived from the payment, so rebuild it against the new amount.
+  await koRecalcCommissionForPayment(paymentId);
+  closeEditModal();await koLoadDealPayments(dealId);await loadDeals();await loadCommissions();await loadPartners();
+  showToast('Payment updated','success');
+}
+
+async function koDeletePayment(paymentId,dealId,amount){
+  if(!confirm('Delete this '+koMoney(amount)+' payment? Any commission earned on it is removed too.'))return;
+  // Remove derived commissions first so nothing is orphaned.
+  const{error:cErr}=await sb.from('commissions').delete().eq('stripe_payment_id',paymentId).neq('status','paid');
+  if(cErr){showToast('Error: '+cErr.message,'error');return;}
+  const{data:paidLeft}=await sb.from('commissions').select('id').eq('stripe_payment_id',paymentId).eq('status','paid');
+  if(paidLeft&&paidLeft.length){
+    showToast('This payment has an already-paid commission. Refund it instead so the partner gets a clawback.','error');return;
+  }
+  const{error}=await sb.from('stripe_payments').delete().eq('id',paymentId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  await koLoadDealPayments(dealId);await loadDeals();await loadCommissions();await loadPartners();
+  showToast('Payment deleted','success');
+}
+
+// Rebuild the commission derived from a payment (used after an amount edit).
+async function koRecalcCommissionForPayment(paymentId){
+  const{data:paid}=await sb.from('commissions').select('id').eq('stripe_payment_id',paymentId).eq('status','paid');
+  if(paid&&paid.length)return;   // never silently rewrite something already paid out
+  await sb.from('commissions').delete().eq('stripe_payment_id',paymentId).neq('status','paid');
+  // Re-fire the DB accrual by touching the payment's deal attribution.
+  const{data:p}=await sb.from('stripe_payments').select('deal_id').eq('id',paymentId).maybeSingle();
+  if(!p?.deal_id)return;
+  const{data:d}=await sb.from('deals').select('partner_id').eq('id',p.deal_id).maybeSingle();
+  if(!d?.partner_id)return;
+  await sb.from('deals').update({partner_id:null}).eq('id',p.deal_id);
+  await sb.from('deals').update({partner_id:d.partner_id}).eq('id',p.deal_id);
 }
 
 async function koRefundPayment(paymentId,dealId,amount,already){
@@ -11446,7 +11507,8 @@ function renderCommissions(){
   const totPending=S.commissions.filter(c=>c.status==='pending').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
   const totApproved=S.commissions.filter(c=>c.status==='approved').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
   const totPaid=S.commissions.filter(c=>c.status==='paid').reduce((s,c)=>s+parseFloat(c.commission_amount||0),0);
-  document.getElementById('commissionsTable').innerHTML='<div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:.85rem"><span style="color:#f59e0b">Pending: $'+totPending.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#22c55e">Approved: $'+totApproved.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#3b82f6">Paid: $'+totPaid.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div><table><thead><tr><th>Partner</th><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Payable On</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>{
+  const nPending=S.commissions.filter(c=>c.status==='pending').length;
+  document.getElementById('commissionsTable').innerHTML=(nPending?'<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:.7rem 1rem;margin-bottom:1rem">'+'<div style="flex:1;min-width:220px;font-size:.85rem"><b>'+nPending+' commission'+(nPending>1?'s':'')+' waiting on you.</b> <span style="color:var(--text-muted)">These accrued automatically from payments received. Approving is the only step between them and a payout run.</span></div>'+'<button class="btn btn-sm btn-primary" onclick="bulkApproveCommissions()">Approve all '+nPending+'</button></div>':'')+'<div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:.85rem"><span style="color:#f59e0b">Pending: $'+totPending.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#22c55e">Approved: $'+totApproved.toLocaleString('en-US',{minimumFractionDigits:2})+'</span><span style="color:#3b82f6">Paid: $'+totPaid.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div><table><thead><tr><th>Partner</th><th>Lead</th><th>Deal Amount</th><th>Rate</th><th>Commission</th><th>Status</th><th>Payable On</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(c=>{
     const partner=S.partners.find(p=>p.id===c.partner_id);
     const lead=S.affiliateLeads.find(l=>l.id===c.affiliate_lead_id);
     const srcTag=c.source&&c.source!=='manual'?'<div style="font-size:.68rem;color:var(--text-muted)">'+c.source.replace(/_/g,' ')+'</div>':'';
@@ -11555,15 +11617,18 @@ async function markCommissionPaid(id){
   const c=S.commissions.find(x=>x.id===id);
   if(c){await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_paid',title:'Commission Paid',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been paid!',metadata:{commission_id:id}});}
 }
+// Commissions accrue automatically from payments; approving is the only manual step,
+// and it is the gate that lets a commission reach a payout run.
 async function bulkApproveCommissions(){
   const pending=S.commissions.filter(c=>c.status==='pending');
-  if(!pending.length){showToast('No pending commissions');return;}
-  if(!confirm('Approve all '+pending.length+' pending commissions?'))return;
-  for(const c of pending){
-    await sb.from('commissions').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',c.id);
-    await sb.from('partner_notifications').insert({partner_id:c.partner_id,type:'commission_approved',title:'Commission Approved',message:'Your commission of $'+parseFloat(c.commission_amount).toFixed(2)+' has been approved!',metadata:{commission_id:c.id}});
-  }
-  await loadCommissions();showToast(pending.length+' commissions approved','success');
+  if(!pending.length){showToast('Nothing pending — everything is already approved');return;}
+  const total=pending.reduce((s,c)=>s+Number(c.commission_amount||0),0);
+  if(!confirm('Approve all '+pending.length+' pending commissions totalling '+koMoney(total)+'?'))return;
+  try{
+    await koCall('partner-commissions','set_status',{ids:pending.map(c=>c.id),status:'approved'});
+    await loadCommissions();await loadPartners();
+    showToast(pending.length+' commissions approved ('+koMoney(total)+')','success');
+  }catch(e){}
 }
 
 // EXPORT COMMISSIONS CSV
