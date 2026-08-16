@@ -16,6 +16,7 @@ let stream = null;
 let micStream = null;
 let audioCtx = null;
 let micFailed = null;
+let keepAliveTimer = null;
 
 let session = null; // { worker, token, videoId, key, uploadId, parts, partNo, buffer, bytes }
 let startedAt = 0;
@@ -81,6 +82,7 @@ async function uploadPart(blob) {
   const qs = new URLSearchParams({ key: session.key, uploadId: session.uploadId, part: String(n) });
   const res = await w(`/upload/part?${qs}`, { method: 'PUT', body: blob });
   session.parts.push({ part: res.part, etag: res.etag });
+  note('upload', `part ${res.part} uploaded`, { size: blob.size, totalParts: session.parts.length }, 'info');
   session.uploadedBytes += blob.size;
   send('ko-upload-progress', {
     progress: Math.min(95, Math.round((session.uploadedBytes / Math.max(session.bytes, 1)) * 100)),
@@ -319,6 +321,15 @@ async function start(p) {
     rec.start(2000); // 2s timeslice keeps memory flat and upload steady
     stage = 'recording';
     startedAt = Date.now();
+
+    // Ping the service worker while recording. Any message resets Chrome's
+    // ~30s idle timer; without this the worker is torn down mid-recording and
+    // the stop/finalize path dies with it — which capped recordings at about a
+    // minute. Cleared in cleanup().
+    clearInterval(keepAliveTimer);
+    keepAliveTimer = setInterval(() => {
+      send('ko-keepalive', { elapsed: Math.round((Date.now() - startedAt - pausedTotal) / 1000) });
+    }, 20000);
     send('ko-recording-started');
     note('recording', 'recorder started', { mime, state: rec.state });
     capturePoster(stream.getVideoTracks()[0]);
@@ -371,6 +382,7 @@ async function finalize() {
 }
 
 function cleanup() {
+  clearInterval(keepAliveTimer); keepAliveTimer = null;
   try { stream?.getTracks().forEach(t => t.stop()); } catch (_) {}
   try { micStream?.getTracks().forEach(t => t.stop()); } catch (_) {}
   try { audioCtx?.close(); } catch (_) {}

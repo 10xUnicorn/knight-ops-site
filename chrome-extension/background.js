@@ -28,12 +28,45 @@ let state = {
 
 function setState(patch) {
   state = { ...state, ...patch };
+  // A Manifest V3 service worker is torn down after ~30 seconds of inactivity,
+  // taking every in-memory variable with it — including videoId, which the stop
+  // and finalize path needs. Long recordings died here. Mirror state into
+  // session storage so a restarted worker can pick up exactly where it left off.
+  chrome.storage.session.set({ koState: state }).catch(() => {});
   chrome.runtime.sendMessage({ type: 'state', state }).catch(() => {});
   if (state.tabId) {
     chrome.tabs.sendMessage(state.tabId, { type: 'ko-state', state }).catch(() => {});
   }
   paintBadge();
 }
+
+/** Rehydrate after a service-worker restart. Call before touching `state`. */
+let _restored = null;
+function restoreState() {
+  if (!_restored) {
+    _restored = chrome.storage.session.get('koState').then(({ koState }) => {
+      if (koState && koState.status !== 'idle') state = { ...state, ...koState };
+      return state;
+    }).catch(() => state);
+  }
+  return _restored;
+}
+
+/**
+ * Keep the service worker alive for the duration of a recording.
+ *
+ * Any extension message resets Chrome's idle timer, so the offscreen document
+ * pings us every 20 seconds while recording. The alarm is a second line of
+ * defence: alarms wake a terminated worker, so even if the ping is missed the
+ * worker comes back and can still finish the upload.
+ */
+function keepAlive(on) {
+  if (on) chrome.alarms.create('ko-keepalive', { periodInMinutes: 0.5 });
+  else chrome.alarms.clear('ko-keepalive').catch(() => {});
+}
+chrome.alarms.onAlarm.addListener((a) => {
+  if (a.name === 'ko-keepalive') restoreState();   // touching storage keeps us warm
+});
 
 function paintBadge() {
   const map = {
@@ -224,6 +257,15 @@ async function startRecording(opts) {
   const step = (name, detail = {}) => report('step', name, detail, 'info');
 
   try {
+    // A run already in flight? Rebuilding the offscreen document would tear down
+    // its MediaRecorder mid-recording and lose the footage without a word.
+    await restoreState();
+    if (['recording', 'paused', 'uploading'].includes(state.status)) {
+      report('start', 'blocked: a recording is already in progress', { status: state.status }, 'warn');
+      setState({ error: 'A recording is already running. Stop it first.' });
+      return false;
+    }
+
     // 1. Config comes from local storage only — no network here.
     const { token, worker } = await getConfig();
     if (!token) {
@@ -371,6 +413,7 @@ async function startRecording(opts) {
     if (tab?.id && opts.source !== 'camera' && !UNCAPTURABLE.test(tab.url || '')) {
       injectOverlay(tab.id, { camera: opts.camera, countdown: opts.countdown !== false });
     }
+    keepAlive(true);
     setState({ status: 'recording', startedAt: Date.now() });
 
     // 5. Create the database row in parallel with the countdown.
@@ -461,7 +504,9 @@ async function takeScreenshot(opts = {}) {
 
 // ── finish ─────────────────────────────────────────────────
 async function finish(payload) {
+  keepAlive(false);
   try {
+    await restoreState();
     // The row is created in parallel with the countdown. On a very short
     // recording over a slow connection it may not exist yet — wait for it.
     for (let i = 0; i < 40 && !state.videoId; i++) {
@@ -495,7 +540,7 @@ async function finish(payload) {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     switch (msg.type) {
-      case 'ko-get-state': sendResponse({ state }); break;
+      case 'ko-get-state': await restoreState(); sendResponse({ state }); break;
       case 'ko-reset':
         // Clear a finished or failed run so the next popup opens clean.
         if (state.status === 'error' || state.status === 'done') {
@@ -504,7 +549,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ ok: true });
         break;
       case 'ko-start':     await startRecording(msg.opts); sendResponse({ ok: true }); break;
-      case 'ko-stop':      await stopRecording(); sendResponse({ ok: true }); break;
+      case 'ko-stop':      await restoreState(); await stopRecording(); sendResponse({ ok: true }); break;
       case 'ko-pause':     await pauseRecording(); sendResponse({ ok: true }); break;
       case 'ko-resume':    await resumeRecording(); sendResponse({ ok: true }); break;
       case 'ko-cancel':    await cancelRecording(); sendResponse({ ok: true }); break;
@@ -512,6 +557,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
       // ── from the offscreen recorder ──
       case 'ko-report': report(msg.stage, msg.message, msg.detail, msg.level); break;
+      // Receiving this at all is the point — it resets Chrome's idle timer and
+      // keeps the worker alive for the length of the recording.
+      case 'ko-keepalive': await restoreState(); sendResponse({ ok: true }); break;
+      // The offscreen document can finish the job by itself if this worker was
+      // torn down and restarted mid-recording.
+      case 'ko-need-video-id': {
+        await restoreState();
+        sendResponse({ videoId: state.videoId || null, slug: state.slug || null });
+        break;
+      }
       case 'ko-recording-started': setState({ status: 'recording', startedAt: Date.now() }); break;
       case 'ko-upload-progress':   setState({ status: 'uploading', progress: msg.progress }); break;
       case 'ko-recording-done':    await finish(msg.payload); break;
