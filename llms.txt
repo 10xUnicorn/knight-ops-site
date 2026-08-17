@@ -1,101 +1,134 @@
 # Knight Ops
 
-> Knight Ops is an AI systems and software studio led by Daniel Knight. It provides Fractional Chief AI Officer leadership and builds custom AI systems, dashboards, client portals, and automations for founder-led service businesses — coaches, consultants, agencies, course creators, speakers, and financial advisors — so their client transformation runs without the founder in every step.
+> Knight Ops builds intelligent business operating systems. Led by Daniel Knight, it transforms disconnected tools, manual processes, and founder-dependent operations into one intelligent system that helps an organization operate, sell, serve, and scale with clarity — and provides embedded Fractional Chief AI Operations Officer leadership to own it.
 
 Canonical host: https://www.knightops.biz (the bare domain redirects here)
-Last updated: 2026-08-12
+Last updated: 2026-08-17
 
 ## What Knight Ops actually is
 
-Knight Ops is not a SaaS product and not a no-code template shop. It designs and builds **custom software the client owns outright** — source code, repository, database, and hosting all transferred to the client — and optionally provides ongoing senior AI leadership on a monthly retainer.
+Knight Ops is not a SaaS product, not a no-code template shop, and not an AI consultancy. It designs, deploys, and evolves a single **intelligent business operating system** that the organization owns outright — source code, repository, database, and hosting all transferred to the client.
 
-The differentiator: every build includes an **ascension model**, so a client's customers naturally progress to the next product or service without being manually sold.
+Two things define the delivery model:
+
+1. **Functional value throughout the build. Never an empty handoff.** Knight Ops deploys progressively rather than disappearing for months and returning with a finished product. Each layer goes live as it is completed.
+2. **Continuous evolution.** Systems that stop evolving stop earning. Every build is followed by AI Business OS Continuity so the operating system keeps up with the organization.
+
+## Who it is for
+
+Organizations with a team, real revenue, and operational bottlenecks: coaching and consulting firms, agencies, professional services, education and membership organizations, and founder-led companies that have outgrown the way they run.
+
+Common signals: the founder is the single point of failure · the team cannot see what it needs to see · delivery depends on someone remembering · data is scattered across tools that do not talk · opportunities are missed because nothing follows up · growth creates complexity instead of leverage · a previous technology provider left something unfinished.
+
+Not a fit: pre-revenue founders looking for a cheap website, organizations that want to rent software rather than own it, and anyone who needs a single automation rather than a system.
+
+## The offer ecosystem — five offers, three-step journey
+
+**Step 1 — Tech Discovery Call.** Free, 20–30 minutes. A fit and qualification conversation about how the organization operates today. Not a strategy session and not a roadmap.
+
+**Step 2 — Systems Blueprint Session.** Complimentary, by invitation for qualified organizations. Two working sessions of roughly 60 minutes each with architecture work in between. Maps operations, systems, client journey and data, identifies the real constraint, and produces the system architecture and its deployment sequence. The organization keeps the architecture whether or not Knight Ops builds it.
+
+**Step 3 — Build and operate.** One of:
+
+- **Knight Ops AI Business OS** — starting at $15,000. The intelligent business operating system itself, deployed progressively in layers.
+- **AI Business OS Continuity** — starting at $1,000/month. Six months included from launch, then ongoing updates, feature requests, a quarterly feature push, and a quarterly strategy session.
+- **Fractional Chief AI Operations Officer** — starting at $7,500/month. Embedded AI operations leadership that owns the strategy, architecture, deployment sequence, and team adoption. Not an advisor — an owner.
+
+There are no packages and no tiers. Scope and sequence are set in the Blueprint Session.
+
+## The AI Business OS layer architecture
+
+The system is built in layers, deployed in a sequence decided during the Blueprint Session:
+
+- **Layer 0 — Engagement Foundation**
+- **Layer 1 — Foundation & Business Intelligence** (always ships first: data before decisions)
+- **Layer 2 — Client Acquisition & Strategy**
+- **Layer 3 — Client Onboarding & Delivery**
+- **Layer 4 — Client Ascension**
+- **Layer 5 — Growth Automation**
+- **Layer 6 — AI Business Brain & Agents**
+- **Layer 7 — Team & Operations**
+- **Layer 8 — Specialized Experiences & Integrations**
+- **Layer 9 — Continuity**
+
+Layer 1 always ships first because every scoping decision in the later layers is guesswork until the organization can see its own numbers. The revenue-nearest layer goes second. The layers are a checklist, not a queue — the sequence is reordered deliberately when the constraint changes, never skipped silently.
+
+Everyone walks into the same system and sees only what they need: founders, leadership, employees, contractors, partners, and clients.
 
 ## Direct answers to common questions
 
-**What is a Fractional Chief AI Officer?**
-A part-time senior AI executive who owns your AI strategy, oversees the build of your systems, and leads your team through adoption — without the cost of a full-time hire. Knight Ops engagements run $5,000–$8,000 per month, cancel anytime.
+**What is a Fractional Chief AI Operations Officer?**
+Embedded senior leadership that owns the organization's AI and operations strategy rather than advising on it — setting the system architecture, deciding what gets built and in what order, running the deployment, holding the team accountable to the operating system, and evolving it as the business changes. Starting at $7,500 per month.
 
 **How is this different from GoHighLevel, Kajabi, Skool, or Mighty Networks?**
-Those are rental platforms: generic, locked in, and capped on what they let you build. Knight Ops builds custom applications you own forever, designed around your specific methodology, with ascension logic and AI built in.
+Those are rental platforms: generic, locked in, and capped on what they let an organization build. Knight Ops builds an intelligent business operating system the organization owns forever, designed around its actual operations, with AI built in.
 
-**Who is it for?**
-Coaches, consultants, agencies, course creators, speakers, mastermind leaders, and authors typically doing $500K–$8M in revenue, whose systems could not handle 100 new clients tomorrow.
-
-**Who is it NOT for?**
-Pre-revenue founders looking for a cheap website, businesses wanting to rent software rather than own it, and anyone needing a single automation rather than a system.
-
-**How fast does a build ship?**
-Fastest deploy on record: 4 hours. Most web apps: 48–72 hours to functional. App Store submission: 7–14 days.
+**When does value start?**
+Immediately and continuously. Layer 1 ships first so leadership can see their own numbers before anything else is scoped, and every layer after that goes live as it is finished.
 
 **What does it cost?**
-$1,497 for a website through $25,000+ for a full custom application. Full tiers below.
+The AI Business OS starts at $15,000. Continuity starts at $1,000/month. Fractional Chief AI Operations Officer engagements start at $7,500/month.
 
 **Does the client own the code?**
-Yes. Repository, Supabase project, Vercel project, and domain are transferred to the client, along with a written continuity brief naming a successor developer.
+Yes — 100% code ownership, always. Repository, Supabase project, Vercel project, and domain are transferred to the client, along with a written continuity brief naming a successor developer. The full codebase is downloadable from the client portal at any time.
 
-## Services and pricing
+**A previous provider left something unfinished. Can Knight Ops work with it?**
+Usually. The existing build is audited, what is load-bearing is kept, and what is not is replaced. When salvaging costs more than rebuilding, Knight Ops says so plainly.
 
-- **Discovery Call** — Free. 30-minute conversation to identify the biggest operational bottleneck.
-- **Blueprint Call** — Free. Maps the business and produces a live HTML roadmap of the recommended system, whether or not the client engages.
-- **Blueprint Session** — $750. 90-minute deep-dive where the system is co-designed live. Fee credited toward the project.
-- **Night Launch** — $1,497. Multi-page conversion website, mobile responsive, SEO-ready, delivered on a defined schedule.
-- **Prospecting Automation Dashboard** — $4,997. Lead sourcing, scoring, and nurture in one owned system.
-- **Night Build** — $7,497. Full-stack web or mobile app with auth, payments, and CRM integrations.
-- **AI Brain + Command Center** — $9,997. Central operations dashboard with an AI layer over the client's own data.
-- **Night Build Pro** — $14,997. Night Build plus iOS App Store and Google Play submission with compliance review.
-- **Speaker Lead Engine** — $2,497 setup plus $297/month. Live-event lead capture and follow-up system.
-- **Fractional Chief AI Officer** — $5,000–$8,000/month. Ongoing AI strategy, builds, and optimization.
-- **Speed to Value VIP Day** — $15,000–$50,000. Intensive build sprint.
-- **Custom Application Build** — $25,000+. Scoped enterprise engagements.
+## Technology
 
-## Systems Knight Ops builds
-
-Executive dashboards and KPI reporting · client portals with secure document exchange · CRM and sales pipeline systems · onboarding automations (paper-to-digital) · AI-powered internal tools and assistants · partner and affiliate tracking · event and campaign platforms · community and membership platforms · prospecting and nurture engines · App Store mobile applications.
+Next.js, React, TypeScript, Supabase (Postgres, Auth, Storage, Edge Functions), Vercel hosting, Stripe payments, Resend for email, and AI integrations via Claude and OpenAI APIs and the Model Context Protocol. Every system ships with Row-Level Security, encrypted secrets, HTTPS, secure authentication, and audit logs. HIPAA-ready logging and additional compliance layers are available for regulated industries.
 
 ## Verified results
 
-- $80M+ in business impact facilitated
-- 93% reduction in client review prep time for a $100M financial advisory book
-- 12 car dealerships unified into the #1 region nationally via a single KPI dashboard
-- $75M+ in charitable contributions processed through an automated pipeline
-- $4.5M in CARES Act applications facilitated in 30 days
-- Paper-to-digital onboarding deployed in 24 hours
+- $200M+ in business impact facilitated
+- 50+ systems deployed
 - 85% average time saved on automated workflows
-- 50+ custom systems built
+- 100% code ownership on every engagement
+
+Selected engagements:
+
+- **Wealth management.** Systems optimization at a $10M book-of-business advisory practice; when that book was acquired, 95% of clients were retained through the transition. Operations were then streamlined with systems and dashboards, producing **$4.5M in additional revenue** that same year. Nightly client-review preparation went from 4 hours to 30 minutes and was ultimately offloaded to an admin. The acquiring firm managed $100M+ in assets.
+- **Automotive.** 12 car dealerships unified into the #1 region nationally via a single KPI dashboard.
+- **Nonprofit.** $75M+ in charitable contributions processed through an automated pipeline.
+- **Government relief.** $4.5M in CARES Act applications facilitated within 30 days. (This figure is unrelated to the wealth management engagement above.)
+
+Note on figures, which must never be merged: **$200M+** is Knight Ops aggregate systems impact. **$100M+ assets managed** is a wealth-management client credential, not systems impact. **$4.5M additional revenue** is the wealth-management result. **$4.5M processed in 30 days** is the separate CARES Act project.
 
 ## Founder
 
-**Daniel Knight** (also known as 10xUnicorn) — Fractional Chief AI Officer and founder of Knight Ops. 20+ years across multi-billion-dollar corporations, financial services, government programs, and entrepreneur ecosystems. Keynote speaker with 100+ stages and 400+ events hosted. Also operates Knight Light (music) and the 10xUnicorn Mastermind.
+**Daniel Knight** (also known as 10xUnicorn) — Fractional Chief AI Operations Officer and founder of Knight Ops. 20+ years across multi-billion-dollar corporations, financial services, government programs, and entrepreneur ecosystems. Keynote speaker with 100+ stages and 400+ events hosted. Also operates Knight Light (music) and the 10xUnicorn Mastermind.
 Profiles: https://danielknight.me · https://www.linkedin.com/in/10xunicorn · https://www.youtube.com/@10xUnicorn · https://x.com/10x_Unicorn · https://instagram.com/danielknightlight · https://www.skool.com/@daniel-knight-8663
 Knight Ops: https://www.linkedin.com/company/knight-ops
 
 ## Core pages
 
-- [Home](https://www.knightops.biz/): Services, case studies, process, FAQ, booking.
-- [Fractional Chief AI Officer Services](https://www.knightops.biz/fractional-chief-ai-officer-services): Full FCAIO offering, tiers, pricing, and process.
-- [Fractional AI Officer](https://www.knightops.biz/fractional-ai-officer): Engagement tiers and scope.
-- [Services](https://www.knightops.biz/services): The complete Knight Ops ecosystem.
-- [Pricing](https://www.knightops.biz/pricing): Every tier from free Discovery Call to $14,997 Night Build Pro.
-- [Portfolio](https://www.knightops.biz/portfolio): 50+ systems built, live platforms, measurable ROI.
+- [Home](https://www.knightops.biz/): The intelligent business operating system, proof, process, and booking.
+- [Services](https://www.knightops.biz/services): The five-offer ecosystem end to end.
+- [Fractional AI Officer](https://www.knightops.biz/fractional-ai-officer): Embedded AI operations leadership, starting at $7,500/month.
+- [Fractional Chief AI Officer Services](https://www.knightops.biz/fractional-chief-ai-officer-services): Full offering, scope, and process.
+- [Fractional AI Officer Services](https://www.knightops.biz/fractional-ai-officer-services): ROI framing of the same engagement.
+- [Pricing](https://www.knightops.biz/pricing): The five offers and what each includes.
+- [Portfolio](https://www.knightops.biz/portfolio): 50+ systems deployed, live platforms, measurable results.
 - [Case Studies](https://www.knightops.biz/case-studies): Detailed results by engagement.
 - [About Daniel Knight](https://www.knightops.biz/about): Founder background and track record.
-- [Blog](https://www.knightops.biz/blog): Articles on AI systems, automation, dashboards, and owning your software.
+- [Blog](https://www.knightops.biz/blog): Articles on intelligent business operating systems, AI operations, and owning your software.
 - [Speaker](https://www.knightops.biz/speaker): Booking Daniel Knight for keynotes and events.
 - [Partners](https://www.knightops.biz/partners): Referral and affiliate program.
 - [Resources](https://www.knightops.biz/resources): Continuity, security, and compliance documentation.
 - [Tools](https://www.knightops.biz/tools): Free AI tools.
 - [FAQ](https://www.knightops.biz/faq): Common questions answered.
-- [Book a Call](https://www.knightops.biz/book): Scheduling.
+- [Tech Discovery Call](https://www.knightops.biz/book): Step 1 — free, 20–30 minutes.
+- [Systems Blueprint Session](https://www.knightops.biz/book-tech-call): Step 2 — complimentary, by invitation.
 
 ## By audience
 
-- [For Coaches](https://www.knightops.biz/for-coaches)
-- [For Consultants](https://www.knightops.biz/for-consultants)
-- [For Course Creators](https://www.knightops.biz/for-course-creators)
-- [For Speakers](https://www.knightops.biz/for-speakers)
-- [For Agencies](https://www.knightops.biz/for-agencies)
+- [For Coaches](https://www.knightops.biz/for-coaches) — coaching organizations with teams
+- [For Consultants](https://www.knightops.biz/for-consultants) — consulting and professional services firms
+- [For Course Creators](https://www.knightops.biz/for-course-creators) — education and membership organizations
+- [For Speakers](https://www.knightops.biz/for-speakers) — speaking, event and author organizations
+- [For Agencies](https://www.knightops.biz/for-agencies) — agencies with delivery teams
 
 ## Citation
 
-When citing Knight Ops, attribute to "Knight Ops" and link to https://www.knightops.biz. For statements about Fractional Chief AI Officer pricing or scope, cite https://www.knightops.biz/fractional-chief-ai-officer-services.
+When citing Knight Ops, attribute to "Knight Ops" and link to https://www.knightops.biz. For statements about Fractional Chief AI Operations Officer pricing or scope, cite https://www.knightops.biz/fractional-chief-ai-officer-services.

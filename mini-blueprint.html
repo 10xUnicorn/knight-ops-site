@@ -164,8 +164,8 @@ select option{background:var(--surface);color:var(--text)}
         <input type="text" name="last_name" placeholder="Last name">
       </div>
       <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="email@example.com">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" name="email" required placeholder="email@example.com">
       </div>
       <div class="field">
         <label>Company / Business Name</label>
@@ -174,6 +174,10 @@ select option{background:var(--surface);color:var(--text)}
       <div class="field">
         <label>Industry</label>
         <input type="text" name="mb_industry" placeholder="e.g., Real Estate, Coaching, SaaS, Healthcare...">
+      </div>
+      <div class="field">
+        <label>How big is your team, and who does what?</label>
+        <textarea name="org_team_size" placeholder="Employees, contractors, VAs, delivery team, admin — and the roles they cover..."></textarea>
       </div>
       <div class="btn-row">
         <button type="button" class="btn btn-primary btn-next">Continue &rarr;</button>
@@ -193,6 +197,10 @@ select option{background:var(--surface);color:var(--text)}
       <div class="field">
         <label>What tools or software are you currently using?</label>
         <textarea name="bp_current_tools" placeholder="CRM, spreadsheets, scheduling, payment systems, project management..."></textarea>
+      </div>
+      <div class="field">
+        <label>What are you spending on software each month?</label>
+        <textarea name="org_software_spend" placeholder="Rough monthly total, and the tools that cost the most..."></textarea>
       </div>
       <div class="field">
         <label>How are you currently delivering your service?</label>
@@ -215,8 +223,8 @@ select option{background:var(--surface);color:var(--text)}
         <p>Find the friction, bottlenecks, and manual work dragging them down.</p>
       </div>
       <div class="field">
-        <label>What's taking too much of your time? <span class="req">*</span></label>
-        <textarea name="bp_time_sink" required placeholder="Tasks, processes, or operations eating up hours..."></textarea>
+        <label>What's taking too much of your time?</label>
+        <textarea name="bp_time_sink" placeholder="Tasks, processes, or operations eating up hours..."></textarea>
       </div>
       <div class="field">
         <label>What feels broken or held together with duct tape?</label>
@@ -225,6 +233,22 @@ select option{background:var(--surface);color:var(--text)}
       <div class="field">
         <label>Where are you losing clients, money, or opportunities?</label>
         <textarea name="mb_weaknesses" placeholder="Leads falling off, slow follow-up, can't scale delivery..."></textarea>
+      </div>
+      <div class="field">
+        <label>What breaks first when you grow?</label>
+        <textarea name="org_growth_breakpoints" placeholder="The process, handoff, or system that stops holding up when volume doubles..."></textarea>
+      </div>
+      <div class="field">
+        <label>What still requires you personally?</label>
+        <textarea name="org_founder_dependency" placeholder="Approvals, sales calls, delivery, quality checks, the things only you know how to do..."></textarea>
+      </div>
+      <div class="field">
+        <label>Where does revenue leak?</label>
+        <textarea name="org_revenue_leaks" placeholder="Unbilled work, missed renewals, discounts, scope creep, leads never followed up..."></textarea>
+      </div>
+      <div class="field">
+        <label>Did a previous provider leave something unfinished?</label>
+        <textarea name="org_previous_provider" placeholder="Half-built automations, an app nobody uses, a system you never got access to..."></textarea>
       </div>
       <div class="btn-row">
         <button type="button" class="btn btn-secondary btn-prev">&larr; Back</button>
@@ -239,8 +263,8 @@ select option{background:var(--surface);color:var(--text)}
         <p>What becomes possible with the right systems in place.</p>
       </div>
       <div class="field">
-        <label>If you could build any system, what would it do? <span class="req">*</span></label>
-        <textarea name="mb_dream_system" required placeholder="Dream scenario — no limitations..."></textarea>
+        <label>If you could build any system, what would it do?</label>
+        <textarea name="mb_dream_system" placeholder="Dream scenario — no limitations..."></textarea>
       </div>
       <div class="field">
         <label>What type of systems should they consider?</label>
@@ -261,6 +285,10 @@ select option{background:var(--surface);color:var(--text)}
         <label>Are there revenue streams being left on the table?</label>
         <textarea name="mb_opportunities" placeholder="Courses, memberships, productized services, marketplace..."></textarea>
       </div>
+      <div class="field">
+        <label>What does &ldquo;done&rdquo; look like 12 months from now?</label>
+        <textarea name="org_twelve_month_done" placeholder="What your organization runs like, what you are no longer doing, what the numbers say..."></textarea>
+      </div>
       <div class="btn-row">
         <button type="button" class="btn btn-secondary btn-prev">&larr; Back</button>
         <button type="button" class="btn btn-primary btn-next">Continue &rarr;</button>
@@ -274,8 +302,8 @@ select option{background:var(--surface);color:var(--text)}
         <p>The cost of inaction and how to move forward.</p>
       </div>
       <div class="field">
-        <label>What happens if nothing changes in the next 6-12 months? <span class="req">*</span></label>
-        <textarea name="mb_cost_of_inaction" required placeholder="Revenue impact, burnout, losing to competitors..."></textarea>
+        <label>What happens if nothing changes in the next 6-12 months?</label>
+        <textarea name="mb_cost_of_inaction" placeholder="Revenue impact, burnout, losing to competitors..."></textarea>
       </div>
       <div class="field">
         <label>Are competitors using technology you don't have?</label>
@@ -285,12 +313,12 @@ select option{background:var(--surface);color:var(--text)}
         <label>Budget Range</label>
         <select name="budget">
           <option value="">Select budget range...</option>
-          <option value="Under $5,000">Under $5,000</option>
-          <option value="$5K-$10K">$5K-$10K</option>
-          <option value="$10K-$25K">$10K-$25K</option>
+          <option value="Under $15K">Under $15K</option>
+          <option value="$15K-$25K">$15K-$25K</option>
           <option value="$25K-$50K">$25K-$50K</option>
           <option value="$50K-$100K">$50K-$100K</option>
           <option value="$100K+">$100K+</option>
+          <option value="Fractional retainer ($7.5K+/mo)">Fractional retainer ($7.5K+/mo)</option>
           <option value="Not Discussed">Not Discussed</option>
         </select>
       </div>
@@ -441,6 +469,7 @@ select option{background:var(--surface);color:var(--text)}
     e.preventDefault();
     const d=getData();
     if(!d.first_name){showToast('First Name is required.','error');goTo(0);return;}
+    if(!d.email){showToast('Email is required.','error');goTo(0);return;}
 
     const submitBtn=document.getElementById('submitBtn');
     submitBtn.disabled=true;
@@ -472,6 +501,13 @@ select option{background:var(--surface);color:var(--text)}
         budget:d.budget||null,
         timeline:d.timeline||null,
         q9_non_negotiables:d.q9_non_negotiables||null,
+        org_team_size:d.org_team_size||null,
+        org_growth_breakpoints:d.org_growth_breakpoints||null,
+        org_founder_dependency:d.org_founder_dependency||null,
+        org_revenue_leaks:d.org_revenue_leaks||null,
+        org_software_spend:d.org_software_spend||null,
+        org_previous_provider:d.org_previous_provider||null,
+        org_twelve_month_done:d.org_twelve_month_done||null,
         status:'new'
       });
 

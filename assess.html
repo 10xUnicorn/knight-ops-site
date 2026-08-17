@@ -780,14 +780,14 @@ function renderToolRecommendations() {
   if (state.painPoints.some(p => p.includes('project') || p.includes('support')) && state.recommendedTools.length < 3) {
     const card = document.createElement('div');
     card.className = 'tool-card';
-    card.innerHTML = `<div class="tool-name">Custom Solutions</div><div class="tool-solves">What we do</div><div class="tool-description">Want someone to build the perfect solution for your workflow? We specialize in custom applications designed for your unique needs.</div><div class="tool-steps"><strong>How to get started:</strong><div class="tool-step">1. Book a discovery call</div><div class="tool-step">2. Share your workflow</div><div class="tool-step">3. Get a custom solution</div></div><a href="https://knightops.biz/blueprint" target="_blank" class="tool-cta">Book Discovery Call &rarr;</a>`;
+    card.innerHTML = `<div class="tool-name">Custom Solutions</div><div class="tool-solves">What we do</div><div class="tool-description">Want someone to build the perfect solution for your workflow? We specialize in custom applications designed for your unique needs.</div><div class="tool-steps"><strong>How to get started:</strong><div class="tool-step">1. Book a discovery call</div><div class="tool-step">2. Share your workflow</div><div class="tool-step">3. Get a custom solution</div></div><a href="/book" target="_blank" class="tool-cta">Start With a Tech Discovery Call &rarr;</a>`;
     container.appendChild(card);
   }
 }
 
 function renderNextSteps() {
   document.getElementById('nextSteps').innerHTML = `
-    <div class="next-step-card"><div class="next-step-title">Book a Free Blueprint Session</div><p>Talk to our team about your specific needs and opportunities.</p><a href="https://knightops.biz/blueprint" target="_blank">Schedule Now &rarr;</a></div>
+    <div class="next-step-card"><div class="next-step-title">Start With a Tech Discovery Call</div><p>A short, direct conversation about how your organization operates today and whether an intelligent business operating system is the right answer.</p><a href="/book" target="_blank">Schedule Now &rarr;</a></div>
     <div class="next-step-card"><div class="next-step-title">Join Our Workshop</div><p>Learn hands-on how to build and implement AI tools in your business.</p><a href="https://workshop.nightvibe.me" target="_blank">Learn More &rarr;</a></div>
     <div class="next-step-card"><div class="next-step-title">Explore Our Services</div><p>See how Knight Ops can help you scale with custom solutions.</p><a href="https://knightops.biz" target="_blank">Visit Our Site &rarr;</a></div>`;
 }
