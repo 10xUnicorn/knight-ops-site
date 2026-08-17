@@ -357,6 +357,20 @@ async function start(p) {
       if (!e.data || !e.data.size || cancelled) return;
       session.buffer.push(e.data);
       session.bytes += e.data.size;
+
+      // Backpressure watch: if uploads fall behind capture the backlog grows
+      // without bound, which is the only thing that could break a very long
+      // recording now. Warn once per threshold so it is visible in diagnostics.
+      const backlog = session.buffer.reduce((n, b) => n + b.size, 0);
+      if (backlog > PART_SIZE * 4 && backlog > (session.warnedBacklog || 0) * 2) {
+        session.warnedBacklog = backlog;
+        note('upload', 'upload is falling behind capture', {
+          backlogMB: +(backlog / 1048576).toFixed(1),
+          recordedMB: +(session.bytes / 1048576).toFixed(1),
+          uploadedMB: +(session.uploadedBytes / 1048576).toFixed(1),
+        }, 'warn');
+      }
+
       flushBuffer(false);
     };
     rec.onerror = (e) => fail(e.error || new Error('recorder error'));
