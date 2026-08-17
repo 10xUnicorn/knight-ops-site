@@ -2059,10 +2059,10 @@
         return 'You earn: ' + koMoney0(t);
       };
       const tiers = [
-        { tag: 'Web App', name: 'Night Build', price: '$10,000', amt: 10000 },
-        { tag: 'Mobile App', name: 'Night Build Pro', price: '$15,000', amt: 15000 },
-        { tag: 'Custom', name: 'Enterprise Build', price: '$50,000+', amt: 50000, plus: true },
-        { tag: 'Retainer', name: 'Fractional AI Ops', price: '$5,000–8,000/mo', amt: 5000, recurring: true }
+        { tag: 'The system', name: 'AI Business OS', price: 'From $15,000', amt: 15000, plus: true },
+        { tag: 'The evolution', name: 'AI Business OS Continuity', price: 'From $1,000/mo', amt: 1000, recurring: true },
+        { tag: 'The leadership', name: 'Fractional Chief AI Ops Officer', price: 'From $7,500/mo', amt: 7500, recurring: true },
+        { tag: 'Larger scope', name: 'Multi-layer engagement', price: '$50,000+', amt: 50000, plus: true }
       ].map(function (t) {
         var e = earnFor(t.amt);
         if (t.plus) e = e.replace('You earn: ', 'You earn: ') + '+';

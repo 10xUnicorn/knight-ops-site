@@ -1694,8 +1694,8 @@ function fmtMoney(v){return '$'+Number(v||0).toLocaleString();}
 function fmtDuration(mins){if(!mins)return '0m';const h=Math.floor(mins/60),m=mins%60;return h?(m?h+'h '+m+'m':h+'h'):m+'m';}
 function fmtTimerElapsed(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
 
-function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',bad_lead:'badge-error',not_qualified:'badge-warning',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',night_launch:'badge-gold',night_build:'badge-info',night_build_pro:'badge-success',submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
-function SL(v){const m={night_launch:'Night Launch',night_build:'Night Build',night_build_pro:'Night Build Pro',ai_marketing_machine:'AI Marketing Machine',workshop:'Workshop',consulting_1on1:'1:1 Consulting',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return m[v]||v||'—';}
+function B(s){const m={new:'badge-info',contacted:'badge-warning',qualified:'badge-gold',proposal_sent:'badge-gold',negotiation:'badge-warning',won:'badge-success',converted:'badge-success',lost:'badge-error',bad_lead:'badge-error',not_qualified:'badge-warning',active:'badge-success',prospect:'badge-info',paused:'badge-warning',completed:'badge-success',discovery:'badge-info',scoping:'badge-info',in_progress:'badge-warning',review:'badge-gold',revision:'badge-warning',deployed:'badge-success',cancelled:'badge-error',todo:'badge-info',in_review:'badge-gold',blocked:'badge-error',done:'badge-success',blueprint_session:'badge-info',ai_business_os:'badge-gold',os_continuity:'badge-success',fractional_ai_ops:'badge-gold',night_launch:'badge-warning',night_build:'badge-warning',night_build_pro:'badge-warning',submitted:'badge-info',reviewed:'badge-warning',building:'badge-gold',phase_2:'badge-gold',qa:'badge-warning',delivered:'badge-success',custom:'badge-warning',low:'badge-info',medium:'badge-warning',high:'badge-gold',urgent:'badge-error',development:'badge-info',design:'badge-gold',client_action:'badge-warning',deployment:'badge-success',admin:'badge-info',workshop:'badge-gold',mastermind:'badge-info',webinar:'badge-success',office_hours:'badge-warning',launch:'badge-gold',file:'badge-info',url:'badge-gold'};return '<span class="badge '+(m[s]||'badge-gold')+'">'+(s||'').replace(/_/g,' ')+'</span>';}
+function SL(v){const m={blueprint_session:'Systems Blueprint Session',ai_business_os:'AI Business OS',os_continuity:'AI Business OS Continuity',fractional_ai_ops:'Fractional Chief AI Operations Officer',night_launch:'Night Launch (legacy)',night_build:'Night Build (legacy)',night_build_pro:'Night Build Pro (legacy)',cc_brain:'Command Center Brain (legacy)',cc_brain_dashboard:'Command Center Brain + Dashboard (legacy)',cc_full_suite:'Command Center Full Suite (legacy)',ai_marketing_machine:'AI Marketing Machine (legacy)',workshop:'Workshop',consulting_1on1:'1:1 Consulting (legacy)',unicorn_universe:'Unicorn Universe','10x_mastermind':'10x Mastermind',custom:'Custom'};return m[v]||v||'—';}
 function clientName(cid){const c=S.clients.find(x=>x.id===cid);return c?.profiles?.full_name||c?.profiles?.email||'—';}
 function FG(label,id,type,val,opts){
   if(type==='select'){return '<div class="form-group"><label>'+label+'</label><select id="'+id+'">'+opts.map(o=>'<option value="'+o.v+'"'+(o.v==val?' selected':'')+'>'+o.l+'</option>').join('')+'</select></div>';}
@@ -1745,13 +1745,13 @@ function searchableClientDD(sel){
 function searchableLeadDD(fieldId,sel){
   return searchableDropdown(fieldId,S.leads.map(l=>({id:l.id,label:leadName(l),sub:l.company||''})),sel,'Search leads...');
 }
-const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'night_launch',l:'Night Launch — Website ($1,497)'},{v:'night_build',l:'Night Build — Web/Mobile App ($9,997)'},{v:'night_build_pro',l:'Night Build Pro — Full App Store ($14,997)'},{v:'ai_marketing_machine',l:'AI Marketing Machine ($99/mo)'},{v:'workshop',l:'Build Your App Workshop ($1,000)'},{v:'consulting_1on1',l:'1:1 Consulting ($25K)'},{v:'unicorn_universe',l:'Unicorn Universe Membership ($99/mo)'},{v:'10x_mastermind',l:'10xUnicorn Mastermind ($10K/yr)'},{v:'custom',l:'Custom Project'}];
+const SERVICE_OPTS=[{v:'',l:'Select Service'},{v:'blueprint_session',l:'Systems Blueprint Session — complimentary, by invitation'},{v:'ai_business_os',l:'Knight Ops AI Business OS — starting at $15,000'},{v:'os_continuity',l:'AI Business OS Continuity — starting at $1,000/mo'},{v:'fractional_ai_ops',l:'Fractional Chief AI Operations Officer — starting at $7,500/mo'},{v:'custom',l:'Custom Project'},{v:'unicorn_universe',l:'Unicorn Universe Membership'},{v:'10x_mastermind',l:'10xUnicorn Mastermind'},{v:'workshop',l:'Workshop'},{v:'night_launch',l:'Night Launch (legacy — retired)'},{v:'night_build',l:'Night Build (legacy — retired)'},{v:'night_build_pro',l:'Night Build Pro (legacy — retired)'},{v:'ai_marketing_machine',l:'AI Marketing Machine (legacy — retired)'},{v:'consulting_1on1',l:'1:1 Consulting (legacy — retired)'}];
 const BUDGET_OPTS=[{v:'',l:'Select'},{v:'under_1k',l:'Under $1K'},{v:'1k_5k',l:'$1K-$5K'},{v:'5k_15k',l:'$5K-$15K'},{v:'15k_25k',l:'$15K-$25K'},{v:'over_25k',l:'Over $25K'}];
 const TIMELINE_OPTS=[{v:'',l:'Select'},{v:'asap',l:'ASAP'},{v:'1_2_weeks',l:'1-2 Weeks'},{v:'1_month',l:'1 Month'},{v:'2_3_months',l:'2-3 Months'},{v:'just_exploring',l:'Just Exploring'}];
 const LEAD_STATUS_OPTS=[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'proposal_sent',l:'Proposal Sent'},{v:'negotiation',l:'Negotiation'},{v:'won',l:'Won'},{v:'lost',l:'Lost'},{v:'bad_lead',l:'Bad Lead'},{v:'not_qualified',l:'Not Qualified'}];
 const SOURCE_OPTS=[{v:'manual',l:'Manual'},{v:'intake_form',l:'Intake Form'},{v:'referral',l:'Referral'},{v:'event',l:'Event'},{v:'marketplace',l:'Marketplace'},{v:'website',l:'Website'}];
 const CLIENT_STATUS_OPTS=[{v:'prospect',l:'Prospect'},{v:'active',l:'Active Client'},{v:'paused',l:'Paused'},{v:'completed',l:'Completed'}];
-const TIER_OPTS=[{v:'custom',l:'Custom'},{v:'night_launch',l:'Night Launch'},{v:'night_build',l:'Night Build'},{v:'night_build_pro',l:'Night Build Pro'}];
+const TIER_OPTS=[{v:'ai_business_os',l:'AI Business OS'},{v:'os_continuity',l:'AI Business OS Continuity'},{v:'fractional_ai_ops',l:'Fractional Chief AI Operations Officer'},{v:'blueprint_session',l:'Systems Blueprint Session'},{v:'custom',l:'Custom'},{v:'night_launch',l:'Night Launch (legacy)'},{v:'night_build',l:'Night Build (legacy)'},{v:'night_build_pro',l:'Night Build Pro (legacy)'}];
 const PROJ_STATUS_OPTS=[{v:'discovery',l:'Discovery'},{v:'scoping',l:'Scoping'},{v:'in_progress',l:'In Progress'},{v:'review',l:'Review'},{v:'deployed',l:'Deployed'},{v:'completed',l:'Completed'},{v:'paused',l:'Paused'},{v:'cancelled',l:'Cancelled'}];
 const TASK_STATUS_OPTS=[{v:'todo',l:'To Do'},{v:'in_progress',l:'In Progress'},{v:'in_review',l:'In Review'},{v:'blocked',l:'Blocked'},{v:'done',l:'Done'}];
 const PRIORITY_OPTS=[{v:'low',l:'Low'},{v:'medium',l:'Medium'},{v:'high',l:'High'},{v:'urgent',l:'Urgent'}];
@@ -2103,13 +2103,13 @@ function renderGapAnalysis(target,collected,pending,scheduled){
   const el=document.getElementById('revGapAnalysis');
   if(gap<=0){el.style.display='none';return;}
   el.style.display='block';
-  const nightLaunches=Math.ceil(gap/1497);
-  const nightBuilds=Math.ceil(gap/9997);
-  const nightBuildPros=Math.ceil(gap/14997);
+  const osBuilds=Math.ceil(gap/15000);
+  const fractionalMonths=Math.ceil(gap/7500);
+  const continuityMonths=Math.ceil(gap/1000);
   document.getElementById('revGapItems').innerHTML=
-    '<div class="rev-gap-item"><div class="num">'+nightLaunches+'</div><div class="lbl">Night Launches @ $1,497</div></div>'+
-    '<div class="rev-gap-item"><div class="num">'+nightBuilds+'</div><div class="lbl">Night Builds @ $9,997</div></div>'+
-    '<div class="rev-gap-item"><div class="num">'+nightBuildPros+'</div><div class="lbl">Night Build Pros @ $14,997</div></div>';
+    '<div class="rev-gap-item"><div class="num">'+osBuilds+'</div><div class="lbl">AI Business OS builds @ $15,000</div></div>'+
+    '<div class="rev-gap-item"><div class="num">'+fractionalMonths+'</div><div class="lbl">Fractional AI Ops months @ $7,500</div></div>'+
+    '<div class="rev-gap-item"><div class="num">'+continuityMonths+'</div><div class="lbl">Continuity months @ $1,000</div></div>';
 }
 
 async function markPaymentCollected(paymentId,checked){
@@ -3032,7 +3032,7 @@ async function convertLead(id){
     const pid=crypto.randomUUID();
     const{error:pe}=await sb.from('profiles').insert([{id:pid,email:l.email,full_name:leadName(l),phone:l.phone,company:l.company,role:'client'}]);
     if(pe)throw pe;
-    const tier=['night_launch','night_build','night_build_pro'].includes(l.service_interest)?l.service_interest:'custom';
+    const tier=['ai_business_os','os_continuity','fractional_ai_ops','blueprint_session'].includes(l.service_interest)?l.service_interest:'custom';
     const{error:ce}=await sb.from('clients').insert([{profile_id:pid,tier:tier,status:'active'}]);
     if(ce)throw ce;
     await sb.from('leads').update({profile_id:pid,status:'converted'}).eq('id',id);
@@ -3513,10 +3513,68 @@ async function dashMockPreview(buildId,mid){
 // ═══ SHARED PROMPT BLOCKS ═══
 const KO_LANGUAGE_RULES=`LANGUAGE RULES (NON-NEGOTIABLE)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- NEVER use "built overnight", "overnight delivery", "48 hours", "48hr", "24 hours", "rush", "fast turnaround", or any speed-of-delivery claim anywhere in any output.
-- Delivery timelines come from the scope and phasing defined in this engagement. State real phases and milestones, never speed promises.
-- Lead with outcome, ownership, and autopilot. The promise is that their impact runs without them in every step.
-- Tagline to use anywhere a tagline appears: "Create Your Impact on Autopilot."`;
+WHAT KNIGHT OPS SELLS
+Knight Ops builds one thing: an intelligent business operating system that the client owns
+outright — repository, Supabase project, Vercel project and domain all transferred, plus a
+written continuity brief naming a successor developer. It is not a SaaS product, not a
+no-code template, and not an AI consultancy.
+
+WHO IT IS FOR
+Organizations with a team, real revenue, and operational bottlenecks. Write to a company
+with employees, contractors and a delivery team — never to a solo operator. The buyer is a
+founder or leader who has outgrown the way their organization runs.
+
+NEVER USE THESE
+- "built overnight", "overnight delivery", "48 hours", "48hr", "24 hours", "rush",
+  "fast turnaround", or any speed-of-delivery claim anywhere in any output.
+- "custom software development", "development hours", "build credits", "hourly rate"
+- "cheap alternative", "not ready for a full build", "we can build anything"
+- "AI consulting", "generic automation services", "packages", "tiers"
+- Any internal number: the $2,500 consulting package, internal $15K/mo or $30K/mo bands,
+  the "1,000 systems" goal, or build hours of any kind.
+
+USE THESE INSTEAD
+intelligent business operating system · functional value throughout the build · never an
+empty handoff · embedded AI operations leadership · progressive deployment · continuous
+evolution · full ownership · the layers are a checklist, not a queue.
+
+- Delivery timelines come from the scope and phasing defined in this engagement. State real
+  phases and milestones, never speed promises.
+- Lead with outcome, ownership, and autopilot. The promise is that their impact runs without
+  them at every step.
+- Tagline to use anywhere a tagline appears: "Create Your Impact on Autopilot."
+
+THE ONLY FIVE OFFERS — never invent a sixth, never publish a package or tier
+1. Tech Discovery Call — free, 20–30 minutes. Fit and qualification only. It is NOT a
+   strategy session and does NOT promise a roadmap.
+2. Systems Blueprint Session — complimentary, by invitation for qualified organizations.
+   Two working sessions of roughly 60 minutes each with architecture work in between. The
+   organization keeps the architecture whether or not Knight Ops builds it.
+3. Knight Ops AI Business OS — starting at $15,000.
+4. AI Business OS Continuity — starting at $1,000/month.
+5. Fractional Chief AI Operations Officer — starting at $7,500/month.
+There are no packages and no tiers. Scope and sequence are set in the Blueprint Session.
+
+CANONICAL PROOF STATS — these four and only these
+$200M+ business impact facilitated · 50+ systems deployed · 85% average time saved on
+automated workflows · 100% code ownership on every engagement.
+
+SIX MONEY CLAIMS THAT MUST NEVER BE MERGED
+- $200M+ .................. Knight Ops aggregate systems impact (the marketing stat)
+- $100M+ assets managed ... a wealth-management CLIENT credential, not systems impact
+- $4.5M additional revenue  the wealth-management firm, year one after the rebuild
+- $4.5M in 30 days ........ CARES Act applications facilitated — a SEPARATE project that
+                            happens to share the number
+- ~$100M via partnerships . Unicorn Universe, not Knight Ops
+- $100M book of business .. that client's book size, factual context only
+If you are not certain which one applies, leave the number out rather than blending two.
+
+THE WEALTH-MANAGEMENT STORY, TOLD CORRECTLY
+Daniel optimized systems at a $10M book-of-business advisory practice. That book was
+acquired; he moved to the acquiring firm and retained 95% of clients through the transition.
+He then streamlined operations with systems and dashboards, producing $4.5M in additional
+revenue that same year. Nightly client-review preparation went from 4 hours to 30 minutes
+and was ultimately offloaded to an admin. (It is 30 minutes, not 20.)`;
 
 const KO_BRAND_PRIORITY=`BRAND PRIORITY — USE THE CLIENT'S BRAND FIRST
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3537,18 +3595,21 @@ INCLUDED WITH EVERY BUILD (no extra charge):
 - Included Continuity covers: hosting and deployment integrity, bug fixes and defect resolution on delivered scope, security and dependency patching, uptime monitoring, and the Client Continuity Brief plus Developer Handoff Package so the client is never stranded.
 - The client may submit questions, feedback, and support requests at any time during this window through the agreed support channel.
 
-FOR FRACTIONAL CHIEF AI OFFICER / AI OPS ENGAGEMENTS:
+FOR FRACTIONAL CHIEF AI OPERATIONS OFFICER ENGAGEMENTS:
 - Included Continuity runs concurrently for the full duration of the engagement, and does not begin only after the engagement ends.
 - Every system delivered inside the engagement carries the same six (6) month Included Continuity window from its own launch date.
 
-WHAT IS NOT INCLUDED (requires the Continuity Plan):
+WHAT IS NOT INCLUDED (requires AI Business OS Continuity):
 - New features, new modules, or scope beyond what is defined in this agreement
 - Ongoing enhancement work and iteration after launch
 - Quarterly feature pushes
 - Quarterly strategy sessions
 - Priority response and standing roadmap ownership
 
-CONTINUITY PLAN — $1,000/month:
+AI BUSINESS OS CONTINUITY — starting at $1,000/month:
+- Systems that stop evolving stop earning. Continuity is how the operating system keeps up
+  with the organization, and it is the natural next stage after launch — never positioned as
+  a cheap add-on or a discounted consulting retainer.
 - Ongoing updates and enhancements to the delivered system
 - Feature requests reviewed, scoped, and queued
 - One quarterly feature push (a batched release of approved enhancements)
@@ -3560,6 +3621,17 @@ CONTINUITY PLAN — $1,000/month:
 const KO_PHASING_LANGUAGE=`PHASED / EXTENDED ENGAGEMENT LANGUAGE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Some engagements are structured across three months, six months, or twelve months. The contract must make the following unmistakably clear, in plain, warm, client-facing language:
+
+PROGRESSIVE DEPLOYMENT — state this before anything about the schedule:
+- The system is deployed in LAYERS, in a sequence decided during the Blueprint Session.
+  Each layer goes live as it is completed. Knight Ops does not disappear for months and
+  return with a finished product. There is functional value throughout the build and never
+  an empty handoff.
+- Layer 1 (Foundation & Business Intelligence) always ships first: data before decisions.
+  Every scoping choice in the later layers is guesswork until the organization can see its
+  own numbers. The revenue-nearest layer goes second.
+- The layers are a checklist, not a queue. The sequence is reordered deliberately when the
+  constraint changes, and the reason is recorded. It is never skipped silently.
 
 - A longer engagement window describes the DELIVERY SCHEDULE of the agreed scope, not a requirement for standing meetings or continuous weekly build sessions.
 - Knight Ops is NOT obligated to hold recurring meetings or to build continuously across every week of the term unless a meeting cadence is explicitly listed in the Deliverables and Schedule section.
@@ -5539,7 +5611,7 @@ async function sendCommentNotification(projId,title,content,type){
 
 function editProject(id){
   const p=id?S.projects.find(x=>x.id===id):null;
-  const body='<div class="form-group"><label>Client</label>'+searchableClientDD(p?.client_id)+'</div><div class="form-group"><label>Lead</label>'+searchableLeadDD('e_lead',p?.lead_id)+'</div>'+FG('Project Name *','e_name','text',p?.name)+FG('Description','e_desc','textarea',p?.description)+FR(FG('Tier','e_tier','select',p?.tier||'night_launch',TIER_OPTS),FG('Contract Value ($)','e_value','number',p?.contract_value))+FR(FG('Start Date','e_start','date',p?.start_date),FG('Due Date','e_due','date',p?.due_date))+FG('Status','e_status','select',p?.status||'discovery',PROJ_STATUS_OPTS)+FG('GitHub repo URL (enables cloud API auto-fix of bugs)','e_repo','text',p?.repo_url)+'<div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox" id="e_autofix" style="width:auto" '+((p&&p.autofix_enabled===false)?'':'checked')+'> Auto-fix bugs &amp; build approved features via API (Claude API + GitHub)</label></div>';
+  const body='<div class="form-group"><label>Client</label>'+searchableClientDD(p?.client_id)+'</div><div class="form-group"><label>Lead</label>'+searchableLeadDD('e_lead',p?.lead_id)+'</div>'+FG('Project Name *','e_name','text',p?.name)+FG('Description','e_desc','textarea',p?.description)+FR(FG('Tier','e_tier','select',p?.tier||'ai_business_os',TIER_OPTS),FG('Contract Value ($)','e_value','number',p?.contract_value))+FR(FG('Start Date','e_start','date',p?.start_date),FG('Due Date','e_due','date',p?.due_date))+FG('Status','e_status','select',p?.status||'discovery',PROJ_STATUS_OPTS)+FG('GitHub repo URL (enables cloud API auto-fix of bugs)','e_repo','text',p?.repo_url)+'<div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox" id="e_autofix" style="width:auto" '+((p&&p.autofix_enabled===false)?'':'checked')+'> Auto-fix bugs &amp; build approved features via API (Claude API + GitHub)</label></div>';
   openEditModal(p?'Edit Project':'New Project',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveProject('+(id?"'"+id+"'":'')+')">Save</button>');
   setTimeout(()=>{sdInit('e_client');sdInit('e_lead');},50);
 }
@@ -5947,7 +6019,7 @@ function createAppFromProject(projId){
   const d=p.intake_data||{};
   const clientName=p.clients?.profiles?.full_name||'';
   const company=p.clients?.profiles?.company||d.company||'';
-  const body=FG('App Name *','e_name','text',p.name)+FG('Tagline','e_tagline','text',company?(company+' — Built by Knight Ops'):'Built by Knight Ops')+FG('Description','e_desc','textarea',p.description)+FR(FG('Category','e_category','text',d.bp_system_type||d.form_type||'Business App'),FG('Price Label','e_price_label','text',p.tier==='night_launch'?'$1,497':p.tier==='night_build'?'$9,997':p.tier==='night_build_pro'?'$14,997':'Custom'))+FR(FG('Launch URL','e_url','url',p.app_site_url||''),FG('Button Text','e_btn','text','Launch App'))+FG('Tags (comma-separated)','e_tags','text',(d.bp_platform||'web')+', '+(d.bp_system_type||'app'))+FR(FG('Featured','e_featured','checkbox',false),FG('Show on Marketplace','e_marketplace','checkbox',true));
+  const body=FG('App Name *','e_name','text',p.name)+FG('Tagline','e_tagline','text',company?(company+' — Built by Knight Ops'):'Built by Knight Ops')+FG('Description','e_desc','textarea',p.description)+FR(FG('Category','e_category','text',d.bp_system_type||d.form_type||'Business App'),FG('Price Label','e_price_label','text',p.tier==='ai_business_os'?'From $15,000':p.tier==='os_continuity'?'From $1,000/mo':p.tier==='fractional_ai_ops'?'From $7,500/mo':'Custom'))+FR(FG('Launch URL','e_url','url',p.app_site_url||''),FG('Button Text','e_btn','text','Launch App'))+FG('Tags (comma-separated)','e_tags','text',(d.bp_platform||'web')+', '+(d.bp_system_type||'app'))+FR(FG('Featured','e_featured','checkbox',false),FG('Show on Marketplace','e_marketplace','checkbox',true));
   openEditModal('Create App from Project: '+p.name,body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveAppFromProject(\''+projId+'\')">Create App</button>');
 }
 
@@ -7764,12 +7836,11 @@ function generateBuildPrompt(a,opts){
 
   // Infer recommended tier
   let recTier='';
-  if(a.budget==='under_1500')recTier='Night Launch ($1,497) — Multi-page conversion site';
-  else if(a.budget==='1500_5000'||a.budget==='5000_10000')recTier='Night Build ($9,997) — Full-stack web or mobile app';
-  else if(a.budget==='10000_25000'||a.budget==='25000_plus')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
-  else if(platform==='web')recTier='Night Build ($9,997) or Night Launch ($1,497) depending on complexity';
-  else if(platform==='mobile'||platform==='both')recTier='Night Build ($9,997) or Night Build Pro ($14,997) for App Store deployment';
-  else recTier='To be determined after discovery call';
+  if(a.budget==='under_1500'||a.budget==='1500_5000')recTier='Systems Blueprint Session first — the stated budget is below the AI Business OS floor of $15,000. Scope and sequence are set in the Blueprint Session; do not quote a build.';
+  else if(a.budget==='5000_10000')recTier='Knight Ops AI Business OS (starting at $15,000), scoped in layers — or AI Business OS Continuity (starting at $1,000/month) if the constraint is evolution of an existing system';
+  else if(a.budget==='10000_25000')recTier='Knight Ops AI Business OS — starting at $15,000, deployed progressively in layers';
+  else if(a.budget==='25000_plus')recTier='Knight Ops AI Business OS (starting at $15,000) with Fractional Chief AI Operations Officer leadership (starting at $7,500/month)';
+  else recTier='Knight Ops AI Business OS — starting at $15,000. Confirm scope and deployment sequence in the Systems Blueprint Session.';
 
   return `You are a senior full-stack product architect, technical strategist, and client-facing proposal designer for Knight Ops — a premium custom systems and application development firm founded by Daniel Knight.
 
@@ -7783,11 +7854,15 @@ Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gol
 Font: 'Segoe UI', system-ui, -apple-system, sans-serif
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
-Service Tiers:
-• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions. No backend.
-• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
-• Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
-• Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
+The Offer Ecosystem — five offers, three-step journey. There are NO packages and NO tiers.
+Step 1 • Tech Discovery Call — free, 20–30 minutes. Fit and qualification only. Not a strategy session, does not promise a roadmap.
+Step 2 • Systems Blueprint Session — complimentary, by invitation for qualified organizations. Two working sessions of roughly 60 minutes each with architecture work in between. Produces the system architecture and its deployment sequence. The organization keeps the architecture whether or not Knight Ops builds it.
+Step 3 • One of:
+• Knight Ops AI Business OS — starting at $15,000. The intelligent business operating system itself, deployed progressively in layers. The client owns it outright: repository, Supabase project, Vercel project and domain all transferred, plus a written continuity brief naming a successor developer.
+• AI Business OS Continuity — starting at $1,000/month. Six months included from launch, then ongoing updates, feature requests, a quarterly feature push and a quarterly strategy session.
+• Fractional Chief AI Operations Officer — starting at $7,500/month. Embedded AI operations leadership that owns the strategy, architecture, deployment sequence and team adoption. Not an advisor — an owner.
+
+Scope and sequence are set in the Blueprint Session, never quoted off a price list.
 
 ${KO_LANGUAGE_RULES}
 
@@ -7809,7 +7884,7 @@ STRIPE PRODUCT INSTRUCTIONS
 Before generating the proposal, search for an existing Stripe product matching this client/project. If one exists, use that product's payment link. If none exists, create a new Stripe product with:
 - Product name: "Knight Ops — ${fullName}${a.company?' ('+a.company+')':''}"
 - Description: Based on the recommended tier and project scope
-- Price: Based on the recommended tier (Night Launch $1,497 / Night Build $9,997 / Night Build Pro $14,997)
+- Price: Based on the scoped engagement (AI Business OS from $15,000 · AI Business OS Continuity from $1,000/month · Fractional Chief AI Operations Officer from $7,500/month). Use the figure agreed in the Blueprint Session, not a list price.
 - Create a payment link for the product
 Then embed the payment link in the proposal.
 `:''}
@@ -7904,41 +7979,39 @@ SECTION 2 — WHAT WE'LL BUILD
   - Icon or emoji
   - A subtle indicator showing which tier includes it
 
-SECTION 3 — CHOOSE YOUR PACKAGE (this is the interactive core)
-- Show ALL THREE tiers as selectable cards side-by-side (stack on mobile):
+SECTION 3 — CHOOSE YOUR ENGAGEMENT (this is the interactive core)
+- Show the THREE step-3 engagements as selectable cards side-by-side (stack on mobile).
+- These are engagements, NOT packages and NOT tiers. Never use the words "package" or "tier"
+  in client-facing copy, and never present them as good/better/best.
 
-  NIGHT LAUNCH — $1,497
-  • Up to 5 custom pages
-  • Mobile responsive
-  • SEO-ready structure
-  • Embedded forms, Calendly, Stripe links
-  • 2 revisions included
-  • Full code ownership
-  ✗ No backend / auth / database
-  ✗ No app store deployment
-  Split: $749 + $749
+  KNIGHT OPS AI BUSINESS OS — starting at $15,000
+  • One intelligent business operating system, built around this organization's actual operations
+  • Deployed progressively in layers, in the sequence set in the Blueprint Session
+  • Layer 1 (Foundation & Business Intelligence) ships first — data before decisions
+  • Each layer goes live as it is finished: functional value throughout the build, never an empty handoff
+  • 100% ownership — repository, Supabase project, Vercel project and domain all transferred
+  • Written continuity brief naming a successor developer
+  • Six months of Continuity included from launch
+  Show the scoped investment for THIS engagement and its payment schedule, taken from the
+  scope agreed in the Blueprint Session — never a generic list price.
 
-  NIGHT BUILD — $9,997 (mark as "RECOMMENDED" if that's the recommended tier)
-  • Full-stack web or mobile app
-  • Auth, payments, CRM hooks, API integrations
-  • 3 revisions included
-  • 5-day post-launch support
-  • Full code + repo ownership
-  • Full-pay bonus: 30-min strategy call
-  ✗ No App Store submission
-  Split: $3,749 + $3,749
+  AI BUSINESS OS CONTINUITY — starting at $1,000/month
+  • Ongoing updates and feature requests
+  • A quarterly feature push
+  • A quarterly strategy session
+  • Systems that stop evolving stop earning — this is the natural next stage after launch,
+    never a discounted retainer or a consolation offer
+  Included for six months from launch on every build; this is what continues after that.
 
-  NIGHT BUILD PRO — $14,997 (mark as "RECOMMENDED" if that's the recommended tier)
-  • Everything in Night Build
-  • iOS + Android App Store submission
-  • Store assets, screenshots, listing copy
-  • Apple & Google compliance review
-  • 1 free rejection resubmission
-  • 4 revisions, 7-day post-launch support
-  • Full-pay bonus: 45-min growth + monetization call
-  Split: $7,499 + $7,499
+  FRACTIONAL CHIEF AI OPERATIONS OFFICER — starting at $7,500/month
+  • Embedded senior leadership that OWNS the AI and operations strategy rather than advising on it
+  • Sets the system architecture, decides what gets built and in what order
+  • Runs the deployment, holds the team accountable to the operating system, evolves it as the business changes
+  • Not an advisor — an owner
+  • Continuity runs concurrently for the life of the engagement
 
-- Each tier card should be CLICKABLE to select it
+- Mark whichever engagement matches the recommendation as "RECOMMENDED".
+- Each card should be CLICKABLE to select it
 - The selected card gets a gold border + glow effect
 - Below the cards, show a dynamic "YOUR SELECTION" summary that updates based on which card is selected
 - Include a "WHAT YOU GET" vs "WHAT YOU WON'T GET" comparison that updates per tier, specific to THEIR project features
@@ -8035,13 +8108,14 @@ function generateLeadBuildPrompt(l,opts){
 
   // Infer recommended tier
   let recTier='';
-  if(l.budget_range==='under_1k')recTier='Night Launch ($1,497) — Multi-page conversion site';
-  else if(l.budget_range==='1k_5k'||l.budget_range==='5k_15k')recTier='Night Build ($9,997) — Full-stack web or mobile app';
-  else if(l.budget_range==='15k_25k'||l.budget_range==='over_25k')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
-  else if(l.service_interest==='night_launch')recTier='Night Launch ($1,497) — Multi-page conversion site';
-  else if(l.service_interest==='night_build')recTier='Night Build ($9,997) — Full-stack web or mobile app';
-  else if(l.service_interest==='night_build_pro')recTier='Night Build Pro ($14,997) — Full app + App Store deployment';
-  else recTier='To be determined after discovery call';
+  if(l.service_interest==='fractional_ai_ops')recTier='Fractional Chief AI Operations Officer — starting at $7,500/month';
+  else if(l.service_interest==='os_continuity')recTier='AI Business OS Continuity — starting at $1,000/month';
+  else if(l.service_interest==='ai_business_os')recTier='Knight Ops AI Business OS — starting at $15,000, deployed progressively in layers';
+  else if(l.budget_range==='under_1k'||l.budget_range==='1k_5k')recTier='Systems Blueprint Session first — the stated budget is below the AI Business OS floor of $15,000. Scope and sequence are set in the Blueprint Session; do not quote a build.';
+  else if(l.budget_range==='5k_15k')recTier='Knight Ops AI Business OS (starting at $15,000), scoped in layers — or AI Business OS Continuity (starting at $1,000/month) if the constraint is evolution of an existing system';
+  else if(l.budget_range==='15k_25k')recTier='Knight Ops AI Business OS — starting at $15,000, deployed progressively in layers';
+  else if(l.budget_range==='over_25k')recTier='Knight Ops AI Business OS (starting at $15,000) with Fractional Chief AI Operations Officer leadership (starting at $7,500/month)';
+  else recTier='Knight Ops AI Business OS — starting at $15,000. Confirm scope and deployment sequence in the Systems Blueprint Session.';
 
   // Fetch lead notes
   const leadNotesArr=(window._leadNotesCache||[]);
@@ -8080,11 +8154,15 @@ Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gol
 Font: 'Segoe UI', system-ui, -apple-system, sans-serif
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
-Service Tiers:
-• Night Launch — $1,497 (split: $749 x2) — High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions. No backend.
-• Night Build — $9,997 (split: $3,749 x2) — Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day post-launch support. Full-pay bonus: 30-min strategy call.
-• Night Build Pro — $14,997 (split: $7,499 x2) — Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
-• Workshop — $1,000 — 2-day, 4-hour hands-on workshop. Build your own app.
+The Offer Ecosystem — five offers, three-step journey. There are NO packages and NO tiers.
+Step 1 • Tech Discovery Call — free, 20–30 minutes. Fit and qualification only. Not a strategy session, does not promise a roadmap.
+Step 2 • Systems Blueprint Session — complimentary, by invitation for qualified organizations. Two working sessions of roughly 60 minutes each with architecture work in between. Produces the system architecture and its deployment sequence. The organization keeps the architecture whether or not Knight Ops builds it.
+Step 3 • One of:
+• Knight Ops AI Business OS — starting at $15,000. The intelligent business operating system itself, deployed progressively in layers. The client owns it outright: repository, Supabase project, Vercel project and domain all transferred, plus a written continuity brief naming a successor developer.
+• AI Business OS Continuity — starting at $1,000/month. Six months included from launch, then ongoing updates, feature requests, a quarterly feature push and a quarterly strategy session.
+• Fractional Chief AI Operations Officer — starting at $7,500/month. Embedded AI operations leadership that owns the strategy, architecture, deployment sequence and team adoption. Not an advisor — an owner.
+
+Scope and sequence are set in the Blueprint Session, never quoted off a price list.
 
 ${KO_LANGUAGE_RULES}
 
@@ -8425,11 +8503,15 @@ Core Promise: We architect the systems that carry your client's transformation, 
 Knight Ops Colors (fallback and accent use only): Background #0A0A0B, Accent Gold #C8A456, Surface #111113, Text #F5F5F5
 Email: team@knightops.biz | Site: knightops.biz | Book: https://knightops.biz/book
 
-Service Tiers:
-- Night Launch -- $1,497 (split: $749 x2) -- High-converting multi-page website. HTML/CSS/JS. Up to 5 pages. 2 revisions.
-- Night Build -- $9,997 (split: $3,749 x2) -- Full-stack web or mobile app. Auth, payments, CRM, APIs. 3 revisions. 5-day support. Full-pay bonus: 30-min strategy call.
-- Night Build Pro -- $14,997 (split: $7,499 x2) -- Everything in Night Build + iOS & Android App Store submission. Store assets, compliance review, 4 revisions. 7-day support. 1 free resubmission. Full-pay bonus: 45-min growth call.
-- Workshop -- $1,000 -- 2-day, 4-hour hands-on workshop. Build your own app.
+The Offer Ecosystem -- five offers, three-step journey. There are NO packages and NO tiers.
+Step 1 - Tech Discovery Call -- free, 20-30 minutes. Fit and qualification only. Not a strategy session, does not promise a roadmap.
+Step 2 - Systems Blueprint Session -- complimentary, by invitation for qualified organizations. Two working sessions of roughly 60 minutes each with architecture work in between. Produces the system architecture and its deployment sequence, which the organization keeps whether or not Knight Ops builds it.
+Step 3 - One of:
+- Knight Ops AI Business OS -- starting at $15,000. The intelligent business operating system, deployed progressively in layers. Client owns it outright: repository, Supabase project, Vercel project and domain all transferred, plus a written continuity brief naming a successor developer. Six months of Continuity included from launch.
+- AI Business OS Continuity -- starting at $1,000/month. Ongoing updates, feature requests, a quarterly feature push and a quarterly strategy session.
+- Fractional Chief AI Operations Officer -- starting at $7,500/month. Embedded AI operations leadership that owns the strategy, architecture, deployment sequence and team adoption. Not an advisor -- an owner.
+
+Scope and sequence are set in the Blueprint Session, never quoted off a price list.
 
 ${KO_LANGUAGE_RULES}
 
@@ -8606,10 +8688,10 @@ Produce every section below, numbered, in this order.
 24. FORCE MAJEURE.
 25. DISPUTE RESOLUTION — good-faith negotiation, then mediation, then binding arbitration or courts in ${state}.
 26. GENERAL PROVISIONS — entire agreement, amendments in writing, assignment, severability, notices, counterparts, and electronic signature validity.
-27. SIGNATURE BLOCK — name, title, signature, date for both parties, plus a separate initial line for the optional Continuity Plan election.
+27. SIGNATURE BLOCK — name, title, signature, date for both parties, plus a separate initial line for the optional AI Business OS Continuity election.
 28. EXHIBIT A — DELIVERABLES AND ACCEPTANCE CRITERIA (full table).
 29. EXHIBIT B — PAYMENT SCHEDULE (full table with dates and amounts).
-30. EXHIBIT C — SUPPORT AND CONTINUITY SUMMARY (side-by-side of Included Continuity versus the Continuity Plan).
+30. EXHIBIT C — SUPPORT AND CONTINUITY SUMMARY (side-by-side of Included Continuity versus AI Business OS Continuity).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUTS
@@ -8640,7 +8722,7 @@ function contractOptionsUI(key,onchange){
     '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Deposit / First Payment</div><input type="text" id="ctDeposit-'+key+'" placeholder="e.g. 50% on signature" '+s+' oninput="'+onchange+'"></div>'+
     '<div><div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Signature Method</div><select id="ctEsign-'+key+'" '+s+' onchange="'+onchange+'"><option>DocuSign</option><option>Stripe / contract link</option><option>PDF countersign</option></select></div>'+
     '<div style="display:flex;flex-direction:column;gap:6px;justify-content:flex-end">'+
-      '<label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="ctContinuity-'+key+'" style="width:auto" onchange="'+onchange+'"> Enrolling in $1,000/mo Continuity Plan</label>'+
+      '<label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="ctContinuity-'+key+'" style="width:auto" onchange="'+onchange+'"> Enrolling in AI Business OS Continuity ($1,000/mo)</label>'+
       '<label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="ctFractional-'+key+'" style="width:auto" onchange="'+onchange+'"> Fractional Chief AI Officer engagement</label>'+
     '</div>'+
   '</div>';
@@ -8671,7 +8753,7 @@ function contractPromptUI(key,isLead){
       '<h3 style="font-size:0.95rem;color:var(--accent);margin:0">&#128220; Contract Prompt</h3>'+
       '<button class="btn btn-sm btn-primary" onclick="copyContractPrompt(\''+key+'\','+(isLead?'true':'false')+')">&#128203; Copy Contract Prompt</button>'+
     '</div>'+
-    '<p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.9rem">Run this in the <b>same conversation</b> right after the proposal. It turns that exact proposal into a signature-ready agreement with deliverables, phase timelines, payment schedule, the 6 months of included continuity, and the optional $1,000/mo Continuity Plan.</p>'+
+    '<p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.9rem">Run this in the <b>same conversation</b> right after the proposal. It turns that exact proposal into a signature-ready agreement with deliverables, phase timelines, payment schedule, the 6 months of included continuity, and and optional AI Business OS Continuity from $1,000/mo.</p>'+
     contractOptionsUI(key,oc)+
     '<pre id="contractPreview-'+key+'" style="background:var(--surface-2);padding:1rem;border-radius:8px;font-size:0.78rem;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word;max-height:400px;overflow-y:auto;border:1px solid var(--border);line-height:1.5"></pre>'+
   '</div>';
@@ -9421,7 +9503,7 @@ function createProjectFromLead(leadId){
   if(l.budget_range)desc+='Budget: '+(l.budget_range||'').replace(/_/g,' ')+'\n';
   if(l.timeline)desc+='Timeline: '+(l.timeline||'').replace(/_/g,' ')+'\n';
   if(l.notes)desc+='\nNotes:\n'+l.notes;
-  const tier=['night_launch','night_build','night_build_pro','ai_marketing_machine','workshop','consulting_1on1','unicorn_universe','10x_mastermind'].includes(l.service_interest)?l.service_interest:'custom';
+  const tier=['ai_business_os','os_continuity','fractional_ai_ops','blueprint_session'].includes(l.service_interest)?l.service_interest:'custom';
   // Check if lead was converted to a client
   let clientId=null;
   if(l.profile_id){const c=S.clients.find(x=>x.profile_id===l.profile_id);if(c)clientId=c.id;}
@@ -9443,9 +9525,9 @@ async function createProjectFromApp(appId){
   const coreOutcome=a.bp_core_outcome||a.q4_core_outcome||'';
   const platform=a.bp_platform||a.q7_platform_type||'';
   const deployment=a.bp_deployment||a.q8_app_store_deploy||'';
-  const budgetMap={under_1500:1497,'1500_5000':3500,'5000_10000':9997,'10000_25000':14997,'25000_plus':25000,under_5k:3000,'5k_10k':9997,'10k_25k':14997,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
+  const budgetMap={under_1500:0,'1500_5000':0,'5000_10000':15000,'10000_25000':15000,'25000_plus':25000,under_5k:0,'5k_10k':15000,'10k_25k':15000,'25k_50k':25000,'50k_100k':75000,'100k_plus':100000};
   const val=budgetMap[a.budget]||0;
-  const tierMap={under_1500:'night_launch','1500_5000':'night_launch','5000_10000':'night_build','10000_25000':'night_build_pro','25000_plus':'night_build_pro',under_5k:'night_launch','5k_10k':'night_build','10k_25k':'night_build_pro','25k_50k':'night_build_pro','50k_100k':'night_build_pro','100k_plus':'night_build_pro'};
+  const tierMap={under_1500:'blueprint_session','1500_5000':'blueprint_session','5000_10000':'ai_business_os','10000_25000':'ai_business_os','25000_plus':'ai_business_os',under_5k:'blueprint_session','5k_10k':'ai_business_os','10k_25k':'ai_business_os','25k_50k':'ai_business_os','50k_100k':'ai_business_os','100k_plus':'ai_business_os'};
   const tier=tierMap[a.budget]||'custom';
 
   // Build comprehensive description from all application fields

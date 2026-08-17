@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-08-17c (Knowledge base, Obsidian and scheduled-task repositioning)
+
+- **Canonical positioning note created:** `Obsidian Data/Knight Ops/Knight-Ops-Positioning-2026.md` supersedes every earlier offer/pricing note. Five offers only, four canonical stats (`$200M+` impact · `50+` systems · `85%` time saved · `100%` code ownership), the six money claims that must never be merged, layer 0–9 architecture, four portal states, language rules. `Offers-and-Pricing.md` and both Offer-Architecture notes carry SUPERSEDED banners.
+- **Agent-facing sources repositioned:** `daniel-master-instructions.md`, both sales agent brains (with a `POSITIONING — READ FIRST` block prepended), all 6 `Knight Ops/SEO/` generation prompts, `Projects/KnightOps-Biz-Main-Site.md`, `content-system/README.md`, `Auto Deploy to Vercel.md` (now documents the `ko` helper + the never-overwrite-vercel.json rule).
+- **16 scheduled-task `SKILL.md` files** under `Claude Home/Claude/Scheduled/` repositioned — retired offers removed, stats corrected to the canonical four, coach-centric ICP → organizations, booking-link labels fixed (**`/book` = Tech Discovery Call, `/book-tech-call` = Systems Blueprint Session** — the inversion trips people up). Sweep verifies clean across all 91 tasks.
+- **35 AEO blog drafts flagged DO-NOT-PUBLISH** rather than bulk-rewritten (prices are prose-embedded; mechanical substitution breaks sentences). Historical per-client project logs and meeting records left intact deliberately — rewriting them would make the vault lie about what was actually sold.
+- **`blog.html`** meta description + author bio corrected (`~$100M in assets` now attributed to the wealth management firm, not Hertz). `tools.html` coach references → 0.
+
+---
+
 ## Changelog — 2026-08-17b (Progressive draft save on the Blueprint intake)
 
 - **`/mini-blueprint` now autosaves.** Client writes through the new **`intake-draft`** edge fn (v3, verify_jwt=false, service role, self-verifying by `draft_token`) — the browser no longer writes `intake_submissions` directly. Actions: `save` (upsert + recompute `completion_pct`), `resume`, `submit`, `email_link`. Debounced 1.5s on input, immediate on blur and step change, `draft_token` in `localStorage.ko_mb_draft`, resume via `?draft=<token>`. Free navigation between steps is preserved — **do not add blocking validation to `goTo()`**.

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Systems Audit — Knight Ops | Get Your Systems Score</title>
-<meta name="description" content="Take the free 2-minute AI Systems Audit. Get your personalized Systems Score, a gap analysis, and a custom plan of what to build and which tools to use. Built for coaches, consultants, and course creators.">
-<meta name="keywords" content="AI systems audit, business automation assessment, coaching business systems, consulting automation, scale your business, systems score">
+<meta name="description" content="Take the free 2-minute AI Systems Audit. Get your Systems Score, a gap analysis, and a plan of what to build and in what order. Built for organizations with employees, contractors and delivery teams.">
+<meta name="keywords" content="AI systems audit, business automation assessment, operations audit, business operating system assessment, scale your business, systems score">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <link rel="canonical" href="https://www.knightops.biz/audit">
 <meta property="og:type" content="website">
@@ -14,7 +14,7 @@
 <meta property="og:description" content="Free 2-minute audit. Get your Systems Score, gap analysis, and a custom build plan. No credit card. No sales call required.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AI Systems Audit — Knight Ops">
-<meta name="twitter:description" content="Free 2-minute assessment for coaches, consultants, and course creators. Get your Systems Score and custom plan instantly.">
+<meta name="twitter:description" content="Free 2-minute assessment for organizations with teams and real revenue. Get your Systems Score and deployment plan instantly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,7 +890,7 @@ body {
       tools: ['Dubsado or HoneyBook for a fast start', 'Typeform plus a Zapier or Make automation', 'A custom onboarding portal in your brand with no per-seat fees, the version that scales cleanly'],
       roiLabel: 'Time recovered per client onboarded',
       roiMultiplier: 0.12, // 12% of monthly revenue = onboarding overhead
-      roiServiceRec: 'Night Build',
+      roiServiceRec: 'Layer 3 — Client Onboarding & Delivery',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + ' are manually rebuilding the same experience every time a client signs. At your revenue level, that\'s ' + fmtDollar(Math.round(monthly * 0.12 / 500) * 500) + '/mo in owner time that should be running on autopilot.';
@@ -903,7 +903,7 @@ body {
       tools: ['Circle, Skool, or Kajabi to start fast', 'A custom client app you own outright, with no monthly per-member fees'],
       roiLabel: 'Retention improvement potential',
       roiMultiplier: 0.15,
-      roiServiceRec: 'Night Build Pro',
+      roiServiceRec: 'Layer 3 — Client Onboarding & Delivery',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + '\'s clients are experiencing a scattered journey. A branded portal typically improves retention by 20-35%. At your revenue level that\'s an estimated ' + fmtDollar(Math.round(monthly * 0.15 / 500) * 500) + '/mo in saved churn alone.';
@@ -916,7 +916,7 @@ body {
       tools: ['Map your offer ladder first: entry, core, premium', 'Ascension logic built into the portal so the next step appears automatically', 'Lifecycle email triggers tied to real client milestones'],
       roiLabel: 'Untapped LTV per client',
       roiMultiplier: 0.22,
-      roiServiceRec: 'AI Brain + Command Center',
+      roiServiceRec: 'Layer 4 — Client Ascension',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + ' has no automatic path to the next offer. A built-in ascension model typically lifts revenue per client by 25-40%. At your current volume that\'s ' + fmtDollar(Math.round(monthly * 0.22 / 500) * 500) + '/mo sitting unlocked.';
@@ -929,7 +929,7 @@ body {
       tools: ['Zapier or Make as the connective tissue', 'An AI assistant for tier-one support and FAQs', 'Custom automations and an AI agent for the workflows no off-the-shelf tool covers'],
       roiLabel: 'Admin hours reclaimed per month',
       roiMultiplier: 0.18,
-      roiServiceRec: 'Prospecting Automation Dashboard',
+      roiServiceRec: 'Layer 7 — Team & Operations',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + ' is spending hours every week on work that should be automated. Recovering that time at your hourly rate represents ' + fmtDollar(Math.round(monthly * 0.18 / 500) * 500) + '/mo in real margin.';
@@ -942,7 +942,7 @@ body {
       tools: ['A scored assessment or calculator as the magnet, you are using one right now', 'An email nurture sequence with tracked opens and clicks', 'Tracked landing pages so you know exactly what is working'],
       roiLabel: 'Pipeline value with a systematic lead engine',
       roiMultiplier: 0.25,
-      roiServiceRec: 'Speaker Lead Engine',
+      roiServiceRec: 'Layer 2 — Client Acquisition & Strategy',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + '\'s lead flow depends on luck and referrals. A built system that generates predictable leads at your current close rate would unlock ' + fmtDollar(Math.round(monthly * 0.25 / 500) * 500) + '/mo in pipeline.';
@@ -955,7 +955,7 @@ body {
       tools: ['SOPs and templates for every recurring delivery step', 'Automation for handoffs and status updates', 'A custom platform so delivery capacity is not limited by your hours'],
       roiLabel: 'Revenue capacity being left on the table',
       roiMultiplier: 0.30,
-      roiServiceRec: 'Night Build Pro',
+      roiServiceRec: 'Layer 5 — Growth Automation',
       roiNlpDesc: function(monthly, firstName) {
         var name = firstName ? firstName : 'You';
         return name + '\'s business can\'t handle rapid growth right now. Every new client you could have taken but didn\'t is real revenue lost. Fixing scale readiness unlocks an estimated ' + fmtDollar(Math.round(monthly * 0.30 / 500) * 500) + '/mo in untapped capacity.';
@@ -1249,7 +1249,7 @@ body {
     var rev = getRevenueRange(answers.q3);
     var monthlyRevenue = rev.mid / 12;
     var roi = calculateROI(normalizedScore, answers.q3, answers.q4, answers.q2);
-    var rec = normalizedScore < 30 ? 'Night Launch' : (normalizedScore <= 60 ? 'Night Build' : 'Night Build Pro');
+    var rec = normalizedScore < 30 ? 'Layer 1 — Foundation & Business Intelligence' : (normalizedScore <= 60 ? 'Layer 1, then the revenue-nearest layer' : 'Layer 1, then a multi-layer deployment sequence');
 
     // Fire full capture to Supabase
     try {
@@ -1373,7 +1373,7 @@ body {
     document.getElementById('rec-tier').textContent = 'Suggested starting point: ' + rec;
     var nameStr = firstName ? firstName + ', you' : 'You';
     document.getElementById('rec-description').textContent =
-      nameStr + ' don\'t have to build all of this at once, and you shouldn\'t. The fastest way to know exactly where to start, and in what order, is a free strategy call where Daniel maps your specific plan against this score. No pitch — just the plan. You keep it either way.';
+      nameStr + ' don\'t have to build all of this at once, and you shouldn\'t. The fastest way to know exactly where to start, and in what order, is a Tech Discovery Call where Daniel maps your specific plan against this score. No pitch — just the plan. You keep it either way.';
 
     document.getElementById('social-proof').style.display = 'block';
   }
