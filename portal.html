@@ -283,6 +283,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1)}
         <div class="card-body" id="overviewEvents"></div>
       </div>
     </div>
+    <div class="card" style="margin-top:1.5rem" id="osCard" hidden>
+      <div class="card-head"><h3>&#129518; Your AI Business OS</h3><span id="osSummary" style="font-size:.8rem;color:var(--text-muted)"></span></div>
+      <div class="card-body" id="osBody"><div class="empty">Loading…</div></div>
+    </div>
     <div class="card" style="margin-top:1.5rem">
       <div class="card-head"><h3>&#128737; Ownership &amp; Continuity</h3></div>
       <div class="card-body" id="ownershipBody"><div class="empty">Loading…</div></div>
@@ -528,6 +532,7 @@ function setupNav(){
 }
 
 // ── Utilities ──
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt$(n){return n?'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:0}):'$0'}
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
 function statusBadge(s){
@@ -643,6 +648,74 @@ async function loadOverview(){
   }
 
   loadOwnership(projects||[]);
+  loadOsModules();
+}
+
+// ── Your AI Business OS ─────────────────────────────────────────────────────
+// Four states and nothing else: Live · In build · Scheduled · Not in scope.
+// State is DERIVED from commits and deployments by the module-scan function —
+// it is never typed by hand, so what this shows is evidence, not a claim.
+// Internal notes, hours and costs are not granted to this role and must never
+// be rendered here.
+const OS_STATES={
+  live:        {label:'Live',         cls:'badge-success', order:0},
+  in_build:    {label:'In build',     cls:'badge-gold',    order:1},
+  scheduled:   {label:'Scheduled',    cls:'badge-info',    order:2},
+  not_in_scope:{label:'Not in scope', cls:'badge-warning', order:3}
+};
+const OS_LAYERS={
+  0:'Engagement Foundation',1:'Foundation & Business Intelligence',2:'Client Acquisition & Strategy',
+  3:'Client Onboarding & Delivery',4:'Client Ascension',5:'Growth Automation',
+  6:'AI Business Brain & Agents',7:'Team & Operations',8:'Specialized Experiences & Integrations',9:'Continuity'
+};
+
+async function loadOsModules(){
+  const card=document.getElementById('osCard'),el=document.getElementById('osBody');
+  if(!card||!el||!clientId)return;
+  const{data,error}=await sb.from('client_modules')
+    .select('id,state,excluded_reason,sequence_position,commit_url,deployment_id,live_at,os_modules(layer,name,client_description,sort)')
+    .eq('client_id',clientId);
+  // Nothing scoped yet is not an error — the card simply stays hidden until the
+  // Blueprint Session has set the layer sequence.
+  if(error||!data||!data.length){card.hidden=true;return}
+  card.hidden=false;
+
+  const live=data.filter(r=>r.state==='live').length;
+  const inScope=data.filter(r=>r.state!=='not_in_scope').length;
+  document.getElementById('osSummary').textContent=`${live} of ${inScope} modules live`;
+
+  const layers={};
+  data.forEach(r=>{const L=r.os_modules?.layer??0;(layers[L]=layers[L]||[]).push(r)});
+
+  let h='<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem">Your operating system is deployed in layers, in the sequence set during your Blueprint Session. Each layer goes live as it is finished — you never wait for the whole build.</p>';
+  Object.keys(layers).map(Number).sort((a,b)=>a-b).forEach(L=>{
+    const rows=layers[L].sort((a,b)=>
+      (OS_STATES[a.state]?.order??9)-(OS_STATES[b.state]?.order??9)
+      ||(a.sequence_position??999)-(b.sequence_position??999)
+      ||(a.os_modules?.sort??0)-(b.os_modules?.sort??0));
+    h+=`<div style="margin-bottom:1.25rem">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:.5rem">Layer ${L} — ${OS_LAYERS[L]||'Modules'}</div>`;
+    rows.forEach(r=>{
+      const st=OS_STATES[r.state]||OS_STATES.scheduled;
+      const m=r.os_modules||{};
+      let links='';
+      if(r.state==='live'){
+        // Live means the code exists AND the deployment is READY. Show the proof.
+        if(r.commit_url)links+=` <a href="${r.commit_url}" target="_blank" rel="noopener" style="color:var(--accent);font-size:.75rem;text-decoration:none">code &rarr;</a>`;
+        if(r.deployment_id)links+=` <a href="https://vercel.com/deployments/${encodeURIComponent(r.deployment_id)}" target="_blank" rel="noopener" style="color:var(--accent);font-size:.75rem;text-decoration:none">deployment &rarr;</a>`;
+      }
+      h+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:9px 0;border-bottom:1px solid var(--border-subtle)">
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.9rem">${escHtml(m.name||'Module')}</div>
+          ${m.client_description?`<div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${escHtml(m.client_description)}</div>`:''}
+          ${r.state==='not_in_scope'&&r.excluded_reason?`<div style="font-size:.78rem;color:var(--warning);margin-top:4px">Why not: ${escHtml(r.excluded_reason)}</div>`:''}
+        </div>
+        <div style="white-space:nowrap;text-align:right"><span class="badge ${st.cls}">${st.label}</span>${links}</div>
+      </div>`;
+    });
+    h+='</div>';
+  });
+  el.innerHTML=h;
 }
 
 // ── Ownership & Continuity (authenticated codebase export) ──

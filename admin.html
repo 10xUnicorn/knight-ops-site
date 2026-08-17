@@ -3352,6 +3352,7 @@ async function showProjectDetail(id){
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">➕ Add a Module (injection prompt)</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Generate a project-tailored prompt to inject any module into this client\'s existing dashboard, wired into everything already built. Paste it into Claude Code.</p><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.55rem"><select id="miMod_'+id+'" style="flex:1;min-width:170px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:.82rem"><option value="">Loading…</option></select><button class="btn btn-sm btn-primary" onclick="genModuleInjection(\''+id+'\')">Generate</button></div><input id="miNotes_'+id+'" placeholder="Optional specifics (else it assumes best from project data)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.82rem;margin-bottom:.5rem"><div id="miOut_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #4CAF50"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🛡 Continuity &amp; Ownership</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">The client-facing ownership record: infrastructure, env keys, team, resources, and the continuity brief. Everything here feeds the client hub\'s Ownership tab.</p><div id="projContinuity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
+  '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #7C5CFF"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">&#129513; AI Business OS Modules</h3><div style="display:flex;gap:6px"><button class="btn btn-sm btn-secondary" style="font-size:.72rem" onclick="osScopeWalk(\''+id+'\')">Scope every layer</button><button class="btn btn-sm btn-secondary" style="font-size:.72rem" onclick="osBuildPrompt(\''+id+'\')">&#129302; Build prompt</button><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="osRescan(\''+id+'\')">&#128260; Rescan</button></div></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem;line-height:1.55">Progress is derived from evidence, never typed. <b>Rescan</b> matches the repo tree against each module\'s path globs and only calls a module <b>Live</b> when the code exists <i>and</i> production is READY. <b>Not in scope</b> is the one state a human sets, and it requires a reason &mdash; the client reads it in their portal.</p><div id="osModules_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div><div id="osPrompt_'+id+'"></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Permanent Client Links</h3></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Permanent links to send the client: bugs &amp; features, files, an <b>all-in-one hub</b>, credentials &amp; access, proposal &amp; invoices, and portal access. They never expire unless you set an expiry or revoke. Hit <b>📧 Draft email</b> on any link to send it from daniel@knightops.biz.</p><div id="projLinks_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔧 Recent Fixes &amp; Builds</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Auto-fixed bugs and built features, newest first, with commit links.</p><div id="projActivity_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">✨ Feature Requests</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Approve → builds in Claude Code (you can add build details on approve). Or request revisions with notes.</p><div id="projFeatures_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
@@ -3374,6 +3375,7 @@ async function showProjectDetail(id){
   loadProjectLinks(id);
   loadBuildTarget(id);
   loadProjContinuity(id);
+  loadOsModuleAdmin(id);
   loadModuleInjector(id);
   loadProjectActivity(id);
   loadProjectFeatures(id);
@@ -4697,6 +4699,250 @@ async function loadBuildTarget(id){
     +rowset('Working folder (Mac)',folder,'No build folder yet — set once a build exists','',null)
     +'</div>';
 }
+// ─── AI Business OS modules (project detail) ───
+// Four states, nothing else. Three of them are DERIVED by module-scan from the
+// repo tree and the production deployment. `not_in_scope` is the only state a
+// human sets by hand, and the DB CHECK refuses it without a reason — because
+// the client reads that reason in their portal, so it has to be a real sentence.
+var OSA_LAYERS={0:'Engagement Foundation',1:'Foundation & Business Intelligence',2:'Client Acquisition & Strategy',3:'Client Onboarding & Delivery',4:'Client Ascension',5:'Growth Automation',6:'AI Business Brain & Agents',7:'Team & Operations',8:'Specialized Experiences & Integrations',9:'Continuity'};
+var OSA_STATES=[['live','Live'],['in_build','In build'],['scheduled','Scheduled'],['not_in_scope','Not in scope']];
+var OSA_COLORS={live:'#22C55E',in_build:'#C9922A',scheduled:'#6B7280',not_in_scope:'#3F3F46'};
+var _osWalk={};
+var _osRows={};
+
+// Admin reads go through ko_os_project_modules(), a SECURITY DEFINER function.
+// RLS filters rows, not columns — internal_notes, injection_spec, github_path_glob
+// and build_error are deliberately NOT granted to `authenticated`, so a direct
+// select of them would be denied for admin and client alike. The definer function
+// re-checks is_admin() and is the only read path that returns them.
+async function loadOsModuleAdmin(id){
+  var el=document.getElementById('osModules_'+id); if(!el) return;
+  var out=document.getElementById('osPrompt_'+id); if(out) out.innerHTML='';
+  var rows=[];
+  try{
+    var q=await sb.rpc('ko_os_project_modules',{p_project:id});
+    if(q.error) throw new Error(q.error.message);
+    rows=q.data||[];
+  }
+  catch(e){ el.innerHTML='<p style="color:#ef4444;font-size:.8rem">Could not load modules: '+esc(String(e&&e.message||e))+'</p>'; return; }
+  if(!rows.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">No modules scoped yet. Hit <b>Scope every layer</b> — the walk shows all ten layers so nothing gets left out by accident.</p>'; return; }
+  _osRows[id]=rows;
+  var live=rows.filter(function(r){return r.state==='live';}).length;
+  var inScope=rows.filter(function(r){return r.state!=='not_in_scope';}).length;
+  var html='<div style="font-size:.79rem;color:var(--text-muted);margin-bottom:.55rem"><b style="color:var(--accent)">'+live+' of '+inScope+'</b> modules live'+(rows.length-inScope?' · '+(rows.length-inScope)+' out of scope':'')+'</div>';
+  var curLayer=null;
+  rows.forEach(function(r){
+    var m={name:r.mod_name,key:r.mod_key,layer:r.layer,sort:r.sort};
+    if(m.layer!==curLayer){ curLayer=m.layer; html+='<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);margin:.85rem 0 .3rem;border-bottom:1px solid var(--border);padding-bottom:3px">Layer '+curLayer+' &mdash; '+esc(OSA_LAYERS[curLayer]||'')+'</div>'; }
+    var opts=OSA_STATES.map(function(s){return '<option value="'+s[0]+'"'+(r.state===s[0]?' selected':'')+'>'+s[1]+'</option>';}).join('');
+    html+='<div style="display:flex;gap:8px;align-items:center;padding:6px 0 6px 9px;flex-wrap:wrap;border-left:3px solid '+(OSA_COLORS[r.state]||'#6B7280')+';margin-bottom:3px">'
+      +'<div style="flex:1;min-width:180px"><div style="font-size:.84rem;font-weight:600">'+esc(m.name||m.key||'')+'</div>'
+      +(r.excluded_reason?'<div style="font-size:.71rem;color:var(--text-muted)">Why not: '+esc(r.excluded_reason)+'</div>':'')
+      +(r.commit_url?'<a href="'+esc(r.commit_url)+'" target="_blank" style="font-size:.7rem;color:var(--accent)">commit &rarr;</a>':'')
+      +(r.internal_notes?'<div style="font-size:.71rem;color:var(--text-muted)">Internal: '+esc(r.internal_notes)+'</div>':'')
+      +(r.build_error?'<div style="font-size:.71rem;color:#ef4444">Build blocked: '+esc(r.build_error)+' ('+(r.build_attempts||0)+' attempts)</div>':'')
+      +'</div>'
+      +'<input type="number" min="1" value="'+(r.sequence_position||'')+'" title="Sequence position" onchange="osSetSeq(\''+r.id+'\',\''+id+'\',this.value)" style="width:56px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 6px;font-size:.76rem">'
+      +'<select onchange="osSetState(\''+r.id+'\',\''+id+'\',this.value)" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 7px;font-size:.76rem">'+opts+'</select>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+async function osSetState(rowId,projectId,state){
+  var patch={state:state,updated_at:new Date().toISOString()};
+  if(state==='not_in_scope'){
+    var reason=prompt('Why is this module not in scope?\n\nThe client reads this sentence in their portal, so write it for them.');
+    if(!reason||!reason.trim()){ showToast('A reason is required to exclude a module','error'); return loadOsModuleAdmin(projectId); }
+    patch.excluded_reason=reason.trim();
+  } else { patch.excluded_reason=null; }
+  if(state==='live') patch.live_at=new Date().toISOString();
+  if(state==='in_build') patch.started_at=new Date().toISOString();
+  var r=await sb.from('client_modules').update(patch).eq('id',rowId);
+  if(r.error) showToast(r.error.message,'error'); else showToast('Module updated','success');
+  loadOsModuleAdmin(projectId);
+}
+
+async function osSetSeq(rowId,projectId,val){
+  var n=parseInt(val,10);
+  var r=await sb.from('client_modules').update({sequence_position:isNaN(n)?null:n,updated_at:new Date().toISOString()}).eq('id',rowId);
+  if(r.error) showToast(r.error.message,'error');
+  loadOsModuleAdmin(projectId);
+}
+
+// Evidence beats assertion: re-derive state from the repo tree + production deploy.
+async function osRescan(projectId){
+  showToast('Scanning the repo for evidence…','info');
+  try{
+    var s=(await sb.auth.getSession()).data.session;
+    if(!s){ showToast('Session expired — sign in again','error'); return; }
+    var r=await fetch(SUPABASE_URL+'/functions/v1/module-scan',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+s.access_token},body:JSON.stringify({project_id:projectId})});
+    var j=await r.json().catch(function(){return {ok:false,reason:'bad response'};});
+    if(!j.ok){ showToast('Scan failed: '+(j.error||j.reason||'unknown'),'error'); return; }
+    showToast('Scanned '+j.scanned+' modules · '+j.changed+' changed','success');
+    loadOsModuleAdmin(projectId);
+  }catch(e){ showToast(String(e),'error'); }
+}
+
+// The scoping walk shows EVERY layer, always. A module left out has to be left
+// out on purpose, with a reason — never by forgetting the layer existed.
+async function osScopeWalk(projectId){
+  var el=document.getElementById('osModules_'+projectId); if(!el) return;
+  el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Loading the full catalog…</p>';
+  var mods=[],existing=[],proj={};
+  try{
+    // default_included / default_sequence are internal columns, so the catalog also
+    // comes from a definer function rather than a direct select.
+    var qc=await sb.rpc('ko_os_catalog'); if(qc.error) throw new Error(qc.error.message);
+    mods=(qc.data||[]).filter(function(m){return m.active!==false;});
+    existing=(await sb.from('client_modules').select('id,module_id,state,excluded_reason,sequence_position').eq('project_id',projectId)).data||[];
+    proj=(await sb.from('projects').select('client_id').eq('id',projectId).maybeSingle()).data||{};
+  }catch(e){ el.innerHTML='<p style="color:#ef4444;font-size:.8rem">'+esc(String(e&&e.message||e))+'</p>'; return; }
+  if(!proj.client_id){ el.innerHTML='<p style="color:#ef4444;font-size:.82rem">This project has no linked client. Modules belong to a client — link one first.</p><button class="btn btn-sm btn-secondary" style="margin-top:.5rem" onclick="loadOsModuleAdmin(\''+projectId+'\')">Back</button>'; return; }
+  var byMod={}; existing.forEach(function(e){ byMod[e.module_id]=e; });
+  _osWalk[projectId]={client_id:proj.client_id,mods:mods,existing:byMod};
+  var html='<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.75rem;font-size:.75rem;color:var(--text-muted);line-height:1.6">Walk <b>every</b> layer. Layer 1 always ships first &mdash; data before decisions; every scoping choice in layers 2&ndash;8 is guesswork until the client can see their own numbers. The revenue-nearest layer goes second. The layers are a <b>checklist, not a queue</b>: reorder deliberately, never skip silently. Anything you uncheck needs a reason the client will read.</div>';
+  var curLayer=null;
+  mods.forEach(function(m){
+    var e=byMod[m.id];
+    var included=e?(e.state!=='not_in_scope'):!!m.default_included;
+    var reason=e?(e.excluded_reason||''):'';
+    var seq=e?(e.sequence_position||''):(m.default_sequence||'');
+    if(m.layer!==curLayer){ curLayer=m.layer; html+='<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:.9rem 0 .35rem;border-bottom:1px solid var(--border);padding-bottom:3px">Layer '+curLayer+' &mdash; '+esc(OSA_LAYERS[curLayer]||'')+(curLayer===1?' <span style="color:var(--text-muted);text-transform:none;letter-spacing:0">· always first</span>':'')+'</div>'; }
+    html+='<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      +'<input type="checkbox" id="osw_'+m.id+'" '+(included?'checked':'')+' onchange="osWalkToggle(\''+m.id+'\')" style="width:15px;height:15px;accent-color:#7C5CFF">'
+      +'<label for="osw_'+m.id+'" style="flex:1;min-width:180px;font-size:.83rem;font-weight:600;cursor:pointer">'+esc(m.name||m.key)+'</label>'
+      +'<input type="number" min="1" id="osws_'+m.id+'" value="'+seq+'" title="Sequence position" style="width:56px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 6px;font-size:.76rem">'
+      +'</div>'
+      +(m.client_description?'<div style="font-size:.72rem;color:var(--text-muted);margin-left:23px">'+esc(m.client_description)+'</div>':'')
+      +'<input id="oswr_'+m.id+'" value="'+esc(reason).replace(/"/g,'&quot;')+'" placeholder="Why is this not in scope? (the client reads this)" style="display:'+(included?'none':'block')+';width:calc(100% - 23px);margin:5px 0 3px 23px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:.76rem">'
+      +'</div>';
+  });
+  html+='<div style="display:flex;gap:8px;margin-top:1rem"><button class="btn btn-sm btn-primary" onclick="osWalkSave(\''+projectId+'\')">Save scope</button><button class="btn btn-sm btn-secondary" onclick="loadOsModuleAdmin(\''+projectId+'\')">Cancel</button></div>';
+  el.innerHTML=html;
+}
+
+function osWalkToggle(modId){
+  var cb=document.getElementById('osw_'+modId),r=document.getElementById('oswr_'+modId);
+  if(cb&&r) r.style.display=cb.checked?'none':'block';
+}
+
+async function osWalkSave(projectId){
+  var w=_osWalk[projectId]; if(!w) return;
+  var rows=[],missing=[];
+  w.mods.forEach(function(m){
+    var cb=document.getElementById('osw_'+m.id); if(!cb) return;
+    var included=cb.checked;
+    var reason=(document.getElementById('oswr_'+m.id)||{}).value||'';
+    var seq=parseInt((document.getElementById('osws_'+m.id)||{}).value,10);
+    var prev=w.existing[m.id];
+    if(!included&&!reason.trim()){ missing.push(m.name||m.key); return; }
+    // Never clobber a derived state. Only the exclusion decision is ours.
+    var state=included?((prev&&prev.state!=='not_in_scope')?prev.state:'scheduled'):'not_in_scope';
+    rows.push({client_id:w.client_id,project_id:projectId,module_id:m.id,state:state,excluded_reason:included?null:reason.trim(),sequence_position:isNaN(seq)?null:seq,updated_at:new Date().toISOString()});
+  });
+  if(missing.length){ showToast('Needs a reason: '+missing.slice(0,3).join(', ')+(missing.length>3?' +'+(missing.length-3)+' more':''),'error'); return; }
+  var r=await sb.from('client_modules').upsert(rows,{onConflict:'client_id,module_id'});
+  if(r.error){ showToast(r.error.message,'error'); return; }
+  showToast('Scope saved — '+rows.length+' modules','success');
+  loadOsModuleAdmin(projectId);
+}
+
+// The build prompt is a DEPLOYMENT SEQUENCE, not a feature list. It carries each
+// module's injection_spec, states plainly what is already live, and ends with the
+// only sanctioned write path — report-completion. Raw PATCH/SQL from a build is
+// blocked by RLS and has caused infinite rebuild loops before (2026-07-03b).
+async function osBuildPrompt(projectId){
+  var out=document.getElementById('osPrompt_'+projectId); if(!out) return;
+  out.innerHTML='<p style="color:var(--text-muted);font-size:.8rem;margin-top:.6rem">Assembling the deployment sequence…</p>';
+  var rows=_osRows[projectId]||[],proj={},client={};
+  try{
+    if(!rows.length){ var q=await sb.rpc('ko_os_project_modules',{p_project:projectId}); if(q.error) throw new Error(q.error.message); rows=q.data||[]; _osRows[projectId]=rows; }
+    proj=(await sb.from('projects').select('name,client_id,repo_url,repo_subpath,build_folder,vercel_project_id,deploy_cmd,supabase_ref').eq('id',projectId).maybeSingle()).data||{};
+    if(proj.client_id) client=(await sb.from('clients').select('name,company').eq('id',proj.client_id).maybeSingle()).data||{};
+  }catch(e){ out.innerHTML='<p style="color:#ef4444;font-size:.8rem">'+esc(String(e&&e.message||e))+'</p>'; return; }
+  if(!rows.length){ out.innerHTML='<p style="color:var(--text-muted);font-size:.8rem;margin-top:.6rem">Scope the layers first — there is nothing to sequence yet.</p>'; return; }
+
+  var live=rows.filter(function(r){return r.state==='live';});
+  var queue=rows.filter(function(r){return r.state==='in_build'||r.state==='scheduled';});
+  var out_=rows.filter(function(r){return r.state==='not_in_scope';});
+  var folder=proj.build_folder||('/Users/danknightunicorn/Claude Home/Claude/AutoBuilds/'+String(proj.name||projectId).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));
+  var who=client.company||client.name||proj.name||'this client';
+  var L=[];
+  L.push('# AI Business OS — build sequence for '+who);
+  L.push('');
+  L.push('You are building one layer of an intelligent business operating system that **the client owns outright**. This is not a feature backlog. It is a deployment sequence, and the order is a decision that was already made — respect it.');
+  L.push('');
+  L.push('## Build target');
+  L.push('- Working folder: `'+folder+'`');
+  L.push('- Repo: '+(proj.repo_url||'_none linked — set projects.repo_url before building_')+(proj.repo_subpath?(' (subpath `'+proj.repo_subpath+'`)'):''));
+  L.push('- Vercel project: '+(proj.vercel_project_id||'_not linked_'));
+  L.push('- Supabase project: '+(proj.supabase_ref||'_not linked_'));
+  L.push('- Deploy: '+(proj.deploy_cmd||'git push to the default branch; Vercel auto-deploys'));
+  L.push('');
+  L.push('## Sequencing rules — these are not negotiable');
+  L.push('1. **Layer 1 always ships first.** Data before decisions: every scoping choice in layers 2–8 is guesswork until the client can see their own numbers.');
+  L.push('2. The revenue-nearest layer goes second.');
+  L.push('3. **The layers are a checklist, not a queue.** Reorder deliberately and record the reason. Never skip silently.');
+  L.push('4. Each module goes live on its own. Never hold finished work back for a big-bang release — the client sees functional value throughout the build, never an empty handoff.');
+  L.push('5. **Progress is derived, not typed.** A module is only Live when its code exists in the repo AND production is READY. Do not mark anything done by hand.');
+  L.push('');
+  if(live.length){
+    L.push('## Already live — do not rebuild');
+    live.forEach(function(r){ L.push('- Layer '+r.layer+' · '+(r.mod_name||r.mod_key)+(r.commit_url?(' — '+r.commit_url):'')); });
+    L.push('');
+  }
+  L.push('## Build these, in this order');
+  L.push('');
+  if(!queue.length) L.push('_Nothing queued. Every in-scope module is live._');
+  queue.forEach(function(r,i){
+    L.push('### '+(i+1)+'. '+(r.mod_name||r.mod_key)+'  ·  Layer '+r.layer+' — '+(OSA_LAYERS[r.layer]||''));
+    L.push('- Module row id: `'+r.id+'`  (use this in the commit marker and the completion call)');
+    L.push('- Sequence position: '+(r.sequence_position==null?'unset':r.sequence_position)+'  ·  Current state: '+r.state);
+    if(r.client_description) L.push('- What the client was told this does: '+r.client_description);
+    if(Array.isArray(r.github_path_glob)&&r.github_path_glob.length) L.push('- Evidence paths (the scanner looks here, so build here): `'+r.github_path_glob.join('`, `')+'`');
+    if(r.internal_notes) L.push('- Internal notes: '+r.internal_notes);
+    if(r.build_error) L.push('- ⚠ Previous build blocked: '+r.build_error+' ('+(r.build_attempts||0)+' attempts). Diagnose before retrying.');
+    L.push('');
+    L.push(r.injection_spec?r.injection_spec:'_No injection spec on this module yet. Build it from the layer intent and the client description above, then write the spec back into `os_modules.injection_spec` so the next client inherits it._');
+    L.push('');
+    L.push('**Commit marker for this module (required):** `[ko-module:'+r.id+']`');
+    L.push('');
+    L.push('---');
+    L.push('');
+  });
+  if(out_.length){
+    L.push('## Deliberately out of scope — do NOT build these');
+    out_.forEach(function(r){ L.push('- Layer '+r.layer+' · '+(r.mod_name||r.mod_key)+' — '+(r.excluded_reason||'no reason recorded')); });
+    L.push('');
+    L.push('If you believe one of these is now needed, say so. Do not build it silently.');
+    L.push('');
+  }
+  L.push('## When a module is done');
+  L.push('');
+  L.push('Commit with the marker, push, wait for the Vercel deployment to reach READY, then report completion. **Never PATCH `client_modules` or run raw SQL** — RLS blocks direct writes and a build that fakes the status creates an infinite rebuild loop.');
+  L.push('');
+  L.push('```bash');
+  L.push('curl -s -X POST "'+SUPABASE_URL+'/functions/v1/report-completion" \\');
+  L.push('  -H "Content-Type: application/json" \\');
+  L.push('  -H "apikey: '+SUPABASE_ANON_KEY+'" \\');
+  L.push('  -d \'{"kind":"module","id":"<module row id>","summary":"what shipped, in plain language","commit_url":"<commit url>","deployment_id":"<vercel deployment id>"}\'');
+  L.push('```');
+  L.push('');
+  L.push('Then run the scan so the client portal reflects evidence rather than a claim:');
+  L.push('');
+  L.push('```bash');
+  L.push('curl -s -X POST "'+SUPABASE_URL+'/functions/v1/module-scan" \\');
+  L.push('  -H "Content-Type: application/json" -H "apikey: '+SUPABASE_ANON_KEY+'" \\');
+  L.push('  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \\');
+  L.push('  -d \'{"project_id":"'+projectId+'"}\'');
+  L.push('```');
+  var md=L.join('\n');
+  window._osPromptLast=window._osPromptLast||{}; window._osPromptLast[projectId]=md;
+  out.innerHTML='<div style="display:flex;gap:6px;margin:.7rem 0 .5rem"><button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(window._osPromptLast[\''+projectId+'\']);showToast(\'Build sequence copied\')">📋 Copy</button><button class="btn btn-sm btn-secondary" onclick="dlText(\'os-build-sequence.md\',window._osPromptLast[\''+projectId+'\'])">⬇ Download .md</button><span style="font-size:.72rem;color:var(--text-muted);align-self:center">'+queue.length+' queued · '+live.length+' live · '+out_.length+' out of scope</span></div><textarea readonly style="width:100%;min-height:260px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-family:ui-monospace,monospace;font-size:.72rem">'+esc(md)+'</textarea>';
+}
+
 // ─── Continuity & Ownership card (project detail) ───
 var _envMan={};
 var COMPLIANCE_TIERS=['standard','hipaa','soc2','iso27001'];
