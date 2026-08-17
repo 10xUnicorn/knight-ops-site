@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-08-17b (Progressive draft save on the Blueprint intake)
+
+- **`/mini-blueprint` now autosaves.** Client writes through the new **`intake-draft`** edge fn (v3, verify_jwt=false, service role, self-verifying by `draft_token`) — the browser no longer writes `intake_submissions` directly. Actions: `save` (upsert + recompute `completion_pct`), `resume`, `submit`, `email_link`. Debounced 1.5s on input, immediate on blur and step change, `draft_token` in `localStorage.ko_mb_draft`, resume via `?draft=<token>`. Free navigation between steps is preserved — **do not add blocking validation to `goTo()`**.
+- **Draft state lives in `submission_state`, NOT `status`.** `intake_submissions.status` is the ADMIN WORKFLOW enum (`new|reviewed|contacted|proposal_sent|converted|archived`, enforced by `intake_submissions_status_check`). Writing draft state into `status` would overwrite pipeline position. Pre-existing rows have a null `submission_state` and read as submitted.
+- **The lead is created only on submit.** Flipping `submission_state` draft→submitted is what fires `fn_sync_intake_to_lead` + `trigger_new_intake_notification`. The edge fn must never create the lead itself or every submission duplicates. Verified live: one intake → 1 inbound lead, 1 deal, **0 prospect-typed rows** (Rule 2 clean).
+- **Admin → Forms & Surveys is draft-aware:** `Draft` badge, `Progress` column with idle-days, "Drafts In Progress" stat card + drafts-only filter, a detail banner stating plainly that no lead was created and nothing was sent, "📧 Email them a resume link" (`email_link` returns `{ok:true,skipped:'throttled'|'submitted'}` — 1h throttle), and `fsArchiveStaleDrafts()` for drafts idle 14+ days.
+- **Verified** with jsdom against production: autosave badge Not saved→Saved, full field restore on a fresh DOM from `?draft=`, submit → success screen + localStorage cleared, zero window errors; test rows removed (intakes back to 63, inbound leads 185).
+
+---
+
 ## Changelog — 2026-08-15e (Email bug, dedupe, invite search, rate ladder)
 
 - **PARTNER WELCOME EMAIL WAS BROKEN AND HAD BEEN FOR A LONG TIME.** `partnerWelcomeEmail()` built its commission line with string concatenation **inside a template literal**, so every welcome email literally printed `' + d.commission_rate + '%`. It also said commissions were "paid via PayPal". Now renders the real rate pulled from `system_settings.commissions` and describes the Stripe/15th-of-next-month flow. If you edit these templates, note the file mixes `${}` and `'+ +'` styles — concatenation only works inside `${...}` arguments, never in the literal body.

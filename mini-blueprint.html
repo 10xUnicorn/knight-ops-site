@@ -88,6 +88,13 @@ select option{background:var(--surface);color:var(--text)}
 .btn-submit{background:var(--gold);color:var(--bg);width:100%;padding:14px;font-size:15px}.btn-submit:hover{background:var(--gold-hover)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
+/* SAVE BADGE */
+.save-badge{position:fixed;bottom:24px;left:24px;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:200;opacity:0;transform:translateY(12px);transition:all .2s;pointer-events:none;border:1px solid var(--border);background:rgba(17,17,19,.95);backdrop-filter:blur(12px);color:var(--muted)}
+.save-badge.show{opacity:1;transform:translateY(0)}
+.save-badge.unsaved{color:var(--gold);border-color:rgba(200,164,86,.35)}
+.save-badge.saving{color:var(--muted)}
+.save-badge.saved{color:var(--green);border-color:rgba(34,197,94,.35)}
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;z-index:200;transform:translateY(80px);opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
@@ -357,6 +364,7 @@ select option{background:var(--surface);color:var(--text)}
   </div>
 </main>
 
+<div class="save-badge" id="saveBadge"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -449,20 +457,115 @@ select option{background:var(--surface);color:var(--text)}
     return d;
   }
 
-  // Supabase POST helper
-  async function sbPost(table,body){
-    const res=await fetch(SB_URL+'/rest/v1/'+table,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'apikey':SB_KEY,
-        'Authorization':'Bearer '+SB_KEY,
-        'Prefer':'return=minimal'
-      },
-      body:JSON.stringify(body)
-    });
-    if(!res.ok){const t=await res.text();throw new Error(t);}
+  // ─── Progressive draft save ────────────────────────────────────────────────
+  // Every write goes through the intake-draft edge function (service role).
+  // The browser never writes intake_submissions or leads directly, and a draft
+  // NEVER creates a lead — only submitting does.
+  const FN=SB_URL+'/functions/v1/intake-draft';
+  const LS_KEY='ko_mb_draft';
+  const badge=document.getElementById('saveBadge');
+  let draftToken=null;
+  let saveTimer=null;
+  let saving=false;
+  let dirty=false;
+
+  function setBadge(state){
+    if(!badge)return;
+    const map={idle:['',''],unsaved:['unsaved','Not saved'],saving:['saving','Saving…'],saved:['saved','Saved']};
+    const [cls,txt]=map[state]||map.idle;
+    badge.className='save-badge '+cls+(txt?' show':'');
+    badge.textContent=txt;
   }
+
+  async function callFn(action,payload){
+    const res=await fetch(FN,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+      body:JSON.stringify(Object.assign({action:action,draft_token:draftToken||undefined},payload||{}))
+    });
+    const out=await res.json().catch(()=>({ok:false,error:'bad_response'}));
+    if(!out.ok)throw new Error(out.error||'request_failed');
+    return out;
+  }
+
+  async function saveDraft(){
+    if(saving)return;
+    const d=getData();
+    if(!d.first_name && !d.email){setBadge('idle');return;}
+    saving=true;dirty=false;setBadge('saving');
+    try{
+      const out=await callFn('save',{data:d});
+      if(out.draft_token){
+        draftToken=out.draft_token;
+        try{localStorage.setItem(LS_KEY,draftToken);}catch(_){}
+      }
+      setBadge(dirty?'unsaved':'saved');
+    }catch(err){
+      console.error('draft save failed',err);
+      setBadge('unsaved');
+    }finally{
+      saving=false;
+      if(dirty)queueSave(400);
+    }
+  }
+
+  function queueSave(delay){
+    dirty=true;
+    setBadge('unsaved');
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(saveDraft,delay==null?1500:delay);
+  }
+
+  // Autosave on input (debounced) and immediately on blur / step change.
+  form.addEventListener('input',()=>queueSave());
+  form.addEventListener('change',()=>queueSave(400));
+  form.addEventListener('blur',e=>{if(e.target&&e.target.name&&dirty){clearTimeout(saveTimer);saveDraft();}},true);
+  const origGoTo=goTo;
+  goTo=function(idx){origGoTo(idx);if(dirty){clearTimeout(saveTimer);saveDraft();}};
+
+  // Restore a draft: ?draft=<token> wins over localStorage (cross-device resume).
+  async function restoreDraft(){
+    const urlTok=new URLSearchParams(location.search).get('draft');
+    let stored=null;
+    try{stored=localStorage.getItem(LS_KEY);}catch(_){}
+    const tok=urlTok||stored;
+    if(!tok)return;
+    draftToken=tok;
+    try{
+      const out=await callFn('resume',{});
+      if(out.submission_state==='submitted'){
+        try{localStorage.removeItem(LS_KEY);}catch(_){}
+        draftToken=null;
+        return;
+      }
+      let restored=0;
+      Object.keys(out.data||{}).forEach(k=>{
+        const v=out.data[k];
+        if(!v)return;
+        if(k==='mb_systems_needed'){
+          const vals=String(v).split(',').map(s=>s.trim());
+          form.querySelectorAll('input[name="mb_systems_needed"]').forEach(c=>{
+            if(vals.indexOf(c.value)>-1){c.checked=true;restored++;}
+          });
+          return;
+        }
+        const f=form.querySelector('[name="'+k+'"]');
+        if(f){f.value=v;restored++;}
+      });
+      try{localStorage.setItem(LS_KEY,draftToken);}catch(_){}
+      steps.forEach((s,i)=>markCompleted(i));
+      if(restored){
+        setBadge('saved');
+        showToast('Welcome back — your answers were restored.','success');
+      }
+    }catch(err){
+      // Stale or revoked token: start clean rather than trapping the visitor.
+      console.warn('draft resume failed',err);
+      draftToken=null;
+      try{localStorage.removeItem(LS_KEY);}catch(_){}
+    }
+  }
+  restoreDraft();
 
   // Submit
   form.addEventListener('submit',async function(e){
@@ -474,64 +577,19 @@ select option{background:var(--surface);color:var(--text)}
     const submitBtn=document.getElementById('submitBtn');
     submitBtn.disabled=true;
     submitBtn.textContent='Submitting...';
+    clearTimeout(saveTimer);
 
     try{
-      // POST intake_submissions
-      await sbPost('intake_submissions',{
-        form_type:'mini_blueprint',
-        first_name:d.first_name||null,
-        last_name:d.last_name||null,
-        email:d.email||null,
-        company:d.company||null,
-        mb_industry:d.mb_industry||null,
-        mb_strengths:d.mb_strengths||null,
-        mb_current_delivery:d.mb_current_delivery||null,
-        mb_weaknesses:d.mb_weaknesses||null,
-        mb_opportunities:d.mb_opportunities||null,
-        mb_threats:d.mb_cost_of_inaction||null,
-        mb_dream_system:d.mb_dream_system||null,
-        mb_systems_needed:d.mb_systems_needed||null,
-        mb_competitor_tech:d.mb_competitor_tech||null,
-        mb_cost_of_inaction:d.mb_cost_of_inaction||null,
-        bp_time_sink:d.bp_time_sink||null,
-        bp_revenue_driver:d.bp_revenue_driver||null,
-        bp_current_tools:d.bp_current_tools||null,
-        bp_ten_x:d.bp_ten_x||null,
-        bp_biggest_bottleneck:d.bp_biggest_bottleneck||null,
-        budget:d.budget||null,
-        timeline:d.timeline||null,
-        q9_non_negotiables:d.q9_non_negotiables||null,
-        org_team_size:d.org_team_size||null,
-        org_growth_breakpoints:d.org_growth_breakpoints||null,
-        org_founder_dependency:d.org_founder_dependency||null,
-        org_revenue_leaks:d.org_revenue_leaks||null,
-        org_software_spend:d.org_software_spend||null,
-        org_previous_provider:d.org_previous_provider||null,
-        org_twelve_month_done:d.org_twelve_month_done||null,
-        status:'new'
-      });
-
-      // POST leads
-      await sbPost('leads',{
-        name:((d.first_name||'')+' '+(d.last_name||'')).trim()||null,
-        email:d.email||null,
-        company:d.company||null,
-        source:'mini_blueprint',
-        status:'new',
-        service_interest:d.mb_dream_system?d.mb_dream_system.substring(0,200):null,
-        budget_range:d.budget||null,
-        timeline:d.timeline||null,
-        lead_type:'inbound',
-        notes:'Mini Blueprint Session. Systems: '+(d.mb_systems_needed||'Not specified')
-      });
-
+      await callFn('submit',{data:d});
+      try{localStorage.removeItem(LS_KEY);}catch(_){}
+      setBadge('idle');
       form.style.display='none';
       document.querySelector('.hero').style.display='none';
       successScreen.classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(err){
       console.error(err);
-      showToast('Something went wrong. Please try again.','error');
+      showToast('Something went wrong. Your answers are saved — please try again.','error');
       submitBtn.disabled=false;
       submitBtn.textContent='Submit Blueprint \u2192';
     }

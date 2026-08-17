@@ -12152,6 +12152,7 @@ const FS_COLS=[
   {key:'phone',label:'Phone',vis:true,w:120},
   {key:'company',label:'Company',vis:true,w:130},
   {key:'status',label:'Status',vis:true,w:100},
+  {key:'progress',label:'Progress',vis:true,w:110},
   {key:'date',label:'Date',vis:true,w:100},
   {key:'form_type',label:'Form Type',vis:false,w:110},
   {key:'industry',label:'Industry',vis:false,w:110},
@@ -12168,11 +12169,65 @@ let fsSavedViews=[
 function editTimeEntry(entryId,projectId){sb.from('time_entries').select('*').eq('id',entryId).single().then(({data:e,error})=>{if(error||!e){showToast('Could not load entry','error');return;}const body=FG('Title','edit_title','text',e.title)+FG('Work Type','edit_work_type','select',e.work_type,[{v:'paid',l:'Paid'},{v:'unpaid',l:'Unpaid'}])+FR(FG('Hours','edit_hours','number',Math.floor((e.duration_minutes||0)/60)),FG('Minutes','edit_mins','number',(e.duration_minutes||0)%60))+FG('Break Minutes','edit_break','number',e.break_minutes||0)+FG('Start Date','edit_start_date','date',e.started_at?e.started_at.slice(0,10):'')+FG('Start Time','edit_start_time','time',e.started_at?e.started_at.slice(11,16):'')+FG('End Date','edit_end_date','date',e.ended_at?e.ended_at.slice(0,10):'')+FG('End Time','edit_end_time','time',e.ended_at?e.ended_at.slice(11,16):'')+FG('Description','edit_desc','textarea',e.description||'');openEditModal('Edit Time Entry',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="saveEditTimeEntry(\''+entryId+'\',\''+projectId+'\')">Save</button>');});}
 function saveEditTimeEntry(entryId,projectId){const t=document.getElementById('edit_title').value;const wt=document.getElementById('edit_work_type').value;const h=parseInt(document.getElementById('edit_hours').value)||0;const m=parseInt(document.getElementById('edit_mins').value)||0;const br=parseInt(document.getElementById('edit_break').value)||0;const sd=document.getElementById('edit_start_date').value;const st=document.getElementById('edit_start_time').value;const ed=document.getElementById('edit_end_date').value;const et=document.getElementById('edit_end_time').value;const desc=document.getElementById('edit_desc').value;const mins=h*60+m;if(!t||mins<1){showToast('Title and time required','error');return;}const updates={title:t,work_type:wt,duration_minutes:mins,break_minutes:br,description:desc||null};if(sd)updates.started_at=sd+'T'+(st||'00:00')+':00Z';if(ed)updates.ended_at=ed+'T'+(et||'00:00')+':00Z';sb.from('time_entries').update(updates).eq('id',entryId).then(({error})=>{if(error){showToast('Error: '+error.message,'error');return;}showToast('Entry updated!');closeEditModal();showProjectDetail(projectId);});}
 
+// ─── Draft-aware display helpers (progressive Blueprint intake save) ─────────
+// A draft is an in-progress intake. It has created NO lead and sent NO
+// notification — those only fire when submission_state flips to 'submitted'.
+// Daniel reads drafts before the session, so partial answers must be visible.
+function fsDraftBadge(){
+  return '<span title="In progress — not submitted yet. No lead created." style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:var(--accent)22;color:var(--accent);border:1px solid var(--accent)44">Draft</span>';
+}
+function fsDraftIdleDays(r){
+  const t=r.last_saved||r.date;
+  if(!t)return 0;
+  return Math.floor((Date.now()-new Date(t).getTime())/864e5);
+}
+// Nudge an abandoned draft: emails the visitor their own resume link.
+// The edge function throttles to one send per hour per draft.
+async function fsEmailDraftLink(id){
+  const row=fsAllRows.find(r=>String(r.id)===String(id)&&r._table==='intake_submissions');
+  const tok=row&&row._raw&&row._raw.draft_token;
+  if(!tok){showToast('No draft token on this row','error');return;}
+  try{
+    const res=await fetch(SUPABASE_URL+'/functions/v1/intake-draft',{
+      method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+      body:JSON.stringify({action:'email_link',draft_token:tok})
+    });
+    const out=await res.json();
+    if(!out.ok)throw new Error(out.error||'failed');
+    if(out.skipped==='throttled'){showToast('Already emailed within the last hour');return;}
+    if(out.skipped==='submitted'){showToast('They already submitted — nothing to resume');return;}
+    showToast('Resume link sent to '+(row.email||'them'));
+  }catch(e){showToast('Could not send: '+e.message,'error');}
+}
+
+// Archive drafts nobody has touched in 14+ days so the queue stays honest.
+// Archiving only sets the admin workflow status — it never submits the intake,
+// so no lead or notification can fire from this.
+async function fsArchiveStaleDrafts(){
+  const stale=fsAllRows.filter(r=>r._table==='intake_submissions'&&r.draft&&r.status!=='archived'&&fsDraftIdleDays(r)>=14);
+  if(!stale.length){showToast('No drafts idle 14+ days');return;}
+  if(!confirm('Archive '+stale.length+' draft'+(stale.length===1?'':'s')+' idle 14+ days? They stay readable and can be un-archived.'))return;
+  const {error}=await sb.from('intake_submissions').update({status:'archived'}).in('id',stale.map(r=>r.id));
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Archived '+stale.length+' stale draft'+(stale.length===1?'':'s'));
+  loadForms();
+}
+
+function fsProgressCell(r){
+  if(r.progress===''||r.progress==null)return '<span style="color:var(--text-muted)">—</span>';
+  const pct=Math.max(0,Math.min(100,+r.progress||0));
+  const col=r.draft?(pct>=60?'var(--success)':pct>=30?'var(--accent)':'var(--danger)'):'var(--success)';
+  const idle=r.draft?fsDraftIdleDays(r):0;
+  const note=r.draft&&idle>=14?` · idle ${idle}d`:'';
+  return `<div style="display:flex;align-items:center;gap:7px"><div style="flex:1;min-width:44px;height:5px;border-radius:3px;background:var(--border);overflow:hidden"><div style="width:${pct}%;height:100%;background:${col}"></div></div><span style="font-size:.7rem;font-weight:600;color:${col};white-space:nowrap">${pct}%${note}</span></div>`;
+}
+
 function fsNormalize(rows,table){
   const info=FS_TABLE_MAP[table];
   return rows.map(r=>{
     let name='',email='',phone='',company='',status='',date='',form_type='';
     let industry='',revenue_range='',budget='',lead_score='',ai_score='';
+    let draft=false,progress='',last_saved='';
     let form_name=info.label; // default = the table's generic label
     date=r.created_at||r.submitted_at||'';
     if(table==='intake_submissions'){
@@ -12180,6 +12235,12 @@ function fsNormalize(rows,table){
       email=r.email||'';phone=r.phone||'';company=r.company||'';
       status=r.status||'pending';form_type=r.form_type||'';budget=r.budget||'';
       industry=r.mb_industry||'';
+      // Draft state lives in `submission_state`, NOT `status` — `status` is the
+      // admin workflow column (new/reviewed/contacted/...). Rows written before
+      // progressive save exist with a null submission_state and are submitted.
+      draft=(r.submission_state==='draft');
+      progress=(r.completion_pct==null?'':r.completion_pct);
+      last_saved=r.last_saved_at||'';
       // Real form: which intake variant was filled (Blueprint / Mini Blueprint / Website / Build)
       form_name=fsLabelize(r.form_type)||'Intake Form';
     }else if(table==='cc_intake_submissions'){
@@ -12222,7 +12283,7 @@ function fsNormalize(rows,table){
       date=r.submitted_at||r.created_at||'';
       form_name=r.position?('Application · '+r.position):'Job Application';
     }
-    return{id:r.id,type:info.type,source_table:info.label,form_name,name,email,phone,company,status,date,form_type,industry,revenue_range,budget,lead_score,ai_score,_raw:r,_table:table};
+    return{id:r.id,type:info.type,source_table:info.label,form_name,name,email,phone,company,status,date,form_type,industry,revenue_range,budget,lead_score,ai_score,draft,progress,last_saved,_raw:r,_table:table};
   });
 }
 
@@ -12251,6 +12312,8 @@ function updateFsMetrics(){
   const surveys=fsAllRows.filter(r=>r.type==='survey');
   const assessments=fsAllRows.filter(r=>r.type==='assessment');
   const apps=fsAllRows.filter(r=>r.type==='application');
+  const drafts=fsAllRows.filter(r=>r.draft);
+  const stale=drafts.filter(r=>r.status!=='archived'&&fsDraftIdleDays(r)>=14);
   const now=new Date(),d30=new Date(now-30*864e5);
   const recent=fsAllRows.filter(r=>r.date&&new Date(r.date)>=d30).length;
   document.getElementById('fsMetrics').innerHTML=`
@@ -12258,7 +12321,18 @@ function updateFsMetrics(){
     <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--primary)" onclick="setFsType('form',null)"><div class="stat-value">${forms.length}</div><div class="stat-label">Forms</div><div class="stat-sub">Intake, Roundtable & Inbound</div></div>
     <div class="stat-card" style="cursor:pointer;border-left:3px solid #8b5cf6" onclick="setFsType('survey',null)"><div class="stat-value">${surveys.length}</div><div class="stat-label">Surveys</div><div class="stat-sub">Speaker & Community</div></div>
     <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--accent)" onclick="setFsType('assessment',null)"><div class="stat-value">${assessments.length}</div><div class="stat-label">Assessments</div><div class="stat-sub">${assessments.length?'Avg AI: '+Math.round(assessments.reduce((s,r)=>s+(+r.ai_score||0),0)/assessments.length):'None yet'}</div></div>
-    <div class="stat-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="setFsType('application',null)"><div class="stat-value">${apps.length}</div><div class="stat-label">Applications</div><div class="stat-sub">${apps.filter(r=>r.status==='submitted').length} pending</div></div>`;
+    <div class="stat-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="setFsType('application',null)"><div class="stat-value">${apps.length}</div><div class="stat-label">Applications</div><div class="stat-sub">${apps.filter(r=>r.status==='submitted').length} pending</div></div>
+    <div class="stat-card" style="cursor:pointer;border-left:3px solid var(--accent)" onclick="setFsDrafts()" title="In-progress intakes. No lead created, nothing sent."><div class="stat-value">${drafts.length}</div><div class="stat-label">Drafts In Progress</div><div class="stat-sub">${stale.length?stale.length+' idle 14+ days · <span style="text-decoration:underline" onclick="event.stopPropagation();fsArchiveStaleDrafts()">archive</span>':'No lead created yet'}</div></div>`;
+}
+
+// Draft-only view: drafts are in-progress intakes, worth reading before a session.
+let fsDraftsOnly=false;
+function setFsDrafts(){
+  fsDraftsOnly=!fsDraftsOnly;
+  if(fsDraftsOnly)fsActiveType='all';
+  document.querySelectorAll('.fs-type').forEach(b=>b.classList.remove('active'));
+  if(!fsDraftsOnly)document.querySelector('.fs-type[data-type="all"]')?.classList.add('active');
+  renderForms();
 }
 
 function populateFsFilters(){
@@ -12270,6 +12344,7 @@ function populateFsFilters(){
 
 function setFsType(type,btn){
   fsActiveType=type;
+  fsDraftsOnly=false;
   document.querySelectorAll('.fs-type').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   else document.querySelector(`.fs-type[data-type="${type}"]`)?.classList.add('active');
@@ -12283,6 +12358,7 @@ function clearFsFilters(){
   document.getElementById('fsDateFrom').value='';
   document.getElementById('fsDateTo').value='';
   fsActiveType='all';
+  fsDraftsOnly=false;
   document.querySelectorAll('.fs-type').forEach(b=>b.classList.remove('active'));
   document.querySelector('.fs-type[data-type="all"]')?.classList.add('active');
   renderForms();
@@ -12296,6 +12372,7 @@ function renderForms(){
   const to=document.getElementById('fsDateTo')?.value||'';
 
   fsFiltered=fsAllRows.filter(r=>{
+    if(fsDraftsOnly&&!r.draft)return false;
     if(fsActiveType!=='all'&&r.type!==fsActiveType)return false;
     if(source&&r.form_name!==source)return false;
     if(status&&r.status!==status)return false;
@@ -12308,7 +12385,7 @@ function renderForms(){
   fsFiltered.sort((a,b)=>{
     let va=a[fsSortCol]||'',vb=b[fsSortCol]||'';
     if(fsSortCol==='date'){va=new Date(va||0);vb=new Date(vb||0);}
-    else if(fsSortCol==='lead_score'||fsSortCol==='ai_score'){va=+va||0;vb=+vb||0;}
+    else if(fsSortCol==='lead_score'||fsSortCol==='ai_score'||fsSortCol==='progress'){va=+va||0;vb=+vb||0;}
     else{va=String(va).toLowerCase();vb=String(vb).toLowerCase();}
     if(va<vb)return fsSortDir==='asc'?-1:1;
     if(va>vb)return fsSortDir==='asc'?1:-1;
@@ -12339,7 +12416,8 @@ function renderFsTable(){
     return '<tr style="cursor:pointer" onclick="showFsDetail(\''+r.id+'\',\''+r._table+'\')">'+vis.map(c=>{
       const v=r[c.key]||'';
       if(c.key==='type')return `<td>${typeBadge(r.type)}</td>`;
-      if(c.key==='form_name')return `<td><span style="display:inline-block;padding:2px 9px;border-radius:6px;font-size:.72rem;font-weight:600;background:var(--hover);border:1px solid var(--border);white-space:nowrap">${v||'—'}</span></td>`;
+      if(c.key==='form_name')return `<td><span style="display:inline-block;padding:2px 9px;border-radius:6px;font-size:.72rem;font-weight:600;background:var(--hover);border:1px solid var(--border);white-space:nowrap">${v||'—'}</span>${r.draft?' '+fsDraftBadge():''}</td>`;
+      if(c.key==='progress')return `<td>${fsProgressCell(r)}</td>`;
       if(c.key==='status'&&v)return `<td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:${v==='completed'||v==='converted'||v==='qualified'||v==='registered'?'var(--success)':v==='new'||v==='pending'?'var(--primary)':v==='contacted'?'var(--accent)':v==='disqualified'?'var(--danger)':'var(--text-muted)'}"></span>${v}</td>`;
       if(c.key==='date'&&v)return `<td style="color:var(--text-muted)">${new Date(v).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>`;
       if(c.key==='lead_score'&&v)return `<td style="font-weight:600;color:${+v>=7?'var(--success)':+v>=4?'var(--accent)':'var(--danger)'}">${v}/10</td>`;
@@ -12428,6 +12506,17 @@ function showFsDetail(id,table){
   if(row.phone)h+=`<div style="font-size:.85rem;color:var(--text-muted)">${FS_ESC(row.phone)}</div>`;
   h+='</div>';
 
+  // ── Draft banner: partial answers, no lead, nothing sent ──
+  if(row.draft){
+    const pct=Math.max(0,Math.min(100,+row.progress||0));
+    const idle=fsDraftIdleDays(row);
+    h+=`<div style="margin-bottom:1.25rem;padding:12px 14px;border-radius:8px;background:var(--accent)11;border:1px solid var(--accent)44">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">${fsDraftBadge()}<span style="font-size:.8rem;font-weight:700">In progress — ${pct}% complete</span></div>
+      <div style="font-size:.75rem;color:var(--text-muted);line-height:1.6">No lead has been created and no notification has been sent. Both fire only when they submit. Everything below is what they have answered so far.${row.last_saved?' Last saved '+new Date(row.last_saved).toLocaleString()+(idle?' ('+idle+' day'+(idle===1?'':'s')+' ago)':'')+'.':''}</div>
+      ${row.email?`<button class="btn btn-secondary" style="margin-top:10px;font-size:.75rem;padding:5px 12px" onclick="fsEmailDraftLink('${row.id}')">📧 Email them a resume link</button>`:''}
+    </div>`;
+  }
+
   // ── Overview (the normalized summary fields) ──
   const overview=[['Company',row.company],['Status',row.status],['Submitted',row.date?new Date(row.date).toLocaleString():''],
     ['Form Type',row.form_type&&fsFieldLabel(row.form_type)],['Industry',row.industry],['Revenue',row.revenue_range],
@@ -12443,14 +12532,19 @@ function showFsDetail(id,table){
     'monthly_revenue','industry','mb_industry','title','job_title','profile_id','client_id','lead_id','deal_id',
     'project_id','draft_token','current_page','external_id','prospecting_run_id','campaign_assigned',
     'enriched_at','last_contacted_at','contact_count','nurture_status','lead_type','added_by',
-    'utm_source','utm_medium','utm_campaign','referral_source','logo_url']);
+    'utm_source','utm_medium','utm_campaign','referral_source','logo_url',
+    // Progressive-draft plumbing — surfaced by the draft banner, not as raw rows.
+    'submission_state','completion_pct','last_saved_at','draft_emailed_at']);
 
   // Long-form text answers (the heart of the response) rendered as readable Q&A.
   const longKeys=['notes','goals_90_days','biggest_challenge','core_outcome','morning_screen','automate_wish',
     'tech_wishlist','current_tech_usage','additional_notes','other_details','service_interest','where_we_met',
     'bp_time_sink','bp_revenue_driver','bp_ten_x','bp_core_outcome','bp_biggest_bottleneck',
     'mb_strengths','mb_weaknesses','mb_opportunities','mb_threats','mb_dream_system','mb_systems_needed',
-    'mb_cost_of_inaction','ws_current_url','ws_style_vibe','ws_features_needed','ws_ideal_client','ws_differentiator'];
+    'mb_cost_of_inaction','mb_competitor_tech','mb_current_delivery','q9_non_negotiables',
+    'bp_current_tools','org_team_size','org_software_spend','org_growth_breakpoints',
+    'org_founder_dependency','org_revenue_leaks','org_previous_provider','org_twelve_month_done',
+    'ws_current_url','ws_style_vibe','ws_features_needed','ws_ideal_client','ws_differentiator'];
   let answers='';
   longKeys.forEach(k=>{const v=raw[k];if(v&&!shown.has(k)){answers+=`<div style="margin-bottom:12px"><div style="font-size:.78rem;color:var(--text-muted);margin-bottom:3px">${fsFieldLabel(k)}</div><div style="font-size:.85rem;white-space:pre-wrap;word-break:break-word;background:var(--hover);padding:8px 10px;border-radius:6px;border:1px solid var(--border)">${FS_ESC(v)}</div></div>`;shown.add(k);}});
   if(answers)h+='<div style="margin-bottom:1.4rem">'+fsSection('Their Responses')+answers+'</div>';
