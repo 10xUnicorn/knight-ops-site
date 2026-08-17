@@ -77,47 +77,96 @@ async function initUpload(mime) {
   session.uploadId = res.uploadId;
 }
 
-async function uploadPart(blob) {
-  const n = ++session.partNo;
-  const qs = new URLSearchParams({ key: session.key, uploadId: session.uploadId, part: String(n) });
-  const res = await w(`/upload/part?${qs}`, { method: 'PUT', body: blob });
-  session.parts.push({ part: res.part, etag: res.etag });
-  note('upload', `part ${res.part} uploaded`, { size: blob.size, totalParts: session.parts.length }, 'info');
-  session.uploadedBytes += blob.size;
-  send('ko-upload-progress', {
-    progress: Math.min(95, Math.round((session.uploadedBytes / Math.max(session.bytes, 1)) * 100)),
+/**
+ * Upload one part, retrying transient failures.
+ *
+ * A part that never lands leaves a hole in the object, and R2 will happily
+ * concatenate what remains — producing a file that looks complete by byte count
+ * but stops playing at the gap. So: retry hard, and if a part truly cannot be
+ * uploaded, poison the session rather than quietly continuing.
+ */
+async function uploadPart(blob, partNumber) {
+  const qs = new URLSearchParams({
+    key: session.key, uploadId: session.uploadId, part: String(partNumber),
   });
+
+  let lastErr;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const res = await w(`/upload/part?${qs}`, { method: 'PUT', body: blob });
+      if (res.size != null && res.size !== blob.size) {
+        throw new Error(`size mismatch: sent ${blob.size}, stored ${res.size}`);
+      }
+      session.parts.push({ part: partNumber, etag: res.etag });
+      session.uploadedBytes += blob.size;
+      note('upload', `part ${partNumber} uploaded`, {
+        size: blob.size, parts: session.parts.length, attempt,
+      }, 'info');
+      send('ko-upload-progress', {
+        progress: Math.min(95, Math.round((session.uploadedBytes / Math.max(session.bytes, 1)) * 100)),
+      });
+      return;
+    } catch (e) {
+      lastErr = e;
+      note('upload', `part ${partNumber} attempt ${attempt} failed: ${e.message}`,
+        { size: blob.size }, 'warn');
+      if (attempt < 4) await new Promise(r => setTimeout(r, 400 * attempt * attempt));
+    }
+  }
+
+  session.poisoned = `part ${partNumber} failed after 4 attempts: ${lastErr?.message}`;
+  throw new Error(session.poisoned);
 }
 
-/** Queue a part upload so parts always land in order. */
+/** Serialise part uploads so they always land in order and are numbered densely. */
 function queuePart(blob) {
-  uploadChain = uploadChain.then(() => uploadPart(blob)).catch(fail);
+  const partNumber = ++session.partNo;
+  uploadChain = uploadChain
+    .then(() => (session.poisoned ? null : uploadPart(blob, partNumber)))
+    .catch((e) => { session.poisoned = session.poisoned || String(e?.message || e); });
   return uploadChain;
 }
 
 /**
  * R2 multipart uploads require EVERY part except the last to be exactly the
- * same size. MediaRecorder emits chunks of arbitrary size, so accumulating them
- * and flushing "whatever is past 8MB" produced parts of 8.1MB, 8.4MB, 8.2MB…
- * which R2 rejects — surfacing as a Cloudflare 1101 "Worker threw exception"
- * partway through a long recording. Short recordings fit in a single part and
- * never hit it, which is why only long ones failed.
+ * same size, so we slice to exact PART_SIZE boundaries.
  *
- * Slice to exact PART_SIZE boundaries and carry the remainder forward.
+ * CRITICAL — this must be serialised and must never assign to session.buffer.
+ * The original version did `session.buffer = []`, awaited an upload, then did
+ * `session.buffer = [remainder]`. MediaRecorder fires ondataavailable every 2s,
+ * so any chunk that arrived during that await was overwritten and lost. The
+ * result was a byte stream with holes: ffprobe could still find packets out to
+ * the full duration, but the container was damaged and browsers stopped playing
+ * at the first gap. A 5-minute recording played 2:45.
+ *
+ * The lock serialises flushes; unshift returns the remainder to the FRONT so it
+ * stays ahead of anything appended while we were awaiting.
  */
-async function flushBuffer(force) {
-  if (!session.buffer.length) return;
-  let blob = new Blob(session.buffer, { type: 'application/octet-stream' });
-  session.buffer = [];
+let flushLock = Promise.resolve();
+function flushBuffer(force) {
+  flushLock = flushLock.then(() => doFlush(force)).catch(() => {});
+  return flushLock;
+}
 
-  while (blob.size >= PART_SIZE) {
-    await queuePart(blob.slice(0, PART_SIZE));
-    blob = blob.slice(PART_SIZE);
-  }
+async function doFlush(force) {
+  for (;;) {
+    const total = session.buffer.reduce((n, b) => n + b.size, 0);
+    if (!total) return;
+    if (!force && total < PART_SIZE) return;
 
-  if (blob.size) {
-    if (force) await queuePart(blob);   // final part may be any size
-    else session.buffer = [blob];       // carry the remainder into the next flush
+    const blob = new Blob(session.buffer, { type: 'application/octet-stream' });
+    session.buffer = [];
+
+    if (blob.size >= PART_SIZE) {
+      await queuePart(blob.slice(0, PART_SIZE));
+      const rest = blob.slice(PART_SIZE);
+      if (rest.size) session.buffer.unshift(rest);
+      continue;                       // more may have arrived; loop again
+    }
+
+    if (force) { await queuePart(blob); return; }
+    session.buffer.unshift(blob);     // put it back, never discard
+    return;
   }
 }
 
@@ -273,7 +322,7 @@ async function start(p) {
     session = {
       worker: p.worker, token: p.token, videoId: p.videoId,
       key: null, uploadId: null, parts: [], partNo: 0,
-      buffer: [], bytes: 0, uploadedBytes: 0,
+      buffer: [], bytes: 0, uploadedBytes: 0, poisoned: null,
       width: null, height: null, thumbKey: null,
     };
 
@@ -357,18 +406,40 @@ async function finalize() {
 
     if (!session.parts.length) throw new Error('Nothing was recorded.');
 
-    await w('/upload/complete', {
+    // Only ever complete with a DENSE run of parts starting at 1. Completing
+    // across a gap yields a file that is the right size but unplayable past the
+    // hole — far worse than a video that is honestly a bit shorter.
+    const sorted = session.parts.slice().sort((a, b) => a.part - b.part);
+    const dense = [];
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i].part !== i + 1) break;
+      dense.push(sorted[i]);
+    }
+    if (dense.length !== sorted.length) {
+      note('upload', `dropping ${sorted.length - dense.length} part(s) after a gap to keep the file playable`,
+        { kept: dense.length, total: sorted.length }, 'warn');
+    }
+    if (session.poisoned) note('upload', session.poisoned, {}, 'error');
+
+    const done = await w('/upload/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: session.key, uploadId: session.uploadId, parts: session.parts }),
+      body: JSON.stringify({ key: session.key, uploadId: session.uploadId, parts: dense }),
     });
+
+    // Report what R2 actually stored, not what we hoped to send.
+    const storedBytes = done.size != null ? done.size : session.uploadedBytes;
+    if (storedBytes !== session.bytes) {
+      note('upload', 'stored size differs from recorded size',
+        { recorded: session.bytes, stored: storedBytes }, 'warn');
+    }
 
     const durationSec = Math.max(0, (Date.now() - startedAt - pausedTotal) / 1000);
     send('ko-recording-done', {
       payload: {
         storage_key: session.key,
         thumb_key: session.thumbKey,
-        size_bytes: session.bytes,
+        size_bytes: storedBytes,
         duration_sec: Number(durationSec.toFixed(2)),
         width: session.width,
         height: session.height,
