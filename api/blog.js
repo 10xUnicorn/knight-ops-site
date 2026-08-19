@@ -118,7 +118,7 @@ module.exports = async function handler(req, res) {
       image: image ? [image] : undefined,
       datePublished: published,
       dateModified: updated,
-      author: { '@type': 'Person', name: author, url: ORIGIN + '/about' },
+      author: { '@type': 'Person', '@id': ORIGIN + '/#daniel-knight', name: author, url: ORIGIN + '/about' },
       publisher: {
         '@type': 'Organization',
         '@id': ORIGIN + '/#organization',
