@@ -179,7 +179,7 @@ textarea{resize:vertical;min-height:74px}
       <textarea id="ai_transcript" placeholder="Discovery call transcript, Fathom summary, voice memo notes..."></textarea>
       <div class="row">
         <div><label class="fl">Their website (optional — AI will reference it)</label><input type="url" id="ai_research" placeholder="https://"></div>
-        <div><label class="fl">Upload docs / transcriptions (optional)</label><input type="file" id="ai_files" multiple style="font-size:.8rem;padding:8px"><div class="hint">Any format, multiple files, or a zip. Text files (md/txt/json/csv) are read to inform the AI. 1 GB total.</div></div>
+        <div><label class="fl">Upload docs / transcriptions (optional)</label><input type="file" id="ai_files" multiple style="font-size:.8rem;padding:8px"><div class="hint">Multiple files, no size limit. <b>Read by the AI:</b> md, txt, csv, json, docx, xlsx, pdf, and images (screenshots are read visually). Anything else is still bundled into the build kit.</div></div>
       </div>
       <div style="margin-top:14px"><button class="btn btn-primary" id="btnAnalyze" onclick="analyzeBuild()">✨ Analyze &amp; pre-fill the build</button> <button class="btn btn-ghost" onclick="openCapture()">📥 Capture an existing project</button> <span id="aiStat" class="hint"></span></div>
       <div class="hint" style="margin-top:8px">Have an existing app? Click <b>Capture an existing project</b> to copy a prompt that turns any project (in Claude Code) into a <code>dashboard-kickoff.md</code>. Upload that file above and Analyze to auto-map every field.</div>
@@ -298,7 +298,7 @@ textarea{resize:vertical;min-height:74px}
       <label class="fl">Additional context</label><textarea id="additional_details"></textarea>
       <label class="fl">Meeting transcriptions</label><textarea id="transcripts" placeholder="Paste any transcripts to inform the build"></textarea>
       <label class="fl">File paths to reference (one per line)</label><textarea id="file_paths" placeholder="/Users/.../Claude Home/Projects/Client/..."></textarea>
-      <label class="fl">Upload supporting files (any format, multiple, up to 1 GB total)</label><input type="file" id="extra_files" multiple style="font-size:.8rem;padding:8px">
+      <label class="fl">Upload supporting files (any format, multiple, no size limit)</label><input type="file" id="extra_files" multiple style="font-size:.8rem;padding:8px">
       <label class="fl">…or upload an entire folder</label><input type="file" id="extra_folder" multiple webkitdirectory directory style="font-size:.8rem;padding:8px">
       <div class="hint">Reused in the build and bundled into the exported build kit. Zips are passed through for the build to unpack.</div>
       <div id="uploadList" class="chips"></div>
@@ -385,6 +385,8 @@ textarea{resize:vertical;min-height:74px}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SB='https://trpnlkntvulkjerevngm.supabase.co';
 const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
@@ -433,7 +435,8 @@ const ROLES=['Super Admin','Admin','Team member','Coach','Client','Partner / JV'
 const INTS=[{k:'resend',l:'Resend email'},{k:'stripe',l:'Stripe payments'},{k:'ai',l:'AI / Anthropic'},{k:'crm',l:'CRM (GHL/HubSpot)'},{k:'calendar',l:'Calendar'},{k:'fathom',l:'Fathom transcripts'},{k:'kajabi',l:'Course platform'},{k:'ads',l:'Ad platforms'},{k:'webhooks',l:'Webhooks'}];
 
 // ---- State ----
-const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],files:[],uploads_text:'',totalBytes:0,id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false};
+const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],files:[],uploads_text:'',totalBytes:0,id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false,
+  reads:[],docUrls:[],imgUrls:[],unread:[],moduleNotes:{},goalCriteria:[],dataModel:'',roleMatrix:'',navOpen:{}};
 
 // ---- Build catalog UI ----
 function buildModGrid(){
@@ -478,6 +481,8 @@ function gather(){
     brand:{primary:val('c_primary'),secondary:val('c_secondary'),accent:val('c_accent'),mode:val('brand_mode'),fonts:val('fonts'),logo_path:S.logo_path,voice:val('voice')},
     modules:S.modules.concat(S.customModules.map(m=>({key:'custom',label:m,custom:true}))),
     features:S.features,facing:S.facing,
+    nav_groups:navGroups().map(function(g){return {group:g.g,items:g.items.map(function(i){return i.label;})};}),
+    module_notes:S.moduleNotes,data_model:S.dataModel,goal_criteria:S.goalCriteria,role_matrix:S.roleMatrix,
     roles:{templates:S.roles,journey_stages:val('journey_stages'),statuses:val('status_set')},
     integrations:Array.from(new Set(['supabase_auth'].concat(S.integrations))),
     payments:S.payments,ai_features:{enabled:S.ai_on},
@@ -488,6 +493,21 @@ function gather(){
     resume_token:S.resume_token,id:S.id};
 }
 function modLabel(k){const m=MODULES.find(x=>x.k===k);return m?m.l:k;}
+// Single source of truth for sidebar grouping. Used by the live preview, the build prompt,
+// the spec and the AI mockup so every downstream artifact ships the same collapsible nav.
+function navGroups(){
+  var out=[];
+  MODGROUPS.forEach(function(grp){
+    var items=S.modules.filter(function(k){return grp.keys.indexOf(k)>=0;}).map(function(k){return {key:k,label:modLabel(k)};});
+    if(items.length)out.push({g:grp.g,items:items});
+  });
+  var placed=[];MODGROUPS.forEach(function(g){placed=placed.concat(g.keys);});
+  var orphans=S.modules.filter(function(k){return placed.indexOf(k)<0;}).map(function(k){return {key:k,label:modLabel(k)};});
+  if(orphans.length)out.push({g:'More',items:orphans});
+  if(S.customModules.length)out.push({g:'Custom',items:S.customModules.map(function(m){return {key:'custom',label:m,custom:true};})});
+  return out;
+}
+function toggleNavGrp(g){var cur=navGroups(),i=cur.findIndex(function(x){return x.g===g;});var isOpen=(S.navOpen[g]!=null)?S.navOpen[g]:(i===0);S.navOpen[g]=!isOpen;render();}
 
 // ---- color helpers ----
 function hex2rgb(h){h=(h||'').replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];var n=parseInt(h||'000000',16);return [(n>>16)&255,(n>>8)&255,n&255];}
@@ -502,14 +522,16 @@ function render(){
   const txt=isLight?'#15151f':'#fff';
   const mut=isLight?'rgba(0,0,0,.5)':'rgba(255,255,255,.55)';
   const logoTx=contrastOk(b.primary,b.secondary)?b.primary:(isLight?'#15151f':'#fff');
+  // Collapsible accordion nav: only the group holding the active item is open by default,
+  // so a 20-module build still reads as ~7 sidebar items.
   var _first=true;var nav='';
-  MODGROUPS.forEach(function(grp){
-    var ks=S.modules.filter(function(k){return grp.keys.indexOf(k)>=0;});
-    if(!ks.length)return;
-    nav+='<div style="font-size:.5rem;letter-spacing:.6px;text-transform:uppercase;color:'+mut+';padding:9px 2px 3px;font-weight:600">'+grp.g+'</div>';
-    ks.forEach(function(k){var a=_first;_first=false;nav+='<div style="color:'+(a?(isLight?'#15151f':'#fff'):sideTx)+';background:'+(a?(b.accent+'22'):'transparent')+';border-left:2px solid '+(a?b.accent:'transparent')+';font-weight:'+(a?'600':'400')+'">'+modLabel(k)+'</div>';});
+  var groups=navGroups();
+  groups.forEach(function(grp,gi){
+    var open=(S.navOpen[grp.g]!=null)?S.navOpen[grp.g]:(gi===0);
+    nav+='<div onclick="toggleNavGrp(\''+grp.g.replace(/'/g,"")+'\')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.5rem;letter-spacing:.6px;text-transform:uppercase;color:'+mut+';padding:9px 2px 3px;font-weight:600"><span>'+grp.g+'</span><span style="opacity:.7">'+(open?'▾':'▸')+'</span></div>';
+    if(!open)return;
+    grp.items.forEach(function(k){var a=_first;_first=false;nav+='<div style="padding-left:7px;color:'+(a?(isLight?'#15151f':'#fff'):sideTx)+';background:'+(a?(b.accent+'22'):'transparent')+';border-left:2px solid '+(a?b.accent:'transparent')+';font-weight:'+(a?'600':'400')+'">'+(k.custom?k.label:modLabel(k.key))+'</div>';});
   });
-  if(S.customModules.length){nav+='<div style="font-size:.5rem;letter-spacing:.6px;text-transform:uppercase;color:'+mut+';padding:9px 2px 3px;font-weight:600">Custom</div>'+S.customModules.map(function(m){return '<div style="color:'+sideTx+'">'+m+'</div>';}).join('');}
   if(!nav)nav='<div style="color:'+mut+'">No modules yet</div>';
   const cardBg=isLight?'#ffffff':'rgba(255,255,255,.05)';const cardBd=isLight?'rgba(0,0,0,.08)':'rgba(255,255,255,.1)';
   const cards=[['Revenue','$48.2k'],['Clients','23'],['Pipeline','$112k'],['Tasks','7']].map(function(c){return '<div class="pv-card" style="background:'+cardBg+';border-color:'+cardBd+'"><div class="k" style="color:'+b.accent+'">'+c[0]+'</div><div class="v" style="color:'+txt+'">'+c[1]+'</div></div>';}).join('');
@@ -544,6 +566,8 @@ function buildPrompt(){
   if(S.website_on)L.push('- The marketing website is built and live.');
   if(S.blog_on)L.push('- Blog automation publishes a post'+(d.blog.manage_in_dashboard?' and it is manageable inside the dashboard':'')+'.');
   L.push('- Ascension stages, statuses, and the role permission matrix are all editable from the admin.');
+  L.push('- The sidebar is a collapsible grouped accordion (see Sidebar navigation below), not a flat list, and the open/closed state persists per user.');
+  if(S.goalCriteria&&S.goalCriteria.length)S.goalCriteria.forEach(function(g){L.push('- '+String(g).replace(/^[-*]\s*/,''));});
   L.push('- You have walked the full ADMIN journey and the full CLIENT journey end to end with zero errors.');
   L.push('- Every automated and manual test passes and you have self-reviewed and fixed anything weak.');
   L.push('');
@@ -553,7 +577,23 @@ function buildPrompt(){
   L.push('## Client');L.push('- Business: '+(d.business_name||'[name]'));L.push('- Niche: '+(d.niche||''));L.push('- What they do: '+(d.what_they_do||''));if(d.offers)L.push('- Offers/pricing: '+d.offers);if(d.audience)L.push('- Audience: '+d.audience);if(d.team)L.push('- Team: '+d.team);L.push('');
   L.push('## Brand');L.push('- Primary '+b.primary+' / Background '+b.secondary+' / Accent '+b.accent+' / '+b.mode+' mode');if(b.fonts)L.push('- Fonts: '+b.fonts);if(b.voice)L.push('- Voice: '+b.voice);if(b.logo_path)L.push('- Logo: '+SB+'/storage/v1/object/public/dashboard-assets/'+b.logo_path);L.push('');
   L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + Postgres + RLS) + Resend'+(d.payments?' + Stripe':'')+', deploy to Vercel.');L.push('- Create a NEW Supabase project for this client (one app = one project). Validate env with Zod.');L.push('');
-  L.push('## Modules to build');mods.forEach(m=>L.push('- '+m));L.push('');
+  L.push('## Sidebar navigation (build it exactly like this)');
+  L.push('- The sidebar is a COLLAPSIBLE ACCORDION of grouped sections, not a flat list of every module. This is a hard requirement.');
+  L.push('- Render the group headers below. Each header expands and collapses its child items on click, with a caret that rotates.');
+  L.push('- On load, only the group containing the current page is expanded; every other group is collapsed. Persist the open/closed state per user in localStorage.');
+  L.push('- The active item is highlighted with the accent color and a left border. Never show more than about 7 top-level rows before the user expands something.');
+  L.push('- Collapse the whole sidebar to icons only on screens under 1100px and use a hamburger drawer on mobile.');
+  navGroups().forEach(function(grp){L.push('- '+grp.g+': '+grp.items.map(function(i){return i.label;}).join(', '));});
+  L.push('');
+  L.push('## Modules to build');
+  S.modules.forEach(function(k){
+    var feats=(S.features[k]||[]).join(', ');
+    L.push('- '+modLabel(k)+(feats?(' — features: '+feats):''));
+    if(S.moduleNotes&&S.moduleNotes[k])L.push('  - For this client: '+S.moduleNotes[k]);
+  });
+  S.customModules.forEach(function(m){L.push('- '+m+' (custom module)');});
+  L.push('');
+  if(S.dataModel){L.push('## Data model (from the source analysis)');String(S.dataModel).split(String.fromCharCode(10)).filter(Boolean).forEach(function(r){L.push('- '+r.replace(/^[-*]\s*/,''));});L.push('');}
   L.push('## Access & roles');L.push('- Facing: '+d.facing.replace('_',' ')+(portal?' (build the client portal + admin↔client interaction)':' (internal only)'));L.push('- Roles: '+S.roles.join(', '));L.push('- Editable journey stages: '+d.roles.journey_stages);L.push('- Editable statuses: '+d.roles.statuses);L.push('- Enforce RLS per role on every sensitive table; permission matrix editable in admin.');L.push('');
   L.push('## Integrations');L.push('- '+ints);if(d.payments)L.push('- Stripe: checkout, subscriptions, refunds, webhooks (signature-verified).');L.push('- Resend: account activation + notification emails from the client domain.');L.push('');
   if(S.website_on){L.push('## Website');L.push('- Build a marketing site: '+(d.website.pages||'standard pages')+'.');L.push('');}
@@ -597,6 +637,8 @@ function buildCapturePrompt(){
   L.push('   brand (primary hex, secondary/background hex, accent hex, mode dark/light, fonts, voice);');
   L.push('   modules (choose from: '+keys+'; plus any custom modules with a one-line purpose);');
   L.push('   features (key features per chosen module);');
+  L.push('   module_notes (for EVERY chosen module, 1-3 sentences on exactly what it must do for THIS project, including anything the standard feature set does not cover);');
+  L.push('   data_model (the key tables and what each is for, one per line);');
   L.push('   facing (internal_only OR client_portal OR both);');
   L.push('   roles (role templates and what each can do);');
   L.push('   integrations (from: supabase_auth, resend, stripe, ai, crm, calendar, fathom, kajabi, ads, webhooks);');
@@ -605,6 +647,12 @@ function buildCapturePrompt(){
   L.push('   additional_details; file_paths (exact paths worth reusing); files_to_reupload (which files to bring to the new build).');
   L.push('5. REUSE vs REBUILD - what to carry over (env vars present, Supabase project, Vercel project, working modules) versus rebuild fresh.');
   L.push('6. GOAL CRITERIA - a draft list for the goal-is-complete-once checklist tailored to this project.');L.push('');
+  L.push('## Format rules (the builder parses this file)');
+  L.push('- Use the exact field labels above, one per line, in the form "label: value". Do not rename or reorder them.');
+  L.push('- Never write a section as "see above". Repeat the real value in the FIELD MAP even if it appears earlier.');
+  L.push('- Be exhaustive in DETAILED OVERVIEW, FULL ANALYSIS, module_notes and data_model. The builder carries this straight into the build prompt, so depth here is what makes the generated build correct.');
+  L.push('- Screenshots of the current UI are useful. Save them next to the file and mention them by name; they can be uploaded alongside it.');
+  L.push('');
   L.push('When done, save the file and tell me to upload dashboard-kickoff.md to the Knight Ops Dashboard Builder (Build with AI) and Analyze to map every field. Keep it specific to this project.');
   return L.join(String.fromCharCode(10));
 }
@@ -636,49 +684,143 @@ async function uploadFile(file,prefix){
   const r=await fetch(SB+'/storage/v1/object/dashboard-assets/'+path,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':file.type||'application/octet-stream'},body:file});
   if(r.ok)return path;return null;
 }
-const GB=1024*1024*1024;
+// No file-size cap. Files are uploaded to storage AND, where possible, their content is
+// extracted so the AI actually reads them. PDFs and images are handed to Claude by URL.
+const TEXT_RE=/\.(md|markdown|txt|json|csv|tsv|html|htm|js|jsx|ts|tsx|yaml|yml|xml|log|sql|env|ini|conf|toml|py|rb|go|java|css|svg)$/i;
+const DOCX_RE=/\.docx$/i;
+const SHEET_RE=/\.(xlsx|xlsm|xls|ods)$/i;
+const PDF_RE=/\.pdf$/i;
+const IMG_RE=/\.(png|jpe?g|gif|webp)$/i;
+const TEXT_BUDGET=400000;
+function pubUrl(p){return SB+'/storage/v1/object/public/dashboard-assets/'+p;}
+function addText(name,txt){
+  if(!txt)return;
+  const room=TEXT_BUDGET-S.uploads_text.length;if(room<=200)return;
+  S.uploads_text+=String.fromCharCode(10,10)+'=== '+name+' ==='+String.fromCharCode(10)+String(txt).slice(0,room);
+}
+function readText(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{addText(f.name,r.result);res(1);};r.onerror=()=>res(0);r.readAsText(f);});}
+function readDocx(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{
+  if(!window.mammoth){S.unread.push(f.name+' (docx reader unavailable)');res(0);return;}
+  window.mammoth.extractRawText({arrayBuffer:r.result}).then(o=>{addText(f.name,o&&o.value);res(1);}).catch(()=>{S.unread.push(f.name+' (could not read docx)');res(0);});
+};r.onerror=()=>res(0);r.readAsArrayBuffer(f);});}
+function readSheet(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{
+  try{
+    if(!window.XLSX){S.unread.push(f.name+' (spreadsheet reader unavailable)');res(0);return;}
+    const wb=window.XLSX.read(new Uint8Array(r.result),{type:'array'});
+    let out='';wb.SheetNames.forEach(function(sn){out+=String.fromCharCode(10)+'-- sheet: '+sn+' --'+String.fromCharCode(10)+window.XLSX.utils.sheet_to_csv(wb.Sheets[sn]);});
+    addText(f.name,out);res(1);
+  }catch(e){res(0);}
+};r.onerror=()=>res(0);r.readAsArrayBuffer(f);});}
 function addFiles(fileList,prefix,intoText){
   for(const f of fileList){
-    if(f.size>GB){toast(f.name+' is over 1 GB - skipped');continue;}
-    if((S.totalBytes+f.size)>GB){toast('1 GB total reached - '+f.name+' skipped');continue;}
     S.totalBytes+=f.size;S.files.push(f);
-    uploadFile(f,prefix).then(p=>{if(p){S.upload_paths.push(p);}}).catch(()=>{});
-    if(intoText&&/\.(md|txt|json|csv|tsv|html|js|ts|yaml|yml|xml|log)$/i.test(f.name)&&f.size<2097152){
-      const r=new FileReader();r.onload=()=>{S.uploads_text=(S.uploads_text+String.fromCharCode(10,10)+'=== '+f.name+' ==='+String.fromCharCode(10)+r.result).slice(0,200000);};r.readAsText(f);
-    }
+    const up=uploadFile(f,prefix).then(p=>{
+      if(p){
+        S.upload_paths.push(p);
+        if(intoText&&PDF_RE.test(f.name))S.docUrls.push({name:f.name,url:pubUrl(p)});
+        if(intoText&&IMG_RE.test(f.name))S.imgUrls.push({name:f.name,url:pubUrl(p)});
+      }else if(intoText&&(PDF_RE.test(f.name)||IMG_RE.test(f.name))){
+        S.unread.push(f.name+' (upload failed, not sent to AI)');
+      }
+      return 1;
+    }).catch(()=>{if(intoText)S.unread.push(f.name+' (upload failed)');return 0;});
+    S.reads.push(up);
+    if(!intoText)continue;
+    if(TEXT_RE.test(f.name))S.reads.push(readText(f));
+    else if(DOCX_RE.test(f.name))S.reads.push(readDocx(f));
+    else if(SHEET_RE.test(f.name))S.reads.push(readSheet(f));
+    else if(PDF_RE.test(f.name)||IMG_RE.test(f.name)){/* handled by URL above */}
+    else if(f.type&&/^text\//.test(f.type))S.reads.push(readText(f));
+    else S.unread.push(f.name);
   }
   renderUploads();
 }
-document.getElementById('logo_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;if(f.size>GB){toast('Logo over 1 GB');return;}toast('Uploading logo...');const p=await uploadFile(f,'logos');if(p){S.logo_path=p;toast('Logo uploaded');render();}else toast('Upload failed');});
+document.getElementById('logo_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;toast('Uploading logo...');const p=await uploadFile(f,'logos');if(p){S.logo_path=p;toast('Logo uploaded');render();}else toast('Upload failed');});
 document.getElementById('extra_files').addEventListener('change',e=>{addFiles(e.target.files,'docs',true);toast('Files added');});
 var _ef=document.getElementById('extra_folder');if(_ef)_ef.addEventListener('change',e=>{addFiles(e.target.files,'docs',true);toast('Folder added');});
 document.getElementById('ai_files').addEventListener('change',e=>{addFiles(e.target.files,'ai-docs',true);toast('Files added - they will inform the AI');});
-function renderUploads(){var el=document.getElementById('uploadList');if(!el)return;var n=S.files.length;var mb=(S.totalBytes/1048576).toFixed(1);el.innerHTML=S.files.map(function(f){return '<div class="chip on">'+((f.webkitRelativePath||f.name).split('/').pop())+'</div>';}).join('')+(n?('<div class="chip">'+n+' file(s), '+mb+' MB</div>'):'');}
+function renderUploads(){var el=document.getElementById('uploadList');if(!el)return;var n=S.files.length;var mb=(S.totalBytes/1048576).toFixed(1);
+  el.innerHTML=S.files.map(function(f){return '<div class="chip on">'+((f.webkitRelativePath||f.name).split('/').pop())+'</div>';}).join('')
+    +(n?('<div class="chip">'+n+' file(s), '+mb+' MB</div>'):'')
+    +(S.unread.length?('<div class="chip" style="border-color:#e0a800;color:#e0a800" title="'+S.unread.join(', ').replace(/"/g,'')+'">⚠ '+S.unread.length+' not readable by AI</div>'):'');}
 
 // ---- AI analyze (pre-fill) ----
 async function analyzeBuild(){
-  const brief=val('ai_brief');if(!brief&&!S.uploads_text&&!val('ai_transcript')){toast('Describe what you’re building first');return;}
-  const btn=document.getElementById('btnAnalyze');btn.disabled=true;document.getElementById('aiStat').innerHTML='<span class="spin"></span> Analyzing...';
-  const res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),uploads_text:S.uploads_text});
-  btn.disabled=false;document.getElementById('aiStat').textContent='';
-  if(res.error&&!res.suggested){toast('AI error: '+res.error);return;}
-  applySuggested(res.suggested||{});
-  S.ai_drafted=true;toast(res.ai?'AI drafted your build — review below':'Pre-filled (AI offline)');document.getElementById('s1').scrollIntoView({behavior:'smooth'});
+  const btn=document.getElementById('btnAnalyze'),stat=document.getElementById('aiStat');
+  // Wait for every upload + text extraction to finish. Without this the AI is sent an
+  // empty uploads_text whenever Analyze is clicked before FileReader/storage resolves.
+  if(S.reads.length){
+    btn.disabled=true;stat.innerHTML='<span class="spin"></span> Reading '+S.files.length+' file(s)...';
+    try{await Promise.allSettled(S.reads);}catch(e){}
+    S.reads=[];renderUploads();
+  }
+  const brief=val('ai_brief');
+  if(!brief&&!S.uploads_text&&!val('ai_transcript')&&!S.docUrls.length&&!S.imgUrls.length){
+    btn.disabled=false;stat.textContent='';
+    toast('Describe what you’re building, or upload a document first');return;
+  }
+  btn.disabled=true;stat.innerHTML='<span class="spin"></span> Analyzing '+_srcCount()+'...';
+  let res;
+  try{res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),uploads_text:S.uploads_text,docs:S.docUrls,images:S.imgUrls});}
+  catch(e){res={error:String(e)};}
+  btn.disabled=false;
+  // Never fail silently: {} is truthy, so the old `!res.suggested` guard hid every API error.
+  const got=res&&res.suggested&&Object.keys(res.suggested).length;
+  if(!got){
+    stat.innerHTML='<span style="color:#ff6b6b">Analyze failed</span>';
+    toast('AI analyze failed: '+((res&&res.error)||'no data returned'));
+    return;
+  }
+  applySuggested(res.suggested);
+  stat.innerHTML='<span style="color:#3ddc97">✓ Mapped '+(res.mapped||Object.keys(res.suggested).length)+' fields</span>'+(S.unread.length?(' · <span style="color:#e0a800">'+S.unread.length+' file(s) unread</span>'):'');
+  toast(res.ai?('AI drafted your build from '+_srcCount()+' — review below'):'Pre-filled (AI offline)');
+  document.getElementById('s1').scrollIntoView({behavior:'smooth'});
+}
+function _srcCount(){
+  var p=[];if(S.uploads_text)p.push('document text');if(S.docUrls.length)p.push(S.docUrls.length+' PDF');if(S.imgUrls.length)p.push(S.imgUrls.length+' image');
+  return p.length?p.join(' + '):'your brief';
 }
 function applySuggested(s){
-  const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
-  set('first_name',s.first_name);set('last_name',s.last_name);set('business_name',s.business_name);set('niche',s.niche);set('what_they_do',s.what_they_do);set('offers',s.offers);set('audience',s.audience);set('team',s.team);set('additional_details',s.additional_details);
-  if(s.brand){set('c_primary',s.brand.primary);set('c_secondary',s.brand.secondary);set('c_accent',s.brand.accent);set('fonts',s.brand.fonts);set('voice',s.brand.voice);if(s.brand.mode)document.getElementById('brand_mode').value=s.brand.mode;}
-  if(Array.isArray(s.modules)){S.modules=s.modules.slice();syncModCards();buildFeatures();}
+  s=s||{};
+  const set=(id,v)=>{if(v!=null&&v!==''&&document.getElementById(id))document.getElementById(id).value=v;};
+  set('first_name',s.first_name);set('last_name',s.last_name);set('business_name',s.business_name);set('email',s.email);set('phone',s.phone);
+  set('niche',s.niche);set('what_they_do',s.what_they_do);set('offers',s.offers);set('audience',s.audience);set('team',s.team);
+  // input[type=color] silently rejects anything that is not #rrggbb, so normalize first
+  const hex=v=>{if(!v)return null;var x=String(v).trim().replace(/^#?/,'');if(/^[0-9a-f]{3}$/i.test(x))x=x[0]+x[0]+x[1]+x[1]+x[2]+x[2];return /^[0-9a-f]{6}$/i.test(x)?('#'+x.toLowerCase()):null;};
+  if(s.brand){set('c_primary',hex(s.brand.primary));set('c_secondary',hex(s.brand.secondary));set('c_accent',hex(s.brand.accent));set('fonts',s.brand.fonts);set('voice',s.brand.voice);if(s.brand.mode)document.getElementById('brand_mode').value=s.brand.mode;}
+  // modules first, then features, so buildFeatures does not overwrite the AI's picks
+  if(Array.isArray(s.modules)&&s.modules.length)S.modules=s.modules.slice();
+  if(s.features&&typeof s.features==='object'){Object.keys(s.features).forEach(function(k){if(Array.isArray(s.features[k])&&s.features[k].length)S.features[k]=s.features[k].slice();});}
+  if(Array.isArray(s.custom_modules))s.custom_modules.forEach(function(m){m=String(m).trim();if(m&&S.customModules.indexOf(m)<0)S.customModules.push(m);});
+  S.moduleNotes=(s.module_notes&&typeof s.module_notes==='object')?s.module_notes:{};
+  S.dataModel=s.data_model||'';
+  S.goalCriteria=Array.isArray(s.goal_criteria)?s.goal_criteria.slice():[];
   if(s.facing){S.facing=s.facing;document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.facing===s.facing));}
-  if(Array.isArray(s.integrations)){S.integrations=Array.from(new Set(s.integrations));buildModGrid();syncModCards();}
-  if(s.payments){S.payments=true;document.getElementById('sw_payments').classList.add('on');}
-  if(s.ai_features&&s.ai_features.enabled){S.ai_on=true;document.getElementById('sw_ai').classList.add('on');}
-  if(s.website&&s.website.build){S.website_on=true;document.getElementById('sw_website').classList.add('on');document.getElementById('websiteOpts').style.display='block';set('website_pages',s.website.pages);}
-  if(s.blog&&s.blog.automate){S.blog_on=true;document.getElementById('sw_blog').classList.add('on');document.getElementById('blogOpts').style.display='block';}
+  if(Array.isArray(s.integrations)&&s.integrations.length)S.integrations=Array.from(new Set(s.integrations.filter(function(k){return k!=='supabase_auth';})));
+  S.payments=!!s.payments;document.getElementById('sw_payments').classList.toggle('on',S.payments);
+  S.ai_on=!!(s.ai_features&&s.ai_features.enabled);document.getElementById('sw_ai').classList.toggle('on',S.ai_on);
+  if(s.website){S.website_on=!!s.website.build;document.getElementById('sw_website').classList.toggle('on',S.website_on);document.getElementById('websiteOpts').style.display=S.website_on?'block':'none';set('website_pages',s.website.pages);}
+  if(s.blog){
+    S.blog_on=!!s.blog.automate;document.getElementById('sw_blog').classList.toggle('on',S.blog_on);document.getElementById('blogOpts').style.display=S.blog_on?'block':'none';
+    S.blog_manage=!!s.blog.manage_in_dashboard;var bm=document.getElementById('sw_blogmanage');if(bm)bm.classList.toggle('on',S.blog_manage);
+    set('blog_cadence',s.blog.cadence);
+  }
   if(s.client_size)document.getElementById('client_size').value=s.client_size;
-  if(s.roles&&Array.isArray(s.roles.templates))S.roles=s.roles.templates.slice();
-  buildModGrid();syncModCards();
+  if(s.hosting){S.host=s.hosting;document.querySelectorAll('[data-host]').forEach(c=>c.classList.toggle('on',c.dataset.host===s.hosting));}
+  set('domain',s.domain);
+  if(s.roles){
+    if(Array.isArray(s.roles.templates)&&s.roles.templates.length)S.roles=s.roles.templates.slice();
+    set('journey_stages',s.roles.journey_stages);set('status_set',s.roles.statuses);
+    S.roleMatrix=s.roles.matrix||'';
+  }
+  if(Array.isArray(s.file_paths)&&s.file_paths.length)set('file_paths',s.file_paths.join(String.fromCharCode(10)));
+  // additional_details carries the depth of the source doc - append, never clobber
+  if(s.additional_details){
+    var ad=document.getElementById('additional_details');
+    var extra=[s.additional_details,S.roleMatrix?('Permissions: '+S.roleMatrix):'',S.dataModel?('Data model:'+String.fromCharCode(10)+S.dataModel):''].filter(Boolean).join(String.fromCharCode(10,10));
+    ad.value=ad.value.trim()?(ad.value.trim()+String.fromCharCode(10,10)+extra):extra;
+  }
+  buildModGrid();syncModCards();buildFeatures();renderCustomMods();
   S.ai_drafted=true;
   render();
 }
@@ -919,7 +1061,17 @@ function hydrate(b){
   const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
   set('first_name',b.first_name);set('last_name',b.last_name);set('email',b.email);set('phone',b.phone);set('business_name',b.business_name||b.company);set('niche',b.niche);set('what_they_do',b.what_they_do);set('offers',b.offers);set('audience',b.audience);set('team',b.team);set('additional_details',b.additional_details);set('transcripts',b.transcripts);
   if(b.brand){set('c_primary',b.brand.primary);set('c_secondary',b.brand.secondary);set('c_accent',b.brand.accent);set('fonts',b.brand.fonts);set('voice',b.brand.voice);if(b.brand.mode)document.getElementById('brand_mode').value=b.brand.mode;S.logo_path=b.brand.logo_path||'';}
-  if(Array.isArray(b.modules))S.modules=b.modules.filter(m=>typeof m==='string');
+  if(Array.isArray(b.modules)){S.modules=b.modules.filter(m=>typeof m==='string');
+    S.customModules=b.modules.filter(m=>m&&typeof m==='object'&&m.custom&&m.label).map(m=>m.label);}
+  if(b.features&&typeof b.features==='object')S.features=b.features;
+  if(b.module_notes&&typeof b.module_notes==='object')S.moduleNotes=b.module_notes;
+  if(b.data_model)S.dataModel=b.data_model;
+  if(Array.isArray(b.goal_criteria))S.goalCriteria=b.goal_criteria;
+  if(b.role_matrix)S.roleMatrix=b.role_matrix;
+  if(b.hosting){S.host=b.hosting;document.querySelectorAll('[data-host]').forEach(c=>c.classList.toggle('on',c.dataset.host===b.hosting));}
+  set('domain',b.domain);if(b.client_size)document.getElementById('client_size').value=b.client_size;
+  if(b.website){S.website_on=!!b.website.build;document.getElementById('sw_website').classList.toggle('on',S.website_on);document.getElementById('websiteOpts').style.display=S.website_on?'block':'none';set('website_pages',b.website.pages);}
+  if(b.blog){S.blog_on=!!b.blog.automate;document.getElementById('sw_blog').classList.toggle('on',S.blog_on);document.getElementById('blogOpts').style.display=S.blog_on?'block':'none';S.blog_manage=!!b.blog.manage_in_dashboard;var _bm=document.getElementById('sw_blogmanage');if(_bm)_bm.classList.toggle('on',S.blog_manage);set('blog_cadence',b.blog.cadence);}
   if(b.roles&&b.roles.templates)S.roles=b.roles.templates;
   if(Array.isArray(b.integrations))S.integrations=b.integrations.filter(x=>x!=='supabase_auth');
   S.facing=b.facing||S.facing;S.payments=!!b.payments;S.ai_on=b.ai_features&&b.ai_features.enabled;
