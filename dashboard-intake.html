@@ -355,10 +355,22 @@ textarea{resize:vertical;min-height:74px}
       <div class="mockprog" id="mockProg"><div class="mockprog-row"><span class="mockphase" id="mockPhase">Warming up the design engine…</span><span class="mocktime" id="mockTime">0s</span></div><div class="mockbar"><i id="mockBarFill"></i></div></div>
       <iframe class="mockframe" id="mockFrame" sandbox="allow-scripts allow-same-origin"></iframe>
       <label class="fl">Want changes? Type them below — it builds live, and Regenerate restarts instantly with your notes.</label>
-      <textarea id="revNotes" placeholder="e.g. make it lighter, add a referrals module, emphasize the client portal"></textarea>
+      <textarea id="revNotes" placeholder="e.g. make the KPI cards smaller, add a renewal column to the People table, warm up the accent"></textarea>
+      <div class="row" style="align-items:center;gap:10px;margin-top:8px">
+        <div>
+          <label class="fl" style="margin-top:0">How to apply it</label>
+          <select id="reviseMode">
+            <option value="auto">Auto — decide from what I asked (recommended)</option>
+            <option value="patch">Revise in place — never touch the layout or nav</option>
+            <option value="rebuild">Rebuild from scratch — new structure</option>
+          </select>
+        </div>
+        <div class="hint" style="flex:1">Small edits keep your current mockup and change only what you named. Structural asks ("try a different layout", "add a page") rebuild automatically.</div>
+      </div>
     </div>
     <div class="ov-foot">
-      <button class="btn btn-ghost" onclick="reviewWithAI()" id="regenBtn">🔄 Regenerate</button>
+      <button class="btn btn-ghost" onclick="reviewWithAI()" id="regenBtn">🔄 Apply revision</button>
+      <button class="btn btn-ghost" onclick="revertMock()" id="revertBtn" style="display:none">↩ Revert</button>
       <button class="btn btn-ghost" onclick="saveMockStyle()" id="saveStyleBtn">💾 Save this style</button>
       <button class="btn btn-primary" onclick="approveMock()">✓ Looks right — continue</button>
     </div>
@@ -960,10 +972,21 @@ function applySuggested(s){
 
 // ---- review with AI (live streaming build) ----
 let _lastMock='';
+let _prevMock='';
+let _mockCfg='';
+let _runToken=0;
 let _streamAbort=null;
 let _thinking=false;
 let _jobId=null;
 let _segNo=0;
+// Fingerprint of the things a PATCH cannot express. If any of it changed since the current
+// mockup was generated, the revision has to be a rebuild.
+function _cfgFingerprint(){
+  var d=gather();
+  return JSON.stringify([S.modules.slice().sort(),S.customModules.slice().sort(),S.layout,
+    (d.nav_groups||[]).map(function(g){return g.group+':'+(g.items||[]).join(',');}),
+    d.facing,(d.brand||{}).mode]);
+}
 function _mockRepair(h){
   h=h.replace(/^```html\s*/i,'').replace(/^```\s*/i,'').trim();
   if(/<style/i.test(h)&&!/<\/style>/i.test(h))h+='</style>';
@@ -987,80 +1010,106 @@ function _mockPhase(txt,bytes,secs){
 }
 async function reviewWithAI(){
   if(!S.modules.length&&!S.customModules.length){toast('Pick at least one module');return;}
+  var myRun=++_runToken;                 // stale runs must never write to the frame
   if(_streamAbort){try{_streamAbort.abort();}catch(e){}}
   openOv('ovMock');
   var prog=document.getElementById('mockProg'),phase=document.getElementById('mockPhase'),timeEl=document.getElementById('mockTime'),bar=document.getElementById('mockBarFill'),frame=document.getElementById('mockFrame'),card=document.querySelector('#ovMock .ov-card');
   var d=gather();d.revision_notes=val('revNotes');
+  var notes=d.revision_notes;
+  var cfgNow=_cfgFingerprint();
+  var cfgChanged=!!(_lastMock&&_mockCfg&&_mockCfg!==cfgNow);
+  var wantMode=(document.getElementById('reviseMode')||{}).value||'auto';
+  var revising=!!(_lastMock&&notes);
+  if(revising)d.base_html=_lastMock;
+  _prevMock=_lastMock;                    // always keep a way back
   var bg=((d.brand||{}).secondary)||'#05061a';
   prog.classList.add('on');if(card)card.classList.add('mockbuilding');
-  phase.textContent='Warming up the design engine…';bar.style.width='2%';timeEl.textContent='0s';
-  frame.srcdoc=_mockSkeleton(bg,(d.brand||{}).primary,(d.brand||{}).accent);
+  phase.textContent=revising?'Reading your current mockup…':'Warming up the design engine…';
+  bar.style.width='2%';timeEl.textContent='0s';
+  // Only blank the canvas for a fresh build. While revising, keep the existing mockup on screen
+  // so a failure never leaves the user staring at a half-rendered page with no sidebar.
+  if(!revising)frame.srcdoc=_mockSkeleton(bg,(d.brand||{}).primary,(d.brand||{}).accent);
   document.getElementById('regenBtn').disabled=true;
   var ac={signal:{aborted:false},abort:function(){this.signal.aborted=true;}};_streamAbort=ac;
-  var t0=Date.now(),full='',lastRender=0,renderedLen=0,lastGrow=Date.now(),stalled=false,inFallback=false,doneOk=false;
+  var t0=Date.now(),full='',renderedLen=0,lastGrow=Date.now(),stalled=false,inFallback=false,doneOk=false,mode='create';
   _thinking=false;_segNo=0;
+  function alive(){return myRun===_runToken&&!ac.signal.aborted;}
   var timer=setInterval(function(){
+    if(!alive()){clearInterval(timer);return;}
     var secs=(Date.now()-t0)/1000;timeEl.textContent=Math.round(secs)+'s';
     var byteW=Math.min(93,(full.length/42000)*100),timeW=Math.min(90,(secs/150)*100);
     bar.style.width=Math.max(byteW,timeW*0.7,2).toFixed(1)+'%';
-    if(!inFallback)phase.textContent=_mockPhase(full,full.length,secs)+(_segNo>1?(' (part '+_segNo+')'):'');
-    // Each segment is a bounded request, so a genuinely dead segment is the only real stall.
+    if(!inFallback)phase.textContent=(mode==='patch'?'Editing your mockup in place…':_mockPhase(full,full.length,secs))+(_segNo>1?(' (part '+_segNo+')'):'');
     if(!doneOk&&!inFallback&&Date.now()-lastGrow>180000){stalled=true;try{ac.abort();}catch(e){}}
   },300);
-  function finish(html,aiFlag){
-    doneOk=true;clearInterval(timer);_lastMock=html;frame.srcdoc=html;
-    bar.style.width='100%';phase.textContent='Ready ✓';
+  function finish(html,aiFlag,msg){
+    if(!alive()&&doneOk)return;
+    doneOk=true;clearInterval(timer);_lastMock=html;_mockCfg=cfgNow;frame.srcdoc=html;
+    bar.style.width='100%';phase.textContent=msg||'Ready ✓';
     document.getElementById('mockAi').style.display=aiFlag?'inline-block':'none';
+    document.getElementById('regenBtn').disabled=false;
+    var rb=document.getElementById('revertBtn');if(rb)rb.style.display=(_prevMock&&_prevMock!==html)?'inline-block':'none';
+    setTimeout(function(){prog.classList.remove('on');if(card)card.classList.remove('mockbuilding');},700);
+    _streamAbort=null;
+  }
+  function keepPrevious(why){
+    clearInterval(timer);doneOk=true;
+    if(_prevMock){_lastMock=_prevMock;frame.srcdoc=_prevMock;}
+    bar.style.width='100%';phase.textContent=why;
     document.getElementById('regenBtn').disabled=false;
     setTimeout(function(){prog.classList.remove('on');if(card)card.classList.remove('mockbuilding');},700);
     _streamAbort=null;
+  }
+  try{
+    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:d,id:S.id,resume_token:S.resume_token,
+                                      mode:(revising?wantMode:'auto'),config_changed:cfgChanged});
+    if(!alive())return;
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    _jobId=st.job_id;mode=st.mode||'create';
+    if(revising)toast(mode==='patch'?'Revising in place — keeping your layout':('Rebuilding — '+(st.why||'this change needs new structure')));
+    var aiFlag=st.ai!==false;
+    if(st.done&&st.output){full=st.output;finish(_mockRepair(full),!!st.ai);return;}
+    for(var seg=0;seg<10;seg++){
+      if(!alive())return;
+      _segNo=seg+1;lastGrow=Date.now();
+      var sres=await api('dashboard-job',{action:'step',job_id:_jobId});
+      if(!alive())return;
+      if(sres.error&&!sres.output)throw new Error(sres.error);
+      if(sres.chunk){full+=sres.chunk;lastGrow=Date.now();_thinking=false;}
+      if(sres.output)full=sres.output;
+      // While patching, do NOT paint half-written HTML over a working mockup.
+      if(mode!=='patch'&&/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(sres.done){
+        aiFlag=sres.ai!==false;
+        if(sres.reverted){keepPrevious('Kept your previous mockup — that edit would have dropped the navigation');toast('Revision rejected: it removed the sidebar. Your mockup is unchanged — try naming the specific thing to change.');return;}
+        if(sres.guard==='fewer_pages_warning')toast('Heads up: that revision dropped a page. Use Revert if it was not intended.');
+        break;
+      }
+    }
+    var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
+    if(complete)finish(_mockRepair(full),aiFlag&&full.length>1200);
+    else if(revising&&_prevMock)keepPrevious('That revision came back incomplete — your mockup is unchanged');
+    else{var ok=await nonStream();if(!ok)finish(_mockRepair(full),false);}
+  }catch(e){
+    if(!alive())return;
+    if(revising&&_prevMock){keepPrevious('Could not apply that revision — your mockup is unchanged');toast('Revision failed: '+e.message);return;}
+    if(full.length>1500){finish(_mockRepair(full),true);return;}
+    var ok2=await nonStream();
+    if(!ok2){clearInterval(timer);bar.style.width='100%';phase.textContent='Could not generate';frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';document.getElementById('regenBtn').disabled=false;_streamAbort=null;}
   }
   async function nonStream(){
     inFallback=true;phase.textContent='Assembling the full mockup…';
     try{var res=await api('dashboard-ai',{action:'review',build:d,id:S.id,resume_token:S.resume_token});if(res&&res.mockup_html){finish(res.mockup_html,!!res.ai);return true;}}catch(e){}
     return false;
   }
-  try{
-    // Opus 5 cannot finish a 25KB+ document inside the ~150s Supabase edge wall in one call, so
-    // generation runs as bounded SEGMENTS via dashboard-job. Each step returns a chunk; we append
-    // and re-render, which keeps the live-build feel without the worker ever being killed.
-    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:d,id:S.id,resume_token:S.resume_token});
-    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
-    _jobId=st.job_id;
-    var aiFlag=st.ai!==false;
-    if(st.done&&st.output){full=st.output;finish(_mockRepair(full),!!st.ai);return;}
-    for(var seg=0;seg<10;seg++){
-      if(ac.signal.aborted)throw new Error('aborted');
-      _segNo=seg+1;lastGrow=Date.now();
-      var sres=await api('dashboard-job',{action:'step',job_id:_jobId});
-      if(sres.error&&!sres.output)throw new Error(sres.error);
-      if(sres.chunk){full+=sres.chunk;lastGrow=Date.now();_thinking=false;}
-      if(sres.output)full=sres.output;
-      if(/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
-      if(sres.done){aiFlag=sres.ai!==false;break;}
-    }
-    var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
-    if(complete){finish(_mockRepair(full),aiFlag&&full.length>1200);}
-    else{var ok=await nonStream();if(!ok)finish(_mockRepair(full),false);}
-  }catch(e){
-    if(ac.signal.aborted&&!stalled){clearInterval(timer);return;}
-    if(full.length>1500){finish(_mockRepair(full),true);return;}
-    var ok2=await nonStream();
-    if(!ok2){clearInterval(timer);bar.style.width='100%';phase.textContent='Could not generate';frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';document.getElementById('regenBtn').disabled=false;_streamAbort=null;}
-  }
 }
-function approveMock(){closeOv('ovMock');toast('Mockup approved');if(S.id||S.resume_token)api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});}
-async function saveMockStyle(){
-  if(!_lastMock){toast('Generate a mockup first');return;}
-  var label=prompt('Name this style (e.g. Dark Gold, Light Editorial)','Style '+((S.savedStyles||0)+1));
-  if(label===null)return;
-  var btn=document.getElementById('saveStyleBtn');if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  var res=await api('dashboard-mockups',Object.assign({action:'add',html:_lastMock,label:label||'Style',id:S.id,resume_token:S.resume_token},gather()));
-  if(btn){btn.disabled=false;btn.textContent='💾 Save this style';}
-  if(res&&res.ok){S.id=res.build_id;S.resume_token=res.resume_token||S.resume_token;S.savedStyles=res.count;toast('Saved style ('+res.count+' total). Finalize to share all styles for the client to pick.');}
-  else toast('Could not save: '+((res&&res.error)||''));
+function revertMock(){
+  if(!_prevMock){toast('Nothing to revert to');return;}
+  var cur=_lastMock;_lastMock=_prevMock;_prevMock=cur;
+  document.getElementById('mockFrame').srcdoc=_lastMock;
+  document.getElementById('mockPhase').textContent='Reverted ✓';
+  toast('Reverted to the previous mockup');
 }
-
 // ---- spec ----
 let _spec='';
 async function createSpec(){

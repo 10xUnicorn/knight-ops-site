@@ -65,7 +65,19 @@ const SB='https://trpnlkntvulkjerevngm.supabase.co';
 const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 const FN=SB+'/functions/v1/';
 async function api(fn,p){const r=await fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(p)});return r.json();}
-const MODLABEL={overview:'Today / Overview',kpis:'KPI / CEO Dashboard',leads:'Leads & CRM',pipeline:'Sales Pipeline',deals:'Deals & Revenue',tasks:'Tasks & Projects',clients:'Clients & Contacts',cohort:'Retention & Ascension',journey:'Customer Journey Map',portal:'Client Portal',partner:'Partner / JV Portal',finance:'Money & Finance',payments:'Payments & Billing',webinar:'Webinar & Ad Spend',media:'Media & JV Tracker',events:'Live Event Capture',aibrain:'AI Brain & Intelligence',content:'Content & Blog',notifications:'Notifications',messaging:'Admin/Client Messaging',team:'Team & People',settings:'Settings & Admin',worksheets:'Worksheets & Tools',reports:'Client Reports'};
+const MODLABEL={
+ l0_engagement_setup:'Engagement Setup & Access',l0_design_system:'Brand & Design System',
+ l1_auth_roles:'Authentication & Roles',l1_data_foundation:'Data Foundation',l1_kpi_dashboard:'Business Intelligence Dashboard',l1_reporting:'Reporting & Exports',
+ l2_lead_capture:'Lead Capture & Forms',l2_crm_pipeline:'Pipeline & CRM',l2_proposals:'Proposals & Contracts',l2_booking:'Booking & Scheduling',
+ l3_onboarding:'Client Onboarding Workflow',l3_client_portal:'Client Portal',l3_delivery:'Project & Delivery Tracking',l3_files:'Files & Asset Management',
+ l4_courses:'Courses & Curriculum',l4_community:'Community & Engagement',l4_membership:'Membership & Subscriptions',l4_ascension:'Upsell & Renewal Paths',
+ l5_email_automation:'Email & Sequence Automation',l5_nurture:'Nurture & Lifecycle Campaigns',l5_referral:'Referral & Partner Program',l5_analytics:'Analytics & Attribution',
+ l6_ai_assistant:'AI Business Assistant',l6_knowledge:'Knowledge Base & Retrieval',l6_agents:'Agent Workflows',l6_ai_content:'AI Content Generation',
+ l7_team:'Team & Permissions',l7_workflow:'Task & Workflow Automation',l7_capacity:'Time, Capacity & Utilisation',l7_sops:'SOPs & Internal Knowledge',
+ l8_integrations:'Integrations Hub',l8_payments:'Payments & Billing',l8_mobile:'Mobile Experience',l8_custom:'Specialized Experience',
+ l9_ownership:'Ownership & Handoff',l9_monitoring:'Monitoring & Alerting',l9_evolution:'Continuity & Evolution',
+ // legacy keys from builds created before the os_modules migration
+ overview:'Today / Overview',kpis:'KPI / CEO Dashboard',leads:'Leads & CRM',pipeline:'Sales Pipeline',deals:'Deals & Revenue',tasks:'Tasks & Projects',clients:'Clients & Contacts',cohort:'Retention & Ascension',journey:'Customer Journey Map',portal:'Client Portal',partner:'Partner / JV Portal',finance:'Money & Finance',payments:'Payments & Billing',webinar:'Webinar & Ad Spend',media:'Media & JV Tracker',events:'Live Event Capture',aibrain:'AI Brain & Intelligence',content:'Content & Blog',community:'Community & Engagement',notifications:'Notifications',messaging:'Admin/Client Messaging',team:'Team & People',settings:'Settings & Admin',worksheets:'Worksheets & Tools',reports:'Client Reports'};
 function modLabel(m){if(typeof m==='string')return MODLABEL[m]||m;return m&&(m.label||m.key)||'';}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 let TOKEN='',MODE='review',B={};
@@ -168,7 +180,10 @@ async function regenMock(){
   try{
     // Segmented generation via dashboard-job. Opus 5 cannot finish a full mockup inside the
     // ~150s Supabase edge wall in one call, so we pull it a chunk at a time and re-render.
-    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:build,id:B.id});
+    // Revising keeps the current mockup as the base so an edit can never drop the sidebar.
+    if(notes&&B.ai_mockup_html)build.base_html=B.ai_mockup_html;
+    var _prev=B.ai_mockup_html||'';
+    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:build,id:B.id,mode:'auto'});
     if(st.error||!st.job_id)throw new Error(st.error||'could not start');
     if(st.done&&st.output)full=st.output;
     else for(var seg=0;seg<10;seg++){
@@ -177,8 +192,12 @@ async function regenMock(){
       if(sres.chunk)full+=sres.chunk;
       if(sres.output)full=sres.output;
       var now=Date.now();
-      if(now-lastRender>350&&f&&/<body/i.test(full)&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}
-      if(sres.done)break;
+      // Do not paint half-written HTML over a working mockup while patching.
+      if(st.mode!=='patch'&&now-lastRender>350&&f&&/<body/i.test(full)&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}
+      if(sres.done){
+        if(sres.reverted){clearInterval(timer);B.ai_mockup_html=_prev;render();toast('That edit would have dropped the navigation - your mockup is unchanged');if(b){b.disabled=false;b.textContent='🔄 Revise mockup with AI';}return;}
+        break;
+      }
     }
     clearInterval(timer);
     var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);

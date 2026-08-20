@@ -7,6 +7,18 @@
 
 ---
 
+## Changelog — 2026-08-19d (Revision is an EDIT, not a rebuild — the disappearing sidebar)
+
+- **ROOT CAUSE: the revise box never sent the existing mockup anywhere.** `base_html` appeared ZERO times in the codebase. Typing a note and hitting Regenerate started a brand-new from-scratch job with `revision_notes` appended, so the model had nothing to preserve and routinely came back with a different (or missing) sidebar. Three bugs stacked on top of that: the iframe was repainted with half-written HTML mid-run, and a stale run could `finish()` over a newer one (the abort flag was only checked at the top of the loop, and `finish()` nulled `_streamAbort`, killing the new run's handle).
+- **Three modes now, resolved per request** (`dashboard-job` v4): `create` · `patch` · `rebuild`. **`patch` is an EDIT** — `REVISE_SYS` receives the current document and is told everything unmentioned must come through byte-for-byte, that a vague request is never permission to restructure, and that returning fewer nav items than it received is a FAILED revision. Verified live: *"make the KPI cards smaller and add a renewal date column"* → **97.7% of lines untouched, 4 changed regions, nav 7→7, pages 6→6, tabs 13→13, chips 13→13.**
+- **Mode is classified, not guessed.** `classifyMode()` uses **`claude-haiku-4-5`** (~$0.001/call, `DASHBOARD_CLASSIFY_MODEL`) and answers PATCH or REBUILD, biased to PATCH on ambiguity. **9/9 on the test set** — "make it cleaner" and "the numbers look wrong" → patch; "try a different layout", "start over", "add a whole Community page" → rebuild. A rebuild strips `base_html` from the payload so it genuinely starts clean.
+- **`config_changed` is decided CLIENT-side and forces a rebuild** — `_cfgFingerprint()` hashes modules + custom modules + layout + nav groups + facing + brand mode. A patch cannot express "I added three modules", so if the fingerprint moved since the mockup was made, mode is `rebuild` regardless of the note.
+- **Server-side guard, because prompts are not guarantees.** After a patch, `struct()` compares nav presence, nav item count and page count against the base. Nav gone, or item count below 60% of the original without the note asking for removal → **the original is returned unchanged** and the UI says so. Removal verbs (`remov|delete|drop|hide|consolidat|merge|…`) disarm the guard so intentional removals still work.
+- **The canvas is never destroyed while patching.** No skeleton, no progressive repaint over a working mockup, and a `_runToken` means a stale run can no longer write to the iframe. Every failure path calls `keepPrevious()`. Added a **↩ Revert** button (`_prevMock`) and a **How to apply it** selector (Auto / Revise in place / Rebuild) for manual override.
+- **`db.html` got the same treatment** plus a real bug fix: its `MODLABEL` map still held only the retired keys, so after the os_modules migration a client would have seen raw `l2_lead_capture` strings on the review page. Now carries all 37 canonical labels with the legacy keys kept as aliases.
+
+---
+
 ## Changelog — 2026-08-19c (Dashboard builder: os_modules layers, one record spine, 7-item nav, layouts)
 
 - **THE BUILDER HAD ITS OWN INVENTED MODULE CATALOG.** 25 modules grouped by made-up categories (Sales/Ops/Growth), completely disconnected from `public.os_modules` (37 modules across layers 0-9) which is what Knight Ops actually sells and delivers. That single fact caused the "overkill and disconnected" feeling. `MODULES` in `dashboard-intake.html` and `CATALOG` in `dashboard-analyze` are now **exact mirrors of os_modules** — if you add a row to os_modules you must add it to BOTH. `MODALIAS` maps every legacy key (`leads`→`l2_lead_capture` etc) so saved builds still hydrate.
