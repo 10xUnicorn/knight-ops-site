@@ -759,7 +759,7 @@ async function analyzeBuild(){
     btn.disabled=false;stat.textContent='';
     toast('Describe what you’re building, or upload a document first');return;
   }
-  btn.disabled=true;stat.innerHTML='<span class="spin"></span> Analyzing '+_srcCount()+'...';
+  btn.disabled=true;stat.innerHTML='<span class="spin"></span> Analyzing '+_srcCount()+' (Opus, ~60-90s)...';
   let res;
   try{res=await api('dashboard-analyze',{brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),uploads_text:S.uploads_text,docs:S.docUrls,images:S.imgUrls});}
   catch(e){res={error:String(e)};}
@@ -828,6 +828,9 @@ function applySuggested(s){
 // ---- review with AI (live streaming build) ----
 let _lastMock='';
 let _streamAbort=null;
+let _thinking=false;
+let _jobId=null;
+let _segNo=0;
 function _mockRepair(h){
   h=h.replace(/^```html\s*/i,'').replace(/^```\s*/i,'').trim();
   if(/<style/i.test(h)&&!/<\/style>/i.test(h))h+='</style>';
@@ -860,14 +863,16 @@ async function reviewWithAI(){
   phase.textContent='Warming up the design engine…';bar.style.width='2%';timeEl.textContent='0s';
   frame.srcdoc=_mockSkeleton(bg,(d.brand||{}).primary,(d.brand||{}).accent);
   document.getElementById('regenBtn').disabled=true;
-  var ac=new AbortController();_streamAbort=ac;
+  var ac={signal:{aborted:false},abort:function(){this.signal.aborted=true;}};_streamAbort=ac;
   var t0=Date.now(),full='',lastRender=0,renderedLen=0,lastGrow=Date.now(),stalled=false,inFallback=false,doneOk=false;
+  _thinking=false;_segNo=0;
   var timer=setInterval(function(){
     var secs=(Date.now()-t0)/1000;timeEl.textContent=Math.round(secs)+'s';
-    var byteW=Math.min(93,(full.length/42000)*100),timeW=Math.min(90,(secs/95)*100);
+    var byteW=Math.min(93,(full.length/42000)*100),timeW=Math.min(90,(secs/150)*100);
     bar.style.width=Math.max(byteW,timeW*0.7,2).toFixed(1)+'%';
-    if(!inFallback)phase.textContent=_mockPhase(full,full.length,secs);
-    if(!doneOk&&!inFallback&&!/<body/i.test(full)&&Date.now()-lastGrow>16000){stalled=true;try{ac.abort();}catch(e){}}
+    if(!inFallback)phase.textContent=_mockPhase(full,full.length,secs)+(_segNo>1?(' (part '+_segNo+')'):'');
+    // Each segment is a bounded request, so a genuinely dead segment is the only real stall.
+    if(!doneOk&&!inFallback&&Date.now()-lastGrow>180000){stalled=true;try{ac.abort();}catch(e){}}
   },300);
   function finish(html,aiFlag){
     doneOk=true;clearInterval(timer);_lastMock=html;frame.srcdoc=html;
@@ -883,38 +888,30 @@ async function reviewWithAI(){
     return false;
   }
   try{
-    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:d,id:S.id,resume_token:S.resume_token}),signal:ac.signal});
-    if(!r.ok||!r.body)throw new Error('stream '+r.status);
-    var aiFlag=r.headers.get('x-ai')!=='0';
-    var isSSE=(r.headers.get('content-type')||'').indexOf('event-stream')>=0;
-    var reader=r.body.getReader(),dec=new TextDecoder();
-    if(!isSSE){
-      var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}
-      full=txt;
-    }else{
-      var sbuf='';
-      while(true){
-        var rd=await reader.read();
-        if(rd.done)break;
-        sbuf+=dec.decode(rd.value,{stream:true});
-        var parts=sbuf.split('\n\n');sbuf=parts.pop();
-        for(var i=0;i<parts.length;i++){
-          var lines=parts[i].split('\n');
-          for(var j=0;j<lines.length;j++){
-            var ln=lines[j];if(ln.indexOf('data:')!==0)continue;
-            var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;
-            try{var add=JSON.parse(pay);if(add){full+=add;lastGrow=Date.now();}}catch(_e){}
-          }
-        }
-        var now=Date.now();
-        if(now-lastRender>350&&/<body/i.test(full)&&full.length-renderedLen>200){lastRender=now;renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
-      }
+    // Opus 5 cannot finish a 25KB+ document inside the ~150s Supabase edge wall in one call, so
+    // generation runs as bounded SEGMENTS via dashboard-job. Each step returns a chunk; we append
+    // and re-render, which keeps the live-build feel without the worker ever being killed.
+    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:d,id:S.id,resume_token:S.resume_token});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    _jobId=st.job_id;
+    var aiFlag=st.ai!==false;
+    if(st.done&&st.output){full=st.output;finish(_mockRepair(full),!!st.ai);return;}
+    for(var seg=0;seg<10;seg++){
+      if(ac.signal.aborted)throw new Error('aborted');
+      _segNo=seg+1;lastGrow=Date.now();
+      var sres=await api('dashboard-job',{action:'step',job_id:_jobId});
+      if(sres.error&&!sres.output)throw new Error(sres.error);
+      if(sres.chunk){full+=sres.chunk;lastGrow=Date.now();_thinking=false;}
+      if(sres.output)full=sres.output;
+      if(/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(sres.done){aiFlag=sres.ai!==false;break;}
     }
     var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
     if(complete){finish(_mockRepair(full),aiFlag&&full.length>1200);}
     else{var ok=await nonStream();if(!ok)finish(_mockRepair(full),false);}
   }catch(e){
     if(ac.signal.aborted&&!stalled){clearInterval(timer);return;}
+    if(full.length>1500){finish(_mockRepair(full),true);return;}
     var ok2=await nonStream();
     if(!ok2){clearInterval(timer);bar.style.width='100%';phase.textContent='Could not generate';frame.srcdoc='<body style="padding:30px;font-family:sans-serif;color:#555">Could not generate this time. Tap Regenerate to try again.</body>';document.getElementById('regenBtn').disabled=false;_streamAbort=null;}
   }
@@ -942,13 +939,19 @@ async function createSpec(){
   var tick=setInterval(function(){if(!full)box.innerHTML='<span class="spin"></span> Writing the spec with AI… '+Math.round((Date.now()-t0)/1000)+'s';},800);
   async function nonStreamSpec(){try{var res=await api('dashboard-ai',{action:'spec',build:d,id:S.id,resume_token:S.resume_token});if(res&&res.spec_md)return res.spec_md;}catch(e){}return '';}
   try{
-    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({mode:'spec',build:d,id:S.id,resume_token:S.resume_token})});
-    if(!r.ok||!r.body)throw new Error('spec '+r.status);
-    var aiFlag=r.headers.get('x-ai')!=='0';
-    var isSSE=(r.headers.get('content-type')||'').indexOf('event-stream')>=0;
-    var reader=r.body.getReader(),dec=new TextDecoder();
-    if(!isSSE){var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}full=txt;box.textContent=full;}
-    else{var sbuf='';while(true){var rd=await reader.read();if(rd.done)break;sbuf+=dec.decode(rd.value,{stream:true});var parts=sbuf.split('\n\n');sbuf=parts.pop();for(var i=0;i<parts.length;i++){var lines=parts[i].split('\n');for(var j=0;j<lines.length;j++){var ln=lines[j];if(ln.indexOf('data:')!==0)continue;var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;try{var add=JSON.parse(pay);if(add){full+=add;box.textContent=full;}}catch(_e){}}}}}
+    // Same segmented job runner as the mockup - a full PRD on Opus 5 exceeds the edge wall in one shot.
+    var st=await api('dashboard-job',{action:'start',kind:'spec',build:d,id:S.id,resume_token:S.resume_token});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    var aiFlag=st.ai!==false;
+    if(st.done&&st.output){full=st.output;box.textContent=full;}
+    else for(var seg=0;seg<10;seg++){
+      var sres=await api('dashboard-job',{action:'step',job_id:st.job_id});
+      if(sres.error&&!sres.output)throw new Error(sres.error);
+      if(sres.chunk)full+=sres.chunk;
+      if(sres.output)full=sres.output;
+      box.textContent=full;
+      if(sres.done){aiFlag=sres.ai!==false;break;}
+    }
     clearInterval(tick);
     if(!full||full.length<40){full=await nonStreamSpec();box.textContent=full;}
     _spec=full;box.textContent=full||'Could not generate the spec. Tap Create spec to retry.';

@@ -7,6 +7,19 @@
 
 ---
 
+## Changelog — 2026-08-19b (Dashboard builder on Claude Opus 5 + segmented background generation)
+
+- **Model is now `claude-opus-5` at `output_config:{effort:'medium'}`** across `dashboard-analyze` v13, `dashboard-job` v1, `dashboard-stream` v13, `dashboard-ai` v16. Overridable per environment with **`DASHBOARD_AI_MODEL`** and **`DASHBOARD_AI_EFFORT`** — change those two secrets, not the code. Effort is set with `output_config`, NOT a top-level `effort` key.
+- **THE ~150s SUPABASE EDGE WALL IS REAL AND IT KILLS OPUS MID-DOCUMENT.** Opus 5 runs ~80 tok/s; a mockup is 25KB and a PRD is 52KB. A single streaming call was **shut down at 157–160s with ~1.2KB written** (confirmed in `function_logs`: the dashboard-stream worker logs `shutdown` mid-stream, no `event: done` ever reaches the client). Do NOT "fix" this by raising max_tokens — the ceiling is wall-clock, not tokens.
+- **New `dashboard-job` edge fn + `dashboard_jobs` table (migration `dashboard_jobs_background_generation`) = segmented generation.** Actions `start` / `step` / `status` / `cancel`. Each `step` requests at most `DASHBOARD_SEG_TOKENS` (4500), appends to `dashboard_jobs.output`, and returns `done:false` while `stop_reason==='max_tokens'`. The browser loops `step` and re-renders, so it still looks live but no single request approaches the wall. RLS on with **zero policies** = service role only. Verified: mockup 3 segments / 122s / 25,093 bytes; spec 5 segments / 51,805 chars.
+- **Continuation uses an ASSISTANT PREFILL with `thinking:{type:'disabled'}`** — prefill and thinking are mutually exclusive, and Opus 5 refuses `thinking:disabled` at `xhigh`/`max` effort (another reason medium is the right level here). Segment 1 has no prefill so Opus may think freely. If the prefill is ever rejected, the fn falls back to a plain "continue from exactly where this stops" user turn. Seam quality verified: zero duplicated runs, one `## Information Architecture` heading, balanced div count, 0 em dashes.
+- **`content[0].text` IS A BUG ON ANY THINKING MODEL.** Opus 5 thinks adaptively, so `content[]` can lead with a thinking block and the old `d.content?.[0]?.text` in `dashboard-ai` returned undefined. Every function now uses a `textOf()` helper that filters to `type==='text'` blocks. Same class of bug on the stream side: only `delta.type==='text_delta'` is appended.
+- **`dashboard-intake.html` + `db.html` migrated off `dashboard-stream`** to the job runner (0 references remain in either file). The old 16s stall watchdog would have aborted every healthy Opus run before the first byte of HTML; it is now a 180s per-segment guard, and the progress label shows `(part N)`.
+- **`dashboard-stream` and `dashboard-ai` are kept as fallbacks only** — they remain on Opus and will still time out on long output, so treat them as the deterministic-fallback path, not the primary one.
+- **Timing to expect:** analyze ~75s, mockup ~2min, full PRD ~5min. That is the cost of Opus-grade output; if a faster turnaround is ever needed, set `DASHBOARD_AI_MODEL=claude-sonnet-5`.
+
+---
+
 ## Changelog — 2026-08-19 (Dashboard builder deep pre-fill + collapsible sidebar)
 
 - **ANTHROPIC_API_KEY IS OUT OF CREDITS.** Every AI edge fn returns "Your credit balance is too low" (`dashboard-analyze`, `dashboard-stream`, `dashboard-ai`, `api-autofix`, `shift-guide`, `module-injection`). Add credits at console.anthropic.com. The builder's silent failure was compounded by the frontend guard `if(res.error && !res.suggested)` — `res.suggested` is `{}`, which is TRUTHY, so the error toast never fired and Analyze looked like it "did nothing". Now guarded on `Object.keys(suggested).length` and the failure is shown in red inline.

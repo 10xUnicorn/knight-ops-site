@@ -166,12 +166,20 @@ async function regenMock(){
   var t0=Date.now(),full='',lastRender=0;
   var timer=setInterval(function(){if(b)b.innerHTML='<span class="spin"></span> Building it live… '+Math.round((Date.now()-t0)/1000)+'s';},500);
   try{
-    var r=await fetch(FN+'dashboard-stream',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({build:build,id:B.id})});
-    if(!r.ok||!r.body)throw new Error('stream '+r.status);
-    var isSSE=(r.headers.get('content-type')||'').indexOf('event-stream')>=0;
-    var reader=r.body.getReader(),dec=new TextDecoder();
-    if(!isSSE){var txt='';while(true){var rd0=await reader.read();if(rd0.done)break;txt+=dec.decode(rd0.value,{stream:true});}full=txt;}
-    else{var sbuf='';while(true){var rd=await reader.read();if(rd.done)break;sbuf+=dec.decode(rd.value,{stream:true});var parts=sbuf.split('\n\n');sbuf=parts.pop();for(var i=0;i<parts.length;i++){var lines=parts[i].split('\n');for(var j=0;j<lines.length;j++){var ln=lines[j];if(ln.indexOf('data:')!==0)continue;var pay=ln.slice(5).trim();if(!pay||pay==='end')continue;try{full+=JSON.parse(pay);}catch(_e){}}}var now=Date.now();if(now-lastRender>350&&f&&/<body/i.test(full)&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}}}
+    // Segmented generation via dashboard-job. Opus 5 cannot finish a full mockup inside the
+    // ~150s Supabase edge wall in one call, so we pull it a chunk at a time and re-render.
+    var st=await api('dashboard-job',{action:'start',kind:'mockup',build:build,id:B.id});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    if(st.done&&st.output)full=st.output;
+    else for(var seg=0;seg<10;seg++){
+      var sres=await api('dashboard-job',{action:'step',job_id:st.job_id});
+      if(sres.error&&!sres.output)throw new Error(sres.error);
+      if(sres.chunk)full+=sres.chunk;
+      if(sres.output)full=sres.output;
+      var now=Date.now();
+      if(now-lastRender>350&&f&&/<body/i.test(full)&&full.length>200){lastRender=now;f.srcdoc=_rep(full);}
+      if(sres.done)break;
+    }
     clearInterval(timer);
     var complete=/<\/body>/i.test(full)||/<\/main>/i.test(full);
     if(!complete){var res2=await api('dashboard-ai',{action:'review',build:build,id:B.id});if(res2&&res2.mockup_html)full=res2.mockup_html;}
