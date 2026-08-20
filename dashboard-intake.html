@@ -142,6 +142,15 @@ textarea{resize:vertical;min-height:74px}
 .success{text-align:center}
 .success .lk{display:flex;gap:8px;margin:8px 0;align-items:center}
 .success input{font-size:.78rem}
+.layerblock{border:1px solid rgba(255,255,255,.09);border-radius:12px;margin-bottom:9px;overflow:hidden}
+.layerhead{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;cursor:pointer;background:rgba(255,255,255,.03);font-size:.82rem}
+.layerhead:hover{background:rgba(255,255,255,.06)}
+.layerhead b{color:#C9922A;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.layermeta{display:flex;align-items:center;gap:8px;opacity:.8}
+.layercount{background:#00D4C8;color:#05061a;border-radius:20px;padding:1px 8px;font-size:.68rem;font-weight:700}
+.layermods{padding:11px;gap:9px;grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}
+.wsbadge{font-size:.58rem;text-transform:uppercase;letter-spacing:.5px;opacity:.65;border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:1px 6px;margin-left:4px;white-space:nowrap}
+.finalbox{border:1px solid rgba(0,212,200,.35);background:rgba(0,212,200,.05);border-radius:12px;padding:14px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -229,7 +238,7 @@ textarea{resize:vertical;min-height:74px}
     <!-- 2 MODULES -->
     <div class="sec" id="s2">
       <div class="sec-h"><span class="n">2</span><h2>Modules</h2></div>
-      <div class="sec-sub">Pick the building blocks. Each updates the preview. <span class="scopebadge scope-admin">admin</span> <span class="scopebadge scope-client">client</span> <span class="scopebadge scope-shared">shared</span></div>
+      <div class="sec-sub">Pick capabilities inside each layer of the AI Business OS. Layers set the <b>build sequence</b>; the badge on each card shows which <b>page</b> it lands on, so 20 modules still becomes a 7-item sidebar.</div>
       <div class="grid-mods" id="modGrid"></div>
       <label class="fl">Custom modules</label>
       <div class="addrow"><input type="text" id="customMod" placeholder="Name a custom module"><button class="btn btn-ghost smallbtn" onclick="addCustomMod()">+ Add</button></div>
@@ -302,6 +311,16 @@ textarea{resize:vertical;min-height:74px}
       <label class="fl">…or upload an entire folder</label><input type="file" id="extra_folder" multiple webkitdirectory directory style="font-size:.8rem;padding:8px">
       <div class="hint">Reused in the build and bundled into the exported build kit. Zips are passed through for the build to unpack.</div>
       <div id="uploadList" class="chips"></div>
+
+      <label class="fl" style="margin-top:18px">Mockup layout</label>
+      <select id="layoutSel" onchange="S.layout=this.value;render()"></select>
+      <div class="hint">Changes the structure of the generated mockup, not just the colors. Auto lets the AI pick the shape that fits this business.</div>
+
+      <div class="finalbox">
+        <label class="fl" style="margin-top:0">Final notes before we generate &mdash; anything else the AI must know</label>
+        <textarea id="final_notes" placeholder="e.g. Their biggest pain is chasing renewals, so make ascension obvious. They hate clutter. Their team is 4 people, not an enterprise. Do not show a community module even though they mentioned it once."></textarea>
+        <div class="hint">This is read last and weighted heaviest. Use it to correct anything above, kill a module, or state the one outcome this system must drive.</div>
+      </div>
     </div>
   </div>
 
@@ -393,58 +412,149 @@ const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 const FN=SB+'/functions/v1/';
 async function api(fn,payload){const r=await fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify(payload)});return r.json();}
 
-// ---- Module catalog (mirrors dashboard_modules seed) ----
-const MODULES=[
- {k:'overview',l:'Today / Overview',c:'Core',s:'shared',d:'KPI hero, action items, snapshot',f:['KPI hero row','Action items','Snapshot']},
- {k:'kpis',l:'KPI / CEO Dashboard',c:'Core',s:'admin',d:'Gauges, trends, roll-ups',f:['Animated gauges','Trend charts','Roll-ups']},
- {k:'leads',l:'Leads & CRM',c:'Sales',s:'admin',d:'Capture, temperature, stages, activity',f:['Capture','Temperature G/Y/R','Stages','Inline edit','Activity feed']},
- {k:'pipeline',l:'Sales Pipeline',c:'Sales',s:'admin',d:'Kanban, scoreboard, alerts',f:['Kanban','Scoreboard','Deal cards','Inactivity alerts']},
- {k:'deals',l:'Deals & Revenue',c:'Sales',s:'admin',d:'Stages, value, won/lost',f:['Stage↔status link','Value','Won/Lost','Channel']},
- {k:'tasks',l:'Tasks & Projects',c:'Ops',s:'shared',d:'Priority, due dates, statuses',f:['Priority sort','Due dates','Assignees','Editable statuses']},
- {k:'clients',l:'Clients & Contacts',c:'Sales',s:'admin',d:'Contact anchor + detail tabs',f:['Contact anchor','Detail tabs','Tags','Activity']},
- {k:'cohort',l:'Retention & Ascension',c:'Success',s:'admin',d:'Cohort grid, drift alerts',f:['Cohort grid','Engagement','Drift alerts','Ascension triggers']},
- {k:'journey',l:'Customer Journey Map',c:'Success',s:'shared',d:'Stages, next-best-offer',f:['Journey map','Stages','Next-best-offer','Editable statuses']},
- {k:'portal',l:'Client Portal',c:'Portal',s:'client',d:'My journey, materials, next offer',f:['My journey','Materials library','Next offer','My calls','Support chat']},
- {k:'partner',l:'Partner / JV Portal',c:'Portal',s:'client',d:'Link stats, commissions',f:['Link stats','Commission ledger','Payouts']},
- {k:'finance',l:'Money & Finance',c:'Finance',s:'admin',d:'Revenue, P&L, forecast',f:['Revenue/expense','Cash position','P&L','Forecast']},
- {k:'payments',l:'Payments & Billing',c:'Finance',s:'shared',d:'Stripe checkout, subscriptions',f:['Checkout','Subscriptions','Refunds','Status']},
- {k:'webinar',l:'Webinar & Ad Spend',c:'Growth',s:'admin',d:'Registrations, ROAS, anomaly',f:['Registrations','Attendance','ROAS/EPL','Anomaly alerts']},
- {k:'media',l:'Media & JV Tracker',c:'Growth',s:'admin',d:'Guests, attribution, commissions',f:['Guests','Attribution links','Commissions','Episode ROI']},
- {k:'events',l:'Live Event Capture',c:'Growth',s:'admin',d:'QR capture, tagging, follow-up',f:['Quick/QR capture','Tagging','AI follow-up']},
- {k:'aibrain',l:'AI Brain & Intelligence',c:'AI',s:'shared',d:'Transcripts, signals, briefs',f:['Transcript ingest','Action items','Signal detection','Pre-call briefs','Anomalies']},
- {k:'content',l:'Content & Blog',c:'Marketing',s:'shared',d:'Calendar, voice, blog automation',f:['Content calendar','Brand voice','Blog automation','In-dashboard management']},
- {k:'community',l:'Community',c:'Community',s:'shared',d:'Member feed, groups, events, leaderboard, DMs',f:['Activity feed','Groups','Discussions','Events','Leaderboard','Direct messages']},
- {k:'notifications',l:'Notifications',c:'System',s:'shared',d:'Bell, email digests, SMS/Slack',f:['In-app bell','Email digests','SMS/Slack','Per-user prefs']},
- {k:'messaging',l:'Admin ↔ Client Messaging',c:'Portal',s:'shared',d:'Threads, approvals, file share',f:['Threads','Approvals','File share']},
- {k:'team',l:'Team & People',c:'System',s:'admin',d:'Users, role matrix, invites',f:['User list','Role matrix','Invites','Permission audit']},
- {k:'settings',l:'Settings & Admin',c:'System',s:'admin',d:'Profile, integrations, branding',f:['Profile','Integrations vault','Module toggles','Branding']},
- {k:'worksheets',l:'Worksheets & Tools',c:'Portal',s:'client',d:'Self-serve interactive tools',f:['Worksheets','Persistence','Export']},
- {k:'reports',l:'Client Reports',c:'Success',s:'admin',d:'KPI report generator',f:['Report generator','KPI pull','Export']}
+// ---- Module catalog: mirrors the canonical public.os_modules table (layers 0-9) ----
+// LAYERS organise the BUILD (what ships when, and what Knight Ops sells).
+// WORKSPACES organise the USE (what the client actually clicks). They are deliberately different:
+// making the sidebar mirror the 10 layers would just rename the overwhelm.
+const LAYERS=[
+ {n:0,g:'Engagement Foundation'},
+ {n:1,g:'Foundation & Business Intelligence'},
+ {n:2,g:'Client Acquisition & Strategy'},
+ {n:3,g:'Client Onboarding & Delivery'},
+ {n:4,g:'Client Ascension'},
+ {n:5,g:'Growth Automation'},
+ {n:6,g:'AI Business Brain & Agents'},
+ {n:7,g:'Team & Operations'},
+ {n:8,g:'Specialized Experiences & Integrations'},
+ {n:9,g:'Continuity'}
 ];
-const MODGROUPS=[
- {g:'Home',keys:['overview','kpis']},
- {g:'Sales & Revenue',keys:['leads','pipeline','deals','finance','payments']},
- {g:'Clients & Success',keys:['clients','cohort','journey','reports']},
- {g:'Client Portal',keys:['portal','worksheets','messaging','partner']},
- {g:'Community',keys:['community']},
- {g:'Growth',keys:['webinar','media','events','content']},
- {g:'AI',keys:['aibrain']},
- {g:'System',keys:['notifications','team','settings']}
+// w = workspace (sidebar page it lives on). f = selectable features.
+const MODULES=[
+ {k:'l0_engagement_setup',L:0,w:'settings',l:'Engagement Setup & Access',d:'Repo, database, hosting and domain in your name from day one',f:['Repo + hosting','Env manifest','Ownership record']},
+ {k:'l0_design_system',L:0,w:'settings',l:'Brand & Design System',d:'Your brand applied throughout — colors, type, components',f:['Design tokens','Component library','Brand assets']},
+ {k:'l1_auth_roles',L:1,w:'settings',l:'Authentication & Roles',d:'Secure sign-in, each person sees only their role',f:['Sign-in + invites','Role matrix','Permission audit']},
+ {k:'l1_data_foundation',L:1,w:'settings',l:'Data Foundation',d:'One clean database instead of data scattered across tools',f:['Unified schema','Import/migration','Audit log']},
+ {k:'l1_kpi_dashboard',L:1,w:'home',l:'Business Intelligence Dashboard',d:'Revenue, pipeline, delivery and capacity, live',f:['KPI hero row','Trend charts','Drill-down','Action items']},
+ {k:'l1_reporting',L:1,w:'home',l:'Reporting & Exports',d:'Any view of the business as a report, without asking anyone',f:['Report builder','Scheduled sends','CSV/PDF export']},
+ {k:'l2_lead_capture',L:2,w:'people',l:'Lead Capture & Forms',d:'Every enquiry captured and attributed, never lost',f:['Forms + embeds','Source attribution','Partial-save recovery']},
+ {k:'l2_crm_pipeline',L:2,w:'pipeline',l:'Pipeline & CRM',d:'Every opportunity in one pipeline',f:['Kanban board','Stage automation','Inactivity alerts','Forecast']},
+ {k:'l2_proposals',L:2,w:'pipeline',l:'Proposals & Contracts',d:'Generated from the deal, sent, signed and stored',f:['Generate from deal','E-signature','Version history']},
+ {k:'l2_booking',L:2,w:'pipeline',l:'Booking & Scheduling',d:'Book against real availability, reminders automatic',f:['Availability rules','Reminders','Calendar sync']},
+ {k:'l3_onboarding',L:3,w:'delivery',l:'Client Onboarding Workflow',d:'The same start for every client, without you driving it',f:['Welcome sequence','Checklist','Intake forms','Kickoff scheduling']},
+ {k:'l3_client_portal',L:3,w:'portal',l:'Client Portal',d:'Where clients see status, deliverables and documents',f:['Status view','Deliverables','Documents','Messaging','Approvals']},
+ {k:'l3_delivery',L:3,w:'delivery',l:'Project & Delivery Tracking',d:'Every project, milestone and owner visible',f:['Projects','Milestones','Owners','Status roll-up']},
+ {k:'l3_files',L:3,w:'delivery',l:'Files & Asset Management',d:'All files in one place, with client visibility control',f:['Upload + versions','Client-visible toggle','Search']},
+ {k:'l4_courses',L:4,w:'portal',l:'Courses & Curriculum',d:'Programs delivered inside your own system',f:['Lessons','Progress tracking','Completion certificates']},
+ {k:'l4_community',L:4,w:'portal',l:'Community & Engagement',d:'Your community on your platform, not a rented one',f:['Activity feed','Groups','Events','Leaderboard','Direct messages']},
+ {k:'l4_membership',L:4,w:'portal',l:'Membership & Subscriptions',d:'Tiers and recurring billing, access follows the subscription',f:['Tiers','Recurring billing','Access gating','Dunning']},
+ {k:'l4_ascension',L:4,w:'portal',l:'Upsell & Renewal Paths',d:'The next right offer at the right moment',f:['Next-best-offer','Renewal alerts','Cohort/retention grid','Drift detection']},
+ {k:'l5_email_automation',L:5,w:'growth',l:'Email & Sequence Automation',d:'Follow-up that happens whether or not anyone remembers',f:['Sequences','Triggers','Reminders','Deliverability']},
+ {k:'l5_nurture',L:5,w:'growth',l:'Nurture & Lifecycle Campaigns',d:'Right message, right segment, right stage',f:['Segments','Lifecycle stages','Behavioural triggers']},
+ {k:'l5_referral',L:5,w:'people',l:'Referral & Partner Program',d:'Referrals tracked from first touch to commission paid',f:['Referral links','Commission ledger','Partner payouts','Partner view']},
+ {k:'l5_analytics',L:5,w:'home',l:'Analytics & Attribution',d:'Which channels produce revenue, not just traffic',f:['Channel attribution','Funnel view','Cohort analysis']},
+ {k:'l6_ai_assistant',L:6,w:'ai',l:'AI Business Assistant',d:'Ask your business a question, get an answer from live data',f:['Natural-language queries','Live data context','Saved questions']},
+ {k:'l6_knowledge',L:6,w:'ai',l:'Knowledge Base & Retrieval',d:'Documents, SOPs and history searchable in plain language',f:['Document ingest','Semantic search','Citations']},
+ {k:'l6_agents',L:6,w:'ai',l:'Agent Workflows',d:'Routine work handled end to end, every step reversible',f:['Agent runs','Step visibility','Approval gates','Rollback']},
+ {k:'l6_ai_content',L:6,w:'growth',l:'AI Content Generation',d:'First drafts in your voice, never a blank page',f:['Brand voice','Content calendar','Draft + approve']},
+ {k:'l7_team',L:7,w:'team',l:'Team & Permissions',d:'Add or remove people in seconds, access matches role',f:['User list','Role matrix','Invites','Clean revocation']},
+ {k:'l7_workflow',L:7,w:'delivery',l:'Task & Workflow Automation',d:'Work assigned and escalated by rule',f:['Task rules','Assignment','Escalation','SLA timers']},
+ {k:'l7_capacity',L:7,w:'team',l:'Time, Capacity & Utilisation',d:'Utilisation and margin per person and project',f:['Utilisation','Margin per project','Capacity planning']},
+ {k:'l7_sops',L:7,w:'team',l:'SOPs & Internal Knowledge',d:'How the business runs, written down and inside the system',f:['SOP library','Ownership','Review dates']},
+ {k:'l8_integrations',L:8,w:'settings',l:'Integrations Hub',d:'The tools you keep, connected properly',f:['Connections','Field mapping','Sync logs','Webhooks']},
+ {k:'l8_payments',L:8,w:'revenue',l:'Payments & Billing',d:'Take payment, invoice and reconcile in your own system',f:['Checkout','Invoices','Ledger','Refunds','Reconciliation']},
+ {k:'l8_mobile',L:8,w:'settings',l:'Mobile Experience',d:'Your system in your team pocket, not just on a desk',f:['Responsive','Install to home screen','Push notifications']},
+ {k:'l8_custom',L:8,w:'custom',l:'Specialized Experience',d:'The part that exists nowhere else, built around how you operate',f:['Bespoke workflow','Custom calculators','Unique UI']},
+ {k:'l9_ownership',L:9,w:'settings',l:'Ownership & Handoff',d:'You own code, database, hosting and domain, with a continuity brief',f:['Continuity brief','Codebase export','Successor named']},
+ {k:'l9_monitoring',L:9,w:'settings',l:'Monitoring & Alerting',d:'You find out before your clients do',f:['Uptime checks','Error alerts','Status page']},
+ {k:'l9_evolution',L:9,w:'settings',l:'Continuity & Evolution',d:'Ongoing updates, quarterly feature push and strategy session',f:['Change log','Feature requests','Quarterly review']}
+];
+// Old builder keys -> canonical os_modules keys, so saved builds still hydrate.
+const MODALIAS={overview:'l1_kpi_dashboard',kpis:'l1_kpi_dashboard',leads:'l2_lead_capture',pipeline:'l2_crm_pipeline',deals:'l2_crm_pipeline',tasks:'l7_workflow',clients:'l2_lead_capture',cohort:'l4_ascension',journey:'l4_ascension',portal:'l3_client_portal',partner:'l5_referral',finance:'l8_payments',payments:'l8_payments',webinar:'l5_analytics',media:'l5_referral',events:'l2_lead_capture',aibrain:'l6_ai_assistant',content:'l6_ai_content',community:'l4_community',notifications:'l5_email_automation',messaging:'l3_client_portal',team:'l7_team',settings:'l1_auth_roles',worksheets:'l3_client_portal',reports:'l1_reporting'};
+// WORKSPACES = the sidebar. `fold` is where a workspace merges (as a tab) when we are over the cap.
+const WORKSPACES=[
+ {w:'home',     l:'Home',          d:'The one screen that answers: are we winning?',        fold:null,       pin:'first'},
+ {w:'people',   l:'People',        d:'Every person and company, one record',                fold:'pipeline'},
+ {w:'pipeline', l:'Pipeline',      d:'Revenue that is real versus wishful',                  fold:'people'},
+ {w:'delivery', l:'Delivery',      d:'Every project visible without a status meeting',       fold:'people'},
+ {w:'portal',   l:'Client Portal', d:'What the client logs into',                            fold:'delivery'},
+ {w:'growth',   l:'Automation',    d:'The follow-up that runs without anyone holding it',    fold:'people'},
+ {w:'ai',       l:'AI Brain',      d:'Ask the business a question, get a real answer',       fold:'home'},
+ {w:'revenue',  l:'Revenue',       d:'Money in, invoiced and reconciled',                    fold:'pipeline'},
+ {w:'team',     l:'Team & Ops',    d:'Who does the work and how much is left',               fold:'settings'},
+ {w:'custom',   l:'Specialized',   d:'The part that exists nowhere else',                    fold:'delivery'},
+ {w:'settings', l:'Settings',      d:'Access, integrations, ownership',                      fold:null,       pin:'last'}
+];
+const MAX_NAV=7;
+// Layout archetypes. These change STRUCTURE, not just color, so mockups stop looking identical.
+const LAYOUTS=[
+ {k:'auto',   l:'Auto (AI picks the best fit)', d:'The AI chooses the layout that suits this business model'},
+ {k:'sidebar',l:'Classic Sidebar',   d:'240px left sidebar, collapsible grouped nav, content right'},
+ {k:'rail',   l:'Command Rail',      d:'Narrow icon rail plus a contextual panel that changes per workspace'},
+ {k:'topbar', l:'Top Workspace Tabs',d:'Horizontal workspace tabs up top, sub-nav on the left'},
+ {k:'split',  l:'Split Focus',       d:'Persistent list and detail panes, inbox style'},
+ {k:'brief',  l:'Executive Brief',   d:'Large KPI hero, minimal chrome, drill into cards'}
 ];
 const ROLES=['Super Admin','Admin','Team member','Coach','Client','Partner / JV','Read-only viewer'];
 const INTS=[{k:'resend',l:'Resend email'},{k:'stripe',l:'Stripe payments'},{k:'ai',l:'AI / Anthropic'},{k:'crm',l:'CRM (GHL/HubSpot)'},{k:'calendar',l:'Calendar'},{k:'fathom',l:'Fathom transcripts'},{k:'kajabi',l:'Course platform'},{k:'ads',l:'Ad platforms'},{k:'webhooks',l:'Webhooks'}];
 
 // ---- State ----
 const S={mode:'ai',modules:[],customModules:[],features:{},facing:'both',roles:['Super Admin','Admin','Client'],integrations:['resend'],payments:false,ai_on:false,website_on:false,blog_on:false,blog_manage:false,host:'knightops',upload_paths:[],files:[],uploads_text:'',totalBytes:0,id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false,
-  reads:[],docUrls:[],imgUrls:[],unread:[],moduleNotes:{},goalCriteria:[],dataModel:'',roleMatrix:'',navOpen:{}};
+  reads:[],docUrls:[],imgUrls:[],unread:[],moduleNotes:{},goalCriteria:[],dataModel:'',roleMatrix:'',navOpen:{},layerOpen:{},layout:'auto',finalNotes:''};
 
 // ---- Build catalog UI ----
 function buildModGrid(){
-  document.getElementById('modGrid').innerHTML=MODULES.map(m=>
-    `<div class="modcard" data-k="${m.k}" onclick="toggleMod('${m.k}')"><div class="mt">${m.l} <span class="scopebadge scope-${m.s}">${m.s}</span></div><div class="md">${m.d}</div></div>`).join('');
+  var html='';
+  LAYERS.forEach(function(L){
+    var mods=MODULES.filter(function(m){return m.L===L.n;});
+    if(!mods.length)return;
+    var sel=mods.filter(function(m){return S.modules.indexOf(m.k)>=0;}).length;
+    var open=(S.layerOpen[L.n]!=null)?S.layerOpen[L.n]:(sel>0||L.n===1);
+    html+='<div class="layerblock">'+
+      '<div class="layerhead" onclick="toggleLayer('+L.n+')"><span><b>'+(L.n<10?('0'+L.n):L.n)+'</b> &nbsp;'+L.g+'</span>'+
+      '<span class="layermeta">'+(sel?('<span class="layercount">'+sel+'</span>'):'')+'<span class="cr">'+(open?'&#9662;':'&#9656;')+'</span></span></div>'+
+      '<div class="layermods" style="display:'+(open?'grid':'none')+'">'+
+      mods.map(function(m){
+        return '<div class="modcard'+(S.modules.indexOf(m.k)>=0?' on':'')+'" data-k="'+m.k+'" onclick="toggleMod(\''+m.k+'\')">'+
+          '<div class="mt">'+m.l+' <span class="wsbadge">'+wsLabel(m.w)+'</span></div><div class="md">'+m.d+'</div></div>';
+      }).join('')+'</div></div>';
+  });
+  document.getElementById('modGrid').innerHTML=html;
   document.getElementById('roleChips').innerHTML=ROLES.map(r=>`<div class="chip ${S.roles.includes(r)?'on':''}" onclick="toggleRole(this,'${r}')">${r}</div>`).join('');
   document.getElementById('intChips').innerHTML=INTS.map(i=>`<div class="chip ${S.integrations.includes(i.k)?'on':''}" data-int="${i.k}" onclick="toggleInt(this,'${i.k}')">${i.l}</div>`).join('');
   document.getElementById('mininav').innerHTML=['Client','Modules','Features','Roles','Integrations','Website','Details'].map((t,i)=>`<a href="#s${i+1}">${t}</a>`).join('');
+  var lay=document.getElementById('layoutSel');
+  if(lay&&!lay.dataset.built){lay.dataset.built='1';lay.innerHTML=LAYOUTS.map(function(x){return '<option value="'+x.k+'">'+x.l+'</option>';}).join('');lay.value=S.layout;}
+}
+function toggleLayer(n){var cur=S.layerOpen[n];var mods=MODULES.filter(function(m){return m.L===n;});var sel=mods.filter(function(m){return S.modules.indexOf(m.k)>=0;}).length;var open=(cur!=null)?cur:(sel>0||n===1);S.layerOpen[n]=!open;buildModGrid();}
+function wsLabel(w){var x=WORKSPACES.find(function(v){return v.w===w;});return x?x.l:w;}
+function modWs(k){var m=MODULES.find(function(x){return x.k===k;});return m?m.w:'custom';}
+function modLayer(k){var m=MODULES.find(function(x){return x.k===k;});return m?m.L:8;}
+// Sidebar = at most MAX_NAV workspaces. Anything over the cap FOLDS into a sibling as a tab, so a
+// 20-module build still reads as ~7 rows instead of 20. Home is pinned first, Settings pinned last.
+function navWorkspaces(){
+  var counts={};
+  S.modules.forEach(function(k){var w=modWs(k);(counts[w]=counts[w]||[]).push(k);});
+  if(S.customModules.length)counts['custom']=(counts['custom']||[]).concat(S.customModules);
+  var live=WORKSPACES.filter(function(x){return (counts[x.w]||[]).length;});
+  var first=live.filter(function(x){return x.pin==='first';});
+  var last=live.filter(function(x){return x.pin==='last';});
+  var mid=live.filter(function(x){return !x.pin;});
+  mid.sort(function(a,b){return (counts[b.w].length-counts[a.w].length)||(WORKSPACES.indexOf(a)-WORKSPACES.indexOf(b));});
+  var room=Math.max(1,MAX_NAV-first.length-last.length);
+  var keep=mid.slice(0,room),folded=mid.slice(room);
+  var tabs={};live.forEach(function(x){tabs[x.w]=(counts[x.w]||[]).slice();});
+  folded.forEach(function(f){
+    var t=f.fold;var target=keep.concat(first,last).find(function(x){return x.w===t;});
+    if(!target)target=first[0]||keep[0]||last[0];
+    if(target){tabs[target.w]=tabs[target.w].concat(tabs[f.w]);(tabs[target.w+'__folded']=tabs[target.w+'__folded']||[]).push(f.l);}
+  });
+  var order=first.concat(keep.sort(function(a,b){return WORKSPACES.indexOf(a)-WORKSPACES.indexOf(b);}),last);
+  return order.map(function(x){
+    return {w:x.w,label:x.l,purpose:x.d,
+      items:(tabs[x.w]||[]).map(function(k){return (typeof k==='string'&&k.indexOf('l')===0&&MODULES.find(function(m){return m.k===k;}))?modLabel(k):k;}),
+      keys:(tabs[x.w]||[]),
+      merged:(tabs[x.w+'__folded']||[])};
+  });
 }
 function toggleMod(k){const i=S.modules.indexOf(k);if(i>=0)S.modules.splice(i,1);else S.modules.push(k);syncModCards();buildFeatures();render();}
 function syncModCards(){document.querySelectorAll('.modcard').forEach(c=>c.classList.toggle('on',S.modules.includes(c.dataset.k)));}
@@ -481,7 +591,10 @@ function gather(){
     brand:{primary:val('c_primary'),secondary:val('c_secondary'),accent:val('c_accent'),mode:val('brand_mode'),fonts:val('fonts'),logo_path:S.logo_path,voice:val('voice')},
     modules:S.modules.concat(S.customModules.map(m=>({key:'custom',label:m,custom:true}))),
     features:S.features,facing:S.facing,
-    nav_groups:navGroups().map(function(g){return {group:g.g,items:g.items.map(function(i){return i.label;})};}),
+    nav_groups:navGroups().map(function(g){return {group:g.g,purpose:g.purpose,items:g.items.map(function(i){return i.label;}),merged:g.merged};}),
+    workspaces:navWorkspaces(),
+    layers:Array.from(new Set(S.modules.map(modLayer))).sort(function(a,b){return a-b;}),
+    layout:S.layout,final_notes:val('final_notes'),
     module_notes:S.moduleNotes,data_model:S.dataModel,goal_criteria:S.goalCriteria,role_matrix:S.roleMatrix,
     roles:{templates:S.roles,journey_stages:val('journey_stages'),statuses:val('status_set')},
     integrations:Array.from(new Set(['supabase_auth'].concat(S.integrations))),
@@ -493,19 +606,12 @@ function gather(){
     resume_token:S.resume_token,id:S.id};
 }
 function modLabel(k){const m=MODULES.find(x=>x.k===k);return m?m.l:k;}
-// Single source of truth for sidebar grouping. Used by the live preview, the build prompt,
-// the spec and the AI mockup so every downstream artifact ships the same collapsible nav.
+function normKey(k){return MODULES.find(x=>x.k===k)?k:(MODALIAS[k]||k);}
+// Single source of truth for the sidebar. Returns at most MAX_NAV workspaces, each carrying the
+// modules that became tabs inside it. Used by the live preview, the build prompt, the spec and the
+// AI mockup so every artifact ships the same navigation.
 function navGroups(){
-  var out=[];
-  MODGROUPS.forEach(function(grp){
-    var items=S.modules.filter(function(k){return grp.keys.indexOf(k)>=0;}).map(function(k){return {key:k,label:modLabel(k)};});
-    if(items.length)out.push({g:grp.g,items:items});
-  });
-  var placed=[];MODGROUPS.forEach(function(g){placed=placed.concat(g.keys);});
-  var orphans=S.modules.filter(function(k){return placed.indexOf(k)<0;}).map(function(k){return {key:k,label:modLabel(k)};});
-  if(orphans.length)out.push({g:'More',items:orphans});
-  if(S.customModules.length)out.push({g:'Custom',items:S.customModules.map(function(m){return {key:'custom',label:m,custom:true};})});
-  return out;
+  return navWorkspaces().map(function(x){return {g:x.label,purpose:x.purpose,items:x.items.map(function(i){return {key:i,label:i};}),merged:x.merged};});
 }
 function toggleNavGrp(g){var cur=navGroups(),i=cur.findIndex(function(x){return x.g===g;});var isOpen=(S.navOpen[g]!=null)?S.navOpen[g]:(i===0);S.navOpen[g]=!isOpen;render();}
 
@@ -566,7 +672,7 @@ function buildPrompt(){
   if(S.website_on)L.push('- The marketing website is built and live.');
   if(S.blog_on)L.push('- Blog automation publishes a post'+(d.blog.manage_in_dashboard?' and it is manageable inside the dashboard':'')+'.');
   L.push('- Ascension stages, statuses, and the role permission matrix are all editable from the admin.');
-  L.push('- The sidebar is a collapsible grouped accordion (see Sidebar navigation below), not a flat list, and the open/closed state persists per user.');
+  L.push('- The sidebar has at most '+MAX_NAV+' items and every person in the system exists as ONE contact record, typed lead/client/partner, reachable from every screen that names them.');
   if(S.goalCriteria&&S.goalCriteria.length)S.goalCriteria.forEach(function(g){L.push('- '+String(g).replace(/^[-*]\s*/,''));});
   L.push('- You have walked the full ADMIN journey and the full CLIENT journey end to end with zero errors.');
   L.push('- Every automated and manual test passes and you have self-reviewed and fixed anything weak.');
@@ -577,21 +683,46 @@ function buildPrompt(){
   L.push('## Client');L.push('- Business: '+(d.business_name||'[name]'));L.push('- Niche: '+(d.niche||''));L.push('- What they do: '+(d.what_they_do||''));if(d.offers)L.push('- Offers/pricing: '+d.offers);if(d.audience)L.push('- Audience: '+d.audience);if(d.team)L.push('- Team: '+d.team);L.push('');
   L.push('## Brand');L.push('- Primary '+b.primary+' / Background '+b.secondary+' / Accent '+b.accent+' / '+b.mode+' mode');if(b.fonts)L.push('- Fonts: '+b.fonts);if(b.voice)L.push('- Voice: '+b.voice);if(b.logo_path)L.push('- Logo: '+SB+'/storage/v1/object/public/dashboard-assets/'+b.logo_path);L.push('');
   L.push('## Stack');L.push('- Next.js (App Router) + Supabase (auth + Postgres + RLS) + Resend'+(d.payments?' + Stripe':'')+', deploy to Vercel.');L.push('- Create a NEW Supabase project for this client (one app = one project). Validate env with Zod.');L.push('');
+  L.push('## ONE RECORD SPINE (this is the most important architectural rule)');
+  L.push('- There is ONE people table (`contacts`). A lead, a client, a partner and a team member are the SAME kind of record with a different type, never separate tables and never separate pages.');
+  L.push('- `contacts.record_type` is a text ARRAY. One person can be `{client,partner}` at the same time and must appear exactly ONCE in the system.');
+  L.push('- Email is the natural key: a case-insensitive unique index on `lower(email)`. Importing or capturing a person who already exists UPDATES that record and adds the new type, it never creates a second row.');
+  L.push('- Companies are a separate `organizations` table; contacts belong to an organization. Deals, projects and invoices hang off the organization where that is the real buyer.');
+  L.push('- Everything references the contact: `deals.contact_id`, `projects.contact_id`, `payments.contact_id`, `commissions.partner_contact_id`, `portal_users.contact_id`. No module stores its own copy of a name or email.');
+  L.push('- The People page shows ONE table with segmented views (All · Leads · Clients · Partners · Team). Those are FILTERS on the same table, NOT separate pages in the sidebar.');
+  L.push('- The contact detail page is one record with tabs: Overview · Deals · Projects · Payments · Activity · Files · Portal access. Opening a person from anywhere in the system lands here.');
+  L.push('- Every name shown anywhere in the system is a link to that contact record. If a table shows a person and you cannot click through to them, it is wrong.');
+  L.push('');
   L.push('## Sidebar navigation (build it exactly like this)');
-  L.push('- The sidebar is a COLLAPSIBLE ACCORDION of grouped sections, not a flat list of every module. This is a hard requirement.');
-  L.push('- Render the group headers below. Each header expands and collapses its child items on click, with a caret that rotates.');
-  L.push('- On load, only the group containing the current page is expanded; every other group is collapsed. Persist the open/closed state per user in localStorage.');
-  L.push('- The active item is highlighted with the accent color and a left border. Never show more than about 7 top-level rows before the user expands something.');
-  L.push('- Collapse the whole sidebar to icons only on screens under 1100px and use a hamburger drawer on mobile.');
-  navGroups().forEach(function(grp){L.push('- '+grp.g+': '+grp.items.map(function(i){return i.label;}).join(', '));});
+  L.push('- The sidebar has AT MOST '+MAX_NAV+' items. This is a hard cap. Modules are capabilities, NOT navigation entries: related modules become TABS or views inside one page.');
+  L.push('- Build exactly these pages, in this order. Each line is: page — what it is for — the capabilities that live inside it as tabs or views.');
+  navWorkspaces().forEach(function(x){
+    L.push('  - '+x.label+' — '+x.purpose+' — '+(x.items.join(', ')||'core view')+(x.merged.length?(' (absorbs: '+x.merged.join(', ')+')'):''));
+  });
+  L.push('- Do NOT add a nav item that is not on that list. Do NOT split one of those pages into several nav items.');
+  L.push('- Persist the collapsed/expanded and active state per user in localStorage. Collapse to icons under 1100px, hamburger drawer on mobile.');
+  L.push('');
+  L.push('## Simplicity budget (a busy dashboard is a failed dashboard)');
+  L.push('- Max 4 KPI cards per view. Max ONE primary table or board per view. Everything else is secondary and visually quieter.');
+  L.push('- Every page opens with a single sentence saying what it is for and which number it moves.');
+  L.push('- No feature appears in two places. If two modules want the same screen, they share it as tabs.');
+  L.push('- Prefer one dense, excellent table over four shallow widgets.');
+  L.push('');
+  L.push('## Build sequence by layer (Layer 1 always ships first — data before decisions)');
+  var byL={};S.modules.forEach(function(k){var n=modLayer(k);(byL[n]=byL[n]||[]).push(modLabel(k));});
+  Object.keys(byL).map(Number).sort(function(a,b){return a-b;}).forEach(function(n){
+    var L2=LAYERS.find(function(x){return x.n===n;});
+    L.push('- Layer '+n+' '+(L2?L2.g:'')+': '+byL[n].join(', '));
+  });
+  L.push('- Ship each layer as a working slice the client can use. Never an empty handoff. The revenue-nearest layer goes second.');
   L.push('');
   L.push('## Modules to build');
-  S.modules.forEach(function(k){
+  S.modules.slice().sort(function(a,b){return modLayer(a)-modLayer(b);}).forEach(function(k){
     var feats=(S.features[k]||[]).join(', ');
-    L.push('- '+modLabel(k)+(feats?(' — features: '+feats):''));
+    L.push('- ['+('L'+modLayer(k))+' · page: '+wsLabel(modWs(k))+'] '+modLabel(k)+(feats?(' — '+feats):''));
     if(S.moduleNotes&&S.moduleNotes[k])L.push('  - For this client: '+S.moduleNotes[k]);
   });
-  S.customModules.forEach(function(m){L.push('- '+m+' (custom module)');});
+  S.customModules.forEach(function(m){L.push('- [L8 · page: Specialized] '+m+' (custom)');});
   L.push('');
   if(S.dataModel){L.push('## Data model (from the source analysis)');String(S.dataModel).split(String.fromCharCode(10)).filter(Boolean).forEach(function(r){L.push('- '+r.replace(/^[-*]\s*/,''));});L.push('');}
   L.push('## Access & roles');L.push('- Facing: '+d.facing.replace('_',' ')+(portal?' (build the client portal + admin↔client interaction)':' (internal only)'));L.push('- Roles: '+S.roles.join(', '));L.push('- Editable journey stages: '+d.roles.journey_stages);L.push('- Editable statuses: '+d.roles.statuses);L.push('- Enforce RLS per role on every sensitive table; permission matrix editable in admin.');L.push('');
@@ -612,6 +743,7 @@ function buildPrompt(){
   if(d.file_paths.length){L.push('## File paths to reference');d.file_paths.forEach(p=>L.push('- '+p));}
   if(S.upload_paths&&S.upload_paths.length){L.push('## Uploaded files (in the build kit zip + Supabase storage)');S.upload_paths.forEach(p=>L.push('- '+p));}
   if(d.transcripts){L.push('## Transcript / notes');L.push(d.transcripts.slice(0,4000));}
+  if(val('final_notes')){L.push('## FINAL DIRECTION FROM THE ARCHITECT (highest priority — overrides anything above)');L.push(val('final_notes'));L.push('');}
   L.push('');L.push('## Definition of done');L.push('Re-read the /goal criteria at the top. Only finish when every one is verified true, then output the live URLs, test credentials, and a short runbook. Reference the spec doc for module acceptance criteria.');
   return L.join(String.fromCharCode(10));
 }
@@ -789,10 +921,11 @@ function applySuggested(s){
   const hex=v=>{if(!v)return null;var x=String(v).trim().replace(/^#?/,'');if(/^[0-9a-f]{3}$/i.test(x))x=x[0]+x[0]+x[1]+x[1]+x[2]+x[2];return /^[0-9a-f]{6}$/i.test(x)?('#'+x.toLowerCase()):null;};
   if(s.brand){set('c_primary',hex(s.brand.primary));set('c_secondary',hex(s.brand.secondary));set('c_accent',hex(s.brand.accent));set('fonts',s.brand.fonts);set('voice',s.brand.voice);if(s.brand.mode)document.getElementById('brand_mode').value=s.brand.mode;}
   // modules first, then features, so buildFeatures does not overwrite the AI's picks
-  if(Array.isArray(s.modules)&&s.modules.length)S.modules=s.modules.slice();
-  if(s.features&&typeof s.features==='object'){Object.keys(s.features).forEach(function(k){if(Array.isArray(s.features[k])&&s.features[k].length)S.features[k]=s.features[k].slice();});}
+  if(Array.isArray(s.modules)&&s.modules.length)S.modules=Array.from(new Set(s.modules.map(normKey).filter(function(k){return MODULES.find(function(m){return m.k===k;});})));
+  if(s.layout&&LAYOUTS.find(function(x){return x.k===s.layout;})){S.layout=s.layout;var _ls=document.getElementById('layoutSel');if(_ls)_ls.value=s.layout;}
+  if(s.features&&typeof s.features==='object'){Object.keys(s.features).forEach(function(k){var nk=normKey(k);if(Array.isArray(s.features[k])&&s.features[k].length)S.features[nk]=s.features[k].slice();});}
   if(Array.isArray(s.custom_modules))s.custom_modules.forEach(function(m){m=String(m).trim();if(m&&S.customModules.indexOf(m)<0)S.customModules.push(m);});
-  S.moduleNotes=(s.module_notes&&typeof s.module_notes==='object')?s.module_notes:{};
+  S.moduleNotes={};if(s.module_notes&&typeof s.module_notes==='object')Object.keys(s.module_notes).forEach(function(k){S.moduleNotes[normKey(k)]=s.module_notes[k];});
   S.dataModel=s.data_model||'';
   S.goalCriteria=Array.isArray(s.goal_criteria)?s.goal_criteria.slice():[];
   if(s.facing){S.facing=s.facing;document.querySelectorAll('#facingChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.facing===s.facing));}
@@ -1064,9 +1197,11 @@ function hydrate(b){
   const set=(id,v)=>{if(v!=null&&document.getElementById(id))document.getElementById(id).value=v;};
   set('first_name',b.first_name);set('last_name',b.last_name);set('email',b.email);set('phone',b.phone);set('business_name',b.business_name||b.company);set('niche',b.niche);set('what_they_do',b.what_they_do);set('offers',b.offers);set('audience',b.audience);set('team',b.team);set('additional_details',b.additional_details);set('transcripts',b.transcripts);
   if(b.brand){set('c_primary',b.brand.primary);set('c_secondary',b.brand.secondary);set('c_accent',b.brand.accent);set('fonts',b.brand.fonts);set('voice',b.brand.voice);if(b.brand.mode)document.getElementById('brand_mode').value=b.brand.mode;S.logo_path=b.brand.logo_path||'';}
-  if(Array.isArray(b.modules)){S.modules=b.modules.filter(m=>typeof m==='string');
+  if(Array.isArray(b.modules)){S.modules=Array.from(new Set(b.modules.filter(m=>typeof m==='string').map(normKey).filter(function(k){return MODULES.find(function(m){return m.k===k;});})));
     S.customModules=b.modules.filter(m=>m&&typeof m==='object'&&m.custom&&m.label).map(m=>m.label);}
   if(b.features&&typeof b.features==='object')S.features=b.features;
+  if(b.layout){S.layout=b.layout;var _lh=document.getElementById('layoutSel');if(_lh)_lh.value=b.layout;}
+  if(b.final_notes){var _fn=document.getElementById('final_notes');if(_fn)_fn.value=b.final_notes;}
   if(b.module_notes&&typeof b.module_notes==='object')S.moduleNotes=b.module_notes;
   if(b.data_model)S.dataModel=b.data_model;
   if(Array.isArray(b.goal_criteria))S.goalCriteria=b.goal_criteria;
