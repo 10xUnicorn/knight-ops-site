@@ -5526,8 +5526,8 @@ async function loadProjectActivity(id){
   var el=document.getElementById('projActivity_'+id); if(!el) return;
   try{
     var bq=await sb.from('bug_reports').select('title,fix_summary,fix_commit_url,fixed_at').eq('project_id',id).not('fixed_at','is',null).order('fixed_at',{ascending:false}).limit(15);
-    var fq=await sb.from('feature_requests').select('title,fix_commit_url,built_at').eq('project_id',id).not('built_at','is',null).order('built_at',{ascending:false}).limit(15);
-    var items=[].concat((bq.data||[]).map(function(x){return {kind:'🐞 Fix',c:'#4CAF50',title:x.title,summary:x.fix_summary,url:x.fix_commit_url,at:x.fixed_at};}),(fq.data||[]).map(function(x){return {kind:'✨ Build',c:'#C9922A',title:x.title,summary:null,url:x.fix_commit_url,at:x.built_at};}));
+    var fq=await sb.from('feature_requests').select('title,fix_summary,fix_commit_url,built_at').eq('project_id',id).not('built_at','is',null).order('built_at',{ascending:false}).limit(15);
+    var items=[].concat((bq.data||[]).map(function(x){return {kind:'🐞 Fix',c:'#4CAF50',title:x.title,summary:x.fix_summary,url:x.fix_commit_url,at:x.fixed_at};}),(fq.data||[]).map(function(x){return {kind:'✨ Build',c:'#C9922A',title:x.title,summary:x.fix_summary,url:x.fix_commit_url,at:x.built_at};}));
     items.sort(function(a,b){return new Date(b.at)-new Date(a.at);});
     if(!items.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:.82rem">Nothing shipped yet. Auto-fixed bugs and built features show up here with commit links as they happen.</p>'; return; }
     el.innerHTML=items.slice(0,20).map(function(x){
