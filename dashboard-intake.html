@@ -371,6 +371,7 @@ textarea{resize:vertical;min-height:74px}
     <div class="ov-foot">
       <button class="btn btn-ghost" onclick="reviewWithAI()" id="regenBtn">🔄 Apply revision</button>
       <button class="btn btn-ghost" onclick="revertMock()" id="revertBtn" style="display:none">↩ Revert</button>
+      <input type="text" id="styleName" placeholder="Name this style" style="max-width:190px;padding:9px 12px">
       <button class="btn btn-ghost" onclick="saveMockStyle()" id="saveStyleBtn">💾 Save this style</button>
       <button class="btn btn-primary" onclick="approveMock()">✓ Looks right — continue</button>
     </div>
@@ -1110,38 +1111,59 @@ function revertMock(){
   document.getElementById('mockPhase').textContent='Reverted ✓';
   toast('Reverted to the previous mockup');
 }
-function approveMock(){
-  closeOv('ovMock');
-  if(!(S.id||S.resume_token)){toast('Mockup approved');return;}
-  api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});
-  // Approving is a "this is the one" signal, so associate the build with its project now.
-  api('dashboard-mockups',{action:'match_project',id:S.id,resume_token:S.resume_token}).then(function(r){
-    toast(_projMsg(r&&r.match, 'Mockup approved'));
-  }).catch(function(){toast('Mockup approved');});
+// Persist the current mockup, creating the build row if this is the first save.
+// Returns the server response so callers can report accurately instead of assuming success.
+async function persistMock(label){
+  var res=await api('dashboard-mockups',Object.assign(
+    {action:'add',html:_lastMock,label:label||'Style',id:S.id,resume_token:S.resume_token},gather()));
+  if(res&&res.ok){S.id=res.build_id;S.resume_token=res.resume_token||S.resume_token;S.savedStyles=res.count;}
+  return res;
 }
-// Turn a match result into something Daniel can act on. Never claims a link that did not happen.
+async function approveMock(){
+  if(!_lastMock){toast('Generate a mockup first');return;}
+  var btn=document.querySelector('#ovMock .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    // Approving must never discard the mockup. If nothing has been saved yet, this creates the
+    // build row first - previously it toasted "approved" and threw the work away.
+    var res=await persistMock(styleLabel('Approved'));
+    if(!(res&&res.ok)){toast('Could not save: '+((res&&res.error)||'unknown error'));return;}
+    await api('dashboard-build',{action:'approve',id:S.id,resume_token:S.resume_token,ai_mockup_html:_lastMock,build_prompt:buildPrompt()});
+    toast(_projMsg(res.project,'Approved and saved'));
+    closeOv('ovMock');
+  }catch(e){toast('Could not approve: '+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent='✓ Looks right — continue';}}
+}
+function styleLabel(fallback){
+  var el=document.getElementById('styleName');
+  var v=el&&el.value?el.value.trim():'';
+  return v||((fallback||'Style')+' '+((S.savedStyles||0)+1));
+}
+// Turn a match result into something actionable. Never claims a link that did not happen.
 function _projMsg(m,prefix){
   prefix=prefix||'Saved';
   if(!m)return prefix;
-  if(m.project_id)return prefix+' — linked to project "'+m.project_name+'" ('+Math.round((m.score||0)*100)+'% name match)';
-  if(m.method==='ambiguous')return prefix+' — not linked: '+m.candidates+' projects for that email and none clearly matches "'+(val('business_name')||'this build')+'". Link it in admin.';
-  if(m.method==='no_project_for_email')return prefix+' — no project found for '+(val('email')||'that email')+' yet.';
-  if(m.method==='no_email')return prefix+' — add the client email to auto-link this to a project.';
+  if(m.linked&&m.project_name)return prefix+' — linked to "'+m.project_name+'"';
+  if(m.linked)return prefix+' — linked to its project';
+  if(m.reason==='ambiguous')return prefix+' — not linked: '+m.candidates+' projects share that email and none clearly matches "'+(val('business_name')||'this build')+'". Link it in admin.';
+  if(m.reason==='no_project_for_email')return prefix+' — no project exists yet for '+(val('email')||'that email')+'.';
+  if(m.reason==='no_email')return prefix+' — add the client email to auto-link this to a project.';
   return prefix;
 }
 async function saveMockStyle(){
   if(!_lastMock){toast('Generate a mockup first');return;}
-  var label=prompt('Name this style (e.g. Dark Gold, Light Editorial)','Style '+((S.savedStyles||0)+1));
-  if(label===null)return;
-  var btn=document.getElementById('saveStyleBtn');if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  var res=await api('dashboard-mockups',Object.assign({action:'add',html:_lastMock,label:label||'Style',id:S.id,resume_token:S.resume_token},gather()));
-  if(btn){btn.disabled=false;btn.textContent='\uD83D\uDCBE Save this style';}
-  if(res&&res.ok){
-    S.id=res.build_id;S.resume_token=res.resume_token||S.resume_token;S.savedStyles=res.count;
-    if(res.duplicate){toast('That exact mockup is already saved as "'+label+'" — not duplicated ('+res.count+' total)');}
-    else{toast(_projMsg(res.project&&res.project.linked?{project_id:res.project.project_id,project_name:res.project.project_name,score:res.project.score}:(res.project||null),'Saved style ('+res.count+' total)'));}
-  }
-  else toast('Could not save: '+((res&&res.error)||''));
+  var label=styleLabel('Style');   // inline field, NOT prompt() - browsers suppress repeat dialogs
+  var btn=document.getElementById('saveStyleBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    var res=await persistMock(label);
+    if(res&&res.ok){
+      var el=document.getElementById('styleName');if(el)el.value='';
+      if(res.duplicate)toast('That exact mockup is already saved as "'+label+'" — not duplicated ('+res.count+' total)');
+      else toast(_projMsg(res.project,'Saved "'+label+'" ('+res.count+' total)'));
+    } else toast('Could not save: '+((res&&res.error)||'unknown error'));
+  }catch(e){toast('Could not save: '+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent='💾 Save this style';}}
 }
 
 // ---- spec ----
