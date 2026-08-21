@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-08-20 (Saved-style dedupe + project auto-association by email and fuzzy name)
+
+- **THE DUPLICATE MOCKUP BUG WAS IN `dashboard-mockups` `add`.** It seeded an `Original` entry from `ai_mockup_html` and then pushed the incoming html — which is normally the SAME document — so the first "Save this style" always produced two identical entries. This is what put an identical `Original` and `Ecosystem V2 - Top Nav` on the Melissa Methven build. Every entry now carries a **SHA-256 `hash`**; identical bytes relabel the existing entry and return `duplicate:true` instead of appending, and `Original` is only seeded when it genuinely differs.
+- **`ko_match_project(email, name)` associates a build with a project on Save style / Looks right / client Pick.** **Email is the gate** (candidates are only projects reachable via `leads.email` or `clients→profiles.email`), so two clients can never cross-contaminate. Among that person's projects the **name has to be close AND clearly ahead of the runner-up** (≥0.45 and a ≥0.12 gap); a single unambiguous owner passes at ≥0.30. Anything else returns `ambiguous` and **links nothing** — it never guesses. `ko_norm_name()` strips the words on every project (`dashboard|app|portal|system|ecosystem|build|v2|mvp|ai|ops|…`) so matching happens on the brand.
+- **SCORE IS A BLEND, NOT `greatest()` — do not "simplify" this back.** v1 used `greatest(containment, trigram)`. Token containment saturates at 1.0 the moment the shorter name's words all appear, so every `Melissa Methven ...` project scored 1.000 and tied → permanently ambiguous. v3 uses **0.6 × containment + 0.4 × trigram**: containment answers "right client", trigram answers "which of their projects". Verified 8/8 including both Melissa builds routing to their own distinct projects.
+- **REGRESSION I INTRODUCED AND FIXED:** the 08-19d rewrite of `reviewWithAI` ran past the end of the function and deleted `saveMockStyle()` and `approveMock()`, leaving two live buttons throwing ReferenceError. Restored from `47bf7e8`. The jsdom suite passed because it never clicked them — there is now a check that every `onclick` target resolves to a defined function. **Run that check after any surgical edit to a big single-file page.**
+- **Merged duplicate projects** `ca7e330a` + `c4ef1d3b` (identical name, same lead, only child rows were one dashboard build each). Kept the newer/richer record, repointed the builds, coalesced missing columns. Both rows are archived in **`public.archive_merged_projects`** (RLS on) so the merge is reversible. `projects` now has zero duplicate names.
+
+---
+
 ## Changelog — 2026-08-19d (Revision is an EDIT, not a rebuild — the disappearing sidebar)
 
 - **ROOT CAUSE: the revise box never sent the existing mockup anywhere.** `base_html` appeared ZERO times in the codebase. Typing a note and hitting Regenerate started a brand-new from-scratch job with `revision_notes` appended, so the model had nothing to preserve and routinely came back with a different (or missing) sidebar. Three bugs stacked on top of that: the iframe was repainted with half-written HTML mid-run, and a stale run could `finish()` over a newer one (the abort flag was only checked at the top of the loop, and `finish()` nulled `_streamAbort`, killing the new run's handle).
