@@ -3,7 +3,21 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-07-09
+> **Last Updated:** 2026-08-22
+
+---
+
+## Changelog — 2026-08-22 (Manual project file paths, kickoff prompt, AI email composer)
+
+- **ONE build-folder field, two places to edit it.** `projects.build_folder` is now editable directly in **Client Project Details → Build target** ("Working folder (Mac)" → Set/Edit) and it is the *same column* the **Continuity & Ownership → Build folder** input already wrote to, so the two can never drift. Resolution order is `projects.build_folder` → newest `dashboard_builds.build_folder` → `AutoBuilds/<slug>`, and the row states whether the path was set by hand (green) or inherited from an auto-build (gold). `saveProjContinuity()` refreshes the build target and `setProjectFolder()` refreshes continuity.
+- **🚀 Copy kickoff prompt** sits above the build target. It emits `Working in the <project> project.`, "This is already a live GitHub repo: <repo_url>", the project file path + working folder (both `projects.build_folder`), the Vercel project ID, live URL, Supabase ref, and an instruction to work only in that folder. **👁 Preview** opens it editable. If the repo or folder is unset it still copies but toasts a warning — so a missing path is never silent.
+- **`clients` HAS NO `name` OR `email` COLUMN.** They live on `profiles` (via `clients.profile_id`), or on the originating lead (`clients.lead_id` / `projects.lead_id`). `openBriefModal()` was doing `sb.from('clients').select('id,name,email,profile_id')`, which PostgREST rejects, so **Send Continuity Brief had always opened with an empty To field**. Fixed there and honored everywhere new: profiles first, lead as fallback. 24 of 33 projects now resolve a client email; the other 9 have neither a client profile nor a lead.
+- **Project detail shows the client's email** (mailto + 📧 compose), and both the project and client detail headers gained an **📧 Email** button.
+- **THE COMPOSER MOVED OUT OF `#v-comms`.** `#emailComposeModal` lived inside the Comms view, which is `display:none` from every other page — so nothing outside Comms could ever open it. It is now a top-level sibling of the views. Everything it already did (send, drafts, schedule send, signatures, attachments, the raw Templates picker) is untouched. `openComposeFor({to,subject,project_id,client_id})` plus `openComposeForProject()` / `openComposeForClient()` prefill the recipient and default signature and carry the record as AI context. **If you ever move a fixed-position modal back inside a `.view`, it stops working from everywhere else.**
+- **New `email-ai` edge fn (v3, `verify_jwt=false`, self-verifying admin JWT + `profiles.role in admin/super_admin`).** Returns `{ok,subject,html,sources,client}`. Model `claude-sonnet-5`, overridable with **`EMAIL_AI_MODEL`**. Three modes: free-text instruction; `template:<uuid>` (writes a *fresh personalized version* of an `email_templates` row — it never pastes the template); and `project_update`.
+- **`project_update` reads real activity only** over `days` (UI sends 7): GitHub commits (`GITHUB_TOKEN` + `projects.repo_url`), Vercel production deploys (`VERCEL_TOKEN` + `vercel_project_id`), and `bug_reports.fixed_at` / `feature_requests.built_at` with their `fix_summary`. The system prompt forbids inventing work — an empty window produces "it was a quiet week", not manufactured progress — and requires commits be translated into client-facing outcomes, never pasted. **`VERCEL_TOKEN` is NOT set on Supabase** (`detect-repo` still returns `no_vercel_token`); add it to turn on deploy data. Everything degrades gracefully without it.
+- **VOICE COMES FROM `sent_at IS NOT NULL`.** Of 3,754 outbound rows from `daniel@knightops.biz`, **3,714 have `sent_at` NULL** — those are the bulk/drip sends — and only 40 carry a real `sent_at`, which are the hand-written one-to-one emails. A `.order('sent_at', desc)` without `.not('sent_at','is',null)` puts the NULLs first and **every voice sample is bulk mail**, which is exactly what happened on v1. Quoted reply chains and forwarded blocks are stripped before sampling.
+- Generated text replaces the message body but **preserves the signature** already in it.
 
 ---
 
