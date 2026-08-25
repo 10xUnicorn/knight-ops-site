@@ -2482,6 +2482,7 @@ async function showLeadDetail(id){
 
   document.getElementById('leadDetailView').innerHTML='<div class="detail-back" onclick="document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'">&#8592; Back to Leads</div><div class="detail-header"><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'prev\',showLeadDetail)" style="padding:5px 8px">&#8249;</button><h2 style="margin:0">'+leadName(l)+'</h2><button class="btn btn-sm btn-secondary" onclick="navigateDetail(S.leads,\''+l.id+'\',\'next\',showLeadDetail)" style="padding:5px 8px">&#8250;</button></div><div><button class="btn btn-sm btn-secondary" onclick="editLead(\''+l.id+'\')">Edit</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'text_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);border-radius:6px" title="Log text sent">📱 Text</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'phone_call\')" style="padding:4px 10px;font-size:.75rem;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);border-radius:6px" title="Log phone call">📞 Call</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'voicemail\')" style="padding:4px 10px;font-size:.75rem;background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:6px" title="Log voicemail">🎙 VM</button> <button class="btn btn-sm" onclick="quickLogActivity(\''+l.id+'\',\'email_sent\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.12);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Log email sent">✉️ Email</button> <button class="btn btn-sm" onclick="enrichLeadById(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:rgba(200,164,86,.08);color:var(--accent);border:1px solid rgba(200,164,86,.3);border-radius:6px" title="Enrich lead data via web search">🔍 Enrich</button> <button class="btn btn-sm" onclick="apolloEnrichLead(\''+l.id+'\')" style="padding:4px 10px;font-size:.75rem;background:#4A54E1;color:#fff;border:1px solid #5C64F4;border-radius:6px;font-weight:600" title="Enrich via Apollo (1 credit)">⚡ Apollo</button> '+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" class="btn btn-sm" style="padding:4px 10px;font-size:.75rem;background:rgba(10,102,194,.12);color:#0a66c2;border:1px solid rgba(10,102,194,.3);border-radius:6px;text-decoration:none" title="View LinkedIn profile">in LinkedIn</a> ':'')+'<button class="btn btn-sm btn-primary" onclick="createProjectFromLead(\''+l.id+'\')" style="background:var(--accent);color:#000;font-weight:600">+ Project</button> <button class="btn btn-sm btn-primary" onclick="createAppFromLead(\''+l.id+'\')" style="background:rgba(33,150,243,0.15);color:var(--info);border:1px solid rgba(33,150,243,0.3);font-weight:600">+ Application</button> '+(!l.profile_id?'<button class="btn btn-sm btn-primary" onclick="convertLead(\''+l.id+'\')">Convert to Client</button>':'')+' <button class="btn btn-sm btn-danger" onclick="deleteRecord(\'leads\',\''+l.id+'\',\'Lead\',loadLeads).then(()=>{document.getElementById(\'leadsListView\').style.display=\'\';document.getElementById(\'leadDetailView\').style.display=\'none\'})">🗑 Delete</button></div></div><div class="detail-grid"><div><div class="dg-label">First Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.first_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'first_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.first_name||'—')+'</span></div></div><div><div class="dg-label">Last Name</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.last_name||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'last_name\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.last_name||'—')+'</span></div></div><div><div class="dg-label">Email</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.email||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'email\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.email||'—')+'</span></div></div><div><div class="dg-label">Phone</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.phone||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'phone\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.phone||'—')+'</span></div></div><div><div class="dg-label">Company</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.company||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'company\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.company||'—')+'</span></div></div><div><div class="dg-label">Service</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.service_interest||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'service_interest\',\'select\',SERVICE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+SL(l.service_interest)+'</span></div></div><div><div class="dg-label">Budget</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.budget_range||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'budget_range\',\'select\',BUDGET_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.budget_range||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Timeline</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.timeline||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'timeline\',\'select\',TIMELINE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.timeline||'—').replace(/_/g,' ')+'</span></div></div><div><div class="dg-label">Source</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.source||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'source\',\'select\',SOURCE_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+(l.source||'—')+'</span></div></div><div><div class="dg-label">Status</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.status||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'status\',\'select\',LEAD_STATUS_OPTS,()=>showLeadDetail(\''+l.id+'\'))">'+B(l.status)+'</span></div></div><div><div class="dg-label">Where We Met</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.where_we_met||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'where_we_met\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.where_we_met||'—')+'</span></div></div><div><div class="dg-label">Job Title</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.job_title||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'job_title\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.job_title||'—')+'</span></div></div><div><div class="dg-label">Website</div><div class="dg-value">'+(l.website?'<a href="'+esc(l.website)+'" target="_blank" style="color:var(--accent)">'+esc(l.website)+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'website\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">LinkedIn</div><div class="dg-value">'+(l.linkedin_url?'<a href="'+esc(l.linkedin_url)+'" target="_blank" style="color:#0a66c2">'+esc(l.linkedin_url.replace(/https?:\/\/(?:www\.)?linkedin\.com\/in\//,''))+'</a>':'<span class="inline-edit" data-value="" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'linkedin_url\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">—</span>')+'</div></div><div><div class="dg-label">Location</div><div class="dg-value"><span class="inline-edit" data-value="'+(l.location||'')+'" onclick="inlineEdit(this,\'leads\',\''+l.id+'\',\'location\',\'text\',null,()=>showLeadDetail(\''+l.id+'\'))">'+(l.location||'—')+'</span></div></div>'+(l.enriched_at?'<div><div class="dg-label">Enriched</div><div class="dg-value" style="font-size:.8rem;color:var(--text-muted)">'+fmtDateTime(l.enriched_at)+'</div></div>':'')+' <div><div class="dg-label">Created</div><div class="dg-value">'+fmtDate(l.created_at)+'</div></div></div>'+auditCardHtml+'<div class="table-card" style="padding:1.25rem;margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.9rem;margin:0;color:var(--gold)">Notes ('+(notes.length+(l.notes?1:0))+')</h3></div><div style="display:flex;gap:8px;margin-bottom:12px"><textarea id="newLeadNote" placeholder="Add a note..." style="flex:1;min-height:50px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;resize:vertical"></textarea><button class="btn btn-sm btn-primary" onclick="addLeadNote(\''+l.id+'\')" style="align-self:flex-end;padding:8px 14px">Add</button></div>'+(notes.length?'<div style="display:flex;flex-direction:column;gap:8px">'+notes.map(n=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem"><p style="margin:0;white-space:pre-wrap;color:var(--text);flex:1">'+esc(n.content)+'</p><div style="display:flex;gap:8px;align-items:center;margin-left:12px;flex-shrink:0"><span style="color:var(--text-muted);font-size:.75rem;white-space:nowrap">'+fmtDateTime(n.created_at)+'</span><button class="btn btn-sm btn-danger" onclick="deleteLeadNote(\''+n.id+'\',\''+l.id+'\')" style="padding:3px 8px;font-size:.75rem">&times;</button></div></div>').join('')+'</div>':'')+(l.notes?'<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:8px;font-size:.85rem;margin-top:8px"><div style="font-weight:600;color:var(--text-muted);font-size:.75rem;margin-bottom:4px">Legacy Note</div><p style="margin:0;white-space:pre-wrap;color:var(--text)">'+esc(l.notes)+'</p></div>':'')+'</div>'+scheduledActsHtml+activityLogHtml+getOutreachHtml(l)+buildLeadPromptUI(l.id)+linkedAppsHtml;
   koRenderLeadPartner(l);
+  koAppendFilesCard('leadDetailView','lead',l.id);
   setTimeout(()=>{updateOutreachPreview();refreshLeadPromptPreview(l.id);refreshContractPreview(l.id,true);},0);
 }
 function editLead(id){
@@ -3182,6 +3183,7 @@ async function showClientDetail(id){
   koRenderClientPartner(c);
   updateOutreachPreview();
   renderMockupCard('mockCardClient_'+id,{clientId:id,businessName:(p.full_name||'')});
+  koAppendFilesCard('clientDetailView','client',id);
 }
 
 function switchCDTab(btn,panelId){
@@ -6672,7 +6674,7 @@ function renderEmailReadingPane(data){
   const attachments=Array.isArray(data.attachments)?data.attachments:[];
   const starred=data.is_starred;
   let crmBadge='';
-  if(data.lead_id){crmBadge=`<div class="erp-crm-badge" onclick="activateView('leads');setTimeout(()=>openDetail('leads','${data.lead_id}'),200)"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Linked Lead</div>`;}
+  if(data.lead_id){crmBadge=`<div class="erp-crm-badge" onclick="activateView('leads');setTimeout(()=>showLeadDetail('${data.lead_id}'),200)"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Linked Lead</div>`;}
   content.innerHTML=`
     <div class="erp-header">
       <div class="erp-subject">${esc(data.subject||'(no subject)')}</div>
@@ -6708,7 +6710,280 @@ function renderEmailReadingPane(data){
       ${data.direction==='outbound'&&!data.is_draft?`<div style="display:flex;gap:16px;padding:8px 16px;background:rgba(200,164,86,.08);border-radius:8px;margin-top:8px;font-size:.8rem;color:var(--text-muted)"><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.open_count||0}</span> open${(data.open_count||0)===1?'':'s'}</div><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.click_count||0}</span> click${(data.click_count||0)===1?'':'s'}</div></div>`:''}
     </div>
     <div class="erp-body">${body}</div>
-    ${attachments.length?'<div class="erp-attachments"><div style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Attachments ('+attachments.length+')</div><div style="display:flex;gap:8px;flex-wrap:wrap">'+attachments.map(a=>{const fn=typeof a==='string'?a:(a.filename||a.name||'attachment');const fu=typeof a==='object'?(a.url||a.download_url||a.path||''):'';const fs=typeof a==='object'&&a.size?(' ('+Math.round(a.size/1024)+'KB)'):'';return fu?'<a href="'+esc(fu)+'" target="_blank" download="'+esc(fn)+'" class="erp-attach-item" style="cursor:pointer;text-decoration:none;color:var(--text)"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(fn)+fs+' <svg viewBox="0 0 24 24" style="width:14px;height:14px;margin-left:4px;flex-shrink:0"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>':'<div class="erp-attach-item"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+esc(fn)+fs+'</div>';}).join('')+'</div></div>':''}`;
+    <div id="koEmailFiles" style="padding:0 16px 16px"></div>`;
+  koLoadEmailFiles(data.id);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EMAIL ATTACHMENTS AS REAL FILES
+// Bytes live in the PRIVATE 'email-attachments' bucket. Every URL below is a
+// short-lived signed URL minted by the email-files edge fn — nothing here is a
+// public link, because these are client documents.
+// A row with no storage_path means the inbound webhook announced the file but
+// never sent the bytes. We say so plainly and offer to upload it, rather than
+// rendering a dead chip (which is what the old inline renderer did).
+// ═══════════════════════════════════════════════════════════════════════════
+var _koFiles={};
+
+function koFmtBytes(n){
+  n=Number(n)||0;
+  if(!n)return '';
+  if(n<1024)return n+' B';
+  if(n<1048576)return Math.round(n/1024)+' KB';
+  return (n/1048576).toFixed(1)+' MB';
+}
+function koFileKind(mime,name){
+  var m=String(mime||'').toLowerCase(),e=String(name||'').toLowerCase().split('.').pop();
+  if(m.indexOf('image/')===0||['png','jpg','jpeg','gif','webp','bmp'].indexOf(e)>=0)return 'image';
+  if(m==='application/pdf'||e==='pdf')return 'pdf';
+  if(m.indexOf('video/')===0||['mp4','mov','webm','m4v'].indexOf(e)>=0)return 'video';
+  if(m.indexOf('text/')===0||['txt','md','csv','json','log','xml','yml','yaml'].indexOf(e)>=0)return 'text';
+  return 'other';
+}
+function koFileIcon(mime,name){
+  var k=koFileKind(mime,name),e=String(name||'').toLowerCase().split('.').pop();
+  if(k==='image')return '🖼';
+  if(k==='pdf')return '📄';
+  if(k==='video')return '🎬';
+  if(['doc','docx','rtf','pages'].indexOf(e)>=0)return '📝';
+  if(['xls','xlsx','csv','numbers'].indexOf(e)>=0)return '📊';
+  if(['ppt','pptx','key'].indexOf(e)>=0)return '📽';
+  if(['zip','gz','rar','7z','tar'].indexOf(e)>=0)return '🗜';
+  if(k==='text')return '📃';
+  return '📎';
+}
+async function koFileFn(action,payload){
+  try{
+    var body=Object.assign({action:action},payload||{});
+    var r=await sb.functions.invoke('email-files',{body:body});
+    if(r.error)return {ok:false,reason:String(r.error.message||r.error)};
+    return r.data||{ok:false,reason:'empty_response'};
+  }catch(e){return {ok:false,reason:String(e&&e.message||e)};}
+}
+function koFileToB64(file){
+  return new Promise(function(res,rej){
+    var fr=new FileReader();
+    fr.onload=function(){res(String(fr.result).split(',').pop());};
+    fr.onerror=rej;
+    fr.readAsDataURL(file);
+  });
+}
+
+// ── rendering ──────────────────────────────────────────────────────────────
+function koFileRow(f,opts){
+  _koFiles[f.id]=f;
+  opts=opts||{};
+  var missing=!f.storage_path;
+  var icon=koFileIcon(f.mime_type,f.filename);
+  var size=koFmtBytes(f.size_bytes);
+  var sub=[];
+  if(size)sub.push(size);
+  if(opts.showSource&&f.email){
+    var who=f.email.direction==='inbound'?(f.email.from_name||f.email.from_address||''):'you';
+    var dt=f.email.received_at||f.email.sent_at||f.email.created_at;
+    var when=dt?new Date(dt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    sub.push('from '+esc(who)+(when?' · '+when:''));
+    if(f.email.subject)sub.push('“'+esc(String(f.email.subject).slice(0,60))+'”');
+  }
+  if(f.project_id)sub.push('<span style="color:var(--accent)">📁 attached to a project</span>');
+
+  var btns='';
+  if(missing){
+    btns+='<button class="btn btn-sm btn-primary" onclick="koUploadFileBytes(\''+f.id+'\')" title="Store the real file">⬆ Upload</button> ';
+  }else{
+    btns+='<button class="btn btn-sm btn-secondary" onclick="koPreviewFile(\''+f.id+'\')" title="Preview">👁</button> ';
+    btns+='<button class="btn btn-sm btn-secondary" onclick="koDownloadFile(\''+f.id+'\')" title="Download">⬇</button> ';
+    if(opts.allowAttach!==false)btns+='<button class="btn btn-sm btn-secondary" onclick="koAttachToProject(\''+f.id+'\')" title="Attach to a project">📁</button> ';
+  }
+  btns+='<button class="btn btn-sm btn-secondary" onclick="koDeleteEmailFile(\''+f.id+'\')" title="Remove">🗑</button>';
+
+  var warn=missing?'<div style="font-size:.68rem;color:#d9a441;margin-top:2px">Bytes were never delivered by the mail webhook — upload the file to store a copy.</div>':'';
+  var nameCell=missing
+    ? '<span style="color:var(--text-muted)">'+esc(f.filename)+'</span>'
+    : '<a onclick="koPreviewFile(\''+f.id+'\')" style="cursor:pointer;color:var(--text);text-decoration:none">'+esc(f.filename)+'</a>';
+
+  return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:'+(missing?'rgba(217,164,65,.06)':'transparent')+'">'
+    +'<div style="font-size:1.05rem;line-height:1.3">'+icon+'</div>'
+    +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:.8rem;font-weight:600;word-break:break-word">'+nameCell+'</div>'
+      +(sub.length?'<div style="font-size:.7rem;color:var(--text-muted);margin-top:1px">'+sub.join(' · ')+'</div>':'')
+      +warn
+    +'</div>'
+    +'<div style="display:flex;gap:4px;flex-shrink:0;white-space:nowrap">'+btns+'</div>'
+  +'</div>';
+}
+function koRenderFiles(el,files,opts){
+  opts=opts||{};
+  if(!files.length){
+    el.innerHTML='<div style="font-size:.75rem;color:var(--text-muted)">'+(opts.emptyText||'No files yet.')+'</div>';
+    return;
+  }
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+files.map(function(f){return koFileRow(f,opts);}).join('')+'</div>';
+}
+
+// Mounts remember their scope so any action can refresh every visible list.
+async function koMountFiles(el,scope,opts){
+  if(!el)return;
+  el.setAttribute('data-kofiles',JSON.stringify(scope));
+  el.setAttribute('data-kofopts',JSON.stringify(opts||{}));
+  el.innerHTML='<div style="font-size:.75rem;color:var(--text-muted)">Loading files…</div>';
+  var r=await koFileFn('list',scope);
+  if(!r.ok){
+    el.innerHTML='<div style="font-size:.75rem;color:#e5484d">Could not load files: '+esc(r.reason||'')+'</div>';
+    return;
+  }
+  koRenderFiles(el,r.files||[],opts||{});
+}
+function koRefreshFileMounts(){
+  var els=document.querySelectorAll('[data-kofiles]');
+  for(var i=0;i<els.length;i++){
+    var el=els[i],scope={},opts={};
+    try{scope=JSON.parse(el.getAttribute('data-kofiles'))||{};}catch(e){}
+    try{opts=JSON.parse(el.getAttribute('data-kofopts'))||{};}catch(e){}
+    koMountFiles(el,scope,opts);
+  }
+}
+function koLoadEmailFiles(emailId){
+  koMountFiles(document.getElementById('koEmailFiles'),{email_id:emailId},
+    {showSource:false,emptyText:'No attachments on this email.'});
+}
+
+// ── preview ────────────────────────────────────────────────────────────────
+function koEnsureFileModal(){
+  if(document.getElementById('koFileModal'))return;
+  var d=document.createElement('div');
+  d.id='koFileModal';
+  // Appended to <body>, never inside a .view — a fixed-position element inside a
+  // display:none ancestor never renders.
+  d.style.cssText='display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.72);align-items:center;justify-content:center;padding:24px';
+  d.onclick=function(e){if(e.target===d)koCloseFileModal();};
+  d.innerHTML='<div style="background:var(--bg-card,#14161a);border:1px solid var(--border,#2a2f37);border-radius:12px;max-width:900px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden">'
+    +'<div id="koFileModalHead" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border,#2a2f37)"></div>'
+    +'<div id="koFileModalBody" style="padding:14px;overflow:auto;flex:1"></div></div>';
+  document.body.appendChild(d);
+}
+function koCloseFileModal(){
+  var d=document.getElementById('koFileModal');
+  if(d){d.style.display='none';document.getElementById('koFileModalBody').innerHTML='';}
+}
+function koOpenFileModal(title,bodyHtml){
+  koEnsureFileModal();
+  document.getElementById('koFileModalHead').innerHTML='<div style="flex:1;font-size:.85rem;font-weight:600;word-break:break-word">'+title+'</div><button class="btn btn-sm btn-secondary" onclick="koCloseFileModal()">Close</button>';
+  document.getElementById('koFileModalBody').innerHTML=bodyHtml;
+  document.getElementById('koFileModal').style.display='flex';
+}
+async function koPreviewFile(id){
+  var f=_koFiles[id];
+  if(f&&!f.storage_path){showToast('That file was never stored — upload it first','error');return;}
+  showToast('Opening preview…');
+  var r=await koFileFn('url',{id:id});
+  if(!r.ok){
+    showToast(r.reason==='no_bytes'?'This file has no stored copy — upload it first':'Preview failed: '+(r.reason||''),'error');
+    return;
+  }
+  var kind=koFileKind(r.mime_type,r.filename);
+  if(kind==='image'||kind==='pdf'||kind==='video'){openMedia(r.url,kind);return;}
+  var title=esc(r.filename||'File');
+  if(kind==='text'){
+    try{
+      var res=await fetch(r.url);
+      var txt=await res.text();
+      koOpenFileModal(title,'<pre style="white-space:pre-wrap;word-break:break-word;font-size:.78rem;margin:0">'+esc(txt.slice(0,200000))+'</pre>'
+        +'<div style="margin-top:12px"><button class="btn btn-sm btn-primary" onclick="koDownloadFile(\''+id+'\')">⬇ Download</button></div>');
+      return;
+    }catch(e){}
+  }
+  // Office docs, archives and anything else: no honest inline preview exists,
+  // so say that instead of showing an empty frame.
+  var ext=String(r.filename||'').split('.').pop().toUpperCase();
+  koOpenFileModal(title,
+    '<div style="text-align:center;padding:26px 10px">'
+    +'<div style="font-size:2.6rem;margin-bottom:10px">'+koFileIcon(r.mime_type,r.filename)+'</div>'
+    +'<div style="font-size:.85rem;font-weight:600;word-break:break-word">'+esc(r.filename||'')+'</div>'
+    +'<div style="font-size:.72rem;color:var(--text-muted);margin:6px 0 16px">'+esc(ext)+' file'+(f&&f.size_bytes?' · '+koFmtBytes(f.size_bytes):'')+'<br>No in-browser preview for this format.</div>'
+    +'<button class="btn btn-sm btn-primary" onclick="koDownloadFile(\''+id+'\')">⬇ Download</button> '
+    +'<a class="btn btn-sm btn-secondary" href="'+r.url+'" target="_blank" rel="noopener">Open in new tab</a>'
+    +'</div>');
+}
+async function koDownloadFile(id){
+  showToast('Preparing download…');
+  var r=await koFileFn('url',{id:id,download:true});
+  if(!r.ok){
+    showToast(r.reason==='no_bytes'?'This file has no stored copy — upload it first':'Download failed: '+(r.reason||''),'error');
+    return;
+  }
+  var a=document.createElement('a');
+  a.href=r.url;a.download=r.filename||'download';
+  document.body.appendChild(a);a.click();a.remove();
+}
+
+// ── writes ─────────────────────────────────────────────────────────────────
+function koUploadFileBytes(id){
+  var inp=document.createElement('input');
+  inp.type='file';
+  inp.onchange=async function(){
+    var file=inp.files&&inp.files[0];
+    if(!file)return;
+    if(file.size>15*1024*1024){showToast('Files over 15MB have to go straight into Project Files','error');return;}
+    showToast('Uploading '+file.name+'…');
+    try{
+      var b64=await koFileToB64(file);
+      var r=await koFileFn('upload',{id:id,filename:file.name,mime_type:file.type||'application/octet-stream',content:b64});
+      if(!r.ok){showToast('Upload failed: '+(r.reason||''),'error');return;}
+      showToast('Stored '+file.name);
+      koRefreshFileMounts();
+    }catch(e){showToast('Upload failed: '+(e&&e.message||e),'error');}
+  };
+  inp.click();
+}
+async function koAttachToProject(id){
+  var q=await sb.from('projects').select('id,name').order('name');
+  var projs=(q.data||[]);
+  if(!projs.length){showToast('No projects found','error');return;}
+  var opts=projs.map(function(p){return '<option value="'+p.id+'">'+esc(p.name||'(untitled)')+'</option>';}).join('');
+  koOpenFileModal('Attach to a project',
+    '<div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px">A copy is placed in that project&apos;s files, and the file is linked to the project&apos;s client.</div>'
+    +'<select id="koAttachProj" class="form-input" style="width:100%;margin-bottom:12px">'+opts+'</select>'
+    +'<button class="btn btn-sm btn-primary" onclick="koAttachToProjectGo(\''+id+'\')">Attach</button>');
+}
+async function koAttachToProjectGo(id){
+  var sel=document.getElementById('koAttachProj');
+  if(!sel)return;
+  var pid=sel.value;
+  showToast('Attaching…');
+  var r=await koFileFn('attach_project',{id:id,project_id:pid});
+  if(!r.ok){showToast('Attach failed: '+(r.reason||''),'error');return;}
+  koCloseFileModal();
+  showToast('Attached to project');
+  koRefreshFileMounts();
+}
+async function koDeleteEmailFile(id){
+  if(!confirm('Remove this file? The stored copy is deleted.'))return;
+  var r=await koFileFn('delete',{id:id});
+  if(!r.ok){showToast('Delete failed: '+(r.reason||''),'error');return;}
+  showToast('File removed');
+  koRefreshFileMounts();
+}
+
+// ── contact records ────────────────────────────────────────────────────────
+// Files land on the lead/client automatically: email_attachments carries lead_id
+// and client_id, resolved server-side when the mail arrives.
+function koAppendFilesCard(containerId,kind,recordId){
+  var host=document.getElementById(containerId);
+  if(!host)return;
+  if(host.querySelector('[data-kofilescard="'+recordId+'"]'))return;
+  var card=document.createElement('div');
+  card.className='table-card';
+  card.setAttribute('data-kofilescard',recordId);
+  card.style.cssText='padding:1.25rem;margin-top:1rem';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
+    +'<h3 style="font-size:0.9rem;margin:0;color:var(--accent)">📎 Files from Email</h3>'
+    +'<button class="btn btn-sm btn-secondary" onclick="koRefreshFileMounts()">↻ Refresh</button></div>'
+    +'<div id="koFiles_'+kind+'_'+recordId+'"></div>';
+  host.appendChild(card);
+  var scope=(kind==='client')?{client_id:recordId}:{lead_id:recordId};
+  koMountFiles(document.getElementById('koFiles_'+kind+'_'+recordId),scope,
+    {showSource:true,emptyText:'No files have come in by email from this contact yet.'});
 }
 
 async function toggleEmailStar(id){
@@ -6925,6 +7200,18 @@ async function ecAiGenerate(){
   }finally{ if(btn){btn.disabled=false;btn.innerHTML='&#10024; Generate';} }
 }
 
+// Outbound attachments are held in memory as base64 by the composer; hand them to
+// email-files so they end up in the same store as everything else.
+async function koRegisterSentAttachments(emailId,list){
+  for(var i=0;i<list.length;i++){
+    var a=list[i];
+    if(!a||!a.content)continue;
+    try{
+      await koFileFn('upload',{email_id:emailId,filename:a.filename,mime_type:a.type||'application/octet-stream',content:a.content});
+    }catch(e){}
+  }
+}
+
 async function sendEmail(){
   const to=document.getElementById('ecTo').value.trim();
   const cc=(document.getElementById('ecCc')||{value:''}).value.trim();
@@ -6950,7 +7237,10 @@ async function sendEmail(){
       await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
-      await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined});
+      const ins=await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).select('id').single();
+      // Register what we just sent as real files too, so an outbound attachment
+      // is downloadable later and shows on the recipient's contact record.
+      if(ins&&ins.data&&ins.data.id&&ecAttachments.length)await koRegisterSentAttachments(ins.data.id,ecAttachments);
     }
     ecAttachments=[];ecRenderAttachChips();
     showToast('Email sent successfully');
