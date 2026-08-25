@@ -6786,6 +6786,7 @@ function koFileRow(f,opts){
     if(f.email.subject)sub.push('“'+esc(String(f.email.subject).slice(0,60))+'”');
   }
   if(f.project_id)sub.push('<span style="color:var(--accent)">📁 attached to a project</span>');
+  if(!f.lead_id&&!f.client_id)sub.push('<span style="color:var(--text-muted)">not linked to a contact</span>');
 
   var btns='';
   if(missing){
@@ -6795,9 +6796,22 @@ function koFileRow(f,opts){
     btns+='<button class="btn btn-sm btn-secondary" onclick="koDownloadFile(\''+f.id+'\')" title="Download">⬇</button> ';
     if(opts.allowAttach!==false)btns+='<button class="btn btn-sm btn-secondary" onclick="koAttachToProject(\''+f.id+'\')" title="Attach to a project">📁</button> ';
   }
+  if(!f.lead_id&&!f.client_id&&opts.allowLink!==false){
+    btns+='<button class="btn btn-sm btn-secondary" onclick="koLinkContact(\''+f.id+'\')" title="Link to a lead or client">🔗</button> ';
+  }
   btns+='<button class="btn btn-sm btn-secondary" onclick="koDeleteEmailFile(\''+f.id+'\')" title="Remove">🗑</button>';
 
-  var warn=missing?'<div style="font-size:.68rem;color:#d9a441;margin-top:2px">Bytes were never delivered by the mail webhook — upload the file to store a copy.</div>':'';
+  var REASONS={
+    too_large:'Larger than the 8MB inline limit — the original is in the forwarded copy of the email.',
+    message_budget_exceeded:'The message exceeded the total attachment budget, so this one was not inlined.',
+    encode_failed:'The mail worker could not encode this file.',
+    upload_failed:'Storing the file failed. Try uploading it by hand.',
+    empty:'The sender attached an empty file.',
+    no_content_sent:'The mail server sent only the file name and size, not the file itself.'
+  };
+  var warn=missing?('<div style="font-size:.68rem;color:#d9a441;margin-top:2px">'
+    +esc(REASONS[f.content_omitted]||'Bytes were never delivered by the mail webhook.')
+    +' Upload it to store a copy.</div>'):'';
   var nameCell=missing
     ? '<span style="color:var(--text-muted)">'+esc(f.filename)+'</span>'
     : '<a onclick="koPreviewFile(\''+f.id+'\')" style="cursor:pointer;color:var(--text);text-decoration:none">'+esc(f.filename)+'</a>';
@@ -6849,6 +6863,41 @@ function koLoadEmailFiles(emailId){
 }
 
 // ── preview ────────────────────────────────────────────────────────────────
+// Office formats have no native browser preview, so we convert them in-page.
+// Both libraries are already used elsewhere in this codebase (mammoth in the
+// dashboard intake, SheetJS for spreadsheet reads) and load only on first use.
+var _koLibs={};
+function koLoadLib(key,src){
+  if(_koLibs[key])return _koLibs[key];
+  _koLibs[key]=new Promise(function(res,rej){
+    var t=document.createElement('script');
+    t.src=src;t.async=true;
+    t.onload=function(){res(true);};
+    t.onerror=function(){rej(new Error('Could not load '+key));};
+    document.head.appendChild(t);
+  });
+  return _koLibs[key];
+}
+async function koRenderDocx(url){
+  await koLoadLib('mammoth','https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+  var buf=await (await fetch(url)).arrayBuffer();
+  var out=await window.mammoth.convertToHtml({arrayBuffer:buf});
+  return '<div style="background:#fff;color:#111;padding:22px 26px;border-radius:8px;line-height:1.55;font-size:.85rem">'
+    +(out.value||'<em>This document has no readable text.</em>')+'</div>';
+}
+async function koRenderSheet(url){
+  await koLoadLib('xlsx','https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+  var buf=await (await fetch(url)).arrayBuffer();
+  var wb=window.XLSX.read(buf,{type:'array'});
+  var html='';
+  wb.SheetNames.slice(0,8).forEach(function(n){
+    html+='<div style="font-size:.72rem;color:var(--accent);font-weight:600;margin:12px 0 4px">'+esc(n)+'</div>'
+      +'<div style="overflow-x:auto;background:#fff;color:#111;border-radius:6px;padding:8px">'
+      +window.XLSX.utils.sheet_to_html(wb.Sheets[n])+'</div>';
+  });
+  return html||'<em>Empty workbook.</em>';
+}
+
 function koEnsureFileModal(){
   if(document.getElementById('koFileModal'))return;
   var d=document.createElement('div');
@@ -6884,6 +6933,18 @@ async function koPreviewFile(id){
   var kind=koFileKind(r.mime_type,r.filename);
   if(kind==='image'||kind==='pdf'||kind==='video'){openMedia(r.url,kind);return;}
   var title=esc(r.filename||'File');
+  var ext2=String(r.filename||'').toLowerCase().split('.').pop();
+  if(ext2==='docx'||ext2==='xlsx'||ext2==='xls'){
+    koOpenFileModal(title,'<div style="font-size:.78rem;color:var(--text-muted)">Rendering '+esc(ext2.toUpperCase())+'…</div>');
+    try{
+      var html=(ext2==='docx')?await koRenderDocx(r.url):await koRenderSheet(r.url);
+      koOpenFileModal(title,html+'<div style="margin-top:14px"><button class="btn btn-sm btn-primary" onclick="koDownloadFile(\''+id+'\')">⬇ Download original</button></div>');
+    }catch(e){
+      koOpenFileModal(title,'<div style="font-size:.8rem;color:#d9a441">Could not render this file in the browser ('+esc(String(e&&e.message||e))+').</div>'
+        +'<div style="margin-top:12px"><button class="btn btn-sm btn-primary" onclick="koDownloadFile(\''+id+'\')">⬇ Download</button></div>');
+    }
+    return;
+  }
   if(kind==='text'){
     try{
       var res=await fetch(r.url);
@@ -6957,6 +7018,64 @@ async function koAttachToProjectGo(id){
   showToast('Attached to project');
   koRefreshFileMounts();
 }
+// Link an orphaned file to whoever it actually belongs to. The sender of an
+// email is often not in the CRM yet, so this searches leads AND clients.
+async function koLinkContact(id){
+  koOpenFileModal('Link this file to a contact',
+    '<input id="koLinkQ" class="form-input" placeholder="Search leads and clients by name or email…" '
+    +'style="width:100%;margin-bottom:10px" oninput="koLinkSearch(\''+id+'\')">'
+    +'<div id="koLinkResults" style="font-size:.78rem;color:var(--text-muted)">Start typing to search.</div>');
+  setTimeout(function(){var q=document.getElementById('koLinkQ');if(q)q.focus();},50);
+}
+var _koLinkT=null;
+function koLinkSearch(id){
+  clearTimeout(_koLinkT);
+  _koLinkT=setTimeout(function(){koLinkSearchGo(id);},220);
+}
+async function koLinkSearchGo(id){
+  var qEl=document.getElementById('koLinkQ');
+  var out=document.getElementById('koLinkResults');
+  if(!qEl||!out)return;
+  var term=qEl.value.trim();
+  if(term.length<2){out.innerHTML='Start typing to search.';return;}
+  out.innerHTML='Searching…';
+  var like='%'+term+'%';
+  var res=await Promise.all([
+    sb.from('leads').select('id,name,email,company').or('name.ilike.'+like+',email.ilike.'+like).limit(12),
+    sb.from('clients').select('id,profile_id,profiles(full_name,email)').limit(200)
+  ]);
+  var rows=[];
+  (res[0].data||[]).forEach(function(l){
+    rows.push({kind:'lead',id:l.id,name:l.name||'(no name)',email:l.email||'',extra:l.company||''});
+  });
+  var t=term.toLowerCase();
+  (res[1].data||[]).forEach(function(c){
+    var pr=c.profiles||{};
+    var nm=pr.full_name||'',em=pr.email||'';
+    if(nm.toLowerCase().indexOf(t)>=0||em.toLowerCase().indexOf(t)>=0){
+      rows.push({kind:'client',id:c.id,name:nm||'(no name)',email:em,extra:''});
+    }
+  });
+  if(!rows.length){out.innerHTML='<div style="color:var(--text-muted)">Nobody matches “'+esc(term)+'”. They may not be in the CRM yet.</div>';return;}
+  out.innerHTML=rows.slice(0,20).map(function(r){
+    return '<div onclick="koLinkPick(\''+id+'\',\''+r.kind+'\',\''+r.id+'\')" '
+      +'style="cursor:pointer;padding:7px 9px;border:1px solid var(--border);border-radius:7px;margin-bottom:5px">'
+      +'<span style="font-size:.7rem;color:var(--accent);text-transform:uppercase">'+r.kind+'</span> '
+      +'<span style="font-weight:600">'+esc(r.name)+'</span>'
+      +(r.email?'<div style="font-size:.7rem;color:var(--text-muted)">'+esc(r.email)+(r.extra?' · '+esc(r.extra):'')+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+async function koLinkPick(id,kind,recordId){
+  var payload={id:id};
+  if(kind==='lead')payload.lead_id=recordId; else payload.client_id=recordId;
+  var r=await koFileFn('link_contact',payload);
+  if(!r.ok){showToast('Link failed: '+(r.reason||''),'error');return;}
+  koCloseFileModal();
+  showToast('Linked to '+kind);
+  koRefreshFileMounts();
+}
+
 async function koDeleteEmailFile(id){
   if(!confirm('Remove this file? The stored copy is deleted.'))return;
   var r=await koFileFn('delete',{id:id});

@@ -1,0 +1,12 @@
+name = "knightops-email-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# WEBHOOK_SECRET is intentionally NOT here. This repo is public, and that value
+# is what authorises writes into the CRM. It lives as a Cloudflare secret:
+#   npx wrangler secret put WEBHOOK_SECRET --name knightops-email-worker
+# Secrets survive `wrangler deploy`; [vars] entries do not, so never move it here.
+[vars]
+FORWARD_TO = "dknightunicorn@gmail.com"
+SUPABASE_RECEIVE_URL = "https://trpnlkntvulkjerevngm.supabase.co/functions/v1/receive-email"

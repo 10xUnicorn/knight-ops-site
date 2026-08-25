@@ -1,0 +1,17 @@
+{
+  "name": "knightops-email-worker",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Cloudflare Email Routing handler for knightops.biz \u2014 parses inbound mail, stores it (with attachment bytes) via Supabase receive-email, and forwards the original on.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail --name knightops-email-worker"
+  },
+  "dependencies": {
+    "postal-mime": "^2.2.7"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "type": "module"
+}
