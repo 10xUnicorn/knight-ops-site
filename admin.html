@@ -620,7 +620,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
               <div class="table-filters">
                 <input type="text" placeholder="Search..." id="dealSearch" oninput="renderDeals()">
                 <select id="dealStageFilter" onchange="renderDeals()"><option value="">All Stages</option><option value="discovery">Discovery</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option><option value="contract">Contract</option><option value="closed_won">Won</option><option value="closed_lost">Lost</option><option value="on_hold">On Hold</option></select>
-                <select id="dealStatusFilter" onchange="renderDeals()"><option value="">All</option><option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option></select>
+                <select id="dealStatusFilter" onchange="renderDeals()"><option value="">Active (open + won + lost)</option><option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="cancelled">Cancelled / placeholders</option><option value="all">Everything</option></select>
                 <button class="btn btn-primary btn-sm" onclick="editDeal()">+ New Deal</button>
               </div>
             </div>
@@ -1801,6 +1801,40 @@ function setAnalyticsRange(range,btn){
   loadDashboard();
 }
 
+// ═══ COLLECTED REVENUE — the only basis for any revenue number on this page ═══
+// Stripe / ACH / check rows in stripe_payments (succeeded, not ignored, net of
+// refunds) plus the manual "collected" entries in revenue_payments for deals
+// that have no ledger row. Nothing here reads deal_value or contract_value:
+// those are promises, not cash. Cancelled/placeholder deals never appear.
+var _koCollectedCache=null;
+async function koLoadCollected(force){
+  if(_koCollectedCache&&!force)return _koCollectedCache;
+  var out=[];
+  try{
+    var sp=await sb.from('stripe_payments').select('id,deal_id,amount,refunded_amount,paid_at,created_at,status,match_status,customer_name,customer_email,product_description,payment_source')
+      .eq('status','succeeded').neq('match_status','ignored');
+    var stripeDeals={};
+    (sp.data||[]).forEach(function(r){
+      var amt=(parseFloat(r.amount)||0)-(parseFloat(r.refunded_amount)||0);
+      if(amt<=0)return;
+      if(r.deal_id)stripeDeals[r.deal_id]=1;
+      out.push({amount:amt,date:r.paid_at||r.created_at,deal_id:r.deal_id,src:r.payment_source||'stripe',label:r.customer_name||r.customer_email||r.product_description||''});
+    });
+    var rp=await sb.from('revenue_payments').select('id,deal_id,amount,collected_date,created_at,status,client_name,description').eq('status','collected');
+    (rp.data||[]).forEach(function(r){
+      // A manual entry for a deal that also has ledger rows would double count.
+      if(r.deal_id&&stripeDeals[r.deal_id])return;
+      out.push({amount:parseFloat(r.amount)||0,date:r.collected_date||r.created_at,deal_id:r.deal_id,src:'manual',label:r.client_name||''});
+    });
+  }catch(e){console.error('collected revenue',e);}
+  _koCollectedCache=out;
+  return out;
+}
+function koSumCollected(rows,from,to){
+  return rows.filter(function(r){ if(!from&&!to)return true; var d=new Date(r.date); return (!from||d>=new Date(from))&&(!to||d<=new Date(to)); })
+             .reduce(function(s,r){return s+r.amount;},0);
+}
+
 async function loadDashboard(){
   const{from,to}=getDateRange(analyticsRange);
 
@@ -1835,9 +1869,12 @@ async function loadDashboard(){
   const leadsInRange=S.leads.filter(l=>new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to));
   const appsInRange=(S.applications||[]).filter(a=>new Date(a.created_at)>=new Date(from)&&new Date(a.created_at)<=new Date(to));
   const proposalsSent=proposals.filter(p=>p.sent_at&&new Date(p.sent_at)>=new Date(from)&&new Date(p.sent_at)<=new Date(to));
-  const dealsWon=S.leads.filter(l=>l.status==='won'&&l.updated_at&&new Date(l.updated_at)>=new Date(from)&&new Date(l.updated_at)<=new Date(to));
-  const revenueInRange=S.projects.filter(p=>new Date(p.created_at)>=new Date(from)&&new Date(p.created_at)<=new Date(to)).reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
-  const totalRevenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+  const dealsWon=S.deals.filter(d=>d.status==='won'&&new Date(d.won_at||d.actual_close_date||d.created_at)>=new Date(from)&&new Date(d.won_at||d.actual_close_date||d.created_at)<=new Date(to));
+  const dealsWonAll=S.deals.filter(d=>d.status==='won');
+  // Revenue is cash that arrived, never contract or deal value.
+  const collected=await koLoadCollected();
+  const revenueInRange=koSumCollected(collected,from,to);
+  const totalRevenue=koSumCollected(collected);
 
   // Meetings booked = leads from book source or any booking-related source
   const meetingsBooked=S.leads.filter(l=>(l.source==='book'||l.source==='calendly'||l.source==='booking')&&new Date(l.created_at)>=new Date(from)&&new Date(l.created_at)<=new Date(to)).length;
@@ -1860,8 +1897,8 @@ async function loadDashboard(){
 
   document.getElementById('pipelineKPIs2').innerHTML=
     kpiCard('Pipeline (Next 30 Days)',fmtMoney(pipelineRevenue),pipelineDeals.length+' deals | '+fmtMoney(pipelineWeighted)+' weighted','cursor:pointer','navTo(\'deals\')')+
-    kpiCard('Deals Closed',fmtNum(dealsWon.length),S.leads.filter(l=>l.status==='won').length+' all time')+
-    kpiCard('Revenue (Period)',fmtMoney(revenueInRange),fmtMoney(totalRevenue)+' all time')+
+    kpiCard('Deals Closed',fmtNum(dealsWon.length),dealsWonAll.length+' all time','cursor:pointer','navTo(\'deals\')')+
+    kpiCard('Revenue Collected',fmtMoney(revenueInRange),fmtMoney(totalRevenue)+' all time · payments only')+
     kpiCard('Active Projects',S.projects.filter(p=>p.status==='in_progress').length+'',S.projects.length+' total','cursor:pointer','navTo(\'projects\')');
 
   // ── PAGEVIEWS CHART ──
@@ -1911,15 +1948,16 @@ async function loadKPIs(){
   const sessions=analytics.filter(e=>e.event_type==='session_end');
   const uniqueVisitors=new Set(pageviews.map(e=>e.visitor_id)).size;
   const avgDuration=sessions.length?Math.round(sessions.reduce((s,e)=>s+(e.duration_seconds||0),0)/sessions.length):0;
-  const revenueInRange=S.projects.filter(p=>new Date(p.created_at)>=new Date(from)&&new Date(p.created_at)<=new Date(to)).reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
-  const totalRevenue=S.projects.reduce((s,p)=>s+(parseFloat(p.contract_value)||0),0);
+  const collected=await koLoadCollected();
+  const revenueInRange=koSumCollected(collected,from,to);
+  const totalRevenue=koSumCollected(collected);
   const wonDealsAll=S.deals.filter(d=>d.status==='won');
   const wonRevenue=wonDealsAll.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
   const avgDealSize=wonDealsAll.length?wonRevenue/wonDealsAll.length:0;
   document.getElementById('kpiRevenue').innerHTML=
-    kpiCard('Total Revenue',fmtMoney(totalRevenue),'All time from projects')+
-    kpiCard('Revenue (Period)',fmtMoney(revenueInRange),'In selected range')+
-    kpiCard('Won Deal Value',fmtMoney(wonRevenue),wonDealsAll.length+' deals closed')+
+    kpiCard('Revenue Collected',fmtMoney(totalRevenue),'All time · Stripe, ACH, check + logged payments')+
+    kpiCard('Collected (Period)',fmtMoney(revenueInRange),'Payments received in range')+
+    kpiCard('Won Deal Value',fmtMoney(wonRevenue),wonDealsAll.length+' won · '+fmtMoney(Math.max(0,wonRevenue-totalRevenue))+' not yet collected')+
     kpiCard('Avg Deal Size',fmtMoney(avgDealSize),wonDealsAll.length+' deals');
   const openDeals=S.deals.filter(d=>d.status==='open');
   const pipelineVal=openDeals.reduce((s,d)=>s+(parseFloat(d.deal_value)||0),0);
@@ -1967,10 +2005,10 @@ async function loadKPIs(){
     kpiCard('Overdue',overdueInv.length+'',overdueInv.length?'Action needed':'All clear')+
     kpiCard('Collection Rate',inv.length?Math.round(paidInv.length/inv.length*100)+'%':'—',paidInv.length+' / '+inv.length);
   const projByMonth={};
-  S.projects.forEach(p=>{
-    if(!p.created_at)return;
-    const m=p.created_at.substring(0,7);
-    projByMonth[m]=(projByMonth[m]||0)+(parseFloat(p.contract_value)||0);
+  collected.forEach(r=>{
+    if(!r.date)return;
+    const m=String(r.date).substring(0,7);
+    projByMonth[m]=(projByMonth[m]||0)+r.amount;
   });
   const mLabels=Object.keys(projByMonth).sort().slice(-12);
   const mData=mLabels.map(m=>projByMonth[m]);
@@ -10323,7 +10361,9 @@ function renderDeals(){
   const q=(document.getElementById('dealSearch')?.value||'').toLowerCase();
   const st=document.getElementById('dealStageFilter')?.value||'';
   const ss=document.getElementById('dealStatusFilter')?.value||'';
-  const f=S.deals.filter(d=>(!q||d.title.toLowerCase().includes(q)||(d.clients?.profiles?.full_name||'').toLowerCase().includes(q))&&(!st||d.stage===st)&&(!ss||d.status===ss));
+  // 99 auto-generated placeholder deals were cancelled in the 2026-08-31 true-up;
+  // they are kept for the audit trail but hidden unless asked for.
+  const f=S.deals.filter(d=>(!q||d.title.toLowerCase().includes(q)||(d.clients?.profiles?.full_name||'').toLowerCase().includes(q))&&(!st||d.stage===st)&&(ss==='all'||(ss?d.status===ss:d.status!=='cancelled')));
   const ids=f.map(d=>d.id);
   const bar=bulkBarHtml('deals',[{field:'stage',label:'Stage',opts:DEAL_STAGE_OPTS},{field:'status',label:'Status',opts:DEAL_STATUS_OPTS2},{field:'priority',label:'Priority',opts:DEAL_PRIORITY_OPTS},{field:'sales_channel',label:'Channel',opts:SALES_CHANNEL_OPTS},{field:'expected_close_date',label:'Close Date',type:'date'}],'Deal','loadDeals');
   document.getElementById('dealsTable').innerHTML=bar+'<table><thead><tr><th style="width:30px"><input type="checkbox" class="bulk-all-deals" onchange="bulkToggleAll(\'deals\','+JSON.stringify(ids).replace(/"/g,"'")+',this)"></th><th>Deal</th><th>Client</th><th>Value</th><th>Stage</th><th>Probability</th><th>Close Date</th><th>Status</th><th>Channel</th><th>Actions</th></tr></thead><tbody>'+(f.length?f.map(d=>{
