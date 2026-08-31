@@ -370,7 +370,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .erp-attach-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* Compose Modal */
-.email-compose-overlay{display:none;position:fixed;bottom:20px;right:20px;width:600px;max-height:560px;background:#fff;border:1px solid #d1d5db;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.25);z-index:1001;flex-direction:column;overflow:hidden}
+.email-compose-overlay{display:none;position:fixed;bottom:20px;right:20px;width:750px;max-height:644px;background:#fff;border:1px solid #d1d5db;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.25);z-index:1001;flex-direction:column;overflow:hidden}
 .email-compose-overlay.visible{display:flex}
 .ec-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1a1a1a;border-bottom:1px solid #333;cursor:move}
 .ec-header h4{font-size:.9rem;font-weight:600;margin:0;color:#f0f0f0}
@@ -386,7 +386,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .ec-toolbar button{background:none;border:none;color:#6b7280;cursor:pointer;padding:4px;border-radius:4px}
 .ec-toolbar button:hover{background:#e5e7eb;color:#111}
 .ec-toolbar button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
-.ec-body{flex:1;padding:12px 16px;min-height:180px;max-height:240px;overflow-y:auto;font-size:.875rem;color:#111;line-height:1.6;outline:none;background:#fff}
+.ec-body{flex:1;padding:12px 16px;min-height:207px;max-height:276px;overflow-y:auto;font-size:.875rem;color:#111;line-height:1.6;outline:none;background:#fff}
 .ec-body:empty:before{content:attr(data-placeholder);color:#9ca3af}
 .ec-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #e5e7eb;background:#f9fafb}
 .ec-footer-left{display:flex;gap:4px;align-items:center}
@@ -6670,7 +6670,7 @@ function renderEmailReadingPane(data){
   const cc=Array.isArray(data.cc_addresses)&&data.cc_addresses.length?data.cc_addresses.join(', '):'';
   const dt=data.received_at||data.sent_at||data.created_at;
   const dateStr=dt?new Date(dt).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}):'';
-  const body=data.body_html||('<pre style="white-space:pre-wrap;font-family:inherit">'+esc(data.body_text||data.snippet||'(no content)')+'</pre>');
+  // body is rendered separately into an isolated frame — see koRenderEmailBody
   const attachments=Array.isArray(data.attachments)?data.attachments:[];
   const starred=data.is_starred;
   let crmBadge='';
@@ -6709,8 +6709,9 @@ function renderEmailReadingPane(data){
       ${crmBadge}
       ${data.direction==='outbound'&&!data.is_draft?`<div style="display:flex;gap:16px;padding:8px 16px;background:rgba(200,164,86,.08);border-radius:8px;margin-top:8px;font-size:.8rem;color:var(--text-muted)"><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.open_count||0}</span> open${(data.open_count||0)===1?'':'s'}</div><div style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span style="font-weight:600;color:var(--accent)">${data.click_count||0}</span> click${(data.click_count||0)===1?'':'s'}</div></div>`:''}
     </div>
-    <div class="erp-body">${body}</div>
+    <div class="erp-body" id="erpBodyHost"></div>
     <div id="koEmailFiles" style="padding:0 16px 16px"></div>`;
+  koRenderEmailBody(data);
   koLoadEmailFiles(data.id);
 }
 
@@ -7105,6 +7106,74 @@ function koAppendFilesCard(containerId,kind,recordId){
     {showSource:true,emptyText:'No files have come in by email from this contact yet.'});
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// READING AN EMAIL SAFELY AND LEGIBLY
+// Mail from other people is untrusted HTML written for a white background.
+// Rendering it inline in a dark admin page made half of it invisible, and put
+// arbitrary sender markup into our DOM. Both problems go away by giving each
+// message its own sandboxed frame with a white sheet inside.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Strip anything that could execute or restyle the host page. Used for the
+// reading frame AND for quoted text pulled into the composer, where a stray
+// <style> block would otherwise repaint the whole admin UI.
+function koSanitizeEmailHtml(html){
+  try{
+    var doc=new DOMParser().parseFromString(String(html||''),'text/html');
+    doc.querySelectorAll('script,style,link,meta,base,iframe,object,embed,form').forEach(function(n){n.remove();});
+    doc.querySelectorAll('*').forEach(function(el){
+      for(var i=el.attributes.length-1;i>=0;i--){
+        var a=el.attributes[i],n=a.name.toLowerCase();
+        if(n.indexOf('on')===0)el.removeAttribute(a.name);
+        else if((n==='href'||n==='src')&&/^\s*javascript:/i.test(a.value))el.removeAttribute(a.name);
+      }
+    });
+    return doc.body?doc.body.innerHTML:'';
+  }catch(e){return '';}
+}
+
+function koRenderEmailBody(data){
+  var host=document.getElementById('erpBodyHost');
+  if(!host)return;
+  host.innerHTML='';
+  var hasHtml=!!(data.body_html&&String(data.body_html).trim());
+  var inner=hasHtml
+    ? koSanitizeEmailHtml(data.body_html)
+    : '<pre style="white-space:pre-wrap;word-wrap:break-word;font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0">'
+        +esc(data.body_text||data.snippet||'(no content)')+'</pre>';
+  var srcdoc='<!doctype html><html><head><meta charset="utf-8">'
+    +'<base target="_blank">'
+    // The white sheet is the point: senders style for white and often set no
+    // colour at all, so anything inherited from our dark theme disappears.
+    +'<style>html,body{margin:0;padding:16px;background:#fff;color:#111;'
+    +'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'
+    +'font-size:14px;line-height:1.6;-webkit-text-size-adjust:100%}'
+    +'img{max-width:100%;height:auto}table{max-width:100%}'
+    +'a{color:#0b57d0}blockquote{border-left:2px solid #d1d5db;margin:0 0 0 8px;padding-left:12px;color:#555}'
+    +'*{max-width:100%}</style></head><body>'+inner+'</body></html>';
+  var f=document.createElement('iframe');
+  // No allow-scripts: nothing in a received email can run. allow-same-origin is
+  // only here so we can measure the content height; with scripting off it grants
+  // the frame no capability of its own.
+  f.setAttribute('sandbox','allow-same-origin allow-popups allow-popups-to-escape-sandbox');
+  f.setAttribute('referrerpolicy','no-referrer');
+  f.style.cssText='width:100%;border:0;background:#fff;border-radius:8px;display:block;min-height:220px';
+  f.srcdoc=srcdoc;
+  f.onload=function(){
+    function fit(){
+      try{
+        var d=f.contentDocument;
+        if(!d||!d.body)return;
+        f.style.height=Math.max(220,d.body.scrollHeight+32)+'px';
+      }catch(e){}
+    }
+    fit();
+    // Images and webfonts land after load and change the height.
+    setTimeout(fit,150);setTimeout(fit,600);setTimeout(fit,1600);
+  };
+  host.appendChild(f);
+}
+
 async function toggleEmailStar(id){
   const item=emailListData.find(e=>e.id===id);
   const newVal=item?!item.is_starred:true;
@@ -7144,21 +7213,139 @@ async function markEmailUnread(id){
   showToast('Marked as unread');
 }
 
-function replyToEmail(id,mode){
-  const item=emailListData.find(e=>e.id===id);
-  if(!item)return;
-  document.getElementById('ecTo').value=item.from_address||'';
-  document.getElementById('ecSubject').value='Re: '+(item.subject||'');
-  document.getElementById('ecBody').innerHTML='<br><br><div style="border-left:2px solid var(--border);padding-left:12px;color:var(--text-muted);font-size:.85rem">On '+emailTimeAgo(item.received_at||item.created_at)+', '+(item.from_name||item.from_address)+' wrote:<br>'+(item.snippet||'')+'</div>';
-  document.getElementById('emailComposeModal').classList.add('visible');
+// ═══ REPLY / REPLY ALL / FORWARD ═══════════════════════════════════════════
+// The old versions quoted `item.snippet`, which is 200 characters — that is why
+// replies arrived with the original message cut off. They also ignored the
+// `mode` argument entirely, so Reply All was identical to Reply and dropped
+// every other recipient. Both now work off the FULL message.
+
+// Addresses that are us, so Reply All never puts you in your own CC line.
+function koMyAddresses(item){
+  var mine={};
+  var sel=document.getElementById('ecFrom');
+  if(sel)Array.prototype.forEach.call(sel.options,function(o){if(o.value)mine[String(o.value).toLowerCase()]=1;});
+  ['daniel@knightops.biz','team@knightops.biz','info@knightops.biz','hello@knightops.biz'].forEach(function(a){mine[a]=1;});
+  if(item&&item.mailbox)mine[String(item.mailbox).toLowerCase()]=1;
+  return mine;
+}
+function koAddrList(v){
+  if(!v)return [];
+  var arr=Array.isArray(v)?v:String(v).split(/[,;]+/);
+  var out=[],seen={};
+  arr.forEach(function(x){
+    var e=String(x||'').trim().replace(/^.*<|>.*$/g,'').trim();
+    var k=e.toLowerCase();
+    if(e&&e.indexOf('@')>0&&!seen[k]){seen[k]=1;out.push(e);}
+  });
+  return out;
+}
+function koQuoteHeader(item){
+  var dt=item.received_at||item.sent_at||item.created_at;
+  var when=dt?new Date(dt).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}):'';
+  var who=(item.from_name?item.from_name+' ':'')+'&lt;'+esc(item.from_address||'')+'&gt;';
+  return 'On '+esc(when)+', '+who+' wrote:';
+}
+// The full original message, sanitised, in a quote block the recipient's client
+// will recognise. This is what preserves the history through a reply chain: the
+// previous quote travels inside body_html, so replying to a reply keeps the lot.
+function koQuoteBlock(item){
+  var inner=item.body_html
+    ? koSanitizeEmailHtml(item.body_html)
+    : '<pre style="white-space:pre-wrap;font-family:inherit;margin:0">'+esc(item.body_text||item.snippet||'')+'</pre>';
+  return '<div class="ec-quote" style="border-left:2px solid #d1d5db;padding-left:12px;margin-top:6px;color:#444">'
+    +'<div style="font-size:.82rem;color:#666;margin-bottom:6px">'+koQuoteHeader(item)+'</div>'
+    +inner+'</div>';
+}
+async function koDefaultSigHtml(){
+  try{
+    var q=await sb.from('email_signatures').select('*').eq('is_default',true).maybeSingle();
+    var sig=q.data;
+    if(!sig)return '';
+    return '<div class="ec-sig" style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:10px;font-size:.82rem;color:#555">'+(sig.body_html||esc(sig.body_text||''))+'</div>';
+  }catch(e){return '';}
+}
+// Shared reset so opening a reply can never overwrite a draft you were editing.
+function koResetComposeState(){
+  emailEditingDraftId=null;
+  ecAttachments=[];
+  try{ecRenderAttachChips();}catch(e){}
+  _ecCtx={project_id:null,client_id:null,project_name:'',client_name:'',reply_to_id:null,reply_subject:'',reply_from:''};
+  ['ecCc','ecBcc'].forEach(function(i){var el=document.getElementById(i);if(el)el.value='';});
+  document.getElementById('ecCcRow').style.display='none';
+  document.getElementById('ecBccRow').style.display='none';
 }
 
-function forwardEmail(id){
-  const item=emailListData.find(e=>e.id===id);
-  if(!item)return;
+async function replyToEmail(id,mode){
+  // The list query does not carry body_html, so always read the full row.
+  var item=null;
+  try{item=(await sb.from('emails').select('*').eq('id',id).maybeSingle()).data;}catch(e){}
+  if(!item)item=emailListData.find(function(e){return e.id===id;});
+  if(!item){showToast('Could not load that email','error');return;}
+
+  koResetComposeState();
+  var mine=koMyAddresses(item);
+  var to=[],cc=[];
+  if(item.direction==='outbound'){
+    // Replying to something you sent goes back to the same people.
+    to=koAddrList(item.to_addresses);
+  }else{
+    to=koAddrList(item.from_address);
+  }
+  if(mode==='all'){
+    // Everyone else who was on it — original To plus CC — minus us and the sender.
+    var already={};
+    to.forEach(function(a){already[a.toLowerCase()]=1;});
+    koAddrList(item.to_addresses).concat(koAddrList(item.cc_addresses)).forEach(function(a){
+      var k=a.toLowerCase();
+      if(!mine[k]&&!already[k]){already[k]=1;cc.push(a);}
+    });
+  }
+  document.getElementById('ecTo').value=to.join(', ');
+  var ccEl=document.getElementById('ecCc');
+  if(ccEl){
+    ccEl.value=cc.join(', ');
+    document.getElementById('ecCcRow').style.display=cc.length?'flex':'none';
+  }
+  var subj=String(item.subject||'');
+  document.getElementById('ecSubject').value=/^re:\s/i.test(subj)?subj:('Re: '+subj);
+
+  var sig=await koDefaultSigHtml();
+  document.getElementById('ecBody').innerHTML='<p><br></p>'+sig+'<p><br></p>'+koQuoteBlock(item);
+
+  // Carry the thread so the AI can read what is being replied to, and so the
+  // sent message threads correctly in the recipient's client.
+  _ecCtx.reply_to_id=item.id;
+  _ecCtx.reply_subject=item.subject||'';
+  _ecCtx.reply_from=item.from_name||item.from_address||'';
+  try{ecRenderAiBar();ecLoadAiPresets();}catch(e){}
+  document.getElementById('emailComposeModal').classList.add('visible');
+  var b=document.getElementById('ecBody');
+  if(b){b.focus();try{var r=document.createRange();r.setStart(b,0);r.collapse(true);var selo=window.getSelection();selo.removeAllRanges();selo.addRange(r);}catch(e){}}
+}
+
+async function forwardEmail(id){
+  var item=null;
+  try{item=(await sb.from('emails').select('*').eq('id',id).maybeSingle()).data;}catch(e){}
+  if(!item)item=emailListData.find(function(e){return e.id===id;});
+  if(!item){showToast('Could not load that email','error');return;}
+  koResetComposeState();
   document.getElementById('ecTo').value='';
-  document.getElementById('ecSubject').value='Fwd: '+(item.subject||'');
-  document.getElementById('ecBody').innerHTML='<br><br><div style="border-left:2px solid var(--border);padding-left:12px;color:var(--text-muted);font-size:.85rem">---------- Forwarded message ----------<br>From: '+(item.from_name||item.from_address)+'<br>Subject: '+(item.subject||'')+'<br><br>'+(item.snippet||'')+'</div>';
+  var subj=String(item.subject||'');
+  document.getElementById('ecSubject').value=/^fwd:\s/i.test(subj)?subj:('Fwd: '+subj);
+  var sig=await koDefaultSigHtml();
+  var hdr='<div style="font-size:.82rem;color:#666;margin-bottom:6px">---------- Forwarded message ----------<br>'
+    +'From: '+esc((item.from_name||'')+' <'+(item.from_address||'')+'>')+'<br>'
+    +'Date: '+esc(new Date(item.received_at||item.sent_at||item.created_at).toLocaleString())+'<br>'
+    +'Subject: '+esc(item.subject||'')+'<br>'
+    +'To: '+esc(koAddrList(item.to_addresses).join(', '))+'</div>';
+  var inner=item.body_html?koSanitizeEmailHtml(item.body_html)
+    :'<pre style="white-space:pre-wrap;font-family:inherit;margin:0">'+esc(item.body_text||item.snippet||'')+'</pre>';
+  document.getElementById('ecBody').innerHTML='<p><br></p>'+sig+'<p><br></p>'
+    +'<div class="ec-quote" style="border-left:2px solid #d1d5db;padding-left:12px;margin-top:6px;color:#444">'+hdr+inner+'</div>';
+  _ecCtx.reply_to_id=item.id;
+  _ecCtx.reply_subject=item.subject||'';
+  _ecCtx.reply_from=item.from_name||item.from_address||'';
+  try{ecRenderAiBar();ecLoadAiPresets();}catch(e){}
   document.getElementById('emailComposeModal').classList.add('visible');
 }
 
@@ -7169,7 +7356,7 @@ async function toggleEmailCompose(){
     modal.classList.remove('visible');
   }else{
     emailEditingDraftId=null;
-    _ecCtx={project_id:null,client_id:null,project_name:'',client_name:''};
+    _ecCtx={project_id:null,client_id:null,project_name:'',client_name:'',reply_to_id:null,reply_subject:'',reply_from:''};
     ecRenderAiBar();ecLoadAiPresets();
     ecAttachments=[];ecRenderAttachChips();
     document.getElementById('ecTo').value='';
@@ -7213,13 +7400,24 @@ function projClientContact(p){
 function ecRenderAiBar(){
   var ctx=document.getElementById('ecAiCtx'); if(!ctx)return;
   var bits=[];
+  if(_ecCtx.reply_to_id)bits.push('↩ replying to '+(_ecCtx.reply_from||'this thread'));
   if(_ecCtx.project_name)bits.push('📁 '+_ecCtx.project_name);
   if(_ecCtx.client_name)bits.push('👤 '+_ecCtx.client_name);
   ctx.textContent=bits.length?bits.join('  ·  '):'';
   var upd=document.querySelector('#ecAiPreset option[value="project_update"]');
   if(upd)upd.disabled=!_ecCtx.project_id;
+  // The reply preset only exists when there is something to reply to.
+  var sel=document.getElementById('ecAiPreset');
+  var rep=document.querySelector('#ecAiPreset option[value="reply"]');
+  if(_ecCtx.reply_to_id&&!rep&&sel){
+    rep=document.createElement('option');
+    rep.value='reply';rep.textContent='\u21A9 Reply — read the thread and answer it';
+    sel.insertBefore(rep,sel.firstChild);
+  }else if(!_ecCtx.reply_to_id&&rep){rep.remove();}
   var pr=document.getElementById('ecAiPrompt'); if(pr)pr.value='';
-  var sel=document.getElementById('ecAiPreset'); if(sel)sel.value='custom';
+  if(sel)sel.value=_ecCtx.reply_to_id?'reply':'custom';
+  var note=document.getElementById('ecAiNote');
+  if(note&&_ecCtx.reply_to_id)note.textContent='It will read this thread before writing. Add a line about what you want to say, or just hit Generate.';
   ecAiPresetChanged();
 }
 
@@ -7242,7 +7440,10 @@ function ecAiPresetChanged(){
   var sel=document.getElementById('ecAiPreset'),inp=document.getElementById('ecAiPrompt'),note=document.getElementById('ecAiNote');
   if(!sel||!inp||!note)return;
   var v=sel.value;
-  if(v==='project_update'){
+  if(v==='reply'){
+    inp.placeholder='Anything you want the reply to say? (optional)';
+    note.textContent='Reads this thread — including what they actually asked — and writes your reply. The quoted history below is kept.';
+  }else if(v==='project_update'){
     inp.placeholder='Anything to add? (optional — it reads the past week itself)';
     note.textContent=_ecCtx.project_id?'Reads the last 7 days of GitHub commits, Vercel deploys, fixed bugs and built features on '+(_ecCtx.project_name||'this project')+', then writes the update in your voice.':'Open the composer from a project to use this one.';
   }else if(v.indexOf('template:')===0){
@@ -7294,23 +7495,31 @@ async function ecAiGenerate(){
   var btn=document.getElementById('ecAiBtn'),sel=document.getElementById('ecAiPreset'),inp=document.getElementById('ecAiPrompt'),note=document.getElementById('ecAiNote');
   var preset=sel?sel.value:'custom';
   var instruction=(inp?inp.value:'').trim();
-  if(preset==='custom'&&!instruction){showToast('Tell it what you want the email to say first','error');return;}
+  if(preset==='custom'&&!instruction&&!_ecCtx.reply_to_id){showToast('Tell it what you want the email to say first','error');return;}
   if(preset==='project_update'&&!_ecCtx.project_id){showToast('Open the composer from a project to use the update email','error');return;}
   var to=(document.getElementById('ecTo')||{}).value||'';
   var oldNote=note?note.textContent:'';
   if(btn){btn.disabled=true;btn.textContent='✨ Writing…';}
   if(note)note.textContent='Drafting in your voice… this takes ~15-30s.';
   try{
-    var r=await sb.functions.invoke('email-ai',{body:{preset:preset,instruction:instruction,project_id:_ecCtx.project_id,client_id:_ecCtx.client_id,to:to,days:7}});
+    var r=await sb.functions.invoke('email-ai',{body:{preset:preset,instruction:instruction,project_id:_ecCtx.project_id,client_id:_ecCtx.client_id,to:to,days:7,reply_to_email_id:_ecCtx.reply_to_id||null}});
     var d=(r&&r.data)||{};
     if(r&&r.error&&!d.ok)throw new Error((r.error.message)||'request failed');
     if(!d.ok)throw new Error(d.reason||d.error||'could not generate');
-    if(d.subject)document.getElementById('ecSubject').value=d.subject;
+    // On a reply the subject is already 'Re: ...' and must survive — renaming it
+    // mid-thread is what breaks threading in the recipient's client.
+    if(d.subject&&!_ecCtx.reply_to_id)document.getElementById('ecSubject').value=d.subject;
     // Keep the signature that is already in the body; replace only the message above it.
     var bodyEl=document.getElementById('ecBody');
     var sigEl=bodyEl.querySelector('.ec-sig');
     var sigHtml=sigEl?sigEl.outerHTML:'';
-    bodyEl.innerHTML=(d.html||'')+(sigHtml?('<p><br></p>'+sigHtml):'');
+    // Keep the quoted chain too — replacing the whole body used to delete the
+    // history you were replying to.
+    var qEl=bodyEl.querySelector('.ec-quote');
+    var quoteHtml=qEl?qEl.outerHTML:'';
+    bodyEl.innerHTML=(d.html||'')
+      +(sigHtml?('<p><br></p>'+sigHtml):'')
+      +(quoteHtml?('<p><br></p>'+quoteHtml):'');
     if(note)note.textContent=(d.sources&&d.sources.length)?('Drafted from: '+d.sources.join(', ')+'. Edit anything before you send.'):'Draft ready — edit anything before you send.';
     showToast('Draft written');
   }catch(e){
@@ -7348,6 +7557,17 @@ async function sendEmail(){
     const selIdx=ecFromSel?ecFromSel.selectedIndex:-1;
     const fromName=selIdx>=0&&ecFromSel.options[selIdx]?ecFromSel.options[selIdx].getAttribute('data-name')||'Daniel Knight':'Daniel Knight';
     const sendBody={to,cc,bcc,subject,body:plainText,html:body,from_name:fromName,from_email:fromEmail};
+    // Thread the reply. Without In-Reply-To/References the recipient's client
+    // shows it as a brand-new conversation.
+    let replyParent=null;
+    if(_ecCtx.reply_to_id){
+      try{replyParent=(await sb.from('emails').select('id,message_id,headers').eq('id',_ecCtx.reply_to_id).maybeSingle()).data;}catch(e){}
+      if(replyParent&&replyParent.message_id){
+        const prevRefs=(replyParent.headers&&replyParent.headers.references)||'';
+        sendBody.headers={'In-Reply-To':replyParent.message_id,
+          'References':(prevRefs?prevRefs+' ':'')+replyParent.message_id};
+      }
+    }
     if(ecAttachments.length)sendBody.attachments=ecAttachments.map(a=>({filename:a.filename,content:a.content,type:a.type}));
     const{data,error}=await sb.functions.invoke('send-plain-email',{body:sendBody});
     if(error)throw error;
@@ -7356,12 +7576,13 @@ async function sendEmail(){
       await sb.from('emails').update({from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_draft:false,is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).eq('id',emailEditingDraftId);
       emailEditingDraftId=null;
     }else{
-      const ins=await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,attachments:ecAttachments.length?ecAttachments:undefined}).select('id').single();
+      const ins=await sb.from('emails').insert({direction:'outbound',from_address:fromEmail,from_name:fromName,to_addresses:to?[to]:[],cc_addresses:cc?cc.split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean):[],subject,body_html:body,snippet:plainText.slice(0,200),status:'sent',is_read:true,sent_at:new Date().toISOString(),mailbox:fromEmail,reply_to_id:_ecCtx.reply_to_id||null,attachments:ecAttachments.length?ecAttachments:undefined}).select('id').single();
       // Register what we just sent as real files too, so an outbound attachment
       // is downloadable later and shows on the recipient's contact record.
       if(ins&&ins.data&&ins.data.id&&ecAttachments.length)await koRegisterSentAttachments(ins.data.id,ecAttachments);
     }
     ecAttachments=[];ecRenderAttachChips();
+    _ecCtx.reply_to_id=null;_ecCtx.reply_subject='';_ecCtx.reply_from='';
     showToast('Email sent successfully');
     document.getElementById('emailComposeModal').classList.remove('visible');
     await loadEmailInbox();
