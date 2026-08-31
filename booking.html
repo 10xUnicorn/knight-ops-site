@@ -519,6 +519,8 @@ select.form-input option{background:var(--deep);color:var(--white)}
     booking: null, // completed booking
     cancelBooking: null,
     rescheduleBooking: null,
+    rescheduleToken: null,
+    cancelToken: null,
   };
 
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -697,7 +699,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
 
     if (!typeData) {
       showToast('Booking type not found');
-      history.pushState({}, '', '/book');
+      history.pushState({}, '', '/booking');
       initHub();
       return;
     }
@@ -776,7 +778,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
       </div>`;
 
     $('#backToHub').addEventListener('click', () => {
-      history.pushState({}, '', '/book');
+      history.pushState({}, '', '/booking');
       initHub();
     });
 
@@ -925,15 +927,16 @@ select.form-input option{background:var(--deep);color:var(--white)}
     const dayStart = state.selectedDate + 'T00:00:00Z';
     const dayEnd = state.selectedDate + 'T23:59:59Z';
 
-    const { data: bookings } = await sb
-      .from('bookings')
-      .select('start_time,end_time')
-      .eq('booking_type_id', t.id)
-      .in('status', ['confirmed', 'pending'])
-      .gte('start_time', dayStart)
-      .lte('start_time', dayEnd);
-
-    state.existingBookings = bookings || [];
+    // Busy = every confirmed booking of ANY type (Daniel is one person) plus
+    // whatever is on his Google calendar. Both come from server-side functions:
+    // anon has no read access to the bookings table any more.
+    const [dbBusy, gBusy] = await Promise.all([
+      sb.rpc('booking_busy', { p_from: dayStart, p_to: dayEnd }),
+      sb.functions.invoke('google-oauth', { body: { action: 'busy', from: dayStart, to: dayEnd } }).catch(() => ({ data: null })),
+    ]);
+    const fromDb = (dbBusy.data || []).map(b => ({ start_time: b.start_time, end_time: b.end_time }));
+    const fromGoogle = ((gBusy && gBusy.data && gBusy.data.busy) || []).map(b => ({ start_time: b.start, end_time: b.end }));
+    state.existingBookings = fromDb.concat(fromGoogle);
 
     const slots = calculateSlots(state.selectedDate, t);
     renderSlots(slots);
@@ -1260,12 +1263,38 @@ select.form-input option{background:var(--deep);color:var(--white)}
       cancel_token: cancelToken,
     };
 
-    const { data, error } = await sb.from('bookings').insert(payload).select().single();
+    // The write goes through an edge function: it holds the only key that can
+    // touch `bookings`, checks the Google calendar, creates the calendar event,
+    // sends the emails and files the lead. A reschedule moves the existing row
+    // instead of creating a second booking.
+    let data = null, error = null;
+    if (state.rescheduleBooking) {
+      const r = await sb.functions.invoke('booking-reschedule', { body: {
+        booking_id: state.rescheduleBooking.id, token: state.rescheduleToken, new_start_time: s.start.toISOString(),
+      } });
+      const d = r.data || {};
+      if (r.error || !d.success) error = (d.error) || (r.error && r.error.message) || 'reschedule failed';
+      else data = { ...state.rescheduleBooking, ...d.booking, booker_name: payload.booker_name, booker_email: payload.booker_email };
+    } else {
+      const r = await sb.functions.invoke('booking-create', { body: {
+        booking_type_id: t.id, booker_name: payload.booker_name, booker_email: payload.booker_email,
+        booker_phone: payload.booker_phone, start_time: payload.start_time, timezone: payload.timezone,
+        custom_responses: payload.custom_responses, notes: state.formData.notes || null,
+      } });
+      const d = r.data || {};
+      if (r.error || !d.success) {
+        // The function answers 409 with a plain-English reason; surface it.
+        let msg = d.error || '';
+        if (!msg && r.error && r.error.context) { try { msg = (await r.error.context.json()).error || ''; } catch (e) {} }
+        error = msg || (r.error && r.error.message) || 'booking failed';
+      } else data = { ...payload, ...d.booking };
+    }
 
     if (error) {
-      showToast('Failed to create booking. Please try again.');
+      showToast(String(error));
       btn.disabled = false;
       btn.innerHTML = t.price_cents ? 'Pay & Confirm' : 'Confirm Booking';
+      if (/no longer available|taken|too soon/i.test(String(error))) { state.step = 2; updateURL(); renderStep(); }
       return;
     }
 
@@ -1356,19 +1385,17 @@ select.form-input option{background:var(--deep);color:var(--white)}
     state.mode = 'reschedule';
     app.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="color:var(--gold)"></div></div>';
 
-    const { data: booking, error } = await sb
-      .from('bookings')
-      .select('*, booking_types(*)')
-      .eq('id', id)
-      .eq('reschedule_token', token)
-      .single();
+    const lk = await sb.rpc('booking_lookup', { p_id: id, p_token: token });
+    const booking = lk.data ? { ...lk.data, booking_types: lk.data.booking_type } : null;
+    const error = lk.error || (!booking ? new Error('not found') : null);
+    state.rescheduleToken = token;
 
     if (error || !booking) {
       app.innerHTML = `
         <div class="action-card">
           <h2 class="action-title">Invalid Link</h2>
           <p class="action-sub">This reschedule link is invalid or has expired.</p>
-          <a href="/book" class="btn-outline">Back to booking page</a>
+          <a href="/booking" class="btn-outline">Back to booking page</a>
         </div>`;
       return;
     }
@@ -1378,7 +1405,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
         <div class="action-card">
           <h2 class="action-title">Booking Cancelled</h2>
           <p class="action-sub">This booking has already been cancelled and cannot be rescheduled.</p>
-          <a href="/book" class="btn-outline">Book a new meeting</a>
+          <a href="/booking" class="btn-outline">Book a new meeting</a>
         </div>`;
       return;
     }
@@ -1390,7 +1417,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
         <div class="action-card">
           <h2 class="action-title">Reschedule Limit Reached</h2>
           <p class="action-sub">You have reached the maximum number of reschedules for this booking.</p>
-          <a href="/book" class="btn-outline">Back to booking page</a>
+          <a href="/booking" class="btn-outline">Back to booking page</a>
         </div>`;
       return;
     }
@@ -1425,19 +1452,17 @@ select.form-input option{background:var(--deep);color:var(--white)}
     state.mode = 'cancel';
     app.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="color:var(--gold)"></div></div>';
 
-    const { data: booking, error } = await sb
-      .from('bookings')
-      .select('*, booking_types(name, duration_minutes)')
-      .eq('id', id)
-      .eq('cancel_token', token)
-      .single();
+    const lk = await sb.rpc('booking_lookup', { p_id: id, p_token: token });
+    const booking = lk.data ? { ...lk.data, booking_types: lk.data.booking_type } : null;
+    const error = lk.error || (!booking ? new Error('not found') : null);
+    state.cancelToken = token;
 
     if (error || !booking) {
       app.innerHTML = `
         <div class="action-card">
           <h2 class="action-title">Invalid Link</h2>
           <p class="action-sub">This cancellation link is invalid or has expired.</p>
-          <a href="/book" class="btn-outline">Back to booking page</a>
+          <a href="/booking" class="btn-outline">Back to booking page</a>
         </div>`;
       return;
     }
@@ -1447,7 +1472,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
         <div class="action-card">
           <h2 class="action-title">Already Cancelled</h2>
           <p class="action-sub">This booking has already been cancelled.</p>
-          <a href="/book" class="btn-outline">Book a new meeting</a>
+          <a href="/booking" class="btn-outline">Book a new meeting</a>
         </div>`;
       return;
     }
@@ -1497,7 +1522,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
           </select>
         </div>
         <div class="action-btns" style="margin-top:20px">
-          <a href="/book" class="btn-outline">Keep Booking</a>
+          <a href="/booking" class="btn-outline">Keep Booking</a>
           <button class="btn-danger" id="cancelConfirmBtn">Cancel Booking</button>
         </div>
       </div>`;
@@ -1509,14 +1534,8 @@ select.form-input option{background:var(--deep);color:var(--white)}
 
       const reason = $('#cancelReason')?.value || null;
 
-      const { error } = await sb
-        .from('bookings')
-        .update({
-          status: 'cancelled',
-          cancelled_at: new Date().toISOString(),
-          cancel_reason: reason,
-        })
-        .eq('id', state.cancelBooking.id);
+      const r = await sb.functions.invoke('booking-cancel', { body: { booking_id: state.cancelBooking.id, token: state.cancelToken, reason } });
+      const error = r.error || (r.data && r.data.success ? null : new Error((r.data && r.data.error) || 'cancel failed'));
 
       if (error) {
         showToast('Failed to cancel. Please try again.');
@@ -1532,7 +1551,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
           </div>
           <h2 class="action-title">Booking Cancelled</h2>
           <p class="action-sub">Your booking has been cancelled successfully.</p>
-          <a href="/book" class="btn-gold" style="display:inline-flex;margin-top:16px">Book a New Meeting</a>
+          <a href="/booking" class="btn-gold" style="display:inline-flex;margin-top:16px">Book a New Meeting</a>
         </div>`;
     });
   }

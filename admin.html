@@ -8065,7 +8065,7 @@ function filterBookings(){
   let filtered=bookingsData;
   if(status!=='all')filtered=filtered.filter(b=>b.status===status);
   if(type!=='all')filtered=filtered.filter(b=>b.booking_type_id===type);
-  if(search)filtered=filtered.filter(b=>(b.guest_name||'').toLowerCase().includes(search)||(b.guest_email||'').toLowerCase().includes(search));
+  if(search)filtered=filtered.filter(b=>(b.booker_name||"").toLowerCase().includes(search)||(b.booker_email||"").toLowerCase().includes(search));
   renderBookingsTable(filtered);
 }
 
@@ -8082,7 +8082,7 @@ function renderBookingsTable(data){
     const timeStr=start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' - '+end.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     const isPast=start<new Date();
     h+=`<tr style="cursor:pointer" onclick="viewBookingDetail('${b.id}')">
-      <td><div style="font-weight:600">${esc(b.guest_name)}</div><div style="font-size:.75rem;color:var(--text-muted)">${esc(b.guest_email)}</div></td>
+      <td><div style="font-weight:600">${esc(b.booker_name)}</div><div style="font-size:.75rem;color:var(--text-muted)">${esc(b.booker_email)}</div></td>
       <td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600;background:${btColor}22;color:${btColor};border:1px solid ${btColor}44">${esc(btName)}</span></td>
       <td><div style="font-weight:500${isPast?' ;color:var(--text-muted)':''}">${dateStr}</div><div style="font-size:.75rem;color:var(--text-muted)">${timeStr}</div></td>
       <td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600;background:${statusColors[b.status]||'var(--text-muted)'}22;color:${statusColors[b.status]||'var(--text-muted)'}">${b.status}</span></td>
@@ -8106,14 +8106,16 @@ function viewBookingDetail(id){
   <div class="table-card" style="max-width:700px">
     <div class="table-header"><h2>${esc(btName)}</h2><span style="padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;background:${statusColors[b.status]||'#888'}22;color:${statusColors[b.status]||'#888'}">${b.status}</span></div>
     <div style="padding:1.25rem;display:grid;grid-template-columns:140px 1fr;gap:12px 16px;font-size:.9rem">
-      <span style="color:var(--text-muted)">Guest Name</span><span style="font-weight:600">${esc(b.guest_name)}</span>
-      <span style="color:var(--text-muted)">Email</span><span>${esc(b.guest_email)}</span>
-      ${b.guest_phone?`<span style="color:var(--text-muted)">Phone</span><span>${esc(b.guest_phone)}</span>`:''}
+      <span style="color:var(--text-muted)">Guest Name</span><span style="font-weight:600">${esc(b.booker_name)}</span>
+      <span style="color:var(--text-muted)">Email</span><span><a href="mailto:${esc(b.booker_email)}" style="color:var(--accent)">${esc(b.booker_email)}</a></span>
+      ${b.booker_phone?`<span style="color:var(--text-muted)">Phone</span><span>${esc(b.booker_phone)}</span>`:''}
       <span style="color:var(--text-muted)">Date</span><span style="font-weight:600">${start.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
       <span style="color:var(--text-muted)">Time</span><span>${start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} - ${end.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</span>
       <span style="color:var(--text-muted)">Duration</span><span>${b.booking_types?.duration_minutes||'?'} minutes</span>
       <span style="color:var(--text-muted)">Location</span><span>${b.booking_types?.location_type||'TBD'}</span>
-      <span style="color:var(--text-muted)">Guest Timezone</span><span>${b.guest_timezone||'N/A'}</span>
+      <span style="color:var(--text-muted)">Guest Timezone</span><span>${esc(b.timezone||'N/A')}</span>
+      ${b.meet_link?`<span style="color:var(--text-muted)">Meet link</span><span><a href="${esc(b.meet_link)}" target="_blank" style="color:var(--accent)">${esc(b.meet_link)}</a></span>`:''}
+      <span style="color:var(--text-muted)">Google Calendar</span><span>${b.google_event_link?`<a href="${esc(b.google_event_link)}" target="_blank" style="color:var(--accent)">Open event ↗</a>`:(b.google_sync_error?`<span style="color:#e5484d">Sync failed: ${esc(b.google_sync_error)}</span>`:'<span style="color:var(--text-muted)">not synced</span>')}</span>
       ${b.notes?`<span style="color:var(--text-muted)">Notes</span><span>${esc(b.notes)}</span>`:''}
       ${b.rescheduled_from?`<span style="color:var(--text-muted)">Rescheduled From</span><span style="color:var(--warning)">${new Date(b.rescheduled_from).toLocaleString()}</span>`:''}
       ${b.cancelled_at?`<span style="color:var(--text-muted)">Cancelled At</span><span style="color:var(--danger)">${new Date(b.cancelled_at).toLocaleString()}</span>`:''}
@@ -8131,6 +8133,16 @@ function viewBookingDetail(id){
 }
 
 async function markBookingStatus(id,status){
+  if(status==='cancelled'){
+    const b=bookingsData.find(x=>x.id===id);
+    if(b&&b.cancel_token&&['confirmed','rescheduled','pending'].includes(b.status)){
+      const reason=prompt('Reason to send the guest (optional):','')||null;
+      const r=await sb.functions.invoke('booking-cancel',{body:{booking_id:id,token:b.cancel_token,reason}});
+      if(r.error||!(r.data&&r.data.success)){showToast('Cancel failed: '+((r.data&&r.data.error)||(r.error&&r.error.message)||''),'error');return;}
+      showToast('Booking cancelled — guest emailed, calendar event removed');
+      loadBookings();return;
+    }
+  }
   const updates={status};
   if(status==='cancelled')updates.cancelled_at=new Date().toISOString();
   await sb.from('bookings').update(updates).eq('id',id);
@@ -8284,17 +8296,9 @@ function renderBookingGeneralSettings(settings){
     <div class="form-group"><label style="font-size:.85rem">Host Timezone</label><select id="bsTimezone" class="form-control" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.85rem">${TZ_LIST.map(t=>'<option value="'+t+'"'+(tz===t?' selected':'')+'>'+t.replace(/_/g,' ')+'</option>').join('')}${!TZ_LIST.includes(tz)?'<option value="'+tz+'" selected>'+tz.replace(/_/g,' ')+'</option>':''}</select></div>
     <div class="form-group"><label style="font-size:.85rem">Booking Page Title</label><input id="bsTitle" class="form-control" value="${esc(cleanVal('booking_page_title','Book a Call'))}"></div>
     <div class="form-group"><label style="font-size:.85rem">Booking Page Subtitle</label><input id="bsSubtitle" class="form-control" value="${esc(cleanVal('booking_page_subtitle',''))}"></div>
-    <div style="margin-top:1rem;padding:1rem;background:var(--surface-2);border:1px solid var(--border);border-radius:10px">
-      <h4 style="font-size:.9rem;margin-bottom:8px;color:var(--accent)">Google Calendar Integration</h4>
-      <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px">Connect your Google Calendar to automatically check availability and prevent double-bookings. When connected, the booking system will cross-reference your calendar events before showing open time slots.</p>
-      <div id="gcalStatus" style="margin-bottom:8px"><span class="badge" style="background:rgba(34,197,94,0.15);color:var(--success);border:1px solid rgba(34,197,94,0.3);font-size:.75rem">✓ Edge function deployed</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-primary" onclick="connectGoogleCalendar()" style="font-size:.8rem">Connect Google Calendar</button>
-        <button class="btn btn-sm btn-secondary" onclick="testGcalConnection()" style="font-size:.8rem">Test Connection</button>
-      </div>
-      <div id="gcalResult" style="margin-top:8px;font-size:.8rem;color:var(--text-muted)"></div>
-    </div>
+    <div id="gcalBlock" style="margin-top:1rem;padding:1rem;background:var(--surface-2);border:1px solid var(--border);border-radius:10px"><h4 style="font-size:.9rem;margin-bottom:8px;color:var(--accent)">Google Calendar</h4><div style="font-size:.8rem;color:var(--text-muted)">Checking connection…</div></div>
   `;
+  koGcalRender();
 }
 
 async function saveBookingGeneralSettings(){
@@ -8310,29 +8314,89 @@ async function saveBookingGeneralSettings(){
   loadBookingSettings();
 }
 
-function connectGoogleCalendar(){
-  const clientId=prompt('Enter your Google OAuth Client ID:\n(Create one at console.cloud.google.com → APIs & Services → Credentials → OAuth 2.0 Client IDs)');
-  if(!clientId)return;
-  // Save client ID to booking_settings
-  sb.from('booking_settings').upsert({key:'gcal_client_id',value:clientId.trim()},{onConflict:'key'}).then(()=>{
-    const redirectUri=window.location.origin+'/admin';
-    const scope='https://www.googleapis.com/auth/calendar.readonly';
-    const authUrl='https://accounts.google.com/o/oauth2/v2/auth?client_id='+encodeURIComponent(clientId.trim())+'&redirect_uri='+encodeURIComponent(redirectUri)+'&response_type=code&scope='+encodeURIComponent(scope)+'&access_type=offline&prompt=consent';
-    document.getElementById('gcalResult').innerHTML='<div style="margin-top:8px"><p style="margin-bottom:8px">To complete setup, you need to:</p><ol style="padding-left:1.2rem;font-size:.8rem;color:var(--text-muted)"><li style="margin-bottom:4px">Create a Google Cloud project at <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">console.cloud.google.com</a></li><li style="margin-bottom:4px">Enable the Google Calendar API</li><li style="margin-bottom:4px">Create OAuth 2.0 credentials (Web app type)</li><li style="margin-bottom:4px">Set authorized redirect URI to: <code style="background:var(--bg);padding:2px 6px;border-radius:4px">'+redirectUri+'</code></li><li style="margin-bottom:4px">Add the Client Secret as a Supabase secret: <code>GCAL_CLIENT_SECRET</code></li></ol><p style="margin-top:8px;font-size:.8rem">Client ID saved. Once the secret is configured, your booking system will automatically cross-reference Google Calendar availability.</p></div>';
-    showToast('Google Calendar client ID saved');
-  });
+// ═══ GOOGLE CALENDAR — real OAuth, real sync ═══
+// The old version prompted for a client ID, built an OAuth URL it never opened,
+// and showed a hardcoded "✓ Edge function deployed" badge. This talks to the
+// google-oauth edge fn, which owns the refresh token and the bookings calendar.
+async function koGcalFn(action,extra){
+  try{
+    var r=await sb.functions.invoke('google-oauth',{body:Object.assign({action:action},extra||{})});
+    if(r.error)return {ok:false,reason:String(r.error.message||r.error)};
+    return r.data||{ok:false,reason:'empty'};
+  }catch(e){return {ok:false,reason:String(e&&e.message||e)};}
 }
-
-async function testGcalConnection(){
-  const el=document.getElementById('gcalResult');
-  el.innerHTML='<span style="color:var(--accent)">Testing connection...</span>';
-  const{data:gcalSetting}=await sb.from('booking_settings').select('value').eq('key','gcal_client_id').single();
-  if(!gcalSetting?.value){
-    el.innerHTML='<span style="color:var(--danger)">No Google Calendar client ID configured. Click "Connect Google Calendar" first.</span>';
+async function koGcalRender(){
+  var el=document.getElementById('gcalBlock'); if(!el)return;
+  var st=await koGcalFn('status');
+  var h='<h4 style="font-size:.9rem;margin-bottom:6px;color:var(--accent)">Google Calendar</h4>';
+  if(!st.ok){
+    el.innerHTML=h+'<div style="font-size:.8rem;color:#e5484d">Could not reach google-oauth: '+esc(st.reason||'')+'</div>';return;
+  }
+  if(!st.configured){
+    el.innerHTML=h+'<div style="font-size:.8rem;color:#d9a441;line-height:1.6">The Google OAuth client is not configured yet (Vault secrets <code>GOOGLE_OAUTH_CLIENT_ID</code> / <code>GOOGLE_OAUTH_CLIENT_SECRET</code>). Authorised redirect URI for the client:<br><code style="font-size:.72rem;user-select:all">'+esc(st.redirect_uri||'')+'</code></div>';
     return;
   }
-  el.innerHTML='<span style="color:var(--success)">✓ Client ID is configured: '+gcalSetting.value.substring(0,20)+'...</span><br><span style="color:var(--text-muted)">The booking edge function will use this to check calendar availability when processing bookings.</span>';
+  if(!st.connected){
+    el.innerHTML=h+'<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6">Not connected. Connect the Google account whose calendar should hold bookings. A dedicated <b>Knight Ops Bookings</b> calendar is created on that account and shared with <b>daniel@knightops.biz</b>; every booking becomes an event with the guest invited and a Meet link attached, and open slots are checked against the real calendar.</p>'
+      +'<button class="btn btn-sm btn-primary" onclick="koGcalConnect()">Connect Google Calendar</button>';
+    return;
+  }
+  var last=st.last_sync_at?new Date(st.last_sync_at).toLocaleString():'never';
+  el.innerHTML=h
+    +'<div style="display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:.8rem;margin-bottom:10px">'
+    +'<span style="color:var(--text-muted)">Account</span><span><span class="badge" style="background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3);font-size:.72rem">● Connected</span> '+esc(st.account_email||'')+'</span>'
+    +'<span style="color:var(--text-muted)">Bookings calendar</span><span>'+(st.calendar_id?esc(st.calendar_name||'Knight Ops Bookings'):'<span style="color:#d9a441">not created yet</span>')+'</span>'
+    +'<span style="color:var(--text-muted)">Shared with</span><span>'+esc(st.share_with||'')+' <button class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:2px 8px" onclick="koGcalShare()">change</button></span>'
+    +'<span style="color:var(--text-muted)">Last sync</span><span>'+esc(last)+'</span>'
+    +(st.last_error?'<span style="color:var(--text-muted)">Last error</span><span style="color:#e5484d">'+esc(st.last_error)+'</span>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +(st.calendar_id?'':'<button class="btn btn-sm btn-primary" onclick="koGcalEnsure()">Create bookings calendar</button>')
+    +'<button class="btn btn-sm btn-secondary" onclick="koGcalTest()">Send test event</button>'
+    +'<button class="btn btn-sm btn-secondary" onclick="koGcalConnect()">Reconnect</button>'
+    +'<button class="btn btn-sm" style="background:rgba(255,100,100,.12);color:#ff6464;border:1px solid rgba(255,100,100,.3)" onclick="koGcalDisconnect()">Disconnect</button>'
+    +'</div><div id="gcalResult" style="margin-top:8px;font-size:.8rem;color:var(--text-muted)"></div>';
 }
+async function koGcalConnect(){
+  showToast('Opening Google…');
+  var r=await koGcalFn('start',{login_hint:'daniel@unicornuniverse.io'});
+  if(!r.ok||!r.url){showToast('Could not start: '+(r.reason||''),'error');return;}
+  window.location.href=r.url;
+}
+async function koGcalEnsure(){
+  var r=await koGcalFn('ensure_calendar');
+  showToast(r.ok?'Bookings calendar ready':'Failed: '+(r.reason||''),r.ok?'success':'error');
+  koGcalRender();
+}
+async function koGcalShare(){
+  var email=prompt('Share the bookings calendar with (email):','daniel@knightops.biz');
+  if(!email)return;
+  var r=await koGcalFn('set_share_with',{email:email.trim()});
+  showToast(r.ok?'Shared with '+r.share_with:'Failed: '+(r.reason||''),r.ok?'success':'error');
+  koGcalRender();
+}
+async function koGcalTest(){
+  var out=document.getElementById('gcalResult'); if(out)out.textContent='Creating a 15-minute test event…';
+  var r=await koGcalFn('test_event');
+  if(!r.ok){if(out)out.innerHTML='<span style="color:#e5484d">'+esc(r.reason||'failed')+'</span>';return;}
+  if(out)out.innerHTML='<span style="color:var(--success)">✓ Event created</span> — <a href="'+r.link+'" target="_blank" style="color:var(--accent)">open in Google Calendar</a>'+(r.meet_link?' · <a href="'+r.meet_link+'" target="_blank" style="color:var(--accent)">Meet link</a>':'');
+}
+async function koGcalDisconnect(){
+  if(!confirm('Disconnect Google Calendar? Existing events stay; new bookings will not sync until reconnected.'))return;
+  var r=await koGcalFn('disconnect');
+  showToast(r.ok?'Disconnected':'Failed: '+(r.reason||''),r.ok?'success':'error');
+  koGcalRender();
+}
+// Returning from Google's consent screen lands on /admin?gcal=connected#bookingSettings.
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('gcal')==='connected'){
+      history.replaceState({},'',location.pathname+'#bookingSettings');
+      setTimeout(function(){showToast('Google Calendar connected');},800);
+    }
+  }catch(e){}
+})();
 
 // ═══ APPLICATIONS (intake_submissions) ═══
 async function loadApplications(){
