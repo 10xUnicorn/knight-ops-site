@@ -7,8 +7,11 @@
 //
 // Every booking becomes an event on a dedicated secondary calendar
 // ("Knight Ops Bookings") owned by the connected account and shared with
-// SHARE_WITH, with the guest and SHARE_WITH as attendees — so it shows up in
-// both mailboxes and the guest gets a real Google invite.
+// SHARE_WITH. The event is Daniel's PRIVATE record: it carries NO attendees and
+// sends NO notifications, because knightops.biz mail is not on Google and any
+// Google-sent invite would come from the connected (unicornuniverse.io) account.
+// The guest's actual invitation is the iCalendar file we send ourselves from
+// daniel@knightops.biz (see booking-mail.ts buildIcs).
 
 export const SHARE_WITH_DEFAULT = "daniel@knightops.biz";
 export const BOOKINGS_CALENDAR_NAME = "Knight Ops Bookings";
@@ -94,7 +97,7 @@ export type TypeLike = { name: string; description?: string | null; location_typ
 
 const SITE = "https://knightops.biz";
 
-function eventBody(b: BookingLike, t: TypeLike, tz: string, shareWith: string) {
+function eventBody(b: BookingLike, t: TypeLike, tz: string, _shareWith: string) {
   const manage = b.cancel_token
     ? `\nReschedule: ${SITE}/booking?action=reschedule&id=${b.id}&token=${b.cancel_token}\nCancel: ${SITE}/booking?action=cancel&id=${b.id}&token=${b.cancel_token}`
     : "";
@@ -117,10 +120,7 @@ function eventBody(b: BookingLike, t: TypeLike, tz: string, shareWith: string) {
     description: desc,
     start: { dateTime: b.start_time, timeZone: tz },
     end: { dateTime: b.end_time, timeZone: tz },
-    attendees: [
-      { email: b.booker_email, displayName: b.booker_name },
-      ...(shareWith ? [{ email: shareWith, responseStatus: "accepted" }] : []),
-    ],
+    // Deliberately no attendees — see header comment.
     guestsCanInviteOthers: false,
     reminders: { useDefault: false, overrides: [{ method: "email", minutes: 1440 }, { method: "popup", minutes: 30 }] },
     extendedProperties: { private: { ko_booking_id: b.id } },
@@ -141,17 +141,26 @@ export async function syncBookingEvent(sb: any, b: BookingLike, t: TypeLike, tz:
   const token = await accessToken(sb, conn);
   const calId = encodeURIComponent(conn.calendar_id!);
   const body = eventBody(b, t, tz, conn.share_with || SHARE_WITH_DEFAULT);
-  const q = "?sendUpdates=all&conferenceDataVersion=1";
-  let ev: any;
-  if (b.google_event_id) {
-    try {
-      ev = await gfetch(token, `/calendars/${calId}/events/${encodeURIComponent(b.google_event_id)}${q}`, { method: "PATCH", body: JSON.stringify(body) });
-    } catch (e) {
-      if (!String(e).includes("google_404")) throw e;
-      ev = await gfetch(token, `/calendars/${calId}/events${q}`, { method: "POST", body: JSON.stringify(body) });
+  const q = "?sendUpdates=none&conferenceDataVersion=1";
+  // Some calendars/orgs refuse Meet auto-creation ("Invalid conference type
+  // value"). A booking must never fail over a video link, so retry without it.
+  const write = async (bodyToSend: any) => {
+    if (b.google_event_id) {
+      try {
+        return await gfetch(token, `/calendars/${calId}/events/${encodeURIComponent(b.google_event_id)}${q}`, { method: "PATCH", body: JSON.stringify(bodyToSend) });
+      } catch (e) {
+        if (!String(e).includes("google_404")) throw e;
+      }
     }
-  } else {
-    ev = await gfetch(token, `/calendars/${calId}/events${q}`, { method: "POST", body: JSON.stringify(body) });
+    return await gfetch(token, `/calendars/${calId}/events${q}`, { method: "POST", body: JSON.stringify(bodyToSend) });
+  };
+  let ev: any;
+  try {
+    ev = await write(body);
+  } catch (e) {
+    if (!body.conferenceData || !/conference/i.test(String(e))) throw e;
+    const { conferenceData: _drop, ...noMeet } = body;
+    ev = await write(noMeet);
   }
   const meet = ev.hangoutLink || ev.conferenceData?.entryPoints?.find((p: any) => p.entryPointType === "video")?.uri || null;
   await sb.from("google_calendar_connection").update({ last_sync_at: new Date().toISOString(), last_error: null }).eq("id", conn.id);
@@ -163,7 +172,7 @@ export async function deleteBookingEvent(sb: any, eventId: string) {
   if (!conn || !conn.calendar_id) return;
   const token = await accessToken(sb, conn);
   try {
-    await gfetch(token, `/calendars/${encodeURIComponent(conn.calendar_id)}/events/${encodeURIComponent(eventId)}?sendUpdates=all`, { method: "DELETE" });
+    await gfetch(token, `/calendars/${encodeURIComponent(conn.calendar_id)}/events/${encodeURIComponent(eventId)}?sendUpdates=none`, { method: "DELETE" });
   } catch (e) { if (!String(e).includes("google_404") && !String(e).includes("google_410")) throw e; }
 }
 

@@ -8115,7 +8115,7 @@ function viewBookingDetail(id){
       <span style="color:var(--text-muted)">Location</span><span>${b.booking_types?.location_type||'TBD'}</span>
       <span style="color:var(--text-muted)">Guest Timezone</span><span>${esc(b.timezone||'N/A')}</span>
       ${b.meet_link?`<span style="color:var(--text-muted)">Meet link</span><span><a href="${esc(b.meet_link)}" target="_blank" style="color:var(--accent)">${esc(b.meet_link)}</a></span>`:''}
-      <span style="color:var(--text-muted)">Google Calendar</span><span>${b.google_event_link?`<a href="${esc(b.google_event_link)}" target="_blank" style="color:var(--accent)">Open event ↗</a>`:(b.google_sync_error?`<span style="color:#e5484d">Sync failed: ${esc(b.google_sync_error)}</span>`:'<span style="color:var(--text-muted)">not synced</span>')}</span>
+      <span style="color:var(--text-muted)">Google Calendar</span><span>${b.google_event_link?`<a href="${esc(b.google_event_link)}" target="_blank" style="color:var(--accent)">Open event ↗</a>`:(b.google_sync_error?`<span style="color:#e5484d">Sync failed: ${esc(b.google_sync_error)}</span>`:'<span style="color:var(--text-muted)">not synced</span>')}${!b.google_event_link&&['confirmed','rescheduled','pending'].includes(b.status)?` <button class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:2px 8px" onclick="koRetryGcal('${b.id}')">Retry sync</button>`:''}</span>
       ${b.notes?`<span style="color:var(--text-muted)">Notes</span><span>${esc(b.notes)}</span>`:''}
       ${b.rescheduled_from?`<span style="color:var(--text-muted)">Rescheduled From</span><span style="color:var(--warning)">${new Date(b.rescheduled_from).toLocaleString()}</span>`:''}
       ${b.cancelled_at?`<span style="color:var(--text-muted)">Cancelled At</span><span style="color:var(--danger)">${new Date(b.cancelled_at).toLocaleString()}</span>`:''}
@@ -8217,6 +8217,7 @@ function editBookingType(id){
       <div class="form-group"><label>Max Advance (days)</label><input id="btMaxAdv" type="number" value="${t?.max_advance_days||60}" class="form-control"></div>
       <div class="form-group"><label>Max Per Day</label><input id="btMaxDay" type="number" value="${t?.max_per_day||''}" class="form-control" placeholder="No limit"></div>
     </div>
+    <div class="form-group"><label>Meeting link (your Zoom room, Meet link, or address)</label><input id="btLocVal" value="${esc(t?.location_value||'')}" class="form-control" placeholder="https://us06web.zoom.us/j/…"><div style="font-size:.72rem;color:var(--text-muted);margin-top:4px">Goes on the guest's calendar invitation and in every email. Leave blank and the emails say the link will be sent before the call.</div></div>
     <div class="form-group"><label>Description</label><textarea id="btDesc" class="form-control" rows="3">${esc(t?.description||'')}</textarea></div>
   `,async()=>{
     const name=document.getElementById('btName').value.trim();
@@ -8235,7 +8236,8 @@ function editBookingType(id){
       min_notice_hours:parseInt(document.getElementById('btNotice').value)||2,
       max_advance_days:parseInt(document.getElementById('btMaxAdv').value)||60,
       max_per_day:parseInt(document.getElementById('btMaxDay').value)||null,
-      description:document.getElementById('btDesc').value.trim()||null
+      description:document.getElementById('btDesc').value.trim()||null,
+      location_value:document.getElementById('btLocVal').value.trim()||null
     };
     if(id)await sb.from('booking_types').update(obj).eq('id',id);
     else await sb.from('booking_types').insert(obj);
@@ -8337,7 +8339,7 @@ async function koGcalRender(){
     return;
   }
   if(!st.connected){
-    el.innerHTML=h+'<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6">Not connected. Connect the Google account whose calendar should hold bookings. A dedicated <b>Knight Ops Bookings</b> calendar is created on that account and shared with <b>daniel@knightops.biz</b>; every booking becomes an event with the guest invited and a Meet link attached, and open slots are checked against the real calendar.</p>'
+    el.innerHTML=h+'<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6">Not connected. Connect the Google account whose calendar should hold bookings. A dedicated <b>Knight Ops Bookings</b> calendar is created on that account and shared with <b>daniel@knightops.biz</b>; every booking becomes a private event on it (the guest's invitation is sent from daniel@knightops.biz), and open slots are checked against the real calendar.</p>'
       +'<button class="btn btn-sm btn-primary" onclick="koGcalConnect()">Connect Google Calendar</button>';
     return;
   }
@@ -8380,6 +8382,12 @@ async function koGcalTest(){
   var r=await koGcalFn('test_event');
   if(!r.ok){if(out)out.innerHTML='<span style="color:#e5484d">'+esc(r.reason||'failed')+'</span>';return;}
   if(out)out.innerHTML='<span style="color:var(--success)">✓ Event created</span> — <a href="'+r.link+'" target="_blank" style="color:var(--accent)">open in Google Calendar</a>'+(r.meet_link?' · <a href="'+r.meet_link+'" target="_blank" style="color:var(--accent)">Meet link</a>':'');
+}
+async function koRetryGcal(id){
+  showToast('Syncing to Google…');
+  var r=await koGcalFn('resync_booking',{booking_id:id});
+  showToast(r.ok?'Synced to Google Calendar':'Sync failed: '+(r.reason||''),r.ok?'success':'error');
+  await loadBookings(); viewBookingDetail(id);
 }
 async function koGcalDisconnect(){
   if(!confirm('Disconnect Google Calendar? Existing events stay; new bookings will not sync until reconnected.'))return;

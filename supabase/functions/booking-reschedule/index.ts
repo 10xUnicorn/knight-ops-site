@@ -1,8 +1,8 @@
-// booking-reschedule v12 — token-gated move; patches the Google event in place
-// so the guest's invite updates instead of a second one appearing.
+// booking-reschedule v13 — token-gated move; patches the Google event in place
+// and sends an updated invite (same UID, higher SEQUENCE) from daniel@knightops.biz.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { syncBookingEvent, googleBusy, overlaps } from "../_shared/gcal.ts";
-import { guestConfirm, hostNotify, send, fmtDate, fmtTime, HOST_NOTIFY } from "../_shared/booking-mail.ts";
+import { guestConfirm, hostNotify, send, fmtDate, fmtTime, HOST_NOTIFY, buildIcs, icsAttachment } from "../_shared/booking-mail.ts";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
 
     const full = { ...upd, meet_link: meet };
     const tz = upd.timezone || "America/Phoenix";
-    await send([upd.booker_email], `Rescheduled: ${t.name} — ${fmtDate(upd.start_time, tz)}`, guestConfirm(full, t, "rescheduled", oldStart)).catch(() => null);
+    await send([upd.booker_email], `Updated invitation: ${t.name} with Daniel Knight — ${fmtDate(upd.start_time, tz)}`, guestConfirm(full, t, "rescheduled", oldStart), "Daniel Knight", [icsAttachment(buildIcs(full, t, "REQUEST", upd.reschedule_count || 1))]).catch(() => null);
     await send(HOST_NOTIFY, `Rescheduled: ${t.name} — ${upd.booker_name}`, hostNotify(full, t, "Rescheduled", `<tr><td style="color:#888;padding:6px 0;font-size:13px">Was</td><td style="color:#777;padding:6px 0;font-size:13px"><s>${fmtDate(oldStart, hostTz)} ${fmtTime(oldStart, hostTz)}</s></td></tr>`, hostTz), "Knight Ops Booking").catch(() => null);
     await sb.from("notifications").insert({ title: `Booking rescheduled: ${t.name}`, message: `${upd.booker_name}: ${fmtDate(oldStart, hostTz)} → ${fmtDate(upd.start_time, hostTz)} ${fmtTime(upd.start_time, hostTz)}`, type: "booking", entity_type: "booking", entity_id: booking_id }).then(() => null, () => null);
     return json({ success: true, booking: { id: booking_id, start_time: upd.start_time, end_time: upd.end_time, status: "rescheduled", meet_link: meet } });

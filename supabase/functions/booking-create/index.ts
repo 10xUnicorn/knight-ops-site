@@ -1,4 +1,4 @@
-// booking-create v13 — THE single write path for a public booking.
+// booking-create v14 — THE single write path for a public booking.
 //
 // v12 inserted guest_name/guest_email into a table whose columns are
 // booker_name/booker_email, so every call failed at the insert; the public page
@@ -7,12 +7,12 @@
 // on and anon cannot touch `bookings`, so this function is the only door.
 //
 // Order matters: conflict checks (DB + Google free/busy) → insert → Google
-// Calendar event (guest + daniel@knightops.biz invited, Meet link minted) →
+// Calendar event (private record on the Knight Ops Bookings calendar) →
 // emails → reminders → lead → admin notification. A Google failure never loses
 // the booking: it is recorded on the row and surfaced in admin.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { syncBookingEvent, googleBusy, overlaps } from "../_shared/gcal.ts";
-import { guestConfirm, hostNotify, send, fmtDate, HOST_NOTIFY } from "../_shared/booking-mail.ts";
+import { guestConfirm, hostNotify, send, fmtDate, HOST_NOTIFY, buildIcs, icsAttachment } from "../_shared/booking-mail.ts";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
     }
     const full = { ...bk, meet_link: gcal?.meet_link || null };
 
-    await send([email], `Confirmed: ${t.name} on ${fmtDate(bk.start_time, tz)}`, guestConfirm(full, t, "confirmed")).catch(() => null);
+    await send([email], `Invitation: ${t.name} with Daniel Knight — ${fmtDate(bk.start_time, tz)}`, guestConfirm(full, t, "confirmed"), "Daniel Knight", [icsAttachment(buildIcs(full, t, "REQUEST", 0))]).catch(() => null);
     await send(HOST_NOTIFY, `New booking: ${t.name} — ${name}`, hostNotify(full, t, "New booking", "", hostTz), "Knight Ops Booking").catch(() => null);
 
     await sb.from("booking_reminders").insert([
@@ -102,10 +102,14 @@ Deno.serve(async (req) => {
 
     // Lead: update if known, else create an INBOUND lead (Rule 2).
     let leadId: string | null = null;
-    const { data: lead } = await sb.from("leads").select("id").ilike("email", email).order("lead_type", { ascending: true }).limit(1).maybeSingle();
-    if (lead) { leadId = lead.id; await sb.from("leads").update({ status: "booked" }).eq("id", lead.id); }
-    else {
-      const { data: nl } = await sb.from("leads").insert({ name, email, phone, source: "website", lead_type: "inbound", status: "booked", notes: `Booked: ${t.name} on ${fmtDate(bk.start_time, hostTz)}`, added_by: "booking" }).select("id").maybeSingle();
+    // lead_status is an enum with no 'booked' value. A booked call means the
+    // lead is qualified; never downgrade someone further along the pipeline.
+    const { data: lead } = await sb.from("leads").select("id,status").ilike("email", email).order("lead_type", { ascending: true }).limit(1).maybeSingle();
+    if (lead) {
+      leadId = lead.id;
+      if (["new", "contacted", "replied", "not_qualified"].includes(String(lead.status || ""))) await sb.from("leads").update({ status: "qualified" }).eq("id", lead.id);
+    } else {
+      const { data: nl } = await sb.from("leads").insert({ name, email, phone, source: "website", lead_type: "inbound", status: "qualified", notes: `Booked: ${t.name} on ${fmtDate(bk.start_time, hostTz)}`, added_by: "booking" }).select("id").maybeSingle();
       leadId = nl?.id || null;
     }
     if (leadId) await sb.from("bookings").update({ lead_id: leadId }).eq("id", bk.id);

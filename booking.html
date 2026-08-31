@@ -1244,7 +1244,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
 
     // Build custom responses
     const customResponses = {};
-    if (state.formData.notes) customResponses['Notes'] = state.formData.notes;
+    // notes travel in their own column; duplicating them here printed them twice
     Object.entries(state.formData.custom).forEach(([k, v]) => {
       if (v) customResponses[k] = v;
     });
@@ -1630,7 +1630,7 @@ select.form-input option{background:var(--deep);color:var(--white)}
       const params = new URLSearchParams(location.search);
       params.set('type', state.selectedType.slug);
       params.set('step', state.step);
-      history.replaceState({}, '', '/book?' + params.toString());
+      history.replaceState({}, '', '/booking?' + params.toString());
     }
   }
 

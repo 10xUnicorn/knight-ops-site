@@ -1,4 +1,4 @@
-// google-oauth v1 — connects ONE Google account to the booking system.
+// google-oauth v3 — connects ONE Google account to the booking system.
 // verify_jwt=false: the /callback leg is hit by Google's redirect with no JWT.
 // Every other action is gated on an admin session JWT.
 //
@@ -156,6 +156,24 @@ Deno.serve(async (req) => {
       const fake = { id: `test-${Date.now()}`, booker_name: "Connection test", booker_email: String(body.email || SHARE_WITH_DEFAULT), start_time: start.toISOString(), end_time: end.toISOString(), location_type: "video" } as any;
       const r = await syncBookingEvent(sb, fake, { name: "Knight Ops booking test", location_type: "video" }, await hostTz());
       return json({ ok: true, ...r });
+    }
+
+    // Push (or re-push) one booking to the calendar — used by admin "Retry sync"
+    // after a transient failure, and to backfill rows created before connect.
+    if (action === "resync_booking") {
+      const { syncBookingEvent } = await import("../_shared/gcal.ts");
+      const { data: bk } = await sb.from("bookings").select("*, booking_types(*)").eq("id", String(body.booking_id || "")).maybeSingle();
+      if (!bk) return json({ ok: false, reason: "booking_not_found" }, 404);
+      if (!["confirmed", "rescheduled", "pending"].includes(bk.status)) return json({ ok: false, reason: "booking_not_active" }, 400);
+      try {
+        const g = await syncBookingEvent(sb, bk, bk.booking_types || { name: "Booking" }, await hostTz());
+        if (!g) return json({ ok: false, reason: "not_connected" });
+        await sb.from("bookings").update({ google_event_id: g.event_id, google_event_link: g.link, meet_link: g.meet_link, google_sync_error: null }).eq("id", bk.id);
+        return json({ ok: true, ...g });
+      } catch (e) {
+        await sb.from("bookings").update({ google_sync_error: String(e).slice(0, 300) }).eq("id", bk.id);
+        return json({ ok: false, reason: String(e).slice(0, 300) });
+      }
     }
 
     if (action === "disconnect") {

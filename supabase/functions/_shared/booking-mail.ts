@@ -38,7 +38,7 @@ function whereRow(b: B, t: T) {
   const l = String(t.location_type || "").toLowerCase();
   if (l === "phone") return row("Where", "Phone call" + (b.booker_phone ? ` — we'll call ${esc(b.booker_phone)}` : ""));
   if (l === "in_person") return row("Where", "In person");
-  return row("Where", "Video call — the link is on the calendar invite");
+  return row("Where", "Video call — Daniel will send the link before the call");
 }
 
 export function guestConfirm(b: B, t: T, kind: "confirmed" | "rescheduled", oldStart?: string) {
@@ -46,7 +46,7 @@ export function guestConfirm(b: B, t: T, kind: "confirmed" | "rescheduled", oldS
   const manage = b.cancel_token ? `<div style="text-align:center;margin-top:14px">${btn(`${SITE}/booking?action=reschedule&id=${b.id}&token=${b.cancel_token}`, "Reschedule", false)}${btn(`${SITE}/booking?action=cancel&id=${b.id}&token=${b.cancel_token}`, "Cancel", false)}</div>` : "";
   return shell(`<div style="background:#111113;border:1px solid rgba(200,164,86,.15);border-radius:16px;padding:32px">
 <h1 style="color:#F5F5F5;font-size:22px;margin:0 0 6px">${kind === "confirmed" ? "You're booked" : "Your booking moved"}</h1>
-<p style="color:#888;margin:0 0 22px;font-size:14px">${esc(t.name)} with Daniel Knight. A Google Calendar invite is on its way to ${esc(b.booker_email)}.</p>
+<p style="color:#888;margin:0 0 22px;font-size:14px">${esc(t.name)} with Daniel Knight. The calendar invitation is attached — accept it and it lands on your calendar.</p>
 <div style="background:rgba(200,164,86,.08);border:1px solid rgba(200,164,86,.2);border-radius:12px;padding:18px 20px;margin-bottom:18px"><table style="width:100%;border-collapse:collapse">
 ${oldStart ? row("Was", `<s style="color:#666">${fmtDate(oldStart, tz)} at ${fmtTime(oldStart, tz)}</s>`) : ""}
 ${row("When", `${fmtDate(b.start_time, tz)}<br>${fmtTime(b.start_time, tz)} – ${fmtTime(b.end_time, tz)}`, true)}
@@ -71,11 +71,55 @@ ${whereRow(b, t)}${cr}${b.notes ? row("Notes", esc(b.notes)) : ""}${extra}
 <div style="text-align:center;margin-top:18px">${btn(`${SITE}/admin#bookings/${b.id}`, "Open in admin")}</div></div>`);
 }
 
-export async function send(to: string[], subject: string, html: string, fromName = "Daniel Knight") {
+// iCalendar invite. Gmail, Outlook and Apple Mail turn a text/calendar
+// attachment with METHOD:REQUEST into a real "Yes / No / Maybe" invitation
+// whose organizer is daniel@knightops.biz — which Google Calendar itself cannot
+// do for us, because knightops.biz is not a Google-hosted domain.
+export const ORGANIZER = "daniel@knightops.biz";
+function icsDate(iso: string) { return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""); }
+function icsText(s: unknown) { return String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
+function fold(line: string) {
+  // RFC 5545: lines are at most 75 octets; continuation lines start with a space.
+  const out: string[] = []; let s = line;
+  while (s.length > 73) { out.push(s.slice(0, 73)); s = " " + s.slice(73); }
+  out.push(s); return out.join("\r\n");
+}
+export function buildIcs(b: B, t: T, method: "REQUEST" | "CANCEL", sequence = 0) {
+  const where = b.meet_link || b.location_value || t.location_value || "";
+  const desc = [
+    `${t.name} with Daniel Knight (Knight Ops).`,
+    where ? `Join: ${where}` : "",
+    b.cancel_token ? `Reschedule: ${SITE}/booking?action=reschedule&id=${b.id}&token=${b.cancel_token}` : "",
+    b.cancel_token ? `Cancel: ${SITE}/booking?action=cancel&id=${b.id}&token=${b.cancel_token}` : "",
+  ].filter(Boolean).join("\n");
+  const lines = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Knight Ops//Bookings//EN", "CALSCALE:GREGORIAN", `METHOD:${method}`,
+    "BEGIN:VEVENT",
+    `UID:booking-${b.id}@knightops.biz`,
+    `DTSTAMP:${icsDate(new Date().toISOString())}`,
+    `DTSTART:${icsDate(b.start_time)}`, `DTEND:${icsDate(b.end_time)}`,
+    `SEQUENCE:${sequence}`,
+    `STATUS:${method === "CANCEL" ? "CANCELLED" : "CONFIRMED"}`,
+    `SUMMARY:${icsText(method === "CANCEL" ? "Cancelled: " : "")}${icsText(t.name)} with Daniel Knight`,
+    `DESCRIPTION:${icsText(desc)}`,
+    where ? `LOCATION:${icsText(where)}` : "",
+    where && /^https?:/i.test(where) ? `URL:${where}` : "",
+    `ORGANIZER;CN=Daniel Knight:mailto:${ORGANIZER}`,
+    `ATTENDEE;CN=${icsText(b.booker_name)};ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:${b.booker_email}`,
+    "BEGIN:VALARM", "TRIGGER:-PT30M", "ACTION:DISPLAY", `DESCRIPTION:${icsText(t.name)} in 30 minutes`, "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].filter(Boolean).map(fold);
+  return lines.join("\r\n") + "\r\n";
+}
+export function icsAttachment(ics: string, name = "invite.ics") {
+  return { filename: name, content: btoa(unescape(encodeURIComponent(ics))) };
+}
+
+export async function send(to: string[], subject: string, html: string, fromName = "Daniel Knight", attachments?: Array<{ filename: string; content: string }>) {
   if (!RESEND_API_KEY) return { ok: false, reason: "no_resend_key" };
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: `${fromName} <daniel@knightops.biz>`, to, subject, html, reply_to: "daniel@knightops.biz" }),
+    body: JSON.stringify({ from: `${fromName} <daniel@knightops.biz>`, to, subject, html, reply_to: "daniel@knightops.biz", ...(attachments && attachments.length ? { attachments } : {}) }),
   });
   return { ok: r.ok, status: r.status };
 }
