@@ -436,6 +436,42 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .ko-vacts button{padding:4px 9px;font-size:.75rem;backdrop-filter:blur(8px);background:rgba(0,0,0,.6);border-color:rgba(255,255,255,.18)}
 .ko-vdetail{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:1rem;align-items:start}
 @media(max-width:1000px){.ko-vdetail{grid-template-columns:1fr}}
+
+/* ── Notes module (Content → Notes) ── */
+.ko-note-sub{font-size:.72rem;font-weight:400;color:var(--text-muted);margin-left:.6rem;letter-spacing:0}
+.ko-note-toggle{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--text-muted);cursor:pointer;white-space:nowrap}
+.ko-note-list{display:flex;flex-direction:column;gap:.6rem}
+.ko-note-card{display:grid;grid-template-columns:1fr auto;gap:.75rem 1rem;padding:.9rem 1rem;border:1px solid var(--border,#232326);border-radius:12px;background:var(--card,#141416);cursor:pointer;transition:border-color .15s,transform .15s}
+.ko-note-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ko-note-title{font-weight:600;color:var(--text);margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.ko-note-meta{font-size:.78rem;color:var(--text-muted);display:flex;gap:.6rem;flex-wrap:wrap}
+.ko-note-sum{font-size:.86rem;color:#c9c9cc;margin:.35rem 0 0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ko-note-counts{display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;font-size:.78rem;color:var(--text-muted);white-space:nowrap}
+.ko-src{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .45rem;border-radius:5px}
+.ko-src-fathom{background:rgba(0,212,200,.15);color:#00D4C8}.ko-src-plaud{background:rgba(200,164,86,.15);color:var(--accent)}
+.ko-kind{font-size:.7rem;padding:.15rem .45rem;border-radius:5px;background:rgba(255,255,255,.06);color:#bbb}
+.ko-needs{font-size:.7rem;padding:.15rem .45rem;border-radius:5px;background:rgba(239,68,68,.15);color:#f87171;font-weight:700}
+.ko-nd{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:1.25rem;align-items:start}
+@media(max-width:1100px){.ko-nd{grid-template-columns:1fr}}
+.ko-nd-card{background:var(--card,#141416);border:1px solid var(--border,#232326);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem}
+.ko-nd-card h3{margin:0 0 .7rem;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.ko-nd-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1rem}
+.ko-nd-head h2{margin:.25rem 0;font-size:1.35rem}
+.ko-ai{display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:start;padding:.7rem .8rem;border:1px solid var(--border,#232326);border-radius:10px;margin-bottom:.5rem;background:rgba(255,255,255,.02)}
+.ko-ai.filed{border-color:rgba(48,164,108,.45)}.ko-ai.skipped{opacity:.55}
+.ko-ai-st{font-size:1.05rem;line-height:1.3}
+.ko-ai-txt{font-size:.9rem;color:var(--text);line-height:1.45}
+.ko-ai-det{font-size:.8rem;color:var(--text-muted);margin-top:.3rem;white-space:pre-wrap}
+.ko-ai-acts{display:flex;flex-direction:column;gap:.3rem;align-items:stretch}
+.ko-ai-acts .btn{padding:.3rem .55rem;font-size:.74rem;white-space:nowrap}
+.ko-callout{border-left:3px solid var(--accent);padding:.5rem .8rem;margin-bottom:.5rem;background:rgba(200,164,86,.06);border-radius:0 8px 8px 0;font-size:.88rem}
+.ko-callout i{color:#ddd}.ko-callout .t{color:var(--text-muted);font-size:.75rem;margin-left:.4rem}.ko-callout .interp{display:block;color:#bbb;font-size:.8rem;margin-top:.25rem}
+.ko-transcript{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;line-height:1.6;white-space:pre-wrap;color:#cfcfd3;max-height:520px;overflow:auto;padding:.9rem;background:#0d0d0f;border:1px solid var(--border,#232326);border-radius:10px}
+.ko-transcript mark{background:rgba(200,164,86,.35);color:#fff;border-radius:3px}
+.ko-chip{display:inline-block;font-size:.76rem;padding:.2rem .55rem;border-radius:999px;border:1px solid var(--border,#232326);color:#ddd;margin:.15rem .25rem .15rem 0;text-decoration:none;cursor:pointer}
+.ko-chip:hover{border-color:var(--accent)}
+.ko-nd textarea.form-input{min-height:120px;resize:vertical;line-height:1.5}
+.ko-log{font-size:.8rem;color:#bbb;line-height:1.55;padding-left:1.1rem}.ko-log li{margin-bottom:.35rem}
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
@@ -493,6 +529,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="nav-children" id="nav-content">
           <div class="nav-child" data-view="blog">Blog</div>
           <div class="nav-child" data-view="videos">Videos</div>
+          <div class="nav-child" data-view="notes">Notes</div>
           <div class="nav-child" data-view="resources">Resources</div>
           <div class="nav-child" data-view="education">Education</div>
           <div class="nav-child" data-view="reviews">Reviews</div>
@@ -649,6 +686,24 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div id="invoiceDetailView" style="display:none"></div>
       </div>
 
+      <div class="view" id="v-notes">
+        <div id="notesListView">
+          <div class="table-card">
+            <div class="table-header"><h2>Notes <span class="ko-note-sub">Fathom meetings &amp; Plaud recordings, read and actioned by the intake routine</span></h2>
+              <div class="table-filters" style="flex-wrap:wrap;gap:.5rem">
+                <input class="form-input" id="notesSearch" placeholder="Search title, summary, transcript…" style="min-width:220px" oninput="NOTES.q=this.value;NOTES.debounce()">
+                <select class="form-input" id="notesSource" onchange="NOTES.source=this.value;loadNotes()"><option value="">All sources</option><option value="fathom">Fathom</option><option value="plaud">Plaud</option></select>
+                <select class="form-input" id="notesKind" onchange="NOTES.kind=this.value;loadNotes()"><option value="">All kinds</option><option value="meeting">Meeting</option><option value="digest_walkthrough">Digest walkthrough</option><option value="deal">Deal</option><option value="project">Project</option><option value="email">Email</option><option value="todo">To-do</option><option value="idea">Idea</option><option value="general">General</option><option value="mixed">Mixed</option></select>
+                <label class="ko-note-toggle"><input type="checkbox" id="notesNeedsYou" onchange="NOTES.needs=this.checked;loadNotes()"> Needs you</label>
+                <button class="btn btn-sm btn-secondary" onclick="loadNotes()" title="Refresh">&#8635;</button>
+              </div>
+            </div>
+            <div class="kpi-grid" id="notesKpis" style="padding:1rem 1.25rem 0"></div>
+            <div id="notesList" style="padding:1rem 1.25rem 1.25rem"></div>
+          </div>
+        </div>
+        <div id="noteDetailView" style="display:none"></div>
+      </div>
       <div class="view" id="v-apps"><div class="table-card"><div class="table-header"><h2>App Library / The Vault</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editApp()">+ Add App</button></div></div><div id="appsGrid" style="padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div></div></div>
       <div class="view" id="v-events"><div class="table-card"><div class="table-header"><h2>Events</h2><div class="table-filters"><button class="btn btn-primary btn-sm" onclick="editEvent()">+ Create Event</button></div></div><div id="eventsTable"></div></div></div>
 
@@ -1630,8 +1685,10 @@ function activateView(v,skipHash){
   var cclv=document.getElementById('ccListView');if(cclv)cclv.style.display='';
   var ccdv=document.getElementById('ccDetailView');if(ccdv)ccdv.style.display='none';
   var alv=document.getElementById('appsListView');if(alv)alv.style.display='';
+  var nlv=document.getElementById('notesListView');if(nlv)nlv.style.display='';
+  var ndv=document.getElementById('noteDetailView');if(ndv)ndv.style.display='none';
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();if(v==='notes')loadNotes();
   // Email sub-views
   if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
@@ -1683,6 +1740,7 @@ function routeFromHash(){
       else if(view==='deals'&&parts[1]){activateView('deals',true);showDealDetail(decodeURIComponent(parts[1]));}
       else if(view==='tasks'&&parts[1]){activateView('tasks',true);showTaskDetail(decodeURIComponent(parts[1]));}
       else if(view==='videos'&&parts[1]){activateView('videos',true);showVideoDetail(decodeURIComponent(parts[1]));}
+      else if(view==='notes'&&parts[1]){activateView('notes',true);showNoteDetail(decodeURIComponent(parts[1]));}
       else{activateView(view,true);}
     }
   }catch(e){}
@@ -14560,6 +14618,149 @@ function ccCopy(btn){
     setTimeout(function(){btn.innerHTML=o;btn.classList.replace('btn-success','btn-primary');},2000);
   });
 }
+
+
+// ═══════════════════════════════════════════════════════════════════
+// NOTES MODULE (Content → Notes) — every Fathom meeting / Plaud recording the
+// ko-meeting-intake routine processed. Full transcript + summary + action items.
+// Daniel adds details, approves items (→ approved feature_requests / bug_reports
+// via the note-action edge function) or asks for a re-review with his notes.
+// ═══════════════════════════════════════════════════════════════════
+var NOTES={items:[],q:'',source:'',kind:'',needs:false,current:null,_t:null,projects:null};
+NOTES.debounce=function(){clearTimeout(NOTES._t);NOTES._t=setTimeout(loadNotes,280);};
+function noteSrcBadge(s){return '<span class="ko-src ko-src-'+(s==='fathom'?'fathom':'plaud')+'">'+(s==='fathom'?'Fathom':'Plaud')+'</span>';}
+function noteKindLabel(k){var m={meeting:'Meeting',digest_walkthrough:'Digest walkthrough',deal:'Deal',project:'Project',email:'Email',todo:'To-do',idea:'Idea',general:'General',mixed:'Mixed',reply_update:'Follow-up'};return m[k]||k||'';}
+function noteWhen(n){var d=n.recorded_at||n.created_at;if(!d)return '';var dt=new Date(d);return dt.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+function noteDur(n){return n.duration_seconds?Math.round(n.duration_seconds/60)+' min':'';}
+function noteCounts(n){var items=Array.isArray(n.action_items)?n.action_items:[];var prop=items.filter(function(i){return (i.status||'proposed')==='proposed';}).length;var filed=items.filter(function(i){return i.status==='filed';}).length;return {items:items.length,proposed:prop,filed:filed,acts:(Array.isArray(n.actions_taken)?n.actions_taken.length:0)};}
+
+async function loadNotes(){
+  var list=document.getElementById('notesList');if(!list)return;
+  list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">Loading notes…</div>';
+  try{
+    var q=sb.from('transcript_notes').select('id,source,source_id,source_url,title,recorded_at,duration_seconds,participants,kind,summary,action_items,actions_taken,related,claude_callouts,status,admin_notes,reprocess_requested_at,reprocessed_at,project_ids,email_sent_at,created_at').order('recorded_at',{ascending:false,nullsFirst:false}).limit(200);
+    if(NOTES.source)q=q.eq('source',NOTES.source);
+    if(NOTES.kind)q=q.eq('kind',NOTES.kind);
+    if(NOTES.needs)q=q.in('status',['needs_daniel','reprocess_requested']);
+    if(NOTES.q){var s=NOTES.q.replace(/[%,()]/g,' ').trim();if(s)q=q.or('title.ilike.%'+s+'%,summary.ilike.%'+s+'%,transcript.ilike.%'+s+'%');}
+    var r=await q;if(r.error)throw r.error;
+    NOTES.items=r.data||[];renderNoteKpis();renderNotes();
+  }catch(e){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">Could not load notes: '+esc(e.message||String(e))+'</div>';}
+}
+function renderNoteKpis(){
+  var el=document.getElementById('notesKpis');if(!el)return;
+  var n=NOTES.items,prop=0,needs=0,filed=0,week=0,wk=Date.now()-7*864e5;
+  n.forEach(function(x){var c=noteCounts(x);prop+=c.proposed;filed+=c.filed;if(x.status==='needs_daniel')needs++;if(new Date(x.recorded_at||x.created_at).getTime()>wk)week++;});
+  el.innerHTML='<div class="kpi-card"><div class="kpi-label">Notes</div><div class="kpi-value">'+n.length+'</div><div class="kpi-sub">'+week+' this week</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Waiting for you</div><div class="kpi-value" style="color:'+(prop?'#7B61FF':'inherit')+'">'+prop+'</div><div class="kpi-sub">proposed action items</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Filed to build</div><div class="kpi-value">'+filed+'</div><div class="kpi-sub">tickets created</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">Needs a decision</div><div class="kpi-value" style="color:'+(needs?'#f87171':'inherit')+'">'+needs+'</div></div>';
+}
+function renderNotes(){
+  var list=document.getElementById('notesList');
+  if(!NOTES.items.length){list.innerHTML='<div style="padding:3rem 1rem;text-align:center;color:var(--text-muted)"><div style="font-size:2.2rem;margin-bottom:.6rem">🎙</div><div style="color:var(--text);margin-bottom:.35rem">No notes yet</div><div>Fathom meetings and Plaud recordings land here within two hours of recording, read and actioned. Nothing matched the current filters.</div></div>';return;}
+  list.innerHTML='<div class="ko-note-list">'+NOTES.items.map(function(n){
+    var c=noteCounts(n);var callouts=Array.isArray(n.claude_callouts)?n.claude_callouts.length:0;
+    return '<div class="ko-note-card" onclick="showNoteDetail(\''+n.id+'\')">'+
+      '<div><div class="ko-note-title">'+noteSrcBadge(n.source)+esc(n.title||'Untitled')+(n.kind?'<span class="ko-kind">'+esc(noteKindLabel(n.kind))+'</span>':'')+(n.status==='needs_daniel'?'<span class="ko-needs">needs you</span>':'')+(n.status==='reprocess_requested'?'<span class="ko-kind">re-review queued</span>':'')+'</div>'+
+      '<div class="ko-note-meta"><span>'+noteWhen(n)+'</span>'+(noteDur(n)?'<span>'+noteDur(n)+'</span>':'')+(n.participants&&n.participants.length?'<span>'+esc(n.participants.slice(0,4).join(', '))+(n.participants.length>4?' +'+(n.participants.length-4):'')+'</span>':'')+(callouts?'<span>🗣 '+callouts+' Claude callout'+(callouts===1?'':'s')+'</span>':'')+'</div>'+
+      (n.summary?'<div class="ko-note-sum">'+esc(n.summary)+'</div>':'')+'</div>'+
+      '<div class="ko-note-counts">'+(c.proposed?'<span style="color:#7B61FF;font-weight:700">'+c.proposed+' to approve</span>':'')+'<span>'+c.acts+' action'+(c.acts===1?'':'s')+' taken</span>'+(c.filed?'<span>'+c.filed+' filed</span>':'')+'</div></div>';
+  }).join('')+'</div>';
+}
+
+async function showNoteDetail(id){
+  var full=await sb.from('transcript_notes').select('*').eq('id',id).maybeSingle();
+  if(full.error||!full.data){showToast('Could not open that note');return;}
+  var n=full.data;NOTES.current=n;
+  if(!NOTES.projects){var pr=await sb.from('projects').select('id,name,status').not('status','in','("cancelled","archived")').order('name');NOTES.projects=pr.data||[];}
+  setRecordHash('notes',id);
+  document.getElementById('notesListView').style.display='none';
+  var dv=document.getElementById('noteDetailView');dv.style.display='';
+  dv.innerHTML=renderNoteDetail(n);
+}
+function noteBack(){document.getElementById('noteDetailView').style.display='none';document.getElementById('notesListView').style.display='';try{window.history.pushState(null,null,'#notes');_lastRouteHash='notes';}catch(e){}loadNotes();}
+function noteRecordingLink(n){
+  if(n.source_url&&/^https?:/i.test(n.source_url))return '<a class="btn btn-sm btn-secondary" href="'+esc(n.source_url)+'" target="_blank" rel="noopener">▶ Open recording</a>';
+  if(n.source==='plaud')return '<a class="btn btn-sm btn-secondary" href="https://web.plaud.ai/" target="_blank" rel="noopener" title="Plaud recording '+esc(n.source_id||'')+'">▶ Open in Plaud</a>';
+  return '';
+}
+function renderNoteDetail(n){
+  var items=Array.isArray(n.action_items)?n.action_items:[];var acts=Array.isArray(n.actions_taken)?n.actions_taken:[];var pts=Array.isArray(n.key_points)?n.key_points:[];var callouts=Array.isArray(n.claude_callouts)?n.claude_callouts:[];var rel=n.related||{};
+  var primaryPid=(n.project_ids&&n.project_ids[0])||(rel.projects&&rel.projects[0]&&rel.projects[0].id)||'';
+  var projOpts='<option value="">— no project —</option>'+(NOTES.projects||[]).map(function(p){return '<option value="'+p.id+'"'+(p.id===primaryPid?' selected':'')+'>'+esc(p.name)+'</option>';}).join('');
+  var itemsHtml=items.length?items.map(function(it){
+    var st=it.status||'proposed';var icon=st==='filed'?'✅':st==='done'?'☑️':st==='skipped'?'⏭':'☐';
+    var ref=(st==='filed'&&it.ref_id)?(it.ref_table==='bug_reports'?'<a class="ko-chip" href="#projects/'+(it.project_id||primaryPid)+'/bug/'+it.ref_id+'">open bug →</a>':'<a class="ko-chip" href="#projects/'+(it.project_id||primaryPid)+'/feature/'+it.ref_id+'">open ticket →</a>'):'';
+    var acts2=st==='proposed'
+      ? '<button class="btn btn-sm btn-primary" onclick="noteItemAction(\''+it.id+'\',\'approve\')" title="File it as approved — the build worker picks it up">'+(it.kind==='bug'?'🐞 File bug':'✅ Approve → build')+'</button>'+
+        '<button class="btn btn-sm btn-secondary" onclick="noteItemAction(\''+it.id+'\',\'question\')" title="File as a scoping question for the digest">❓ Ask</button>'+
+        '<button class="btn btn-sm btn-secondary" onclick="noteItemAction(\''+it.id+'\',\'skip\')">Skip</button>'
+      : (st==='skipped'?'<button class="btn btn-sm btn-secondary" onclick="noteItemAction(\''+it.id+'\',\'undo\')">Undo</button>':'');
+    return '<div class="ko-ai '+st+'"><div class="ko-ai-st">'+icon+'</div><div><div class="ko-ai-txt">'+esc(it.text||'')+(it.kind?' <span class="ko-kind">'+esc(it.kind)+'</span>':'')+(it.owner?' <span class="ko-kind">'+esc(it.owner)+'</span>':'')+'</div>'+(it.details?'<div class="ko-ai-det">'+esc(it.details)+'</div>':'')+(ref?'<div style="margin-top:.35rem">'+ref+'</div>':'')+'</div><div class="ko-ai-acts">'+acts2+'</div></div>';
+  }).join(''):'<div style="color:var(--text-muted);font-size:.9rem">No action items were identified.</div>';
+  var relHtml='';
+  (rel.projects||[]).forEach(function(p){relHtml+='<a class="ko-chip" href="#projects/'+p.id+'">📁 '+esc(p.name||p.id)+'</a>';});
+  (rel.deals||[]).forEach(function(d){relHtml+='<a class="ko-chip" href="#deals/'+d.id+'">💼 '+esc(d.title||d.id)+'</a>';});
+  (rel.leads||[]).forEach(function(l){relHtml+='<a class="ko-chip" href="#leads/'+l.id+'">👤 '+esc(l.name||l.id)+'</a>';});
+  (rel.features||[]).forEach(function(f){relHtml+='<a class="ko-chip" href="#projects/'+primaryPid+'/feature/'+f+'">✨ '+String(f).slice(0,8)+'</a>';});
+  (rel.bugs||[]).forEach(function(b){relHtml+='<a class="ko-chip" href="#projects/'+primaryPid+'/bug/'+b+'">🐞 '+String(b).slice(0,8)+'</a>';});
+  (rel.emails||[]).forEach(function(e){relHtml+='<a class="ko-chip" onclick="activateView(\'emailDrafts\')">✉️ draft '+String(e).slice(0,8)+'</a>';});
+  var actsHtml=acts.length?'<ul class="ko-log">'+acts.map(function(a){return '<li><b>'+esc(a.type||'')+'</b> — '+esc(a.title||a.summary||'')+(a.detail?'<br><span style="color:var(--text-muted)">'+esc(a.detail)+'</span>':'')+'</li>';}).join('')+'</ul>':'<div style="color:var(--text-muted);font-size:.9rem">Nothing was changed automatically.</div>';
+  var calloutHtml=callouts.length?callouts.map(function(c){return '<div class="ko-callout"><i>“'+esc(c.quote||'')+'”</i>'+(c.t?'<span class="t">@'+esc(c.t)+'</span>':'')+(c.interpretation?'<span class="interp">→ '+esc(c.interpretation)+'</span>':'')+'</div>';}).join(''):'';
+  var reproc=n.reprocess_requested_at&&!n.reprocessed_at;
+  return '<div class="ko-nd-head"><div><button class="btn btn-sm btn-secondary" onclick="noteBack()">← Notes</button>'+
+      '<h2>'+esc(n.title||'Untitled')+'</h2><div class="ko-note-meta">'+noteSrcBadge(n.source)+(n.kind?'<span class="ko-kind">'+esc(noteKindLabel(n.kind))+'</span>':'')+(n.status==='needs_daniel'?'<span class="ko-needs">needs you</span>':'')+'<span>'+noteWhen(n)+'</span>'+(noteDur(n)?'<span>'+noteDur(n)+'</span>':'')+(n.participants&&n.participants.length?'<span>'+esc(n.participants.join(', '))+'</span>':'')+'</div></div>'+
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap">'+noteRecordingLink(n)+'<button class="btn btn-sm btn-secondary" onclick="noteCopyRef()" title="Quote this in an email or a Plaud note to refer back to it">Copy ref</button></div></div>'+
+    '<div class="ko-nd"><div>'+
+      '<div class="ko-nd-card"><h3>Summary</h3><div style="line-height:1.6">'+esc(n.summary||'')+'</div>'+(pts.length?'<ul style="margin:.8rem 0 0;padding-left:1.2rem;line-height:1.6;color:#ccc">'+pts.map(function(p){return '<li>'+esc(p)+'</li>';}).join('')+'</ul>':'')+'</div>'+
+      (calloutHtml?'<div class="ko-nd-card"><h3>🗣 You asked Claude directly</h3>'+calloutHtml+'</div>':'')+
+      '<div class="ko-nd-card"><h3>Action items</h3>'+itemsHtml+'</div>'+
+      '<div class="ko-nd-card"><h3>Transcript</h3><input class="form-input" placeholder="Find in transcript…" style="margin-bottom:.6rem" oninput="noteFindInTranscript(this.value)"><div class="ko-transcript" id="noteTranscript">'+esc(n.transcript||'(no transcript stored)')+'</div></div>'+
+    '</div><div>'+
+      '<div class="ko-nd-card"><h3>Your details</h3><div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.5rem">Context the routine could not know — decisions, corrections, who\'s who, what to build first. Save keeps it on the note; <b>Re-review</b> asks the routine to re-read the recording with your notes and file whatever became clear.</div>'+
+        '<textarea class="form-input" id="noteAdminNotes" placeholder="e.g. The project is Planet Calm, not Lil’ Sass. Build the sequence “insert step” button first. The pricing question: $297/mo, no annual yet.">'+esc(n.admin_notes||'')+'</textarea>'+
+        '<div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap"><button class="btn btn-sm btn-secondary" onclick="noteSaveDetails(false)">Save</button><button class="btn btn-sm btn-primary" onclick="noteSaveDetails(true)" '+(reproc?'disabled':'')+'>'+(reproc?'Re-review queued ✓':'Save & re-review')+'</button></div></div>'+
+      '<div class="ko-nd-card"><h3>Project</h3><select class="form-input" onchange="noteSetProject(this.value)">'+projOpts+'</select><div style="font-size:.78rem;color:var(--text-muted);margin-top:.4rem">Approved items file against this project.</div></div>'+
+      '<div class="ko-nd-card"><h3>Related</h3>'+(relHtml||'<div style="color:var(--text-muted);font-size:.9rem">Nothing linked yet.</div>')+'</div>'+
+      '<div class="ko-nd-card"><h3>What the routine did</h3>'+actsHtml+(n.email_sent_at?'<div style="font-size:.75rem;color:var(--text-muted);margin-top:.6rem">Summary emailed '+fmtDate(n.email_sent_at)+'</div>':'')+'</div>'+
+    '</div></div>';
+}
+function noteFindInTranscript(q){
+  var el=document.getElementById('noteTranscript');if(!el||!NOTES.current)return;
+  var txt=NOTES.current.transcript||'';if(!q||q.length<2){el.innerHTML=esc(txt);return;}
+  var safe=esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  el.innerHTML=esc(txt).replace(new RegExp(safe,'gi'),function(m){return '<mark>'+m+'</mark>';});
+  var first=el.querySelector('mark');if(first)first.scrollIntoView({block:'center'});
+}
+async function noteApi(body){
+  var sess=await sb.auth.getSession();var tok=sess&&sess.data&&sess.data.session?sess.data.session.access_token:SUPABASE_ANON_KEY;
+  var r=await fetch(SUPABASE_URL+'/functions/v1/note-action',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+tok},body:JSON.stringify(body)});
+  var d=await r.json().catch(function(){return {ok:false,reason:'bad response'};});
+  if(!d.ok)throw new Error(d.reason||d.error||'failed');return d;
+}
+async function noteItemAction(itemId,action){
+  if(!NOTES.current)return;var n=NOTES.current;
+  var details=null;
+  if(action==='approve'||action==='question'){
+    var it=(n.action_items||[]).find(function(x){return String(x.id)===String(itemId);})||{};
+    details=prompt(action==='approve'?'Anything to add before this goes to the build queue? (optional)\n\n'+(it.text||''):'What is the question you need answered? (it lands in your digest)\n\n'+(it.text||''),'');
+    if(details===null)return;
+  }
+  try{await noteApi({note_id:n.id,item_id:itemId,action:action,details:details||undefined});showToast(action==='approve'?'Filed — the build worker picks it up on its next pass':action==='question'?'Filed as a scoping question':action==='skip'?'Skipped':'Restored');showNoteDetail(n.id);}
+  catch(e){showToast('Could not update: '+e.message);}
+}
+async function noteSaveDetails(reprocess){
+  if(!NOTES.current)return;var v=document.getElementById('noteAdminNotes').value;
+  try{var d=await noteApi({note_id:NOTES.current.id,action:reprocess?'reprocess':'save_notes',admin_notes:v});showToast(d.note||'Saved');showNoteDetail(NOTES.current.id);}
+  catch(e){showToast('Could not save: '+e.message);}
+}
+async function noteSetProject(pid){
+  if(!NOTES.current||!pid)return;
+  try{await noteApi({note_id:NOTES.current.id,action:'set_project',project_id:pid});showToast('Project set');showNoteDetail(NOTES.current.id);}
+  catch(e){showToast('Could not set project: '+e.message);}
+}
+function noteCopyRef(){if(!NOTES.current)return;var s='ref:KO-PLAUD:'+NOTES.current.id;navigator.clipboard.writeText(s).then(function(){showToast('Reference copied — quote it in an email or Plaud note');},function(){prompt('Copy this reference:',s);});}
 
 </script>
 
