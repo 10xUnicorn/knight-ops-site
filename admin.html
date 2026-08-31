@@ -529,7 +529,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div class="nav-children" id="nav-content">
           <div class="nav-child" data-view="blog">Blog</div>
           <div class="nav-child" data-view="videos">Videos</div>
-          <div class="nav-child" data-view="notes">Notes</div>
           <div class="nav-child" data-view="resources">Resources</div>
           <div class="nav-child" data-view="education">Education</div>
           <div class="nav-child" data-view="reviews">Reviews</div>
@@ -544,12 +543,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <div class="nav-child" data-view="careers">Careers</div>
         </div>
 
-        <!-- System: Agents, Forms, Notifications -->
+        <!-- System: Agents, Forms, Notifications, Notes -->
         <div class="nav-item has-children" data-group="system" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span class="nav-label">System</span><span class="expand-arrow">&#9654;</span></div>
         <div class="nav-children" id="nav-system">
           <div class="nav-child" data-view="agents">Agent Brains</div>
           <div class="nav-child" data-view="forms">Forms & Surveys</div>
           <div class="nav-child" data-view="notifications">Notifications</div>
+          <div class="nav-child" data-view="notes">Notes</div>
         </div>
       </div>
     </nav>
@@ -14621,7 +14621,7 @@ function ccCopy(btn){
 
 
 // ═══════════════════════════════════════════════════════════════════
-// NOTES MODULE (Content → Notes) — every Fathom meeting / Plaud recording the
+// NOTES MODULE (System → Notes) — every Fathom meeting / Plaud recording the
 // ko-meeting-intake routine processed. Full transcript + summary + action items.
 // Daniel adds details, approves items (→ approved feature_requests / bug_reports
 // via the note-action edge function) or asks for a re-review with his notes.
