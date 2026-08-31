@@ -8339,7 +8339,7 @@ async function koGcalRender(){
     return;
   }
   if(!st.connected){
-    el.innerHTML=h+'<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6">Not connected. Connect the Google account whose calendar should hold bookings. A dedicated <b>Knight Ops Bookings</b> calendar is created on that account and shared with <b>daniel@knightops.biz</b>; every booking becomes a private event on it (the guest's invitation is sent from daniel@knightops.biz), and open slots are checked against the real calendar.</p>'
+    el.innerHTML=h+'<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6">Not connected. Connect the Google account whose calendar should hold bookings. A dedicated <b>Knight Ops Bookings</b> calendar is created on that account and shared with <b>daniel@knightops.biz</b>; every booking becomes a private event on it (the guest\'s invitation is sent from daniel@knightops.biz), and open slots are checked against the real calendar.</p>'
       +'<button class="btn btn-sm btn-primary" onclick="koGcalConnect()">Connect Google Calendar</button>';
     return;
   }
