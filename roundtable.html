@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tech Knights at the Round Table | Knight Ops — Free Weekly Call</title>
-<meta name="description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Wednesday, 10am PT / 1pm ET. Free forever.">
+<meta name="description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Thursday, 12pm PT / 3pm ET. Free forever.">
 <meta property="og:title" content="Tech Knights at the Round Table | Knight Ops">
-<meta property="og:description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Wednesday, 10am PT / 1pm ET.">
+<meta property="og:description" content="A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Every Thursday, 12pm PT / 3pm ET.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.knightops.biz/roundtable">
 <meta property="og:image" content="https://www.knightops.biz/ko-og-roundtable.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
-<meta property="og:image:alt" content="Tech Knights at the Round Table — free weekly call, every Wednesday 10am PT / 1pm ET">
+<meta property="og:image:alt" content="Tech Knights at the Round Table — free weekly call, every Thursday 12pm PT / 3pm ET">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Tech Knights at the Round Table | Knight Ops">
-<meta name="twitter:description" content="Free weekly call — live teaching, hot seats & real-time problem solving. Every Wednesday, 10am PT / 1pm ET.">
+<meta name="twitter:description" content="Free weekly call — live teaching, hot seats & real-time problem solving. Every Thursday, 12pm PT / 3pm ET.">
 <meta name="twitter:image" content="https://www.knightops.biz/ko-og-roundtable.png">
 <link rel="icon" href="https://knightops.biz/favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -746,8 +746,8 @@ footer a:hover{text-decoration:underline}
     </h1>
     <p class="hero-sub rv">A free weekly call for entrepreneurs who want to wield technology like a weapon for growth.</p>
     <div class="hero-details rv">
-      <span class="hero-detail">Every Wednesday</span>
-      <span class="hero-detail">10am PT / 1pm ET</span>
+      <span class="hero-detail">Every Thursday</span>
+      <span class="hero-detail">12pm PT / 3pm ET</span>
     </div>
     <div class="topic-chips rv">
       <span class="topic-chip">AI Strategy</span>
@@ -769,7 +769,7 @@ footer a:hover{text-decoration:underline}
   <div class="section-in">
     <div class="rv" style="text-align:center;max-width:620px;margin:0 auto">
       <p class="section-label">What You'll Get</p>
-      <h2 class="section-title">Every Wednesday, We Build.</h2>
+      <h2 class="section-title">Every Thursday, We Build.</h2>
       <p class="section-sub" style="margin:0 auto">Not another webinar. This is a working session for entrepreneurs who want results.</p>
     </div>
     <div class="wyg-grid">
@@ -897,8 +897,8 @@ footer a:hover{text-decoration:underline}
           </a>
 
           <div class="confirm-details">
-            <div class="cd-row"><span class="cd-icon">&#128197;</span> Every Wednesday</div>
-            <div class="cd-row"><span class="cd-icon">&#128336;</span> 10am PT / 1pm ET (60 minutes)</div>
+            <div class="cd-row"><span class="cd-icon">&#128197;</span> Every Thursday</div>
+            <div class="cd-row"><span class="cd-icon">&#128336;</span> 12pm PT / 3pm ET (60 minutes)</div>
             <div class="cd-row"><span class="cd-icon">&#127760;</span> Same Zoom link every week &mdash; save it below</div>
           </div>
 
@@ -1030,12 +1030,12 @@ var REF_SLUG=(new URLSearchParams(location.search).get('ref')||'').trim();
 var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
 
 /* ========================================================
-   CALENDAR — next Wednesday @ 10am PT, 60 min
+   CALENDAR — next Thursday @ 12pm PT, 60 min
    ======================================================== */
-function nextWednesday(){
+function nextThursday(){
   var d=new Date();
-  var day=d.getDay();              /* 0 Sun .. 6 Sat, Wed = 3 */
-  var diff=(3-day+7)%7;            /* 0 if today is Wednesday */
+  var day=d.getDay();              /* 0 Sun .. 6 Sat, Thu = 4 */
+  var diff=(4-day+7)%7;            /* 0 if today is Thursday */
   d.setDate(d.getDate()+diff);
   return d;
 }
@@ -1068,7 +1068,7 @@ var VTIMEZONE=[
 ];
 
 function buildICS(recurring){
-  var wed=ymd(nextWednesday());
+  var thu=ymd(nextThursday());
   var lines=[
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -1078,11 +1078,11 @@ function buildICS(recurring){
   ];
   lines=lines.concat(VTIMEZONE);
   lines.push('BEGIN:VEVENT');
-  lines.push('UID:'+wed+(recurring?'-weekly':'-single')+'@knightops.biz');
+  lines.push('UID:'+thu+(recurring?'-weekly':'-single')+'@knightops.biz');
   lines.push('DTSTAMP:'+dtStamp());
-  lines.push('DTSTART;TZID=America/Los_Angeles:'+wed+'T100000');
-  lines.push('DTEND;TZID=America/Los_Angeles:'+wed+'T110000');
-  if(recurring) lines.push('RRULE:FREQ=WEEKLY;BYDAY=WE');
+  lines.push('DTSTART;TZID=America/Los_Angeles:'+thu+'T120000');
+  lines.push('DTEND;TZID=America/Los_Angeles:'+thu+'T130000');
+  if(recurring) lines.push('RRULE:FREQ=WEEKLY;BYDAY=TH');
   lines.push('SUMMARY:Tech Knights at the Round Table');
   lines.push('DESCRIPTION:A free weekly call for entrepreneurs who want to wield technology like a weapon for growth.\\n\\nJoin on Zoom: '+ZOOM_LINK);
   lines.push('LOCATION:'+ZOOM_LINK);
@@ -1108,13 +1108,13 @@ function buildICS(recurring){
   document.getElementById('icsRecurLink').href=URL.createObjectURL(blobRecur);
 
   /* Google Calendar — weekly recurring, PT timezone */
-  var wed=ymd(nextWednesday());
+  var thu=ymd(nextThursday());
   var details='A free weekly call for entrepreneurs who want to wield technology like a weapon for growth. Join on Zoom: '+ZOOM_LINK;
   var gcal='https://calendar.google.com/calendar/render?action=TEMPLATE'
     +'&text='+encodeURIComponent('Tech Knights at the Round Table')
-    +'&dates='+wed+'T100000/'+wed+'T110000'
+    +'&dates='+thu+'T120000/'+thu+'T130000'
     +'&ctz=America/Los_Angeles'
-    +'&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=WE')
+    +'&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=TH')
     +'&details='+encodeURIComponent(details)
     +'&location='+encodeURIComponent(ZOOM_LINK);
   document.getElementById('gcalLink').href=gcal;
