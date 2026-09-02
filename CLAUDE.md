@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-09-02d (The orchestrator counted mobile builds and then stopped on them anyway)
+
+- **Symptom:** an approved mobile build ("Woman Wisdom Revolution" / Paradyme Lift) sat untouched. **Cause:** STEP 0's count SELECT was extended with `mobile`, but the *stop condition* on the next line was not — it still read `if bugs=0 AND features=0 AND (builds=0 OR H not in {slots}) → STOP`. With no bugs, no features and no dashboard builds, the orchestrator stopped silently before ever reaching STEP 3B, at any hour.
+- **Caught in the act:** the task's `lastRunAt` was **08:23:46**, forty-one seconds *after* the build was approved at 08:23:05. It ran, it counted `mobile=1`, and it stopped anyway.
+- **This is the same silent-skip class as the `queued` vs `approved` bug already documented in that file** — a gate that quietly excludes real work — reintroduced by me on 2026-09-02. The file now carries the rule in bold: **every count in the SELECT must appear in the stop condition; add a work type in BOTH places or it will never run.**
+- **Also removed the 4-hour slot gate from STEP 3B.** A mobile build now fires on the very next run after approval, like a bug fix does. The real guards against runaway spawning are stronger than a clock and already in place: cap of 1 build per run, the per-folder buildlock, and the atomic `and status='approved'` claim. Waiting hours for a slot just looks broken to whoever pressed approve.
+- Orchestrator remains `*/30 * * * *`, enabled, on `claude-fable-5-1` at medium effort.
+
+---
+
 ## Changelog — 2026-09-02c (The emails were unfindable, not missing: the inbox only ever loaded 200 · access-gating standard)
 
 ### THE INBOX HAD A HARD `.limit(200)` AND SEARCHED CLIENT-SIDE
@@ -86,6 +96,16 @@ Full spec: **`MOBILE-APP-BUILDER-SPEC.md`**. Sibling of the Dashboard Builder, d
 - **Orchestrator:** new **STEP 3B — MOBILE APP BUILDS** (cap 1/run, 4-hour slots), claimed by `update … set status='building' where id=… and status='approved'`, reporting progress through `mobile-build` `build_status` (a raw anon PATCH is RLS-blocked by design).
 - **NEW REPO TOOLS** (`tools/`) for the two checks CLAUDE.md mandates but never had scripts for: `script-check.py` (`node --check` every inline `<script>` block) and `onclick-check.py` (every `on*` handler resolves). Plus `callcheck.py` for bare calls inside function bodies — which is what caught a `toast()` call in admin.html, where the function is `showToast()`.
 - **Verified end to end:** submit → lead + project + `intake_submissions(form_type='mobile_app')` created; review token → `mode:review` with no leaked fields; edit token → `mode:edit`; bad token → not found; approve → `approved`; `build_status` → `building` at 25%; the orchestrator's exact STEP 3B query returns the row. A real mockup segment produced 13,875 chars with phone frames, a tab bar and a status bar. All test rows removed (`mobile_builds` and `mobile_jobs` back to 0, no stray leads/projects/intakes). `node --check` clean on both `admin.html` blocks; all 499 onclick targets resolve.
+
+---
+
+## Changelog — 2026-09-01 (Funnel discipline: the Blueprint is step 2 and is no longer publicly linked)
+
+- **THE TWO BOOKING PAGES ARE NOT INTERCHANGEABLE, AND THEY ARE NOT "INVERTED" — THEY ARE TWO STEPS.** `/book` (`book.html`, GHL widget `F2GsBGGCAYHgnQees0pV`) is the **Tech Discovery Call — free, 20–30 min, the ONLY public entry point**. `/book-tech-call` (`book-tech-call.html`, GHL widget `7msTu7auncoqSK3zOI4J`) is the **Systems Blueprint Session — step 2, extended by invitation after the discovery call**. The filename reads backwards from what it serves; that is a legacy artifact and is now harmless because **nothing on the public site links to it**. Do not "fix" the naming by swapping the widgets — that would silently repoint every invitation already in the wild.
+- **`/book-tech-call` is now unlinked sitewide.** A sweep across all public pages verified **zero** remaining public links to the blueprint booking page or to `/mini-blueprint`. Repointed or removed: `index.html` (3 hero/section CTAs → `/book`, relabeled "Start With a Tech Discovery Call"; 1 prose link unlinked), the five `for-*.html` ICP pages, the four `apps-for-*.html` pages, `pricing.html`, `website-intake.html`, `faq.html`, and `fractional-ai-officer.html`. **Before adding any booking CTA to a public page, point it at `/book`.**
+- **Both booking pages lost their green trust-bullet blocks** (`.trust` / `.trust-item`) — six on `book-tech-call.html` (one of which was the public `Blueprint Session Intake` link to `/mini-blueprint`) and four on `book.html`. `book.html` still *mentions* the Blueprint in the "An Honest Fit Decision" copy, deliberately as plain text with no href: prospects should learn it exists without being able to self-serve into step 2.
+- **ROOT CAUSE OF THE CUT-OFF SERVICES BUTTONS: `white-space:nowrap` on `.btn-sm`.** A non-wrapping label cannot shrink below its own single-line width, so long CTAs ("Explore the AI Business OS →") overflowed their grid column and got clipped. Removed, replaced with `display:inline-block; max-width:100%`. **Do not put `white-space:nowrap` on a button that lives in a grid or flex column** — it defeats every width constraint around it.
+- **Services now reads as a progression, not a menu.** The `.grid-3` service cards were replaced with a numbered `.stages` vertical rail — **01 Tech Discovery (Free) → 02 Systems Blueprint (Complimentary, BY INVITATION) → 03 AI Business OS (from $15,000) → 04 Continuity (from $1,000/mo) → 05 FCAOO (from $7,500/mo)**. Stage 02 deliberately carries **no link at all** — a badge plus the note "Extended by invitation after the discovery call". Every stage CTA now uses the identical `btn-cyan-outline btn-sm` treatment. "Full ownership, always." was pulled out of the numbered sequence into a standalone card, because it is a standard that applies at every stage rather than a stage of its own.
 
 ---
 
@@ -229,7 +249,7 @@ Full spec: **`MOBILE-APP-BUILDER-SPEC.md`**. Sibling of the Dashboard Builder, d
 
 - **Canonical positioning note created:** `Obsidian Data/Knight Ops/Knight-Ops-Positioning-2026.md` supersedes every earlier offer/pricing note. Five offers only, four canonical stats (`$200M+` impact · `50+` systems · `85%` time saved · `100%` code ownership), the six money claims that must never be merged, layer 0–9 architecture, four portal states, language rules. `Offers-and-Pricing.md` and both Offer-Architecture notes carry SUPERSEDED banners.
 - **Agent-facing sources repositioned:** `daniel-master-instructions.md`, both sales agent brains (with a `POSITIONING — READ FIRST` block prepended), all 6 `Knight Ops/SEO/` generation prompts, `Projects/KnightOps-Biz-Main-Site.md`, `content-system/README.md`, `Auto Deploy to Vercel.md` (now documents the `ko` helper + the never-overwrite-vercel.json rule).
-- **16 scheduled-task `SKILL.md` files** under `Claude Home/Claude/Scheduled/` repositioned — retired offers removed, stats corrected to the canonical four, coach-centric ICP → organizations, booking-link labels fixed (**`/book` = Tech Discovery Call, `/book-tech-call` = Systems Blueprint Session** — the inversion trips people up). Sweep verifies clean across all 91 tasks.
+- **16 scheduled-task `SKILL.md` files** under `Claude Home/Claude/Scheduled/` repositioned — retired offers removed, stats corrected to the canonical four, coach-centric ICP → organizations, booking-link labels fixed (**`/book` = Tech Discovery Call, `/book-tech-call` = Systems Blueprint Session** — see the 2026-09-01 entry: the blueprint page is now invitation-only and must never be linked publicly). Sweep verifies clean across all 91 tasks.
 - **35 AEO blog drafts flagged DO-NOT-PUBLISH** rather than bulk-rewritten (prices are prose-embedded; mechanical substitution breaks sentences). Historical per-client project logs and meeting records left intact deliberately — rewriting them would make the vault lie about what was actually sold.
 - **`blog.html`** meta description + author bio corrected (`~$100M in assets` now attributed to the wealth management firm, not Hertz). `tools.html` coach references → 0.
 
@@ -761,7 +781,7 @@ Self-serve engine that turns an intake into a build-ready Claude Code prompt + s
 | `apply.html` | /apply | Job application |
 | `book.html` | /book | Booking page (Blueprint Call direct) |
 | `booking.html` | /booking | Booking hub (all types) |
-| `book-tech-call.html` | /book-tech-call | Tech call booking |
+| `book-tech-call.html` | /book-tech-call | Systems Blueprint Session &mdash; **invitation only, never link publicly** |
 | `challenge.html` | /challenge | 7-Day AI System Challenge ($47) |
 | `apps.html` | /apps | Apps showcase |
 
