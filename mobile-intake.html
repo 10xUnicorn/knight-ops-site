@@ -947,6 +947,32 @@ function buildPrompt(){
     L.push('- **Write `STRIPE-SETUP.md` in the repo root** with the exact steps to finish wiring: where in the Stripe Dashboard each key lives (Developers → API keys; Developers → Webhooks → Add endpoint), the exact webhook URL this build exposes, which events to subscribe to, and which env var each value goes into. Daniel pastes the keys into the Knight Ops admin (Mobile Apps → this build → Stripe wiring); they are held encrypted in Supabase Vault until wiring time.');
     L.push('- Until real keys are present the app must run cleanly in Stripe **test mode** and degrade honestly — a disabled buy button with "payments not yet configured", never a crash and never a fake success.');
     L.push('');
+    L.push('## Access, checkout and entitlement — THE STANDARD PATTERN');
+    L.push('This is how every Knight Ops app gates access. Build it exactly this way so it is identical across projects and works the moment real keys land.');
+    L.push('');
+    L.push('**1. A public checkout page, on the web surface, designed — not a bare Stripe link.**');
+    L.push('- A real branded page at `/join` (or `/upgrade`) using the SAME design tokens, palette and type as the app. It is a sales page, not a form.');
+    L.push('- Structure it to convert, in this order: a headline naming the specific outcome the buyer wants (not the feature); one sentence of who it is for; the transformation stated as before → after; what they actually get, concrete and countable; the price framed against the cost of not doing it; the top 3 objections answered in their own words; social proof if any exists; a risk reversal (trial, guarantee, cancel-anytime — whatever is true); then ONE call to action, repeated, with no competing links.');
+    L.push('- Write in second person, present tense, using the client\'s own vocabulary from the material above. Specificity converts and vagueness does not: "12 lessons, one every Monday" beats "lots of content". Do NOT invent claims, testimonials, numbers or guarantees that were not provided — an invented testimonial is fraud, not copy.');
+    L.push('- Mobile-first: this page will mostly be read on a phone, often the one the app is on.');
+    L.push('');
+    L.push('**2. Entitlement lives in the database, never in client state.**');
+    L.push('- One `subscriptions` (or `entitlements`) table keyed to the user: status, plan, current_period_end, stripe_customer_id, stripe_subscription_id, source (`stripe` | `iap` | `manual`), and `granted_by` for manual grants.');
+    L.push('- A single server-side `hasAccess(user)` check is the ONLY thing that decides access. The app and the web surface both call it. Never gate on a client-side flag, and never trust a value the client sent.');
+    L.push('- RLS enforces it too: a user without entitlement cannot read gated rows even with a valid token. UI hiding is not access control.');
+    L.push('');
+    L.push('**3. Stripe drives it automatically.**');
+    L.push('- The webhook is the source of truth: `checkout.session.completed` grants, `customer.subscription.updated` re-syncs status and period end, `customer.subscription.deleted` and failed payments revoke. Idempotent, signature-verified.');
+    L.push('- A refund or cancellation must revoke on the next check — no manual cleanup step.');
+    if(d.payment_routing==='iap_plus_external')L.push('- StoreKit purchases write to the SAME table with `source=\'iap\'`, so a user is entitled identically whichever way they paid. One check, two sources.');
+    L.push('');
+    L.push('**4. The admin dashboard manages access directly.**');
+    L.push('- The Users section must be able to: see each user\'s plan, status and renewal date; **grant access manually** (comp, beta, team, refunded-but-keep); **revoke access**; and see WHY someone has access (`source` + `granted_by` + when).');
+    L.push('- A manual grant is a first-class row with the same shape, not a special case — so `hasAccess()` never needs to know the difference.');
+    L.push('- This must work BEFORE Stripe keys exist. On day one Daniel can hand-grant access and the app gates correctly; when the keys land, Stripe simply becomes a second writer to the same table. **Nothing about the app changes when payments go live.**');
+    L.push('');
+    L.push('**5. Prove it.** Before reporting done: grant access manually in the dashboard and confirm the gated screen unlocks; revoke it and confirm it re-locks; run a Stripe test-mode checkout end to end and confirm the webhook grants access without anyone touching the database.');
+    L.push('');
   }
   if(native){
     L.push('## App Store readiness — these are the things that actually get apps rejected');
@@ -989,7 +1015,12 @@ function buildPrompt(){
   L.push('- Every screen above exists and works against real data.');
   if(d.web_app&&native)L.push('- The web version builds and runs from the same codebase, deployed to Vercel.');
   if(d.web_dashboard)L.push('- The operator dashboard is deployed, staff-gated, and every KPI listed above renders a real number from a real event — not a placeholder.');
-  if(takesStripe)L.push('- Stripe runs end to end in test mode, the webhook verifies its signature, and STRIPE-SETUP.md tells Daniel exactly which key goes where.');
+  if(takesStripe){
+    L.push('- The public checkout page is built, on-brand, and reads as a sales page rather than a form.');
+    L.push('- Manual grant and revoke work from the admin dashboard TODAY, with no Stripe keys present, and the app gates correctly on them.');
+    L.push('- A Stripe test-mode checkout grants access end to end via the webhook, with nobody touching the database.');
+    L.push('- STRIPE-SETUP.md tells Daniel exactly which key goes where, and adding the real keys changes nothing else.');
+  }
   L.push('- Typecheck and build are clean.');
   if(native)L.push('- An EAS production build succeeded and the binary is ready to submit.');
   L.push('- Nothing is a placeholder. No lorem ipsum. No dead buttons.');

@@ -6772,9 +6772,10 @@ async function loadComms(){
   loadEmailTemplateOptions();
 }
 
-async function loadEmailInbox(){
+async function loadEmailInbox(append){
+  if(!append){_emailSearchAll=false;_emailOffset=0;_emailHasMore=true;}
   const folder=emailCurrentFolder;
-  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder,mailbox').order('created_at',{ascending:false}).limit(200);
+  let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder,mailbox').order('created_at',{ascending:false}).range(_emailOffset,_emailOffset+EMAIL_PAGE-1);
   // Account filter — filter by mailbox when a specific account is selected
   if(emailActiveAccount!=='all'){
     // For inbound: mailbox matches the account. For outbound: from_address matches.
@@ -6795,9 +6796,34 @@ async function loadEmailInbox(){
   else q=q.eq('is_deleted',false);
   const{data,error}=await q;
   if(error)console.error('Email load error:',error);
-  emailListData=data||[];
+  const rows=data||[];
+  _emailHasMore=rows.length===EMAIL_PAGE;
+  _emailOffset+=rows.length;
+  emailListData=append?emailListData.concat(rows):rows;
   renderEmailList();
-  loadEmailFolderCounts();
+  if(!append)loadEmailFolderCounts();
+}
+
+// Reaches the rest of the mailbox. Called by the scroll sentinel and the footer button.
+async function loadMoreEmails(){
+  if(_emailLoadingMore||!_emailHasMore)return;
+  _emailLoadingMore=true;
+  const btn=document.getElementById('emailMoreBtn');
+  if(btn)btn.textContent='Loading…';
+  try{ if(_emailSearchAll)await runEmailSearch(_emailSearchTerm,true); else await loadEmailInbox(true); }
+  finally{_emailLoadingMore=false;}
+}
+
+// Auto-load as you approach the bottom, so scrolling just keeps going.
+function emailScrollWatch(){
+  const el=document.getElementById('emailListItems');
+  if(!el||el._koScroll)return;
+  const sc=el.closest('.email-list-scroll')||el.parentElement||el;
+  sc.addEventListener('scroll',function(){
+    if(!_emailHasMore||_emailLoadingMore)return;
+    if(sc.scrollTop+sc.clientHeight>=sc.scrollHeight-300)loadMoreEmails();
+  });
+  el._koScroll=true;
 }
 
 async function loadEmailFolderCounts(){
@@ -6832,20 +6858,24 @@ async function loadEmailFolderCounts(){
   }catch(e){console.error('Folder counts error:',e);}
 }
 
-function renderEmailList(){
+function renderEmailList(fromSearch){
   const container=document.getElementById('emailListItems');
   let items=emailListData;
   const search=(document.getElementById('emailSearchInput')||{}).value||'';
-  if(search){const s=search.toLowerCase();items=items.filter(e=>(e.subject||'').toLowerCase().includes(s)||(e.from_address||'').toLowerCase().includes(s)||(e.from_name||'').toLowerCase().includes(s)||(e.snippet||'').toLowerCase().includes(s));}
+  // When the rows came back from a server-side search they are ALREADY the matches, across all
+  // mail. Re-filtering them client-side would just re-impose the old blindness.
+  if(search&&!_emailSearchAll){const s=search.toLowerCase();items=items.filter(e=>(e.subject||'').toLowerCase().includes(s)||(e.from_address||'').toLowerCase().includes(s)||(e.from_name||'').toLowerCase().includes(s)||(e.snippet||'').toLowerCase().includes(s));}
   // Filters
   if(emailCurrentFilter==='unread')items=items.filter(e=>!e.is_read);
   if(emailCurrentFilter==='attachment')items=items.filter(e=>e.attachments&&(Array.isArray(e.attachments)?e.attachments.length>0:true));
   if(emailCurrentFilter==='week'){const wk=new Date();wk.setDate(wk.getDate()-7);items=items.filter(e=>new Date(e.received_at||e.created_at)>=wk);}
   if(!items.length){
-    container.innerHTML='<div class="erp-empty"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg><span style="font-size:.85rem">No emails in this folder</span></div>';
+    container.innerHTML='<div class="erp-empty"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg><span style="font-size:.85rem">'+(_emailSearchAll?('No mail anywhere matches "'+esc(_emailSearchTerm)+'"'):'No emails in this folder')+'</span></div>';
     return;
   }
   let h='';
+  if(_emailSearchAll)
+    h+='<div style="padding:.5rem .75rem;font-size:.75rem;color:var(--accent);border-bottom:1px solid var(--border)">'+items.length+(_emailHasMore?'+':'')+' result'+(items.length===1?'':'s')+' for "'+esc(_emailSearchTerm)+'" — searched all mail, every folder</div>';
   items.forEach(e=>{
     const isActive=emailSelectedId===e.id;
     const isUnread=!e.is_read;
@@ -6877,13 +6907,68 @@ function renderEmailList(){
       </div>
     </div>`;
   });
+  if(_emailHasMore)
+    h+='<div style="padding:.8rem;text-align:center;border-top:1px solid var(--border)"><button id="emailMoreBtn" class="btn btn-sm" onclick="loadMoreEmails()" style="border:1px solid var(--border);color:var(--text-muted)">Load older mail</button></div>';
+  else if(items.length>EMAIL_PAGE)
+    h+='<div style="padding:.7rem;text-align:center;font-size:.72rem;color:var(--text-muted);border-top:1px solid var(--border)">That is everything.</div>';
   container.innerHTML=h;
+  emailScrollWatch();
   // Update count display and reset select-all
   var lc=document.getElementById('emailListCount');if(lc)lc.textContent=items.length+' email'+(items.length!==1?'s':'');
   var sa=document.getElementById('emailSelectAll');if(sa)sa.checked=false;
 }
 
-function filterEmailList(){renderEmailList();}
+/* SEARCH RUNS ON THE SERVER, ACROSS ALL MAIL.
+   It used to filter `emailListData` — the newest 200 rows the folder had loaded — so anything
+   older was simply not in memory and could never be found. April Little had 7 emails in the
+   inbox at positions 73, 74, 244, 303, 336, 523 and 559; only the first two were ever loaded,
+   which is exactly the "I can only see two" symptom. It also never looked at the body, so a
+   forward whose subject and sender don't mention the person was unfindable too.
+   Now: >=2 chars queries the DB directly over subject, sender, recipients, snippet AND body. */
+// An inbox has no bottom. Pages of 200 keep it fast; scrolling reaches every email ever
+// received. The old hard .limit(200) is why five of April Little's seven emails were
+// simply not there to find.
+const EMAIL_PAGE=200;
+let _emailSearchTimer=null,_emailSearchTerm='',_emailSearchAll=false;
+let _emailOffset=0,_emailHasMore=true,_emailLoadingMore=false;
+
+function filterEmailList(){
+  const raw=((document.getElementById('emailSearchInput')||{}).value||'').trim();
+  clearTimeout(_emailSearchTimer);
+  if(raw.length<2){
+    if(_emailSearchAll){_emailSearchAll=false;_emailSearchTerm='';loadEmailInbox();}
+    else renderEmailList();
+    return;
+  }
+  _emailSearchTimer=setTimeout(()=>runEmailSearch(raw),260);
+}
+
+async function runEmailSearch(term,append){
+  // PostgREST .or() is comma/paren delimited, so those characters would break the filter.
+  const s=String(term).replace(/[,()*\\]/g,' ').trim();
+  if(s.length<2)return;
+  if(!append){_emailOffset=0;_emailHasMore=true;}
+  _emailSearchTerm=s;_emailSearchAll=true;
+  const container=document.getElementById('emailListItems');
+  if(container&&!append)container.innerHTML='<div class="erp-empty"><span style="font-size:.85rem">Searching all mail…</span></div>';
+  try{
+    let q=sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder,mailbox')
+      .eq('is_deleted',false)
+      .or('subject.ilike.%'+s+'%,from_address.ilike.%'+s+'%,from_name.ilike.%'+s+'%,snippet.ilike.%'+s+'%,body_text.ilike.%'+s+'%')
+      .order('created_at',{ascending:false}).range(_emailOffset,_emailOffset+EMAIL_PAGE-1);
+    // Case-insensitive on purpose: one row is "Eden@knightops.biz" and .eq would miss it.
+    if(emailActiveAccount!=='all')q=q.or('mailbox.ilike.'+emailActiveAccount+',from_address.ilike.'+emailActiveAccount);
+    const{data,error}=await q;
+    if(error){console.error('email search',error);if(container)container.innerHTML='<div class="erp-empty"><span style="font-size:.85rem">Search failed: '+esc(error.message)+'</span></div>';return;}
+    const rows=data||[];
+    _emailHasMore=rows.length===EMAIL_PAGE;
+    _emailOffset+=rows.length;
+    emailListData=append?emailListData.concat(rows):rows;
+    renderEmailList(true);
+  }catch(e){
+    if(container)container.innerHTML='<div class="erp-empty"><span style="font-size:.85rem">Search failed</span></div>';
+  }
+}
 function setEmailFilter(f){
   emailCurrentFilter=f;
   document.querySelectorAll('.email-filter-pill').forEach(p=>p.classList.toggle('active',p.dataset.filter===f));
