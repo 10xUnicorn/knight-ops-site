@@ -138,6 +138,22 @@ Verified: a $497/mo US-only coaching app → `external_link` ("Apple's 15 to 30 
 
 ---
 
+## 5c. The public landing / offer / checkout page
+
+Every build that takes money outside Apple ships a **designed** public page at `/join` — not a bare Stripe link. The build prompt requires:
+
+**Design** — load the `ui-ux-pro-max` skill (`/ui-ux-pro-max:ui-ux-pro-max`) and design against it rather than improvising; palette, type pairing, spacing, states, motion and accessibility come from the skill applied to the client's brand tokens. If the skill is unavailable in that session the builder says so and holds itself to the same bar anyway.
+
+**Motion** — purposeful only: scroll-reveal, a subtle hero shift, micro-interactions, number counters where a real number matters. 200–400ms, transform/opacity, never blocking the CTA. **`prefers-reduced-motion` is honoured** — an accessibility requirement, not a nicety.
+
+**An interactive demo of the real app** — embedded in a phone frame from the React Native Web bundle the build already produces, tappable, with seeded demo data. Not screenshots, not stock mockups. It shows the moment the product is actually good at, not the sign-up screen.
+
+**Voice — it must sound like the client, not like AI.** The builder mines the uploaded docs, transcripts and site for their actual vocabulary, metaphors, repeated phrases and sentence rhythm. Banned as AI tells: *unlock, elevate, empower, transform your, take it to the next level, in today's fast-paced world, dive in, seamless, robust, game-changer,* "journey" as filler, "it's not just X — it's Y", rhetorical-question openers, and stacked em dashes. **If a sentence could headline any product in any industry, it gets deleted and rewritten specific.** Vary sentence length. Concrete nouns and real numbers over adjectives.
+
+**Conversion-optimised but not salesy** — no fake urgency, no countdown without a real deadline, no "3 spots left" unless true, no invented discount anchor. And the hard line: **never invent claims, testimonials, numbers, logos or guarantees.** An invented testimonial is fraud, not copy; with no social proof the section is omitted rather than fabricated. Persuasion here is specificity, honesty about who it is *not* for, and answering the real objection. The reader should finish feeling understood, not chased.
+
+---
+
 ## 6b. The three surfaces — all built in the INITIAL build
 
 Every build ships up to three surfaces from **one repo and one Supabase project**. None of them is a phase 2.
