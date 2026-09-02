@@ -265,7 +265,65 @@ body {
   transition: all 0.3s;
 }
 .btn-cyan-outline:hover { background: var(--glass-cyan); }
-.btn-sm { padding: 0.6rem 1.4rem; font-size: 0.8rem; white-space: nowrap; display: inline-block; }
+/* `white-space:nowrap` here is what pushed long labels ("Schedule Your Systems Blueprint
+   Session →") straight out of their grid column. Buttons wrap and stay inside their box. */
+.btn-sm { padding: 0.6rem 1.4rem; font-size: 0.8rem; display: inline-block; max-width: 100%; }
+
+/* ── THE ENGAGEMENT: a stepped progression, not a grid of cards ──
+   These are five sequential stages, so they read as a path with a rail running through
+   them rather than six equal tiles where stage 04 sits underneath stage 01. */
+.stages { display: flex; flex-direction: column; gap: 0; margin-top: 2.5rem; }
+.stage {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 0 1.6rem;
+  position: relative;
+  padding-bottom: 2.2rem;
+}
+.stage:last-child { padding-bottom: 0; }
+/* the connecting rail */
+.stage::before {
+  content: ''; position: absolute; left: 31px; top: 46px; bottom: -4px;
+  width: 2px; background: linear-gradient(180deg, var(--border-blue), rgba(255,255,255,.06));
+}
+.stage:last-child::before { display: none; }
+.stage-num {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem;
+  color: var(--cyan); background: var(--deep);
+  border: 2px solid var(--border-blue);
+  position: relative; z-index: 1; flex-shrink: 0;
+}
+.stage.is-build .stage-num { color: var(--gold); border-color: var(--border-gold); }
+.stage.is-lead  .stage-num { color: var(--violet); border-color: var(--violet); }
+.stage-body {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.4rem 1.6rem;
+  transition: border-color .3s, transform .3s;
+}
+.stage:hover .stage-body { border-color: var(--border-gold); transform: translateY(-2px); }
+.stage.is-flagship .stage-body { border-color: var(--gold); background: var(--glass-gold); }
+.stage.is-lead .stage-body { border-color: var(--violet); }
+.stage-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: .5rem;
+}
+.stage-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--white); }
+.stage-price { font-family: 'Fraunces', serif; font-size: 1.35rem; color: var(--gold); white-space: nowrap; }
+.stage-price .per { font-size: .8rem; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; }
+.stage-desc { color: var(--text-secondary); font-size: .92rem; line-height: 1.65; margin-bottom: .9rem; }
+.stage-desc:last-child { margin-bottom: 0; }
+.stage-note {
+  display: inline-block; font-size: .78rem; color: var(--text-muted);
+  border: 1px dashed var(--border); border-radius: 6px; padding: .45rem .8rem;
+}
+@media (max-width: 720px) {
+  .stage { grid-template-columns: 44px minmax(0, 1fr); gap: 0 1rem; }
+  .stage-num { width: 44px; height: 44px; font-size: .9rem; }
+  .stage::before { left: 21px; top: 32px; }
+  .stage-price { font-size: 1.15rem; }
+}
 
 /* ── PROOF BAR ── */
 .proof-bar {
@@ -697,51 +755,76 @@ body {
   <h2 class="section-headline">Five Stages. <span class="gold">No Menu.</span></h2>
   <p class="section-sub" style="margin-bottom:3rem;">Every organization we work with moves through the same path. Nothing is sold before it is understood, and nothing is built before the architecture is agreed.</p>
 
-  <div class="grid-3">
-    <div class="card card-cyan">
-      <div class="badge badge-cyan">STAGE 01 &middot; FREE</div>
-      <div class="card-title">Tech Discovery Call</div>
-      <div class="card-price">Free<span class="per"> &middot; 20&ndash;30 min</span></div>
-      <p class="card-desc">A direct conversation about how your organization operates today, where work stalls, and whether Knight Ops is the right answer. Fit and qualification only.</p>
-      <a href="/book" class="btn-cyan-outline btn-sm">Start With a Tech Discovery Call &rarr;</a>
+  <div class="stages">
+    <div class="stage">
+      <div class="stage-num">01</div>
+      <div class="stage-body">
+        <div class="badge badge-cyan">FREE &middot; WHERE EVERYONE STARTS</div>
+        <div class="stage-head">
+          <div class="stage-title">Tech Discovery Call</div>
+          <div class="stage-price">Free<span class="per"> &middot; 20&ndash;30 min</span></div>
+        </div>
+        <p class="stage-desc">A direct conversation about how your organization operates today, where work stalls, and whether Knight Ops is the right answer. Fit and qualification only.</p>
+        <a href="/book" class="btn-cyan-outline btn-sm">Book the call &rarr;</a>
+      </div>
     </div>
 
-    <div class="card card-cyan">
-      <div class="badge badge-cyan">STAGE 02 &middot; BY INVITATION</div>
-      <div class="card-title">Systems Blueprint Session</div>
-      <div class="card-price">Complimentary</div>
-      <p class="card-desc">Two working sessions of roughly an hour each, with architecture work in between. We map your operations, client journey and data, then return your system architecture and its deployment sequence.</p>
-      <a href="/book-tech-call" class="btn-cyan-outline btn-sm">Schedule Your Systems Blueprint Session &rarr;</a>
+    <div class="stage">
+      <div class="stage-num">02</div>
+      <div class="stage-body">
+        <div class="badge badge-cyan">BY INVITATION</div>
+        <div class="stage-head">
+          <div class="stage-title">Systems Blueprint Session</div>
+          <div class="stage-price">Complimentary</div>
+        </div>
+        <p class="stage-desc">Two working sessions of roughly an hour each, with architecture work in between. We map your operations, client journey and data, then return your system architecture and its deployment sequence &mdash; yours to keep either way.</p>
+        <span class="stage-note">Extended by invitation after the discovery call</span>
+      </div>
     </div>
 
-    <div class="card card-gold" style="border-color:var(--gold);">
-      <div class="badge badge-gold">STAGE 03 &middot; FLAGSHIP BUILD</div>
-      <div class="card-title">Knight Ops AI Business OS</div>
-      <div class="card-price">Starting at $15,000</div>
-      <p class="card-desc">Your intelligent business operating system, deployed progressively in functional stages. Functional value throughout the build. Never an empty handoff.</p>
-      <a href="#business-os" class="btn-gold btn-sm">Explore the AI Business OS &rarr;</a>
+    <div class="stage is-build is-flagship">
+      <div class="stage-num">03</div>
+      <div class="stage-body">
+        <div class="badge badge-gold">FLAGSHIP BUILD</div>
+        <div class="stage-head">
+          <div class="stage-title">Knight Ops AI Business OS</div>
+          <div class="stage-price">Starting at $15,000</div>
+        </div>
+        <p class="stage-desc">Your intelligent business operating system, deployed progressively in functional stages. Functional value throughout the build. Never an empty handoff.</p>
+        <a href="#business-os" class="btn-cyan-outline btn-sm">Explore the AI Business OS &rarr;</a>
+      </div>
     </div>
 
-    <div class="card card-gold">
-      <div class="badge badge-gold">STAGE 04 &middot; ONGOING</div>
-      <div class="card-title">AI Business OS Continuity</div>
-      <div class="card-price">Starting at $1,000<span class="per">/mo</span></div>
-      <p class="card-desc">A system that stops evolving starts decaying. Continuity keeps your operating system current as your business, your team and the technology change. Six months included from launch.</p>
-      <a href="#continuity" class="btn-gold btn-sm">See What Continuity Covers &rarr;</a>
+    <div class="stage is-build">
+      <div class="stage-num">04</div>
+      <div class="stage-body">
+        <div class="badge badge-gold">ONGOING</div>
+        <div class="stage-head">
+          <div class="stage-title">AI Business OS Continuity</div>
+          <div class="stage-price">Starting at $1,000<span class="per">/mo</span></div>
+        </div>
+        <p class="stage-desc">A system that stops evolving starts decaying. Continuity keeps your operating system current as your business, your team and the technology change. Six months included from launch.</p>
+        <a href="#continuity" class="btn-cyan-outline btn-sm">What Continuity covers &rarr;</a>
+      </div>
     </div>
 
-    <div class="card card-violet" style="border-color:var(--violet);">
-      <div class="badge badge-recommended">STAGE 05 &middot; LEADERSHIP</div>
-      <div class="card-title">Fractional Chief AI Operations Officer</div>
-      <div class="card-price">Starting at $7,500<span class="per">/mo</span></div>
-      <p class="card-desc">Embedded AI operations leadership that owns your AI strategy and its execution. Your AI strategy does not need another advisor. It needs an owner.</p>
-      <a href="#fao" class="btn-violet btn-sm">Explore Fractional AI Operations Leadership &rarr;</a>
+    <div class="stage is-lead">
+      <div class="stage-num">05</div>
+      <div class="stage-body">
+        <div class="badge badge-recommended">LEADERSHIP</div>
+        <div class="stage-head">
+          <div class="stage-title">Fractional Chief AI Operations Officer</div>
+          <div class="stage-price">Starting at $7,500<span class="per">/mo</span></div>
+        </div>
+        <p class="stage-desc">Embedded AI operations leadership that owns your AI strategy and its execution. Your AI strategy does not need another advisor. It needs an owner.</p>
+        <a href="#fao" class="btn-cyan-outline btn-sm">Explore the FCAOO role &rarr;</a>
+      </div>
     </div>
+  </div>
 
-    <div class="card" style="display:flex;flex-direction:column;justify-content:center;">
-      <div class="card-title">Full ownership, always.</div>
-      <p class="card-desc">Every system, every agent, every line of code belongs to your organization. No lock-in, no subscription required to keep it running, no dependency on us. That is the standard at every stage, not an upgrade.</p>
-    </div>
+  <div class="card" style="margin-top:2.5rem;border-color:var(--border-gold);">
+    <div class="card-title">Full ownership, always.</div>
+    <p class="card-desc" style="margin-bottom:0;">Every system, every agent, every line of code belongs to your organization. No lock-in, no subscription required to keep it running, no dependency on us. That is the standard at every stage, not an upgrade.</p>
   </div>
 </section>
 
@@ -827,7 +910,7 @@ body {
   </div>
 
   <div style="text-align:center;margin-top:2.5rem;">
-    <a href="/book-tech-call" class="btn-gold">Schedule Your Systems Blueprint Session &rarr;</a>
+    <a href="/book" class="btn-gold">Start With a Tech Discovery Call &rarr;</a>
   </div>
 </section>
 
