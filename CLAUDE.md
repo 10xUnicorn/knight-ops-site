@@ -7,6 +7,27 @@
 
 ---
 
+## Changelog — 2026-09-02c (The emails were unfindable, not missing: the inbox only ever loaded 200 · access-gating standard)
+
+### THE INBOX HAD A HARD `.limit(200)` AND SEARCHED CLIENT-SIDE
+- Reported as "April's emails are gone". They were not gone. `loadEmailInbox()` pulled the newest **200** rows and `filterEmailList()` then filtered **that array in memory** — so search could only ever find what the folder had already loaded.
+- April has **7** emails in the daniel@ inbox, at row positions **73, 74, 244, 303, 336, 523, 559**. Only the first two fall inside 200 — **exactly the two Daniel could see.** The diagnosis is arithmetic, not a guess.
+- Search also never looked at `body_text`, so a forward whose subject and sender do not mention the person was unfindable. Daniel's own "Fwd: WWR App Build" had arrived fine and sat at the top of the inbox; searching *April* just could not match it.
+- **Fixed:** search is now a **server-side query across ALL mail, every folder**, over subject + from_address + from_name + snippet + **body_text**, debounced 260ms, with the term sanitised because PostgREST `.or()` is comma/paren delimited. "april" returns **38** matches where the UI previously showed 2.
+- **The `.limit()` is gone entirely** — an inbox has no bottom. `loadEmailInbox(append)` now pages with `.range()` at 200/page, auto-loads on scroll near the bottom, and offers a *Load older mail* button; search paginates the same way. When the end is genuinely reached it says *"That is everything."*
+- Account filter switched from `.eq` to `.ilike` — one row is `Eden@knightops.biz` and `.eq` silently missed it.
+- **The lesson worth keeping:** a list that silently truncates is indistinguishable from data loss, and the user will (correctly) report it as data loss. Never cap a list the user searches without telling them the cap exists.
+
+### ACCESS GATING IS NOW A SINGLE STANDARD PATTERN FOR EVERY APP
+Written into the build prompt so every generated app is identical and works the moment keys land:
+1. **A designed public checkout page** on the web surface (`/join`), using the app's own tokens — a sales page, not a form. Structured to convert: outcome-led headline, who it is for, before → after, concrete deliverables, price framed against the cost of inaction, top 3 objections answered, social proof if it exists, risk reversal, ONE repeated CTA. Written in the client's own vocabulary. **Never invent testimonials, numbers or guarantees — an invented testimonial is fraud, not copy.**
+2. **Entitlement lives in the database**, never client state. One table keyed to the user (status, plan, period end, stripe ids, `source` = stripe|iap|manual, `granted_by`). A single server-side `hasAccess(user)` is the only decider, and **RLS enforces it too — UI hiding is not access control.**
+3. **Stripe drives it automatically** — webhook is the source of truth; `checkout.session.completed` grants, `subscription.updated` re-syncs, `subscription.deleted`/failed payment revokes. Idempotent, signature-verified. StoreKit purchases write the same table with `source='iap'`, so one check serves both routes.
+4. **The admin dashboard manages access directly** — grant, revoke, and see *why* someone has access. A manual grant is a first-class row, so `hasAccess()` never special-cases it. **This works before any Stripe keys exist**: Daniel hand-grants on day one, and when keys land Stripe simply becomes a second writer to the same table. Nothing about the app changes when payments go live.
+5. **Proven before done:** grant manually → gated screen unlocks; revoke → re-locks; test-mode checkout grants via webhook with nobody touching the database.
+
+---
+
 ## Changelog — 2026-09-02b (April's "missing" emails: they were hidden, not deleted · Apple external payments · Stripe wiring)
 
 ### THE EMAILS WERE NEVER DELETED — AN OVER-BROAD `is_inline` FLAG WAS HIDING THEM
