@@ -32,6 +32,7 @@ const FIELDS = [
   'mode', 'first_name', 'last_name', 'email', 'phone', 'company', 'business_name', 'niche',
   'what_they_do', 'offers', 'audience', 'team', 'brand',
   'target', 'target_reason', 'archetype',
+  'web_dashboard', 'web_app', 'ops_modules', 'ops_kpis', 'dashboard_mockup_html',
   'screens', 'features', 'tabs', 'capabilities', 'screen_notes', 'max_tabs',
   'auth_methods', 'roles', 'role_matrix', 'monetization', 'integrations', 'ai_features',
   'data_model', 'goal_criteria', 'store', 'store_md',
@@ -100,6 +101,11 @@ Deno.serve(async (req) => {
         row = up.data;
       }
       if (!row) {
+        // Do not mint a row for an empty POST. This endpoint is anon-reachable, so without
+        // this guard a bot (or a stray `curl -d '{}'`) accumulates blank drafts forever.
+        const meaningful = patch.email || patch.business_name || patch.company ||
+          (Array.isArray(patch.screens) && patch.screens.length) || patch.what_they_do;
+        if (!meaningful) return json({ error: 'nothing to save yet' }, 400);
         isNew = true;
         rt = rt || (uuid() + uuid());
         const ins = await sb.from('mobile_builds').insert({
@@ -174,7 +180,7 @@ Deno.serve(async (req) => {
             description: String(row.what_they_do || '').slice(0, 500),
             status: 'discovery',
             lead_id,
-            platform: row.target === 'web' ? 'web' : (row.target === 'both' ? 'both' : 'native'),
+            platform: (row.target === 'web') ? 'web' : ((row.target === 'both' || row.web_app || row.web_dashboard) ? 'both' : 'native'),
             build_target: 'desktop', // initial scaffold provisions new infra + needs EAS tooling
             intake_data: {
               industry: row.niche, brand_color: (row.brand || {}).primary,

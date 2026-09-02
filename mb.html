@@ -87,6 +87,7 @@ const CAPL={push:'Push notifications',camera:'Camera',photos:'Photo library',bio
  health:'Health data',calendar:'Calendar',contacts:'Contacts',share:'Share sheet',haptics:'Haptics',
  iap:'In-app purchase',deeplinks:'Deep links',background_tasks:'Background tasks',widgets:'Widgets',live_activities:'Live Activities'};
 const TARGETL={native:'Native app (App Store + Play)',both:'Native app + web',web:'Web app'};
+const OPSL={overview_kpis:'Overview & KPIs',users:'Users',engagement:'Engagement',revenue:'Revenue',push:'Push campaigns',content:'Content moderation',support:'Support inbox',health:'App health',settings:'Settings'};
 const MONEYL={none:'Nothing sold in the app',iap:'Subscriptions / digital content (Apple in-app purchase)',
  stripe_physical:'Physical goods or services (card payment)',both:'Both in-app purchases and card payment'};
 
@@ -126,6 +127,11 @@ function render(){
     h+='</div>';
   }
 
+  if(B.dashboard_mockup_html){
+    h+='<div class="card"><h2>Your operator dashboard</h2>'+
+       '<div class="sub" style="margin-bottom:.5rem;font-size:.8rem">Where you track metrics, manage users and monitor KPIs.</div>'+
+       '<iframe class="mockframe" id="df" style="height:600px" sandbox="allow-scripts allow-same-origin"></iframe></div>';
+  }
   // what we'll build
   h+='<div class="card"><h2>What we will build</h2>';
   if(tabs.length){
@@ -140,6 +146,8 @@ function render(){
     h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.7rem 0 .3rem">Phone features</div>';
     h+=caps.map(k=>'<span class="chip">'+esc(CAPL[k]||k)+'</span>').join('');
   }
+  const surfaces=[(B.target==='web'?'Web app':'Native iOS + Android app'),(B.web_app&&B.target!=='web'?'Web version':''),(B.web_dashboard?'Operator dashboard':'')].filter(Boolean);
+  h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.7rem 0 .3rem">What you get</div>'+surfaces.map(x=>'<span class="chip on">'+esc(x)+'</span>').join('');
   h+='<div class="sum">'+
      '<div><div class="k">Type</div><div class="v">'+esc(TARGETL[B.target]||B.target||'Native app')+'</div></div>'+
      '<div><div class="k">Payments</div><div class="v">'+esc(MONEYL[B.monetization]||'—')+'</div></div>'+
@@ -150,6 +158,13 @@ function render(){
     h+='<div class="verdict warn"><b>Apple takes its cut on in-app purchases.</b> Because you sell digital content inside the app, Apple requires its own payment system for those items. We build it that way so the app is not rejected.</div>';
   if(B.target==='web')
     h+='<div class="verdict warn"><b>This is better as a web app.</b> Apple rejects apps that are just a website in a wrapper, so we would build this as a proper web app instead.</div>';
+  if(B.web_dashboard){
+    const ops=Array.isArray(B.ops_modules)?B.ops_modules:[];
+    const kp=Array.isArray(B.ops_kpis)?B.ops_kpis:[];
+    h+='<div class="verdict"><b>Your operator dashboard is included.</b> A web back-office where you track metrics, manage users and monitor KPIs — built in this same build, not later.</div>';
+    if(ops.length)h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.5rem 0 .3rem">Dashboard sections</div>'+ops.map(k=>'<span class="chip">'+esc(OPSL[k]||k)+'</span>').join('');
+    if(kp.length)h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.6rem 0 .3rem">KPIs it charts</div>'+kp.map(k=>'<span class="chip">'+esc(k)+'</span>').join('');
+  }
   if(B.what_they_do)h+='<details><summary>What it does</summary><pre>'+esc(B.what_they_do)+(B.offers?'\n\n'+esc(B.offers):'')+'</pre></details>';
   if(B.spec_md)h+='<details><summary>Full spec</summary><pre>'+esc(B.spec_md)+'</pre></details>';
   if(B.store_md)h+='<details><summary>App Store readiness</summary><pre>'+esc(B.store_md)+'</pre></details>';
@@ -192,6 +207,8 @@ function render(){
   document.getElementById('root').innerHTML=h;
   const f=document.getElementById('mf');
   if(f&&cur)f.srcdoc=cur.html;
+  const df=document.getElementById('df');
+  if(df&&B.dashboard_mockup_html)df.srcdoc=B.dashboard_mockup_html;
 }
 
 async function approve(){

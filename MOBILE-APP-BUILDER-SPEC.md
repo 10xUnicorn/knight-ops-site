@@ -117,6 +117,35 @@ Each carries its Expo package and the `app.config` permission strings + usage-de
 
 ---
 
+## 6b. The three surfaces — all built in the INITIAL build
+
+Every build ships up to three surfaces from **one repo and one Supabase project**. None of them is a phase 2.
+
+| Surface | Flag | Stack | Default |
+|---|---|---|---|
+| The app itself | `target` | Expo / React Native → EAS binary | always |
+| **Web version of the app** | `web_app` | React Native Web from the *same* codebase → Vercel | **on**, deselectable |
+| **Operator web dashboard** | `web_dashboard` | Next.js App Router → Vercel, same Supabase project | **on** |
+
+`target` is the classifier's verdict about the *consumer product*. `web_app` and `web_dashboard` are independent of it: even a native-only app needs somewhere to watch metrics and manage users.
+
+### The operator dashboard (`ops_modules`)
+`overview_kpis`* · `users`* · `engagement` · `revenue` · `push` · `content` · `support` · `health` · `settings`*
+(*always built — a dashboard without them is not a dashboard.)
+
+`revenue` is forced on whenever anything is sold; `push` whenever the app has push; `content` whenever the app has moderation.
+
+It is a **privileged reader of the same tables** — never a second database, never a parallel permission model. Staff-gated by RLS *and* a role check, not a hidden route.
+
+### KPIs (`ops_kpis`)
+Chosen from a fixed list of 20 (DAU/MAU, signups, D1/D7/D30 retention, session length, churn, trial conversion, MRR, ARPU, LTV, refund rate, crash-free sessions, push opt-in/open, feature adoption).
+
+**Every KPI must have an event behind it.** The spec names the analytics events each metric is computed from, and the build wires them. A KPI with nothing writing to it is a number that never moves — that is a failed build, not a working dashboard.
+
+The dashboard gets its **own mockup** (`kind:'dashboard'` on `mobile-job`, stored in `dashboard_mockup_html`) because it is a desktop web app and cannot share the phone-frame renderer. It appears on `/mb` and in admin alongside the app mockup.
+
+---
+
 ## 7. Layer B — the generated app stack
 
 - **Expo SDK (latest) + expo-router** (file-based, typed routes) + **TypeScript**

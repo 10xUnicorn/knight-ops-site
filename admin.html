@@ -4655,6 +4655,7 @@ function dashHi(){['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','pr
    These surfaces read mobile_builds. See MOBILE-APP-BUILDER-SPEC.md. */
 const MOB_STATUS={draft:'#8a8a99',submitted:'#00D4C8',reviewed:'#C9922A',approved:'#30A46C',building:'#E5A50A',built:'#30A46C',error:'#E5484D'};
 const MOB_TARGET={native:'Native',both:'Native + web',web:'Web only'};
+const MOB_OPS={overview_kpis:'Overview & KPIs',users:'Users',engagement:'Engagement',revenue:'Revenue',push:'Push campaigns',content:'Content moderation',support:'Support inbox',health:'App health',settings:'Settings'};
 function mobPill(s){return '<span style="font-size:.68rem;padding:.15rem .5rem;border-radius:999px;border:1px solid '+(MOB_STATUS[s]||'#333')+';color:'+(MOB_STATUS[s]||'#999')+'">'+(s||'draft')+'</span>';}
 async function loadMobileApps(){
   try{
@@ -4673,7 +4674,7 @@ function renderMobileApps(){
   host.innerHTML='<table class="data-table"><thead><tr><th>App</th><th>Target</th><th>Screens</th><th>Money</th><th>Status</th><th>Created</th></tr></thead><tbody>'+
     rows.map(b=>'<tr style="cursor:pointer" onclick="showMobileAppDetail(\''+b.id+'\')">'+
       '<td><strong>'+esc(b.business_name||b.company||'Untitled')+'</strong><div style="font-size:.72rem;color:var(--text-muted)">'+esc(b.niche||'')+'</div></td>'+
-      '<td>'+esc(MOB_TARGET[b.target]||b.target||'—')+'</td>'+
+      '<td>'+esc(MOB_TARGET[b.target]||b.target||'—')+(b.web_dashboard?'<div style="font-size:.68rem;color:var(--text-muted)">+ dashboard</div>':'')+'</td>'+
       '<td>'+((b.screens||[]).length)+'</td>'+
       '<td>'+esc(b.monetization||'—')+'</td>'+
       '<td>'+mobPill(b.status)+'</td>'+
@@ -4714,7 +4715,18 @@ function showMobileAppDetail(id){
   if(tabs.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.3rem">Tabs</div>'+tabs.map(t=>'<span class="tag">'+esc(t.label||t.t)+'</span>').join(' ');
   if(caps.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin:.7rem 0 .3rem">Native</div>'+caps.map(c=>'<span class="tag">'+esc(c)+'</span>').join(' ');
   h+='<div style="margin-top:.7rem;font-size:.8rem;color:var(--text-muted)">'+((b.screens||[]).length)+' screens · sign-in: '+esc((b.auth_methods||[]).join(', ')||'none')+'</div>';
+  const surf=[(b.target==='web'?'Web app':'Native iOS + Android'),(b.web_app&&b.target!=='web'?'Web version (RN Web)':''),(b.web_dashboard?'Operator dashboard':'')].filter(Boolean);
+  h+='<div style="font-size:.75rem;color:var(--text-muted);margin:.7rem 0 .3rem">Surfaces in this build</div>'+surf.map(x=>'<span class="tag">'+esc(x)+'</span>').join(' ');
   h+='</div>';
+  if(b.web_dashboard){
+    const ops=Array.isArray(b.ops_modules)?b.ops_modules:[];
+    const kp=Array.isArray(b.ops_kpis)?b.ops_kpis:[];
+    h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #7C5CFF"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🖥 Operator dashboard</h3><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.6rem">Next.js on Vercel, same Supabase project, staff-gated. Built in this build, not a phase 2.</p>';
+    if(ops.length)h+=ops.map(k=>'<span class="tag">'+esc(MOB_OPS[k]||k)+'</span>').join(' ');
+    if(kp.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin:.7rem 0 .3rem">KPIs it charts</div>'+kp.map(k=>'<span class="tag">'+esc(k)+'</span>').join(' ');
+    if(b.dashboard_mockup_html)h+='<iframe id="mobDashFrame" sandbox="allow-scripts allow-same-origin" style="width:100%;height:520px;border:1px solid var(--border);border-radius:10px;background:#0e0e14;margin-top:.8rem"></iframe>';
+    h+='</div>';
+  }
   // build lifecycle
   h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🏗 Build</h3>';
   if(b.status==='building')h+='<div style="font-size:.82rem">'+esc(b.build_stage||'Building…')+' '+(b.build_progress?('— '+b.build_progress+'%'):'')+'</div>';
@@ -4735,6 +4747,7 @@ function showMobileAppDetail(id){
   if(b.spec_md)h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">📄 Spec</h3><pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.75rem;max-height:340px;overflow:auto;white-space:pre-wrap;color:var(--text-muted)">'+esc(b.spec_md)+'</pre></div>';
   d.innerHTML=h;
   if(b.ai_mockup_html){const f=document.getElementById('mobMockFrame');if(f)f.srcdoc=b.ai_mockup_html;}
+  if(b.dashboard_mockup_html){const df=document.getElementById('mobDashFrame');if(df)df.srcdoc=b.dashboard_mockup_html;}
 }
 function copyMobPrompt(id){
   const b=(S.mobileBuilds||[]).find(x=>x.id===id);

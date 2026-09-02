@@ -175,6 +175,32 @@ pre.out{background:#08080d;border:1px solid var(--border);border-radius:10px;pad
         <label>Why this target</label><textarea id="target_reason" placeholder="The classifier fills this in"></textarea>
       </div>
 
+      <!-- 2B WEB SURFACES -->
+      <div class="card" id="s2b">
+        <h2>2b · Web surfaces <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:.72rem">— built in this build, not phase 2</span></h2>
+        <div class="hint">Both default on. Whatever is ticked here is part of the initial build and ships with the app — never deferred.</div>
+
+        <label class="ko-note" style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.4rem">
+          <input type="checkbox" id="web_dashboard" checked onchange="S.webDashboard=this.checked;buildOpsGrid();render()" style="margin-top:.25rem">
+          <span><b style="color:var(--text)">Operator web dashboard</b><br>
+          <span style="color:var(--text-muted);font-size:.78rem">Where you track metrics, manage users and monitor KPIs. A Next.js app on Vercel reading the <b>same</b> Supabase project — a privileged reader of the same tables, never a second database.</span></span>
+        </label>
+
+        <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.6rem">
+          <input type="checkbox" id="web_app" checked onchange="S.webApp=this.checked;render()" style="margin-top:.25rem">
+          <span><b style="color:var(--text)">Web version of the app</b><br>
+          <span style="color:var(--text-muted);font-size:.78rem">The same Expo codebase compiled for the browser with React Native Web and deployed to Vercel. Untick when the product is meaningless off a phone (heavy camera, location or offline use).</span></span>
+        </label>
+
+        <div id="opsWrap">
+          <label style="margin-top:.9rem">Dashboard sections</label>
+          <div id="opsGrid"></div>
+          <label>KPIs it must chart <span style="opacity:.6">(pick the few that matter)</span></label>
+          <div id="kpiGrid"></div>
+          <div class="verdict" style="margin-top:.6rem"><b>Every KPI needs an event behind it.</b> The spec names the analytics events these are computed from — a KPI with nothing writing to it is just a number that never moves.</div>
+        </div>
+      </div>
+
       <!-- 3 SCREENS -->
       <div class="card" id="s3">
         <h2>3 · Screens</h2>
@@ -248,7 +274,7 @@ pre.out{background:#08080d;border:1px solid var(--border);border-radius:10px;pad
       <div class="actionbar">
         <button class="btn ghost" onclick="saveDraft()">💾 Save draft</button>
         <button class="btn" onclick="reviewWithAI()">📱 Generate mockup</button>
-        <button class="btn ghost" onclick="createSpec()">📄 Spec</button>
+        <button class="btn ghost" onclick="reviewDashboard()">🖥 Dashboard mockup</button><button class="btn ghost" onclick="createSpec()">📄 Spec</button>
         <button class="btn ghost" onclick="createStore()">🏪 Store pack</button>
         <button class="btn ghost" onclick="openOv('ovPrompt');document.getElementById('promptOut2').textContent=buildPrompt()">⚙️ Build prompt</button>
         <button class="btn" onclick="finalize()">✅ Finalize &amp; share</button>
@@ -296,6 +322,13 @@ pre.out{background:#08080d;border:1px solid var(--border);border-radius:10px;pad
       <button class="btn ghost sm" onclick="saveMockStyle()">💾 Save this style</button>
     </div>
   </div>
+</div></div>
+
+<div class="ov" id="ovDash"><div class="inner">
+  <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><h3>Operator dashboard</h3><button class="btn ghost sm" onclick="closeOv('ovDash')">Close</button></div>
+  <div class="bar"><i id="dashBarFill"></i></div>
+  <div class="status" id="dashPhase"></div>
+  <iframe class="mockframe" id="dashFrame" sandbox="allow-scripts allow-same-origin"></iframe>
 </div></div>
 
 <div class="ov" id="ovSpec"><div class="inner">
@@ -414,6 +447,20 @@ const ARCHETYPES=[
  {k:'booking_service',l:'Booking / service'},{k:'marketplace',l:'Marketplace'},
  {k:'commerce',l:'Commerce'},{k:'field_ops',l:'Field operations'}
 ];
+/* The OPERATOR web dashboard. Every app gets one by default — a business that cannot see its
+   numbers or manage its users cannot run the product. Built in the INITIAL build, not phase 2. */
+const OPS=[
+ {k:'overview_kpis',l:'Overview & KPIs',d:'The one screen that answers: is this working?',req:true},
+ {k:'users',l:'Users',d:'List, search, open a user, roles, suspend, delete',req:true},
+ {k:'engagement',l:'Engagement',d:'Sessions, retention cohorts, funnels, feature adoption'},
+ {k:'revenue',l:'Revenue',d:'Subscriptions, IAP, MRR, trials, refunds, churn'},
+ {k:'push',l:'Push campaigns',d:'Send to a segment, schedule, open rates'},
+ {k:'content',l:'Content moderation',d:'Approve or reject user content, report reasons'},
+ {k:'support',l:'Support inbox',d:'Feedback and bug reports from the app, with a reply'},
+ {k:'health',l:'App health',d:'Crash-free rate, error log, API latency, release adoption'},
+ {k:'settings',l:'Settings',d:'Feature flags, app config, team access',req:true}
+];
+const KPIS=['Daily active users','Monthly active users','New signups','D1 retention','D7 retention','D30 retention','Session length','Sessions per user','Screens per session','Churn rate','Trial starts','Trial conversion','MRR','ARPU','Lifetime value','Refund rate','Crash-free sessions','Push opt-in rate','Push open rate','Feature adoption'];
 const AUTHS=[{k:'email',l:'Email + password'},{k:'magic_link',l:'Magic link'},{k:'apple',l:'Sign in with Apple'},{k:'google',l:'Google'},{k:'phone_otp',l:'Phone OTP'},{k:'none',l:'No sign-in'}];
 const ROLESET=['Super Admin','Admin','Team member','Client','Member','Guest'];
 const DATAKINDS=['Name','Email','Phone','Photos','Location','Health','Usage data','Purchases','Contacts','Identifiers','Diagnostics'];
@@ -423,11 +470,13 @@ const tabByKey=t=>TABS.find(x=>x.t===t)||{t:t,l:t,d:''};
 
 /* ---- STATE ---- */
 const S={mode:'ai',screens:[],features:{},caps:[],auths:['email'],roles:['Admin','Member'],
+ webDashboard:true,webApp:true,ops:['overview_kpis','users','engagement','health','settings'],
+ kpis:['Daily active users','New signups','D7 retention','Session length','Crash-free sessions'],
  dataCollected:[],screenNotes:{},goalCriteria:[],
  upload_paths:[],files:[],uploads_text:'',totalBytes:0,reads:[],docUrls:[],imgUrls:[],unread:[],
  id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false,
  tabOpen:{}};
-let _lastMock='',_prevMock='',_mockCfg='',_runToken=0,_jobId=null,_segNo=0,_spec='',_store='';
+let _lastMock='',_prevMock='',_mockCfg='',_runToken=0,_jobId=null,_segNo=0,_spec='',_store='',_dash='';
 
 function setMode(m){S.mode=m;document.getElementById('mb_ai').classList.toggle('active',m==='ai');document.getElementById('mb_man').classList.toggle('active',m==='manual');document.getElementById('sec-ai').style.display=m==='ai'?'':'none';}
 
@@ -535,6 +584,30 @@ function toggleData(d){S.dataCollected=S.dataCollected.includes(d)?S.dataCollect
 function buildArchetypes(){
   document.getElementById('archetype').innerHTML=ARCHETYPES.map(a=>'<option value="'+a.k+'">'+a.l+'</option>').join('');
 }
+function buildOpsGrid(){
+  const wrap=document.getElementById('opsWrap');
+  if(wrap)wrap.style.display=S.webDashboard?'':'none';
+  const g=document.getElementById('opsGrid');
+  if(g)g.innerHTML=OPS.map(o=>'<span class="chip'+(S.ops.includes(o.k)?' on':'')+'" title="'+o.d.replace(/"/g,'&quot;')+'" onclick="toggleOps(\''+o.k+'\')">'+o.l+(o.req?' *':'')+'</span>').join('');
+  const k=document.getElementById('kpiGrid');
+  if(k)k.innerHTML=KPIS.map(x=>'<span class="chip'+(S.kpis.includes(x)?' on':'')+'" onclick="toggleKpi(\''+x.replace(/'/g,"\\'")+'\')">'+x+'</span>').join('');
+}
+function toggleOps(k){
+  const o=OPS.find(x=>x.k===k);
+  if(o&&o.req){toast(o.l+' is always built — the dashboard is useless without it');return;}
+  S.ops=S.ops.includes(k)?S.ops.filter(x=>x!==k):S.ops.concat([k]);
+  buildOpsGrid();render();
+}
+function toggleKpi(x){S.kpis=S.kpis.includes(x)?S.kpis.filter(y=>y!==x):S.kpis.concat([x]);buildOpsGrid();}
+/* Keep the dashboard honest: sections the app clearly implies must be there. */
+function enforceOps(){
+  if(!S.webDashboard){S.ops=[];S.kpis=[];return;}
+  OPS.filter(o=>o.req).forEach(o=>{if(!S.ops.includes(o.k))S.ops.push(o.k);});
+  const mon=val('monetization');
+  if(mon&&mon!=='none'&&!S.ops.includes('revenue'))S.ops.push('revenue');
+  if(S.caps.includes('push')&&!S.ops.includes('push'))S.ops.push('push');
+  if(S.screens.includes('admin_moderation')&&!S.ops.includes('content'))S.ops.push('content');
+}
 
 /* ---- VERDICTS: say the App Store truth out loud ---- */
 function renderVerdict(){
@@ -555,7 +628,7 @@ function renderVerdict(){
 
 /* ---- PREVIEW ---- */
 function render(){
-  enforceRules();
+  enforceRules();enforceOps();
   const plan=tabPlan();
   const pri=val('c_primary')||'#C9922A',bg=val('c_secondary')||'#0B0B10',ac=val('c_accent')||'#00D4C8';
   const ph=document.getElementById('phonePrev');ph.style.background=bg;
@@ -573,7 +646,9 @@ function render(){
     '<br><b>Tabs:</b> '+plan.map(p=>p.label).join(', ')+
     (merged.length?'<br><span style="color:var(--warn)">Folded in:</span> '+merged.map(m=>m.merged.join(', ')+' → '+m.label).join('; '):'')+
     '<br><b>Screens:</b> '+S.screens.length+'<br><b>Native:</b> '+(S.caps.join(', ')||'none')+
-    '<br><b>Money:</b> '+val('monetization')+'<br><b>Sign-in:</b> '+S.auths.join(', ');
+    '<br><b>Money:</b> '+val('monetization')+'<br><b>Sign-in:</b> '+S.auths.join(', ')+
+    '<br><b>Surfaces:</b> '+[(val('target')==='web'?'web app':'native app'),(S.webApp&&val('target')!=='web'?'web version':''),(S.webDashboard?'operator dashboard':'')].filter(Boolean).join(' + ')+
+    (S.webDashboard?'<br><b>Dashboard:</b> '+S.ops.length+' sections, '+S.kpis.length+' KPIs':'');
   renderVerdict();
 }
 
@@ -672,6 +747,10 @@ function applySuggested(s){
   if(s.target)setv('target',s.target);
   if(s.archetype)setv('archetype',s.archetype);
   if(s.monetization)setv('monetization',s.monetization);
+  if(typeof s.web_dashboard==='boolean'){S.webDashboard=s.web_dashboard;const e=document.getElementById('web_dashboard');if(e)e.checked=s.web_dashboard;}
+  if(typeof s.web_app==='boolean'){S.webApp=s.web_app;const e=document.getElementById('web_app');if(e)e.checked=s.web_app;}
+  if(Array.isArray(s.ops_modules)&&s.ops_modules.length)S.ops=s.ops_modules.filter(k=>OPS.some(x=>x.k===k));
+  if(Array.isArray(s.ops_kpis)&&s.ops_kpis.length)S.kpis=s.ops_kpis.filter(k=>KPIS.includes(k));
   if(Array.isArray(s.screens)&&s.screens.length)S.screens=s.screens.filter(k=>scrByKey(k));
   if(s.features&&typeof s.features==='object')S.features=Object.assign({},s.features);
   if(Array.isArray(s.capabilities))S.caps=s.capabilities.filter(c=>CAPS.some(x=>x.k===c));
@@ -697,7 +776,7 @@ function applySuggested(s){
   if(s.additional_details){const e=document.getElementById('additional_details');e.value=(e.value?e.value+'\n\n':'')+s.additional_details;}
   S.ai_drafted=true;
   TABS.forEach(t=>{if(SCREENS.some(x=>x.t===t.t&&S.screens.includes(x.k)))S.tabOpen[t.t]=true;});
-  enforceRules();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();render();
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();render();
 }
 
 /* ---- GATHER ---- */
@@ -709,6 +788,7 @@ function gather(){
     what_they_do:val('what_they_do'),offers:val('offers'),audience:val('audience'),team:val('team'),
     brand:{primary:val('c_primary'),secondary:val('c_secondary'),accent:val('c_accent'),mode:val('brand_mode'),fonts:val('fonts'),logo_path:S.logo_path},
     target:val('target'),target_reason:val('target_reason'),archetype:val('archetype'),
+    web_dashboard:S.webDashboard,web_app:S.webApp,ops_modules:S.ops,ops_kpis:S.kpis,
     screens:S.screens,features:S.features,tabs:tabPlan(),capabilities:S.caps,screen_notes:S.screenNotes,max_tabs:MAX_TABS,
     auth_methods:S.auths,roles:{templates:S.roles},role_matrix:val('role_matrix'),
     monetization:val('monetization'),integrations:{},ai_features:{},
@@ -754,12 +834,35 @@ function buildPrompt(){
     L.push('- Supabase for auth, Postgres, storage and realtime. Mobile shares the SAME schema and RLS as any web surface - never a parallel permission model.');
     L.push('- EAS Build with development / preview / production profiles (eas.json), app.config.ts carrying the real bundle identifiers.');
     L.push('- expo-updates for OTA fixes that do not need review.');
-    if(d.target==='both')L.push('- React Native Web for the web target, deployed to Vercel from the same codebase.');
+    if(d.web_app||d.target==='both')L.push('- React Native Web for the web version, deployed to Vercel from the SAME codebase.');
+    if(d.web_dashboard)L.push('- Next.js App Router for the operator dashboard, in the same repo, same Supabase project.');
   } else {
     L.push('- Next.js App Router + Supabase + Vercel. (The classifier judged this web-shaped; see the reason below.)');
   }
   if(d.target_reason)L.push('- Target reason: '+d.target_reason);
   L.push('');
+  L.push('## Surfaces — ALL of these ship in THIS build');
+  L.push('Every surface below is part of the initial build. None of it is a phase 2, a follow-up, or a stretch goal. A build that delivers the app without the dashboard is INCOMPLETE.');
+  L.push('1. **'+(native?'Native iOS + Android app':'Web app')+'** — the product itself.');
+  if(d.web_app&&native)L.push('2. **Web version of the app** — the SAME Expo codebase compiled with React Native Web and deployed to Vercel. Not a rewrite, not a separate project: one codebase, `Platform.select()` where behaviour genuinely differs, and any native-only capability degrades gracefully rather than crashing the web build.');
+  if(d.web_dashboard)L.push((d.web_app&&native?'3':'2')+'. **Operator web dashboard** — see its own section below.');
+  L.push('All surfaces share ONE Supabase project, ONE schema and ONE set of RLS policies. The dashboard is a privileged READER of the same tables, never a second database and never a parallel permission model.');
+  L.push('');
+  if(d.web_dashboard){
+    L.push('## Operator web dashboard (BUILD THIS, it is not optional)');
+    L.push('A Next.js App Router app on Vercel, in the same repo (a `dashboard/` workspace or a Turborepo package), against the same Supabase project. This is where the business watches metrics, manages users and monitors KPIs.');
+    L.push('- Auth: Supabase Auth, gated to staff roles only. A normal app user must NEVER be able to load it. Enforce with RLS plus a role check, not just a hidden route.');
+    L.push('- Layout: fixed left sidebar with the sections below, content right. Max 4 KPI cards and ONE primary table or chart per view.');
+    L.push('- Sections to build:');
+    (S.ops||[]).forEach(k=>{const o=OPS.find(x=>x.k===k);if(o)L.push('  - **'+o.l+'** — '+o.d);});
+    if((S.kpis||[]).length){
+      L.push('- KPIs it must chart (these exact metrics):');
+      S.kpis.forEach(k=>L.push('  - '+k));
+      L.push('- **Every KPI needs an event behind it.** Create the analytics events and the tables/views these are computed from, and write them from the app. A KPI with nothing writing to it is a number that never moves — that is a failed build, not a working dashboard.');
+    }
+    L.push('- User management must actually work: search, open a user, change role, suspend, and delete (the delete path is the same one the app\'s account-deletion screen calls).');
+    L.push('');
+  }
   L.push('## Navigation — build EXACTLY this');
   L.push('At most '+MAX_TABS+' bottom tabs. Screens listed under a tab are stacks or segmented controls INSIDE that tab, never extra tabs. Never render a "More" tab.');
   plan.forEach(t=>L.push('- **'+t.label+'** — '+t.purpose+' — screens: '+t.screens.join(', ')+(t.merged.length?'  (absorbs, as a segmented control: '+t.merged.join(', ')+')':'')));
@@ -812,6 +915,7 @@ function buildPrompt(){
   L.push('2. Write PLAN-<date>.md before any code, and print it.');
   L.push('3. Stand up the new Supabase project, schema and RLS. Seed realistic data.');
   L.push('4. Build screen by screen against the approved mockup. Match it.');
+  if(d.web_dashboard)L.push('4b. Build the operator dashboard against its approved mockup, wire the analytics events, and confirm each KPI computes from real rows.');
   L.push('5. `npx tsc --noEmit` and `npx expo-doctor` must be clean before you continue.');
   if(native)L.push('6. Run an EAS production build for iOS and Android. It must succeed. Do NOT auto-submit to the stores — Daniel submits.');
   L.push((native?'7':'6')+'. Verify every acceptance criterion on a real device or simulator, then report.');
@@ -823,6 +927,8 @@ function buildPrompt(){
   if(d.final_notes){L.push('## FINAL DIRECTION FROM THE ARCHITECT (highest priority — overrides anything above)');L.push(d.final_notes);L.push('');}
   L.push('## Definition of done');
   L.push('- Every screen above exists and works against real data.');
+  if(d.web_app&&native)L.push('- The web version builds and runs from the same codebase, deployed to Vercel.');
+  if(d.web_dashboard)L.push('- The operator dashboard is deployed, staff-gated, and every KPI listed above renders a real number from a real event — not a placeholder.');
   L.push('- Typecheck and build are clean.');
   if(native)L.push('- An EAS production build succeeded and the binary is ready to submit.');
   L.push('- Nothing is a placeholder. No lorem ipsum. No dead buttons.');
@@ -950,6 +1056,33 @@ async function runDoc(kind,boxId,fillId,ovId,setter){
     clearInterval(timer);fill.style.width='100%';
   }catch(e){clearInterval(timer);box.textContent='Failed: '+e.message;}
 }
+/* The operator dashboard gets its own mockup — it is a desktop web app, not a phone,
+   so it cannot share the phone-frame renderer. */
+async function reviewDashboard(){
+  if(!S.webDashboard){toast('Turn on the operator dashboard first (section 2b)');return;}
+  if(!S.resume_token){await saveDraft(true);}
+  if(!S.resume_token){toast('Save failed — cannot generate');return;}
+  openOv('ovDash');
+  const frame=document.getElementById('dashFrame'),fill=document.getElementById('dashBarFill'),phase=document.getElementById('dashPhase');
+  let full='',renderedLen=0,t0=Date.now();
+  const timer=setInterval(()=>{const s=(Date.now()-t0)/1000;fill.style.width=Math.min(96,Math.max(2,Math.max(full.length/26000*100,s/120*70)))+'%';phase.textContent=(full.length?'Drawing the dashboard… ':'Thinking… ')+Math.round(s)+'s';},300);
+  try{
+    const st=await api('mobile-job',{action:'start',kind:'dashboard',build:gather(),id:S.id,resume_token:S.resume_token});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    if(st.done&&st.output)full=st.output;
+    else for(let i=0;i<10;i++){
+      const r=await api('mobile-job',{action:'step',job_id:st.job_id});
+      if(r.error&&!r.output)throw new Error(r.error);
+      if(r.chunk)full+=r.chunk;
+      if(r.output)full=r.output;
+      if(/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(r.done)break;
+    }
+    clearInterval(timer);fill.style.width='100%';
+    _dash=_mockRepair(full);frame.srcdoc=_dash;phase.textContent='Done';
+    await api('mobile-build',{action:'add_mockup',kind:'dashboard',resume_token:S.resume_token,id:S.id,html:_dash});
+  }catch(e){clearInterval(timer);phase.textContent='Failed: '+e.message;toast('Dashboard mockup failed: '+e.message);}
+}
 const createSpec=()=>runDoc('spec','specBox','specBarFill','ovSpec',v=>_spec=v);
 const createStore=()=>runDoc('store','storeBox','storeBarFill','ovStore',v=>_store=v);
 
@@ -961,6 +1094,7 @@ async function saveDraft(quiet){
   if(_spec)payload.spec_md=_spec;
   if(_store)payload.store_md=_store;
   if(_lastMock)payload.ai_mockup_html=_lastMock;
+  if(_dash)payload.dashboard_mockup_html=_dash;
   const r=await api('mobile-build',payload);
   if(r&&r.build){
     S.id=r.build.id;S.resume_token=r.build.resume_token;
@@ -978,6 +1112,7 @@ async function finalize(){
   if(_spec)payload.spec_md=_spec;
   if(_store)payload.store_md=_store;
   if(_lastMock)payload.ai_mockup_html=_lastMock;
+  if(_dash)payload.dashboard_mockup_html=_dash;
   const r=await api('mobile-build',payload);
   if(r&&r.build){
     S.id=r.build.id;S.resume_token=r.build.resume_token;
@@ -1002,6 +1137,10 @@ function hydrate(b){
   if(Array.isArray(b.screens))S.screens=b.screens.filter(k=>scrByKey(k));
   if(b.features)S.features=b.features;
   if(Array.isArray(b.capabilities))S.caps=b.capabilities;
+  if(typeof b.web_dashboard==='boolean'){S.webDashboard=b.web_dashboard;const e=document.getElementById('web_dashboard');if(e)e.checked=b.web_dashboard;}
+  if(typeof b.web_app==='boolean'){S.webApp=b.web_app;const e=document.getElementById('web_app');if(e)e.checked=b.web_app;}
+  if(Array.isArray(b.ops_modules)&&b.ops_modules.length)S.ops=b.ops_modules;
+  if(Array.isArray(b.ops_kpis)&&b.ops_kpis.length)S.kpis=b.ops_kpis;
   if(Array.isArray(b.auth_methods)&&b.auth_methods.length)S.auths=b.auth_methods;
   if(b.roles&&Array.isArray(b.roles.templates))S.roles=b.roles.templates;
   if(b.screen_notes)S.screenNotes=b.screen_notes;
@@ -1019,17 +1158,18 @@ function hydrate(b){
   if(b.ai_mockup_html)_lastMock=b.ai_mockup_html;
   if(b.spec_md)_spec=b.spec_md;
   if(b.store_md)_store=b.store_md;
+  if(b.dashboard_mockup_html)_dash=b.dashboard_mockup_html;
   TABS.forEach(t=>{if(SCREENS.some(x=>x.t===t.t&&S.screens.includes(x.k)))S.tabOpen[t.t]=true;});
-  enforceRules();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();render();
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();render();
 }
 
 /* ---- BOOT ---- */
 async function boot(){
-  document.getElementById('mininav').innerHTML=['Client','Target','Screens','Native','Access','Money','Store','Final']
-    .map((t,i)=>'<a href="#s'+(i+1)+'">'+t+'</a>').join('');
+  document.getElementById('mininav').innerHTML=[['Client','s1'],['Target','s2'],['Web','s2b'],['Screens','s3'],['Native','s4'],['Access','s5'],['Money','s6'],['Store','s7'],['Final','s8']]
+    .map(x=>'<a href="#'+x[1]+'">'+x[0]+'</a>').join('');
   buildArchetypes();
   S.screens=['home_feed','profile','settings'];
-  enforceRules();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();
   S.tabOpen.home=true;S.tabOpen.profile=true;
   buildScreenGrid();render();
   const q=new URLSearchParams(location.search);
