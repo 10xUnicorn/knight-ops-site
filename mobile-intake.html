@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Mobile App Builder — Knight Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#C8A456;--gold:#C9922A;--teal:#00D4C8;--bg:#07070b;--card:#101017;--border:#232326;--text:#eceef5;--text-muted:#8a8a99;--ok:#30A46C;--warn:#E5A50A;--bad:#E5484D}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:var(--accent)}
+.wrap{max-width:1500px;margin:0 auto;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:18px}
+.brandmark{font-weight:800;letter-spacing:.14em;color:var(--gold);font-size:.82rem}
+h1{font-size:1.5rem;font-weight:800;margin-top:.15rem}
+.sub{color:var(--text-muted);font-size:.86rem;margin-top:.2rem}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:22px;align-items:start}
+@media(max-width:1150px){.cols{grid-template-columns:1fr}.col-prev{position:static!important}}
+.col-prev{position:sticky;top:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.15rem;margin-bottom:1rem}
+.card h2{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:.2rem}
+.card .hint{color:var(--text-muted);font-size:.79rem;margin-bottom:.85rem}
+label{display:block;font-size:.76rem;color:var(--text-muted);margin:.65rem 0 .25rem;font-weight:500}
+input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{width:100%;background:#0a0a10;border:1px solid var(--border);border-radius:9px;color:var(--text);padding:.55rem .65rem;font:inherit;font-size:.86rem}
+textarea{min-height:78px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+input[type=color]{width:100%;height:38px;background:#0a0a10;border:1px solid var(--border);border-radius:9px;padding:3px;cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+.btn{background:var(--accent);color:#12121a;border:none;border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{padding:.35rem .6rem;font-size:.76rem}
+.mininav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.mininav a{font-size:.74rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:999px;text-decoration:none;color:var(--text-muted)}
+.mininav a:hover{border-color:var(--accent);color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;padding:.28rem .55rem;border-radius:999px;border:1px solid var(--border);color:#ddd;margin:.15rem .25rem .15rem 0;cursor:pointer;background:transparent}
+.chip.on{border-color:var(--accent);background:rgba(200,164,86,.14);color:var(--accent);font-weight:600}
+.chip.warn{border-color:rgba(229,165,10,.5);background:rgba(229,165,10,.12);color:var(--warn)}
+.chip.bad{border-color:rgba(229,72,77,.5);background:rgba(229,72,77,.12);color:#ff9a9d}
+.chip.ok{border-color:rgba(48,164,108,.5);background:rgba(48,164,108,.12);color:#63d19b}
+.tabgrp{border:1px solid var(--border);border-radius:11px;margin-bottom:.55rem;overflow:hidden}
+.tabgrp>.hd{display:flex;justify-content:space-between;align-items:center;padding:.55rem .75rem;background:rgba(255,255,255,.02);cursor:pointer;font-size:.82rem;font-weight:600}
+.tabgrp>.hd .n{font-size:.72rem;color:var(--text-muted);font-weight:400}
+.tabgrp>.bd{padding:.6rem .75rem;display:none}
+.tabgrp.open>.bd{display:block}
+.scr{display:grid;grid-template-columns:auto 1fr;gap:.5rem;padding:.45rem .1rem;border-top:1px solid rgba(255,255,255,.05)}
+.scr:first-child{border-top:none}
+.scr input[type=checkbox]{margin-top:.25rem}
+.scr .l{font-size:.85rem;font-weight:600}
+.scr .d{font-size:.75rem;color:var(--text-muted)}
+.scr .f{margin-top:.3rem;display:none}
+.scr.on .f{display:block}
+.actionbar{position:sticky;bottom:0;background:rgba(7,7,11,.94);backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:.75rem 0;margin-top:1rem;display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;z-index:20}
+.status{font-size:.78rem;color:var(--text-muted)}
+.phonewrap{background:#0c0c12;border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;justify-content:center}
+.phone{width:290px;height:600px;border-radius:36px;background:#0B0B10;border:8px solid #16161d;box-shadow:0 18px 44px rgba(0,0,0,.55);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.phone .sbar{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:10px;font-weight:600;color:#fff;opacity:.75;flex:0 0 auto}
+.phone .body{flex:1;padding:12px;overflow:hidden}
+.phone .tabbar{display:flex;padding:7px 4px 14px;border-top:1px solid rgba(255,255,255,.08);flex:0 0 auto}
+.phone .tb{flex:1;text-align:center;font-size:9px;color:rgba(255,255,255,.42)}
+.phone .tb i{display:block;width:18px;height:18px;margin:0 auto 3px;border-radius:5px;background:rgba(255,255,255,.22)}
+.phone .tb.on{color:var(--teal)}
+.phone .tb.on i{background:var(--teal)}
+.mockframe{width:100%;height:640px;border:1px solid var(--border);border-radius:12px;background:#0e0e14}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.ov.on{display:flex}
+.ov .inner{background:var(--card);border:1px solid var(--border);border-radius:14px;width:min(1250px,97vw);max-height:94vh;overflow:auto;padding:1.1rem}
+.ov h3{font-size:1rem;margin-bottom:.5rem}
+.bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:.5rem 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));width:2%;transition:width .4s}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px}
+@keyframes sp{to{transform:rotate(360deg)}}
+pre.out{background:#08080d;border:1px solid var(--border);border-radius:10px;padding:.8rem;font-size:.72rem;line-height:1.5;max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,monospace}
+.verdict{border-left:3px solid var(--teal);background:rgba(0,212,200,.07);border-radius:0 9px 9px 0;padding:.6rem .8rem;font-size:.82rem;margin:.5rem 0}
+.verdict b{color:var(--teal)}
+.verdict.iap{border-left-color:var(--warn);background:rgba(229,165,10,.08)}
+.verdict.iap b{color:var(--warn)}
+.verdict.web{border-left-color:var(--bad);background:rgba(229,72,77,.08)}
+.verdict.web b{color:#ff9a9d}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16161d;border:1px solid var(--accent);color:var(--text);padding:.6rem 1rem;border-radius:9px;font-size:.83rem;z-index:99;display:none}
+.finalbox{border:1px solid rgba(200,164,86,.4);background:rgba(200,164,86,.06);border-radius:11px;padding:.8rem}
+.modebtn{padding:.4rem .8rem;border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:999px;font:inherit;font-size:.78rem;cursor:pointer}
+.modebtn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,164,86,.1);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="brandmark">KNIGHT OPS</div>
+      <h1>Mobile App Builder</h1>
+      <div class="sub">Upload everything you have. We scope the app, decide if it belongs in the App Store, show you a mockup, and hand it to the build system.</div>
+    </div>
+    <div style="display:flex;gap:.4rem">
+      <button class="modebtn active" id="mb_ai" onclick="setMode('ai')">✨ Start with AI</button>
+      <button class="modebtn" id="mb_man" onclick="setMode('manual')">Manual</button>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="col-form">
+      <div class="mininav" id="mininav"></div>
+
+      <!-- AI ENTRY -->
+      <div class="card" id="sec-ai">
+        <h2>✨ Tell us what you're building</h2>
+        <div class="hint">Drop in a brief, a transcript, a deck, a PDF, screenshots of an app you like — anything. We read all of it.</div>
+        <label>What is the app? Who is it for? What should it do?</label>
+        <textarea id="ai_brief" placeholder="e.g. A phone app for my coaching members: daily video lessons, they photograph their work for feedback, a morning push reminder, streaks, and $29/mo premium inside the app."></textarea>
+        <div class="grid2">
+          <div><label>Their website (optional)</label><input type="url" id="ai_research" placeholder="https://"></div>
+          <div><label>Call transcript (optional)</label><input type="text" id="ai_transcript_hint" placeholder="paste below if you have one" disabled></div>
+        </div>
+        <label>Transcript / notes (optional)</label>
+        <textarea id="ai_transcript" placeholder="Paste a discovery call transcript or meeting notes"></textarea>
+        <label>Upload documents — PDF, DOCX, XLSX, HTML, screenshots, anything</label>
+        <input type="file" id="ai_files" multiple onchange="addFiles(this.files,'ai-docs',true)">
+        <div id="uploads" style="margin-top:.5rem"></div>
+        <div style="margin-top:.8rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="analyzeBtn" onclick="analyzeApp()">Analyze &amp; pre-fill</button>
+          <span class="status" id="analyzeStatus"></span>
+        </div>
+        <div id="verdictBox"></div>
+      </div>
+
+      <!-- 1 BASICS -->
+      <div class="card" id="s1">
+        <h2>1 · Client &amp; app</h2>
+        <div class="grid2">
+          <div><label>First name</label><input type="text" id="first_name"></div>
+          <div><label>Last name</label><input type="text" id="last_name"></div>
+          <div><label>Email</label><input type="email" id="email"></div>
+          <div><label>Phone</label><input type="tel" id="phone"></div>
+          <div><label>Company</label><input type="text" id="company" oninput="render()"></div>
+          <div><label>App name</label><input type="text" id="business_name" oninput="render()"></div>
+        </div>
+        <label>Niche / category</label><input type="text" id="niche" oninput="render()">
+        <label>What the app does</label><textarea id="what_they_do" oninput="render()"></textarea>
+        <label>Offers / pricing</label><textarea id="offers"></textarea>
+        <label>Audience</label><textarea id="audience"></textarea>
+        <label>Team</label><input type="text" id="team">
+        <div class="grid3" style="margin-top:.6rem">
+          <div><label>Primary</label><input type="color" id="c_primary" value="#C9922A" oninput="render()"></div>
+          <div><label>Background</label><input type="color" id="c_secondary" value="#0B0B10" oninput="render()"></div>
+          <div><label>Accent</label><input type="color" id="c_accent" value="#00D4C8" oninput="render()"></div>
+        </div>
+        <div class="grid2">
+          <div><label>Mode</label><select id="brand_mode" onchange="render()"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+          <div><label>Fonts</label><input type="text" id="fonts" placeholder="system"></div>
+        </div>
+        <label>Logo</label><input type="file" id="logo_file" accept="image/*" onchange="uploadLogo(this.files[0])">
+        <div class="status" id="logoStatus"></div>
+      </div>
+
+      <!-- 2 TARGET -->
+      <div class="card" id="s2">
+        <h2>2 · What kind of app</h2>
+        <div class="hint">The classifier decides whether this belongs in the App Store. We never ship a website in a shell — Apple rejects those (Guideline 4.2).</div>
+        <div class="grid2">
+          <div><label>Target</label><select id="target" onchange="render();renderVerdict()">
+            <option value="native">Native app (App Store + Play)</option>
+            <option value="both">Native + web</option>
+            <option value="web">Web only (belongs in the dashboard builder)</option>
+          </select></div>
+          <div><label>Archetype</label><select id="archetype" onchange="render()"></select></div>
+        </div>
+        <label>Why this target</label><textarea id="target_reason" placeholder="The classifier fills this in"></textarea>
+      </div>
+
+      <!-- 2B WEB SURFACES -->
+      <div class="card" id="s2b">
+        <h2>2b · Web surfaces <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:.72rem">— built in this build, not phase 2</span></h2>
+        <div class="hint">Both default on. Whatever is ticked here is part of the initial build and ships with the app — never deferred.</div>
+
+        <label class="ko-note" style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.4rem">
+          <input type="checkbox" id="web_dashboard" checked onchange="S.webDashboard=this.checked;buildOpsGrid();render()" style="margin-top:.25rem">
+          <span><b style="color:var(--text)">Operator web dashboard</b><br>
+          <span style="color:var(--text-muted);font-size:.78rem">Where you track metrics, manage users and monitor KPIs. A Next.js app on Vercel reading the <b>same</b> Supabase project — a privileged reader of the same tables, never a second database.</span></span>
+        </label>
+
+        <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.6rem">
+          <input type="checkbox" id="web_app" checked onchange="S.webApp=this.checked;render()" style="margin-top:.25rem">
+          <span><b style="color:var(--text)">Web version of the app</b><br>
+          <span style="color:var(--text-muted);font-size:.78rem">The same Expo codebase compiled for the browser with React Native Web and deployed to Vercel. Untick when the product is meaningless off a phone (heavy camera, location or offline use).</span></span>
+        </label>
+
+        <div id="opsWrap">
+          <label style="margin-top:.9rem">Dashboard sections</label>
+          <div id="opsGrid"></div>
+          <label>KPIs it must chart <span style="opacity:.6">(pick the few that matter)</span></label>
+          <div id="kpiGrid"></div>
+          <div class="verdict" style="margin-top:.6rem"><b>Every KPI needs an event behind it.</b> The spec names the analytics events these are computed from — a KPI with nothing writing to it is just a number that never moves.</div>
+        </div>
+      </div>
+
+      <!-- 3 SCREENS -->
+      <div class="card" id="s3">
+        <h2>3 · Screens</h2>
+        <div class="hint">Grouped by the tab they live in. Tick a screen to include it, then pick its features. Max 5 tabs — anything over folds into a sibling tab as a segmented control.</div>
+        <div id="screenGrid"></div>
+      </div>
+
+      <!-- 4 NATIVE -->
+      <div class="card" id="s4">
+        <h2>4 · Native capabilities</h2>
+        <div class="hint">Each one adds an Expo package and an iOS usage-description string. Vague or missing usage strings are a common rejection.</div>
+        <div id="capGrid"></div>
+      </div>
+
+      <!-- 5 ACCESS -->
+      <div class="card" id="s5">
+        <h2>5 · Access &amp; data</h2>
+        <label>Sign-in methods</label>
+        <div id="authGrid"></div>
+        <div class="verdict" id="authNote" style="display:none"></div>
+        <label>Roles</label>
+        <div id="roleGrid"></div>
+        <label>Data model notes</label><textarea id="data_model" placeholder="Core entities and how they relate"></textarea>
+        <label>Permissions notes</label><textarea id="role_matrix"></textarea>
+      </div>
+
+      <!-- 6 MONEY -->
+      <div class="card" id="s6">
+        <h2>6 · Monetization</h2>
+        <div class="hint">This is the single most common App Store rejection. Digital content consumed in the app must use StoreKit, not Stripe.</div>
+        <label>How it makes money</label>
+        <select id="monetization" onchange="render();renderVerdict()">
+          <option value="none">Nothing is sold in the app</option>
+          <option value="iap">Digital content / subscriptions (StoreKit IAP)</option>
+          <option value="stripe_physical">Physical goods or real-world services (Stripe / Apple Pay)</option>
+          <option value="both">Both</option>
+        </select>
+        <div id="moneyVerdict"></div>
+      </div>
+
+      <!-- 7 STORE -->
+      <div class="card" id="s7">
+        <h2>7 · Store listing &amp; privacy</h2>
+        <div class="grid2">
+          <div><label>App name <span style="opacity:.6">(max 30)</span></label><input type="text" id="st_app_name" maxlength="30"></div>
+          <div><label>Subtitle <span style="opacity:.6">(max 30)</span></label><input type="text" id="st_subtitle" maxlength="30"></div>
+        </div>
+        <label>Keywords <span style="opacity:.6">(max 100 chars, comma separated)</span></label><input type="text" id="st_keywords" maxlength="100">
+        <label>Description</label><textarea id="st_description"></textarea>
+        <div class="grid2">
+          <div><label>Privacy policy URL <span style="opacity:.6">(required)</span></label><input type="url" id="st_privacy_url" placeholder="https://"></div>
+          <div><label>Age rating</label><select id="st_age_rating"><option>4+</option><option>9+</option><option>12+</option><option>17+</option></select></div>
+        </div>
+        <label>Data collected (for the App Privacy label)</label>
+        <div id="dataGrid"></div>
+      </div>
+
+      <!-- 8 FINAL -->
+      <div class="card" id="s8">
+        <h2>8 · Files, paths &amp; final direction</h2>
+        <label>More documents</label>
+        <input type="file" id="extra_files" multiple onchange="addFiles(this.files,'docs',true)">
+        <label>Reference file paths (one per line)</label><textarea id="file_paths"></textarea>
+        <label>Anything else</label><textarea id="additional_details"></textarea>
+        <div class="finalbox" style="margin-top:.8rem">
+          <label style="color:var(--accent);font-weight:600">Final direction — read last, weighted heaviest</label>
+          <textarea id="final_notes" placeholder="The one thing that matters most about this app"></textarea>
+        </div>
+      </div>
+
+      <div class="actionbar">
+        <button class="btn ghost" onclick="saveDraft()">💾 Save draft</button>
+        <button class="btn" onclick="reviewWithAI()">📱 Generate mockup</button>
+        <button class="btn ghost" onclick="reviewDashboard()">🖥 Dashboard mockup</button><button class="btn ghost" onclick="createSpec()">📄 Spec</button>
+        <button class="btn ghost" onclick="createStore()">🏪 Store pack</button>
+        <button class="btn ghost" onclick="openOv('ovPrompt');document.getElementById('promptOut2').textContent=buildPrompt()">⚙️ Build prompt</button>
+        <button class="btn" onclick="finalize()">✅ Finalize &amp; share</button>
+        <span class="status" id="saveStatus"></span>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="col-prev">
+      <div class="card">
+        <h2>Live preview</h2>
+        <div class="hint" id="prevHint">Tabs update as you pick screens</div>
+        <div class="phonewrap"><div class="phone" id="phonePrev">
+          <div class="sbar"><span>9:41</span><span>100%</span></div>
+          <div class="body" id="phoneBody"></div>
+          <div class="tabbar" id="phoneTabs"></div>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2>Summary</h2>
+        <div id="summary" style="font-size:.8rem;color:#c9c9d3;line-height:1.7"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="ov" id="ovMock"><div class="inner">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.5rem">
+    <h3 id="mockTitle">Your app</h3>
+    <div style="display:flex;gap:.4rem;align-items:center">
+      <button class="btn ghost sm" id="revertBtn" style="display:none" onclick="revertMock()">↩ Revert</button>
+      <button class="btn ghost sm" onclick="closeOv('ovMock')">Close</button>
+    </div>
+  </div>
+  <div class="bar"><i id="mockBarFill"></i></div>
+  <div class="status" id="mockPhase"></div>
+  <iframe class="mockframe" id="mockFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+  <div style="margin-top:.7rem">
+    <label>Change something</label>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+      <input type="text" id="reviseNotes" placeholder="e.g. make the streak bigger and add a share button" style="flex:1;min-width:220px">
+      <select id="reviseMode" style="width:auto"><option value="auto">Auto</option><option value="patch">Edit in place</option><option value="rebuild">Rebuild</option></select>
+      <button class="btn sm" onclick="reviewWithAI(true)">Regenerate</button>
+      <button class="btn ghost sm" onclick="saveMockStyle()">💾 Save this style</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="ov" id="ovDash"><div class="inner">
+  <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><h3>Operator dashboard</h3><button class="btn ghost sm" onclick="closeOv('ovDash')">Close</button></div>
+  <div class="bar"><i id="dashBarFill"></i></div>
+  <div class="status" id="dashPhase"></div>
+  <iframe class="mockframe" id="dashFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+</div></div>
+
+<div class="ov" id="ovSpec"><div class="inner">
+  <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><h3>Spec</h3><button class="btn ghost sm" onclick="closeOv('ovSpec')">Close</button></div>
+  <div class="bar"><i id="specBarFill"></i></div>
+  <pre class="out" id="specBox" style="max-height:70vh"></pre>
+</div></div>
+
+<div class="ov" id="ovStore"><div class="inner">
+  <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><h3>App Store readiness</h3><button class="btn ghost sm" onclick="closeOv('ovStore')">Close</button></div>
+  <div class="bar"><i id="storeBarFill"></i></div>
+  <pre class="out" id="storeBox" style="max-height:70vh"></pre>
+</div></div>
+
+<div class="ov" id="ovPrompt"><div class="inner">
+  <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><h3>Build prompt</h3>
+    <div style="display:flex;gap:.4rem"><button class="btn sm" onclick="copyPrompt()">Copy</button><button class="btn ghost sm" onclick="closeOv('ovPrompt')">Close</button></div></div>
+  <pre class="out" id="promptOut2" style="max-height:74vh"></pre>
+</div></div>
+
+<div class="ov" id="ovDone"><div class="inner" style="max-width:640px">
+  <h3>✅ Submitted</h3>
+  <p class="hint">Share these with the client. The review link approves the build; the edit link lets them correct their own details.</p>
+  <label>Review link</label><input type="text" id="lkReview" readonly onclick="this.select()">
+  <label>Edit link</label><input type="text" id="lkEdit" readonly onclick="this.select()">
+  <div style="margin-top:.8rem"><button class="btn ghost sm" onclick="closeOv('ovDone')">Close</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ============================================================================
+   Knight Ops Mobile App Builder (Layer A).
+   Emits an Expo / React Native app spec + prompt. This page never contains RN.
+   Mirrors dashboard-intake.html's proven patterns: the S.reads upload drain,
+   the mobile-job start/step loop, the _runToken staleness guard, _prevMock revert.
+   ============================================================================ */
+const SB='https://trpnlkntvulkjerevngm.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const FN=SB+'/functions/v1/';
+async function api(fn,payload){
+  const r=await fetch(FN+fn,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(payload||{})});
+  try{return await r.json();}catch(e){return {error:'bad response '+r.status};}
+}
+const val=id=>{const e=document.getElementById(id);return e?String(e.value||'').trim():'';};
+const setv=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined&&v!==null)e.value=v;};
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3400);}
+
+/* ---- CATALOGS. SCREENS must mirror CATALOG in the mobile-analyze edge fn. ---- */
+const TABS=[
+ {t:'home',l:'Home',d:'The screen they open to',pin:'first',fold:null},
+ {t:'discover',l:'Discover',d:'Find things',fold:'home'},
+ {t:'create',l:'Create',d:'Add something',fold:'home'},
+ {t:'library',l:'Library',d:'Their saved things',fold:'home'},
+ {t:'commerce',l:'Shop',d:'Buy',fold:'library'},
+ {t:'booking',l:'Booking',d:'Appointments',fold:'home'},
+ {t:'messages',l:'Messages',d:'Conversations',fold:'activity'},
+ {t:'activity',l:'Activity',d:'What happened',fold:'home'},
+ {t:'progress',l:'Progress',d:'How they are doing',fold:'home'},
+ {t:'admin',l:'Admin',d:'Operator tools',fold:'profile'},
+ {t:'profile',l:'Profile',d:'Identity and settings',pin:'last',fold:null}
+];
+const MAX_TABS=5;
+const SCREENS=[
+ {k:'onboarding',t:'home',l:'Onboarding',d:'First-run value carousel',f:['Value carousel','Skip','Progress dots']},
+ {k:'auth',t:'home',l:'Sign in / Sign up',d:'Get them in',f:['Email + password','Magic link','Sign in with Apple','Google','Forgot password']},
+ {k:'permissions',t:'home',l:'Permission primer',d:'Ask well, not cold',f:['Explain before asking','Deep link to Settings']},
+ {k:'home_feed',t:'home',l:'Home / Feed',d:'The main screen',f:['Personalized feed','Pull to refresh','Empty state','Quick actions']},
+ {k:'item_detail',t:'home',l:'Detail view',d:'One thing, in full',f:['Hero media','Actions','Related items','Share']},
+ {k:'search',t:'discover',l:'Search',d:'Find anything',f:['Instant search','Filters','Recent searches','Saved searches']},
+ {k:'browse',t:'discover',l:'Browse / Categories',d:'Explore by category',f:['Category grid','Sort','Infinite scroll']},
+ {k:'map_view',t:'discover',l:'Map',d:'Things near them',f:['Clustered pins','Bottom sheet','Directions']},
+ {k:'scan_capture',t:'create',l:'Camera / Scan',d:'Capture with the camera',f:['Camera capture','Barcode or QR','Retake','Crop']},
+ {k:'media_upload',t:'create',l:'Media upload',d:'Add photos or video',f:['Pick from library','Multi-select','Upload progress','Compression']},
+ {k:'create_form',t:'create',l:'Create / Edit',d:'Make a record',f:['Validation','Autosave draft','Attachments']},
+ {k:'collection',t:'library',l:'Library / Collection',d:'Everything of theirs',f:['Sections','Sort','Bulk actions']},
+ {k:'saved',t:'library',l:'Saved / Favorites',d:'Kept for later',f:['Toggle save','Collections','Offline available']},
+ {k:'downloads',t:'library',l:'Downloads / Offline',d:'Works on a plane',f:['Download queue','Storage used','Auto-delete']},
+ {k:'cart',t:'commerce',l:'Cart',d:'Before they buy',f:['Line items','Promo code','Totals']},
+ {k:'checkout',t:'commerce',l:'Checkout',d:'Take the money',f:['Apple Pay','Address','Order review']},
+ {k:'paywall',t:'commerce',l:'Paywall / Subscribe',d:'Convert to paid',f:['Plan comparison','Free trial','Restore purchases']},
+ {k:'orders',t:'commerce',l:'Orders / Status',d:'Where is my thing',f:['Timeline','Tracking','Reorder']},
+ {k:'booking_cal',t:'booking',l:'Booking calendar',d:'Pick a day',f:['Month or week view','Availability','Timezone']},
+ {k:'slot_picker',t:'booking',l:'Slot picker',d:'Pick a time',f:['Duration','Confirm','Add to calendar']},
+ {k:'appointments',t:'booking',l:'My appointments',d:'What is booked',f:['Upcoming and past','Reschedule','Cancel']},
+ {k:'chat_list',t:'messages',l:'Conversations',d:'All threads',f:['Unread badges','Search','Archive']},
+ {k:'chat_thread',t:'messages',l:'Chat thread',d:'One conversation',f:['Realtime messages','Typing indicator','Image attach','Read receipts']},
+ {k:'notifications',t:'activity',l:'Notification inbox',d:'What they missed',f:['Grouped','Mark all read','Deep links']},
+ {k:'activity_feed',t:'activity',l:'Activity feed',d:'Recent events',f:['Filters','Timestamps']},
+ {k:'progress_stats',t:'progress',l:'Progress / Stats',d:'Are they winning',f:['Charts','Date ranges','Personal bests']},
+ {k:'streak',t:'progress',l:'Streak / Habit',d:'Keep them coming back',f:['Calendar heatmap','Reminders','Streak freeze']},
+ {k:'leaderboard',t:'progress',l:'Leaderboard',d:'Social pressure',f:['Ranks','Friends','Season reset']},
+ {k:'profile',t:'profile',l:'Profile',d:'Who they are',f:['Avatar','Bio','Stats']},
+ {k:'edit_profile',t:'profile',l:'Edit profile',d:'Change their details',f:['Photo upload','Validation']},
+ {k:'settings',t:'profile',l:'Settings',d:'Preferences and sign out',f:['Notifications','Appearance','Privacy','Sign out']},
+ {k:'account_delete',t:'profile',l:'Delete account',d:'Required by Apple when you have sign-up',f:['In-app deletion','Confirm step','Grace period']},
+ {k:'admin_moderation',t:'admin',l:'Moderation',d:'Operator review queue',f:['Queue','Approve or reject','Report reasons']}
+];
+const CAPS=[
+ {k:'push',l:'Push notifications',p:'expo-notifications'},{k:'camera',l:'Camera',p:'expo-camera'},
+ {k:'photos',l:'Photo library',p:'expo-image-picker'},{k:'biometrics',l:'Face ID / Touch ID',p:'expo-local-authentication'},
+ {k:'location',l:'Location',p:'expo-location'},{k:'location_bg',l:'Background location',p:'expo-location'},
+ {k:'maps',l:'Maps',p:'react-native-maps'},{k:'offline',l:'Offline / sync',p:'expo-sqlite'},
+ {k:'files',l:'Files',p:'expo-document-picker'},{k:'health',l:'Health data',p:'expo-health'},
+ {k:'calendar',l:'Calendar',p:'expo-calendar'},{k:'contacts',l:'Contacts',p:'expo-contacts'},
+ {k:'share',l:'Share sheet',p:'expo-sharing'},{k:'haptics',l:'Haptics',p:'expo-haptics'},
+ {k:'iap',l:'In-app purchase',p:'expo-in-app-purchases / RevenueCat'},{k:'deeplinks',l:'Deep links',p:'expo-linking'},
+ {k:'background_tasks',l:'Background tasks',p:'expo-task-manager'},{k:'widgets',l:'Home screen widgets',p:'native target'},
+ {k:'live_activities',l:'Live Activities',p:'native target'}
+];
+const ARCHETYPES=[
+ {k:'client_companion',l:'Client companion'},{k:'course_content',l:'Course / content'},
+ {k:'community_social',l:'Community / social'},{k:'tracker_habit',l:'Tracker / habit'},
+ {k:'booking_service',l:'Booking / service'},{k:'marketplace',l:'Marketplace'},
+ {k:'commerce',l:'Commerce'},{k:'field_ops',l:'Field operations'}
+];
+/* The OPERATOR web dashboard. Every app gets one by default — a business that cannot see its
+   numbers or manage its users cannot run the product. Built in the INITIAL build, not phase 2. */
+const OPS=[
+ {k:'overview_kpis',l:'Overview & KPIs',d:'The one screen that answers: is this working?',req:true},
+ {k:'users',l:'Users',d:'List, search, open a user, roles, suspend, delete',req:true},
+ {k:'engagement',l:'Engagement',d:'Sessions, retention cohorts, funnels, feature adoption'},
+ {k:'revenue',l:'Revenue',d:'Subscriptions, IAP, MRR, trials, refunds, churn'},
+ {k:'push',l:'Push campaigns',d:'Send to a segment, schedule, open rates'},
+ {k:'content',l:'Content moderation',d:'Approve or reject user content, report reasons'},
+ {k:'support',l:'Support inbox',d:'Feedback and bug reports from the app, with a reply'},
+ {k:'health',l:'App health',d:'Crash-free rate, error log, API latency, release adoption'},
+ {k:'settings',l:'Settings',d:'Feature flags, app config, team access',req:true}
+];
+const KPIS=['Daily active users','Monthly active users','New signups','D1 retention','D7 retention','D30 retention','Session length','Sessions per user','Screens per session','Churn rate','Trial starts','Trial conversion','MRR','ARPU','Lifetime value','Refund rate','Crash-free sessions','Push opt-in rate','Push open rate','Feature adoption'];
+const AUTHS=[{k:'email',l:'Email + password'},{k:'magic_link',l:'Magic link'},{k:'apple',l:'Sign in with Apple'},{k:'google',l:'Google'},{k:'phone_otp',l:'Phone OTP'},{k:'none',l:'No sign-in'}];
+const ROLESET=['Super Admin','Admin','Team member','Client','Member','Guest'];
+const DATAKINDS=['Name','Email','Phone','Photos','Location','Health','Usage data','Purchases','Contacts','Identifiers','Diagnostics'];
+
+const scrByKey=k=>SCREENS.find(s=>s.k===k);
+const tabByKey=t=>TABS.find(x=>x.t===t)||{t:t,l:t,d:''};
+
+/* ---- STATE ---- */
+const S={mode:'ai',screens:[],features:{},caps:[],auths:['email'],roles:['Admin','Member'],
+ webDashboard:true,webApp:true,ops:['overview_kpis','users','engagement','health','settings'],
+ kpis:['Daily active users','New signups','D7 retention','Session length','Crash-free sessions'],
+ dataCollected:[],screenNotes:{},goalCriteria:[],
+ upload_paths:[],files:[],uploads_text:'',totalBytes:0,reads:[],docUrls:[],imgUrls:[],unread:[],
+ id:null,resume_token:null,share_review_token:null,share_edit_token:null,logo_path:'',ai_drafted:false,
+ tabOpen:{}};
+let _lastMock='',_prevMock='',_mockCfg='',_runToken=0,_jobId=null,_segNo=0,_spec='',_store='',_dash='';
+
+function setMode(m){S.mode=m;document.getElementById('mb_ai').classList.toggle('active',m==='ai');document.getElementById('mb_man').classList.toggle('active',m==='manual');document.getElementById('sec-ai').style.display=m==='ai'?'':'none';}
+
+/* ---- TAB PLAN: the mobile analogue of navWorkspaces(). MAX_TABS=5, overflow folds. ---- */
+function tabPlan(){
+  const byTab={};
+  S.screens.forEach(k=>{const s=scrByKey(k);if(!s)return;(byTab[s.t]=byTab[s.t]||[]).push(s);});
+  const live=TABS.filter(t=>byTab[t.t]&&byTab[t.t].length);
+  const first=live.filter(t=>t.pin==='first'),last=live.filter(t=>t.pin==='last'),mid=live.filter(t=>!t.pin);
+  mid.sort((a,b)=>(byTab[b.t].length-byTab[a.t].length)||(TABS.indexOf(a)-TABS.indexOf(b)));
+  const room=Math.max(1,MAX_TABS-first.length-last.length);
+  const keep=mid.slice(0,room),folded=mid.slice(room);
+  const out=first.concat(keep,last).map(t=>({t:t.t,label:t.l,purpose:t.d,screens:byTab[t.t].map(s=>s.l),keys:byTab[t.t].map(s=>s.k),merged:[]}));
+  const find=t=>out.find(o=>o.t===t);
+  folded.forEach(f=>{
+    let target=find(f.fold)||out[0];
+    if(target){target.screens=target.screens.concat(byTab[f.t].map(s=>s.l));target.keys=target.keys.concat(byTab[f.t].map(s=>s.k));target.merged.push(f.l);}
+  });
+  return out;
+}
+
+/* ---- BUILDERS ---- */
+function buildScreenGrid(){
+  const host=document.getElementById('screenGrid');
+  host.innerHTML=TABS.map(t=>{
+    const list=SCREENS.filter(s=>s.t===t.t);
+    if(!list.length)return '';
+    const n=list.filter(s=>S.screens.includes(s.k)).length;
+    return '<div class="tabgrp'+(S.tabOpen[t.t]?' open':'')+'" id="tg_'+t.t+'">'+
+      '<div class="hd" onclick="toggleTab(\''+t.t+'\')"><span>'+t.l+' <span class="n">'+t.d+'</span></span><span class="n">'+n+'/'+list.length+'</span></div>'+
+      '<div class="bd">'+list.map(s=>{
+        const on=S.screens.includes(s.k);
+        const feats=(S.features[s.k]||s.f);
+        return '<div class="scr'+(on?' on':'')+'" id="sc_'+s.k+'">'+
+          '<input type="checkbox" '+(on?'checked':'')+' onchange="toggleScreen(\''+s.k+'\',this.checked)">'+
+          '<div><div class="l">'+s.l+'</div><div class="d">'+s.d+'</div>'+
+          '<div class="f">'+s.f.map(f=>'<span class="chip'+(feats.indexOf(f)>=0?' on':'')+'" onclick="toggleFeat(\''+s.k+'\',\''+f.replace(/'/g,"\\'")+'\')">'+f+'</span>').join('')+
+          '<input type="text" placeholder="Note for this screen (optional)" value="'+(S.screenNotes[s.k]||'').replace(/"/g,'&quot;')+'" oninput="S.screenNotes[\''+s.k+'\']=this.value" style="margin-top:.35rem;font-size:.78rem">'+
+          '</div></div></div>';
+      }).join('')+'</div></div>';
+  }).join('');
+}
+function toggleTab(t){S.tabOpen[t]=!S.tabOpen[t];const e=document.getElementById('tg_'+t);if(e)e.classList.toggle('open',!!S.tabOpen[t]);}
+function toggleScreen(k,on){
+  if(on){if(!S.screens.includes(k))S.screens.push(k);if(!S.features[k])S.features[k]=(scrByKey(k)||{f:[]}).f.slice();}
+  else S.screens=S.screens.filter(x=>x!==k);
+  enforceRules();buildScreenGrid();render();
+}
+function toggleFeat(k,f){
+  const cur=S.features[k]||[];
+  S.features[k]=cur.indexOf(f)>=0?cur.filter(x=>x!==f):cur.concat([f]);
+  buildScreenGrid();render();
+}
+/* App Store rules that are not optional. */
+function enforceRules(){
+  const hasAuth=S.auths.length&&!(S.auths.length===1&&S.auths[0]==='none');
+  if(hasAuth){
+    if(!S.screens.includes('auth'))S.screens.unshift('auth');
+    if(!S.screens.includes('account_delete'))S.screens.push('account_delete');  // 5.1.1(v)
+  }
+  const mon=val('monetization');
+  if(mon==='iap'||mon==='both'){
+    if(!S.caps.includes('iap'))S.caps.push('iap');
+    if(!S.screens.includes('paywall'))S.screens.push('paywall');
+  }
+  if(S.screens.includes('scan_capture')&&!S.caps.includes('camera'))S.caps.push('camera');
+  if(S.screens.includes('media_upload')&&!S.caps.includes('photos'))S.caps.push('photos');
+  if(S.screens.includes('map_view')&&!S.caps.includes('maps'))S.caps.push('maps');
+  if(S.screens.includes('notifications')&&!S.caps.includes('push'))S.caps.push('push');
+  S.screens.forEach(k=>{if(!S.features[k]){const s=scrByKey(k);if(s)S.features[k]=s.f.slice();}});
+}
+function buildCapGrid(){
+  document.getElementById('capGrid').innerHTML=CAPS.map(c=>
+    '<span class="chip'+(S.caps.includes(c.k)?' on':'')+'" title="'+c.p+'" onclick="toggleCap(\''+c.k+'\')">'+c.l+'</span>').join('');
+}
+function toggleCap(k){S.caps=S.caps.includes(k)?S.caps.filter(x=>x!==k):S.caps.concat([k]);buildCapGrid();render();}
+function buildAuthGrid(){
+  document.getElementById('authGrid').innerHTML=AUTHS.map(a=>
+    '<span class="chip'+(S.auths.includes(a.k)?' on':'')+'" onclick="toggleAuth(\''+a.k+'\')">'+a.l+'</span>').join('');
+  const social=S.auths.includes('google');
+  const note=document.getElementById('authNote');
+  if(social&&!S.auths.includes('apple')){
+    note.style.display='';note.className='verdict iap';
+    note.innerHTML='<b>Apple will reject this.</b> Guideline 4.8: if you offer a third-party social login you must also offer Sign in with Apple.';
+  } else if(S.auths.length&&!(S.auths.length===1&&S.auths[0]==='none')){
+    note.style.display='';note.className='verdict';
+    note.innerHTML='<b>Account deletion added.</b> Guideline 5.1.1(v) requires in-app account deletion whenever users can create an account.';
+  } else note.style.display='none';
+}
+function toggleAuth(k){
+  if(k==='none')S.auths=S.auths.includes('none')?[]:['none'];
+  else{S.auths=S.auths.filter(x=>x!=='none');S.auths=S.auths.includes(k)?S.auths.filter(x=>x!==k):S.auths.concat([k]);}
+  enforceRules();buildAuthGrid();buildScreenGrid();render();
+}
+function buildRoleGrid(){
+  document.getElementById('roleGrid').innerHTML=ROLESET.map(r=>
+    '<span class="chip'+(S.roles.includes(r)?' on':'')+'" onclick="toggleRole(\''+r+'\')">'+r+'</span>').join('');
+}
+function toggleRole(r){S.roles=S.roles.includes(r)?S.roles.filter(x=>x!==r):S.roles.concat([r]);buildRoleGrid();render();}
+function buildDataGrid(){
+  document.getElementById('dataGrid').innerHTML=DATAKINDS.map(d=>
+    '<span class="chip'+(S.dataCollected.includes(d)?' on':'')+'" onclick="toggleData(\''+d+'\')">'+d+'</span>').join('');
+}
+function toggleData(d){S.dataCollected=S.dataCollected.includes(d)?S.dataCollected.filter(x=>x!==d):S.dataCollected.concat([d]);buildDataGrid();}
+function buildArchetypes(){
+  document.getElementById('archetype').innerHTML=ARCHETYPES.map(a=>'<option value="'+a.k+'">'+a.l+'</option>').join('');
+}
+function buildOpsGrid(){
+  const wrap=document.getElementById('opsWrap');
+  if(wrap)wrap.style.display=S.webDashboard?'':'none';
+  const g=document.getElementById('opsGrid');
+  if(g)g.innerHTML=OPS.map(o=>'<span class="chip'+(S.ops.includes(o.k)?' on':'')+'" title="'+o.d.replace(/"/g,'&quot;')+'" onclick="toggleOps(\''+o.k+'\')">'+o.l+(o.req?' *':'')+'</span>').join('');
+  const k=document.getElementById('kpiGrid');
+  if(k)k.innerHTML=KPIS.map(x=>'<span class="chip'+(S.kpis.includes(x)?' on':'')+'" onclick="toggleKpi(\''+x.replace(/'/g,"\\'")+'\')">'+x+'</span>').join('');
+}
+function toggleOps(k){
+  const o=OPS.find(x=>x.k===k);
+  if(o&&o.req){toast(o.l+' is always built — the dashboard is useless without it');return;}
+  S.ops=S.ops.includes(k)?S.ops.filter(x=>x!==k):S.ops.concat([k]);
+  buildOpsGrid();render();
+}
+function toggleKpi(x){S.kpis=S.kpis.includes(x)?S.kpis.filter(y=>y!==x):S.kpis.concat([x]);buildOpsGrid();}
+/* Keep the dashboard honest: sections the app clearly implies must be there. */
+function enforceOps(){
+  if(!S.webDashboard){S.ops=[];S.kpis=[];return;}
+  OPS.filter(o=>o.req).forEach(o=>{if(!S.ops.includes(o.k))S.ops.push(o.k);});
+  const mon=val('monetization');
+  if(mon&&mon!=='none'&&!S.ops.includes('revenue'))S.ops.push('revenue');
+  if(S.caps.includes('push')&&!S.ops.includes('push'))S.ops.push('push');
+  if(S.screens.includes('admin_moderation')&&!S.ops.includes('content'))S.ops.push('content');
+}
+
+/* ---- VERDICTS: say the App Store truth out loud ---- */
+function renderVerdict(){
+  const t=val('target'),box=document.getElementById('verdictBox');
+  if(box){
+    if(t==='web')box.innerHTML='<div class="verdict web"><b>This is a web app, not an App Store app.</b> Apple rejects repackaged websites (Guideline 4.2). Build this in the <a href="/dashboard-intake">dashboard builder</a> instead — it will be a better product and it will not get rejected.</div>';
+    else if(t==='both')box.innerHTML='<div class="verdict"><b>Native + web.</b> One Expo codebase; React Native Web deploys the web build to Vercel.</div>';
+    else box.innerHTML='<div class="verdict"><b>Native app.</b> Real Expo / React Native code — native navigation and native components, never a WebView wrapper.</div>';
+  }
+  const m=val('monetization'),mv=document.getElementById('moneyVerdict');
+  if(mv){
+    if(m==='iap')mv.innerHTML='<div class="verdict iap"><b>Must use StoreKit in-app purchase.</b> Guideline 3.1.1: digital content and subscriptions consumed inside the app cannot be sold with Stripe. Apple takes its cut; a Stripe checkout here is an automatic rejection.</div>';
+    else if(m==='stripe_physical')mv.innerHTML='<div class="verdict"><b>Stripe / Apple Pay is correct.</b> Physical goods and real-world services must NOT use IAP.</div>';
+    else if(m==='both')mv.innerHTML='<div class="verdict iap"><b>Two payment paths.</b> Digital items go through StoreKit, physical goods through Stripe. Keep them clearly separate in the UI.</div>';
+    else mv.innerHTML='';
+  }
+}
+
+/* ---- PREVIEW ---- */
+function render(){
+  enforceRules();enforceOps();
+  const plan=tabPlan();
+  const pri=val('c_primary')||'#C9922A',bg=val('c_secondary')||'#0B0B10',ac=val('c_accent')||'#00D4C8';
+  const ph=document.getElementById('phonePrev');ph.style.background=bg;
+  document.getElementById('phoneTabs').innerHTML=plan.slice(0,MAX_TABS).map((t,i)=>
+    '<div class="tb'+(i===0?' on':'')+'"><i></i>'+t.label+'</div>').join('')||'<div class="tb"><i></i>Home</div>';
+  const first=plan[0];
+  document.getElementById('phoneBody').innerHTML=
+    '<div style="font:800 17px Inter;color:#fff;margin-bottom:2px">'+(val('business_name')||val('company')||'Your app')+'</div>'+
+    '<div style="font:400 11px Inter;color:rgba(255,255,255,.5);margin-bottom:12px">'+(val('niche')||'')+'</div>'+
+    (first?first.screens.slice(0,5).map(s=>'<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:9px 11px;margin-bottom:8px;font:600 11px Inter;color:#e7e7ef">'+s+'</div>').join(''):'<div style="color:rgba(255,255,255,.35);font-size:11px">Pick some screens</div>');
+  document.getElementById('prevHint').textContent=plan.length+' tab'+(plan.length===1?'':'s')+' · '+S.screens.length+' screens';
+  const merged=plan.filter(p=>p.merged.length);
+  document.getElementById('summary').innerHTML=
+    '<b>Target:</b> '+val('target')+'<br><b>Archetype:</b> '+val('archetype')+
+    '<br><b>Tabs:</b> '+plan.map(p=>p.label).join(', ')+
+    (merged.length?'<br><span style="color:var(--warn)">Folded in:</span> '+merged.map(m=>m.merged.join(', ')+' → '+m.label).join('; '):'')+
+    '<br><b>Screens:</b> '+S.screens.length+'<br><b>Native:</b> '+(S.caps.join(', ')||'none')+
+    '<br><b>Money:</b> '+val('monetization')+'<br><b>Sign-in:</b> '+S.auths.join(', ')+
+    '<br><b>Surfaces:</b> '+[(val('target')==='web'?'web app':'native app'),(S.webApp&&val('target')!=='web'?'web version':''),(S.webDashboard?'operator dashboard':'')].filter(Boolean).join(' + ')+
+    (S.webDashboard?'<br><b>Dashboard:</b> '+S.ops.length+' sections, '+S.kpis.length+' KPIs':'');
+  renderVerdict();
+}
+
+/* ---- UPLOADS (identical pipeline to dashboard-intake; the S.reads drain is the fix
+       for "Analyze sent empty text") ---- */
+const TEXT_RE=/\.(md|markdown|txt|json|csv|tsv|html|htm|js|jsx|ts|tsx|yaml|yml|xml|log|sql|env|ini|conf|toml|py|rb|go|java|css|svg)$/i;
+const DOCX_RE=/\.docx$/i,SHEET_RE=/\.(xlsx|xlsm|xls|ods)$/i,PDF_RE=/\.pdf$/i,IMG_RE=/\.(png|jpe?g|gif|webp)$/i;
+const TEXT_BUDGET=400000;
+function pubUrl(p){return SB+'/storage/v1/object/public/mobile-assets/'+p;}
+async function uploadFile(file,prefix){
+  const path=prefix+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const r=await fetch(SB+'/storage/v1/object/mobile-assets/'+path,{method:'POST',
+    headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':file.type||'application/octet-stream'},body:file});
+  return r.ok?path:null;
+}
+function addText(name,txt){
+  const left=TEXT_BUDGET-S.uploads_text.length;
+  if(left<=0)return;
+  S.uploads_text+='\n\n=== '+name+' ===\n'+String(txt||'').slice(0,left);
+}
+function readText(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{addText(f.name,r.result);res(1);};r.onerror=()=>{S.unread.push(f.name);res(0);};r.readAsText(f);});}
+function readDocx(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{
+  if(!window.mammoth){S.unread.push(f.name);return res(0);}
+  window.mammoth.extractRawText({arrayBuffer:r.result}).then(v=>{addText(f.name,v.value);res(1);}).catch(()=>{S.unread.push(f.name);res(0);});
+};r.onerror=()=>{S.unread.push(f.name);res(0);};r.readAsArrayBuffer(f);});}
+function readSheet(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{
+  try{
+    if(!window.XLSX){S.unread.push(f.name);return res(0);}
+    const wb=window.XLSX.read(new Uint8Array(r.result),{type:'array'});
+    let out='';wb.SheetNames.forEach(n=>{out+='\n-- sheet: '+n+' --\n'+window.XLSX.utils.sheet_to_csv(wb.Sheets[n]);});
+    addText(f.name,out);res(1);
+  }catch(e){S.unread.push(f.name);res(0);}
+};r.onerror=()=>{S.unread.push(f.name);res(0);};r.readAsArrayBuffer(f);});}
+function addFiles(fileList,prefix,intoText){
+  for(const f of fileList){
+    S.totalBytes+=f.size;S.files.push(f);
+    const up=uploadFile(f,prefix).then(p=>{
+      if(p){S.upload_paths.push(p);
+        if(intoText&&PDF_RE.test(f.name))S.docUrls.push({name:f.name,url:pubUrl(p)});
+        if(intoText&&IMG_RE.test(f.name))S.imgUrls.push({name:f.name,url:pubUrl(p)});
+      }else if(intoText&&(PDF_RE.test(f.name)||IMG_RE.test(f.name)))S.unread.push(f.name+' (upload failed)');
+      return 1;
+    }).catch(()=>{if(intoText)S.unread.push(f.name+' (upload failed)');return 0;});
+    S.reads.push(up);
+    if(!intoText)continue;
+    if(TEXT_RE.test(f.name))S.reads.push(readText(f));
+    else if(DOCX_RE.test(f.name))S.reads.push(readDocx(f));
+    else if(SHEET_RE.test(f.name))S.reads.push(readSheet(f));
+    else if(PDF_RE.test(f.name)||IMG_RE.test(f.name)){/* by URL */}
+    else if(f.type&&/^text\//.test(f.type))S.reads.push(readText(f));
+    else S.unread.push(f.name);
+  }
+  renderUploads();
+}
+function renderUploads(){
+  const mb=(S.totalBytes/1048576).toFixed(1);
+  let h=S.files.map(f=>'<span class="chip">'+f.name+'</span>').join('');
+  if(S.files.length)h+='<span class="chip ok">'+S.files.length+' file(s), '+mb+' MB</span>';
+  if(S.unread.length)h+='<span class="chip warn" title="'+S.unread.join(', ').replace(/"/g,'&quot;')+'">⚠ '+S.unread.length+' not readable by AI</span>';
+  document.getElementById('uploads').innerHTML=h;
+}
+async function uploadLogo(f){
+  if(!f)return;
+  const p=await uploadFile(f,'logos');
+  if(p){S.logo_path=p;document.getElementById('logoStatus').textContent='Logo uploaded';}
+  else document.getElementById('logoStatus').textContent='Logo upload failed';
+}
+
+/* ---- ANALYZE ---- */
+async function analyzeApp(){
+  const btn=document.getElementById('analyzeBtn'),stat=document.getElementById('analyzeStatus');
+  const brief=val('ai_brief');
+  if(!brief&&!S.uploads_text&&!S.docUrls.length&&!S.imgUrls.length){toast('Add a brief or upload something first');return;}
+  // Drain every in-flight read BEFORE sending, or uploads_text is empty.
+  if(S.reads.length){
+    btn.disabled=true;stat.innerHTML='<span class="spin"></span> Reading '+S.files.length+' file(s)...';
+    try{await Promise.allSettled(S.reads);}catch(e){}
+    S.reads=[];renderUploads();
+  }
+  btn.disabled=true;stat.innerHTML='<span class="spin"></span> Analyzing (this takes about a minute)...';
+  const res=await api('mobile-analyze',{brief:brief,transcripts:val('ai_transcript'),research_url:val('ai_research'),
+    uploads_text:S.uploads_text,docs:S.docUrls,images:S.imgUrls,final_notes:val('final_notes')});
+  btn.disabled=false;
+  if(!res||!res.suggested||!Object.keys(res.suggested).length){
+    stat.innerHTML='<span style="color:var(--bad)">'+((res&&res.error)||'Could not analyze')+'</span>';
+    return;
+  }
+  applySuggested(res.suggested);
+  const src=[];if(S.uploads_text)src.push('document text');if(S.docUrls.length)src.push(S.docUrls.length+' PDF');if(S.imgUrls.length)src.push(S.imgUrls.length+' image');
+  stat.innerHTML='<span style="color:var(--ok)">✓ Mapped '+(res.fields||[]).length+' fields</span> '+(src.length?'from '+src.join(' + '):'');
+  toast('Pre-filled. Review every section before you finalize.');
+  document.getElementById('s1').scrollIntoView({behavior:'smooth'});
+}
+function applySuggested(s){
+  ['first_name','last_name','email','phone','company','business_name','niche','what_they_do','offers','audience','team','data_model','role_matrix','target_reason','domain'].forEach(k=>{if(s[k])setv(k,s[k]);});
+  if(s.target)setv('target',s.target);
+  if(s.archetype)setv('archetype',s.archetype);
+  if(s.monetization)setv('monetization',s.monetization);
+  if(typeof s.web_dashboard==='boolean'){S.webDashboard=s.web_dashboard;const e=document.getElementById('web_dashboard');if(e)e.checked=s.web_dashboard;}
+  if(typeof s.web_app==='boolean'){S.webApp=s.web_app;const e=document.getElementById('web_app');if(e)e.checked=s.web_app;}
+  if(Array.isArray(s.ops_modules)&&s.ops_modules.length)S.ops=s.ops_modules.filter(k=>OPS.some(x=>x.k===k));
+  if(Array.isArray(s.ops_kpis)&&s.ops_kpis.length)S.kpis=s.ops_kpis.filter(k=>KPIS.includes(k));
+  if(Array.isArray(s.screens)&&s.screens.length)S.screens=s.screens.filter(k=>scrByKey(k));
+  if(s.features&&typeof s.features==='object')S.features=Object.assign({},s.features);
+  if(Array.isArray(s.capabilities))S.caps=s.capabilities.filter(c=>CAPS.some(x=>x.k===c));
+  if(Array.isArray(s.auth_methods)&&s.auth_methods.length)S.auths=s.auth_methods.filter(a=>AUTHS.some(x=>x.k===a));
+  if(s.roles&&Array.isArray(s.roles.templates))S.roles=s.roles.templates.filter(r=>ROLESET.includes(r));
+  if(s.screen_notes&&typeof s.screen_notes==='object')S.screenNotes=Object.assign({},s.screen_notes);
+  if(Array.isArray(s.goal_criteria))S.goalCriteria=s.goal_criteria;
+  const b=s.brand||{};
+  const hex=v=>{let x=String(v||'').trim();if(!x)return '';if(x[0]!=='#')x='#'+x;return /^#[0-9a-fA-F]{6}$/.test(x)?x:'';};
+  if(hex(b.primary))setv('c_primary',hex(b.primary));
+  if(hex(b.secondary))setv('c_secondary',hex(b.secondary));
+  if(hex(b.accent))setv('c_accent',hex(b.accent));
+  if(b.mode)setv('brand_mode',b.mode);
+  if(b.fonts)setv('fonts',b.fonts);
+  const st=s.store||{};
+  if(st.app_name)setv('st_app_name',st.app_name);
+  if(st.subtitle)setv('st_subtitle',st.subtitle);
+  if(st.keywords)setv('st_keywords',st.keywords);
+  if(st.description)setv('st_description',st.description);
+  if(st.privacy_url)setv('st_privacy_url',st.privacy_url);
+  if(st.age_rating)setv('st_age_rating',st.age_rating);
+  if(Array.isArray(st.data_collected))S.dataCollected=st.data_collected.filter(d=>DATAKINDS.includes(d));
+  if(s.additional_details){const e=document.getElementById('additional_details');e.value=(e.value?e.value+'\n\n':'')+s.additional_details;}
+  S.ai_drafted=true;
+  TABS.forEach(t=>{if(SCREENS.some(x=>x.t===t.t&&S.screens.includes(x.k)))S.tabOpen[t.t]=true;});
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();render();
+}
+
+/* ---- GATHER ---- */
+function gather(){
+  return {
+    mode:S.mode,
+    first_name:val('first_name'),last_name:val('last_name'),email:val('email'),phone:val('phone'),
+    company:val('company'),business_name:val('business_name'),niche:val('niche'),
+    what_they_do:val('what_they_do'),offers:val('offers'),audience:val('audience'),team:val('team'),
+    brand:{primary:val('c_primary'),secondary:val('c_secondary'),accent:val('c_accent'),mode:val('brand_mode'),fonts:val('fonts'),logo_path:S.logo_path},
+    target:val('target'),target_reason:val('target_reason'),archetype:val('archetype'),
+    web_dashboard:S.webDashboard,web_app:S.webApp,ops_modules:S.ops,ops_kpis:S.kpis,
+    screens:S.screens,features:S.features,tabs:tabPlan(),capabilities:S.caps,screen_notes:S.screenNotes,max_tabs:MAX_TABS,
+    auth_methods:S.auths,roles:{templates:S.roles},role_matrix:val('role_matrix'),
+    monetization:val('monetization'),integrations:{},ai_features:{},
+    data_model:val('data_model'),goal_criteria:S.goalCriteria,
+    store:{app_name:val('st_app_name'),subtitle:val('st_subtitle'),keywords:val('st_keywords'),
+      description:val('st_description'),privacy_url:val('st_privacy_url'),age_rating:val('st_age_rating'),
+      data_collected:S.dataCollected,
+      account_deletion:S.screens.includes('account_delete'),
+      review_demo_account:S.screens.includes('auth'),uses_encryption:false},
+    hosting:'knightops',domain:val('domain'),client_size:'smb',
+    additional_details:val('additional_details'),transcripts:val('ai_transcript'),final_notes:val('final_notes'),
+    file_paths:val('file_paths').split('\n').map(x=>x.trim()).filter(Boolean),
+    upload_paths:S.upload_paths,
+    resume_token:S.resume_token,id:S.id
+  };
+}
+
+/* ---- BUILD PROMPT (Layer B: the Expo app) ---- */
+function buildPrompt(){
+  const d=gather(),plan=d.tabs,L=[];
+  const name=d.business_name||d.company||'the app';
+  const native=d.target!=='web';
+  L.push('/goal Build and ship '+name+', a production '+(native?'NATIVE mobile app':'web app')+'. Done means: it compiles clean, every screen below works against real Supabase data, '+(native?'an EAS production build succeeds for iOS and Android, ':'')+'it is deployed, and each acceptance criterion is verified live.');
+  L.push('');
+  L.push('/project-selector Confirm the Supabase and Vercel targets before any write. ONE APP = ONE SUPABASE PROJECT - create a new one for this client, never reuse the Knight Ops admin project.');
+  L.push('');
+  L.push('## Client');
+  L.push('- App: '+name+(d.niche?' ('+d.niche+')':''));
+  L.push('- Founder: '+(d.first_name||'')+' '+(d.last_name||'')+' <'+(d.email||'')+'>');
+  L.push('- What it does: '+(d.what_they_do||''));
+  if(d.offers)L.push('- Offers / pricing: '+d.offers);
+  if(d.audience)L.push('- Audience: '+d.audience);
+  L.push('');
+  L.push('## Brand');
+  L.push('- Primary '+d.brand.primary+' · Background '+d.brand.secondary+' · Accent '+d.brand.accent+' · '+d.brand.mode+' mode');
+  if(d.brand.fonts)L.push('- Fonts: '+d.brand.fonts);
+  if(d.brand.logo_path)L.push('- Logo: '+pubUrl(d.brand.logo_path));
+  L.push('');
+  L.push('## Stack — NOT NEGOTIABLE');
+  if(native){
+    L.push('- **Expo (latest SDK) + React Native + expo-router + TypeScript.** This is REAL native code.');
+    L.push('- **NEVER Capacitor, Cordova, or a WebView wrapper.** App Store Guideline 4.2 rejects repackaged websites. Every screen uses native components and native navigation.');
+    L.push('- Supabase for auth, Postgres, storage and realtime. Mobile shares the SAME schema and RLS as any web surface - never a parallel permission model.');
+    L.push('- EAS Build with development / preview / production profiles (eas.json), app.config.ts carrying the real bundle identifiers.');
+    L.push('- expo-updates for OTA fixes that do not need review.');
+    if(d.web_app||d.target==='both')L.push('- React Native Web for the web version, deployed to Vercel from the SAME codebase.');
+    if(d.web_dashboard)L.push('- Next.js App Router for the operator dashboard, in the same repo, same Supabase project.');
+  } else {
+    L.push('- Next.js App Router + Supabase + Vercel. (The classifier judged this web-shaped; see the reason below.)');
+  }
+  if(d.target_reason)L.push('- Target reason: '+d.target_reason);
+  L.push('');
+  L.push('## Surfaces — ALL of these ship in THIS build');
+  L.push('Every surface below is part of the initial build. None of it is a phase 2, a follow-up, or a stretch goal. A build that delivers the app without the dashboard is INCOMPLETE.');
+  L.push('1. **'+(native?'Native iOS + Android app':'Web app')+'** — the product itself.');
+  if(d.web_app&&native)L.push('2. **Web version of the app** — the SAME Expo codebase compiled with React Native Web and deployed to Vercel. Not a rewrite, not a separate project: one codebase, `Platform.select()` where behaviour genuinely differs, and any native-only capability degrades gracefully rather than crashing the web build.');
+  if(d.web_dashboard)L.push((d.web_app&&native?'3':'2')+'. **Operator web dashboard** — see its own section below.');
+  L.push('All surfaces share ONE Supabase project, ONE schema and ONE set of RLS policies. The dashboard is a privileged READER of the same tables, never a second database and never a parallel permission model.');
+  L.push('');
+  if(d.web_dashboard){
+    L.push('## Operator web dashboard (BUILD THIS, it is not optional)');
+    L.push('A Next.js App Router app on Vercel, in the same repo (a `dashboard/` workspace or a Turborepo package), against the same Supabase project. This is where the business watches metrics, manages users and monitors KPIs.');
+    L.push('- Auth: Supabase Auth, gated to staff roles only. A normal app user must NEVER be able to load it. Enforce with RLS plus a role check, not just a hidden route.');
+    L.push('- Layout: fixed left sidebar with the sections below, content right. Max 4 KPI cards and ONE primary table or chart per view.');
+    L.push('- Sections to build:');
+    (S.ops||[]).forEach(k=>{const o=OPS.find(x=>x.k===k);if(o)L.push('  - **'+o.l+'** — '+o.d);});
+    if((S.kpis||[]).length){
+      L.push('- KPIs it must chart (these exact metrics):');
+      S.kpis.forEach(k=>L.push('  - '+k));
+      L.push('- **Every KPI needs an event behind it.** Create the analytics events and the tables/views these are computed from, and write them from the app. A KPI with nothing writing to it is a number that never moves — that is a failed build, not a working dashboard.');
+    }
+    L.push('- User management must actually work: search, open a user, change role, suspend, and delete (the delete path is the same one the app\'s account-deletion screen calls).');
+    L.push('');
+  }
+  L.push('## Navigation — build EXACTLY this');
+  L.push('At most '+MAX_TABS+' bottom tabs. Screens listed under a tab are stacks or segmented controls INSIDE that tab, never extra tabs. Never render a "More" tab.');
+  plan.forEach(t=>L.push('- **'+t.label+'** — '+t.purpose+' — screens: '+t.screens.join(', ')+(t.merged.length?'  (absorbs, as a segmented control: '+t.merged.join(', ')+')':'')));
+  L.push('');
+  L.push('## Screens');
+  S.screens.forEach(k=>{
+    const s=scrByKey(k);if(!s)return;
+    L.push('- **'+s.l+'** ['+tabByKey(s.t).l+'] — '+(S.features[k]||s.f).join(', ')+(S.screenNotes[k]?'  · NOTE: '+S.screenNotes[k]:''));
+  });
+  L.push('');
+  if(S.caps.length){
+    L.push('## Native capabilities');
+    S.caps.forEach(c=>{const x=CAPS.find(y=>y.k===c);if(x)L.push('- '+x.l+' ('+x.p+') — include the iOS usage-description string, written specifically. Vague or missing usage strings are a rejection.');});
+    L.push('');
+  }
+  L.push('## Access');
+  L.push('- Sign-in: '+S.auths.join(', '));
+  L.push('- Roles: '+S.roles.join(', '));
+  if(d.role_matrix)L.push('- Permissions: '+d.role_matrix);
+  if(d.data_model)L.push('- Data model: '+d.data_model);
+  L.push('- RLS on every table. Never ship a table with RLS off.');
+  L.push('');
+  L.push('## Monetization');
+  if(d.monetization==='iap'||d.monetization==='both'){
+    L.push('- **StoreKit in-app purchase is REQUIRED.** Guideline 3.1.1: digital content and subscriptions consumed inside the app must use IAP. Do NOT use Stripe for these — it is an automatic rejection.');
+    L.push('- Include a Restore Purchases action. Handle pending, cancelled and expired states.');
+  }
+  if(d.monetization==='stripe_physical'||d.monetization==='both')L.push('- Physical goods / real-world services go through Stripe or Apple Pay, NOT IAP.');
+  if(d.monetization==='none')L.push('- Nothing is sold in the app.');
+  L.push('');
+  if(native){
+    L.push('## App Store readiness — these are the things that actually get apps rejected');
+    L.push('- 4.2 Minimum functionality: this must be a real native app, not a wrapped site.');
+    if(S.screens.includes('account_delete'))L.push('- 5.1.1(v): in-app ACCOUNT DELETION is implemented and reachable from Settings.');
+    if(S.auths.includes('google')&&!S.auths.includes('apple'))L.push('- 4.8: you are offering Google sign-in, so you MUST also offer Sign in with Apple.');
+    L.push('- Privacy policy URL is required: '+(d.store.privacy_url||'(NOT SET — get this before submitting)'));
+    L.push('- App Privacy answers for data collected: '+(d.store.data_collected.join(', ')||'none declared'));
+    L.push('- Assets: 1024x1024 icon (no alpha, no rounded corners), 6.7" and 6.5" iPhone screenshots, Play feature graphic 1024x500, adaptive icon.');
+    if(S.screens.includes('auth'))L.push('- Provide a demo account in App Review notes (the app is login-gated).');
+    L.push('- Age rating: '+d.store.age_rating+'. Answer export compliance.');
+    L.push('');
+    L.push('## Store listing');
+    L.push('- Name: '+(d.store.app_name||name)+'  · Subtitle: '+(d.store.subtitle||'(write one)'));
+    L.push('- Keywords: '+(d.store.keywords||'(write these)'));
+    if(d.store.description)L.push('- Description: '+d.store.description);
+    L.push('');
+  }
+  L.push('## Build and verify loop');
+  L.push('1. Read CLAUDE.md and any LESSONS.md in the folder first.');
+  L.push('2. Write PLAN-<date>.md before any code, and print it.');
+  L.push('3. Stand up the new Supabase project, schema and RLS. Seed realistic data.');
+  L.push('4. Build screen by screen against the approved mockup. Match it.');
+  if(d.web_dashboard)L.push('4b. Build the operator dashboard against its approved mockup, wire the analytics events, and confirm each KPI computes from real rows.');
+  L.push('5. `npx tsc --noEmit` and `npx expo-doctor` must be clean before you continue.');
+  if(native)L.push('6. Run an EAS production build for iOS and Android. It must succeed. Do NOT auto-submit to the stores — Daniel submits.');
+  L.push((native?'7':'6')+'. Verify every acceptance criterion on a real device or simulator, then report.');
+  L.push('');
+  if(S.goalCriteria.length){L.push('## Acceptance criteria');S.goalCriteria.forEach(g=>L.push('- [ ] '+g));L.push('');}
+  if(d.file_paths.length){L.push('## Reference paths');d.file_paths.forEach(p=>L.push('- '+p));L.push('');}
+  if(S.upload_paths.length){L.push('## Uploaded source material');S.upload_paths.forEach(p=>L.push('- '+pubUrl(p)));L.push('');}
+  if(d.additional_details){L.push('## Additional context');L.push(d.additional_details);L.push('');}
+  if(d.final_notes){L.push('## FINAL DIRECTION FROM THE ARCHITECT (highest priority — overrides anything above)');L.push(d.final_notes);L.push('');}
+  L.push('## Definition of done');
+  L.push('- Every screen above exists and works against real data.');
+  if(d.web_app&&native)L.push('- The web version builds and runs from the same codebase, deployed to Vercel.');
+  if(d.web_dashboard)L.push('- The operator dashboard is deployed, staff-gated, and every KPI listed above renders a real number from a real event — not a placeholder.');
+  L.push('- Typecheck and build are clean.');
+  if(native)L.push('- An EAS production build succeeded and the binary is ready to submit.');
+  L.push('- Nothing is a placeholder. No lorem ipsum. No dead buttons.');
+  return L.join('\n');
+}
+function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toast('Build prompt copied'));}
+
+/* ---- MOCKUP (job loop, mirroring the dashboard builder's guards) ---- */
+function _cfgFingerprint(){
+  return JSON.stringify([S.screens.slice().sort(),S.caps.slice().sort(),val('archetype'),val('target'),
+    tabPlan().map(t=>t.label+':'+t.screens.join(','))]);
+}
+function _mockRepair(h){
+  let o=String(h||'').replace(/^```html\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/i,'').trim();
+  if(/<body/i.test(o)&&!/<\/body>/i.test(o))o+='</div></div></body></html>';
+  if(!/<\/html>/i.test(o))o+='</html>';
+  return o;
+}
+function openOv(id){document.getElementById(id).classList.add('on');}
+function closeOv(id){document.getElementById(id).classList.remove('on');}
+function revertMock(){
+  if(!_prevMock)return;
+  const t=_lastMock;_lastMock=_prevMock;_prevMock=t;
+  document.getElementById('mockFrame').srcdoc=_lastMock;
+  document.getElementById('revertBtn').style.display=_prevMock?'':'none';
+  toast('Reverted');
+}
+async function reviewWithAI(revising){
+  if(!S.screens.length){toast('Pick some screens first');return;}
+  if(!S.resume_token){await saveDraft(true);}
+  if(!S.resume_token){toast('Save failed — cannot generate');return;}
+  const notes=revising?val('reviseNotes'):'';
+  const myRun=++_runToken;
+  const alive=()=>myRun===_runToken;
+  openOv('ovMock');
+  const frame=document.getElementById('mockFrame'),fill=document.getElementById('mockBarFill'),phase=document.getElementById('mockPhase');
+  _prevMock=_lastMock;
+  document.getElementById('revertBtn').style.display='none';
+  const d=gather();
+  if(revising&&_lastMock){d.base_html=_lastMock;d.revision_notes=notes;}
+  const cfgNow=_cfgFingerprint();
+  const cfgChanged=!!(_lastMock&&_mockCfg&&_mockCfg!==cfgNow);
+  let full='',renderedLen=0,t0=Date.now(),lastGrow=Date.now();
+  const timer=setInterval(()=>{
+    const secs=(Date.now()-t0)/1000;
+    fill.style.width=Math.min(96,Math.max(2,Math.max(full.length/34000*100,secs/150*70)))+'%';
+    phase.textContent=(full.length?'Drawing screens… ':'Thinking… ')+Math.round(secs)+'s'+(_segNo>1?' (part '+_segNo+')':'');
+    if(Date.now()-lastGrow>180000){clearInterval(timer);phase.textContent='Stalled — try again';}
+  },300);
+  const finish=(html,ai)=>{
+    clearInterval(timer);fill.style.width='100%';
+    _lastMock=html;_mockCfg=cfgNow;
+    frame.srcdoc=html;
+    phase.textContent=ai?'Done':'Done (fallback design)';
+    document.getElementById('revertBtn').style.display=(_prevMock&&_prevMock!==html)?'':'none';
+    persistMock();
+  };
+  const keepPrevious=why=>{clearInterval(timer);if(_prevMock){_lastMock=_prevMock;frame.srcdoc=_prevMock;}phase.textContent=why;toast(why);};
+  try{
+    const st=await api('mobile-job',{action:'start',kind:'mockup',build:d,id:S.id,resume_token:S.resume_token,
+      mode:revising?val('reviseMode'):'auto',config_changed:cfgChanged});
+    if(!alive())return;
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    _jobId=st.job_id;
+    const mode=st.mode||'create';
+    if(revising)toast(mode==='patch'?'Editing in place — keeping your layout':('Rebuilding — '+(st.why||'')));
+    if(st.done&&st.output){finish(_mockRepair(st.output),!!st.ai);return;}
+    for(let seg=0;seg<10;seg++){
+      if(!alive())return;
+      _segNo=seg+1;lastGrow=Date.now();
+      const sres=await api('mobile-job',{action:'step',job_id:_jobId});
+      if(!alive())return;
+      if(sres.error&&!sres.output)throw new Error(sres.error);
+      if(sres.chunk){full+=sres.chunk;lastGrow=Date.now();}
+      if(sres.output)full=sres.output;
+      // Never paint half-written HTML over a working mockup while patching.
+      if(mode!=='patch'&&/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(sres.done){
+        if(sres.reverted){keepPrevious('That edit would have dropped the tab bar — your mockup is unchanged');return;}
+        if(sres.guard==='fewer_screens_warning')toast('Heads up: that revision dropped a screen');
+        finish(_mockRepair(sres.output||full),sres.ai!==false);
+        return;
+      }
+    }
+    if(/<\/body>/i.test(full))finish(_mockRepair(full),true);
+    else if(revising&&_prevMock)keepPrevious('That revision came back incomplete — your mockup is unchanged');
+    else finish(_mockRepair(full),false);
+  }catch(e){
+    if(!alive())return;
+    if(revising&&_prevMock)keepPrevious('Revision failed — your mockup is unchanged');
+    else{clearInterval(timer);phase.textContent='Failed: '+e.message;toast('Mockup failed: '+e.message);}
+  }
+}
+async function persistMock(label){
+  if(!_lastMock||!S.resume_token)return;
+  const r=await api('mobile-build',{action:'add_mockup',resume_token:S.resume_token,id:S.id,html:_lastMock,label:label||undefined});
+  if(r&&r.duplicate)toast('Same design — relabelled instead of duplicating');
+}
+function saveMockStyle(){
+  const n=prompt('Name this style');
+  if(n)persistMock(n).then(()=>toast('Saved: '+n));
+}
+
+/* ---- SPEC + STORE (same job runner) ---- */
+async function runDoc(kind,boxId,fillId,ovId,setter){
+  if(!S.resume_token){await saveDraft(true);}
+  if(!S.resume_token){toast('Save failed');return;}
+  openOv(ovId);
+  const box=document.getElementById(boxId),fill=document.getElementById(fillId);
+  box.textContent='';let full='',t0=Date.now();
+  const timer=setInterval(()=>{const s=(Date.now()-t0)/1000;fill.style.width=Math.min(96,Math.max(2,s/120*90))+'%';},300);
+  try{
+    const st=await api('mobile-job',{action:'start',kind:kind,build:gather(),id:S.id,resume_token:S.resume_token});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    if(st.done&&st.output){full=st.output;}
+    else for(let i=0;i<10;i++){
+      const r=await api('mobile-job',{action:'step',job_id:st.job_id});
+      if(r.error&&!r.output)throw new Error(r.error);
+      if(r.chunk)full+=r.chunk;
+      if(r.output)full=r.output;
+      box.textContent=full;
+      if(r.done)break;
+    }
+    box.textContent=full;setter(full);
+    clearInterval(timer);fill.style.width='100%';
+  }catch(e){clearInterval(timer);box.textContent='Failed: '+e.message;}
+}
+/* The operator dashboard gets its own mockup — it is a desktop web app, not a phone,
+   so it cannot share the phone-frame renderer. */
+async function reviewDashboard(){
+  if(!S.webDashboard){toast('Turn on the operator dashboard first (section 2b)');return;}
+  if(!S.resume_token){await saveDraft(true);}
+  if(!S.resume_token){toast('Save failed — cannot generate');return;}
+  openOv('ovDash');
+  const frame=document.getElementById('dashFrame'),fill=document.getElementById('dashBarFill'),phase=document.getElementById('dashPhase');
+  let full='',renderedLen=0,t0=Date.now();
+  const timer=setInterval(()=>{const s=(Date.now()-t0)/1000;fill.style.width=Math.min(96,Math.max(2,Math.max(full.length/26000*100,s/120*70)))+'%';phase.textContent=(full.length?'Drawing the dashboard… ':'Thinking… ')+Math.round(s)+'s';},300);
+  try{
+    const st=await api('mobile-job',{action:'start',kind:'dashboard',build:gather(),id:S.id,resume_token:S.resume_token});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    if(st.done&&st.output)full=st.output;
+    else for(let i=0;i<10;i++){
+      const r=await api('mobile-job',{action:'step',job_id:st.job_id});
+      if(r.error&&!r.output)throw new Error(r.error);
+      if(r.chunk)full+=r.chunk;
+      if(r.output)full=r.output;
+      if(/<body/i.test(full)&&full.length-renderedLen>200){renderedLen=full.length;frame.srcdoc=_mockRepair(full);}
+      if(r.done)break;
+    }
+    clearInterval(timer);fill.style.width='100%';
+    _dash=_mockRepair(full);frame.srcdoc=_dash;phase.textContent='Done';
+    await api('mobile-build',{action:'add_mockup',kind:'dashboard',resume_token:S.resume_token,id:S.id,html:_dash});
+  }catch(e){clearInterval(timer);phase.textContent='Failed: '+e.message;toast('Dashboard mockup failed: '+e.message);}
+}
+const createSpec=()=>runDoc('spec','specBox','specBarFill','ovSpec',v=>_spec=v);
+const createStore=()=>runDoc('store','storeBox','storeBarFill','ovStore',v=>_store=v);
+
+/* ---- SAVE / RESUME / FINALIZE ---- */
+async function saveDraft(quiet){
+  const st=document.getElementById('saveStatus');
+  st.innerHTML='<span class="spin"></span> Saving...';
+  const payload=Object.assign({},gather(),{action:'save',build_prompt:buildPrompt(),notify:!quiet});
+  if(_spec)payload.spec_md=_spec;
+  if(_store)payload.store_md=_store;
+  if(_lastMock)payload.ai_mockup_html=_lastMock;
+  if(_dash)payload.dashboard_mockup_html=_dash;
+  const r=await api('mobile-build',payload);
+  if(r&&r.build){
+    S.id=r.build.id;S.resume_token=r.build.resume_token;
+    S.share_review_token=r.build.share_review_token;S.share_edit_token=r.build.share_edit_token;
+    if(history.replaceState)history.replaceState(null,'','?resume='+S.resume_token);
+    st.innerHTML='<span style="color:var(--ok)">✓ Saved</span>';
+    if(!quiet)toast('Saved. This link now resumes your build.');
+  } else st.innerHTML='<span style="color:var(--bad)">'+((r&&r.error)||'Save failed')+'</span>';
+}
+async function finalize(){
+  if(!val('email')){toast('Email is required to finalize');document.getElementById('email').focus();return;}
+  const st=document.getElementById('saveStatus');
+  st.innerHTML='<span class="spin"></span> Submitting...';
+  const payload=Object.assign({},gather(),{action:'submit',build_prompt:buildPrompt()});
+  if(_spec)payload.spec_md=_spec;
+  if(_store)payload.store_md=_store;
+  if(_lastMock)payload.ai_mockup_html=_lastMock;
+  if(_dash)payload.dashboard_mockup_html=_dash;
+  const r=await api('mobile-build',payload);
+  if(r&&r.build){
+    S.id=r.build.id;S.resume_token=r.build.resume_token;
+    const base=location.origin+'/mb?t=';
+    document.getElementById('lkReview').value=base+(r.share_review_token||r.build.share_review_token);
+    document.getElementById('lkEdit').value=base+(r.share_edit_token||r.build.share_edit_token);
+    st.innerHTML='<span style="color:var(--ok)">✓ Submitted</span>';
+    openOv('ovDone');
+  } else st.innerHTML='<span style="color:var(--bad)">'+((r&&r.error)||'Submit failed')+'</span>';
+}
+function hydrate(b){
+  if(!b)return;
+  S.id=b.id;S.resume_token=b.resume_token;S.share_review_token=b.share_review_token;S.share_edit_token=b.share_edit_token;
+  ['first_name','last_name','email','phone','company','business_name','niche','what_they_do','offers','audience','team','target','target_reason','archetype','monetization','data_model','role_matrix','additional_details','transcripts','final_notes','domain'].forEach(k=>{if(b[k])setv(k,b[k]);});
+  const br=b.brand||{};
+  if(br.primary)setv('c_primary',br.primary);
+  if(br.secondary)setv('c_secondary',br.secondary);
+  if(br.accent)setv('c_accent',br.accent);
+  if(br.mode)setv('brand_mode',br.mode);
+  if(br.fonts)setv('fonts',br.fonts);
+  if(br.logo_path)S.logo_path=br.logo_path;
+  if(Array.isArray(b.screens))S.screens=b.screens.filter(k=>scrByKey(k));
+  if(b.features)S.features=b.features;
+  if(Array.isArray(b.capabilities))S.caps=b.capabilities;
+  if(typeof b.web_dashboard==='boolean'){S.webDashboard=b.web_dashboard;const e=document.getElementById('web_dashboard');if(e)e.checked=b.web_dashboard;}
+  if(typeof b.web_app==='boolean'){S.webApp=b.web_app;const e=document.getElementById('web_app');if(e)e.checked=b.web_app;}
+  if(Array.isArray(b.ops_modules)&&b.ops_modules.length)S.ops=b.ops_modules;
+  if(Array.isArray(b.ops_kpis)&&b.ops_kpis.length)S.kpis=b.ops_kpis;
+  if(Array.isArray(b.auth_methods)&&b.auth_methods.length)S.auths=b.auth_methods;
+  if(b.roles&&Array.isArray(b.roles.templates))S.roles=b.roles.templates;
+  if(b.screen_notes)S.screenNotes=b.screen_notes;
+  if(Array.isArray(b.goal_criteria))S.goalCriteria=b.goal_criteria;
+  if(Array.isArray(b.upload_paths))S.upload_paths=b.upload_paths;
+  if(Array.isArray(b.file_paths))setv('file_paths',b.file_paths.join('\n'));
+  const st=b.store||{};
+  if(st.app_name)setv('st_app_name',st.app_name);
+  if(st.subtitle)setv('st_subtitle',st.subtitle);
+  if(st.keywords)setv('st_keywords',st.keywords);
+  if(st.description)setv('st_description',st.description);
+  if(st.privacy_url)setv('st_privacy_url',st.privacy_url);
+  if(st.age_rating)setv('st_age_rating',st.age_rating);
+  if(Array.isArray(st.data_collected))S.dataCollected=st.data_collected;
+  if(b.ai_mockup_html)_lastMock=b.ai_mockup_html;
+  if(b.spec_md)_spec=b.spec_md;
+  if(b.store_md)_store=b.store_md;
+  if(b.dashboard_mockup_html)_dash=b.dashboard_mockup_html;
+  TABS.forEach(t=>{if(SCREENS.some(x=>x.t===t.t&&S.screens.includes(x.k)))S.tabOpen[t.t]=true;});
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();render();
+}
+
+/* ---- BOOT ---- */
+async function boot(){
+  document.getElementById('mininav').innerHTML=[['Client','s1'],['Target','s2'],['Web','s2b'],['Screens','s3'],['Native','s4'],['Access','s5'],['Money','s6'],['Store','s7'],['Final','s8']]
+    .map(x=>'<a href="#'+x[1]+'">'+x[0]+'</a>').join('');
+  buildArchetypes();
+  S.screens=['home_feed','profile','settings'];
+  enforceRules();enforceOps();buildScreenGrid();buildCapGrid();buildAuthGrid();buildRoleGrid();buildDataGrid();buildOpsGrid();
+  S.tabOpen.home=true;S.tabOpen.profile=true;
+  buildScreenGrid();render();
+  const q=new URLSearchParams(location.search);
+  const rt=q.get('resume');
+  if(rt){
+    const r=await api('mobile-build',{action:'resume',resume_token:rt});
+    if(r&&r.build){hydrate(r.build);toast('Resumed your build');}
+    else toast('Could not resume that link');
+  }
+}
+boot();
+</script>
+</body>
+</html>
