@@ -88,8 +88,9 @@ const CAPL={push:'Push notifications',camera:'Camera',photos:'Photo library',bio
  iap:'In-app purchase',deeplinks:'Deep links',background_tasks:'Background tasks',widgets:'Widgets',live_activities:'Live Activities'};
 const TARGETL={native:'Native app (App Store + Play)',both:'Native app + web',web:'Web app'};
 const OPSL={overview_kpis:'Overview & KPIs',users:'Users',engagement:'Engagement',revenue:'Revenue',push:'Push campaigns',content:'Content moderation',support:'Support inbox',health:'App health',settings:'Settings'};
-const MONEYL={none:'Nothing sold in the app',iap:'Subscriptions / digital content (Apple in-app purchase)',
- stripe_physical:'Physical goods or services (card payment)',both:'Both in-app purchases and card payment'};
+const MONEYL={none:'Nothing sold in the app',iap:'Subscriptions / digital content',
+ stripe_physical:'Physical goods or services (card payment)',both:'Digital and physical'};
+const ROUTEL={iap_only:'Apple in-app purchase',external_link:'Web checkout (no Apple fee)',iap_plus_external:'Apple purchase + web checkout'};
 
 let TOKEN='',MODE='review',B=null,_curMock=null;
 
@@ -150,12 +151,19 @@ function render(){
   h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.7rem 0 .3rem">What you get</div>'+surfaces.map(x=>'<span class="chip on">'+esc(x)+'</span>').join('');
   h+='<div class="sum">'+
      '<div><div class="k">Type</div><div class="v">'+esc(TARGETL[B.target]||B.target||'Native app')+'</div></div>'+
-     '<div><div class="k">Payments</div><div class="v">'+esc(MONEYL[B.monetization]||'—')+'</div></div>'+
+     '<div><div class="k">Payments</div><div class="v">'+esc(MONEYL[B.monetization]||'—')+((B.payment_routing&&B.payment_routing!=='n_a')?'<div style="font-size:.7rem;color:var(--text-muted);font-weight:400">'+esc(ROUTEL[B.payment_routing]||'')+'</div>':'')+'</div></div>'+
      '<div><div class="k">Sign-in</div><div class="v">'+esc((B.auth_methods||[]).join(', ')||'—')+'</div></div>'+
      '<div><div class="k">Screens</div><div class="v">'+screens.length+'</div></div>'+
      '</div>';
-  if(B.monetization==='iap'||B.monetization==='both')
-    h+='<div class="verdict warn"><b>Apple takes its cut on in-app purchases.</b> Because you sell digital content inside the app, Apple requires its own payment system for those items. We build it that way so the app is not rejected.</div>';
+  if(B.monetization==='iap'||B.monetization==='both'){
+    const r=B.payment_routing||'iap_only';
+    if(r==='external_link')
+      h+='<div class="verdict warn"><b>You keep the full payment.</b> Apple now lets US apps send buyers to your own web checkout with no Apple fee, so we are building it that way. Note this route is US-only, so buyers in other countries will need a different option later.'+(B.payment_routing_reason?' '+esc(B.payment_routing_reason):'')+'</div>';
+    else if(r==='iap_plus_external')
+      h+='<div class="verdict"><b>Two ways to pay.</b> Apple\'s one-tap purchase for everyone, plus your own web checkout for US buyers with no Apple fee.'+(B.payment_routing_reason?' '+esc(B.payment_routing_reason):'')+'</div>';
+    else
+      h+='<div class="verdict warn"><b>Apple takes a cut on in-app purchases.</b> Because you sell digital content inside the app, Apple requires its own payment system for those items. We build it that way so the app is not rejected.'+(B.payment_routing_reason?' '+esc(B.payment_routing_reason):'')+'</div>';
+  }
   if(B.target==='web')
     h+='<div class="verdict warn"><b>This is better as a web app.</b> Apple rejects apps that are just a website in a wrapper, so we would build this as a proper web app instead.</div>';
   if(B.web_dashboard){

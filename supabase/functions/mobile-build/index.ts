@@ -26,24 +26,44 @@ const sb = createClient(SUPA, SVC, { auth: { persistSession: false } });
 const NOTIFY = ['dknightunicorn@gmail.com', 'daniel@knightops.biz'];
 const TOK = /^[a-zA-Z0-9]+$/;
 
-// THE allow-list. Any field added to gather() in mobile-intake.html MUST be added here AND
-// exist as a column on mobile_builds, or the save silently drops it.
-const FIELDS = [
-  'mode', 'first_name', 'last_name', 'email', 'phone', 'company', 'business_name', 'niche',
-  'what_they_do', 'offers', 'audience', 'team', 'brand',
-  'target', 'target_reason', 'archetype',
-  'web_dashboard', 'web_app', 'ops_modules', 'ops_kpis', 'dashboard_mockup_html',
-  'screens', 'features', 'tabs', 'capabilities', 'screen_notes', 'max_tabs',
-  'auth_methods', 'roles', 'role_matrix', 'monetization', 'integrations', 'ai_features',
-  'data_model', 'goal_criteria', 'store', 'store_md',
-  'hosting', 'domain', 'client_size',
-  'additional_details', 'transcripts', 'final_notes', 'file_paths', 'upload_paths',
-  'ai_mockup_html', 'outline_html', 'spec_md', 'build_prompt'
-];
+// THE allow-list, DERIVED FROM THE TABLE at cold start rather than hand-maintained.
+//
+// dashboard-build (41 entries) and dashboard-mockups (34) drifted apart, so a field saved by
+// one path was silently dropped by the other. A hand-kept list is a bug waiting to happen:
+// you add a column, forget the list, and the save quietly loses data with no error.
+//
+// Instead: every column on mobile_builds is writable EXCEPT the server-managed ones below.
+// Add a column and it just works. Nothing to remember, nothing to drift.
+const SERVER_OWNED = new Set([
+  'id', 'created_at', 'updated_at', 'form_type', 'source', 'slug',
+  'resume_token', 'share_review_token', 'share_edit_token',
+  'lead_id', 'client_id', 'project_id',
+  'status', 'admin_notes', 'approved_at', 'approved_by',
+  'mockups', 'chosen_mockup',
+  'build_requested_at', 'build_started_at', 'built_at', 'build_live_url', 'build_repo_url',
+  'build_error', 'build_source', 'build_folder', 'build_stage', 'build_progress',
+  'build_last_update', 'eas_project_id'
+]);
 
-function pick(p: any) {
+let FIELDS: string[] | null = null;
+async function fields(): Promise<string[]> {
+  if (FIELDS) return FIELDS;
+  try {
+    const q = await sb.rpc('ko_mobile_build_columns');
+    if (!q.error && Array.isArray(q.data) && q.data.length) {
+      FIELDS = q.data.map((r: any) => r.column_name || r).filter((c: string) => !SERVER_OWNED.has(c));
+      return FIELDS!;
+    }
+  } catch (_e) { /* fall through to the static floor */ }
+  // Floor: if the introspection RPC is unavailable we still accept the known fields rather
+  // than silently accepting nothing.
+  FIELDS = ['mode','first_name','last_name','email','phone','company','business_name','niche','what_they_do','offers','audience','team','brand','target','target_reason','archetype','web_dashboard','web_app','ops_modules','ops_kpis','dashboard_mockup_html','screens','features','tabs','capabilities','screen_notes','max_tabs','auth_methods','roles','role_matrix','monetization','payment_routing','payment_routing_reason','integrations','ai_features','data_model','goal_criteria','store','store_md','hosting','domain','client_size','additional_details','transcripts','final_notes','file_paths','upload_paths','ai_mockup_html','outline_html','spec_md','build_prompt'];
+  return FIELDS;
+}
+
+async function pick(p: any) {
   const o: any = {};
-  for (const f of FIELDS) if (p[f] !== undefined) o[f] = p[f];
+  for (const f of await fields()) if (p[f] !== undefined) o[f] = p[f];
   return o;
 }
 const uuid = () => crypto.randomUUID().replace(/-/g, '');
@@ -90,7 +110,7 @@ Deno.serve(async (req) => {
 
     // ---------- save (upsert by resume_token) ----------
     if (action === 'save') {
-      const patch = pick(body);
+      const patch = await pick(body);
       patch.status = body.status || 'draft';
       let rt = body.resume_token && TOK.test(String(body.resume_token)) ? String(body.resume_token) : null;
       let isNew = false;
@@ -130,7 +150,7 @@ Deno.serve(async (req) => {
 
     // ---------- submit ----------
     if (action === 'submit') {
-      const patch = pick(body);
+      const patch = await pick(body);
       patch.status = 'submitted';
       let rt = body.resume_token && TOK.test(String(body.resume_token)) ? String(body.resume_token) : null;
       let row: any = null;

@@ -7,6 +7,34 @@
 
 ---
 
+## Changelog — 2026-09-02b (April's "missing" emails: they were hidden, not deleted · Apple external payments · Stripe wiring)
+
+### THE EMAILS WERE NEVER DELETED — AN OVER-BROAD `is_inline` FLAG WAS HIDING THEM
+- April Little's files were reported missing. Every one of her emails was present (inbox, not deleted, not archived, not spam) and **every byte was in the `email-attachments` bucket the whole time**, at exact size. What was wrong was the `is_inline` flag.
+- **Root cause:** `knightops-email-worker` set `is_inline: att.disposition === 'inline' || !!att.contentId`. Mail clients put a **Content-ID on anything dragged into the message body**, so a client's real work gets flagged as signature noise — and `email-files` `list` filters `is_inline=false` for every scope except `email_id`, so it vanishes from lead / client / project file lists. It had swallowed April's **1.9 MB `s&s (6).png` brand logo**, `Fierce & Free (27).png`, her `WWR_App_Business_Plan.docx` and her `.md` dev spec. A `.docx` is never a signature logo.
+- **Fixed at source:** new `isInlineNoise()` — inline noise is a **small image** only (`< 100 KB`, `image/*`, and actually flagged). A non-image is never a signature; neither is a large image. **Erring toward showing costs a little noise; erring toward hiding loses client assets.** Worker redeployed (`npx wrangler deploy`, version `bbae1400`); **`WEBHOOK_SECRET` verified still bound afterwards** — it is a Cloudflare *secret*, and losing it silently stops inbound mail reaching the CRM.
+- **Data repaired:** 7 attachments un-hidden (April ×4, Angela ×2, Plaud ×1). PodMatch's 97 KB signature graphics correctly stay hidden. 5 new regression checks in `knightops-email-worker/test/parse.test.mjs`; 15/15 pass.
+- **THE ANTELOPE CANYON IMAGES WERE NEVER ATTACHMENTS.** Her 2026-08-26 email says *"I've included a few red rock images for the S&S background"* — Gmail converted them to **Google Drive links**, so they never entered the mail as files. Three links are in that email body (`5304dfea-…`). They live in April's Drive, not in any inbox. **Nothing to recover; the link is the artifact.**
+- **A separate, older problem, unrelated to this one:** 91 attachments (≈6.6 MB, May–July 2026) have metadata but `storage_path IS NULL` — the pre-2026-08-25 worker measured bytes and threw them away. Not recoverable from our side. **None are April's** (her one byte-less file is a 2026-08-18 `.docx` she re-sent on 08-25 *with* bytes). The originals should still be in Gmail: the worker forwards to Gmail in its own try block, independent of the CRM write.
+
+### APPLE'S 2025 EXTERNAL-PAYMENT CHANGE IS NOW A DECISION, NOT AN ASSUMPTION
+- After the **May 2025 Epic v. Apple contempt ruling**, US-storefront apps may link OUT to a web checkout with **no Apple commission** and without the old scare screens. So "digital goods ⇒ StoreKit" is no longer the whole story.
+- New **`payment_routing`**: `n_a` · `iap_only` (default — best conversion, every country) · `iap_plus_external` (usually best for a US-heavy audience with a real price point) · `external_link` (US-only, high ticket, existing web checkout). `mobile-analyze` decides it automatically from price point, audience geography and whether a web checkout already exists, writes plain-language reasoning into `payment_routing_reason`, **and it is also a question on the intake** so Daniel can override.
+- **The nuance that must never be lost: the no-commission link-out is US-storefront.** Outside the US, in-app digital purchases still generally require StoreKit and the EU runs its own DMA regime — so `external_link` means non-US users cannot buy. The build prompt requires either geo-gating the purchase UI to the US or shipping StoreKit as well, and tells the builder to **verify current App Review terms at submission time** because this area is actively litigated.
+- Verified live: `$497/mo` US-only coaching → `external_link` (*"roughly $75 to $150 per member every month… you already have a working Stripe checkout"*); `$4.99/mo` in 40+ countries → `iap_only` (*"most of them cannot legally be routed to an external checkout anyway"*). `iap` is dropped from capabilities when no purchase goes through Apple.
+
+### STRIPE IS THE DEFAULT WHENEVER MONEY DOES NOT GO THROUGH APPLE
+- New `payment_processor` (defaults to `stripe`) + a `stripe` jsonb, and a small dedicated **`mobile-stripe`** edge fn (`status` / `set_keys`) so the credential path is small enough to audit at a glance.
+- **Security shape, deliberate:** the **publishable key** is public by design so it sits in a plain column; the **secret key and webhook signing secret go to Supabase Vault encrypted** via `ko_set_stripe_secret()` — never a column, never returned to a browser. The row records only *whether* each is set. Verified: 2 Vault entries, `row_leaks_secret = false`, and the admin inputs are cleared on save so no secret lingers in the DOM.
+- Admin → Mobile Apps → build detail gains a **💳 Stripe wiring** card: three inputs, mode toggle, webhook URL, status dots, and a "Where do I get these?" walkthrough (Developers → API keys; Developers → Webhooks → Add endpoint, with the exact events to subscribe to). It recommends a **restricted key** (`rk_live_…`) over the full secret key.
+- The build prompt now requires the app to be built against `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` / `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`, to **never hardcode or wait for keys**, to verify every webhook signature (an unverified endpoint hands out free product), to keep entitlement in the DB rather than client state, and to emit **`STRIPE-SETUP.md`**. Until real keys exist the app must run in test mode and **degrade honestly — a disabled buy button, never a fake success**.
+
+### `mobile-build`'s ALLOW-LIST NOW DERIVES ITSELF FROM THE TABLE
+- `dashboard-build` (41 entries) and `dashboard-mockups` (34) drifted, silently dropping fields. Rather than repeat that, `mobile-build` reads its writable columns from `ko_mobile_build_columns()` at cold start and subtracts a `SERVER_OWNED` denylist. **Add a column and it just works** — no redeploy, no drift. It also hardened injection: verified that `build_live_url`, `approved_by` and `project_id` sent from a client are refused.
+- Also fixed: POSTing `{}` to the anon-reachable `mobile-build` used to mint a blank draft row forever. New rows now require something real on them.
+
+---
+
 ## Changelog — 2026-09-02 (Mobile App Builder — native Expo apps, scoped from uploaded documents)
 
 Full spec: **`MOBILE-APP-BUILDER-SPEC.md`**. Sibling of the Dashboard Builder, deliberately a different shape.
