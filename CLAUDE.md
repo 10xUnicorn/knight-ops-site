@@ -7,6 +7,16 @@
 
 ---
 
+## Changelog — 2026-09-02d (The orchestrator counted mobile builds and then stopped on them anyway)
+
+- **Symptom:** an approved mobile build ("Woman Wisdom Revolution" / Paradyme Lift) sat untouched. **Cause:** STEP 0's count SELECT was extended with `mobile`, but the *stop condition* on the next line was not — it still read `if bugs=0 AND features=0 AND (builds=0 OR H not in {slots}) → STOP`. With no bugs, no features and no dashboard builds, the orchestrator stopped silently before ever reaching STEP 3B, at any hour.
+- **Caught in the act:** the task's `lastRunAt` was **08:23:46**, forty-one seconds *after* the build was approved at 08:23:05. It ran, it counted `mobile=1`, and it stopped anyway.
+- **This is the same silent-skip class as the `queued` vs `approved` bug already documented in that file** — a gate that quietly excludes real work — reintroduced by me on 2026-09-02. The file now carries the rule in bold: **every count in the SELECT must appear in the stop condition; add a work type in BOTH places or it will never run.**
+- **Also removed the 4-hour slot gate from STEP 3B.** A mobile build now fires on the very next run after approval, like a bug fix does. The real guards against runaway spawning are stronger than a clock and already in place: cap of 1 build per run, the per-folder buildlock, and the atomic `and status='approved'` claim. Waiting hours for a slot just looks broken to whoever pressed approve.
+- Orchestrator remains `*/30 * * * *`, enabled, on `claude-fable-5-1` at medium effort.
+
+---
+
 ## Changelog — 2026-09-02c (The emails were unfindable, not missing: the inbox only ever loaded 200 · access-gating standard)
 
 ### THE INBOX HAD A HARD `.limit(200)` AND SEARCHED CLIENT-SIDE
