@@ -950,11 +950,32 @@ function buildPrompt(){
     L.push('## Access, checkout and entitlement — THE STANDARD PATTERN');
     L.push('This is how every Knight Ops app gates access. Build it exactly this way so it is identical across projects and works the moment real keys land.');
     L.push('');
-    L.push('**1. A public checkout page, on the web surface, designed — not a bare Stripe link.**');
-    L.push('- A real branded page at `/join` (or `/upgrade`) using the SAME design tokens, palette and type as the app. It is a sales page, not a form.');
-    L.push('- Structure it to convert, in this order: a headline naming the specific outcome the buyer wants (not the feature); one sentence of who it is for; the transformation stated as before → after; what they actually get, concrete and countable; the price framed against the cost of not doing it; the top 3 objections answered in their own words; social proof if any exists; a risk reversal (trial, guarantee, cancel-anytime — whatever is true); then ONE call to action, repeated, with no competing links.');
-    L.push('- Write in second person, present tense, using the client\'s own vocabulary from the material above. Specificity converts and vagueness does not: "12 lessons, one every Monday" beats "lots of content". Do NOT invent claims, testimonials, numbers or guarantees that were not provided — an invented testimonial is fraud, not copy.');
-    L.push('- Mobile-first: this page will mostly be read on a phone, often the one the app is on.');
+    L.push('**1. A public landing / offer / checkout page, on the web surface, designed — not a bare Stripe link.**');
+    L.push('- **FIRST: load the `ui-ux-pro-max` skill (`/ui-ux-pro-max:ui-ux-pro-max`) and design these pages with it.** Do not hand-roll the layout. Use it for the landing page, the offer/pricing section and the checkout — palette, type pairing, spacing, states, motion and accessibility all come from the skill, applied to the client\'s brand tokens. (If that skill is not available in this session, do NOT stall: say so in the RESULT file and hold yourself to everything below anyway.)');
+    L.push('- A real branded page at `/join` (or `/upgrade`) using the SAME design tokens, palette and type as the app. It is a landing page, not a form.');
+    L.push('');
+    L.push('**Motion and interaction (this page should feel alive, not like a document):**');
+    L.push('- Purposeful animation only: scroll-reveal as sections enter, a subtle parallax or gradient shift on the hero, micro-interactions on hover/press, number counters where a real number matters, smooth state transitions on the pricing toggle. Every animation should direct attention to the next thing — decoration for its own sake reads as filler.');
+    L.push('- 200-400ms, eased, GPU-friendly (transform/opacity). Nothing that blocks reading or delays the CTA.');
+    L.push('- **Honour `prefers-reduced-motion`** — reduce to instant transitions. This is an accessibility requirement, not a nicety.');
+    L.push('');
+    L.push('**An INTERACTIVE DEMO of the actual app, on the page:**');
+    L.push('- Embed the real app running in a phone frame — you are already building the React Native Web bundle from this same codebase, so use it. The visitor should be able to tap through real screens with seeded demo data.');
+    L.push('- If a live embed is genuinely not workable for a screen, fall back to a scripted click-through of the REAL UI (not stock mockups, not stills of a design tool), auto-advancing with a pause-on-hover and manual controls.');
+    L.push('- Show the moment the product is actually good at — the thing they came for — not the sign-up screen.');
+    L.push('');
+    L.push('**Structure it to convert, in this order:** a headline naming the specific outcome the buyer wants (not the feature); one sentence of who it is for; the transformation as before → after; the interactive demo; what they actually get, concrete and countable; the price framed against the cost of not doing it; the top 3 objections answered in their own words; social proof if any genuinely exists; a risk reversal that is true (trial, guarantee, cancel anytime); then ONE call to action, repeated, with no competing links.');
+    L.push('');
+    L.push('**VOICE — it must sound like the client, not like AI. This is the part most builds get wrong.**');
+    L.push('- **Mine the uploaded documents, transcripts and their website for their actual voice** and write in it: their vocabulary, their metaphors, the phrases they repeat, how long their sentences run, what they refuse to say. If they say "women" never write "females". If they call it a "circle" never call it a "community platform". Quote their own phrasing where it lands.');
+    L.push('- **Banned because they are AI tells:** "unlock", "elevate", "empower", "transform your", "take it to the next level", "in today\'s fast-paced world", "dive in", "seamless", "robust", "game-changer", "journey" as a filler noun, "it\'s not just X — it\'s Y", opening with a rhetorical question, three-item lists where two would do, and stacked em dashes. If a sentence could headline any product in any industry, delete it and write the specific one.');
+    L.push('- Vary sentence length. Let some sentences be four words. Use concrete nouns and real numbers instead of adjectives: "12 lessons, one every Monday" beats "a comprehensive library". At most one exclamation mark on the whole page, and probably zero.');
+    L.push('');
+    L.push('**Conversion-optimised but NOT salesy:**');
+    L.push('- No fake urgency, no countdown timer unless a real deadline exists, no "only 3 spots left" unless that is literally true, no invented discount anchor. Manufactured pressure converts once and burns the relationship.');
+    L.push('- **NEVER invent claims, testimonials, numbers, logos or guarantees that were not provided.** An invented testimonial is fraud, not copy. If there is no social proof yet, leave the section out entirely rather than fabricate one.');
+    L.push('- Persuasion here is specificity, honesty about who it is NOT for, and answering the real objection — not pressure. Someone should finish the page feeling understood, not chased.');
+    L.push('- Mobile-first: this will mostly be read on a phone, often the one the app is on.');
     L.push('');
     L.push('**2. Entitlement lives in the database, never in client state.**');
     L.push('- One `subscriptions` (or `entitlements`) table keyed to the user: status, plan, current_period_end, stripe_customer_id, stripe_subscription_id, source (`stripe` | `iap` | `manual`), and `granted_by` for manual grants.');
@@ -997,7 +1018,7 @@ function buildPrompt(){
     L.push('');
   }
   L.push('## Build and verify loop');
-  L.push('1. Read CLAUDE.md and any LESSONS.md in the folder first.');
+  L.push('1. Read CLAUDE.md and any LESSONS.md in the folder first. For anything user-facing, load the `ui-ux-pro-max` skill (`/ui-ux-pro-max:ui-ux-pro-max`) and design against it rather than improvising.');
   L.push('2. Write PLAN-<date>.md before any code, and print it.');
   L.push('3. Stand up the new Supabase project, schema and RLS. Seed realistic data.');
   L.push('4. Build screen by screen against the approved mockup. Match it.');
@@ -1016,7 +1037,9 @@ function buildPrompt(){
   if(d.web_app&&native)L.push('- The web version builds and runs from the same codebase, deployed to Vercel.');
   if(d.web_dashboard)L.push('- The operator dashboard is deployed, staff-gated, and every KPI listed above renders a real number from a real event — not a placeholder.');
   if(takesStripe){
-    L.push('- The public checkout page is built, on-brand, and reads as a sales page rather than a form.');
+    L.push('- The public landing/offer/checkout page is built with the ui-ux-pro-max skill, animated, and honours prefers-reduced-motion.');
+    L.push('- The page carries an INTERACTIVE demo of the real app, not screenshots.');
+    L.push('- The copy reads like the client (voice mined from their own docs), not like AI, and contains no invented testimonial, number or guarantee.');
     L.push('- Manual grant and revoke work from the admin dashboard TODAY, with no Stripe keys present, and the app gates correctly on them.');
     L.push('- A Stripe test-mode checkout grants access end to end via the webhook, with nobody touching the database.');
     L.push('- STRIPE-SETUP.md tells Daniel exactly which key goes where, and adding the real keys changes nothing else.');

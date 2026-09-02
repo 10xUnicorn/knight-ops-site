@@ -26,6 +26,10 @@ Written into the build prompt so every generated app is identical and works the 
 4. **The admin dashboard manages access directly** — grant, revoke, and see *why* someone has access. A manual grant is a first-class row, so `hasAccess()` never special-cases it. **This works before any Stripe keys exist**: Daniel hand-grants on day one, and when keys land Stripe simply becomes a second writer to the same table. Nothing about the app changes when payments go live.
 5. **Proven before done:** grant manually → gated screen unlocks; revoke → re-locks; test-mode checkout grants via webhook with nobody touching the database.
 
+**The public page has a standard now too** (`/join`): design it with the **`ui-ux-pro-max` skill** rather than improvising (and if the skill is unavailable in that session, say so and hold the same bar); purposeful motion that **honours `prefers-reduced-motion`**; and an **interactive demo of the real app** embedded from the React Native Web bundle the build already produces — tappable, seeded, showing the moment the product is good at, never screenshots or stock mockups.
+
+**Voice is the part most builds get wrong.** The builder mines the client's own docs, transcripts and site for their vocabulary, metaphors and sentence rhythm and writes in it. Banned as AI tells: *unlock, elevate, empower, transform your, take it to the next level, in today's fast-paced world, dive in, seamless, robust, game-changer,* "journey" as filler, "it's not just X — it's Y", rhetorical-question openers, stacked em dashes. **If a sentence could headline any product in any industry, delete it and write the specific one.** Conversion-optimised but not salesy: no fake urgency, no countdown without a real deadline, and **never invent a claim, testimonial, number, logo or guarantee — an invented testimonial is fraud, not copy.** With no social proof the section is omitted, not fabricated.
+
 ---
 
 ## Changelog — 2026-09-02b (April's "missing" emails: they were hidden, not deleted · Apple external payments · Stripe wiring)
