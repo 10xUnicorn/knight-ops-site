@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Your app — Knight Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#C8A456;--gold:#C9922A;--teal:#00D4C8;--bg:#07070b;--card:#101017;--border:#232326;--text:#eceef5;--text-muted:#8a8a99;--ok:#30A46C;--warn:#E5A50A;--bad:#E5484D}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.55}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 20px 60px}
+.brandmark{font-weight:800;letter-spacing:.14em;color:var(--gold);font-size:.8rem}
+h1{font-size:1.5rem;font-weight:800;margin:.2rem 0}
+.sub{color:var(--text-muted);font-size:.86rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.05rem}
+.card h2{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem}
+.pill{display:inline-block;font-size:.7rem;padding:.2rem .55rem;border-radius:999px;border:1px solid var(--border);color:var(--text-muted)}
+.pill.ok{border-color:rgba(48,164,108,.5);background:rgba(48,164,108,.12);color:#63d19b}
+.chip{display:inline-block;font-size:.75rem;padding:.26rem .55rem;border-radius:999px;border:1px solid var(--border);color:#ddd;margin:.15rem .25rem .15rem 0}
+.chip.on{border-color:var(--accent);background:rgba(200,164,86,.14);color:var(--accent);font-weight:600;cursor:pointer}
+.chip.sel{cursor:pointer}
+.mockframe{width:100%;height:700px;border:1px solid var(--border);border-radius:12px;background:#0e0e14}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem;margin-top:.6rem}
+.sum>div{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem}
+.sum .k{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+.sum .v{font-size:.9rem;font-weight:600;margin-top:.15rem}
+label{display:block;font-size:.76rem;color:var(--text-muted);margin:.6rem 0 .25rem}
+input[type=text],textarea{width:100%;background:#0a0a10;border:1px solid var(--border);border-radius:9px;color:var(--text);padding:.55rem .65rem;font:inherit;font-size:.86rem}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.btn{background:var(--accent);color:#12121a;border:none;border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:700;font-size:.84rem;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{padding:.35rem .6rem;font-size:.77rem}
+details{border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;margin-top:.5rem}
+summary{cursor:pointer;font-size:.82rem;color:var(--text-muted)}
+pre{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,monospace;font-size:.73rem;line-height:1.55;margin-top:.6rem;max-height:400px;overflow:auto;color:#c9c9d3}
+.verdict{border-left:3px solid var(--teal);background:rgba(0,212,200,.07);border-radius:0 9px 9px 0;padding:.6rem .8rem;font-size:.82rem;margin:.5rem 0}
+.verdict b{color:var(--teal)}
+.verdict.warn{border-left-color:var(--warn);background:rgba(229,165,10,.08)}
+.verdict.warn b{color:var(--warn)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16161d;border:1px solid var(--accent);padding:.6rem 1rem;border-radius:9px;font-size:.83rem;z-index:99;display:none}
+.bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:.5rem 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));width:2%;transition:width .4s}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <div class="card"><div class="sub">Loading your app…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* Client-facing review + approve page for a mobile_builds row.
+   No login: the share token IS the credential, and the SERVER decides review vs edit
+   from which token was presented (mobile-shared never returns the other tokens). */
+const SB='https://trpnlkntvulkjerevngm.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+const FN=SB+'/functions/v1/';
+async function api(fn,payload){
+  const r=await fetch(FN+fn,{method:'POST',headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(payload||{})});
+  try{return await r.json();}catch(e){return {error:'bad response '+r.status};}
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3400);}
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* Screen + tab labels so a client never sees a raw key like home_feed. */
+const LBL={onboarding:'Onboarding',auth:'Sign in / Sign up',permissions:'Permission primer',home_feed:'Home / Feed',
+ item_detail:'Detail view',search:'Search',browse:'Browse / Categories',map_view:'Map',scan_capture:'Camera / Scan',
+ media_upload:'Media upload',create_form:'Create / Edit',collection:'Library / Collection',saved:'Saved / Favorites',
+ downloads:'Downloads / Offline',cart:'Cart',checkout:'Checkout',paywall:'Paywall / Subscribe',orders:'Orders / Status',
+ booking_cal:'Booking calendar',slot_picker:'Slot picker',appointments:'My appointments',chat_list:'Conversations',
+ chat_thread:'Chat thread',notifications:'Notification inbox',activity_feed:'Activity feed',progress_stats:'Progress / Stats',
+ streak:'Streak / Habit',leaderboard:'Leaderboard',profile:'Profile',edit_profile:'Edit profile',settings:'Settings',
+ account_delete:'Delete account',admin_moderation:'Moderation'};
+const CAPL={push:'Push notifications',camera:'Camera',photos:'Photo library',biometrics:'Face ID / Touch ID',
+ location:'Location',location_bg:'Background location',maps:'Maps',offline:'Offline / sync',files:'Files',
+ health:'Health data',calendar:'Calendar',contacts:'Contacts',share:'Share sheet',haptics:'Haptics',
+ iap:'In-app purchase',deeplinks:'Deep links',background_tasks:'Background tasks',widgets:'Widgets',live_activities:'Live Activities'};
+const TARGETL={native:'Native app (App Store + Play)',both:'Native app + web',web:'Web app'};
+const MONEYL={none:'Nothing sold in the app',iap:'Subscriptions / digital content (Apple in-app purchase)',
+ stripe_physical:'Physical goods or services (card payment)',both:'Both in-app purchases and card payment'};
+
+let TOKEN='',MODE='review',B=null,_curMock=null;
+
+function variations(){
+  const list=Array.isArray(B.mockups)?B.mockups.filter(m=>m&&m.html):[];
+  if(list.length)return list;
+  return B.ai_mockup_html?[{id:'primary',label:'Your app',html:B.ai_mockup_html}]:[];
+}
+function switchVariation(id){_curMock=id;render();}
+
+function render(){
+  const vars=variations();
+  if(!_curMock&&vars.length)_curMock=(B.chosen_mockup&&vars.some(v=>v.id===B.chosen_mockup))?B.chosen_mockup:vars[0].id;
+  const cur=vars.find(v=>v.id===_curMock)||vars[0];
+  const approved=B.status==='approved'||B.status==='building'||B.status==='built';
+  const tabs=Array.isArray(B.tabs)?B.tabs:[];
+  const screens=Array.isArray(B.screens)?B.screens:[];
+  const caps=Array.isArray(B.capabilities)?B.capabilities:[];
+  const st=B.store||{};
+
+  let h='';
+  h+='<div style="margin-bottom:1rem"><div class="brandmark">KNIGHT OPS</div>'+
+     '<h1>'+esc(B.business_name||B.company||'Your app')+'</h1>'+
+     '<div class="sub">'+esc(B.niche||'')+' &nbsp;·&nbsp; <span class="pill'+(approved?' ok':'')+'">'+esc(approved?'Approved':B.status||'draft')+'</span>'+
+     ' <span class="pill">'+(MODE==='edit'?'Edit access':'Review access')+'</span></div></div>';
+
+  // mockup
+  if(cur){
+    h+='<div class="card"><h2>Your app</h2>';
+    if(vars.length>1){
+      h+='<div style="margin-bottom:.6rem">'+vars.map(v=>'<span class="chip sel'+(v.id===cur.id?' on':'')+'" onclick="switchVariation(\''+v.id+'\')">'+esc(v.label||'Version')+(B.chosen_mockup===v.id?' ✓ chosen':'')+'</span>').join('')+'</div>';
+    }
+    h+='<iframe class="mockframe" id="mf" sandbox="allow-scripts allow-same-origin"></iframe>';
+    h+='<div class="sub" style="margin-top:.5rem;font-size:.78rem">Scroll sideways inside the frame to see every screen.</div>';
+    h+='</div>';
+  }
+
+  // what we'll build
+  h+='<div class="card"><h2>What we will build</h2>';
+  if(tabs.length){
+    h+='<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.3rem">Bottom tabs</div>';
+    h+=tabs.map(t=>'<span class="chip on">'+esc(t.label||t.t)+'</span>').join('');
+  }
+  if(screens.length){
+    h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.7rem 0 .3rem">Screens</div>';
+    h+=screens.map(k=>'<span class="chip">'+esc(LBL[k]||k)+'</span>').join('');
+  }
+  if(caps.length){
+    h+='<div style="font-size:.8rem;color:var(--text-muted);margin:.7rem 0 .3rem">Phone features</div>';
+    h+=caps.map(k=>'<span class="chip">'+esc(CAPL[k]||k)+'</span>').join('');
+  }
+  h+='<div class="sum">'+
+     '<div><div class="k">Type</div><div class="v">'+esc(TARGETL[B.target]||B.target||'Native app')+'</div></div>'+
+     '<div><div class="k">Payments</div><div class="v">'+esc(MONEYL[B.monetization]||'—')+'</div></div>'+
+     '<div><div class="k">Sign-in</div><div class="v">'+esc((B.auth_methods||[]).join(', ')||'—')+'</div></div>'+
+     '<div><div class="k">Screens</div><div class="v">'+screens.length+'</div></div>'+
+     '</div>';
+  if(B.monetization==='iap'||B.monetization==='both')
+    h+='<div class="verdict warn"><b>Apple takes its cut on in-app purchases.</b> Because you sell digital content inside the app, Apple requires its own payment system for those items. We build it that way so the app is not rejected.</div>';
+  if(B.target==='web')
+    h+='<div class="verdict warn"><b>This is better as a web app.</b> Apple rejects apps that are just a website in a wrapper, so we would build this as a proper web app instead.</div>';
+  if(B.what_they_do)h+='<details><summary>What it does</summary><pre>'+esc(B.what_they_do)+(B.offers?'\n\n'+esc(B.offers):'')+'</pre></details>';
+  if(B.spec_md)h+='<details><summary>Full spec</summary><pre>'+esc(B.spec_md)+'</pre></details>';
+  if(B.store_md)h+='<details><summary>App Store readiness</summary><pre>'+esc(B.store_md)+'</pre></details>';
+  h+='</div>';
+
+  // actions
+  if(MODE==='review'){
+    h+='<div class="card"><h2>'+(approved?'Approved':'Your decision')+'</h2>';
+    if(approved){
+      h+='<div class="verdict"><b>Approved.</b> This is queued to be built. We will email you when it is ready.</div>';
+      if(B.build_stage)h+='<div class="sub">'+esc(B.build_stage)+(B.build_progress?' — '+B.build_progress+'%':'')+'</div>';
+      if(B.build_live_url)h+='<p style="margin-top:.5rem"><a href="'+esc(B.build_live_url)+'" target="_blank">Open the live build →</a></p>';
+    } else {
+      h+='<label>Anything to change or add? (optional)</label><textarea id="r_note" placeholder="Tell us what to adjust"></textarea>';
+      h+='<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem">';
+      h+='<button class="btn" id="okBtn" onclick="approve()">✓ Approve this plan</button>';
+      h+='<button class="btn ghost" onclick="sendNote()">Send note only</button>';
+      if(vars.length>1)h+='<button class="btn ghost" onclick="pickVariation()">✓ Pick this style</button>';
+      else h+='<button class="btn ghost" onclick="regenMock()">🔄 Revise with AI</button>';
+      h+='</div>';
+      h+='<div class="bar" id="rbar" style="display:none"><i id="rfill"></i></div><div class="sub" id="rstat"></div>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div class="card"><h2>Your details</h2>'+
+      '<div class="sub" style="margin-bottom:.5rem">Correct anything we got wrong. This does not change the screens.</div>'+
+      '<label>App name</label><input type="text" id="e_business" value="'+esc(B.business_name||'')+'">'+
+      '<label>Category</label><input type="text" id="e_niche" value="'+esc(B.niche||'')+'">'+
+      '<label>What the app does</label><textarea id="e_what">'+esc(B.what_they_do||'')+'</textarea>'+
+      '<label>Offers / pricing</label><textarea id="e_offers">'+esc(B.offers||'')+'</textarea>'+
+      '<label>Audience</label><textarea id="e_aud">'+esc(B.audience||'')+'</textarea>'+
+      '<label>Team</label><input type="text" id="e_team" value="'+esc(B.team||'')+'">'+
+      '<label>Anything else</label><textarea id="e_more">'+esc(B.additional_details||'')+'</textarea>'+
+      '<div style="margin-top:.7rem"><button class="btn" onclick="saveEdit()">Save my updates</button> '+
+      '<button class="btn ghost" onclick="regenMock()">🔄 Revise with AI</button></div>'+
+      '<div class="bar" id="rbar" style="display:none"><i id="rfill"></i></div><div class="sub" id="rstat"></div>'+
+      '</div>';
+  }
+
+  document.getElementById('root').innerHTML=h;
+  const f=document.getElementById('mf');
+  if(f&&cur)f.srcdoc=cur.html;
+}
+
+async function approve(){
+  const btn=document.getElementById('okBtn');if(btn)btn.disabled=true;
+  const note=(document.getElementById('r_note')||{}).value||'';
+  const r=await api('mobile-build',{action:'approve',share_review_token:TOKEN,admin_notes:note,
+    chosen_mockup:_curMock&&_curMock!=='primary'?_curMock:undefined,approved_by:'client',build_source:'client_approval'});
+  if(r&&r.build){B=Object.assign(B,r.build);toast('Approved — thank you!');render();}
+  else{toast((r&&r.error)||'Could not approve');if(btn)btn.disabled=false;}
+}
+async function sendNote(){
+  const note=(document.getElementById('r_note')||{}).value||'';
+  if(!note.trim()){toast('Write a note first');return;}
+  const r=await api('mobile-build',{action:'approve',share_review_token:TOKEN,admin_notes:note,note_only:true});
+  if(r&&r.ok)toast('Sent — we will get back to you');
+  else toast((r&&r.error)||'Could not send');
+}
+async function pickVariation(){
+  const r=await api('mobile-build',{action:'choose_mockup',token:TOKEN,mockup_id:_curMock});
+  if(r&&r.ok){B.chosen_mockup=r.chosen;toast('Style chosen');render();}
+  else toast((r&&r.error)||'Could not choose');
+}
+
+/* Revise loop - the miniature of the builder's, with the same revert guard. */
+async function regenMock(){
+  const notes=((document.getElementById('r_note')||{}).value)||prompt('What should change?')||'';
+  const bar=document.getElementById('rbar'),fill=document.getElementById('rfill'),stat=document.getElementById('rstat');
+  if(bar)bar.style.display='';
+  if(stat)stat.innerHTML='<span class="spin"></span> Redrawing…';
+  const prev=B.ai_mockup_html||'';
+  const build=Object.assign({},B);
+  if(notes&&prev){build.base_html=prev;build.revision_notes=notes;}
+  let full='',t0=Date.now();
+  const timer=setInterval(()=>{const s=(Date.now()-t0)/1000;if(fill)fill.style.width=Math.min(96,Math.max(2,s/120*90))+'%';},300);
+  try{
+    const st=await api('mobile-job',{action:'start',kind:'mockup',build:build,id:B.id,token:TOKEN,mode:'auto'});
+    if(st.error||!st.job_id)throw new Error(st.error||'could not start');
+    if(st.done&&st.output)full=st.output;
+    else for(let i=0;i<10;i++){
+      const r=await api('mobile-job',{action:'step',job_id:st.job_id});
+      if(r.error&&!r.output)throw new Error(r.error);
+      if(r.chunk)full+=r.chunk;
+      if(r.output)full=r.output;
+      const f=document.getElementById('mf');
+      if(st.mode!=='patch'&&f&&/<body/i.test(full)&&full.length>200)f.srcdoc=full;
+      if(r.done){
+        if(r.reverted){clearInterval(timer);B.ai_mockup_html=prev;render();toast('That change would have dropped the tab bar — your app is unchanged');return;}
+        break;
+      }
+    }
+    clearInterval(timer);if(fill)fill.style.width='100%';
+    if(full.length>1200){B.ai_mockup_html=full;_curMock=null;render();toast('Updated');}
+    else{B.ai_mockup_html=prev;render();toast('That came back incomplete — your app is unchanged');}
+  }catch(e){
+    clearInterval(timer);B.ai_mockup_html=prev;render();toast('Revision failed — your app is unchanged');
+  }
+}
+
+async function saveEdit(){
+  const r=await api('mobile-build',{action:'save_edit',share_edit_token:TOKEN,
+    business_name:(document.getElementById('e_business')||{}).value,
+    niche:(document.getElementById('e_niche')||{}).value,
+    what_they_do:(document.getElementById('e_what')||{}).value,
+    offers:(document.getElementById('e_offers')||{}).value,
+    audience:(document.getElementById('e_aud')||{}).value,
+    team:(document.getElementById('e_team')||{}).value,
+    additional_details:(document.getElementById('e_more')||{}).value});
+  if(r&&r.build){B=Object.assign(B,r.build);toast('Saved');render();}
+  else toast((r&&r.error)||'Could not save');
+}
+
+async function boot(){
+  const q=new URLSearchParams(location.search);
+  TOKEN=q.get('t')||q.get('token')||'';
+  const root=document.getElementById('root');
+  if(!TOKEN){root.innerHTML='<div class="card"><h2>No link</h2><div class="sub">No build token. Ask Knight Ops for your link.</div></div>';return;}
+  const res=await api('mobile-shared',{token:TOKEN});
+  if(!res||!res.build){root.innerHTML='<div class="card"><h2>Not found</h2><div class="sub">That link is not valid or has expired. Ask Knight Ops for a new one.</div></div>';return;}
+  B=res.build;MODE=res.mode||'review';
+  render();
+}
+boot();
+</script>
+</body>
+</html>

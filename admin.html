@@ -496,6 +496,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="nav-item has-children" data-group="delivery" onclick="toggleNavGroup(this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="nav-label">Delivery</span><span class="expand-arrow">&#9654;</span></div>
       <div class="nav-children" id="nav-delivery">
         <div class="nav-child" data-view="projects">Projects</div>
+        <div class="nav-child" data-view="mobileApps">Mobile Apps</div>
         <div class="nav-child" data-view="featbugs">Features &amp; Bugs</div>
         <div class="nav-child" data-view="tasks">Tasks</div>
         <div class="nav-child" data-view="clients">Clients</div>
@@ -605,6 +606,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <div class="view" id="v-leads"><div id="leadsListView"><div class="table-card"><div class="table-header"><h2>Leads Pipeline</h2><div class="table-filters"><input type="text" placeholder="Search..." id="leadSearch" oninput="renderLeads()"><select id="leadStatusFilter" onchange="renderLeads()"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal_sent">Proposal Sent</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="converted">Converted</option><option value="lost">Lost</option><option value="bad_lead">Bad Lead</option><option value="not_qualified">Not Qualified</option></select><button class="btn btn-primary btn-sm" onclick="editLead()">+ Add Lead</button></div></div><div id="leadsTable"></div></div></div><div id="leadDetailView" style="display:none"></div></div>
       <div class="view" id="v-clients"><div id="clientsListView"><div class="table-card"><div class="table-header"><h2>Clients &amp; Prospects</h2><div class="table-filters"><input type="text" placeholder="Search..." id="clientSearch" oninput="renderClients()"><select id="clientStatusFilter" onchange="renderClients()"><option value="">All</option><option value="active">Active</option><option value="prospect">Prospect</option><option value="paused">Paused</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editClient()">+ Add Client</button></div></div><div id="clientsTable"></div></div></div><div id="clientDetailView" style="display:none"></div></div>
       <div class="view" id="v-projects"><div id="projectsListView"><div class="table-card"><div class="table-header"><h2>Projects</h2><div class="table-filters"><select id="projStatusFilter" onchange="renderProjects()"><option value="">All</option><option value="discovery">Discovery</option><option value="scoping">Scoping</option><option value="in_progress">In Progress</option><option value="review">Review</option><option value="deployed">Deployed</option><option value="completed">Completed</option></select><button class="btn btn-primary btn-sm" onclick="editProject()">+ New Project</button></div></div><div id="projectsTable"></div></div></div><div id="projectDetailView" style="display:none"></div></div>
+      <div class="view" id="v-mobileApps"><div id="mobileListView"><div class="table-card"><div class="table-header"><h2>Mobile App Builds</h2><div class="table-filters"><select id="mobStatusFilter" onchange="renderMobileApps()"><option value="">All</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="reviewed">Reviewed</option><option value="approved">Approved</option><option value="building">Building</option><option value="built">Built</option><option value="error">Error</option></select><select id="mobTargetFilter" onchange="renderMobileApps()"><option value="">Any target</option><option value="native">Native</option><option value="both">Native + web</option><option value="web">Web only</option></select><a class="btn btn-primary btn-sm" href="/mobile-intake" target="_blank">+ New App Build</a></div></div><div style="padding:.35rem 1.25rem .6rem;font-size:.72rem;color:var(--text-muted)">Native Expo / React Native apps. The builder decides whether something belongs in the App Store and never ships a WebView wrapper.</div><div id="mobileTable"></div></div></div><div id="mobileDetailView" style="display:none"></div></div>
       <div class="view" id="v-tasks"><div id="tasksListView"><div class="table-card"><div class="table-header"><h2>Tasks</h2><div class="table-filters"><select id="taskStatusFilter" onchange="renderTasks()"><option value="">All</option><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="in_review">In Review</option><option value="blocked">Blocked</option><option value="done">Done</option></select><select id="taskProjectFilter" onchange="renderTasks()"><option value="">All Projects</option></select><select id="taskLeadFilter" onchange="renderTasks()"><option value="">All Leads</option></select><button class="btn btn-primary btn-sm" onclick="editTask()">+ Add Task</button></div></div><div id="tasksTable"></div></div></div><div id="taskDetailView" style="display:none"></div></div>
       <!-- ═══ FEATURES & BUGS VIEW (Delivery) ═══ -->
       <div class="view" id="v-featbugs">
@@ -1566,7 +1568,7 @@ function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/
 function leadName(l){if(!l)return '';const fn=l.first_name||'';const ln=l.last_name||'';const full=(fn+' '+ln).trim();return full||l.name||l.email||'Unnamed';}
 function leadFirst(l){return l?.first_name||l?.name?.split(' ')[0]||'';}
 function leadLast(l){return l?.last_name||'';}
-let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},timeEntries:[],partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[],agents:[],agentDecisions:[]};
+let S={leads:[],clients:[],projects:[],tasks:[],apps:[],events:[],resources:[],comments:[],applications:[],careerRoles:[],jobPostings:[],jobApplications:[],jobCustomFields:[],courses:[],trainingModules:[],trainingResources:[],employees:[],deals:[],invoices:[],reviews:[],reviewSettings:null,projectMembers:{},timeEntries:[],partners:[],affiliateLeads:[],commissions:[],assessments:[],partnerNotifications:[],blogPosts:[],blogTopics:[],agents:[],agentDecisions:[],dashboardBuilds:[],mobileBuilds:[]};
 let resourceQuill=null,selectedFile=null,currentUser=null;
 
 // AUTH
@@ -1614,7 +1616,7 @@ function toggleMore(el){
   document.getElementById('moreSection').classList.toggle('open');
 }
 // ─── Role-gated navigation (UX layer; RLS enforces data server-side) ───
-var ROLE_VIEWS={developer:['projects','tasks','featbugs','videos'],sales:['leads','deals','clients','bookings','forms','videos'],marketing:['blog','resources','education','kpis','videos']};
+var ROLE_VIEWS={developer:['projects','mobileApps','tasks','featbugs','videos'],sales:['leads','deals','clients','bookings','forms','videos'],marketing:['blog','resources','education','kpis','videos']};
 function roleGateNav(role){
   if(role==='admin'||role==='super_admin')return;
   var views=ROLE_VIEWS[role];if(!views)return;
@@ -1673,7 +1675,7 @@ function activateView(v,skipHash){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
   var viewEl=document.getElementById('v-'+resolvedView);
   if(viewEl)viewEl.classList.add('active');
-  var titleMap={kpis:'KPIs',comms:'Email',emailInbox:'Inbox',emailDrafts:'Drafts',emailSent:'Sent',emailTemplates:'Email Templates',emailSettings:'Email Settings',apps:'App Library',agents:'Agent Brains',forms:'Forms & Surveys',bookings:'Bookings',bookingSettings:'Booking Settings',systemSettings:'System Settings'};
+  var titleMap={kpis:'KPIs',comms:'Email',emailInbox:'Inbox',emailDrafts:'Drafts',emailSent:'Sent',emailTemplates:'Email Templates',emailSettings:'Email Settings',apps:'App Library',agents:'Agent Brains',forms:'Forms & Surveys',bookings:'Bookings',bookingSettings:'Booking Settings',systemSettings:'System Settings',mobileApps:'Mobile Apps'};
   document.getElementById('pageTitle').textContent=titleMap[v]||(v.charAt(0).toUpperCase()+v.slice(1));
   // Reset to list views
   ['leads','clients','projects','tasks'].forEach(function(s){
@@ -1688,7 +1690,9 @@ function activateView(v,skipHash){
   var nlv=document.getElementById('notesListView');if(nlv)nlv.style.display='';
   var ndv=document.getElementById('noteDetailView');if(ndv)ndv.style.display='none';
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
-  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();if(v==='notes')loadNotes();
+  var mlv=document.getElementById('mobileListView');if(mlv)mlv.style.display='';
+  var mdv=document.getElementById('mobileDetailView');if(mdv)mdv.style.display='none';
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();if(v==='notes')loadNotes();if(v==='mobileApps')loadMobileApps();
   // Email sub-views
   if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
@@ -1741,6 +1745,7 @@ function routeFromHash(){
       else if(view==='tasks'&&parts[1]){activateView('tasks',true);showTaskDetail(decodeURIComponent(parts[1]));}
       else if(view==='videos'&&parts[1]){activateView('videos',true);showVideoDetail(decodeURIComponent(parts[1]));}
       else if(view==='notes'&&parts[1]){activateView('notes',true);showNoteDetail(decodeURIComponent(parts[1]));}
+      else if(view==='mobileApps'&&parts[1]){activateView('mobileApps',true);showMobileAppDetail(decodeURIComponent(parts[1]));}
       else{activateView(view,true);}
     }
   }catch(e){}
@@ -3460,7 +3465,7 @@ async function showProjectDetail(id){
   (p.app_id?'<div class="table-card" style="padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent);font-weight:600">📱 LINKED APP</span><h4 style="margin:4px 0 0;font-size:.95rem">'+(S.apps.find(a=>a.id===p.app_id)?.name||'App')+'</h4></div><button class="btn btn-sm btn-secondary" onclick="showAppFromProject(\''+p.app_id+'\')">View in App Library →</button></div></div>':'')+
   (p.intake_data&&Object.keys(p.intake_data).length?'<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">📋 Application Data</h3>'+(p.intake_id?'<button class="btn btn-sm btn-secondary" onclick="showAppDetail(\''+p.intake_id+'\')">View Full Application →</button>':'')+'</div><div class="detail-grid">'+renderIntakeData(p.intake_data)+'</div></div>':'')+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">👥 Linked Clients</h3><button class="btn btn-sm btn-primary" onclick="linkClientToProject(\''+id+'\')">+ Link Client</button></div><div id="linkedClients_'+id+'"><p style="color:var(--text-muted);font-size:.85rem">Loading...</p></div></div>'+
-    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'<button class="btn btn-sm" id="promptBtnDashboard" onclick="showDashboardPrompt(\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📊 Dashboard</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyProjectPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
+    '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="font-size:0.95rem;color:var(--accent)">🚀 Build Prompt Generator</h3></div><div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap"><button class="btn btn-sm" id="promptBtnWebsite" onclick="showBuildPrompt(\'website\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">🌐 Website</button><button class="btn btn-sm" id="promptBtnFullStack" onclick="showBuildPrompt(\'fullstack\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Full-Stack App</button><button class="btn btn-sm" id="promptBtnWebApp" onclick="showBuildPrompt(\'webapp\',\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">💻 Web App</button>'+ccInlineButtons(id)+'<button class="btn btn-sm" id="promptBtnDashboard" onclick="showDashboardPrompt(\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📊 Dashboard</button><button class="btn btn-sm" id="promptBtnMobile" onclick="showMobileAppPrompt(\''+id+'\')" style="border:1px solid var(--accent);color:var(--accent)">📱 Mobile App</button></div><div id="promptOutput" style="display:none"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-sm btn-primary" onclick="copyProjectPrompt()">📋 Copy to Clipboard</button></div><pre id="promptText" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;max-height:400px;overflow:auto;white-space:pre-wrap;word-wrap:break-word;color:var(--text-muted);line-height:1.5"></pre></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🎨 Client Project Details</h3><a class="btn btn-sm btn-secondary" href="https://knightops.biz/dashboard-intake" target="_blank" style="font-size:.72rem">+ New / Edit Mockups</a></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Send your client the voting link. They see every saved mockup variation for this project and pick the one they want built.</p><div id="buildTarget_'+id+'" style="margin-bottom:.9rem"><p style="color:var(--text-muted);font-size:.8rem">Loading build target…</p></div><div id="dashMockup_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><h3 style="font-size:0.95rem;color:var(--accent)">🔗 Client Intake Links</h3><button class="btn btn-sm btn-primary" style="font-size:.72rem" onclick="createAndCopyIntakeToken(\''+id+'\')">+ New Link</button></div><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.85rem;line-height:1.5">Secure 7-day links you can send to clients so they can submit credentials and files without logging in. Each 🔗 Copy Link button above auto-generates one.</p><div id="intakeTokens_'+id+'"><p style="color:var(--text-muted);font-size:.82rem">Loading...</p></div></div>'+
   '<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem"><h3 style="font-size:0.95rem;color:var(--accent)">➕ Add a Module (injection prompt)</h3></div><p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem">Generate a project-tailored prompt to inject any module into this client\'s existing dashboard, wired into everything already built. Paste it into Claude Code.</p><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.55rem"><select id="miMod_'+id+'" style="flex:1;min-width:170px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:.82rem"><option value="">Loading…</option></select><button class="btn btn-sm btn-primary" onclick="genModuleInjection(\''+id+'\')">Generate</button></div><input id="miNotes_'+id+'" placeholder="Optional specifics (else it assumes best from project data)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.82rem;margin-bottom:.5rem"><div id="miOut_'+id+'"></div></div>'+
@@ -4602,9 +4607,17 @@ email_logs (id, user_id, template, status, error, created_at)
 function ccInlineButtons(projectId){
   return '<button class="btn btn-sm" id="promptBtnCC" onclick="showCCPrompt(\''+projectId+'\')" style="border:1px solid #22c55e;color:#22c55e">&#9889; Command Center</button>';
 }
-function showDashboardPrompt(projectId){
+async function showDashboardPrompt(projectId){
   var p=S.projects.find(function(x){return x.id===projectId;});
   if(!p)return;
+  // S.dashboardBuilds was referenced here but never populated, so the saved-build_prompt
+  // short-circuit below could never fire. Lazily load it once.
+  if(!S.dashboardBuilds.length){
+    try{
+      var q=await sb.from('dashboard_builds').select('id,lead_id,project_id,build_prompt,status').not('build_prompt','is',null).order('created_at',{ascending:false}).limit(200);
+      S.dashboardBuilds=q.data||[];
+    }catch(e){S.dashboardBuilds=[];}
+  }
   var db=(S.dashboardBuilds||[]).find(function(b){return (p.lead_id&&b.lead_id===p.lead_id)||(b.project_id===p.id);});
   if(db&&db.build_prompt){document.getElementById('promptOutput').style.display='block';document.getElementById('promptText').textContent=db.build_prompt;dashHi();return;}
   var idata=p.intake_data||{};
@@ -4635,7 +4648,130 @@ function showDashboardPrompt(projectId){
   document.getElementById('promptText').textContent=L.join(String.fromCharCode(10));
   dashHi();
 }
-function dashHi(){['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(function(bid){var b=document.getElementById(bid);if(b)b.style.background='transparent';});var d=document.getElementById('promptBtnDashboard');if(d)d.style.background='rgba(200,164,86,0.15)';}
+function dashHi(){['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard','promptBtnMobile'].forEach(function(bid){var b=document.getElementById(bid);if(b)b.style.background='transparent';});var d=document.getElementById('promptBtnDashboard');if(d)d.style.background='rgba(200,164,86,0.15)';}
+
+/* ═══ MOBILE APP BUILDER ═══
+   Layer A lives at /mobile-intake (builder) and /mb?t= (client review).
+   These surfaces read mobile_builds. See MOBILE-APP-BUILDER-SPEC.md. */
+const MOB_STATUS={draft:'#8a8a99',submitted:'#00D4C8',reviewed:'#C9922A',approved:'#30A46C',building:'#E5A50A',built:'#30A46C',error:'#E5484D'};
+const MOB_TARGET={native:'Native',both:'Native + web',web:'Web only'};
+function mobPill(s){return '<span style="font-size:.68rem;padding:.15rem .5rem;border-radius:999px;border:1px solid '+(MOB_STATUS[s]||'#333')+';color:'+(MOB_STATUS[s]||'#999')+'">'+(s||'draft')+'</span>';}
+async function loadMobileApps(){
+  try{
+    const q=await sb.from('mobile_builds').select('*').order('created_at',{ascending:false}).limit(300);
+    S.mobileBuilds=q.data||[];
+  }catch(e){S.mobileBuilds=[];}
+  renderMobileApps();
+}
+function renderMobileApps(){
+  const st=(document.getElementById('mobStatusFilter')||{}).value||'';
+  const tg=(document.getElementById('mobTargetFilter')||{}).value||'';
+  const rows=(S.mobileBuilds||[]).filter(b=>(!st||b.status===st)&&(!tg||b.target===tg));
+  const host=document.getElementById('mobileTable');
+  if(!host)return;
+  if(!rows.length){host.innerHTML='<div style="padding:1.5rem;color:var(--text-muted);font-size:.85rem">No mobile app builds yet. <a href="/mobile-intake" target="_blank">Start one →</a></div>';return;}
+  host.innerHTML='<table class="data-table"><thead><tr><th>App</th><th>Target</th><th>Screens</th><th>Money</th><th>Status</th><th>Created</th></tr></thead><tbody>'+
+    rows.map(b=>'<tr style="cursor:pointer" onclick="showMobileAppDetail(\''+b.id+'\')">'+
+      '<td><strong>'+esc(b.business_name||b.company||'Untitled')+'</strong><div style="font-size:.72rem;color:var(--text-muted)">'+esc(b.niche||'')+'</div></td>'+
+      '<td>'+esc(MOB_TARGET[b.target]||b.target||'—')+'</td>'+
+      '<td>'+((b.screens||[]).length)+'</td>'+
+      '<td>'+esc(b.monetization||'—')+'</td>'+
+      '<td>'+mobPill(b.status)+'</td>'+
+      '<td style="font-size:.75rem;color:var(--text-muted)">'+(b.created_at?new Date(b.created_at).toLocaleDateString():'')+'</td>'+
+      '</tr>').join('')+'</tbody></table>';
+}
+function showMobileAppDetail(id){
+  const b=(S.mobileBuilds||[]).find(x=>x.id===id);
+  if(!b){loadMobileApps();return;}
+  setRecordHash('mobileApps',id);
+  document.getElementById('mobileListView').style.display='none';
+  const d=document.getElementById('mobileDetailView');
+  d.style.display='';
+  const tabs=Array.isArray(b.tabs)?b.tabs:[];
+  const caps=Array.isArray(b.capabilities)?b.capabilities:[];
+  const rev=b.share_review_token?'https://knightops.biz/mb?t='+b.share_review_token:'';
+  const edt=b.share_edit_token?'https://knightops.biz/mb?t='+b.share_edit_token:'';
+  const res=b.resume_token?'https://knightops.biz/mobile-intake?resume='+b.resume_token:'';
+  let h='<button class="btn btn-sm" onclick="activateView(\'mobileApps\')" style="margin-bottom:1rem">← Back</button>';
+  h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem"><div><h2 style="font-size:1.15rem">'+esc(b.business_name||b.company||'Untitled')+'</h2><div style="font-size:.8rem;color:var(--text-muted)">'+esc(b.niche||'')+' · '+esc(MOB_TARGET[b.target]||b.target||'')+'</div></div><div>'+mobPill(b.status)+'</div></div>';
+  if(b.target_reason)h+='<p style="font-size:.8rem;color:var(--text-muted);margin-top:.6rem">'+esc(b.target_reason)+'</p>';
+  h+='</div>';
+  // App Store guardrails, stated plainly
+  if(b.monetization==='iap'||b.monetization==='both')
+    h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #E5A50A"><strong style="color:#E5A50A">StoreKit required.</strong> <span style="font-size:.82rem;color:var(--text-muted)">Guideline 3.1.1 — digital content sold in-app must use Apple in-app purchase, not Stripe.</span></div>';
+  if(b.target==='web')
+    h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #E5484D"><strong style="color:#E5484D">Classified web, not App Store.</strong> <span style="font-size:.82rem;color:var(--text-muted)">Apple rejects wrapped websites (4.2). Build this in the dashboard builder.</span></div>';
+  // links
+  h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #C9922A"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🔗 Links</h3>';
+  if(rev)h+='<div style="margin-bottom:.4rem"><a href="'+rev+'" target="_blank">Client review link</a></div>';
+  if(edt)h+='<div style="margin-bottom:.4rem"><a href="'+edt+'" target="_blank">Client edit link</a></div>';
+  if(res)h+='<div style="margin-bottom:.4rem"><a href="'+res+'" target="_blank">Resume in builder</a></div>';
+  if(b.build_repo_url)h+='<div style="margin-bottom:.4rem"><a href="'+esc(b.build_repo_url)+'" target="_blank">Repo</a></div>';
+  if(b.build_live_url)h+='<div><a href="'+esc(b.build_live_url)+'" target="_blank">Live build</a></div>';
+  h+='</div>';
+  // composition
+  h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">📱 What gets built</h3>';
+  if(tabs.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.3rem">Tabs</div>'+tabs.map(t=>'<span class="tag">'+esc(t.label||t.t)+'</span>').join(' ');
+  if(caps.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin:.7rem 0 .3rem">Native</div>'+caps.map(c=>'<span class="tag">'+esc(c)+'</span>').join(' ');
+  h+='<div style="margin-top:.7rem;font-size:.8rem;color:var(--text-muted)">'+((b.screens||[]).length)+' screens · sign-in: '+esc((b.auth_methods||[]).join(', ')||'none')+'</div>';
+  h+='</div>';
+  // build lifecycle
+  h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #00D4C8"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🏗 Build</h3>';
+  if(b.status==='building')h+='<div style="font-size:.82rem">'+esc(b.build_stage||'Building…')+' '+(b.build_progress?('— '+b.build_progress+'%'):'')+'</div>';
+  else if(b.status==='built')h+='<div style="font-size:.82rem;color:#30A46C">Built '+(b.built_at?new Date(b.built_at).toLocaleString():'')+'</div>';
+  else if(b.status==='approved')h+='<div style="font-size:.82rem">Approved and queued — the orchestrator picks it up on its next pass.</div>';
+  else if(b.status==='error')h+='<div style="font-size:.82rem;color:#E5484D">'+esc(b.build_error||'Build error')+'</div>';
+  else h+='<div style="font-size:.82rem;color:var(--text-muted)">Not approved yet.</div>';
+  if(b.build_folder)h+='<div style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem">Folder: <code>'+esc(b.build_folder)+'</code></div>';
+  h+='</div>';
+  // mockup
+  if(b.ai_mockup_html){
+    h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🎨 Mockup</h3>'+
+       '<iframe id="mobMockFrame" sandbox="allow-scripts allow-same-origin" style="width:100%;height:620px;border:1px solid var(--border);border-radius:10px;background:#0e0e14"></iframe></div>';
+  }
+  // docs
+  if(b.build_prompt)h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">⚙️ Build prompt</h3><button class="btn btn-sm btn-primary" onclick="copyMobPrompt(\''+b.id+'\')">📋 Copy</button><pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.75rem;max-height:340px;overflow:auto;white-space:pre-wrap;color:var(--text-muted);margin-top:.6rem">'+esc(b.build_prompt)+'</pre></div>';
+  if(b.store_md)h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🏪 App Store readiness</h3><pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.75rem;max-height:340px;overflow:auto;white-space:pre-wrap;color:var(--text-muted)">'+esc(b.store_md)+'</pre></div>';
+  if(b.spec_md)h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">📄 Spec</h3><pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.75rem;max-height:340px;overflow:auto;white-space:pre-wrap;color:var(--text-muted)">'+esc(b.spec_md)+'</pre></div>';
+  d.innerHTML=h;
+  if(b.ai_mockup_html){const f=document.getElementById('mobMockFrame');if(f)f.srcdoc=b.ai_mockup_html;}
+}
+function copyMobPrompt(id){
+  const b=(S.mobileBuilds||[]).find(x=>x.id===id);
+  if(b&&b.build_prompt)navigator.clipboard.writeText(b.build_prompt).then(()=>showToast('Build prompt copied'));
+}
+async function showMobileAppPrompt(projectId){
+  var p=S.projects.find(function(x){return x.id===projectId;});
+  if(!p)return;
+  if(!S.mobileBuilds.length){
+    try{const q=await sb.from('mobile_builds').select('*').order('created_at',{ascending:false}).limit(300);S.mobileBuilds=q.data||[];}catch(e){}
+  }
+  var mb=(S.mobileBuilds||[]).find(function(b){return (p.lead_id&&b.lead_id===p.lead_id)||(b.project_id===p.id);});
+  document.getElementById('promptOutput').style.display='block';
+  if(mb&&mb.build_prompt){document.getElementById('promptText').textContent=mb.build_prompt;mobHi();return;}
+  var L=[];
+  L.push('/goal Build and ship a production NATIVE mobile app for '+(p.name||'this client')+'.');
+  L.push('');
+  L.push('There is no scoped mobile build for this project yet. Scope it first in the Mobile App Builder so the screens, native capabilities, monetization and App Store answers are decided before any code:');
+  L.push('https://knightops.biz/mobile-intake');
+  L.push('');
+  L.push('## What we know');
+  L.push('- Project: '+(p.name||''));
+  if(p.description)L.push('- '+p.description);
+  if(p.repo_url)L.push('- Repo: '+p.repo_url);
+  if(p.supabase_ref)L.push('- Supabase: '+p.supabase_ref);
+  L.push('');
+  L.push('## Non-negotiables when you do build it');
+  L.push('- Expo + React Native + expo-router + TypeScript. REAL native code.');
+  L.push('- NEVER Capacitor, Cordova or a WebView wrapper — App Store Guideline 4.2 rejects repackaged websites.');
+  L.push('- Digital content or subscriptions sold in the app MUST use StoreKit in-app purchase, not Stripe (Guideline 3.1.1).');
+  L.push('- If users can create an account, ship in-app account deletion (Guideline 5.1.1(v)).');
+  L.push('- One app = one Supabase project. RLS on every table.');
+  L.push('- EAS Build for the store binary. Do NOT auto-submit — Daniel submits.');
+  document.getElementById('promptText').textContent=L.join(String.fromCharCode(10));
+  mobHi();
+}
+function mobHi(){['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard','promptBtnMobile'].forEach(function(bid){var b=document.getElementById(bid);if(b)b.style.background='transparent';});var d=document.getElementById('promptBtnMobile');if(d)d.style.background='rgba(200,164,86,0.15)';}
 function showCCPrompt(projectId){
   var p=S.projects.find(function(x){return x.id===projectId;});
   if(!p)return;
@@ -4694,7 +4830,7 @@ function showCCPrompt(projectId){
 
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(function(bid){
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard','promptBtnMobile'].forEach(function(bid){
     var btn=document.getElementById(bid);
     if(btn)btn.style.background='transparent';
   });
@@ -4789,7 +4925,7 @@ function showBuildPrompt(type,projectId){
   document.getElementById('promptOutput').style.display='block';
   document.getElementById('promptText').textContent=prompt;
 
-  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard'].forEach(id=>{
+  ['promptBtnWebsite','promptBtnFullStack','promptBtnWebApp','promptBtnCC','promptBtnDashboard','promptBtnMobile'].forEach(id=>{
     const btn=document.getElementById(id);
     if(btn)btn.style.background='transparent';
   });
@@ -13448,7 +13584,7 @@ const FS_TABLE_MAP={
 // metadata.source / metadata.capture_tool / metadata.form_type / tags / form_type.
 const FS_FORM_LABELS={
   // intake_submissions.form_type values
-  dashboard:'Dashboard Build',
+  dashboard:'Dashboard Build',mobile_app:'Mobile App Build',
   blueprint:'Blueprint Application',mini_blueprint:'Mini Blueprint',website:'Website Intake',
   website_intake:'Website Intake',build:'Build Intake',command_center:'Command Center Intake',
   speed_to_value:'Speed to Value',stv:'Speed to Value',

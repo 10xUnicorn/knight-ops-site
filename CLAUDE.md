@@ -3,7 +3,30 @@
 > **Owner:** Daniel Knight (dknightunicorn@gmail.com)
 > **Domain:** knightops.biz
 > **Repo:** github.com/10xUnicorn/knight-ops-site (public)
-> **Last Updated:** 2026-08-31
+> **Last Updated:** 2026-09-02
+
+---
+
+## Changelog — 2026-09-02 (Mobile App Builder — native Expo apps, scoped from uploaded documents)
+
+Full spec: **`MOBILE-APP-BUILDER-SPEC.md`**. Sibling of the Dashboard Builder, deliberately a different shape.
+
+- **NEW PAGES, ZERO `vercel.json` CHANGES.** `/mobile-intake` (`mobile-intake.html`, the builder) and `/mb?t=<token>` (`mb.html`, the client review + approve page) are both served by the existing catch-all `/:path` → `/:path.html`. Same precedent as `/shift`. **Rule 1 held: `vercel.json` was never touched.**
+- **WHY IT IS NOT THE DASHBOARD BUILDER.** The dashboard builder composes 37 `os_modules` into ≤7 sidebar workspaces. A phone is not a sidebar. The unit here is a **SCREEN** (33 in `SCREENS`), navigation is a **tab bar capped at 5** (`tabPlan()`, Apple HIG — overflow folds into a sibling tab as a segmented control, never a "More" tab), and there are two axes the dashboard has none of: **native capabilities** (19, each carrying its Expo package and iOS usage-description) and **App Store readiness**.
+- **THE CLASSIFIER IS THE POINT.** `mobile-analyze` returns `target` = `native` | `web` | `both` with a written reason. A back-office/CRUD brief comes back **`web`** and is pointed at `/dashboard-intake` rather than dressed up as an app — App Store Guideline **4.2** rejects repackaged websites, and we never emit Capacitor, Cordova or a WebView shell. Verified live: a bookkeeping brief returned `web`; a coaching-app brief returned `native`.
+- **THE IAP TRAP IS ENCODED.** Guideline **3.1.1**: digital content or subscriptions consumed in-app MUST use StoreKit, not Stripe. The analyzer sets `monetization` and the UI, the build prompt and the admin card all say so out loud. Verified live: "members pay $29/mo for premium lessons inside the app" → `monetization: iap`. Also enforced: **5.1.1(v)** (sign-up ⇒ in-app account deletion is auto-added as a screen) and **4.8** (Google sign-in ⇒ Sign in with Apple required).
+- **Stack it emits (Layer B):** Expo + expo-router + TypeScript, Supabase (own project per app, Rule 7), EAS Build with real bundle ids, expo-updates, RN Web + Vercel only when `target` includes web. **The pipeline stops at a store-ready binary — it never auto-submits, and no Apple/Google credentials live in Knight Ops.**
+- **Tables:** `mobile_builds` (74 cols) + `mobile_jobs`. Bucket `mobile-assets` (public read, anon insert — PDFs/screenshots go to Claude by URL).
+- **THREE THINGS DELIBERATELY NOT COPIED FROM THE DASHBOARD BUILDER, because they are bugs:**
+  1. `dashboard_builds` carries `anon_read USING (true)` — anyone with the public anon key can read **every column of every build, including `resume_token`, `share_edit_token`, `email` and `build_prompt`.** `mobile_builds` has **zero anon policies** (admin + service_role only); every read goes through `mobile-shared`, which returns a safe subset and never the tokens. Verified: anon SELECT → `[]`.
+  2. `dashboard-analyze` and `dashboard-job` are **unauthenticated Anthropic spend**. `mobile-job` requires a real build token. Verified: an anonymous `start` returns 401.
+  3. `dashboard-build` (41 fields) and `dashboard-mockups` (34) have **already drifted**, so a field saved by one path is silently dropped by the other. The mobile set has **ONE** `FIELDS` list, and mockup add/choose live inside `mobile-build` rather than a second function.
+- **ONE ready state.** The dashboard writes `approved` from one path and `queued` from two others, which is why the orchestrator silently skipped approved builds for months. `mobile_builds` has exactly one: **`approved`**. Lifecycle `draft → submitted → reviewed → approved → building → built|error`.
+- **Edge fns (4, all `verify_jwt=false`, service-role internally):** `mobile-build` (save/resume/submit/approve/save_edit/add_mockup/choose_mockup/**build_status**), `mobile-analyze` (pre-fill + classifier), `mobile-job` (segmented mockup/spec/store generation — same proven mechanics as `dashboard-job`: assistant prefill, `thinking:{type:'disabled'}` on continuation, `stop_reason==='max_tokens'` loop, `textOf()` never `content[0]`; guard swapped to **tab-bar + frame count**), `mobile-shared` (token-scoped read, server decides review vs edit). Env: `MOBILE_ANALYZE_MODEL` (opus), `MOBILE_MOCKUP_MODEL` (sonnet), `MOBILE_CLASSIFY_MODEL` (haiku), `MOBILE_SEG_TOKENS`, `MOBILE_AI_EFFORT`.
+- **admin.html:** new **Delivery → Mobile Apps** view (list + detail with mockup iframe, build lifecycle, store pack), `#mobileApps/<id>` deep links, and a 6th **📱 Mobile App** button in the Build Prompt Generator. Also fixed an adjacent latent bug: **`S.dashboardBuilds` was referenced by `showDashboardPrompt()` but never declared or populated**, so its saved-`build_prompt` short-circuit had never once fired — it now lazily loads.
+- **Orchestrator:** new **STEP 3B — MOBILE APP BUILDS** (cap 1/run, 4-hour slots), claimed by `update … set status='building' where id=… and status='approved'`, reporting progress through `mobile-build` `build_status` (a raw anon PATCH is RLS-blocked by design).
+- **NEW REPO TOOLS** (`tools/`) for the two checks CLAUDE.md mandates but never had scripts for: `script-check.py` (`node --check` every inline `<script>` block) and `onclick-check.py` (every `on*` handler resolves). Plus `callcheck.py` for bare calls inside function bodies — which is what caught a `toast()` call in admin.html, where the function is `showToast()`.
+- **Verified end to end:** submit → lead + project + `intake_submissions(form_type='mobile_app')` created; review token → `mode:review` with no leaked fields; edit token → `mode:edit`; bad token → not found; approve → `approved`; `build_status` → `building` at 25%; the orchestrator's exact STEP 3B query returns the row. A real mockup segment produced 13,875 chars with phone frames, a tab bar and a status bar. All test rows removed (`mobile_builds` and `mobile_jobs` back to 0, no stray leads/projects/intakes). `node --check` clean on both `admin.html` blocks; all 499 onclick targets resolve.
 
 ---
 
