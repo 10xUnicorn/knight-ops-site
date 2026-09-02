@@ -52,7 +52,7 @@ Inherited from `CLAUDE.md`:
 
 New to this feature:
 6. **Never emit a wrapper.** No Capacitor, no Cordova, no WebView-shell. App Store Guideline **4.2 (Minimum Functionality)** rejects repackaged websites. The generated app uses native navigation and native components or it does not ship.
-7. **Digital goods must use StoreKit IAP**, not Stripe (Guideline 3.1.1). Stripe is only correct for physical goods and real-world services. The builder decides this and says so out loud.
+7. **Digital goods are a StoreKit question, not a Stripe one** (Guideline 3.1.1). Stripe is only correct for physical goods and real-world services. Since the **May 2025 Epic v. Apple contempt ruling**, US-storefront apps may also link OUT to a web checkout with no Apple commission — so the real decision is *payment routing* (§5b), not simply "IAP or not". The builder decides and says so out loud.
 
 ---
 
@@ -78,7 +78,7 @@ Encoded as a checklist the builder fills in and the build prompt enforces. These
 | Guideline | Rule | Builder field |
 |---|---|---|
 | 4.2 | No minimum-functionality wrappers | enforced by §4 gate + native stack |
-| 3.1.1 | Digital goods/subscriptions → **StoreKit IAP**, not Stripe | `monetization` (`none`/`iap`/`stripe_physical`/`both`) |
+| 3.1.1 | Digital goods → StoreKit **or** a US link-out; never Stripe-in-app | `monetization` + `payment_routing` (§5b) |
 | 5.1.1(v) | Account creation ⇒ **in-app account deletion** required | `account_deletion` (forced true when auth is on) |
 | 4.8 | Third-party social login ⇒ **Sign in with Apple** required | `auth_methods` |
 | 5.1.1 | Privacy policy URL required; privacy "nutrition label" answers | `privacy_url`, `data_collected[]` |
@@ -114,6 +114,27 @@ Each carries its Expo package and the `app.config` permission strings + usage-de
 
 ### 6.4 `tabPlan()` — the consolidation engine (mobile analogue of `navWorkspaces()`)
 `MAX_TABS = 5`. Bucket selected screens by `t`; pin Home first and Profile/Settings last; rank the middle by screen count; anything over the cap **folds into a sibling tab as a segmented control** (not a "More" tab — Apple's More tab is a UX smell). Returns `[{t,label,purpose,screens[],merged[]}]`, ≤5 long.
+
+---
+
+## 5b. Payment routing — the 2025 Apple change
+
+Apple historically required StoreKit for all in-app digital goods and took 15–30%. After the **May 2025 Epic v. Apple contempt ruling**, apps on the **US storefront** may link out to an external web checkout with **no Apple commission** and without the old scare-screen restrictions.
+
+So `monetization` says *what* is sold; **`payment_routing`** says *how* it is taken:
+
+| Value | What it means | When |
+|---|---|---|
+| `n_a` | nothing digital sold | physical goods already use Stripe; IAP is forbidden there |
+| `iap_only` | StoreKit everywhere | **the default.** Best conversion (one tap), works in every country, simplest review. Right for low price points and impulse buys |
+| `iap_plus_external` | StoreKit **and** a US link-out | usually best for a US-heavy audience with a real price point — keeps conversion and non-US coverage, gives US buyers a no-commission route |
+| `external_link` | link-out only | only when the audience is essentially **US-only** and the margin case is overwhelming (high ticket, existing web checkout) |
+
+**The nuance the builder must never lose:** the no-commission link-out is **US-storefront**. Outside the US, in-app digital purchases still generally require StoreKit, and the EU runs its own DMA regime with its own fees. So `external_link` means non-US users cannot buy — the build prompt requires either geo-gating the purchase UI to the US, or shipping StoreKit as well. It also tells the builder to **verify current App Review terms at submission time**, because this area is actively litigated and Apple has changed it more than once.
+
+The analyzer decides this automatically from price point, audience geography, and whether a web checkout already exists — and writes its reasoning into `payment_routing_reason` in plain language. It is also a question on the intake, so Daniel can override.
+
+Verified: a $497/mo US-only coaching app → `external_link` ("Apple's 15 to 30 percent cut would cost roughly $75 to $150 per member every month… you already have a working Stripe checkout"); a $4.99/mo app selling in 40+ countries → `iap_only` ("most of them cannot legally be routed to an external checkout anyway").
 
 ---
 

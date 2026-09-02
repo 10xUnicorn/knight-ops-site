@@ -39,6 +39,18 @@ function toBase64(buf) {
   return btoa(bin);
 }
 
+// A signature logo is a small image. Anything bigger, or anything that is not an image at
+// all, is the sender's actual content and must stay visible in file lists.
+const INLINE_MAX_BYTES = 100 * 1024;
+
+function isInlineNoise(att, size) {
+  const flagged = att.disposition === 'inline' || !!att.contentId;
+  if (!flagged) return false;
+  const mime = String(att.mimeType || '');
+  if (!mime.startsWith('image/')) return false;      // a .docx is never a signature
+  return size > 0 && size < INLINE_MAX_BYTES;         // a 1.9MB PNG is not a signature
+}
+
 function buildAttachments(parsed) {
   const out = [];
   let budget = MAX_TOTAL_BYTES;
@@ -52,7 +64,18 @@ function buildAttachments(parsed) {
       // Signature logos and embedded images arrive as attachments too. Passing
       // the disposition through lets the CRM keep them off contact records
       // while still making them openable from the email itself.
-      is_inline: att.disposition === 'inline' || !!att.contentId,
+      //
+      // BUT `disposition==='inline' || contentId` ALONE IS FAR TOO BROAD. Mail clients set a
+      // Content-ID on anything dragged into the message body, so a client's real work gets
+      // flagged as signature noise and vanishes from their file lists. On 2026-09-02 this had
+      // swallowed April Little's 1.9MB brand logo, a second logo, her .docx business plan and
+      // her .md dev spec - the bytes were in storage the whole time, just filtered out of view.
+      //
+      // A signature logo is a SMALL IMAGE. So:
+      //   - a non-image is NEVER inline noise (a .docx is not a signature)
+      //   - an image at or above INLINE_MAX_BYTES is real content, not a signature
+      // Erring toward showing costs a little noise; erring toward hiding loses client assets.
+      is_inline: isInlineNoise(att, size),
       // postal-mime hands back the raw header value, angle brackets and all.
       content_id: att.contentId ? String(att.contentId).replace(/^<|>$/g, '') : null,
     };
@@ -78,7 +101,7 @@ function buildAttachments(parsed) {
 }
 
 // exported for the offline round-trip test in test/parse.test.mjs
-export { buildAttachments, toBase64 };
+export { buildAttachments, toBase64, isInlineNoise };
 
 export default {
   async email(message, env, ctx) {

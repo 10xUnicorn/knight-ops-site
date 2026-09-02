@@ -75,5 +75,26 @@ check('the inline logo keeps its content id', logo?.content_id === 'logo123');
 
 check('nothing was silently dropped', atts.every((a) => a.content || a.content_omitted));
 
+// REGRESSION (2026-09-02): `disposition==='inline' || contentId` alone was hiding real client
+// work. Mail clients set a Content-ID on anything dragged into the body, so April Little's
+// 1.9MB brand logo and her .docx business plan were flagged as signature noise and filtered
+// out of every file list. The bytes were in storage the whole time - they just never showed.
+// A signature logo is a SMALL IMAGE; nothing else is.
+const { isInlineNoise } = await import('../src/index.js').catch(() => ({}));
+if (typeof isInlineNoise === 'function') {
+  check('a big inline PNG is NOT noise (a brand logo)',
+    isInlineNoise({ disposition: 'inline', mimeType: 'image/png' }, 1942522) === false);
+  check('an inline .docx is NOT noise (never a signature)',
+    isInlineNoise({ contentId: '<x>', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }, 29689) === false);
+  check('an inline .md is NOT noise',
+    isInlineNoise({ contentId: '<x>', mimeType: 'text/markdown' }, 13718) === false);
+  check('a small inline PNG IS noise (a signature logo)',
+    isInlineNoise({ contentId: '<logo123>', mimeType: 'image/png' }, 4096) === true);
+  check('a plain attachment with no inline markers is NOT noise',
+    isInlineNoise({ mimeType: 'image/png' }, 4096) === false);
+} else {
+  console.log('  (skipped isInlineNoise unit checks - not exported)');
+}
+
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

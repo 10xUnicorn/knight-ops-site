@@ -4698,8 +4698,16 @@ function showMobileAppDetail(id){
   if(b.target_reason)h+='<p style="font-size:.8rem;color:var(--text-muted);margin-top:.6rem">'+esc(b.target_reason)+'</p>';
   h+='</div>';
   // App Store guardrails, stated plainly
-  if(b.monetization==='iap'||b.monetization==='both')
-    h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #E5A50A"><strong style="color:#E5A50A">StoreKit required.</strong> <span style="font-size:.82rem;color:var(--text-muted)">Guideline 3.1.1 — digital content sold in-app must use Apple in-app purchase, not Stripe.</span></div>';
+  if(b.monetization==='iap'||b.monetization==='both'){
+    const r=b.payment_routing||'iap_only';
+    const why=b.payment_routing_reason?'<div style="font-size:.78rem;color:var(--text-muted);margin-top:.35rem">'+esc(b.payment_routing_reason)+'</div>':'';
+    if(r==='external_link')
+      h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #30A46C"><strong style="color:#30A46C">External checkout (no Apple fee).</strong> <span style="font-size:.82rem;color:var(--text-muted)">Permitted on the US storefront since the May 2025 Epic ruling. US-only — non-US buyers still need StoreKit. Verify App Review terms at submission.</span>'+why+'</div>';
+    else if(r==='iap_plus_external')
+      h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #00D4C8"><strong style="color:#00D4C8">StoreKit + US link-out.</strong> <span style="font-size:.82rem;color:var(--text-muted)">StoreKit covers every country; the US link-out avoids the commission. Entitlement must resolve to the same account either way.</span>'+why+'</div>';
+    else
+      h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #E5A50A"><strong style="color:#E5A50A">StoreKit required.</strong> <span style="font-size:.82rem;color:var(--text-muted)">Guideline 3.1.1 — digital content sold in-app must use Apple in-app purchase, not Stripe.</span>'+why+'</div>';
+  }
   if(b.target==='web')
     h+='<div class="table-card" style="padding:.9rem 1.1rem;margin-bottom:1rem;border-left:3px solid #E5484D"><strong style="color:#E5484D">Classified web, not App Store.</strong> <span style="font-size:.82rem;color:var(--text-muted)">Apple rejects wrapped websites (4.2). Build this in the dashboard builder.</span></div>';
   // links
@@ -4736,6 +4744,42 @@ function showMobileAppDetail(id){
   else h+='<div style="font-size:.82rem;color:var(--text-muted)">Not approved yet.</div>';
   if(b.build_folder)h+='<div style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem">Folder: <code>'+esc(b.build_folder)+'</code></div>';
   h+='</div>';
+  // Stripe wiring — only when money is taken outside Apple
+  const takesStripe = b.monetization==='stripe_physical' || b.monetization==='both' ||
+                      b.payment_routing==='external_link' || b.payment_routing==='iap_plus_external';
+  if(takesStripe){
+    const st=(b.stripe&&typeof b.stripe==='object')?b.stripe:{};
+    const dot=(on)=>'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(on?'#30A46C':'#6b6b76')+';margin-right:.4rem"></span>';
+    h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #635BFF">'+
+       '<h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.4rem">💳 Stripe wiring</h3>'+
+       '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.7rem">Payment is taken outside Apple on this build, so Stripe handles it. Paste the keys here the moment the Stripe account exists and the app is ready to go live. <strong>The secret key and webhook secret are written to Supabase Vault (encrypted) — they are never stored in a column and never shown back.</strong></p>'+
+       '<div style="font-size:.8rem;margin-bottom:.7rem">'+
+         dot(!!st.publishable_key)+'Publishable key &nbsp; '+dot(!!st.secret_set)+'Secret key &nbsp; '+dot(!!st.webhook_set)+'Webhook secret'+
+         (st.configured_at?'<div style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem">Last updated '+new Date(st.configured_at).toLocaleString()+'</div>':'')+
+       '</div>'+
+       '<details style="margin-bottom:.7rem"><summary style="cursor:pointer;font-size:.8rem;color:var(--accent)">Where do I get these?</summary>'+
+         '<ol style="font-size:.79rem;color:var(--text-muted);line-height:1.7;padding-left:1.1rem;margin-top:.5rem">'+
+           '<li><strong>Publishable + Secret key:</strong> Stripe Dashboard → <em>Developers → API keys</em>. Copy the <em>Publishable key</em> (<code>pk_live_…</code>) and reveal + copy the <em>Secret key</em> (<code>sk_live_…</code>). Use the <code>pk_test_</code>/<code>sk_test_</code> pair while testing and switch the Mode below to Test.</li>'+
+           '<li><strong>Webhook signing secret:</strong> Stripe Dashboard → <em>Developers → Webhooks → Add endpoint</em>. Point it at the app\'s webhook URL (paste it below once the app is deployed), subscribe to <code>checkout.session.completed</code>, <code>customer.subscription.updated</code> and <code>customer.subscription.deleted</code>, then copy the <em>Signing secret</em> (<code>whsec_…</code>).</li>'+
+           '<li>Paste all three here and Save. The build reads them from Vault when it wires payments — nothing else to do.</li>'+
+         '</ol>'+
+         '<p style="font-size:.76rem;color:#E5A50A;margin-top:.5rem">Use a <strong>restricted key</strong> (<code>rk_live_…</code>) rather than the full secret key if you only need charges and subscriptions. Less blast radius if it ever leaks.</p>'+
+       '</details>'+
+       '<div style="display:grid;gap:.5rem">'+
+         '<input type="text" id="stpPub_'+id+'" placeholder="Publishable key (pk_live_… or pk_test_…)" value="'+esc(st.publishable_key||'')+'" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .6rem;font-size:.82rem">'+
+         '<input type="password" id="stpSec_'+id+'" placeholder="'+(st.secret_set?'Secret key — already set, paste to replace':'Secret key (sk_live_… or rk_live_…)')+'" autocomplete="new-password" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .6rem;font-size:.82rem">'+
+         '<input type="password" id="stpHook_'+id+'" placeholder="'+(st.webhook_set?'Webhook secret — already set, paste to replace':'Webhook signing secret (whsec_…)')+'" autocomplete="new-password" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .6rem;font-size:.82rem">'+
+         '<input type="text" id="stpHookUrl_'+id+'" placeholder="Webhook URL (once the app is deployed)" value="'+esc(st.webhook_url||'')+'" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .6rem;font-size:.82rem">'+
+         '<div style="display:flex;gap:.5rem;align-items:center">'+
+           '<select id="stpMode_'+id+'" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .6rem;font-size:.82rem">'+
+             '<option value="test"'+(st.mode!=='live'?' selected':'')+'>Test mode</option>'+
+             '<option value="live"'+(st.mode==='live'?' selected':'')+'>Live mode</option>'+
+           '</select>'+
+           '<button class="btn btn-sm btn-primary" onclick="saveStripeKeys(\''+id+'\')">Save keys</button>'+
+           '<span id="stpMsg_'+id+'" style="font-size:.78rem;color:var(--text-muted)"></span>'+
+         '</div>'+
+       '</div></div>';
+  }
   // mockup
   if(b.ai_mockup_html){
     h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🎨 Mockup</h3>'+
@@ -4748,6 +4792,42 @@ function showMobileAppDetail(id){
   d.innerHTML=h;
   if(b.ai_mockup_html){const f=document.getElementById('mobMockFrame');if(f)f.srcdoc=b.ai_mockup_html;}
   if(b.dashboard_mockup_html){const df=document.getElementById('mobDashFrame');if(df)df.srcdoc=b.dashboard_mockup_html;}
+}
+// Writes the two real credentials straight to Vault via the mobile-stripe fn. The inputs are
+// cleared on success so the secret never lingers in the DOM.
+async function saveStripeKeys(id){
+  const b=(S.mobileBuilds||[]).find(x=>x.id===id);
+  const msg=document.getElementById('stpMsg_'+id);
+  if(!b||!b.resume_token){if(msg)msg.textContent='No build token on this row';return;}
+  const pub=(document.getElementById('stpPub_'+id)||{}).value||'';
+  const sec=(document.getElementById('stpSec_'+id)||{}).value||'';
+  const hook=(document.getElementById('stpHook_'+id)||{}).value||'';
+  const hookUrl=(document.getElementById('stpHookUrl_'+id)||{}).value||'';
+  const mode=(document.getElementById('stpMode_'+id)||{}).value||'test';
+  if(!pub&&!sec&&!hook&&!hookUrl){if(msg)msg.textContent='Nothing to save';return;}
+  if(msg)msg.textContent='Saving...';
+  const payload={action:'set_keys',resume_token:b.resume_token,mode:mode};
+  if(pub)payload.publishable_key=pub;
+  if(sec)payload.secret_key=sec;
+  if(hook)payload.webhook_secret=hook;
+  if(hookUrl)payload.webhook_url=hookUrl;
+  try{
+    const r=await fetch(SUPABASE_URL+'/functions/v1/mobile-stripe',{method:'POST',
+      headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(d&&d.ok){
+      // never leave a secret sitting in the DOM
+      const se=document.getElementById('stpSec_'+id);if(se)se.value='';
+      const he=document.getElementById('stpHook_'+id);if(he)he.value='';
+      b.stripe=d.stripe;
+      if(msg)msg.textContent='✓ Saved — secrets stored in Vault';
+      showToast('Stripe keys saved');
+      setTimeout(()=>showMobileAppDetail(id),600);
+    } else {
+      if(msg)msg.textContent=((d&&d.errors&&d.errors.join('; '))||(d&&d.error)||'Save failed');
+    }
+  }catch(e){if(msg)msg.textContent='Save failed: '+e.message;}
 }
 function copyMobPrompt(id){
   const b=(S.mobileBuilds||[]).find(x=>x.id===id);

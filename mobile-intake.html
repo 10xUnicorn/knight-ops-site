@@ -239,6 +239,18 @@ pre.out{background:#08080d;border:1px solid var(--border);border-radius:10px;pad
           <option value="both">Both</option>
         </select>
         <div id="moneyVerdict"></div>
+
+        <div id="routeWrap" style="display:none">
+          <label style="margin-top:.9rem">How digital purchases are taken</label>
+          <select id="payment_routing" onchange="renderVerdict()">
+            <option value="iap_only">Apple in-app purchase only — works everywhere, best conversion</option>
+            <option value="iap_plus_external">Both — Apple IAP plus a link out to web checkout (US)</option>
+            <option value="external_link">External web checkout only — US audience, no Apple cut</option>
+          </select>
+          <label>Why this routing</label>
+          <textarea id="payment_routing_reason" placeholder="The analyzer fills this in with the tradeoff it made"></textarea>
+          <div id="routeVerdict"></div>
+        </div>
       </div>
 
       <!-- 7 STORE -->
@@ -624,6 +636,18 @@ function renderVerdict(){
     else if(m==='both')mv.innerHTML='<div class="verdict iap"><b>Two payment paths.</b> Digital items go through StoreKit, physical goods through Stripe. Keep them clearly separate in the UI.</div>';
     else mv.innerHTML='';
   }
+  // Payment ROUTING only matters when something digital is sold.
+  const sellsDigital=(m==='iap'||m==='both');
+  const rw=document.getElementById('routeWrap');
+  if(rw)rw.style.display=sellsDigital?'':'none';
+  const rv=document.getElementById('routeVerdict');
+  if(rv){
+    const r=val('payment_routing');
+    if(!sellsDigital)rv.innerHTML='';
+    else if(r==='external_link')rv.innerHTML='<div class="verdict iap"><b>US storefront only.</b> Since the May 2025 Epic ruling, US apps can link out to web checkout with no Apple commission. But outside the US, in-app digital purchases still generally require StoreKit, and the EU runs its own DMA regime — so external-only means non-US users cannot buy. Expect lower conversion too: they leave the app to pay.</div>';
+    else if(r==='iap_plus_external')rv.innerHTML='<div class="verdict"><b>Usually the best of both.</b> StoreKit keeps one-tap conversion and covers every country; the US link-out gives US buyers a route with no Apple cut. Apple permits the link on the US storefront.</div>';
+    else rv.innerHTML='<div class="verdict"><b>Works everywhere, converts best.</b> One tap with credentials Apple already has. Apple takes 15–30%. The right default for low price points, impulse buys, and any real non-US audience.</div>';
+  }
 }
 
 /* ---- PREVIEW ---- */
@@ -747,6 +771,8 @@ function applySuggested(s){
   if(s.target)setv('target',s.target);
   if(s.archetype)setv('archetype',s.archetype);
   if(s.monetization)setv('monetization',s.monetization);
+  if(s.payment_routing&&s.payment_routing!=='n_a')setv('payment_routing',s.payment_routing);
+  if(s.payment_routing_reason)setv('payment_routing_reason',s.payment_routing_reason);
   if(typeof s.web_dashboard==='boolean'){S.webDashboard=s.web_dashboard;const e=document.getElementById('web_dashboard');if(e)e.checked=s.web_dashboard;}
   if(typeof s.web_app==='boolean'){S.webApp=s.web_app;const e=document.getElementById('web_app');if(e)e.checked=s.web_app;}
   if(Array.isArray(s.ops_modules)&&s.ops_modules.length)S.ops=s.ops_modules.filter(k=>OPS.some(x=>x.k===k));
@@ -791,7 +817,7 @@ function gather(){
     web_dashboard:S.webDashboard,web_app:S.webApp,ops_modules:S.ops,ops_kpis:S.kpis,
     screens:S.screens,features:S.features,tabs:tabPlan(),capabilities:S.caps,screen_notes:S.screenNotes,max_tabs:MAX_TABS,
     auth_methods:S.auths,roles:{templates:S.roles},role_matrix:val('role_matrix'),
-    monetization:val('monetization'),integrations:{},ai_features:{},
+    monetization:val('monetization'),payment_routing:(val('monetization')==='iap'||val('monetization')==='both')?val('payment_routing'):'n_a',payment_routing_reason:val('payment_routing_reason'),payment_processor:((val('monetization')==='stripe_physical'||val('monetization')==='both'||val('payment_routing')==='external_link'||val('payment_routing')==='iap_plus_external')?'stripe':'none'),integrations:{},ai_features:{},
     data_model:val('data_model'),goal_criteria:S.goalCriteria,
     store:{app_name:val('st_app_name'),subtitle:val('st_subtitle'),keywords:val('st_keywords'),
       description:val('st_description'),privacy_url:val('st_privacy_url'),age_rating:val('st_age_rating'),
@@ -887,15 +913,49 @@ function buildPrompt(){
   L.push('');
   L.push('## Monetization');
   if(d.monetization==='iap'||d.monetization==='both'){
-    L.push('- **StoreKit in-app purchase is REQUIRED.** Guideline 3.1.1: digital content and subscriptions consumed inside the app must use IAP. Do NOT use Stripe for these — it is an automatic rejection.');
-    L.push('- Include a Restore Purchases action. Handle pending, cancelled and expired states.');
+    const r=d.payment_routing||'iap_only';
+    L.push('- Digital content / subscriptions are sold in the app. Payment routing for these: **'+r+'**.');
+    if(d.payment_routing_reason)L.push('  - Why: '+d.payment_routing_reason);
+    if(r==='iap_only'){
+      L.push('- **StoreKit in-app purchase, everywhere.** Guideline 3.1.1: digital content consumed in the app uses IAP. Do NOT use Stripe for these — it is an automatic rejection.');
+      L.push('- Include a Restore Purchases action. Handle pending, cancelled, expired and grace-period states.');
+    } else if(r==='external_link'){
+      L.push('- **External web checkout, US storefront.** Since the May 2025 Epic v. Apple contempt ruling, US apps may link out to an external purchase flow with NO Apple commission and without the old scare-screen restrictions. Build a normal link/button to the web checkout.');
+      L.push('- **This is US-only. Verify the current App Review terms at submission time** — this area is actively litigated and Apple has changed it more than once.');
+      L.push('- Outside the US, in-app digital purchases still generally require StoreKit and the EU runs its own DMA regime. So EITHER geo-gate the purchase UI to the US, OR ship StoreKit as well for other storefronts. Do NOT silently show non-US users a checkout they cannot legally use.');
+      L.push('- Do NOT implement StoreKit purchase flows for these items; the account is entitled through the web purchase.');
+    } else {
+      L.push('- **Both routes.** Ship StoreKit in-app purchase AND a link out to the web checkout on the US storefront (permitted since the May 2025 ruling, no Apple commission on the external route).');
+      L.push('- StoreKit covers every country and keeps one-tap conversion; the link-out gives US buyers a no-commission route. Entitlement must resolve to the SAME account either way — a user who buys on the web is unlocked in the app immediately, and Restore Purchases still works for StoreKit buyers.');
+      L.push('- **Verify the current App Review terms at submission time** — this area is actively litigated.');
+    }
   }
   if(d.monetization==='stripe_physical'||d.monetization==='both')L.push('- Physical goods / real-world services go through Stripe or Apple Pay, NOT IAP.');
   if(d.monetization==='none')L.push('- Nothing is sold in the app.');
   L.push('');
+  const takesStripe=(d.monetization==='stripe_physical'||d.monetization==='both'||
+                     d.payment_routing==='external_link'||d.payment_routing==='iap_plus_external');
+  if(takesStripe){
+    L.push('## Stripe (any payment that does not go through Apple)');
+    L.push('- **Stripe is the processor.** Build the full flow: Checkout (or Payment Element), customer creation, subscription lifecycle, and a webhook handler.');
+    L.push('- **Keys come from Knight Ops, not from you.** Do NOT invent, hardcode or commit keys, and do not block the build waiting for them. Build against env vars and ship:');
+    L.push('  - `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` — the publishable key (public by design, safe in the client)');
+    L.push('  - `STRIPE_SECRET_KEY` — server side ONLY, in the Supabase edge function secrets. NEVER in the app bundle.');
+    L.push('  - `STRIPE_WEBHOOK_SECRET` — server side ONLY, used to verify every webhook signature. An unverified webhook endpoint is a way to hand someone free product.');
+    L.push('- Webhook edge function must handle at least `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, and be idempotent (Stripe retries).');
+    L.push('- Entitlement lives in the database keyed to the user, not in client state. A refund or cancellation must revoke access on the next check.');
+    L.push('- **Write `STRIPE-SETUP.md` in the repo root** with the exact steps to finish wiring: where in the Stripe Dashboard each key lives (Developers → API keys; Developers → Webhooks → Add endpoint), the exact webhook URL this build exposes, which events to subscribe to, and which env var each value goes into. Daniel pastes the keys into the Knight Ops admin (Mobile Apps → this build → Stripe wiring); they are held encrypted in Supabase Vault until wiring time.');
+    L.push('- Until real keys are present the app must run cleanly in Stripe **test mode** and degrade honestly — a disabled buy button with "payments not yet configured", never a crash and never a fake success.');
+    L.push('');
+  }
   if(native){
     L.push('## App Store readiness — these are the things that actually get apps rejected');
     L.push('- 4.2 Minimum functionality: this must be a real native app, not a wrapped site.');
+    if(d.monetization==='iap'||d.monetization==='both'){
+      const r=d.payment_routing||'iap_only';
+      if(r==='iap_only')L.push('- 3.1.1: digital purchases go through StoreKit. Stripe for these would be rejected.');
+      else L.push('- 3.1.1 / May 2025 US link-out: an external purchase link is permitted on the US storefront with no Apple commission. Answer App Review honestly about the external purchase flow, and confirm the current terms at submission.');
+    }
     if(S.screens.includes('account_delete'))L.push('- 5.1.1(v): in-app ACCOUNT DELETION is implemented and reachable from Settings.');
     if(S.auths.includes('google')&&!S.auths.includes('apple'))L.push('- 4.8: you are offering Google sign-in, so you MUST also offer Sign in with Apple.');
     L.push('- Privacy policy URL is required: '+(d.store.privacy_url||'(NOT SET — get this before submitting)'));
@@ -929,6 +989,7 @@ function buildPrompt(){
   L.push('- Every screen above exists and works against real data.');
   if(d.web_app&&native)L.push('- The web version builds and runs from the same codebase, deployed to Vercel.');
   if(d.web_dashboard)L.push('- The operator dashboard is deployed, staff-gated, and every KPI listed above renders a real number from a real event — not a placeholder.');
+  if(takesStripe)L.push('- Stripe runs end to end in test mode, the webhook verifies its signature, and STRIPE-SETUP.md tells Daniel exactly which key goes where.');
   L.push('- Typecheck and build are clean.');
   if(native)L.push('- An EAS production build succeeded and the binary is ready to submit.');
   L.push('- Nothing is a placeholder. No lorem ipsum. No dead buttons.');
@@ -1126,7 +1187,7 @@ async function finalize(){
 function hydrate(b){
   if(!b)return;
   S.id=b.id;S.resume_token=b.resume_token;S.share_review_token=b.share_review_token;S.share_edit_token=b.share_edit_token;
-  ['first_name','last_name','email','phone','company','business_name','niche','what_they_do','offers','audience','team','target','target_reason','archetype','monetization','data_model','role_matrix','additional_details','transcripts','final_notes','domain'].forEach(k=>{if(b[k])setv(k,b[k]);});
+  ['first_name','last_name','email','phone','company','business_name','niche','what_they_do','offers','audience','team','target','target_reason','archetype','monetization','payment_routing','payment_routing_reason','data_model','role_matrix','additional_details','transcripts','final_notes','domain'].forEach(k=>{if(b[k])setv(k,b[k]);});
   const br=b.brand||{};
   if(br.primary)setv('c_primary',br.primary);
   if(br.secondary)setv('c_secondary',br.secondary);
