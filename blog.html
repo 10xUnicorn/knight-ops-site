@@ -361,7 +361,7 @@ function renderFeatured(){
     const altText=p.featured_image_url&&p.featured_image_url.indexOf('daniel-knight-origin-12-to-100m')!==-1?'Daniel Knight: From 12 Years Old Fixing and Flipping Electronics to Building $100 Million Scalable Systems by Knight Ops':p.title;
     const img=p.featured_image_url?'<img class="featured-card-img" src="'+p.featured_image_url+'" alt="'+altText+'" loading="eager">':'<div class="featured-card-img" style="display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--muted)">K</div>';
     const mainClass=i===0?'featured-card-main':'';
-    return '<div class="featured-card '+mainClass+'" onclick="navigateToPost(\''+p.slug+'\')">'+img+'<div class="featured-card-body"><div><h3>'+p.title+'</h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="featured-card-meta"><span>'+date+'</span><span>'+(p.reading_time_min||5)+' min read</span></div></div></div>';
+    return '<div class="featured-card '+mainClass+'" onclick="navigateToPost(\''+p.slug+'\')">'+img+'<div class="featured-card-body"><div><h3><a href="/blog/'+p.slug+'" style="color:inherit;text-decoration:none" onclick="event.stopPropagation()">'+p.title+'</a></h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="featured-card-meta"><span>'+date+'</span><span>'+(p.reading_time_min||5)+' min read</span></div></div></div>';
   }).join('');
 }
 
@@ -389,7 +389,7 @@ function renderGrid(){
     const tags=(p.tags||[]).slice(0,3).map(t=>'<span class="blog-card-tag">'+t+'</span>').join('');
     const altText=p.featured_image_url&&p.featured_image_url.indexOf('daniel-knight-origin-12-to-100m')!==-1?'Daniel Knight: From 12 Years Old Fixing and Flipping Electronics to Building $100 Million Scalable Systems by Knight Ops':p.title;
     const imgHtml=p.featured_image_url?'<img class="blog-card-img" src="'+p.featured_image_url+'" alt="'+altText+'" loading="lazy">':'<div class="blog-card-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted)">K</div>';
-    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><div class="blog-card-tags">'+tags+'</div><h3>'+p.title+'</h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="blog-card-meta"><span>'+date+' &middot; '+(p.reading_time_min||5)+' min read</span><span class="blog-card-read">Read &rarr;</span></div></div>';
+    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><div class="blog-card-tags">'+tags+'</div><h3><a href="/blog/'+p.slug+'" style="color:inherit;text-decoration:none" onclick="event.stopPropagation()">'+p.title+'</a></h3><p>'+(p.excerpt||p.meta_description||'')+'</p></div><div class="blog-card-meta"><span>'+date+' &middot; '+(p.reading_time_min||5)+' min read</span><span class="blog-card-read">Read &rarr;</span></div></div>';
   }).join('');
   document.getElementById('loadMore').style.display=lastFetchCount>=perPage?'block':'none';
 }
@@ -415,6 +415,15 @@ async function loadMorePosts(){
 function navigateToPost(slug){
   history.pushState({},'','/blog/'+slug);
   loadPost(slug);
+}
+
+// Primary blog CTA = complimentary Tech Discovery Call (/book). Mirrors api/blog.js.
+function koWithCta(content,slug){
+  const src='/book?src=blog&post='+encodeURIComponent(slug);
+  let n=0;
+  const body=content.replace(/<h2\b/gi,m=>{n++;if(n!==3)return m;return '<p class="post-cta-inline" style="margin:28px 0;padding:16px 20px;border-left:3px solid var(--gold);background:var(--gold-s);border-radius:0 10px 10px 0;color:var(--txt2)">Is the founder still the system in your company? <a href="'+src+'&pos=mid" style="color:var(--gold);font-weight:600">Book a complimentary Tech Discovery Call</a> and in 30 minutes we will tell you whether a 90-day systems roadmap is the right next move.</p>'+m;});
+  const box='<aside class="post-cta-box" style="margin:48px 0 8px;padding:32px 28px;border:1px solid var(--gold-b);border-radius:16px;background:linear-gradient(135deg,var(--gold-s),rgba(0,0,0,0)),var(--card)"><div style="font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Next step</div><h2 style="margin:0 0 12px;font-size:1.5rem;line-height:1.25;color:var(--txt)">Want a 90-day roadmap for your systems?</h2><p style="margin:0 0 20px;color:var(--txt2);line-height:1.65">Start with a complimentary Tech Discovery Call. In 20 to 30 minutes we look at how your organization runs today and decide together whether a Systems Blueprint Session is the logical next step. If it is, that session maps out your 90-day systems roadmap, and you keep the architecture either way.</p><a href="'+src+'" style="display:inline-block;padding:14px 22px;border-radius:10px;background:var(--gold);color:#0A0A0B;font-weight:700;text-decoration:none">Schedule Your Complimentary Tech Discovery Call &rarr;</a><div style="margin-top:14px;font-size:.85rem"><a href="/fractional-ai-officer" style="color:var(--gold)">How the Fractional Chief AI Operations Officer engagement works</a> &middot; <a href="/pricing" style="color:var(--gold)">Pricing</a></div></aside>';
+  return body+box;
 }
 
 async function loadPost(slug){
@@ -455,8 +464,12 @@ async function loadPost(slug){
   const tags=(p.tags||[]).map(t=>'<span class="post-tag">'+t+'</span>').join('');
   document.getElementById('postHeader').innerHTML='<h1>'+p.title+'</h1><div class="post-meta"><span>By '+(p.author_name||'Daniel Knight')+'</span><span><time datetime="'+p.published_at+'">'+date+'</time></span><span>'+(p.reading_time_min||5)+' min read</span><span>'+(p.view_count||0)+' views</span></div><div class="post-tags">'+tags+'</div>';
 
-  // Content
-  document.getElementById('postContent').innerHTML=p.content;
+  // Content. If /api/blog already server-rendered this exact post (with the
+  // Tech Discovery CTA + crawlable related links), keep that HTML instead of
+  // re-rendering and wiping the CTA. Client-side navigations get koPostCta().
+  const pc=document.getElementById('postContent');
+  if(pc.dataset.ssr==='1'&&pc.dataset.ssrSlug===p.slug){delete pc.dataset.ssr;}
+  else{pc.innerHTML=koWithCta(p.content||'',p.slug);}
 
   // Share URLs
   const encodedUrl=encodeURIComponent(postUrl);
@@ -523,7 +536,7 @@ async function loadRelated(current){
     const date=new Date(p.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const altText=p.featured_image_url&&p.featured_image_url.indexOf('daniel-knight-origin-12-to-100m')!==-1?'Daniel Knight: From 12 Years Old Fixing and Flipping Electronics to Building $100 Million Scalable Systems by Knight Ops':p.title;
     const imgHtml=p.featured_image_url?'<img class="blog-card-img" src="'+p.featured_image_url+'" alt="'+altText+'" loading="lazy" style="height:160px">':'';
-    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><h3 style="font-size:1rem">'+p.title+'</h3><p style="font-size:.8rem">'+(p.excerpt||'').slice(0,100)+'...</p></div><div class="blog-card-meta"><span>'+date+'</span><span class="blog-card-read">Read &rarr;</span></div></div>';
+    return '<div class="blog-card" onclick="navigateToPost(\''+p.slug+'\')">'+imgHtml+'<div class="blog-card-body"><h3 style="font-size:1rem"><a href="/blog/'+p.slug+'" style="color:inherit;text-decoration:none" onclick="event.stopPropagation()">'+p.title+'</a></h3><p style="font-size:.8rem">'+(p.excerpt||'').slice(0,100)+'...</p></div><div class="blog-card-meta"><span>'+date+'</span><span class="blog-card-read">Read &rarr;</span></div></div>';
   }).join('');
 }
 

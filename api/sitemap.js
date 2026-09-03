@@ -58,11 +58,15 @@ module.exports = async function handler(req, res) {
   }
 
   const today = new Date().toISOString().split('T')[0];
+  // Static pages used to report lastmod = today on every request. Google
+  // detects always-fresh lastmod and ignores the field for the whole sitemap.
+  // Bump STATIC_LASTMOD when a static page materially changes.
+  const STATIC_LASTMOD = '2026-09-03';
   let urls = '';
 
   // Static pages
   for (const p of STATIC_PAGES) {
-    urls += `  <url>\n    <loc>${SITE}${p.path}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>\n`;
+    urls += `  <url>\n    <loc>${SITE}${p.path}</loc>\n    <lastmod>${STATIC_LASTMOD}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>\n`;
   }
 
   // Blog posts

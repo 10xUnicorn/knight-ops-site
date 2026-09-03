@@ -163,10 +163,65 @@ module.exports = async function handler(req, res) {
     '<div class="post-header" id="postHeader"></div>',
     '<div class="post-header" id="postHeader">' + headerHtml + '</div>'
   );
+  // ── Server-rendered CTA (2026-09-03) ──────────────────────────────────────
+  // GSC audit found the top-impression posts rendered ZERO calls to action.
+  // Primary blog CTA is the complimentary Tech Discovery Call (/book). The
+  // Systems Blueprint Session is step 2 and is only named, never linked.
+  const ctaSrc = '/book?src=blog&post=' + encodeURIComponent(post.slug);
+  const ctaBox =
+    '<aside class="post-cta-box" style="margin:48px 0 8px;padding:32px 28px;border:1px solid var(--gold-b);border-radius:16px;background:linear-gradient(135deg,var(--gold-s),rgba(0,0,0,0)) , var(--card)">' +
+      '<div style="font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Next step</div>' +
+      '<h2 style="margin:0 0 12px;font-size:1.5rem;line-height:1.25;color:var(--txt)">Want a 90-day roadmap for your systems?</h2>' +
+      '<p style="margin:0 0 20px;color:var(--txt2);line-height:1.65">Start with a complimentary Tech Discovery Call. In 20 to 30 minutes we look at how your organization runs today and decide together whether a Systems Blueprint Session is the logical next step. If it is, that session maps out your 90-day systems roadmap, and you keep the architecture either way.</p>' +
+      '<a href="' + ctaSrc + '" class="btn btn-gold" style="display:inline-block;padding:14px 22px;border-radius:10px;background:var(--gold);color:#0A0A0B;font-weight:700;text-decoration:none">Schedule Your Complimentary Tech Discovery Call &rarr;</a>' +
+      '<div style="margin-top:14px;font-size:.85rem"><a href="/fractional-ai-officer" style="color:var(--gold)">How the Fractional Chief AI Operations Officer engagement works</a> &middot; <a href="/pricing" style="color:var(--gold)">Pricing</a></div>' +
+    '</aside>';
+
+  // Mid-post callout: one line before the 3rd <h2>, so readers who never
+  // reach the bottom still see the offer. Skipped if the post has < 3 H2s.
+  let body = post.content || '';
+  let h2Count = 0;
+  body = body.replace(/<h2\b/gi, function (m) {
+    h2Count += 1;
+    if (h2Count !== 3) return m;
+    return '<p class="post-cta-inline" style="margin:28px 0;padding:16px 20px;border-left:3px solid var(--gold);background:var(--gold-s);border-radius:0 10px 10px 0;color:var(--txt2)">' +
+      'Is the founder still the system in your company? <a href="' + ctaSrc + '&pos=mid" style="color:var(--gold);font-weight:600">Book a complimentary Tech Discovery Call</a> and in 30 minutes we will tell you whether a 90-day systems roadmap is the right next move.</p>' + m;
+  });
+
   html = html.replace(
     '<div class="post-content" id="postContent"></div>',
-    '<div class="post-content" id="postContent">' + (post.content || '') + '</div>'
+    '<div class="post-content" id="postContent" data-ssr="1" data-ssr-slug="' + esc(post.slug) + '">' + body + ctaBox + '</div>'
   );
+
+  // ── Server-rendered related posts as REAL <a href> links (2026-09-03) ────
+  // The client renders related cards as <div onclick>, which gives crawlers
+  // no link path between posts. Inject 3 same-cluster siblings (fallback:
+  // newest) so every post links to 3 others in crawlable HTML.
+  let related = [];
+  try {
+    const sel = 'select=slug,title,excerpt,meta_description,published_at,reading_time_min&status=eq.published&slug=neq.' + encodeURIComponent(post.slug) + '&order=published_at.desc&limit=3';
+    let rq = SB_URL + '/rest/v1/blog_posts?' + sel;
+    if (post.content_cluster) rq += '&content_cluster=eq.' + encodeURIComponent(post.content_cluster);
+    let rr = await fetch(rq, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
+    related = await rr.json();
+    if (!Array.isArray(related) || related.length < 3) {
+      rr = await fetch(SB_URL + '/rest/v1/blog_posts?' + sel, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
+      const more = await rr.json();
+      const seen = new Set((related || []).map(function (p) { return p.slug; }));
+      (Array.isArray(more) ? more : []).forEach(function (p) { if (!seen.has(p.slug) && related.length < 3) { related.push(p); seen.add(p.slug); } });
+    }
+  } catch (e) { related = []; }
+  if (related.length) {
+    const relHtml = related.map(function (p) {
+      const d = p.published_at ? new Date(p.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      return '<a class="blog-card" href="/blog/' + esc(p.slug) + '" style="text-decoration:none;color:inherit"><div class="blog-card-body"><h3 style="font-size:1rem">' + esc(p.title) + '</h3><p style="font-size:.8rem">' + esc(stripTags(p.excerpt || p.meta_description || '').slice(0, 110)) + '</p></div><div class="blog-card-meta"><span>' + esc(d) + '</span><span class="blog-card-read">Read &rarr;</span></div></a>';
+    }).join('');
+    html = html.replace(
+      '<div class="related-section" id="relatedSection" style="display:none">',
+      '<div class="related-section" id="relatedSection">'
+    );
+    html = html.replace('<div class="related-grid" id="relatedGrid"></div>', '<div class="related-grid" id="relatedGrid">' + relHtml + '</div>');
+  }
 
   if (post.featured_image_url) {
     html = html.replace(

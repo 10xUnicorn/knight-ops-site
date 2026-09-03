@@ -48,6 +48,10 @@
       "destination": "/blog/i-was-12-years-old-charging-100-an-hour.html"
     },
     {
+      "source": "/blog",
+      "destination": "/api/blog-index"
+    },
+    {
       "source": "/blog/:slug",
       "destination": "/api/blog?slug=:slug"
     },
