@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations Systems for Financial Advisory Firms | Client Workflow Automation | Knight Ops</title>
+<meta name="description" content="Knight Ops builds intelligent business operating systems for financial advisory firms: client onboarding, review cadences, follow-up and reporting automated on your own data, with compliance-aware audit trails and full code ownership.">
+<meta name="keywords" content="financial advisor operations, advisor client workflow automation, financial advisor CRM automation, client onboarding system for advisors, RIA operations dashboard, advisory firm business operating system, fractional chief AI operations officer">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://www.knightops.biz/for-financial-advisors">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.knightops.biz/for-financial-advisors">
+<meta property="og:title" content="Operations Systems for Financial Advisory Firms | Knight Ops">
+<meta property="og:description" content="Client onboarding, reviews, follow-up and reporting on one intelligent operating system built for advisory firms. Compliance-aware. You own the code.">
+<meta property="og:image" content="https://www.knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0A0A0B;--surface:#111113;--surface2:#18181B;--card:#1C1C1F;--card-hover:#222225;--border:#2A2A2E;--border-light:#3A3A3F;--text:#F4F4F5;--muted:#A1A1AA;--dim:#71717A;--gold:#C8A456;--gold-bright:#FFD166;--gold-hover:#D4B56A;--gold-subtle:rgba(200,164,86,.1);--gold-border:rgba(200,164,86,.25);--green:#22C55E;--pink:#E91E8C}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:64px}
+.nav-logo{font-size:1.1rem;font-weight:900;letter-spacing:.08em;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;gap:20px;align-items:center}
+.nav-link{color:var(--muted);font-size:.85rem;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-link:hover{color:#fff}
+.nav-cta{padding:8px 16px;border-radius:8px;background:var(--gold);color:var(--bg);font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s}
+.nav-cta:hover{background:var(--gold-hover);transform:translateY(-1px)}
+main{max-width:1100px;margin:0 auto;padding:96px 24px 60px}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);padding:.4rem 1rem;border:1px solid var(--gold-border);border-radius:4px;margin-bottom:18px;font-family:'JetBrains Mono',monospace}
+.hero{text-align:center;margin-bottom:50px}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lede{color:var(--muted);font-size:1.05rem;max-width:680px;margin:0 auto 22px;line-height:1.65}
+.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:700;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gold);color:var(--bg)}
+.btn-primary:hover{background:var(--gold-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,164,86,.3)}
+.btn-secondary{background:transparent;color:var(--gold);border:1.5px solid var(--gold)}
+.btn-secondary:hover{background:var(--gold-subtle)}
+.answer{max-width:800px;margin:0 auto 50px;padding:22px 26px;background:var(--surface);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;color:var(--muted);font-size:.98rem;line-height:1.7}
+.answer strong{color:var(--text)}
+.pain-section{margin:50px 0;padding:36px 28px;background:var(--surface);border:1px solid var(--border);border-radius:16px}
+.pain-h{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);margin-bottom:14px}
+.pain-section h2{font-size:1.6rem;font-weight:800;margin-bottom:18px;line-height:1.25}
+.pain-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.pain-list li{display:flex;gap:12px;align-items:flex-start;font-size:.95rem;color:var(--muted)}
+.pain-list li::before{content:'×';color:var(--pink);font-weight:700;font-size:1.2rem;line-height:1.2}
+.solution-section{margin:50px 0}
+.solution-h{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;text-align:center}
+.solution-section h2{font-size:2rem;font-weight:800;margin-bottom:14px;line-height:1.2;text-align:center}
+.solution-section h2 em{font-style:normal;color:var(--gold)}
+.solution-section .sub{color:var(--muted);text-align:center;font-size:.95rem;max-width:600px;margin:0 auto 36px}
+.system-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.system{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px}
+.system .icon{font-size:1.6rem;margin-bottom:14px;display:block}
+.system h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;line-height:1.3}
+.system p{color:var(--muted);font-size:.88rem;line-height:1.55}
+.table-wrap{overflow-x:auto;margin:50px 0}
+table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface2);color:var(--gold);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+td{color:var(--muted)}
+td:first-child{color:var(--text);font-weight:600}
+.steps{margin:50px 0}
+.steps h2{font-size:1.6rem;font-weight:800;margin-bottom:20px;text-align:center}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--border)}
+.step .n{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;font-size:1.1rem;min-width:36px}
+.step h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+.step p{color:var(--muted);font-size:.9rem}
+.proof{margin:50px 0;padding:32px;background:linear-gradient(135deg,rgba(200,164,86,.06),rgba(34,197,94,.04));border:1px solid var(--gold-border);border-radius:16px;text-align:center}
+.proof .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:18px}
+.proof .stat .num{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--gold)}
+.proof .stat .lbl{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-top:4px}
+@media(max-width:600px){.proof .stats{grid-template-columns:1fr 1fr}}
+.faq{margin:50px 0}
+.faq h2{font-size:1.5rem;font-weight:800;margin-bottom:20px;text-align:center}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.faq-item:hover{border-color:var(--gold-border)}
+.faq-q{font-weight:700;font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.faq-toggle{color:var(--gold);font-size:1.4rem;font-weight:300;transition:transform .2s}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+.faq-a{color:var(--muted);font-size:.88rem;line-height:1.55;margin-top:0;max-height:0;overflow:hidden;transition:max-height .25s,margin-top .25s}
+.faq-item.open .faq-a{margin-top:14px;max-height:300px}
+.final-cta{margin:50px 0;padding:40px 28px;background:linear-gradient(135deg,rgba(200,164,86,.1),rgba(233,30,140,.05));border:1.5px solid var(--gold-border);border-radius:16px;text-align:center}
+.final-cta h3{font-size:1.6rem;font-weight:800;margin-bottom:10px;line-height:1.2}
+.final-cta p{color:var(--muted);max-width:560px;margin:0 auto 22px}
+.related{margin:40px 0;color:var(--muted);font-size:.9rem;text-align:center}
+.related a{color:var(--gold);text-decoration:none}
+footer{padding:30px 24px;border-top:1px solid var(--border);text-align:center;max-width:1100px;margin:0 auto}
+.footer-brand{font-size:1rem;font-weight:900;letter-spacing:.1em;margin-bottom:8px}
+.footer-brand span{color:var(--gold)}
+.footer-meta{color:var(--dim);font-size:.78rem}
+.footer-meta a{color:var(--muted);margin:0 6px;text-decoration:none}
+.footer-meta a:hover{color:var(--gold)}
+@media(max-width:768px){main{padding:80px 16px 40px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.knightops.biz/#organization","name":"Knight Ops","url":"https://www.knightops.biz/","founder":{"@id":"https://www.knightops.biz/#daniel-knight"},"sameAs":["https://www.linkedin.com/company/knight-ops","https://www.youtube.com/@10xUnicorn","https://x.com/10x_Unicorn","https://danielknight.me"]},{"@type":"Person","@id":"https://www.knightops.biz/#daniel-knight","name":"Daniel Knight","jobTitle":"Fractional Chief AI Operations Officer","url":"https://www.knightops.biz/about","worksFor":{"@id":"https://www.knightops.biz/#organization"}},{"@type":"WebPage","@id":"https://www.knightops.biz/for-financial-advisors#webpage","url":"https://www.knightops.biz/for-financial-advisors","name":"Operations Systems for Financial Advisory Firms","isPartOf":{"@id":"https://www.knightops.biz/#website"},"about":{"@id":"https://www.knightops.biz/#organization"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1",".answer",".faq-a"]}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.knightops.biz/"},{"@type":"ListItem","position":2,"name":"For Financial Advisory Firms","item":"https://www.knightops.biz/for-financial-advisors"}]},{"@type":"Service","@id":"https://www.knightops.biz/for-financial-advisors#service","name":"Intelligent Business Operating Systems for Financial Advisory Firms","serviceType":"Client workflow automation, operations dashboards and AI operations leadership for advisory firms","provider":{"@id":"https://www.knightops.biz/#organization"},"areaServed":{"@type":"Country","name":"United States"},"audience":{"@type":"Audience","audienceType":"independent financial advisory firms, RIAs and wealth management practices with teams"},"url":"https://www.knightops.biz/for-financial-advisors","offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"1000","highPrice":"15000","offerCount":"3","url":"https://www.knightops.biz/pricing"}},{"@type":"HowTo","name":"How to automate client workflows in a financial advisory firm without breaking compliance","step":[{"@type":"HowToStep","name":"Map the client journey you actually run","text":"Prospect, discovery, proposal, onboarding, first 90 days, review cadence, and referral. Write down who does each step today and where it lives."},{"@type":"HowToStep","name":"Pick one system of record for client data","text":"Your CRM becomes the source of truth. Every other tool reads from it or writes to it. Nothing lives only in a spreadsheet or an inbox."},{"@type":"HowToStep","name":"Automate the triggers, not the advice","text":"Meeting booked, account opened, paperwork returned, review due, birthday, RMD window. Each trigger fires the next task, email, or checklist automatically. The advisor still writes the advice."},{"@type":"HowToStep","name":"Build the operations dashboard","text":"Onboarding stage per household, overdue reviews, tasks by owner, and revenue by segment on one screen your operations lead opens every morning."},{"@type":"HowToStep","name":"Keep an audit trail on everything","text":"Every automated message and status change is logged with a timestamp and owner so your compliance reviewer can reconstruct any client interaction."},{"@type":"HowToStep","name":"Deploy in layers and measure","text":"Ship the dashboard first, then onboarding, then reviews. Measure hours saved per household and days from signed to funded."}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can you automate advisor client workflows without violating compliance rules?","acceptedAnswer":{"@type":"Answer","text":"Yes. Automation handles triggers, tasks, reminders, status changes and templated operational messages. Advice and recommendations stay with the advisor. Every automated action is logged with a timestamp and owner so a compliance reviewer can reconstruct any interaction. Your compliance officer reviews templates before they go live."}},{"@type":"Question","name":"Do we have to leave Wealthbox, Redtail or Salesforce?","acceptedAnswer":{"@type":"Answer","text":"No. Your CRM usually stays as the system of record. Knight Ops builds the operating layer around it: the automation, the operations dashboard, the client portal and the reporting your CRM does not do on its own."}},{"@type":"Question","name":"What does an operations system for an advisory firm cost?","acceptedAnswer":{"@type":"Answer","text":"The Knight Ops AI Business OS starts at fifteen thousand dollars, scoped in a Systems Blueprint Session. Continuity after launch starts at one thousand dollars per month. Fractional Chief AI Operations Officer engagements start at seven thousand five hundred dollars per month."}},{"@type":"Question","name":"How long until we see value?","acceptedAnswer":{"@type":"Answer","text":"Deployment is progressive. The operations dashboard is usually the first layer live, followed by onboarding automation. Each layer is usable when it ships, so you are never waiting on one large handoff."}},{"@type":"Question","name":"Who owns the system?","acceptedAnswer":{"@type":"Answer","text":"Your firm does. Source code, repository, database and hosting are transferred to you. There is no subscription required to keep it running and no dependency on Knight Ops."}},{"@type":"Question","name":"Is this only for large RIAs?","acceptedAnswer":{"@type":"Answer","text":"It is built for advisory firms with a team, typically three to forty people and five million to fifty million in revenue, where the founder or lead advisor has become the operating system. Solo advisors are usually better served by their CRM alone."}}]}]}
+</script>
+</head>
+<body>
+<nav><div class="wrap"><a href="/" class="nav-logo">KNIGHT<span>OPS</span></a><div class="nav-right"><a href="/services" class="nav-link">Services</a><a href="/fractional-ai-officer" class="nav-link">Fractional AI Officer</a><a href="/book" class="nav-cta">Book a Call</a></div></div></nav>
+<main>
+
+<section class="hero">
+  <div class="tag">For Financial Advisory Firms and RIAs</div>
+  <h1>Your advisors should be advising. <em>Not chasing paperwork.</em></h1>
+  <p class="lede">Advisory firms with a team do not have a client-acquisition problem. They have an operations problem: onboarding lives in one person's head, reviews slip, follow-up depends on memory, and the CRM is a filing cabinet instead of an engine. Knight Ops builds the intelligent business operating system that runs the client journey on your own data, with an audit trail your compliance reviewer will like.</p>
+  <div class="cta-row">
+    <a href="/book?src=advisors" class="btn btn-primary">Start With a Complimentary Tech Discovery Call →</a>
+    <a href="/founder-bottleneck-score" class="btn btn-secondary">Score Your Firm in 2 Minutes</a>
+  </div>
+</section>
+
+<div class="answer"><strong>Direct answer:</strong> Advisor client workflow automation means the operational triggers in your firm (meeting booked, account opened, paperwork returned, review due) fire the next task, message or checklist automatically from your CRM, while advice stays with the advisor. The result is fewer dropped steps, faster signed-to-funded, and a review cadence that runs whether or not anyone remembers. Knight Ops designs, deploys and evolves that system and your firm owns 100% of the code.</div>
+
+<section class="pain-section">
+  <div class="pain-h">⚠️ Sound Familiar?</div>
+  <h2>The lead advisor became the operating system, and the firm cannot grow past them.</h2>
+  <ul class="pain-list">
+    <li>Onboarding a new household takes 40 to 60 days because six steps live in six inboxes</li>
+    <li>Annual and quarterly reviews are tracked in a spreadsheet someone forgets to open</li>
+    <li>Follow-up after a discovery meeting depends on who remembers, not on a system</li>
+    <li>The CRM (Wealthbox, Redtail, Salesforce) holds contacts but does not run the process</li>
+    <li>Compliance asks for a record of a client interaction and it takes a day to reconstruct</li>
+    <li>Adding a second advisor added coordination, not capacity</li>
+  </ul>
+</section>
+
+<section class="solution-section">
+  <div class="solution-h">What we build for advisory firms</div>
+  <h2>One <em>operating system</em> around the CRM you already have.</h2>
+  <p class="sub">Deployed progressively in functional layers. The first layer is usable the day it ships. Never an empty handoff.</p>
+  <div class="system-grid">
+    <div class="system"><span class="icon">📊</span><h3>Advisory Operations Dashboard</h3><p>Onboarding stage per household, overdue reviews, tasks by owner, pipeline by advisor and revenue by segment on one screen. This layer ships first because every other decision is a guess without it.</p></div>
+    <div class="system"><span class="icon">🚪</span><h3>Client Onboarding Engine</h3><p>Signed to funded as a tracked sequence: paperwork requests, custodian steps, welcome touchpoints and internal handoffs fire automatically and show status to everyone who needs it.</p></div>
+    <div class="system"><span class="icon">🔁</span><h3>Review and Follow-Up Cadence</h3><p>Review windows, RMD and tax-season triggers, post-meeting follow-ups and re-engagement on households that have gone quiet, all driven from CRM data instead of memory.</p></div>
+    <div class="system"><span class="icon">🧾</span><h3>Compliance-Aware Audit Trail</h3><p>Every automated message and status change logged with timestamp and owner. Templates reviewed by your compliance officer before they go live. Reconstruct any interaction in seconds.</p></div>
+    <div class="system"><span class="icon">👤</span><h3>Client Portal</h3><p>Households see their onboarding progress, documents to sign, upcoming reviews and secure messages in one place, scoped to only what they should see.</p></div>
+    <div class="system"><span class="icon">🤖</span><h3>AI Agents on Firm Data</h3><p>Meeting-prep briefs, note summaries, task extraction and draft follow-ups generated inside your actual client context, reviewed by a human before anything leaves the building.</p></div>
+  </div>
+</section>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Capability</th><th>CRM alone</th><th>Point tools bolted on</th><th>Knight Ops AI Business OS</th></tr></thead>
+  <tbody>
+    <tr><td>Onboarding tracked per household</td><td>Manual tasks</td><td>Partly, in a separate tool</td><td>Automated sequence, one status view</td></tr>
+    <tr><td>Review cadence enforcement</td><td>Reminders you set by hand</td><td>Calendar-based</td><td>Data-driven triggers per household</td></tr>
+    <tr><td>Operations dashboard</td><td>Basic reports</td><td>Another login</td><td>Live, on your real data, first layer shipped</td></tr>
+    <tr><td>Audit trail of automated actions</td><td>Partial</td><td>Scattered across tools</td><td>Complete, timestamped, owner-stamped</td></tr>
+    <tr><td>Ownership</td><td>Rented</td><td>Rented</td><td>100% owned by your firm</td></tr>
+    <tr><td>Who runs it after launch</td><td>You</td><td>You</td><td>Continuity from $1,000/mo or an embedded Fractional Chief AI Operations Officer</td></tr>
+  </tbody>
+</table>
+</div>
+
+<section class="steps">
+  <h2>How to automate advisor client workflows without breaking compliance</h2>
+  <div class="step"><div class="n">01</div><div><h3>Map the client journey you actually run</h3><p>Prospect, discovery, proposal, onboarding, first 90 days, review cadence, referral. Write down who does each step today and where it lives.</p></div></div>
+  <div class="step"><div class="n">02</div><div><h3>Pick one system of record for client data</h3><p>Your CRM becomes the source of truth. Every other tool reads from it or writes to it. Nothing lives only in a spreadsheet or an inbox.</p></div></div>
+  <div class="step"><div class="n">03</div><div><h3>Automate the triggers, not the advice</h3><p>Meeting booked, account opened, paperwork returned, review due, RMD window. Each trigger fires the next task, email or checklist. The advisor still writes the advice.</p></div></div>
+  <div class="step"><div class="n">04</div><div><h3>Build the operations dashboard</h3><p>Onboarding stage per household, overdue reviews, tasks by owner and revenue by segment on one screen your operations lead opens every morning.</p></div></div>
+  <div class="step"><div class="n">05</div><div><h3>Keep an audit trail on everything</h3><p>Every automated message and status change is logged so a compliance reviewer can reconstruct any client interaction.</p></div></div>
+  <div class="step"><div class="n">06</div><div><h3>Deploy in layers and measure</h3><p>Dashboard first, then onboarding, then reviews. Measure operations hours saved per household and days from signed to funded.</p></div></div>
+</section>
+
+<section class="proof">
+  <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:6px">Built by an operator who has run a wealth management firm's systems</h2>
+  <p style="color:var(--muted);font-size:.9rem;max-width:600px;margin:0 auto">Daniel Knight built the operating systems inside a wealth management firm managing $100M+ in assets, where the unified system contributed to $4.5M in additional revenue in year one. These systems come from operating an advisory business, not from theory.</p>
+  <div class="stats">
+    <div class="stat"><div class="num">$200M+</div><div class="lbl">Business Impact</div></div>
+    <div class="stat"><div class="num">50+</div><div class="lbl">Systems Deployed</div></div>
+    <div class="stat"><div class="num">85%</div><div class="lbl">Avg Time Saved</div></div>
+    <div class="stat"><div class="num">100%</div><div class="lbl">Code Ownership</div></div>
+  </div>
+</section>
+
+<section class="faq">
+  <h2>Questions Advisory Firm Leadership Asks</h2>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>Can you automate client workflows without violating compliance rules?</span><span class="faq-toggle">+</span></div><div class="faq-a">Yes. Automation handles triggers, tasks, reminders, status changes and templated operational messages. Advice stays with the advisor. Every automated action is logged with a timestamp and owner, and your compliance officer reviews templates before they go live.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>Do we have to leave Wealthbox, Redtail or Salesforce?</span><span class="faq-toggle">+</span></div><div class="faq-a">No. Your CRM usually stays as the system of record. Knight Ops builds the operating layer around it: the automation, the operations dashboard, the client portal and the reporting your CRM does not do on its own.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>What does an operations system for an advisory firm cost?</span><span class="faq-toggle">+</span></div><div class="faq-a">The Knight Ops AI Business OS starts at fifteen thousand dollars, scoped in a Systems Blueprint Session. Continuity after launch starts at one thousand dollars per month. Fractional Chief AI Operations Officer engagements start at seven thousand five hundred dollars per month.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>How long until we see value?</span><span class="faq-toggle">+</span></div><div class="faq-a">Deployment is progressive. The operations dashboard is usually the first layer live, followed by onboarding automation. Each layer is usable when it ships.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>Who owns the system?</span><span class="faq-toggle">+</span></div><div class="faq-a">Your firm does. Source code, repository, database and hosting are transferred to you. No subscription is required to keep it running.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>Is this only for large RIAs?</span><span class="faq-toggle">+</span></div><div class="faq-a">It is built for advisory firms with a team, typically three to forty people, where the founder or lead advisor has become the operating system. Solo advisors are usually better served by their CRM alone.</div></div>
+</section>
+
+<div style="padding:28px 32px;background:rgba(200,164,86,0.04);border:1px solid rgba(200,164,86,0.18);border-radius:14px;max-width:800px;margin:0 auto 40px">
+  <p style="font-size:0.95rem;color:#A1A1AA;line-height:1.7;margin:0">Need embedded AI operations leadership rather than a single build? Our <a href="/fractional-ai-officer" style="color:#C8A456;text-decoration:none;font-weight:600">Fractional Chief AI Operations Officer engagements</a> put a senior operator inside your firm who owns the operations roadmap and its execution. Starting at seven thousand five hundred dollars per month.</p>
+</div>
+
+<section class="final-cta">
+  <h3>Want a 90-day roadmap for your firm's systems?</h3>
+  <p>Start with a complimentary Tech Discovery Call. In 20 to 30 minutes we look at how your firm runs today and decide together whether a Systems Blueprint Session, which maps out your 90-day systems roadmap, is the logical next step. You keep the architecture either way.</p>
+  <div class="cta-row">
+    <a href="/book?src=advisors" class="btn btn-primary">Schedule Your Complimentary Tech Discovery Call →</a>
+  </div>
+</section>
+
+<p class="related">Related: <a href="/blog/financial-advisor-automate-client-workflows-2026">How financial advisors automate client workflows</a> · <a href="/blog/founder-bottleneck-when-you-are-the-system">The founder bottleneck</a> · <a href="/for-eos-companies">For EOS-run companies</a> · <a href="/pricing">Pricing</a></p>
+
+</main>
+<footer>
+  <div class="footer-brand">KNIGHT<span>OPS</span></div>
+  <div class="footer-meta">&copy; 2026 Knight Ops. All rights reserved.<br><a href="/">Home</a> · <a href="/services">Services</a> · <a href="/portfolio">Results</a> · <a href="/book">Book a Call</a> · <a href="/pricing">Pricing</a></div>
+</footer>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>

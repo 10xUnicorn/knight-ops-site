@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Founder Bottleneck Index | 2-Minute Score: Are You Still the System? | Knight Ops</title>
+<meta name="description" content="The Founder Bottleneck Index scores how much of your company still runs through you. 12 questions, 2 minutes, a 0 to 100 score, your bottleneck tier, and the first 90-day move to fix it. Built for founders of $5M to $50M companies.">
+<meta name="keywords" content="founder bottleneck, founder bottleneck index, founder bottleneck score, when the founder is the system, business operating system assessment, operations scorecard, business systems assessment, scaling operations">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<link rel="canonical" href="https://www.knightops.biz/founder-bottleneck-score">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.knightops.biz/founder-bottleneck-score">
+<meta property="og:title" content="Founder Bottleneck Index: Are You Still the System?">
+<meta property="og:description" content="12 questions. 2 minutes. A 0 to 100 score showing how much of your company still runs through you, and the first 90-day move to fix it.">
+<meta property="og:image" content="https://www.knightops.biz/knight-ops-banner-build-the-machine.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0A0A0B;--surface:#111113;--surface2:#18181B;--card:#1C1C1F;--border:#2A2A2E;--text:#F4F4F5;--muted:#A1A1AA;--dim:#71717A;--gold:#C8A456;--gold-hover:#D4B56A;--gold-subtle:rgba(200,164,86,.1);--gold-border:rgba(200,164,86,.25);--green:#22C55E;--pink:#E91E8C;--amber:#F59E0B}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+nav .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:64px}
+.nav-logo{font-size:1.1rem;font-weight:900;letter-spacing:.08em;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;gap:20px;align-items:center}
+.nav-link{color:var(--muted);font-size:.85rem;font-weight:500;text-decoration:none}
+.nav-link:hover{color:#fff}
+.nav-cta{padding:8px 16px;border-radius:8px;background:var(--gold);color:var(--bg);font-size:.8rem;font-weight:700;text-decoration:none}
+main{max-width:860px;margin:0 auto;padding:96px 24px 60px}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);padding:.4rem 1rem;border:1px solid var(--gold-border);border-radius:4px;margin-bottom:18px;font-family:'JetBrains Mono',monospace}
+.hero{text-align:center;margin-bottom:36px}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.1;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lede{color:var(--muted);font-size:1.05rem;max-width:640px;margin:0 auto 10px;line-height:1.65}
+.answer{margin:0 auto 36px;padding:20px 24px;background:var(--surface);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;color:var(--muted);font-size:.95rem;line-height:1.7}
+.answer strong{color:var(--text)}
+.quiz{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.progress{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:24px}
+.progress div{height:100%;background:var(--gold);width:0;transition:width .3s}
+.q{display:none}
+.q.active{display:block}
+.q .n{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.75rem;letter-spacing:.1em;margin-bottom:8px}
+.q h2{font-size:1.25rem;font-weight:700;line-height:1.35;margin-bottom:18px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:.95rem;text-align:left;cursor:pointer;transition:all .15s;font-family:inherit}
+.opt:hover{border-color:var(--gold-border);background:var(--gold-subtle)}
+.opt.sel{border-color:var(--gold);background:var(--gold-subtle)}
+.nav-btns{display:flex;justify-content:space-between;margin-top:22px}
+.btn{padding:12px 22px;border-radius:10px;font-size:.92rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gold);color:var(--bg)}
+.btn-primary:hover{background:var(--gold-hover)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--muted)}
+.gate{display:none}
+.gate.active{display:block}
+.gate input{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:1rem;font-family:inherit;margin-bottom:12px}
+.gate label{font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:flex-start;margin:6px 0 16px}
+.result{display:none}
+.result.active{display:block}
+.score-wrap{text-align:center;padding:24px 0 10px}
+.score{font-family:'JetBrains Mono',monospace;font-size:4.5rem;font-weight:800;line-height:1;color:var(--gold)}
+.score small{font-size:1.2rem;color:var(--dim)}
+.tier{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.tier.t1{background:rgba(34,197,94,.12);color:var(--green)}
+.tier.t2{background:rgba(245,158,11,.12);color:var(--amber)}
+.tier.t3{background:rgba(233,30,140,.12);color:var(--pink)}
+.readout{margin:22px 0;color:var(--muted);font-size:.98rem;line-height:1.7}
+.readout strong{color:var(--text)}
+.dims{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+.dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.dim .l{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.dim .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;margin-top:2px}
+.move{padding:20px 22px;background:var(--gold-subtle);border:1px solid var(--gold-border);border-radius:12px;margin:18px 0}
+.move .l{font-size:.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;font-weight:700}
+.cta-box{margin:26px 0 0;padding:26px;border:1px solid var(--gold-border);border-radius:14px;background:linear-gradient(135deg,var(--gold-subtle),rgba(0,0,0,0)),var(--card);text-align:center}
+.cta-box h3{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.cta-box p{color:var(--muted);margin-bottom:16px;font-size:.95rem}
+.method{margin:50px 0}
+.method h2{font-size:1.5rem;font-weight:800;margin-bottom:14px}
+.method p,.method li{color:var(--muted);font-size:.95rem;line-height:1.7}
+.method ol{padding-left:22px;margin:10px 0}
+.table-wrap{overflow-x:auto;margin:20px 0}
+table{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface2);color:var(--gold);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+td{color:var(--muted)}
+td:first-child{color:var(--text);font-weight:600}
+.faq{margin:50px 0}
+.faq h2{font-size:1.5rem;font-weight:800;margin-bottom:16px}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer}
+.faq-q{font-weight:700;font-size:.95rem;display:flex;justify-content:space-between}
+.faq-toggle{color:var(--gold);font-size:1.3rem;font-weight:300}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+.faq-a{color:var(--muted);font-size:.88rem;line-height:1.55;max-height:0;overflow:hidden;transition:max-height .25s,margin-top .25s}
+.faq-item.open .faq-a{margin-top:12px;max-height:300px}
+.related{margin:30px 0;color:var(--muted);font-size:.9rem;text-align:center}
+.related a{color:var(--gold);text-decoration:none}
+footer{padding:30px 24px;border-top:1px solid var(--border);text-align:center;max-width:1100px;margin:0 auto}
+.footer-brand{font-size:1rem;font-weight:900;letter-spacing:.1em;margin-bottom:8px}
+.footer-brand span{color:var(--gold)}
+.footer-meta{color:var(--dim);font-size:.78rem}
+.footer-meta a{color:var(--muted);margin:0 6px;text-decoration:none}
+@media(max-width:768px){main{padding:80px 16px 40px}.quiz{padding:20px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.knightops.biz/#organization","name":"Knight Ops","url":"https://www.knightops.biz/","founder":{"@id":"https://www.knightops.biz/#daniel-knight"}},{"@type":"Person","@id":"https://www.knightops.biz/#daniel-knight","name":"Daniel Knight","jobTitle":"Fractional Chief AI Operations Officer","url":"https://www.knightops.biz/about","worksFor":{"@id":"https://www.knightops.biz/#organization"}},{"@type":"WebApplication","@id":"https://www.knightops.biz/founder-bottleneck-score#app","name":"Founder Bottleneck Index","url":"https://www.knightops.biz/founder-bottleneck-score","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free 12-question assessment that scores how much of a company still runs through its founder, across decisions, knowledge, delivery, data, sales and systems, and returns a 0 to 100 score with a bottleneck tier and a first 90-day move.","provider":{"@id":"https://www.knightops.biz/#organization"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.knightops.biz/"},{"@type":"ListItem","position":2,"name":"Founder Bottleneck Index","item":"https://www.knightops.biz/founder-bottleneck-score"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Founder Bottleneck Index?","acceptedAnswer":{"@type":"Answer","text":"A free 12-question assessment from Knight Ops that scores, from 0 to 100, how much of a company still depends on its founder across six dimensions: decisions, knowledge, delivery, data, sales and systems. Higher scores mean more of the company runs through one person."}},{"@type":"Question","name":"What is a founder bottleneck?","acceptedAnswer":{"@type":"Answer","text":"A founder bottleneck is the point where a company's growth is limited by the founder's personal capacity because decisions, knowledge, client relationships or data only flow through them. The company has a team but still runs on one person's memory and availability."}},{"@type":"Question","name":"What score is a problem?","acceptedAnswer":{"@type":"Answer","text":"Under 35 means the company largely runs without you. 35 to 64 means you are the system in at least two areas and growth will stall there. 65 and above means the company cannot operate a normal week without you, which is the most common profile at five to twenty million in revenue."}},{"@type":"Question","name":"Do I have to give my email?","acceptedAnswer":{"@type":"Answer","text":"You see your score without it. The email is optional and only used to send your full breakdown and the first 90-day move for your tier."}},{"@type":"Question","name":"What happens after the score?","acceptedAnswer":{"@type":"Answer","text":"You get your tier, a breakdown by dimension and one recommended first move. If you want a 90-day roadmap, the next step is a complimentary Tech Discovery Call, where we decide together whether a Systems Blueprint Session is the logical next step."}}]}]}
+</script>
+</head>
+<body>
+<nav><div class="wrap"><a href="/" class="nav-logo">KNIGHT<span>OPS</span></a><div class="nav-right"><a href="/services" class="nav-link">Services</a><a href="/fractional-ai-officer" class="nav-link">Fractional AI Officer</a><a href="/book" class="nav-cta">Book a Call</a></div></div></nav>
+<main>
+
+<section class="hero">
+  <div class="tag">Founder Bottleneck Index</div>
+  <h1>How much of your company still <em>runs through you?</em></h1>
+  <p class="lede">12 questions. 2 minutes. A 0 to 100 score across decisions, knowledge, delivery, data, sales and systems, your bottleneck tier, and the first 90-day move to fix it. Built for founders of companies with a team and real revenue.</p>
+</section>
+
+<div class="answer"><strong>What this measures:</strong> A founder bottleneck is the point where growth is capped by one person's capacity because decisions, knowledge, client relationships or data only flow through them. The Index scores that dependency so you can see which dimension to fix first instead of guessing.</div>
+
+<div class="quiz" id="quiz">
+  <div class="progress"><div id="bar"></div></div>
+  <div id="questions"></div>
+
+  <div class="gate" id="gate">
+    <div class="n" style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.75rem;letter-spacing:.1em;margin-bottom:8px">ALMOST DONE</div>
+    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:8px">Where should we send your full breakdown?</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px">Optional. You will see your score either way. The email gets you the dimension-by-dimension breakdown and the first 90-day move for your tier.</p>
+    <input type="text" id="g-name" placeholder="First name" autocomplete="given-name">
+    <input type="email" id="g-email" placeholder="Work email" autocomplete="email">
+    <label><input type="checkbox" id="g-consent" checked> Send my results and occasional systems insights from Knight Ops. Unsubscribe any time.</label>
+    <div class="nav-btns">
+      <button class="btn btn-ghost" onclick="showResult(false)">Skip, just show my score</button>
+      <button class="btn btn-primary" onclick="showResult(true)">Send my breakdown →</button>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score-wrap">
+      <div class="score"><span id="scoreNum">0</span><small>/100</small></div>
+      <div class="tier" id="tier"></div>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="dims" id="dims"></div>
+    <div class="move"><div class="l">Your first 90-day move</div><div id="move" style="color:var(--text)"></div></div>
+    <div class="cta-box">
+      <h3>Want the full 90-day roadmap for your systems?</h3>
+      <p>Start with a complimentary Tech Discovery Call. In 20 to 30 minutes we look at how your company runs today and decide together whether a Systems Blueprint Session, which maps out your 90-day systems roadmap, is the logical next step. You keep the architecture either way.</p>
+      <a id="ctaLink" href="/book?src=fbi" class="btn btn-primary">Schedule Your Complimentary Tech Discovery Call →</a>
+      <div style="margin-top:12px;font-size:.85rem"><a href="/fractional-ai-officer" style="color:var(--gold)">How the Fractional Chief AI Operations Officer engagement works</a></div>
+    </div>
+    <p style="margin-top:18px;text-align:center;font-size:.85rem;color:var(--dim)"><a href="#" onclick="restart();return false" style="color:var(--muted)">Retake the Index</a></p>
+  </div>
+</div>
+
+<section class="method">
+  <h2>How the Founder Bottleneck Index is scored</h2>
+  <p>Twelve questions, two per dimension. Each answer scores 0, 4 or 8 points of founder dependency, for a maximum of 96, normalized to 100. The six dimensions are the places a founder-led company most often stalls between $5M and $50M in revenue:</p>
+  <ol>
+    <li><strong style="color:var(--text)">Decisions:</strong> how many day-to-day calls wait for you.</li>
+    <li><strong style="color:var(--text)">Knowledge:</strong> how much of how the company works lives only in your head.</li>
+    <li><strong style="color:var(--text)">Delivery:</strong> whether clients get the same experience when you are not on the job.</li>
+    <li><strong style="color:var(--text)">Data:</strong> whether your leadership team can see the numbers without asking you or building a spreadsheet.</li>
+    <li><strong style="color:var(--text)">Sales:</strong> whether revenue closes without you in the room.</li>
+    <li><strong style="color:var(--text)">Systems:</strong> whether your tools talk to each other or you are the integration.</li>
+  </ol>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Score</th><th>Tier</th><th>What it usually means</th><th>First move</th></tr></thead>
+    <tbody>
+      <tr><td>0 to 34</td><td>Operator-Light</td><td>The company largely runs without you. Growth is limited by strategy and capital, not by you.</td><td>Protect it: continuity, documentation, and AI leverage on what already works.</td></tr>
+      <tr><td>35 to 64</td><td>Partial Bottleneck</td><td>You are the system in two or three areas. Those areas cap growth and burn your week.</td><td>Fix the highest-scoring dimension first, usually data or delivery.</td></tr>
+      <tr><td>65 to 100</td><td>Founder Is the System</td><td>The company cannot run a normal week without you. Most common at $5M to $20M.</td><td>An operations dashboard and one automated core process in 90 days, then the next.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="faq">
+  <h2>Questions founders ask</h2>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>What is a founder bottleneck?</span><span class="faq-toggle">+</span></div><div class="faq-a">A founder bottleneck is the point where a company's growth is limited by the founder's personal capacity because decisions, knowledge, client relationships or data only flow through them. The company has a team but still runs on one person's memory and availability.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>What score is a problem?</span><span class="faq-toggle">+</span></div><div class="faq-a">Under 35 means the company largely runs without you. 35 to 64 means you are the system in at least two areas. 65 and above means the company cannot operate a normal week without you, which is the most common profile at five to twenty million in revenue.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>Do I have to give my email?</span><span class="faq-toggle">+</span></div><div class="faq-a">No. You see your score without it. The email is optional and only used to send your breakdown and the first 90-day move for your tier.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q"><span>What happens after the score?</span><span class="faq-toggle">+</span></div><div class="faq-a">You get your tier, a breakdown by dimension and one recommended first move. If you want a 90-day roadmap, the next step is a complimentary Tech Discovery Call, where we decide together whether a Systems Blueprint Session is the logical next step.</div></div>
+</section>
+
+<p class="related">Related: <a href="/blog/founder-bottleneck-when-you-are-the-system">The Founder Bottleneck: When You Are the System</a> · <a href="/for-eos-companies">For EOS companies</a> · <a href="/for-financial-advisors">For advisory firms</a> · <a href="/audit">Full AI Systems Audit</a></p>
+
+</main>
+<footer>
+  <div class="footer-brand">KNIGHT<span>OPS</span></div>
+  <div class="footer-meta">&copy; 2026 Knight Ops. All rights reserved.<br><a href="/">Home</a> · <a href="/services">Services</a> · <a href="/portfolio">Results</a> · <a href="/book">Book a Call</a> · <a href="/pricing">Pricing</a></div>
+</footer>
+
+<script>
+(function(){
+  var CAPTURE_URL='https://trpnlkntvulkjerevngm.supabase.co/functions/v1/gravity-capture';
+  var ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRycG5sa250dnVsa2plcmV2bmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Njg1MDQsImV4cCI6MjA5MDA0NDUwNH0.q9UrZDjbl7c3xC1eTsq46Qg5MmWNogot2ByZ9c_54cM';
+  var DIMS=['Decisions','Knowledge','Delivery','Data','Sales','Systems'];
+  var Q=[
+    {d:0,t:'When a team member hits a question they cannot answer, what usually happens?',o:[['They check the documented process or the system and move on',0],['They ask a manager, who usually knows',4],['They message me, and it waits until I reply',8]]},
+    {d:0,t:'How many decisions under $5,000 cross your desk in a typical week?',o:[['Almost none, the team owns them',0],['A handful I could delegate but have not',4],['Most of them, I am the approval step',8]]},
+    {d:1,t:'If you were unreachable for two weeks, how would the team find out how things are done?',o:[['Written processes and the system itself',0],['A mix of docs and asking around',4],['They would guess, or wait',8]]},
+    {d:1,t:'Where does your best client and vendor context live?',o:[['In the CRM and project records, visible to the team',0],['Partly in systems, partly in my inbox',4],['In my head and my phone',8]]},
+    {d:2,t:'Do clients get the same onboarding experience whether or not you are involved?',o:[['Yes, it is a tracked sequence with owners',0],['Mostly, but quality depends on the person',4],['No, the best experience is when I run it',8]]},
+    {d:2,t:'How do you know a deliverable or job is slipping before the client tells you?',o:[['The system flags it by status or date',0],['A weekly check-in usually catches it',4],['I find out when someone complains',8]]},
+    {d:3,t:'Can your leadership team see revenue, margin and pipeline this week without asking anyone?',o:[['Yes, on a live dashboard',0],['Yes, after someone builds the spreadsheet',4],['No, I pull the numbers',8]]},
+    {d:3,t:'How many tools hold a version of your client or customer data?',o:[['One system of record, others read from it',0],['Two or three that mostly agree',4],['Four or more, and they disagree',8]]},
+    {d:4,t:'What share of new revenue closes without you on the call?',o:[['Most of it',0],['About half',4],['Almost none, I close everything',8]]},
+    {d:4,t:'What happens to a lead that does not book on the first touch?',o:[['Automated follow-up runs for weeks',0],['Someone follows up if they remember',4],['It goes cold unless I chase it',8]]},
+    {d:5,t:'When two of your tools need to share information, how does it happen?',o:[['They are integrated, it just happens',0],['A team member re-keys it',4],['I copy it across, or it does not happen',8]]},
+    {d:5,t:'Who owns making your systems better each quarter?',o:[['A named owner with a roadmap',0],['Whoever is frustrated enough that week',4],['Me, when I have time, which is never',8]]}
+  ];
+  var TIERS=[
+    {min:0,cls:'t1',name:'Operator-Light',read:'The company largely runs without you. Your growth limit is strategy and capital, not your calendar. The risk now is drift: undocumented changes, tools that quietly stop talking, and no one owning evolution.',move:'Protect what works. Put a named owner on systems, document the three processes that changed most this year, and add AI leverage where the data already flows.'},
+    {min:35,cls:'t2',name:'Partial Bottleneck',read:'You are the system in two or three areas. Those areas cap growth and eat your week, while the rest of the company runs fine. This is the most fixable tier because the pattern is already half built.',move:'Fix your highest-scoring dimension first. If it is Data, ship an operations dashboard your leadership team opens every morning. If it is Delivery, turn onboarding into a tracked sequence with owners. One dimension, 90 days, then the next.'},
+    {min:65,cls:'t3',name:'Founder Is the System',read:'The company cannot run a normal week without you. Decisions, context, numbers and follow-up all route through one person. This is the most common profile between $5M and $20M, and it is the ceiling on your growth, your hiring and your exit value.',move:'Do not start with hiring. Start with an operations dashboard on your real data and one automated core process (usually onboarding or follow-up) in the first 90 days. That removes you from two loops at once and gives your next hire a system to step into.'}
+  ];
+  var answers=[],cur=0,dimScores=[0,0,0,0,0,0];
+  var qWrap=document.getElementById('questions');
+  Q.forEach(function(q,i){
+    var div=document.createElement('div');div.className='q'+(i===0?' active':'');div.id='q'+i;
+    var html='<div class="n">QUESTION '+(i+1)+' OF '+Q.length+' · '+DIMS[q.d].toUpperCase()+'</div><h2>'+q.t+'</h2><div class="opts">';
+    q.o.forEach(function(o,j){html+='<button class="opt" type="button" onclick="pick('+i+','+j+')">'+o[0]+'</button>';});
+    html+='</div><div class="nav-btns"><button class="btn btn-ghost" type="button" onclick="back()" '+(i===0?'style="visibility:hidden"':'')+'>← Back</button><button class="btn btn-primary" type="button" id="next'+i+'" onclick="next()" disabled>'+(i===Q.length-1?'See my score →':'Next →')+'</button></div>';
+    div.innerHTML=html;qWrap.appendChild(div);
+  });
+  function bar(){document.getElementById('bar').style.width=Math.round((cur/Q.length)*100)+'%';}
+  window.pick=function(i,j){answers[i]=j;var opts=document.querySelectorAll('#q'+i+' .opt');opts.forEach(function(o,k){o.classList.toggle('sel',k===j);});document.getElementById('next'+i).disabled=false;};
+  window.next=function(){document.getElementById('q'+cur).classList.remove('active');cur++;bar();if(cur<Q.length){document.getElementById('q'+cur).classList.add('active');}else{document.getElementById('gate').classList.add('active');}window.scrollTo({top:document.getElementById('quiz').offsetTop-80,behavior:'smooth'});};
+  window.back=function(){if(cur===0)return;document.getElementById('q'+cur).classList.remove('active');cur--;bar();document.getElementById('q'+cur).classList.add('active');};
+  function compute(){dimScores=[0,0,0,0,0,0];var total=0;Q.forEach(function(q,i){var pts=q.o[answers[i]||0][1];dimScores[q.d]+=pts;total+=pts;});return Math.round(total/96*100);}
+  window.showResult=function(withEmail){
+    var score=compute();var tier=TIERS[0];TIERS.forEach(function(t){if(score>=t.min)tier=t;});
+    var worst=0;dimScores.forEach(function(v,i){if(v>dimScores[worst])worst=i;});
+    document.getElementById('gate').classList.remove('active');
+    document.getElementById('result').classList.add('active');
+    document.getElementById('bar').style.width='100%';
+    var el=document.getElementById('scoreNum');var n=0;var iv=setInterval(function(){n+=2;if(n>=score){n=score;clearInterval(iv);}el.textContent=n;},18);
+    var t=document.getElementById('tier');t.textContent=tier.name;t.className='tier '+tier.cls;
+    document.getElementById('readout').innerHTML='<strong>'+tier.name+'.</strong> '+tier.read+' Your highest-dependency dimension is <strong>'+DIMS[worst]+'</strong>.';
+    document.getElementById('dims').innerHTML=DIMS.map(function(d,i){return '<div class="dim"><div class="l">'+d+'</div><div class="v" style="color:'+(dimScores[i]>=12?'var(--pink)':dimScores[i]>=6?'var(--amber)':'var(--green)')+'">'+dimScores[i]+'/16</div></div>';}).join('');
+    document.getElementById('move').textContent=tier.move;
+    document.getElementById('ctaLink').href='/book?src=fbi&score='+score+'&tier='+encodeURIComponent(tier.name)+'&dim='+encodeURIComponent(DIMS[worst]);
+    var name=(document.getElementById('g-name').value||'').trim(),email=(document.getElementById('g-email').value||'').trim();
+    if(withEmail&&email){
+      try{var qs=new URLSearchParams(window.location.search);
+        fetch(CAPTURE_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON,'Authorization':'Bearer '+ANON},body:JSON.stringify({first_name:name,email:email,consent:document.getElementById('g-consent').checked,consent_text:'Send my results and occasional systems insights from Knight Ops.',capture_tool:'founder_bottleneck_index',campaign:'founder-bottleneck-index',source_url:window.location.href,utm:{utm_source:qs.get('utm_source'),utm_medium:qs.get('utm_medium'),utm_campaign:qs.get('utm_campaign'),utm_content:qs.get('utm_content')},biggest_bottleneck:DIMS[worst],business_type:'',answers:{score:score,tier:tier.name,dimensions:{decisions:dimScores[0],knowledge:dimScores[1],delivery:dimScores[2],data:dimScores[3],sales:dimScores[4],systems:dimScores[5]},raw:answers}})}).catch(function(){});
+      }catch(e){}
+    }
+    if(window.koTrack){try{window.koTrack('fbi_complete',{score:score,tier:tier.name});}catch(e){}}
+    window.scrollTo({top:document.getElementById('quiz').offsetTop-80,behavior:'smooth'});
+  };
+  window.restart=function(){answers=[];cur=0;bar();document.getElementById('result').classList.remove('active');document.querySelectorAll('.opt').forEach(function(o){o.classList.remove('sel');});document.querySelectorAll('[id^=next]').forEach(function(b){b.disabled=true;});document.getElementById('q0').classList.add('active');};
+})();
+</script>
+<script src="/ko-track.js" defer></script>
+</body>
+</html>
