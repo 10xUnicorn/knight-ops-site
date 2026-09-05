@@ -67,10 +67,13 @@ async function syncGithub(svc: ReturnType<typeof createClient>) {
     if (batch.length < 100) break;
   }
 
-  // Two .neq() calls rather than .not('status','in',...): the first sync matched 0 of 24 repos because that
-  // filter returned no projects at all (status is an enum; the in-list form is fragile). Verified 2026-09-05.
-  const { data: projects, error: pErr } = await svc.from('projects').select('id,name,repo_url').neq('status', 'cancelled').neq('status', 'archived');
+  // NO status filter in the query. projects.status is the enum project_status (discovery, scoping, in_progress,
+  // review, revision, deployed, completed, paused, cancelled) and it has NO 'archived' value, so any filter naming
+  // 'archived' fails with an enum-cast error. v1/v2 swallowed that error and matched 0 of 24; v3 surfaced it as
+  // projects_query_failed. Fetch everything and filter in JS. (Verified against pg_enum 2026-09-05.)
+  const { data: allProjects, error: pErr } = await svc.from('projects').select('id,name,repo_url,status');
   if (pErr) return { error: 'projects_query_failed', detail: pErr.message };
+  const projects = (allProjects || []).filter((p: any) => !['cancelled', 'archived'].includes(String(p.status)));
   const byUrl = new Map<string, string>();
   const bySlug = new Map<string, string>();
   for (const p of projects || []) {
