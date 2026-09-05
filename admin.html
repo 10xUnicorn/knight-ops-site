@@ -472,6 +472,62 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 .ko-chip:hover{border-color:var(--accent)}
 .ko-nd textarea.form-input{min-height:120px;resize:vertical;line-height:1.5}
 .ko-log{font-size:.8rem;color:#bbb;line-height:1.55;padding-left:1.1rem}.ko-log li{margin-bottom:.35rem}
+
+/* ═══ AUTOMATIONS MODULE (System → Automations) ═══ */
+.ko-auto-empty{padding:2.5rem 1.25rem;text-align:center;color:var(--text-muted,#8b8b99);font-size:.9rem}
+.ko-auto-kpi .ko-auto-kpi-sub{font-size:.68rem;color:var(--text-muted,#8b8b99);margin-top:.2rem;line-height:1.35}
+.ko-auto-kpi-bad .kpi-value{color:#ef4444}.ko-auto-kpi-warn .kpi-value{color:#f59e0b}.ko-auto-kpi-good .kpi-value{color:#22c55e}
+.ko-auto-tabs{display:flex;gap:.25rem;align-items:center;padding:1rem 1.25rem 0;border-bottom:1px solid var(--border,#2a2a2e);flex-wrap:wrap}
+.ko-auto-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted,#a1a1aa);padding:.55rem .8rem;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:-1px}
+.ko-auto-tab.active{color:var(--gold,#C8A456);border-bottom-color:var(--gold,#C8A456)}
+.ko-auto-body{position:relative;padding:1rem 1.25rem 1.25rem;min-height:420px}
+.ko-auto-mapbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem}
+.ko-auto-seg{display:inline-flex;border:1px solid var(--border,#2a2a2e);border-radius:8px;overflow:hidden}
+.ko-auto-seg button{background:none;border:none;color:var(--text-muted,#a1a1aa);padding:.4rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer}
+.ko-auto-seg button.active{background:var(--gold-subtle,rgba(200,164,86,.12));color:var(--gold,#C8A456)}
+.ko-auto-legend{display:flex;gap:.6rem;flex-wrap:wrap}.ko-auto-leg{font-size:.7rem;color:var(--text-muted,#a1a1aa);display:inline-flex;align-items:center;gap:.3rem}.ko-auto-leg i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.ko-auto-mapwrap{border:1px solid var(--border,#2a2a2e);border-radius:12px;background:var(--surface,#111113);overflow:hidden}
+#autoSvg{display:block;cursor:grab;color:#55556a}#autoSvg.dragging{cursor:grabbing}
+.ko-auto-lane{fill:rgba(255,255,255,.015);stroke:var(--border,#2a2a2e);stroke-dasharray:3 4}
+.ko-auto-lane-title{fill:var(--gold,#C8A456);font-size:12px;font-weight:700;text-anchor:middle;letter-spacing:.08em;text-transform:uppercase}
+.ko-auto-lane-sub{fill:#71717a;font-size:10px;text-anchor:middle}
+.ko-auto-node{cursor:pointer}.ko-auto-node rect:first-child{fill:var(--card,#1c1c1f);stroke:var(--border-light,#3a3a3f);stroke-width:1}
+.ko-auto-node:hover rect:first-child{stroke:var(--kc)}.ko-auto-node.sel rect:first-child{stroke:var(--kc);stroke-width:2;fill:#232327}
+.ko-auto-node-title{fill:#f4f4f5;font-size:11.5px;font-weight:600}.ko-auto-node-sub{fill:#8b8b99;font-size:9.5px}
+.ko-auto-edge{fill:none;stroke:#3a3a45;stroke-width:1.2;opacity:.75}.ko-auto-edge.hi{stroke:var(--gold,#C8A456);stroke-width:2;opacity:1}
+.ko-auto-edge-twin_of{stroke-dasharray:4 4}.ko-auto-edge-building{stroke:#4FD1C5;stroke-width:1.8;opacity:1}
+.ko-auto-panel{display:none}.ko-auto-panel.open{display:block;position:absolute;top:1rem;right:1.25rem;width:min(420px,92%);max-height:calc(100% - 2rem);overflow:auto;background:var(--card,#1c1c1f);border:1px solid var(--gold-border,rgba(200,164,86,.25));border-radius:14px;padding:1rem 1.1rem 1.1rem;box-shadow:0 18px 50px rgba(0,0,0,.55);z-index:5;font-size:.82rem}
+.ko-auto-close{position:absolute;top:.5rem;right:.6rem;background:none;border:none;color:#a1a1aa;font-size:1.3rem;cursor:pointer;line-height:1}
+.ko-auto-ptitle{font-size:1rem;font-weight:700;margin:0 1.5rem .25rem 0;line-height:1.3}.ko-auto-pmeta{font-size:.74rem;color:#a1a1aa;margin-bottom:.6rem;display:flex;gap:.35rem;align-items:center;flex-wrap:wrap}
+.ko-auto-panel h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold,#C8A456);margin:1rem 0 .4rem}
+.ko-auto-desc{color:#d4d4d8;line-height:1.5;margin:0 0 .5rem;font-size:.8rem}
+.ko-auto-dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;margin:0}.ko-auto-dl dt{color:#8b8b99;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding-top:.15rem}.ko-auto-dl dd{margin:0;color:#e4e4e7;font-size:.8rem;min-width:0}
+.ko-auto-dl code,.ko-auto-url code{font-size:.74rem;background:rgba(255,255,255,.05);padding:.1rem .35rem;border-radius:4px}
+.ko-auto-err{color:#fca5a5;font-size:.74rem;margin-top:.25rem;word-break:break-word}.ko-auto-fix{color:#a7f3d0;font-size:.76rem;margin-top:.25rem}
+.ko-auto-note{color:#8b8b99;font-size:.76rem;font-style:italic}
+.ko-auto-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:.5rem;align-items:center;padding:.4rem .5rem;border-radius:8px;cursor:pointer;font-size:.78rem}.ko-auto-row:hover{background:rgba(255,255,255,.04)}.ko-auto-row b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ko-auto-row span{color:#8b8b99;font-size:.72rem;white-space:nowrap}
+.ko-auto-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.ko-auto-dot.bad{background:#ef4444}.ko-auto-dot.warn{background:#f59e0b}
+.ko-auto-kind{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:.12rem .45rem;border-radius:4px;color:var(--kc);border:1px solid var(--kc);white-space:nowrap}
+.ko-auto-status{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.12rem .45rem;border-radius:4px;background:rgba(255,255,255,.06);color:#d4d4d8}
+.ko-auto-status-active,.ko-auto-status-in_progress{background:rgba(34,197,94,.14);color:#86efac}.ko-auto-status-disabled,.ko-auto-status-gone{background:rgba(148,163,184,.14);color:#cbd5e1}.ko-auto-status-dead,.ko-auto-status-one_off{background:rgba(239,68,68,.14);color:#fca5a5}.ko-auto-status-scoping,.ko-auto-status-discovery,.ko-auto-status-review{background:rgba(245,158,11,.14);color:#fcd34d}
+.ko-auto-sev{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .45rem;border-radius:4px;align-self:flex-start;white-space:nowrap}.ko-auto-sev-high{background:rgba(239,68,68,.18);color:#fca5a5}.ko-auto-sev-medium{background:rgba(245,158,11,.18);color:#fcd34d}.ko-auto-sev-low{background:rgba(148,163,184,.16);color:#cbd5e1}
+.ko-auto-gap{display:grid;grid-template-columns:auto 1fr;gap:.6rem;padding:.55rem .6rem;border:1px solid var(--border,#2a2a2e);border-radius:10px;margin-bottom:.45rem;font-size:.8rem}.ko-auto-gap.big{padding:.75rem .85rem}.ko-auto-gap-kind{font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;color:#8b8b99;margin-bottom:.15rem}.ko-auto-gap-ref{margin-top:.35rem;font-size:.74rem}
+.ko-auto-gaps{max-width:900px}
+.ko-auto-link{color:var(--gold,#C8A456);text-decoration:none;cursor:pointer}.ko-auto-link:hover{text-decoration:underline}
+.ko-auto-chip{display:inline-block;font-size:.7rem;padding:.15rem .5rem;border-radius:999px;background:rgba(255,255,255,.06);color:#d4d4d8;margin:.1rem .15rem .1rem 0}
+.ko-auto-counts{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin:.5rem 0}.ko-auto-counts div{background:rgba(255,255,255,.04);border-radius:8px;padding:.45rem .3rem;text-align:center;font-size:.64rem;color:#8b8b99;line-height:1.2}.ko-auto-counts b{display:block;font-size:1rem;color:#f4f4f5;font-family:'JetBrains Mono',monospace}
+.ko-auto-url{display:grid;grid-template-columns:70px 1fr;gap:.5rem;font-size:.78rem;padding:.2rem 0;align-items:baseline}.ko-auto-url span{color:#8b8b99;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}.ko-auto-url a{word-break:break-all}
+.ko-auto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.75rem}.ko-auto-grid.dim{opacity:.72}
+.ko-auto-card{background:var(--card,#1c1c1f);border:1px solid var(--border,#2a2a2e);border-radius:12px;padding:.85rem .95rem;cursor:pointer;transition:border-color .15s}.ko-auto-card:hover,.ko-auto-card.sel{border-color:var(--gold-border,rgba(200,164,86,.45))}
+.ko-auto-card-head{display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start}.ko-auto-card-head b{font-size:.9rem;line-height:1.3}
+.ko-auto-card-sub{font-size:.74rem;color:#8b8b99;margin-top:.2rem}.ko-auto-card-urls{display:flex;gap:.7rem;flex-wrap:wrap;margin:.5rem 0 .4rem;font-size:.76rem}
+.ko-auto-card-counts{display:flex;gap:.45rem;flex-wrap:wrap}.ko-auto-card-counts span{font-size:.68rem;padding:.15rem .5rem;border-radius:999px;background:rgba(255,255,255,.05);color:#d4d4d8}.ko-auto-card-counts span.hot{background:rgba(79,209,197,.16);color:#99f6e4}.ko-auto-card-counts span.warn{background:rgba(245,158,11,.16);color:#fcd34d}.ko-auto-card-counts span.bad{background:rgba(239,68,68,.16);color:#fca5a5}
+.ko-auto-card-people{margin-top:.45rem}
+.ko-auto-tablewrap{overflow-x:auto}.ko-auto-tablewrap td{vertical-align:top;font-size:.8rem}
+.ko-auto-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.ko-auto-modal-card{background:var(--card,#1c1c1f);border:1px solid var(--gold-border,rgba(200,164,86,.3));border-radius:14px;padding:1.2rem 1.3rem;width:min(760px,100%);max-height:92vh;overflow:auto}.ko-auto-modal-card h3{margin:0 0 .8rem;font-size:1rem}
+.ko-auto-form{display:grid;grid-template-columns:1fr 1fr;gap:.6rem .8rem}.ko-auto-f{display:flex;flex-direction:column;gap:.25rem;font-size:.72rem;color:#a1a1aa}.ko-auto-f.wide{grid-column:1/-1}.ko-auto-f .form-input{width:100%}
+@media(max-width:820px){.ko-auto-form{grid-template-columns:1fr}.ko-auto-panel.open{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;max-height:70vh;border-radius:14px 14px 0 0}.ko-auto-counts{grid-template-columns:repeat(3,1fr)}}
 </style>
 <meta name="robots" content="noindex, nofollow">
 </head>
@@ -551,6 +607,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <div class="nav-child" data-view="forms">Forms & Surveys</div>
           <div class="nav-child" data-view="notifications">Notifications</div>
           <div class="nav-child" data-view="notes">Notes</div>
+          <div class="nav-child" data-view="automations">Automations</div>
         </div>
       </div>
     </nav>
@@ -688,6 +745,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
         <div id="invoiceDetailView" style="display:none"></div>
       </div>
 
+      <div class="view" id="v-automations">
+        <div id="autoRoot"><div class="ko-auto-empty">Loading the ecosystem map…</div></div>
+      </div>
       <div class="view" id="v-notes">
         <div id="notesListView">
           <div class="table-card">
@@ -1692,7 +1752,7 @@ function activateView(v,skipHash){
   var adv=document.getElementById('appDetailView');if(adv)adv.style.display='none';
   var mlv=document.getElementById('mobileListView');if(mlv)mlv.style.display='';
   var mdv=document.getElementById('mobileDetailView');if(mdv)mdv.style.display='none';
-  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();if(v==='notes')loadNotes();if(v==='mobileApps')loadMobileApps();
+  if(v==='dashboard')loadDashboard();if(v==='kpis')loadKPIs();if(v==='comms')loadComms();if(v==='featbugs')loadFeatBugs();if(v==='videos')loadVideos();if(v==='notes')loadNotes();if(v==='automations')loadAutomations();if(v==='mobileApps')loadMobileApps();
   // Email sub-views
   if(v==='emailInbox'){loadEmailAccounts();switchEmailFolder('inbox');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
   if(v==='emailDrafts'){loadEmailAccounts();switchEmailFolder('drafts');showEmailMainView();loadEmailLabels();loadEmailCustomFolders();startEmailAutoRefresh();}
@@ -1745,6 +1805,7 @@ function routeFromHash(){
       else if(view==='tasks'&&parts[1]){activateView('tasks',true);showTaskDetail(decodeURIComponent(parts[1]));}
       else if(view==='videos'&&parts[1]){activateView('videos',true);showVideoDetail(decodeURIComponent(parts[1]));}
       else if(view==='notes'&&parts[1]){activateView('notes',true);showNoteDetail(decodeURIComponent(parts[1]));}
+      else if(view==='automations'&&parts[1]){activateView('automations',true);showAutomationDetail(decodeURIComponent(parts[1]));}
       else if(view==='mobileApps'&&parts[1]){activateView('mobileApps',true);showMobileAppDetail(decodeURIComponent(parts[1]));}
       else{activateView(view,true);}
     }
@@ -4732,7 +4793,7 @@ function showMobileAppDetail(id){
     h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid #7C5CFF"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🖥 Operator dashboard</h3><p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.6rem">Next.js on Vercel, same Supabase project, staff-gated. Built in this build, not a phase 2.</p>';
     if(ops.length)h+=ops.map(k=>'<span class="tag">'+esc(MOB_OPS[k]||k)+'</span>').join(' ');
     if(kp.length)h+='<div style="font-size:.75rem;color:var(--text-muted);margin:.7rem 0 .3rem">KPIs it charts</div>'+kp.map(k=>'<span class="tag">'+esc(k)+'</span>').join(' ');
-    if(b.dashboard_mockup_html)h+='<iframe id="mobDashFrame" sandbox="allow-scripts allow-same-origin" style="width:100%;height:520px;border:1px solid var(--border);border-radius:10px;background:#0e0e14;margin-top:.8rem"></iframe>';
+    if(b.dashboard_mockup_html)h+='<iframe id="mobDashFrame" sandbox="allow-scripts" style="width:100%;height:520px;border:1px solid var(--border);border-radius:10px;background:#0e0e14;margin-top:.8rem"></iframe>';
     h+='</div>';
   }
   // build lifecycle
@@ -4783,7 +4844,7 @@ function showMobileAppDetail(id){
   // mockup
   if(b.ai_mockup_html){
     h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">🎨 Mockup</h3>'+
-       '<iframe id="mobMockFrame" sandbox="allow-scripts allow-same-origin" style="width:100%;height:620px;border:1px solid var(--border);border-radius:10px;background:#0e0e14"></iframe></div>';
+       '<iframe id="mobMockFrame" sandbox="allow-scripts" style="width:100%;height:620px;border:1px solid var(--border);border-radius:10px;background:#0e0e14"></iframe></div>';
   }
   // docs
   if(b.build_prompt)h+='<div class="table-card" style="padding:1.25rem;margin-bottom:1.25rem"><h3 style="font-size:0.95rem;color:var(--accent);margin-bottom:.6rem">⚙️ Build prompt</h3><button class="btn btn-sm btn-primary" onclick="copyMobPrompt(\''+b.id+'\')">📋 Copy</button><pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.75rem;max-height:340px;overflow:auto;white-space:pre-wrap;color:var(--text-muted);margin-top:.6rem">'+esc(b.build_prompt)+'</pre></div>';
@@ -6660,7 +6721,7 @@ function renderNotifLog(){
   c.innerHTML=h;
 }
 function navigateToNotifEntity(entityType,entityId){
-  const routes={leads:()=>{navTo('leads');showLeadDetail(entityId)},clients:()=>{navTo('clients');showClientDetail(entityId)},projects:()=>{navTo('projects');showProjectDetail(entityId)},tasks:()=>{navTo('tasks');showTaskDetail(entityId)},deals:()=>{navTo('deals');showDealDetail(entityId)},events:()=>{navTo('events');showEventDetail(entityId)},applications:()=>{navTo('applications');showAppDetail(entityId)},invoices:()=>{navTo('invoices');showInvoiceDetail(entityId)},reviews:()=>{navTo('reviews')},partners:()=>{navTo('partners');showPartnerDetail(entityId)},blog_posts:()=>{navTo('blog')},assessments:()=>{navTo('assessments')}};
+  const routes={leads:()=>{navTo('leads');showLeadDetail(entityId)},clients:()=>{navTo('clients');showClientDetail(entityId)},projects:()=>{navTo('projects');showProjectDetail(entityId)},tasks:()=>{navTo('tasks');showTaskDetail(entityId)},deals:()=>{navTo('deals');showDealDetail(entityId)},events:()=>{navTo('events');editEvent(entityId)},applications:()=>{navTo('applications');showAppDetail(entityId)},invoices:()=>{navTo('invoices');showInvoiceDetail(entityId)},reviews:()=>{navTo('reviews')},partners:()=>{navTo('partners');showPartnerDetail(entityId)},blog_posts:()=>{navTo('blog')},assessments:()=>{navTo('assessments')}};
   const fn=routes[entityType];
   if(fn){fn();}else{showToast('Navigate to '+entityType+' #'+entityId.slice(0,8),'info');}
 }
@@ -8175,7 +8236,7 @@ async function filterByLabel(label){
   emailCurrentFolder='label:'+label;
   document.getElementById('emailListTitle').textContent=label;
   document.querySelectorAll('.email-folder-item').forEach(el=>el.classList.remove('active'));
-  const{data}=await sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').contains('labels',[label]).eq('is_deleted',false).order('created_at',{ascending:false}).limit(200);
+  const{data}=await sb.from('emails').select('id,subject,from_address,from_name,to_addresses,direction,status,snippet,is_read,is_starred,is_archived,is_spam,is_deleted,is_draft,labels,lead_id,attachments,open_count,click_count,created_at,sent_at,received_at,folder').contains('labels',[label]).eq('is_deleted',false).order('created_at',{ascending:false}).limit(1000); // was 200 (same class as the April inbox bug)
   emailListData=data||[];
   renderEmailList();
 }
@@ -8440,7 +8501,7 @@ let bookingsData=[], bookingTypesData=[];
 
 async function loadBookings(){
   const [bRes, btRes]=await Promise.all([
-    sb.from('bookings').select('*, booking_types(name, color, duration_minutes, location_type)').order('start_time',{ascending:false}).limit(200),
+    sb.from('bookings').select('*, booking_types(name, color, duration_minutes, location_type)').order('start_time',{ascending:false}).limit(1000), // was 200: filterBookings() searches client-side, so a low cap silently hid bookings
     sb.from('booking_types').select('*').order('sort_order')
   ]);
   bookingsData=bRes.data||[];
@@ -13485,7 +13546,7 @@ async function saveBlogPost(status){
   const id=document.getElementById('blogPostId').value;
   const title=document.getElementById('blogPostTitle').value.trim();
   const slug=document.getElementById('blogPostSlug').value.trim();
-  if(!title||!slug){toast('Title and slug required','error');return;}
+  if(!title||!slug){showToast('Title and slug required','error');return;}
   const htmlContent=blogQuill.root.innerHTML;
   const textContent=blogQuill.getText();
   const wordCount=textContent.trim().split(/\s+/).filter(Boolean).length;
@@ -13508,7 +13569,7 @@ async function saveBlogPost(status){
   if(status==='published'&&!id){obj.published_at=new Date().toISOString();}
   if(status==='scheduled'){
     const sched=document.getElementById('blogPostSchedule').value;
-    if(!sched){toast('Set a schedule date first','error');return;}
+    if(!sched){showToast('Set a schedule date first','error');return;}
     obj.scheduled_for=new Date(sched).toISOString();
   }
   // Build schema JSON
@@ -13537,26 +13598,26 @@ async function saveBlogPost(status){
     const{error}=await sb.from('blog_posts').insert(obj);
     err=error;
   }
-  if(err){toast('Error: '+err.message,'error');return;}
+  if(err){showToast('Error: '+err.message,'error');return;}
   // Update topic status if linked
   if(obj.topic_id&&status==='published'){
     await sb.from('blog_topics').update({status:'published',post_id:id||null,published_at:new Date().toISOString()}).eq('id',obj.topic_id);
     await loadBlogTopics();
   }
-  toast(status==='published'?'Post published!':status==='scheduled'?'Post scheduled!':'Draft saved!','success');
+  showToast(status==='published'?'Post published!':status==='scheduled'?'Post scheduled!':'Draft saved!','success');
   closeBlogEditor();
   await loadBlogPosts();
 }
 async function deleteBlogPost(id){
   if(!confirm('Delete this post permanently?'))return;
   await sb.from('blog_posts').delete().eq('id',id);
-  toast('Post deleted','success');
+  showToast('Post deleted','success');
   await loadBlogPosts();
 }
 function previewBlogPost(){
   const slug=document.getElementById('blogPostSlug').value;
   if(slug)window.open('https://knightops.biz/blog/'+slug,'_blank');
-  else toast('Save the post first to preview','error');
+  else showToast('Save the post first to preview','error');
 }
 function editBlogTopic(id){
   let t=id?S.blogTopics.find(x=>x.id===id):null;
@@ -13580,11 +13641,11 @@ async function saveBlogTopic(id){
     source:document.getElementById('topicSource').value.trim()||'manual',
     notes:document.getElementById('topicNotes').value.trim()
   };
-  if(!obj.title){toast('Title required','error');return;}
+  if(!obj.title){showToast('Title required','error');return;}
   if(id){await sb.from('blog_topics').update(obj).eq('id',id);}
   else{await sb.from('blog_topics').insert(obj);}
   closeEditModal();
-  toast('Topic saved','success');
+  showToast('Topic saved','success');
   await loadBlogTopics();
 }
 function createPostFromTopic(topicId){
@@ -13729,6 +13790,7 @@ async function viewAgentHistory(agentId){
 let activeTimer={projectId:null,startTime:null,title:'',workType:'paid',elapsed:0,paused:false,pauseStart:null,breakMs:0},timerInterval=null;
 async function loadTimeEntries(){const{data}=await sb.from('time_entries').select('*').order('created_at',{ascending:false});S.timeEntries=data||[];}
 function getTimerElapsed(){if(!activeTimer.startTime)return 0;const e=activeTimer.elapsed||0;if(activeTimer.paused)return e;return e+(Date.now()-activeTimer.startTime);}
+function renderTimerUI(){var el=document.getElementById('timerDisplay');if(el)el.textContent=fmtTimerElapsed(getTimerElapsed());if(activeTimer&&activeTimer.projectId)showProjectDetail(activeTimer.projectId);} // was called by pause/resume but never defined
 function pauseProjectTimer(){if(!activeTimer.startTime||activeTimer.paused)return;activeTimer.elapsed=getTimerElapsed();activeTimer.paused=true;activeTimer.pauseStart=Date.now();activeTimer.startTime=null;renderTimerUI();}
 function resumeProjectTimer(){if(!activeTimer.paused)return;activeTimer.breakMs+=(Date.now()-activeTimer.pauseStart);activeTimer.startTime=Date.now();activeTimer.paused=false;activeTimer.pauseStart=null;renderTimerUI();}
 function startProjectTimer(pid){const body=FG('What are you working on? *','timer_title','text','')+FG('Work Type','timer_work_type','select','paid',[{v:'paid',l:'Paid'},{v:'unpaid',l:'Unpaid'}]);openEditModal('Start Timer',body,'<button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button><button class="btn btn-primary" onclick="doStartTimer(\''+pid+'\')">&#9654; Start</button>');}
@@ -14952,7 +15014,7 @@ async function loadNotes(){
   var list=document.getElementById('notesList');if(!list)return;
   list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text-muted)">Loading notes…</div>';
   try{
-    var q=sb.from('transcript_notes').select('id,source,source_id,source_url,title,recorded_at,duration_seconds,participants,kind,summary,action_items,actions_taken,related,claude_callouts,status,admin_notes,reprocess_requested_at,reprocessed_at,project_ids,email_sent_at,created_at').order('recorded_at',{ascending:false,nullsFirst:false}).limit(200);
+    var q=sb.from('transcript_notes').select('id,source,source_id,source_url,title,recorded_at,duration_seconds,participants,kind,summary,action_items,actions_taken,related,claude_callouts,status,admin_notes,reprocess_requested_at,reprocessed_at,project_ids,email_sent_at,created_at').order('recorded_at',{ascending:false,nullsFirst:false}).limit(1000); // was 200; search is server-side but the KPI cards count only loaded rows
     if(NOTES.source)q=q.eq('source',NOTES.source);
     if(NOTES.kind)q=q.eq('kind',NOTES.kind);
     if(NOTES.needs)q=q.in('status',['needs_daniel','reprocess_requested']);
@@ -15079,5 +15141,358 @@ function noteCopyRef(){if(!NOTES.current)return;var s='ref:KO-PLAUD:'+NOTES.curr
 </script>
 
 
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTOMATIONS MODULE (System → Automations) — one map of the whole ecosystem:
+// pg_cron jobs, DB triggers, edge functions, Claude cloud routines, Cowork
+// scheduled tasks, Cloudflare workers, the projects they build, the GitHub repos
+// behind those projects, and every gap the registry can compute.
+//
+// Data: ONE call to ko_automation_graph() (SECURITY DEFINER, admin-gated).
+//   nodes    public.automations  (is_live rows refreshed from cron.job / pg_trigger)
+//   edges    public.automation_edges
+//   projects projects + client + members + open work + repo
+//   repos    github_repos (synced by the automations-sync edge fn via GITHUB_TOKEN)
+//   gaps     computed in SQL + catalogued per node
+//
+// Map detail levels:
+//   'groups'  one node per (stage, group, kind-class) — the default. 119 Cowork
+//             tasks and 67 triggers would otherwise be unreadable.
+//   'all'     every node; triggers still collapse to one node per table.
+// Click anything → drill-down panel. Deep link: #automations/<node key>.
+// ═══════════════════════════════════════════════════════════════════════════
+var AUTO={data:null,tab:'map',level:'groups',q:'',kind:'',group:'',gapsOnly:false,sel:null,vb:null,_drag:null,_wired:false};
+var AUTO_STAGES=[['source','Sources'],['ingest','Intake'],['process','Processing'],['build','Build'],['deliver','Outputs'],['project','Projects']];
+var AUTO_KIND_CLASS={cron:'supabase',trigger:'supabase',edge_fn:'supabase',cloud_routine:'cloud',cowork_task:'cowork',worker:'worker',webhook:'supabase',external:'external',source:'source',output:'output',project:'project',group:'group'};
+var AUTO_COLORS={supabase:'#3ECF8E',cloud:'#D97757',cowork:'#C8A456',worker:'#F6821F',external:'#8B8B99',source:'#7C9CF5',output:'#B98CF5',project:'#4FD1C5',group:'#A1A1AA'};
+var AUTO_KIND_LABEL={cron:'pg_cron',trigger:'trigger',edge_fn:'edge fn',cloud_routine:'cloud routine',cowork_task:'Cowork task',worker:'worker',webhook:'webhook',external:'external',source:'source',output:'output',project:'project'};
+
+function autoEsc(s){return esc(s==null?'':String(s));}
+function autoJs(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function autoAgo(ts){if(!ts)return '—';var d=(Date.now()-new Date(ts).getTime())/1000;if(d<60)return 'just now';if(d<3600)return Math.round(d/60)+'m ago';if(d<86400)return Math.round(d/3600)+'h ago';return Math.round(d/86400)+'d ago';}
+function autoSev(s){return '<span class="ko-auto-sev ko-auto-sev-'+autoEsc(s||'medium')+'">'+autoEsc(s||'medium')+'</span>';}
+function autoKindBadge(kind){var kc=AUTO_KIND_CLASS[kind]||'external';return '<span class="ko-auto-kind" style="--kc:'+AUTO_COLORS[kc]+'">'+autoEsc(AUTO_KIND_LABEL[kind]||kind)+'</span>';}
+
+async function loadAutomations(force){
+  var host=document.getElementById('autoRoot');if(!host)return;
+  if(!AUTO.data||force){
+    host.innerHTML='<div class="ko-auto-empty">Loading the ecosystem map…</div>';
+    var r=await sb.rpc('ko_automation_graph');
+    if(r.error){host.innerHTML='<div class="ko-auto-empty">Could not load: '+autoEsc(r.error.message)+'<br><small>ko_automation_graph() is admin-only — make sure you are signed in as an admin.</small></div>';return;}
+    AUTO.data=r.data;
+  }
+  autoRender();
+}
+async function autoRefreshLive(){
+  showToast('Refreshing cron jobs and triggers…');
+  var r=await sb.rpc('ko_automations_refresh_live');
+  if(r.error){showToast('Refresh failed: '+r.error.message,'error');return;}
+  showToast('Live refresh: '+r.data.cron+' cron jobs, '+r.data.triggers+' triggers');
+  loadAutomations(true);
+}
+async function autoSyncGithub(){
+  showToast('Syncing GitHub repos…');
+  var sess=(await sb.auth.getSession()).data.session;
+  if(!sess){showToast('Sign in first','error');return;}
+  var res=await fetch(SUPABASE_URL+'/functions/v1/automations-sync',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+sess.access_token},body:JSON.stringify({action:'github'})});
+  var j=await res.json().catch(function(){return {};});
+  if(!res.ok||!j.github||j.github.error){showToast('GitHub sync: '+((j.github&&(j.github.error+(j.github.hint?' — '+j.github.hint:'')))||j.error||res.status),'error');return;}
+  showToast('GitHub: '+j.github.repos+' repos, '+j.github.matched+' matched to projects'+(j.github.backfilled_repo_url?', '+j.github.backfilled_repo_url+' repo_url backfilled':''));
+  loadAutomations(true);
+}
+
+// ── derived data ─────────────────────────────────────────────────────────────
+function autoNodes(){return (AUTO.data&&AUTO.data.nodes)||[];}
+function autoEdges(){return (AUTO.data&&AUTO.data.edges)||[];}
+function autoProjects(){return (AUTO.data&&AUTO.data.projects)||[];}
+function autoGaps(){return (AUTO.data&&AUTO.data.gaps)||[];}
+function autoNodeByKey(k){var n=autoNodes();for(var i=0;i<n.length;i++)if(n[i].key===k)return n[i];return null;}
+function autoProjectById(id){var p=autoProjects();for(var i=0;i<p.length;i++)if(p[i].id===id)return p[i];return null;}
+function autoGapsFor(ref){return autoGaps().filter(function(g){return g.ref===ref;});}
+function autoGroups(){var s={};autoNodes().forEach(function(n){if(n.group_key)s[n.group_key]=1;});return Object.keys(s).sort();}
+function autoMatches(n){
+  if(AUTO.kind&&n.kind!==AUTO.kind)return false;
+  if(AUTO.group&&n.group_key!==AUTO.group)return false;
+  if(AUTO.gapsOnly&&!autoGapsFor(n.key).length&&!(n.health&&n.health.fails_7d>0)&&n.status==='active')return false;
+  if(AUTO.q){var q=AUTO.q.toLowerCase();var hay=[n.name,n.description,n.key,n.group_key,n.schedule,n.model,(n.reads||[]).join(' '),(n.writes||[]).join(' ')].join(' ').toLowerCase();if(hay.indexOf(q)<0)return false;}
+  return true;
+}
+function autoActiveProjects(){return autoProjects().filter(function(p){return ['in_progress','scoping','discovery','review'].indexOf(p.status)>=0;});}
+
+// ── render shell ─────────────────────────────────────────────────────────────
+function autoRender(){
+  var host=document.getElementById('autoRoot');if(!host||!AUTO.data)return;
+  var nodes=autoNodes(),gaps=autoGaps(),projects=autoActiveProjects(),repos=(AUTO.data.repos||[]);
+  var byKind={};nodes.forEach(function(n){byKind[n.kind]=(byKind[n.kind]||0)+1;});
+  var failing=nodes.filter(function(n){return n.health&&n.health.fails_7d>0;}).length;
+  var disabled=nodes.filter(function(n){return n.status!=='active';}).length;
+  var sev={high:0,medium:0,low:0};gaps.forEach(function(g){sev[g.severity]=(sev[g.severity]||0)+1;});
+  var tabs=[['map','Map'],['projects','Projects ('+projects.length+')'],['repos','Repos ('+repos.length+')'],['gaps','Gaps ('+gaps.length+')'],['table','All automations ('+nodes.length+')']];
+  var html='';
+  html+='<div class="table-card"><div class="table-header" style="flex-wrap:wrap;gap:.6rem"><h2>Automations <span class="ko-note-sub">every scheduled task, cron job, trigger, routine and worker — and what they build</span></h2>'
+      +'<div class="table-filters" style="flex-wrap:wrap;gap:.5rem">'
+      +'<input class="form-input" placeholder="Search name, table, model…" value="'+autoEsc(AUTO.q)+'" style="min-width:210px" oninput="AUTO.q=this.value;autoRender()">'
+      +'<select class="form-input" onchange="AUTO.kind=this.value;autoRender()"><option value="">All kinds</option>'+Object.keys(AUTO_KIND_LABEL).map(function(k){return '<option value="'+k+'"'+(AUTO.kind===k?' selected':'')+'>'+autoEsc(AUTO_KIND_LABEL[k])+(byKind[k]?' ('+byKind[k]+')':'')+'</option>';}).join('')+'</select>'
+      +'<select class="form-input" onchange="AUTO.group=this.value;autoRender()"><option value="">All groups</option>'+autoGroups().map(function(g){return '<option value="'+autoEsc(g)+'"'+(AUTO.group===g?' selected':'')+'>'+autoEsc(g)+'</option>';}).join('')+'</select>'
+      +'<label class="ko-note-toggle"><input type="checkbox"'+(AUTO.gapsOnly?' checked':'')+' onchange="AUTO.gapsOnly=this.checked;autoRender()"> Only problems</label>'
+      +'<button class="btn btn-sm btn-secondary" onclick="autoRefreshLive()" title="Re-read cron.job and pg_trigger">&#8635; Refresh live</button>'
+      +'<button class="btn btn-sm btn-secondary" onclick="autoSyncGithub()" title="Pull repos from the 10xUnicorn org">&#8659; Sync GitHub</button>'
+      +'<button class="btn btn-sm btn-primary" onclick="autoEditNode(null)">+ Register</button>'
+      +'</div></div>';
+  html+='<div class="kpi-grid" style="padding:1rem 1.25rem 0">'
+      +autoKpi(nodes.length,'Automations',Object.keys(byKind).map(function(k){return byKind[k]+' '+(AUTO_KIND_LABEL[k]||k);}).join(' · '))
+      +autoKpi(failing,'Failing (7d)',failing?'cron jobs with failed runs':'no failed cron runs',failing?'bad':'good')
+      +autoKpi(disabled,'Not active','disabled · dead · one-off')
+      +autoKpi(projects.length,'Active projects',autoProjects().length+' total, '+autoProjects().filter(function(p){return p.is_favorite;}).length+' starred')
+      +autoKpi(repos.length,'GitHub repos',repos.length?repos.filter(function(r){return !r.project_id;}).length+' not linked to a project':'run Sync GitHub')
+      +autoKpi(gaps.length,'Gaps',sev.high+' high · '+sev.medium+' medium · '+sev.low+' low',sev.high?'bad':(gaps.length?'warn':'good'))
+      +'</div>';
+  html+='<div class="ko-auto-tabs">'+tabs.map(function(t){return '<button class="ko-auto-tab'+(AUTO.tab===t[0]?' active':'')+'" onclick="AUTO.tab=\''+t[0]+'\';autoRender()">'+autoEsc(t[1])+'</button>';}).join('')
+      +'<span style="flex:1"></span><small style="color:var(--text-muted,#888)">generated '+autoAgo(AUTO.data.generated_at)+'</small></div>';
+  html+='<div class="ko-auto-body" id="autoBody"></div></div>';
+  host.innerHTML=html;
+  var body=document.getElementById('autoBody');
+  if(AUTO.tab==='map')autoRenderMap(body);
+  else if(AUTO.tab==='projects')autoRenderProjects(body);
+  else if(AUTO.tab==='repos')autoRenderRepos(body);
+  else if(AUTO.tab==='gaps')autoRenderGaps(body);
+  else autoRenderTable(body);
+  if(AUTO.sel)autoShowPanel(AUTO.sel);
+}
+function autoKpi(v,label,sub,tone){return '<div class="kpi-card ko-auto-kpi'+(tone?' ko-auto-kpi-'+tone:'')+'"><div class="kpi-value">'+autoEsc(v)+'</div><div class="kpi-label">'+autoEsc(label)+'</div><div class="ko-auto-kpi-sub">'+autoEsc(sub||'')+'</div></div>';}
+
+// ── MAP ──────────────────────────────────────────────────────────────────────
+function autoBuildGraph(){
+  var nodes=autoNodes().filter(autoMatches),edges=autoEdges();
+  var vnodes=[],vedges={},keyToV={};
+  function addV(v){vnodes.push(v);(v.members||[v.key]).forEach(function(k){keyToV[k]=v.id;});return v;}
+  function addE(a,b,rel,label){if(!a||!b||a===b)return;var id=a+'→'+b;if(!vedges[id])vedges[id]={from:a,to:b,n:0,labels:[],relations:{}};var e=vedges[id];e.n++;e.relations[rel]=1;if(label&&e.labels.length<3&&e.labels.indexOf(label)<0)e.labels.push(label);}
+  if(AUTO.level==='groups'){
+    var buckets={};
+    nodes.forEach(function(n){
+      if(n.kind==='source'||n.kind==='output'||n.kind==='cloud_routine'||n.kind==='worker'){addV({id:n.key,key:n.key,label:n.name,kind:n.kind,stage:n.stage||'process',group:n.group_key,members:[n.key],node:n});return;}
+      var kc=AUTO_KIND_CLASS[n.kind]||'external';var st=n.stage||'process';var g=n.group_key||(n.kind==='trigger'?(n.meta&&n.meta.table)||'db':(n.kind==='cron'?'cron':n.kind));
+      var id='grp:'+st+':'+g+':'+n.kind;
+      if(!buckets[id])buckets[id]={id:id,key:id,label:g,kind:'group',kc:kc,kindOf:n.kind,stage:st,group:g,members:[],nodes:[]};
+      buckets[id].members.push(n.key);buckets[id].nodes.push(n);
+    });
+    Object.keys(buckets).forEach(function(id){var b=buckets[id];var suffix=b.kindOf==='trigger'?'triggers':b.kindOf==='cron'?'cron':b.kindOf==='edge_fn'?'edge fns':b.kindOf==='cowork_task'?'Cowork':AUTO_KIND_LABEL[b.kindOf]||b.kc;b.label=b.group+' · '+suffix+' ('+b.nodes.length+')';addV(b);});
+  }else{
+    var trig={};
+    nodes.forEach(function(n){
+      if(n.kind==='trigger'){var t=(n.meta&&n.meta.table)||'?';var id='trg:'+t;if(!trig[id])trig[id]={id:id,key:id,label:'triggers on '+t,kind:'group',kc:'supabase',kindOf:'trigger',stage:'process',group:n.group_key||t,members:[],nodes:[]};trig[id].members.push(n.key);trig[id].nodes.push(n);return;}
+      addV({id:n.key,key:n.key,label:n.name,kind:n.kind,stage:n.stage||'process',group:n.group_key,members:[n.key],node:n});
+    });
+    Object.keys(trig).forEach(function(id){var b=trig[id];b.label+=' ('+b.nodes.length+')';addV(b);});
+  }
+  var projs=autoActiveProjects();
+  if(!AUTO.kind||AUTO.kind==='project'){
+    projs.forEach(function(p){
+      if(AUTO.q&&(p.name+' '+(p.client&&p.client.name||'')).toLowerCase().indexOf(AUTO.q.toLowerCase())<0)return;
+      if(AUTO.gapsOnly&&!autoGapsFor(p.id).length)return;
+      addV({id:'proj:'+p.id,key:'proj:'+p.id,label:p.name,kind:'project',stage:'project',group:p.status,members:['proj:'+p.id],project:p});
+    });
+  }
+  edges.forEach(function(e){addE(keyToV[e.from_key],keyToV[e.to_key],e.relation,e.label);});
+  nodes.forEach(function(n){(n.project_ids||[]).forEach(function(pid){addE(keyToV[n.key],keyToV['proj:'+pid],'builds',null);});});
+  projs.forEach(function(p){if(!p.building)return;['task:knight-ops-autobuild-orchestrator','routine:ko-build-worker'].forEach(function(k){addE(keyToV[k],keyToV['proj:'+p.id],'building','building now');});});
+  return {nodes:vnodes,edges:Object.keys(vedges).map(function(k){return vedges[k];})};
+}
+function autoRenderMap(body){
+  var g=autoBuildGraph();
+  var laneW=250,gapX=70,nodeH=44,gapY=12,padTop=56,nodeW=laneW-20;
+  var lanes=AUTO_STAGES.map(function(s){return {id:s[0],label:s[1],nodes:g.nodes.filter(function(n){return (n.stage||'process')===s[0];}).sort(function(a,b){return (a.group||'').localeCompare(b.group||'')||a.label.localeCompare(b.label);})};});
+  var maxN=Math.max.apply(null,lanes.map(function(l){return l.nodes.length;}).concat([1]));
+  var W=lanes.length*(laneW+gapX),H=padTop+maxN*(nodeH+gapY)+40;
+  var pos={};
+  lanes.forEach(function(l,li){l.nodes.forEach(function(n,i){pos[n.id]={x:li*(laneW+gapX)+10,y:padTop+i*(nodeH+gapY),w:nodeW,h:nodeH,lane:li};});});
+  var svg='';
+  lanes.forEach(function(l,li){var x=li*(laneW+gapX);svg+='<rect x="'+x+'" y="0" width="'+laneW+'" height="'+H+'" class="ko-auto-lane"/><text x="'+(x+laneW/2)+'" y="30" class="ko-auto-lane-title">'+autoEsc(l.label)+'</text><text x="'+(x+laneW/2)+'" y="46" class="ko-auto-lane-sub">'+l.nodes.length+'</text>';});
+  g.edges.forEach(function(e){var a=pos[e.from],b=pos[e.to];if(!a||!b)return;var x1=a.x+a.w,y1=a.y+a.h/2,x2=b.x,y2=b.y+b.h/2;var back=b.lane<=a.lane;if(back){x1=a.x;x2=b.x+b.w;}var dx=Math.max(40,Math.abs(x2-x1)/2);var d=back?('M'+x1+' '+y1+' C '+(x1-dx)+' '+y1+', '+(x2+dx)+' '+y2+', '+x2+' '+y2):('M'+x1+' '+y1+' C '+(x1+dx)+' '+y1+', '+(x2-dx)+' '+y2+', '+x2+' '+y2);
+    var rel=Object.keys(e.relations)[0]||'';var hi=AUTO.sel&&(AUTO.sel===e.from||AUTO.sel===e.to);
+    svg+='<path d="'+d+'" class="ko-auto-edge ko-auto-edge-'+autoEsc(rel)+(hi?' hi':'')+'" marker-end="url(#koArrow)"><title>'+autoEsc(e.labels.join(' · ')||rel)+(e.n>1?' ×'+e.n:'')+'</title></path>';});
+  g.nodes.forEach(function(n){var p=pos[n.id];if(!p)return;var kc=n.kc||AUTO_KIND_CLASS[n.kind]||'external';var col=AUTO_COLORS[kc];var sel=AUTO.sel===n.id;
+    var bad=false,warn=false;(n.members||[]).forEach(function(k){var nn=autoNodeByKey(k);if(nn){if(nn.health&&nn.health.fails_7d>0)bad=true;if(nn.status!=='active'||autoGapsFor(k).length)warn=true;}});
+    if(n.project&&autoGapsFor(n.project.id).length)warn=true;
+    var sub=n.project?(((n.project.client&&n.project.client.name)||n.project.status)+(n.project.building?' · building':'')):(n.node?(n.node.schedule||n.node.runtime||AUTO_KIND_LABEL[n.kind]||''):(AUTO_KIND_LABEL[n.kindOf]||kc));
+    svg+='<g class="ko-auto-node'+(sel?' sel':'')+'" transform="translate('+p.x+','+p.y+')" onclick="autoSelect(\''+autoJs(n.id)+'\')"><rect width="'+p.w+'" height="'+p.h+'" rx="8" style="--kc:'+col+'"/><rect width="5" height="'+p.h+'" rx="2" fill="'+col+'"/>'
+      +'<text x="14" y="18" class="ko-auto-node-title">'+autoEsc(n.label.length>30?n.label.slice(0,29)+'…':n.label)+'</text>'
+      +'<text x="14" y="34" class="ko-auto-node-sub">'+autoEsc(String(sub).slice(0,40))+'</text>'
+      +(bad?'<circle cx="'+(p.w-12)+'" cy="12" r="5" fill="#ef4444"><title>failed runs</title></circle>':warn?'<circle cx="'+(p.w-12)+'" cy="12" r="5" fill="#f59e0b"><title>has gaps / not active</title></circle>':'')
+      +'</g>';});
+  var legend=Object.keys(AUTO_COLORS).filter(function(k){return k!=='group';}).map(function(k){return '<span class="ko-auto-leg"><i style="background:'+AUTO_COLORS[k]+'"></i>'+k+'</span>';}).join('');
+  if(!AUTO.vb)AUTO.vb=[0,0,W,Math.max(H,600)];
+  body.innerHTML='<div class="ko-auto-mapbar"><div class="ko-auto-seg"><button class="'+(AUTO.level==='groups'?'active':'')+'" onclick="AUTO.level=\'groups\';AUTO.vb=null;autoRender()">Grouped</button><button class="'+(AUTO.level==='all'?'active':'')+'" onclick="AUTO.level=\'all\';AUTO.vb=null;autoRender()">Everything</button></div>'
+    +'<div class="ko-auto-legend">'+legend+'</div><div style="flex:1"></div><button class="btn btn-sm btn-secondary" onclick="AUTO.vb=null;autoRender()">Fit</button><small style="color:var(--text-muted,#888)">scroll to zoom · drag to pan · click a node</small></div>'
+    +'<div class="ko-auto-mapwrap" id="autoMapWrap"><svg id="autoSvg" viewBox="'+AUTO.vb.join(' ')+'" width="100%" height="640" preserveAspectRatio="xMinYMin meet"><defs><marker id="koArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>'+svg+'</svg></div>'
+    +'<div class="ko-auto-panel" id="autoPanel"></div>';
+  autoWireMap(W);
+}
+function autoWireMap(W){
+  var svg=document.getElementById('autoSvg');if(!svg)return;
+  svg.addEventListener('wheel',function(ev){ev.preventDefault();var vb=AUTO.vb;var f=ev.deltaY>0?1.12:0.89;var r=svg.getBoundingClientRect();var mx=vb[0]+(ev.clientX-r.left)/r.width*vb[2],my=vb[1]+(ev.clientY-r.top)/r.height*vb[3];var nw=Math.min(Math.max(vb[2]*f,300),W*3),nh=vb[3]*(nw/vb[2]);AUTO.vb=[mx-(mx-vb[0])*(nw/vb[2]),my-(my-vb[1])*(nh/vb[3]),nw,nh];svg.setAttribute('viewBox',AUTO.vb.join(' '));},{passive:false});
+  svg.addEventListener('mousedown',function(ev){if(ev.target.closest&&ev.target.closest('.ko-auto-node'))return;AUTO._drag={x:ev.clientX,y:ev.clientY,vb:AUTO.vb.slice()};svg.classList.add('dragging');});
+  if(!AUTO._wired){AUTO._wired=true;
+    window.addEventListener('mousemove',function(ev){var s=document.getElementById('autoSvg');if(!AUTO._drag||!s)return;var r=s.getBoundingClientRect();var sx=AUTO._drag.vb[2]/r.width,sy=AUTO._drag.vb[3]/r.height;AUTO.vb=[AUTO._drag.vb[0]-(ev.clientX-AUTO._drag.x)*sx,AUTO._drag.vb[1]-(ev.clientY-AUTO._drag.y)*sy,AUTO._drag.vb[2],AUTO._drag.vb[3]];s.setAttribute('viewBox',AUTO.vb.join(' '));});
+    window.addEventListener('mouseup',function(){if(AUTO._drag){AUTO._drag=null;var s=document.getElementById('autoSvg');if(s)s.classList.remove('dragging');}});
+  }
+}
+function autoSelect(id){AUTO.sel=id;if(id&&id.indexOf('grp:')!==0&&id.indexOf('trg:')!==0)setRecordHash('automations',id);autoRender();}
+function autoClosePanel(){AUTO.sel=null;try{window.history.pushState(null,null,'#automations');_lastRouteHash='automations';}catch(e){}autoRender();}
+function showAutomationDetail(id){AUTO.sel=id;if(AUTO.data)autoRender();else loadAutomations();}
+
+// ── drill-down panel ─────────────────────────────────────────────────────────
+function autoShowPanel(id){
+  var el=document.getElementById('autoPanel');if(!el){var b=document.getElementById('autoBody');if(!b)return;el=document.createElement('div');el.id='autoPanel';el.className='ko-auto-panel';b.appendChild(el);}
+  var html='<button class="ko-auto-close" onclick="autoClosePanel()" title="Close">&times;</button>';
+  if(id.indexOf('proj:')===0){var p=autoProjectById(id.slice(5));if(!p){el.innerHTML='';el.classList.remove('open');return;}html+=autoProjectDetail(p);}
+  else if(id.indexOf('grp:')===0||id.indexOf('trg:')===0){var g=autoBuildGraph().nodes.filter(function(n){return n.id===id;})[0];if(!g){el.innerHTML='';el.classList.remove('open');return;}
+    html+='<div class="ko-auto-ptitle">'+autoEsc(g.label)+'</div><div class="ko-auto-pmeta">'+autoEsc(AUTO_KIND_LABEL[g.kindOf]||g.kc)+' · stage '+autoEsc(g.stage)+'</div>'
+      +'<div class="ko-auto-plist">'+g.nodes.slice().sort(function(a,b){return a.name.localeCompare(b.name);}).map(function(n){return '<div class="ko-auto-row" onclick="autoSelect(\''+autoJs(n.key)+'\')">'+autoKindBadge(n.kind)+'<b>'+autoEsc(n.name)+'</b><span>'+autoEsc(n.schedule||n.status)+'</span>'+(n.health&&n.health.fails_7d>0?'<i class="ko-auto-dot bad"></i>':autoGapsFor(n.key).length||n.status!=='active'?'<i class="ko-auto-dot warn"></i>':'<i></i>')+'</div>';}).join('')+'</div>';}
+  else{var n=autoNodeByKey(id);if(!n){el.innerHTML='';el.classList.remove('open');return;}html+=autoNodeDetail(n);}
+  el.innerHTML=html;el.classList.add('open');
+}
+function autoLink(url,label){return url?'<a href="'+autoEsc(url)+'" target="_blank" rel="noopener" class="ko-auto-link" onclick="event.stopPropagation()">'+autoEsc(label||url)+' &#8599;</a>':'';}
+function autoGapHtml(g){return '<div class="ko-auto-gap">'+autoSev(g.severity)+'<div><b>'+autoEsc(g.summary)+'</b>'+(g.detail?'<div class="ko-auto-err">'+autoEsc(g.detail)+'</div>':'')+(g.fix?'<div class="ko-auto-fix">'+autoEsc(g.fix)+'</div>':'')+'</div></div>';}
+function autoNodeDetail(n){
+  var h=n.health||{},gaps=autoGapsFor(n.key);
+  var ins=autoEdges().filter(function(e){return e.to_key===n.key;}),outs=autoEdges().filter(function(e){return e.from_key===n.key;});
+  var edgeRow=function(e,dir){var k=dir==='in'?e.from_key:e.to_key;var o=autoNodeByKey(k);return '<div class="ko-auto-row" onclick="autoSelect(\''+autoJs(k)+'\')">'+(o?autoKindBadge(o.kind):'<i></i>')+'<b>'+autoEsc(o?o.name:k)+'</b><span>'+autoEsc(e.relation+(e.label?' · '+e.label:''))+'</span><i></i></div>';};
+  var projs=(n.project_ids||[]).map(autoProjectById).filter(Boolean);
+  var html='<div class="ko-auto-ptitle">'+autoEsc(n.name)+'</div><div class="ko-auto-pmeta">'+autoKindBadge(n.kind)+' <span class="ko-auto-status ko-auto-status-'+autoEsc(n.status)+'">'+autoEsc(n.status)+'</span>'+(n.group_key?' · '+autoEsc(n.group_key):'')+(n.is_live?' · <span title="refreshed from the live source">live</span>':'')+'</div>';
+  if(n.description)html+='<p class="ko-auto-desc">'+autoEsc(n.description)+'</p>';
+  html+='<dl class="ko-auto-dl">'
+    +(n.schedule?'<dt>Schedule</dt><dd><code>'+autoEsc(n.schedule)+'</code>'+(n.timezone?' <small>'+autoEsc(n.timezone)+'</small>':'')+'</dd>':'')
+    +(n.model?'<dt>Model</dt><dd>'+autoEsc(n.model)+'</dd>':'')
+    +(n.runtime?'<dt>Runtime</dt><dd>'+autoEsc(n.runtime)+'</dd>':'')
+    +(n.source_ref?'<dt>Source</dt><dd><code style="word-break:break-all">'+autoEsc(n.source_ref)+'</code></dd>':'')
+    +(n.url?'<dt>Open</dt><dd>'+autoLink(n.url,n.kind==='cloud_routine'?'claude.ai routine':n.url.replace(/^https?:\/\//,'').slice(0,50))+'</dd>':'')
+    +(h.runs_7d!=null?'<dt>Last 7 days</dt><dd>'+autoEsc(h.runs_7d)+' runs · <b style="color:'+(h.fails_7d>0?'#ef4444':'inherit')+'">'+autoEsc(h.fails_7d||0)+' failed</b> · last '+autoAgo(h.last_run)+(h.last_status?' ('+autoEsc(h.last_status)+')':'')+(h.last_error?'<div class="ko-auto-err">'+autoEsc(h.last_error)+'</div>':'')+'</dd>':'')
+    +((n.reads||[]).length?'<dt>Reads</dt><dd>'+(n.reads||[]).map(function(x){return '<code>'+autoEsc(x)+'</code>';}).join(' ')+'</dd>':'')
+    +((n.writes||[]).length?'<dt>Writes</dt><dd>'+(n.writes||[]).map(function(x){return '<code>'+autoEsc(x)+'</code>';}).join(' ')+'</dd>':'')
+    +(n.meta&&n.meta.command?'<dt>Command</dt><dd><code style="word-break:break-all;font-size:.72rem">'+autoEsc(n.meta.command)+'</code></dd>':'')
+    +(n.meta&&n.meta.definition?'<dt>Definition</dt><dd><code style="word-break:break-all;font-size:.72rem">'+autoEsc(n.meta.definition)+'</code></dd>':'')
+    +((n.tags||[]).length?'<dt>Tags</dt><dd>'+(n.tags||[]).map(function(x){return '<span class="ko-auto-chip">'+autoEsc(x)+'</span>';}).join(' ')+'</dd>':'')
+    +'</dl>';
+  if(gaps.length)html+='<h4>Gaps</h4>'+gaps.map(autoGapHtml).join('');
+  if(projs.length)html+='<h4>Projects</h4>'+projs.map(function(p){return '<div class="ko-auto-row" onclick="autoSelect(\'proj:'+p.id+'\')"><i></i><b>'+autoEsc(p.name)+'</b><span>'+autoEsc(p.status)+'</span><i></i></div>';}).join('');
+  if(ins.length)html+='<h4>Fed by ('+ins.length+')</h4>'+ins.map(function(e){return edgeRow(e,'in');}).join('');
+  if(outs.length)html+='<h4>Feeds ('+outs.length+')</h4>'+outs.map(function(e){return edgeRow(e,'out');}).join('');
+  if(n.meta&&n.meta.twin){var t=autoNodeByKey(n.meta.twin);if(t)html+='<h4>Twin</h4><div class="ko-auto-row" onclick="autoSelect(\''+autoJs(t.key)+'\')">'+autoKindBadge(t.kind)+'<b>'+autoEsc(t.name)+'</b><span>same work, other runtime</span><i></i></div>';}
+  if(!n.is_live)html+='<div style="margin-top:1rem;display:flex;gap:.5rem"><button class="btn btn-sm btn-secondary" onclick="autoEditNode(\''+autoJs(n.key)+'\')">&#9998; Edit</button><button class="btn btn-sm btn-secondary" onclick="autoLinkProject(\''+autoJs(n.key)+'\')">&#128279; Link project</button></div>';
+  else html+='<p class="ko-auto-note" style="margin-top:.8rem">Live row — refreshed from '+(n.kind==='cron'?'cron.job':'pg_trigger')+' on every Refresh. Edit it at the source.</p>';
+  return html;
+}
+function autoProjectDetail(p){
+  var gaps=autoGapsFor(p.id),autos=(p.automations||[]).map(autoNodeByKey).filter(Boolean),c=p.client||{};
+  var url=function(u,l){return u?'<div class="ko-auto-url"><span>'+autoEsc(l)+'</span>'+autoLink(u,u.replace(/^https?:\/\//,''))+'</div>':'';};
+  var html='<div class="ko-auto-ptitle">'+(p.is_favorite?'&#9733; ':'')+autoEsc(p.name)+'</div><div class="ko-auto-pmeta">'+autoKindBadge('project')+' <span class="ko-auto-status ko-auto-status-'+autoEsc(p.status)+'">'+autoEsc(p.status)+'</span> · last activity '+autoAgo(p.last_activity_at)+' · <a href="#projects/'+p.id+'" class="ko-auto-link" onclick="event.stopPropagation()">open project &#8599;</a></div>';
+  html+='<div class="ko-auto-counts"><div><b>'+autoEsc(p.open_features)+'</b>open features</div><div><b>'+autoEsc(p.open_bugs)+'</b>open bugs</div><div><b>'+autoEsc(p.building)+'</b>building</div><div><b>'+autoEsc(p.shipped_30d)+'</b>shipped 30d</div><div><b>'+autoEsc(p.recordings_30d)+'</b>meetings 30d</div></div>';
+  html+='<h4>Client</h4><div class="ko-auto-desc">'+(c.name?autoEsc(c.name)+(c.company?' · '+autoEsc(c.company):'')+(c.email?' · <a class="ko-auto-link" href="mailto:'+autoEsc(c.email)+'">'+autoEsc(c.email)+'</a>':''):'<i>no client linked</i>')+'</div>';
+  html+='<h4>URLs</h4>'+url(p.app_site_url,'Live')+url(p.staging_url,'Staging')+url(p.repo_url,'Repo')+(p.supabase_ref?url('https://supabase.com/dashboard/project/'+p.supabase_ref,'Supabase'):'')+(p.vercel_project_id?'<div class="ko-auto-url"><span>Vercel</span><code>'+autoEsc(p.vercel_project_id)+'</code></div>':'')+(p.build_folder?'<div class="ko-auto-url"><span>Folder</span><code style="word-break:break-all">'+autoEsc(p.build_folder)+'</code></div>':'')
+    +(!p.app_site_url&&!p.repo_url?'<div class="ko-auto-note">No URLs on record.</div>':'');
+  if(p.repo)html+='<h4>GitHub</h4><div class="ko-auto-desc">'+autoLink(p.repo.url,p.repo.full_name)+' · '+(p.repo.is_private?'private':'public')+' · pushed '+autoAgo(p.repo.pushed_at)+(p.repo.language?' · '+autoEsc(p.repo.language):'')+(p.repo.open_issues?' · '+p.repo.open_issues+' issues':'')+'</div>';
+  html+='<h4>People</h4>'+((p.members||[]).length?(p.members||[]).map(function(m){return '<span class="ko-auto-chip">'+autoEsc(m.name||m.email||'?')+(m.role?' · '+autoEsc(m.role):'')+'</span>';}).join(' '):'<div class="ko-auto-note">Nobody in project_members yet — add Daniel and collaborators so this shows who is on it.</div>');
+  html+='<h4>Automations touching this project</h4>'+(autos.length?autos.map(function(n){return '<div class="ko-auto-row" onclick="autoSelect(\''+autoJs(n.key)+'\')">'+autoKindBadge(n.kind)+'<b>'+autoEsc(n.name)+'</b><span>'+autoEsc(n.schedule||'')+'</span><i></i></div>';}).join(''):'<div class="ko-auto-note">None linked explicitly. The orchestrator / build worker pick up its approved items automatically'+(p.building?' — and are building now':'')+'.</div>');
+  if(gaps.length)html+='<h4>Gaps &amp; opportunities</h4>'+gaps.map(autoGapHtml).join('');
+  return html;
+}
+
+// ── PROJECTS tab ─────────────────────────────────────────────────────────────
+function autoRenderProjects(body){
+  var q=AUTO.q.toLowerCase();
+  var list=autoProjects().filter(function(p){if(q&&(p.name+' '+(p.client&&p.client.name||'')+' '+(p.repo_url||'')).toLowerCase().indexOf(q)<0)return false;if(AUTO.gapsOnly&&!autoGapsFor(p.id).length)return false;return true;});
+  var active=list.filter(function(p){return ['in_progress','scoping','discovery','review'].indexOf(p.status)>=0;}),other=list.filter(function(p){return active.indexOf(p)<0;});
+  var card=function(p){var g=autoGapsFor(p.id),c=p.client||{};return '<div class="ko-auto-card'+(AUTO.sel==='proj:'+p.id?' sel':'')+'" onclick="autoSelect(\'proj:'+p.id+'\')">'
+    +'<div class="ko-auto-card-head"><b>'+(p.is_favorite?'&#9733; ':'')+autoEsc(p.name)+'</b><span class="ko-auto-status ko-auto-status-'+autoEsc(p.status)+'">'+autoEsc(p.status)+'</span></div>'
+    +'<div class="ko-auto-card-sub">'+autoEsc(c.name||'no client')+(c.company?' · '+autoEsc(c.company):'')+' · '+autoAgo(p.last_activity_at)+'</div>'
+    +'<div class="ko-auto-card-urls">'+(p.app_site_url?autoLink(p.app_site_url,'live'):'')+(p.repo_url?autoLink(p.repo_url,'repo'):'')+(p.supabase_ref?autoLink('https://supabase.com/dashboard/project/'+p.supabase_ref,'supabase'):'')+'<a class="ko-auto-link" href="#projects/'+p.id+'" onclick="event.stopPropagation()">admin &#8599;</a></div>'
+    +'<div class="ko-auto-card-counts"><span title="open features">'+p.open_features+' feat</span><span title="open bugs">'+p.open_bugs+' bugs</span>'+(p.building?'<span class="hot">'+p.building+' building</span>':'')+'<span>'+p.shipped_30d+' shipped/30d</span>'+(g.length?'<span class="'+(g.some(function(x){return x.severity==='high';})?'bad':'warn')+'">'+g.length+' gap'+(g.length>1?'s':'')+'</span>':'')+'</div>'
+    +((p.members||[]).length?'<div class="ko-auto-card-people">'+(p.members||[]).map(function(m){return '<span class="ko-auto-chip">'+autoEsc(m.name||m.email)+'</span>';}).join('')+'</div>':'')
+    +'</div>';};
+  body.innerHTML='<div class="ko-auto-grid">'+active.map(card).join('')+'</div>'+(other.length?'<h4 style="margin:1.25rem 0 .5rem;font-size:.8rem;color:#a1a1aa">Other statuses ('+other.length+')</h4><div class="ko-auto-grid dim">'+other.map(card).join('')+'</div>':'')+'<div class="ko-auto-panel" id="autoPanel"></div>';
+}
+
+// ── REPOS tab ────────────────────────────────────────────────────────────────
+function autoRenderRepos(body){
+  var repos=(AUTO.data.repos||[]),projs=autoProjects();
+  if(!repos.length){body.innerHTML='<div class="ko-auto-empty">No repos synced yet. <button class="btn btn-sm btn-primary" onclick="autoSyncGithub()">Sync GitHub now</button><br><small>Needs the GITHUB_TOKEN Supabase secret (already used by hub-data / api-autofix).</small></div>';return;}
+  var q=AUTO.q.toLowerCase();
+  var rows=repos.filter(function(r){return !q||(r.name+' '+(r.description||'')).toLowerCase().indexOf(q)>=0;}).map(function(r){var p=r.project_id?autoProjectById(r.project_id):null;
+    return '<tr><td>'+autoLink(r.url,r.name)+(r.description?'<div class="ko-auto-card-sub">'+autoEsc(r.description)+'</div>':'')+'</td><td>'+(r.is_private?'private':'<b style="color:#f59e0b">public</b>')+(r.is_archived?' · archived':'')+'</td><td>'+autoEsc(r.language||'')+'</td><td>'+autoAgo(r.pushed_at)+'</td>'
+      +'<td>'+(p?'<a href="#projects/'+p.id+'" class="ko-auto-link">'+autoEsc(p.name)+'</a> <small>('+autoEsc(r.match_kind)+')</small>':'<select class="form-input" style="min-width:180px" onchange="autoLinkRepo('+r.id+',this.value)"><option value="">— link to project —</option>'+projs.map(function(pp){return '<option value="'+pp.id+'">'+autoEsc(pp.name)+'</option>';}).join('')+'</select>')+'</td></tr>';}).join('');
+  body.innerHTML='<div class="ko-auto-tablewrap"><table class="data-table"><thead><tr><th>Repo</th><th>Visibility</th><th>Lang</th><th>Pushed</th><th>Project</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+async function autoLinkRepo(repoId,projectId){
+  if(!projectId)return;
+  var r=await sb.from('github_repos').update({project_id:projectId,match_kind:'manual'}).eq('id',repoId);
+  if(r.error){showToast('Link failed: '+r.error.message,'error');return;}
+  var repo=(AUTO.data.repos||[]).filter(function(x){return x.id===repoId;})[0];
+  if(repo){var p=autoProjectById(projectId);if(p&&!p.repo_url){await sb.from('projects').update({repo_url:repo.url}).eq('id',projectId).is('repo_url',null);}}
+  showToast('Repo linked');loadAutomations(true);
+}
+
+// ── GAPS tab ─────────────────────────────────────────────────────────────────
+function autoRenderGaps(body){
+  var gaps=autoGaps().slice(),q=AUTO.q.toLowerCase();
+  if(q)gaps=gaps.filter(function(g){return (g.summary+' '+(g.detail||'')+' '+(g.fix||'')).toLowerCase().indexOf(q)>=0;});
+  var order={high:0,medium:1,low:2};gaps.sort(function(a,b){return (order[a.severity]||1)-(order[b.severity]||1)||(a.kind||'').localeCompare(b.kind||'');});
+  if(!gaps.length){body.innerHTML='<div class="ko-auto-empty">No gaps detected. Refresh live to recheck.</div>';return;}
+  var refLink=function(g){if(g.kind==='project')return '<a class="ko-auto-link" href="#projects/'+autoEsc(g.ref)+'">open project</a> · <a class="ko-auto-link" onclick="autoSelect(\'proj:'+autoEsc(g.ref)+'\')">on map</a>';if(g.kind==='work')return '<a class="ko-auto-link" href="#featbugs">Features &amp; Bugs</a>';if(g.kind==='repo')return '<a class="ko-auto-link" onclick="AUTO.tab=\'repos\';autoRender()">repos</a>';var n=autoNodeByKey(g.ref);return n?'<a class="ko-auto-link" onclick="autoSelect(\''+autoJs(g.ref)+'\')">'+autoEsc(n.name)+'</a>':autoEsc(g.ref||'');};
+  body.innerHTML='<div class="ko-auto-gaps">'+gaps.map(function(g){return '<div class="ko-auto-gap big">'+autoSev(g.severity)+'<div><div class="ko-auto-gap-kind">'+autoEsc(g.kind)+'</div><b>'+autoEsc(g.summary)+'</b>'+(g.detail?'<div class="ko-auto-err">'+autoEsc(g.detail)+'</div>':'')+(g.fix?'<div class="ko-auto-fix">'+autoEsc(g.fix)+'</div>':'')+'<div class="ko-auto-gap-ref">'+refLink(g)+'</div></div></div>';}).join('')+'</div><div class="ko-auto-panel" id="autoPanel"></div>';
+}
+
+// ── TABLE tab ────────────────────────────────────────────────────────────────
+function autoRenderTable(body){
+  var nodes=autoNodes().filter(autoMatches).sort(function(a,b){return (a.kind).localeCompare(b.kind)||(a.group_key||'').localeCompare(b.group_key||'')||a.name.localeCompare(b.name);});
+  body.innerHTML='<div class="ko-auto-tablewrap"><table class="data-table"><thead><tr><th>Kind</th><th>Name</th><th>Group</th><th>Schedule</th><th>Model / runtime</th><th>Status</th><th>7d</th><th>Gaps</th></tr></thead><tbody>'
+    +nodes.map(function(n){var h=n.health||{},g=autoGapsFor(n.key).length;return '<tr onclick="autoSelect(\''+autoJs(n.key)+'\')" style="cursor:pointer">'
+      +'<td>'+autoKindBadge(n.kind)+'</td><td><b>'+autoEsc(n.name)+'</b>'+(n.description?'<div class="ko-auto-card-sub">'+autoEsc(n.description.length>110?n.description.slice(0,109)+'…':n.description)+'</div>':'')+'</td><td>'+autoEsc(n.group_key||'')+'</td><td><code>'+autoEsc(n.schedule||'')+'</code></td><td>'+autoEsc(n.model||n.runtime||'')+'</td>'
+      +'<td><span class="ko-auto-status ko-auto-status-'+autoEsc(n.status)+'">'+autoEsc(n.status)+'</span></td><td>'+(h.runs_7d!=null?h.runs_7d+' / <b style="color:'+(h.fails_7d>0?'#ef4444':'inherit')+'">'+(h.fails_7d||0)+' fail</b>':'')+'</td><td>'+(g?'<span class="ko-auto-sev ko-auto-sev-medium">'+g+'</span>':'')+'</td></tr>';}).join('')
+    +'</tbody></table></div><div class="ko-auto-panel" id="autoPanel"></div>';
+}
+
+// ── register / edit a catalog node ───────────────────────────────────────────
+function autoEditNode(key){
+  var n=key?autoNodeByKey(key):null;if(n&&n.is_live){showToast('Live rows are edited at the source (cron.job / pg_trigger)');return;}
+  var f=function(id,label,val,ph){return '<label class="ko-auto-f"><span>'+label+'</span><input class="form-input" id="'+id+'" value="'+autoEsc(val||'')+'" placeholder="'+autoEsc(ph||'')+'"></label>';};
+  var sel=function(id,label,val,opts){return '<label class="ko-auto-f"><span>'+label+'</span><select class="form-input" id="'+id+'">'+opts.map(function(o){return '<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>';}).join('')+'</select></label>';};
+  var html='<div class="ko-auto-modal" id="autoModal" onclick="if(event.target===this)autoCloseModal()"><div class="ko-auto-modal-card"><h3>'+(n?'Edit automation':'Register an automation')+'</h3>'
+    +'<div class="ko-auto-form">'+f('am_key','Key (unique, e.g. task:my-task or routine:name)',n?n.key:'','kind:slug')+f('am_name','Name',n?n.name:'')
+    +sel('am_kind','Kind',n?n.kind:'cowork_task',['cowork_task','cloud_routine','edge_fn','worker','webhook','external','source','output'])
+    +sel('am_stage','Stage (map column)',n?n.stage||'process':'process',['source','ingest','process','build','deliver'])
+    +f('am_group','Group',n?n.group_key:'','meeting-intake, autobuild, email, drip, social, seo-aeo…')+f('am_schedule','Schedule',n?n.schedule:'','cron or words')+f('am_tz','Timezone',n?n.timezone:'America/Phoenix')
+    +f('am_model','Model',n?n.model:'','claude-fable-5-1')+f('am_runtime','Runtime',n?n.runtime:'','cowork mac · claude cloud · supabase edge · cloudflare worker')
+    +sel('am_status','Status',n?n.status:'active',['active','disabled','dead','one_off','unknown'])
+    +f('am_url','Link',n?n.url:'','https://…')+f('am_src','Source ref',n?n.source_ref:'','file path / trigger id')
+    +'<label class="ko-auto-f wide"><span>Description</span><textarea class="form-input" id="am_desc" rows="3">'+autoEsc(n?n.description:'')+'</textarea></label>'
+    +f('am_reads','Reads (comma-separated)',n?(n.reads||[]).join(', '):'')+f('am_writes','Writes (comma-separated)',n?(n.writes||[]).join(', '):'')
+    +'</div><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem"><button class="btn btn-sm btn-secondary" onclick="autoCloseModal()">Cancel</button><button class="btn btn-sm btn-primary" onclick="autoSaveNode('+(n?'true':'false')+')">Save</button></div></div></div>';
+  var d=document.createElement('div');d.innerHTML=html;document.body.appendChild(d.firstChild);
+}
+function autoCloseModal(){var m=document.getElementById('autoModal');if(m)m.remove();}
+async function autoSaveNode(isEdit){
+  var v=function(id){return (document.getElementById(id).value||'').trim();};var arr=function(s){return s?s.split(',').map(function(x){return x.trim();}).filter(Boolean):[];};
+  var key=v('am_key'),name=v('am_name');if(!/^[a-z_]+:[A-Za-z0-9._-]+$/.test(key)){showToast('Key must look like kind:slug','error');return;}if(!name){showToast('Name is required','error');return;}
+  var row={key:key,name:name,kind:v('am_kind'),stage:v('am_stage'),group_key:v('am_group')||null,schedule:v('am_schedule')||null,timezone:v('am_tz')||null,model:v('am_model')||null,runtime:v('am_runtime')||null,status:v('am_status'),url:v('am_url')||null,source_ref:v('am_src')||null,description:v('am_desc')||null,reads:arr(v('am_reads')),writes:arr(v('am_writes')),is_live:false};
+  var r=await sb.from('automations').upsert(row,{onConflict:'key'});
+  if(r.error){showToast('Save failed: '+r.error.message,'error');return;}
+  autoCloseModal();showToast(isEdit?'Saved':'Registered');AUTO.sel=key;loadAutomations(true);
+}
+async function autoLinkProject(key){
+  var n=autoNodeByKey(key);if(!n)return;var projs=autoActiveProjects();
+  var html='<div class="ko-auto-modal" id="autoModal" onclick="if(event.target===this)autoCloseModal()"><div class="ko-auto-modal-card"><h3>Link '+autoEsc(n.name)+' to projects</h3><div class="ko-auto-plist" style="max-height:50vh;overflow:auto">'
+    +projs.map(function(p){var on=(n.project_ids||[]).indexOf(p.id)>=0;return '<label class="ko-auto-row" style="cursor:pointer"><input type="checkbox" value="'+p.id+'"'+(on?' checked':'')+' class="am_pid"> <b>'+autoEsc(p.name)+'</b><span>'+autoEsc(p.status)+'</span><i></i></label>';}).join('')
+    +'</div><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem"><button class="btn btn-sm btn-secondary" onclick="autoCloseModal()">Cancel</button><button class="btn btn-sm btn-primary" onclick="autoSaveProjectLinks(\''+autoJs(key)+'\')">Save</button></div></div></div>';
+  var d=document.createElement('div');d.innerHTML=html;document.body.appendChild(d.firstChild);
+}
+async function autoSaveProjectLinks(key){
+  var ids=Array.prototype.map.call(document.querySelectorAll('.am_pid:checked'),function(c){return c.value;});
+  var r=await sb.from('automations').update({project_ids:ids}).eq('key',key);
+  if(r.error){showToast('Save failed: '+r.error.message,'error');return;}
+  autoCloseModal();showToast('Linked to '+ids.length+' project'+(ids.length===1?'':'s'));loadAutomations(true);
+}
+
+</script>
 </body>
 </html>

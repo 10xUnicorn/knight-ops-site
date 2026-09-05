@@ -21,3 +21,7 @@ ai-audit-sample-result.png
 
 # Recorder credentials — stays on this machine, never in the public repo
 chrome-extension/local-config.json
+
+# generated locally by tools/automations-sync-tasks.py — internal task inventory, never commit (public repo)
+tools/automations-tasks.sql
+.build-tmp/
