@@ -48,14 +48,22 @@ function slug(s: string) {
 
 async function syncGithub(svc: ReturnType<typeof createClient>) {
   if (!GITHUB_TOKEN) return { error: 'no_github_token', hint: 'Set GITHUB_TOKEN in Supabase secrets (repo read on org 10xUnicorn).' };
+  // 10xUnicorn is a GitHub USER account, not an organization (verified 2026-09-04: /users/10xUnicorn → type "User"),
+  // so /orgs/<name>/repos returns 404. Ask GitHub which it is, then use the endpoint that matches. For a user,
+  // /user/repos?affiliation=owner (the token's own repos, private included) beats /users/<name>/repos (public only).
+  const gh = (url: string) => fetch(url, { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'User-Agent': 'knight-ops-automations-sync' } });
+  const who = await gh(`https://api.github.com/users/${ORG}`);
+  if (!who.ok) return { error: 'github_' + who.status, detail: (await who.text()).slice(0, 300), hint: `GitHub does not know "${ORG}" for this token.` };
+  const kind = ((await who.json()).type || 'User') as string;
+  const base = kind === 'Organization'
+    ? `https://api.github.com/orgs/${ORG}/repos?type=all&sort=pushed`
+    : `https://api.github.com/user/repos?affiliation=owner&sort=pushed`;
   const repos: any[] = [];
   for (let page = 1; page <= 10; page++) {
-    const r = await fetch(`https://api.github.com/orgs/${ORG}/repos?per_page=100&page=${page}&type=all&sort=pushed`, {
-      headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'User-Agent': 'knight-ops-automations-sync' },
-    });
-    if (!r.ok) return { error: 'github_' + r.status, detail: (await r.text()).slice(0, 300) };
+    const r = await gh(`${base}&per_page=100&page=${page}`);
+    if (!r.ok) return { error: 'github_' + r.status, detail: (await r.text()).slice(0, 300), account_type: kind };
     const batch = await r.json();
-    repos.push(...batch);
+    repos.push(...batch.filter((g: any) => (g.owner?.login || '').toLowerCase() === ORG.toLowerCase()));
     if (batch.length < 100) break;
   }
 
@@ -102,7 +110,7 @@ async function syncGithub(svc: ReturnType<typeof createClient>) {
       }
     }
   }
-  return { ok: true, repos: rows.length, matched: rows.filter((r) => r.project_id).length, unmatched: rows.filter((r) => !r.project_id).map((r) => r.name), backfilled_repo_url: backfilled };
+  return { ok: true, account_type: kind, repos: rows.length, matched: rows.filter((r) => r.project_id).length, unmatched: rows.filter((r) => !r.project_id).map((r) => r.name), backfilled_repo_url: backfilled };
 }
 
 Deno.serve(async (req) => {
