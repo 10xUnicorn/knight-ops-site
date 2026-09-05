@@ -1,7 +1,7 @@
 // automations-sync — keeps the Automations registry current from sources the browser
 // cannot reach itself.
 //
-//   action 'github'   pull every repo in the 10xUnicorn org via GITHUB_TOKEN, upsert
+//   action 'github'   pull every repo owned by 10xUnicorn (a USER account) via GITHUB_TOKEN, upsert
 //                     github_repos, and match each to a project by repo_url (exact,
 //                     case-insensitive, with/without .git) then by slug.
 //   action 'refresh'  run ko_automations_refresh_live() (cron + triggers) as service role.
@@ -67,7 +67,10 @@ async function syncGithub(svc: ReturnType<typeof createClient>) {
     if (batch.length < 100) break;
   }
 
-  const { data: projects } = await svc.from('projects').select('id,name,repo_url').not('status', 'in', '("cancelled","archived")');
+  // Two .neq() calls rather than .not('status','in',...): the first sync matched 0 of 24 repos because that
+  // filter returned no projects at all (status is an enum; the in-list form is fragile). Verified 2026-09-05.
+  const { data: projects, error: pErr } = await svc.from('projects').select('id,name,repo_url').neq('status', 'cancelled').neq('status', 'archived');
+  if (pErr) return { error: 'projects_query_failed', detail: pErr.message };
   const byUrl = new Map<string, string>();
   const bySlug = new Map<string, string>();
   for (const p of projects || []) {
@@ -99,6 +102,20 @@ async function syncGithub(svc: ReturnType<typeof createClient>) {
   const { error } = await svc.from('github_repos').upsert(rows, { onConflict: 'id' });
   if (error) return { error: 'upsert_failed', detail: error.message };
 
+  // Repos deleted on GitHub stop coming back. Upsert alone would keep them forever (planet-calm-dashboard
+  // survived its own deletion on 2026-09-05), so drop any row this sync did not see.
+  // Guard: an empty GitHub answer must never wipe the table.
+  const seen = rows.map((r) => r.id);
+  let gone: any[] = [];
+  if (seen.length > 0) {
+    const g = await svc.from('github_repos').select('id,full_name').not('id', 'in', `(${seen.join(',')})`);
+    gone = g.data || [];
+    if (gone.length) await svc.from('github_repos').delete().in('id', gone.map((x: any) => x.id));
+  }
+
+  // Belt and braces: match by normalised URL in SQL too, in case the JS map missed a case/suffix variant.
+  await svc.rpc('ko_github_repos_match');
+
   // Backfill projects.repo_url when a name match found a repo and the project has none (additive only).
   let backfilled = 0;
   for (const r of rows) {
@@ -110,7 +127,8 @@ async function syncGithub(svc: ReturnType<typeof createClient>) {
       }
     }
   }
-  return { ok: true, account_type: kind, repos: rows.length, matched: rows.filter((r) => r.project_id).length, unmatched: rows.filter((r) => !r.project_id).map((r) => r.name), backfilled_repo_url: backfilled };
+  const { count: matchedNow } = await svc.from('github_repos').select('id', { count: 'exact', head: true }).not('project_id', 'is', null);
+  return { ok: true, account_type: kind, repos: rows.length, matched: matchedNow ?? rows.filter((r) => r.project_id).length, removed: gone.map((g: any) => g.full_name), unmatched: rows.filter((r) => !r.project_id).map((r) => r.name), backfilled_repo_url: backfilled };
 }
 
 Deno.serve(async (req) => {
