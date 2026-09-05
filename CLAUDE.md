@@ -7,6 +7,37 @@
 
 ---
 
+## Changelog — 2026-09-04 (Automations module: one map of the whole ecosystem · ecosystem review · Plaud + hand-off fixes in client-meeting-autobuild)
+
+### SYSTEM → AUTOMATIONS — every scheduled task, cron job, trigger, routine and worker, and what they build
+- **Why:** 120 Cowork tasks, 14 pg_cron jobs, 67 triggers, 155 edge functions, 3 cloud routines, 2 Cloudflare workers and 35 projects existed with no single place to see how they feed each other. Cowork reported "no task pulls from Plaud" and the only way to check was to read 120 files.
+- **Schema** (migration `automations_registry`): `automations` (one row per automation; `is_live=true` rows are refreshed from `cron.job` + `pg_trigger` and must never be hand-edited), `automation_edges` (typed relations: `reads` · `feeds` · `calls` · `triggers` · `writes` · `builds` · `twin_of`), `github_repos`. RLS on, **admin-only via `is_admin()`, zero anon policies.**
+- **`ko_automations_refresh_live()`** (SECURITY DEFINER, admin-gated) reads `cron.job` + 7-day `cron.job_run_details` health and every public trigger, upserts them, and marks vanished ones `gone`. **`ko_automation_graph()`** returns ONE payload — nodes, edges, projects (URLs, client, people, open/building/shipped counts, repo), repos, and **computed gaps** (failing cron, disabled triggers, zombie claims with expired locks, `processing` claims stuck >3h, projects with no repo / no folder / folder inside a Cowork session-output dir / no members / outside the 10xUnicorn org / test rows, unlinked repos). ~130KB, one fetch.
+- **`automations-sync` edge fn (v1, admin JWT):** GitHub org → `github_repos`, matched to projects by `repo_url` (normalised) then slug; additive `repo_url` backfill; manual links preserved. Repos were seeded from `gh repo list` on day one (24, 15 matched).
+- **admin.html → System → Automations** (third inline `<script>` block, ~41KB): Map with six lanes (Sources → Intake → Processing → Build → Outputs → Projects), **Grouped** (default — one node per group/kind, because 120 tasks and 67 triggers are unreadable as individual boxes) ↔ **Everything** (triggers still collapse per table), zoom/pan, red dot = failed runs, amber = gaps/not active; Projects cards (URLs, people, counts, gaps); Repos (with manual link → also backfills `projects.repo_url`); Gaps (severity-sorted with a fix line each); table; Register / Edit / Link-project for catalog rows. Deep link `#automations/<key>`.
+- **Cowork tasks reach the registry through `tools/automations-sync-tasks.py`**, which parses every `~/Claude Home/Scheduled/*/SKILL.md` and emits upsert SQL. **Its output is gitignored on purpose — this repo is public and that file is Daniel's internal automation inventory.** New daily Cowork task **`automations-registry-sync`** runs it, applies the SQL, refreshes live rows, and emails only on change or breakage. Daniel sets its schedule in Cowork.
+- **Loading 160KB of SQL through the MCP** meant 8 chunks of ~20KB; anything larger is written to disk instead of shown. Noted so nobody fights it again.
+
+### ECOSYSTEM REVIEW (three parallel reviewers: admin.html, Supabase, scheduled tasks) — fixed in this commit
+- **admin.html:** blog editor called `toast()` 8× (only `showToast()` exists) — `saveBlogPost` threw *after* the DB write and before the editor closed → fixed. `renderTimerUI()` was called by pause/resume and never defined → defined. `showEventDetail()` did not exist → `editEvent()`. **Two AI-mockup iframes had `sandbox="allow-scripts allow-same-origin"`, so AI-generated HTML ran same-origin with the admin session** → `allow-scripts` only. Silent `.limit(200)` on bookings, emails-by-label and Notes (the April-inbox class) → 1000, annotated.
+- **Supabase:** cron `daily-send-cap-ramp-11pct` had **failed 15/15 runs** (`format('%.0f')` is not valid Postgres), never ramped, and its intent (ramp toward 5,000 sends/day) contradicts the 2026-06-22 scraper pause → **disabled** (`cron.alter_job`, reversible). Bug `3a2ce6b7` was stuck `fixing` with 3 attempts and `autofix_error` NULL — invisible to the digest forever → stamped `max_attempts`, back to `new`.
+- **A reviewer finding that was WRONG:** "`feature_requests.status='new'` is outside the lifecycle and the digest filters on `pending`". `pending-digest` v10 (2026-08-30) already lists `new` + NEEDS SCOPING as Section 1. No change.
+
+### FOUND, NOT CHANGED — Daniel's decisions (all also appear in the Gaps tab)
+- **RLS is OFF on 40 public tables** (`drip_config`, `meeting_follow_ups`, `email_templates/signatures/accounts/rules/settings`, `scheduled_emails`, `agent_*`, `opus_*`…). Anon key can read/write them. Needs a per-table pass — routines may write with anon.
+- **29 unreferenced edge functions** + twins (`process-drip`/`process-drip-queue`, `send-email`/`-v2`/`-plain`, `send-scheduled-emails`/`process-scheduled-emails`). Disabled trigger `trg_auto_create_deal` still has its function; dropping both is safe.
+- **Scheduled tasks:** 33 dated one-offs + 15 self-declared dead still present; 8 on retired `claude-sonnet-4-6`; real overlaps — 4 drip senders, 3 daily LinkedIn posters, 3 daily briefs, 2 Gmail reply scanners, 2 eden@ triagers, 3 tasks all editing `blog_posts`; `knight-ops-linkedin-promo` still promotes the Blueprint Session publicly; `blueprint-knightops-sync` carries a plaintext bearer token in its SKILL.md.
+- `drip_queue`: 561 rows `active` with `next_send_at` in the past while `process-drip` sends 0 every 5 min. 5,091 unread notifications; `on_task_assigned` fires on every task UPDATE.
+- Projects: 4 `build_folder`s inside Cowork session-output dirs, Vision Espresso repo outside the org, ~8 test/garbage rows, WWR + Paradyme Lift as two rows, almost no `project_members`.
+
+### client-meeting-autobuild (Cowork SKILL.md, not in this repo)
+- **Had zero Plaud references** — Cowork was right. Now reads Plaud as an independent second queue; Daniel's voice is an instruction, a `mark_memo` is emphasis, matching is on product nouns because Plaud has no invitees.
+- **Cloud rows had no exit:** PART ONE selected `status='launched'` only; the cloud routine cannot launch and its rows stop at `queued`/`flagged`/`skipped`. Widened, with a two-pass hand-off (queued → real session after the exclusion sweep; flagged/skipped → note + vault only). Verified 16 recordings, zero overlap between runners — **the two are not duplicating.**
+- **Claim-before-work (STEP 0D):** the dedupe row was written at STEP 8, after launch. At 4×/day nothing overlapped; at hourly a slow run got its recording picked up again. The row is now inserted as `processing` up front and updated at STEP 8 — same mechanism, earlier. Round-tripped live, torn down.
+- Cadence: **hourly at :35, 7:35am–10:35pm Phoenix** (`35 7-22 * * *`); quiet hours do bookkeeping only, never launch a Terminal. Daniel sets the schedule in Cowork.
+
+---
+
 ## Changelog — 2026-09-02d (The orchestrator counted mobile builds and then stopped on them anyway)
 
 - **Symptom:** an approved mobile build ("Woman Wisdom Revolution" / Paradyme Lift) sat untouched. **Cause:** STEP 0's count SELECT was extended with `mobile`, but the *stop condition* on the next line was not — it still read `if bugs=0 AND features=0 AND (builds=0 OR H not in {slots}) → STOP`. With no bugs, no features and no dashboard builds, the orchestrator stopped silently before ever reaching STEP 3B, at any hour.
@@ -710,9 +741,10 @@ Primary table. Key columns:
 
 ### Roundtable Reminders (2026-06-17) — NO GHL
 `roundtable-reminders` edge function sends branded emails (Resend, from daniel@knightops.biz) to everyone in `roundtable_registrations` (deduped by email). Triggered by `?type=24h|5min|thankyou`. Driven by **pg_cron** jobs (verify_jwt=false; cron passes anon apikey via pg_net):
-- `roundtable-24h-reminder` — `0 17 * * 2` (Tue 10am PT) — Zoom link + add-to-calendar
-- `roundtable-5min-reminder` — `55 16 * * 3` (Wed 9:55am PT) — "starting in 5 min" + Zoom
-- `roundtable-thankyou` — `0 19 * * 3` (Wed 12pm PT) — thanks + book a call (/book)
+- `roundtable-24h-reminder` — `0 19 * * 3` (Wed 12pm PT) — Zoom link + add-to-calendar
+- `roundtable-5min-reminder` — `55 18 * * 4` (Thu 11:55am PT) — "starting in 5 min" + Zoom
+- `roundtable-thankyou` — `0 21 * * 4` (Thu 2pm PT) — thanks + book a call (/book)
+  (Roundtable moved to **Thursdays 12pm PT** on 2026-09-03; these are the live `cron.job` values as of 2026-09-04 — the doc had drifted a day and 2 hours behind the DB. The Automations module now shows the live schedule, so read it there rather than here.)
 
 Zoom = knightops.biz/roundtable-zoom. Times are UTC for PDT (UTC−7); shift +1h hour (18/17:55/20) if PST is ever needed. The roundtable page NO LONGER posts to GoHighLevel — that webhook was removed. Knight Ops does not use GHL anywhere.
 
