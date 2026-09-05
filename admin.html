@@ -15321,12 +15321,15 @@ function autoRenderMap(body){
       +(bad?'<circle cx="'+(p.w-12)+'" cy="12" r="5" fill="#ef4444"><title>failed runs</title></circle>':warn?'<circle cx="'+(p.w-12)+'" cy="12" r="5" fill="#f59e0b"><title>has gaps / not active</title></circle>':'')
       +'</g>';});
   var legend=Object.keys(AUTO_COLORS).filter(function(k){return k!=='group';}).map(function(k){return '<span class="ko-auto-leg"><i style="background:'+AUTO_COLORS[k]+'"></i>'+k+'</span>';}).join('');
-  if(!AUTO.vb)AUTO.vb=[0,0,W,Math.max(H,600)];
+  var fitAll=!AUTO.vb;if(!AUTO.vb)AUTO.vb=[0,0,W,Math.max(H,600)];
   body.innerHTML='<div class="ko-auto-mapbar"><div class="ko-auto-seg"><button class="'+(AUTO.level==='groups'?'active':'')+'" onclick="AUTO.level=\'groups\';AUTO.vb=null;autoRender()">Grouped</button><button class="'+(AUTO.level==='all'?'active':'')+'" onclick="AUTO.level=\'all\';AUTO.vb=null;autoRender()">Everything</button></div>'
-    +'<div class="ko-auto-legend">'+legend+'</div><div style="flex:1"></div><button class="btn btn-sm btn-secondary" onclick="AUTO.vb=null;autoRender()">Fit</button><small style="color:var(--text-muted,#888)">scroll to zoom · drag to pan · click a node</small></div>'
+    +'<div class="ko-auto-legend">'+legend+'</div><div style="flex:1"></div><button class="btn btn-sm btn-secondary" onclick="AUTO.vb=[0,0,'+W+','+Math.max(H,600)+'];autoRender()" title="Fit the whole map">Fit all</button><button class="btn btn-sm btn-secondary" onclick="AUTO.vb=null;autoRender()" title="Fit width, pan down">Fit width</button><small style="color:var(--text-muted,#888)">scroll to zoom · drag to pan · click a node</small></div>'
     +'<div class="ko-auto-mapwrap" id="autoMapWrap"><svg id="autoSvg" viewBox="'+AUTO.vb.join(' ')+'" width="100%" height="640" preserveAspectRatio="xMinYMin meet"><defs><marker id="koArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>'+svg+'</svg></div>'
     +'<div class="ko-auto-panel" id="autoPanel"></div>';
   autoWireMap(W);
+  // First paint: fit the WIDTH, not the whole height. A 34-project lane would otherwise shrink every node to a
+  // thumbnail; the user pans down instead. The Fit button still fits everything.
+  if(fitAll){var s0=document.getElementById('autoSvg');if(s0){var r0=s0.getBoundingClientRect();if(r0.width>0){AUTO.vb=[0,0,W,Math.max(W*r0.height/r0.width,400)];s0.setAttribute('viewBox',AUTO.vb.join(' '));}}}
 }
 function autoWireMap(W){
   var svg=document.getElementById('autoSvg');if(!svg)return;
@@ -15436,7 +15439,7 @@ async function autoLinkRepo(repoId,projectId){
 function autoRenderGaps(body){
   var gaps=autoGaps().slice(),q=AUTO.q.toLowerCase();
   if(q)gaps=gaps.filter(function(g){return (g.summary+' '+(g.detail||'')+' '+(g.fix||'')).toLowerCase().indexOf(q)>=0;});
-  var order={high:0,medium:1,low:2};gaps.sort(function(a,b){return (order[a.severity]||1)-(order[b.severity]||1)||(a.kind||'').localeCompare(b.kind||'');});
+  var order={high:0,medium:1,low:2};var rank=function(g){return g.severity in order?order[g.severity]:1;};gaps.sort(function(a,b){return rank(a)-rank(b)||(a.kind||'').localeCompare(b.kind||'');}); // `||1` treated high (0) as missing and sorted MEDIUM above HIGH
   if(!gaps.length){body.innerHTML='<div class="ko-auto-empty">No gaps detected. Refresh live to recheck.</div>';return;}
   var refLink=function(g){if(g.kind==='project')return '<a class="ko-auto-link" href="#projects/'+autoEsc(g.ref)+'">open project</a> · <a class="ko-auto-link" onclick="autoSelect(\'proj:'+autoEsc(g.ref)+'\')">on map</a>';if(g.kind==='work')return '<a class="ko-auto-link" href="#featbugs">Features &amp; Bugs</a>';if(g.kind==='repo')return '<a class="ko-auto-link" onclick="AUTO.tab=\'repos\';autoRender()">repos</a>';var n=autoNodeByKey(g.ref);return n?'<a class="ko-auto-link" onclick="autoSelect(\''+autoJs(g.ref)+'\')">'+autoEsc(n.name)+'</a>':autoEsc(g.ref||'');};
   body.innerHTML='<div class="ko-auto-gaps">'+gaps.map(function(g){return '<div class="ko-auto-gap big">'+autoSev(g.severity)+'<div><div class="ko-auto-gap-kind">'+autoEsc(g.kind)+'</div><b>'+autoEsc(g.summary)+'</b>'+(g.detail?'<div class="ko-auto-err">'+autoEsc(g.detail)+'</div>':'')+(g.fix?'<div class="ko-auto-fix">'+autoEsc(g.fix)+'</div>':'')+'<div class="ko-auto-gap-ref">'+refLink(g)+'</div></div></div>';}).join('')+'</div><div class="ko-auto-panel" id="autoPanel"></div>';
